@@ -12,6 +12,8 @@ import { AboutModule } from './features/about/about.module';
 import { AuthModule } from './features/auth/auth.module';
 import { DashboardModule } from './features/dashboard/dashboard.module';
 import { LessonsModule } from './features/lessons/lessons.module';
+import { CoreModule } from './app/core/core.module';
+import { SharedModule } from './app/shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -28,6 +30,8 @@ import { LessonsModule } from './features/lessons/lessons.module';
     AuthModule,
     DashboardModule,
     LessonsModule,
+    CoreModule,
+    SharedModule,
   ],
   bootstrap: [AppComponent]
 })
