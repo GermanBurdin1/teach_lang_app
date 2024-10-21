@@ -9,6 +9,9 @@ import { VocabularyModule } from './features/vocabulary/vocabulary.module';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 import { AboutModule } from './features/about/about.module';
+import { AuthModule } from './features/auth/auth.module';
+import { DashboardModule } from './features/dashboard/dashboard.module';
+import { LessonsModule } from './features/lessons/lessons.module';
 
 @NgModule({
   declarations: [
@@ -22,6 +25,9 @@ import { AboutModule } from './features/about/about.module';
     FormsModule,
     RouterModule.forRoot(routes),
     HttpClientModule,
+    AuthModule,
+    DashboardModule,
+    LessonsModule,
   ],
   bootstrap: [AppComponent]
 })
