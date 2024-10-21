@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { VocabularyService } from './vocabulary.service';
+import { VocabularyService } from '../features/vocabulary/vocabulary.service';
 
 describe('VocabularyService', () => {
   let service: VocabularyService;

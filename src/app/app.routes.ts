@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { VocabularyComponent } from './vocabulary/vocabulary.component';
+import { VocabularyComponent } from './features/vocabulary/vocabulary.component';
 import { AboutComponent } from './about/about.component';
 
 export const routes: Routes = [
