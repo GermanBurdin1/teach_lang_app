@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { LayoutModule } from './layout/layout.module';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { VocabularyModule } from './features/vocabulary.module'
+import { VocabularyModule } from './features/vocabulary/vocabulary.module';
 
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
+import { AboutModule } from './features/about/about.module';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { routes } from './app.routes';
     VocabularyModule,
     BrowserModule,
     LayoutModule,
+    AboutModule,
     FormsModule,
     RouterModule.forRoot(routes),
     HttpClientModule,
