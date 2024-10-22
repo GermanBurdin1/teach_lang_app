@@ -6,6 +6,7 @@ import { RegisterComponent } from './features/auth/register/register.component';
 import { AdminDashboardComponent } from './features/dashboard/admin-dashboard/admin-dashboard.component';
 import { UserDashboardComponent } from './features/dashboard/user-dashboard/user-dashboard.component';
 import { LessonPageComponent } from './features/lessons/lesson-page/lesson-page.component';
+import { VideoCallComponent } from './features/lessons/video-call/video-call.component';
 
 export const routes: Routes = [
   { path: '', component: VocabularyComponent },
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'admin-dashboard', component: AdminDashboardComponent },
   { path: 'user-dashboard', component: UserDashboardComponent },
   { path: 'lesson-page', component: LessonPageComponent },
+  { path: 'video-call', component: VideoCallComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
