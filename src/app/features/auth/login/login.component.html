@@ -1,1 +1,37 @@
-<p>login works!</p>
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="auth-block login p-4 bg-white shadow rounded">
+    <div class="auth-header text-center mb-4">
+      <a href="/">
+        <img src="assets/logo.svg" alt="Logo" class="logo">
+      </a>
+    </div>
+
+    <h1 class="auth-title text-center mb-4">Вход в аккаунт</h1>
+
+    <form>
+      <div class="form-group mb-3">
+        <label for="email">Эл. почта</label>
+        <input type="email" class="form-control" id="email" placeholder="Введите вашу почту" [(ngModel)]="email" name="email" required>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="password">Пароль</label>
+        <input type="password" class="form-control" id="password" placeholder="Введите ваш пароль" [(ngModel)]="password" name="password" required>
+      </div>
+
+      <div class="text-end mb-3">
+        <a href="#" class="forget-link">Забыли пароль?</a>
+      </div>
+
+      <!-- Используем div для размещения кнопок вертикально -->
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-primary btn-block mb-2">Кабинет ученика</button>
+        <button type="button" class="btn btn-primary btn-block">Онлайн-школа</button>
+      </div>
+    </form>
+
+    <div class="auth-footer text-center mt-4">
+      <span>У вас нет аккаунта?</span> <a href="#">Зарегистрируйтесь</a>
+    </div>
+  </div>
+</div>
