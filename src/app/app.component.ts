@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'front-end';
+
+  constructor(private router: Router) {}
+
+  isDashboardRoute(): boolean {
+    // Проверяем, содержит ли текущий URL часть "dashboard"
+    return this.router.url === '/student-dashboard';
+  }
 }

@@ -1,0 +1,44 @@
+.container-box-sizing {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.side-menu {
+  background-color: #f8f9fa;
+  height: 100vh;
+  width: 64px; /* Установим ширину боковой панели */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.uc-menu-item {
+  cursor: pointer;
+  padding: 10px 0;
+  border-bottom: 1px solid #eaeaea;
+  width: 100%;
+  text-align: center; /* Иконки будут центрированы */
+}
+
+.uc-menu-item:hover {
+  background-color: #eaeaea;
+}
+
+.icon-container {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.uc-menu-icon {
+  visibility: visible;
+  font-size: 24px;
+  color: black; /* Добавьте цвет для явного отображения */
+}
+
+.soon {
+  color: red;
+  font-size: 12px;
+}

@@ -14,10 +14,12 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
 import { LessonsModule } from './features/lessons/lessons.module';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
+import { SidebarComponent } from "./layout/sidebar/sidebar.component";
 
 @NgModule({
   declarations: [
     AppComponent,
+    SidebarComponent
   ],
   imports: [
     VocabularyModule,
@@ -31,8 +33,8 @@ import { SharedModule } from './shared/shared.module';
     DashboardModule,
     LessonsModule,
     CoreModule,
-    SharedModule,
-  ],
+    SharedModule
+],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
