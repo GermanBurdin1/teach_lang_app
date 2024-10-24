@@ -2,50 +2,42 @@
   <!-- Пункт меню Показатели -->
   <div class="uc-menu-item">
     <div class="icon-container">
-      <i class="fas fa-tachometer-alt uc-menu-icon"></i> <!-- Иконка Font Awesome -->
+      <i class="fas fa-tachometer-alt uc-menu-icon"></i>
     </div>
-  </div>
-
-  <!-- Пункт меню Сообщения -->
-  <div class="uc-menu-item">
-    <div class="icon-container">
-      <i class="fas fa-envelope uc-menu-icon"></i> <!-- Иконка Font Awesome -->
-    </div>
-    <div class="soon">Скоро</div> <!-- Метка "Скоро" -->
   </div>
 
   <!-- Пункт меню Пользователи -->
-  <div class="uc-menu-item">
+  <div class="uc-menu-item" (click)="navigateTo('users')">
     <div class="icon-container">
-      <i class="fas fa-users uc-menu-icon"></i> <!-- Иконка Font Awesome -->
+      <i class="fas fa-users uc-menu-icon"></i>
     </div>
   </div>
 
   <!-- Пункт меню Материалы -->
   <div class="uc-menu-item">
-    <div class="icon-container">
-      <i class="fas fa-book uc-menu-icon"></i> <!-- Иконка Font Awesome -->
-    </div>
+    <a routerLink="materials" class="icon-container">
+      <i class="fas fa-book uc-menu-icon"></i>
+    </a>
   </div>
 
   <!-- Пункт меню Марафоны -->
   <div class="uc-menu-item">
-    <div class="icon-container">
-      <i class="fas fa-running uc-menu-icon"></i> <!-- Иконка Font Awesome -->
-    </div>
+    <a routerLink="marathons" class="icon-container">
+      <i class="fas fa-running uc-menu-icon"></i>
+    </a>
   </div>
 
   <!-- Пункт меню Настройки -->
   <div class="uc-menu-item">
-    <div class="icon-container">
-      <i class="fas fa-cog uc-menu-icon"></i> <!-- Иконка Font Awesome -->
-    </div>
+    <a routerLink="settings" class="icon-container">
+      <i class="fas fa-cog uc-menu-icon"></i>
+    </a>
   </div>
 
   <!-- Пункт меню Тарифы -->
   <div class="uc-menu-item">
-    <div class="icon-container">
-      <i class="fas fa-dollar-sign uc-menu-icon"></i> <!-- Иконка Font Awesome -->
-    </div>
+    <a routerLink="tariffs" class="icon-container">
+      <i class="fas fa-dollar-sign uc-menu-icon"></i>
+    </a>
   </div>
 </div>

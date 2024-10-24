@@ -15,7 +15,10 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'admin-dashboard', component: AdminDashboardComponent },
-  { path: 'student-dashboard', component: StudentDashboardComponent },
+  {
+    path: 'student-dashboard',
+    loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+  },
   { path: 'teacher-dashboard', component: TeacherDashboardComponent },
   { path: 'lesson-page', component: LessonPageComponent },
   { path: 'video-call', component: VideoCallComponent },
