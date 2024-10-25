@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-school',
   templateUrl: './school.component.html',
-  styleUrl: './school.component.css'
+  styleUrls: ['./school.component.css']
 })
 export class SchoolComponent {
-
+  activeSchoolTab: string = 'general-settings'; // Начальная активная вкладка для школы
 }

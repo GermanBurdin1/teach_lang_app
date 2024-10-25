@@ -1,18 +1,40 @@
+<!-- Вкладки верхнего уровня: Настройки и Поддержка -->
 <ul class="nav nav-tabs">
   <li class="nav-item">
-    <a class="nav-link active" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab">Настройки</a>
+    <a class="nav-link" [class.active]="activeMainTab === 'settings'" (click)="setActiveMainTab('settings')">Настройки</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="support-tab" data-bs-toggle="tab" href="#support" role="tab">Поддержка</a>
+    <a class="nav-link" [class.active]="activeMainTab === 'support'" (click)="setActiveMainTab('support')">Поддержка</a>
   </li>
 </ul>
 
+<!-- Контент для верхнего уровня вкладок -->
 <div class="tab-content mt-4">
-  <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-    <app-school></app-school> <!-- Компонент Школа -->
-    <app-online-lessons></app-online-lessons> <!-- Компонент Онлайн-уроки -->
+  <!-- Настройки -->
+  <div *ngIf="activeMainTab === 'settings'">
+    <!-- Внутренние вкладки: Школа и Онлайн-уроки -->
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'school'" (click)="setActiveTab('school')">Школа</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'online-courses'" (click)="setActiveTab('online-courses')">Онлайн-уроки</a>
+      </li>
+    </ul>
+
+    <!-- Контент для вкладок Школы -->
+    <div *ngIf="activeTab === 'school'">
+      <app-school></app-school>
+    </div>
+
+    <!-- Контент для вкладок Онлайн-уроков -->
+    <div *ngIf="activeTab === 'online-courses'">
+      <app-online-lessons></app-online-lessons>
+    </div>
   </div>
-  <div class="tab-pane fade" id="support" role="tabpanel" aria-labelledby="support-tab">
-    <!-- Здесь код для поддержки -->
+
+  <!-- Поддержка -->
+  <div *ngIf="activeMainTab === 'support'">
+    <p>Здесь будет контент для вкладки "Поддержка".</p>
   </div>
 </div>
