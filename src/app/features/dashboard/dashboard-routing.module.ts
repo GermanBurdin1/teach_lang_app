@@ -9,14 +9,15 @@ import { TariffsComponent } from '../tariffs/tariffs.component';
 
 const routes: Routes = [
   {
-    path: 'dashboard',
+    path: '',
     component: StudentDashboardComponent,
     children: [
       { path: 'users', component: UsersComponent },
       { path: 'materials', component: MaterialsComponent },
       { path: 'marathons', component: MarathonsComponent },
       { path: 'settings', component: SettingsComponent },
-      { path: 'tariffs', component: TariffsComponent }
+      { path: 'tariffs', component: TariffsComponent },
+      { path: '', redirectTo: 'users', pathMatch: 'full' }
     ]
   }
 ];

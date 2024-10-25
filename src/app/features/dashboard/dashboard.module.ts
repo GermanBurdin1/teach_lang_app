@@ -8,6 +8,7 @@ import { SettingsComponent } from '../settings/settings.component';
 import { TariffsComponent } from '../tariffs/tariffs.component';
 import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
 import { RouterModule } from '@angular/router';
+import { LayoutModule } from "../../layout/layout.module";
 
 
 @NgModule({
@@ -20,9 +21,10 @@ import { RouterModule } from '@angular/router';
     StudentDashboardComponent
   ],
   imports: [
+    LayoutModule,
     CommonModule,
-    RouterModule,
+    RouterModule.forChild([]),
     DashboardRoutingModule
-  ]
+]
 })
 export class DashboardModule { }

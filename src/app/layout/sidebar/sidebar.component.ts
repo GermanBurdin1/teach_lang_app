@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -7,10 +7,10 @@ import { Router } from '@angular/router';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
   navigateTo(route: string): void {
     console.log("navigateTo called with route:", route);
-    this.router.navigate(['/student-dashboard', route]);
+    this.router.navigate([route], { relativeTo: this.route });
   }
 }
