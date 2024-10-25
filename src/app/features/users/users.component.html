@@ -1,1 +1,77 @@
-<p>users works!</p>
+<div class="container mt-4" style="max-width: 900px;">
+  <!-- Заголовок страницы -->
+  <h2 class="mb-4">Пользователи</h2>
+
+  <!-- Вкладки Ученики/Учителя -->
+  <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="students-tab" data-bs-toggle="tab" href="#students" role="tab" aria-controls="students" aria-selected="true">Ученики</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="teachers-tab" data-bs-toggle="tab" href="#teachers" role="tab" aria-controls="teachers" aria-selected="false">Учителя</a>
+    </li>
+  </ul>
+
+  <!-- Контент для вкладок -->
+  <div class="tab-content" id="myTabContent">
+    <!-- Контент для вкладки Ученики -->
+    <div class="tab-pane fade show active" id="students" role="tabpanel" aria-labelledby="students-tab">
+      <!-- Поиск пользователей -->
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Поиск учеников..." aria-label="Поиск учеников">
+      </div>
+
+      <!-- Вывод количества учеников -->
+      <p class="mb-3">Ученики: <strong>1</strong></p>
+
+      <!-- Кнопка Добавить нового ученика -->
+      <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center">
+        <i class="fas fa-user-plus mr-2"></i> Добавить нового ученика
+      </button>
+
+      <!-- Список пользователей -->
+      <div class="card mb-4 mx-auto" style="max-width: 600px;"> <!-- Ограничили ширину и выровняли по центру -->
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h5>German</h5>
+            <p class="mb-1"><strong>ID:</strong> 2042946</p>
+            <p class="mb-1"><strong>Email:</strong> germanburdin1&#64;gmail.com</p>
+            <p class="mb-0">
+              <!-- Иконки с действиями -->
+              <i class="fas fa-info-circle mr-2"></i>
+              <i class="fas fa-ban mr-2"></i>
+              <i class="fas fa-star mr-2"></i>
+              <i class="fas fa-walking"></i>
+            </p>
+          </div>
+          <div>
+            <button class="btn btn-outline-primary">Профиль ученика <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Контент для вкладки Учителя -->
+    <div class="tab-pane fade" id="teachers" role="tabpanel" aria-labelledby="teachers-tab">
+      <!-- Поиск учителей -->
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Поиск учителей..." aria-label="Поиск учителей">
+      </div>
+
+      <!-- Вывод количества учителей -->
+      <p class="mb-3">Учителей: <strong>0</strong></p>
+
+      <!-- Кнопка Добавить нового учителя -->
+      <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center">
+        <i class="fas fa-user-plus mr-2"></i> Добавить нового учителя
+      </button>
+
+      <!-- Список учителей (пустой, для примера) -->
+      <div class="card mb-4 mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+          <p>Пока нет учителей.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

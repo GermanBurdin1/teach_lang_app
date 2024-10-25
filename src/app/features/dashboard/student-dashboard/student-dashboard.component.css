@@ -2,19 +2,17 @@
 .dashboard-layout {
   display: flex;
   flex-direction: row;
-  height: 100vh; /* Высота на весь экран */
+  height: 100vh;
 }
 
-/* Сайдбар */
 app-sidebar {
-  width: 64px; /* Задаём фиксированную ширину для сайдбара */
-  background-color: #f4f4f4; /* Светлый фон для наглядности */
+  width: 64px;
+  background-color: #f4f4f4;
   overflow-y: auto;
 }
 
-/* Контент */
 .dashboard-content {
-  flex-grow: 1; /* Занимает всё оставшееся пространство справа */
-  padding: 20px; /* Отступы для контента */
+  flex-grow: 1;
+  padding: 20px;
   overflow-y: auto;
 }
