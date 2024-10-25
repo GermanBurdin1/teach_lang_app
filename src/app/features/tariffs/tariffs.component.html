@@ -1,1 +1,20 @@
-<p>tariffs works!</p>
+<!-- tariff.component.html -->
+<div class="container mt-4">
+  <app-balance></app-balance> <!-- Компонент для отображения баланса -->
+
+  <app-tariff-status></app-tariff-status> <!-- Компонент для отображения статуса тарифа -->
+
+  <div class="row mt-4">
+    <div class="col-12 col-md-4">
+      <app-product-card [product]="onlineLessonsProduct"></app-product-card> <!-- Продуктовая карточка -->
+    </div>
+    <div class="col-12 col-md-4">
+      <app-product-card [product]="marathonsProduct"></app-product-card> <!-- Продуктовая карточка -->
+    </div>
+    <div class="col-12 col-md-4">
+      <app-product-card [product]="blendedLearningProduct"></app-product-card> <!-- Продуктовая карточка -->
+    </div>
+  </div>
+
+  <app-additional-services></app-additional-services> <!-- Дополнительные услуги -->
+</div>

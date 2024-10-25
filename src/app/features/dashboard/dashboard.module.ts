@@ -5,7 +5,6 @@ import { UsersComponent } from '../users/users.component';
 import { MaterialsComponent } from '../materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
 import { SettingsComponent } from '../settings/settings.component';
-import { TariffsComponent } from '../tariffs/tariffs.component';
 import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
@@ -17,7 +16,6 @@ import { LayoutModule } from "../../layout/layout.module";
     MaterialsComponent,
     MarathonsComponent,
     SettingsComponent,
-    TariffsComponent,
     StudentDashboardComponent
   ],
   imports: [
