@@ -15,6 +15,7 @@ import { LessonsModule } from './features/lessons/lessons.module';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { TariffsModule } from './features/tariffs/tariffs.module';
+import { SettingsModule } from './features/settings/settings.module';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { TariffsModule } from './features/tariffs/tariffs.module';
     LessonsModule,
     CoreModule,
     SharedModule,
-    TariffsModule
+    TariffsModule,
+    SettingsModule,
 ],
   bootstrap: [AppComponent]
 })

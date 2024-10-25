@@ -1,0 +1,78 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Routes } from '@angular/router';
+
+import { SettingsComponent } from './settings.component';
+
+// Важные компоненты для вкладок школы
+import { SchoolComponent } from './school/school.component';
+import { GeneralSettingsComponent } from './school/general-settings.component';
+import { ContactsComponent } from './school/contacts.component';
+import { AdminsComponent } from './school/admins.component';
+import { PaymentsComponent } from './school/payments.component';
+import { AccessControlComponent } from './school/access-control.component';
+import { StudentsComponent } from './school/students.component';
+import { ReportsComponent } from './school/reports.component';
+
+// Важные компоненты для вкладок онлайн-уроков
+import { OnlineLessonsComponent } from './online-courses/online-lessons.component';
+import { OnlineCoursesComponent } from './online-courses/online-courses.component';
+import { GeneralSettingsOnlineComponent } from './online-courses/general-settings-online.component';
+import { TeachersComponent } from './online-courses/teachers.component';
+import { StudentsOnlineComponent } from './online-courses/students-online.component';
+import { BalanceSystemComponent } from './online-courses/balance-system.component';
+import { ReportsOnlineComponent } from './online-courses/reports-online.component';
+
+const routes: Routes = [
+  { path: '', component: SettingsComponent },
+];
+
+@NgModule({
+  declarations: [
+    SettingsComponent,
+    // Вкладки школы
+    SchoolComponent,
+    GeneralSettingsComponent,
+    ContactsComponent,
+    AdminsComponent,
+    PaymentsComponent,
+    AccessControlComponent,
+    StudentsComponent,
+    ReportsComponent,
+
+    // Вкладки онлайн-уроков
+    OnlineLessonsComponent,
+    OnlineCoursesComponent,
+    GeneralSettingsOnlineComponent,
+    TeachersComponent,
+    StudentsOnlineComponent,
+    BalanceSystemComponent,
+    ReportsOnlineComponent
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule.forChild(routes)
+  ],
+  exports: [
+    SettingsComponent,
+
+    // Экспортируем компоненты для использования в других модулях
+    GeneralSettingsComponent,
+    ContactsComponent,
+    AdminsComponent,
+    PaymentsComponent,
+    AccessControlComponent,
+    StudentsComponent,
+    ReportsComponent,
+
+    OnlineCoursesComponent,
+    GeneralSettingsOnlineComponent,
+    TeachersComponent,
+    StudentsOnlineComponent,
+    BalanceSystemComponent,
+    ReportsOnlineComponent
+  ]
+})
+export class SettingsModule { }

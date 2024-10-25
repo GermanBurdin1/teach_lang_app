@@ -4,7 +4,6 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { UsersComponent } from '../users/users.component';
 import { MaterialsComponent } from '../materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
-import { SettingsComponent } from '../settings/settings.component';
 import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
@@ -15,7 +14,6 @@ import { LayoutModule } from "../../layout/layout.module";
     UsersComponent,
     MaterialsComponent,
     MarathonsComponent,
-    SettingsComponent,
     StudentDashboardComponent
   ],
   imports: [
