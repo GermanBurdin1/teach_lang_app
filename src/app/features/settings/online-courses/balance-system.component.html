@@ -1,1 +1,83 @@
-<p>balance-system works!</p>
+<div class="container my-3">
+  <h5>Балансовая система</h5>
+
+  <!-- Переключатели настроек -->
+  <div class="form-group row align-items-center my-2">
+    <label class="col-8">Использовать балансовую систему</label>
+    <div class="col-4 text-end">
+      <div class="form-check form-switch">
+        <input type="checkbox" class="form-check-input" [(ngModel)]="useBalanceSystem">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group row align-items-center my-2">
+    <label class="col-8">Оплата тарифов через платформу</label>
+    <div class="col-4 text-end">
+      <div class="form-check form-switch">
+        <input type="checkbox" class="form-check-input" [(ngModel)]="payThroughPlatform">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group row align-items-center my-2">
+    <label class="col-8">Запрещать вход в класс при нулевом балансе</label>
+    <div class="col-4 text-end">
+      <div class="form-check form-switch">
+        <input type="checkbox" class="form-check-input" [(ngModel)]="restrictEntryOnZeroBalance">
+      </div>
+    </div>
+  </div>
+
+  <!-- Период отмены уроков без штрафа -->
+  <div class="form-group row align-items-center my-2">
+    <label class="col-8">Период отмены уроков без штрафа</label>
+    <div class="col-4">
+      <select class="form-select" [(ngModel)]="cancellationPeriod">
+        <option value="anytime">В любое время</option>
+        <option value="24hours">За 24 часа</option>
+        <option value="48hours">За 48 часов</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Сообщение ученику -->
+  <div class="form-group my-2">
+    <label>Сообщение ученику</label>
+    <textarea class="form-control" rows="3" placeholder="Напишите текст сообщения..." [(ngModel)]="studentMessage"></textarea>
+  </div>
+
+  <!-- Валюта -->
+  <div class="form-group row align-items-center my-2">
+    <label class="col-8">Валюта</label>
+    <div class="col-4">
+      <select class="form-select" [(ngModel)]="currency">
+        <option value="RUB">Российский рубль ₽</option>
+        <option value="USD">Доллар США $</option>
+        <option value="EUR">Евро €</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Тарифы уроков -->
+  <h6 class="mt-4">Тарифы уроков</h6>
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#" (click)="setActiveTab('active')">Активные</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#" (click)="setActiveTab('archived')">Архивные</a>
+    </li>
+  </ul>
+
+  <div *ngIf="activeTab === 'active'" class="tab-pane mt-3">
+    <!-- Список активных тарифов -->
+    <p>Список активных тарифов (примерный вывод)</p>
+  </div>
+  <div *ngIf="activeTab === 'archived'" class="tab-pane mt-3">
+    <!-- Список архивных тарифов -->
+    <p>Список архивных тарифов (примерный вывод)</p>
+  </div>
+
+  <button class="btn btn-primary mt-3">Создать новый тариф</button>
+</div>

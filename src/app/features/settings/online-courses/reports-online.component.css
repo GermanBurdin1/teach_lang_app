@@ -1,0 +1,36 @@
+.report-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-icon {
+  font-size: 12px;
+  color: #9a9a9a;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.new-label {
+  font-size: 12px;
+  color: red;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.download-button {
+  background-color: #00c3ff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.download-button:hover {
+  background-color: #00a3cc;
+}

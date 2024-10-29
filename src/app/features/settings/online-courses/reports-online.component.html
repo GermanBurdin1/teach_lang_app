@@ -1,1 +1,77 @@
-<p>reports works!</p>
+<div class="reports-container">
+  <h3>Отчеты</h3>
+  <ul class="list-group report-list">
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>Балансы учеников <span class="text-muted" data-toggle="tooltip" title="Информация о балансе учеников">?</span></span>
+      <button class="btn btn-primary btn-sm" (click)="openModal()">Скачать отчет</button>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>Проведенные уроки <span class="text-muted" data-toggle="tooltip" title="Информация о проведенных уроках">?</span></span>
+      <button class="btn btn-primary btn-sm" (click)="openModal()">Скачать отчет</button>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>Проведенные уроки v2.0 <span class="text-danger">NEW</span> <span class="text-muted" data-toggle="tooltip" title="Новая версия отчета">?</span></span>
+      <button class="btn btn-primary btn-sm" (click)="openModal()">Скачать отчет</button>
+    </li>
+  </ul>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showModal }" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Параметры</h5>
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-info">Выберите период, в котором у ученика было последнее пополнение баланса</p>
+
+        <div class="form-group">
+          <label>Начало</label>
+          <div class="d-flex">
+            <select class="form-control mr-2" [(ngModel)]="startDay">
+              <option *ngFor="let day of days">{{ day }}</option>
+            </select>
+            <select class="form-control mr-2" [(ngModel)]="startMonth">
+              <option *ngFor="let month of months">{{ month }}</option>
+            </select>
+            <select class="form-control" [(ngModel)]="startYear">
+              <option *ngFor="let year of years">{{ year }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Конец</label>
+          <div class="d-flex">
+            <select class="form-control mr-2" [(ngModel)]="endDay">
+              <option *ngFor="let day of days">{{ day }}</option>
+            </select>
+            <select class="form-control mr-2" [(ngModel)]="endMonth">
+              <option *ngFor="let month of months">{{ month }}</option>
+            </select>
+            <select class="form-control" [(ngModel)]="endYear">
+              <option *ngFor="let year of years">{{ year }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Статус ученика</label>
+          <select class="form-control" [(ngModel)]="studentStatus">
+            <option>Активирован</option>
+            <option>Деактивирован</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Отмена</button>
+        <button type="button" class="btn btn-primary">Скачать</button>
+      </div>
+    </div>
+  </div>
+</div>

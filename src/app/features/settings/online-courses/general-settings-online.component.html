@@ -1,0 +1,71 @@
+<div class="container my-3">
+  <!-- График работы -->
+  <div class="form-group d-flex align-items-center mb-3">
+    <label class="form-label me-3">График работы</label>
+    <button class="btn btn-outline-primary">Настройка графика</button>
+  </div>
+
+  <!-- Направления -->
+  <div class="container my-3">
+    <!-- Поле для добавления направления -->
+    <label class="form-label">Направления</label>
+    <div class="input-group mb-3">
+      <input type="text" [(ngModel)]="newDirection" class="form-control" placeholder="Добавьте новое направление...">
+      <button class="btn btn-outline-secondary" (click)="addDirection()">+</button>
+    </div>
+
+    <!-- Список направлений с возможностью удаления -->
+    <div class="d-flex flex-wrap">
+      <div *ngFor="let direction of directions" class="badge bg-secondary d-flex align-items-center me-2 mb-2" style="padding: 8px;">
+        <span>{{ direction }}</span>
+        <span class="ms-2" (click)="removeDirection(direction)" style="cursor: pointer; color: rgb(190, 190, 204); font-size: 11px;">
+          <i class="fas fa-times"></i> <!-- Иконка закрытия -->
+        </span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Продолжительность занятий -->
+  <div class="form-group mb-3">
+    <label class="form-label">Продолжительность занятий</label>
+    <div class="d-flex align-items-center">
+      <input type="number" class="form-control me-2" style="width: 60px;" placeholder="0">
+      <span class="me-2">min</span>
+      <button class="btn btn-primary">Добавить</button>
+    </div>
+    <div class="mt-2">
+      <span class="badge bg-light text-secondary me-2">30 min</span>
+      <span class="badge bg-light text-secondary me-2">45 min</span>
+      <span class="badge bg-light text-secondary me-2">60 min</span>
+      <span class="badge bg-light text-secondary me-2">75 min</span>
+      <span class="badge bg-light text-secondary me-2">90 min</span>
+    </div>
+  </div>
+
+  <!-- Рассылка о предстоящих онлайн-уроках -->
+  <div class="form-group mb-3">
+    <label class="form-label">Рассылка о предстоящих онлайн-уроках</label>
+    <div class="d-flex align-items-center">
+      <input type="checkbox" class="form-check-input me-2">
+      <select class="form-select" style="width: auto;">
+        <option>Выберите время</option>
+        <option>За 1 час</option>
+        <option>За 3 часа</option>
+        <option>За 24 часа</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Видеосвязь в индивидуальных классах -->
+  <div class="form-group mb-3">
+    <label class="form-label">Видеосвязь в индивидуальных классах</label>
+    <input type="checkbox" class="form-check-input">
+  </div>
+
+  <!-- Видеосвязь в групповых классах -->
+  <div class="form-group mb-3">
+    <label class="form-label">Видеосвязь в групповых классах</label>
+    <input type="checkbox" class="form-check-input">
+  </div>
+</div>

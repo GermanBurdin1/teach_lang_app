@@ -1,0 +1,9 @@
+.form-group {
+  border-bottom: 1px solid #eaeaea;
+  padding: 8px 0;
+}
+
+h5 {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}

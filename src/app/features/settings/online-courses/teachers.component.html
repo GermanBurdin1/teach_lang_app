@@ -1,1 +1,14 @@
-<p>teachers works!</p>
+<div class="container my-3">
+  <h5>Учителя</h5>
+
+  <!-- Список настроек с переключателями -->
+  <div class="form-group my-2" *ngFor="let setting of teacherSettings">
+    <label class="d-flex align-items-center">
+      {{ setting.label }}
+      <span class="ms-1" data-bs-toggle="tooltip" title="{{ setting.tooltip }}">&#x3f;</span>
+      <div class="form-check form-switch ms-auto">
+        <input type="checkbox" class="form-check-input" [(ngModel)]="setting.enabled">
+      </div>
+    </label>
+  </div>
+</div>
