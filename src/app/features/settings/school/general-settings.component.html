@@ -6,7 +6,10 @@
         <div class="avatar bg-light text-center me-3 rounded-circle" style="width: 50px; height: 50px;">
           <span class="initials">G</span>
         </div>
-        <button class="btn btn-light">Загрузка</button>
+        <!-- Кнопка загрузки файла -->
+        <button type="button" class="btn btn-light" (click)="triggerFileUpload()">Загрузка</button>
+        <!-- Скрытый input для загрузки файла -->
+        <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;">
       </div>
     </div>
 
