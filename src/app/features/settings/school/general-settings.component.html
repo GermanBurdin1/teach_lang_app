@@ -25,9 +25,18 @@
 
     <div class="mb-3">
       <label for="password" class="form-label">Пароль</label>
-      <div class="d-flex">
-        <input type="password" class="form-control" id="password" value="**********" disabled>
-        <button class="btn btn-light ms-2">Изменить пароль</button>
+      <div *ngIf="!showPasswordChange">
+        <div class="d-flex">
+          <input type="password" class="form-control" id="password" value="**********" disabled>
+          <button class="btn btn-light ms-2" type="button" (click)="togglePasswordChange()">Изменить пароль</button>
+        </div>
+      </div>
+      <div *ngIf="showPasswordChange">
+        <input type="password" class="form-control mb-2" placeholder="Старый пароль">
+        <input type="password" class="form-control mb-2" placeholder="Новый пароль">
+        <input type="password" class="form-control mb-3" placeholder="Подтвердите новый пароль">
+        <button class="btn btn-secondary me-2" type="button" (click)="togglePasswordChange()">Отмена</button>
+        <button class="btn btn-primary" type="button">Сохранить</button>
       </div>
     </div>
 
