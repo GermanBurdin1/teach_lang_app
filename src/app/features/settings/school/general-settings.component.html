@@ -1,1 +1,75 @@
-<p>general-settings works!</p>
+<div class="container mt-4">
+  <form>
+    <div class="mb-3">
+      <label for="avatar" class="form-label">Аватарка</label>
+      <div class="d-flex align-items-center">
+        <div class="avatar bg-light text-center me-3 rounded-circle" style="width: 50px; height: 50px;">
+          <span class="initials">G</span>
+        </div>
+        <button class="btn btn-light">Загрузка</button>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="school-name" class="form-label">Название школы</label>
+      <input type="text" class="form-control" id="school-name" value="German">
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" class="form-control" id="email" value="germanburdin1@gmail.com" disabled>
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Пароль</label>
+      <div class="d-flex">
+        <input type="password" class="form-control" id="password" value="**********" disabled>
+        <button class="btn btn-light ms-2">Изменить пароль</button>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="country" class="form-label">Страна</label>
+      <select class="form-select" id="country">
+        <option value="Russia" selected>Россия</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="timezone" class="form-label">Часовой пояс</label>
+      <select class="form-select" id="timezone">
+        <option value="UTC+3" selected>17:03 (UTC+3)</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="interface-language" class="form-label">Язык интерфейса</label>
+      <select class="form-select" id="interface-language">
+        <option value="Russian" selected>Русский</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="languages" class="form-label">Языки</label>
+      <div class="d-flex flex-wrap">
+        <span class="badge bg-light me-2 mb-2">
+          <img src="russian-flag.png" alt="Russian" class="me-1"> Russian
+        </span>
+        <span class="badge bg-light me-2 mb-2">
+          <img src="english-flag.png" alt="English" class="me-1"> English
+        </span>
+        <input type="text" class="form-control d-inline-block w-auto" placeholder="Добавьте преподаваемые языки..." style="flex: 1;">
+      </div>
+    </div>
+
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" id="send-mails" checked>
+      <label class="form-check-label" for="send-mails">Отправка писем при регистрации</label>
+    </div>
+
+    <div class="mb-3">
+      <label for="email-domain" class="form-label">Домен писем</label>
+      <input type="text" class="form-control" id="email-domain" value="@edvibe" disabled>
+    </div>
+  </form>
+</div>
