@@ -35,6 +35,32 @@
 
   <!-- Поддержка -->
   <div *ngIf="activeMainTab === 'support'">
-    <p>Здесь будет контент для вкладки "Поддержка".</p>
+    <div class="support-container p-4">
+      <h3 class="mb-4">Свяжитесь с нами</h3>
+
+      <p class="text-muted">
+        Если у вас есть вопросы, идеи или предложения, <a href="link_to_chat" class="text-primary">пишите нам в чат</a>. Чат находится в левом нижнем углу.
+      </p>
+
+      <div class="mt-5">
+        <h5 class="text-muted">Наши контакты</h5>
+        <p><a href="mailto:support@progressme.ru" class="text-dark">support&#64;progressme.ru</a></p>
+
+        <div class="d-flex mt-3">
+          <a href="https://vk.com" target="_blank" class="mr-3">
+            <img src="path_to_vk_icon" alt="VK" width="30">
+          </a>
+          <a href="https://facebook.com" target="_blank" class="mr-3">
+            <img src="path_to_facebook_icon" alt="Facebook" width="30">
+          </a>
+          <a href="https://instagram.com" target="_blank" class="mr-3">
+            <img src="path_to_instagram_icon" alt="Instagram" width="30">
+          </a>
+          <a href="https://youtube.com" target="_blank">
+            <img src="path_to_youtube_icon" alt="YouTube" width="30">
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
