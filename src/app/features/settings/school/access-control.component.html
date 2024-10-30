@@ -2,7 +2,7 @@
   <div class="d-flex align-items-center">
     <span>Использовать контроль доступа</span>
     <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Дополнительная информация">
-      <i class="bi bi-question-circle"></i> <!-- Иконка вопроса -->
+      <i class="bi bi-question-circle"></i>
     </button>
   </div>
   <div class="form-check form-switch">
@@ -15,24 +15,94 @@
     <div class="d-flex align-items-center">
       <span>Группы доступа</span>
       <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Дополнительная информация">
-        <i class="bi bi-question-circle"></i> <!-- Иконка вопроса -->
+        <i class="bi bi-question-circle"></i>
       </button>
     </div>
   </div>
 
   <div class="input-group my-3">
     <span class="input-group-text">
-      <i class="bi bi-search"></i> <!-- Иконка поиска -->
+      <i class="bi bi-search"></i>
     </span>
     <input type="text" class="form-control" placeholder="Поиск">
   </div>
 
   <div class="text-center">
-    <button type="button" class="btn btn-outline-secondary">
-      <i class="bi bi-plus"></i> <!-- Иконка добавления группы -->
-      Создать новую группу
+    <button type="button" class="btn btn-outline-secondary" (click)="openCreateGroupModal()">
+      <i class="bi bi-plus"></i> Создать новую группу
     </button>
   </div>
 
   <p class="text-center text-muted mt-3">По заданным параметрам сотрудники не найдены</p>
+</div>
+
+<!-- Модальное окно создания новой группы доступа -->
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showModal }" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Новая группа доступа</h5>
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label>Название группы</label>
+            <input type="text" class="form-control" placeholder="Название">
+          </div>
+
+          <!-- Вкладки для выбора категорий -->
+          <ul class="nav nav-tabs mt-3">
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'teachers'" (click)="selectTab('teachers')">Учителя</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'students'" (click)="selectTab('students')">Ученики</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'groups'" (click)="selectTab('groups')">Группы</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'employees'" (click)="selectTab('employees')">Сотрудники</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'marathons'" (click)="selectTab('marathons')">Марафоны</a>
+            </li>
+          </ul>
+
+          <!-- Поиск и выбор всех -->
+          <div class="input-group my-3" *ngIf="activeTab === 'teachers'">
+            <input type="text" class="form-control" placeholder="Поиск по учителям">
+            <button type="button" class="btn btn-outline-primary">Выбрать всех</button>
+          </div>
+
+          <div class="input-group my-3" *ngIf="activeTab === 'students'">
+            <input type="text" class="form-control" placeholder="Поиск по ученикам">
+            <button type="button" class="btn btn-outline-primary">Выбрать всех</button>
+          </div>
+
+          <div class="input-group my-3" *ngIf="activeTab === 'groups'">
+            <input type="text" class="form-control" placeholder="Поиск по группам">
+            <button type="button" class="btn btn-outline-primary">Выбрать всех</button>
+          </div>
+
+          <div class="input-group my-3" *ngIf="activeTab === 'employees'">
+            <input type="text" class="form-control" placeholder="Поиск по сотрудникам">
+            <button type="button" class="btn btn-outline-primary">Выбрать всех</button>
+          </div>
+
+          <div class="input-group my-3" *ngIf="activeTab === 'marathons'">
+            <input type="text" class="form-control" placeholder="Поиск по марафонам">
+            <button type="button" class="btn btn-outline-primary">Выбрать всех</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Отмена</button>
+        <button type="button" class="btn btn-primary">Создать группу</button>
+      </div>
+    </div>
+  </div>
 </div>
