@@ -3,8 +3,16 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-payments',
   templateUrl: './payments.component.html',
-  styleUrl: './payments.component.css'
+  styleUrls: ['./payments.component.css']
 })
 export class PaymentsComponent {
+  showModal: boolean = false;
 
+  openSettingsModal() {
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+  }
 }
