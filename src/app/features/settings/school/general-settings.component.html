@@ -1,28 +1,30 @@
 <div class="container mt-4">
   <form>
+    <!-- Аватарка и Загрузка -->
     <div class="mb-3">
       <label for="avatar" class="form-label">Аватарка</label>
       <div class="d-flex align-items-center">
         <div class="avatar bg-light text-center me-3 rounded-circle" style="width: 50px; height: 50px;">
           <span class="initials">G</span>
         </div>
-        <!-- Кнопка загрузки файла -->
         <button type="button" class="btn btn-light" (click)="triggerFileUpload()">Загрузка</button>
-        <!-- Скрытый input для загрузки файла -->
         <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;">
       </div>
     </div>
 
+    <!-- Название школы -->
     <div class="mb-3">
       <label for="school-name" class="form-label">Название школы</label>
       <input type="text" class="form-control" id="school-name" value="German">
     </div>
 
+    <!-- Email -->
     <div class="mb-3">
       <label for="email" class="form-label">Email</label>
       <input type="email" class="form-control" id="email" value="germanburdin1@gmail.com" disabled>
     </div>
 
+    <!-- Пароль -->
     <div class="mb-3">
       <label for="password" class="form-label">Пароль</label>
       <div *ngIf="!showPasswordChange">
@@ -40,13 +42,13 @@
       </div>
     </div>
 
+    <!-- Страна и Часовой пояс -->
     <div class="mb-3">
       <label for="country" class="form-label">Страна</label>
       <select class="form-select" id="country">
         <option value="Russia" selected>Россия</option>
       </select>
     </div>
-
     <div class="mb-3">
       <label for="timezone" class="form-label">Часовой пояс</label>
       <select class="form-select" id="timezone">
@@ -54,6 +56,7 @@
       </select>
     </div>
 
+    <!-- Язык интерфейса -->
     <div class="mb-3">
       <label for="interface-language" class="form-label">Язык интерфейса</label>
       <select class="form-select" id="interface-language">
@@ -61,24 +64,33 @@
       </select>
     </div>
 
-    <div class="mb-3">
-      <label for="languages" class="form-label">Языки</label>
-      <div class="d-flex flex-wrap">
-        <span class="badge bg-light me-2 mb-2">
-          <img src="russian-flag.png" alt="Russian" class="me-1"> Russian
-        </span>
-        <span class="badge bg-light me-2 mb-2">
-          <img src="english-flag.png" alt="English" class="me-1"> English
-        </span>
-        <input type="text" class="form-control d-inline-block w-auto" placeholder="Добавьте преподаваемые языки..." style="flex: 1;">
-      </div>
+    <div class="container mt-4">
+      <form>
+        <!-- Языки -->
+        <div class="mb-3">
+          <label for="languages" class="form-label">Языки</label>
+          <select class="form-select mb-2" [(ngModel)]="selectedLanguage" (change)="addLanguage()" name="languagesSelect">
+            <option *ngFor="let language of availableLanguages" [ngValue]="language">{{ language.name }}</option>
+          </select>
+
+          <div class="d-flex flex-wrap mt-2">
+            <ng-container *ngFor="let language of selectedLanguages">
+              <span class="badge bg-light me-2 mb-2">
+                <img [src]="language.flag" alt="{{ language.name }}" class="me-1" style="width: 16px; height: 16px;">
+                {{ language.name }}
+                <span (click)="removeLanguage(language)" class="ms-1 text-danger" style="cursor: pointer;">&times;</span>
+              </span>
+            </ng-container>
+          </div>
+        </div>
+      </form>
     </div>
 
+    <!-- Остальные настройки -->
     <div class="form-check form-switch mb-3">
       <input class="form-check-input" type="checkbox" id="send-mails" checked>
       <label class="form-check-label" for="send-mails">Отправка писем при регистрации</label>
     </div>
-
     <div class="mb-3">
       <label for="email-domain" class="form-label">Домен писем</label>
       <input type="text" class="form-control" id="email-domain" value="@edvibe" disabled>
