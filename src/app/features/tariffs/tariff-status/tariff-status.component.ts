@@ -15,9 +15,15 @@ throw new Error('Method not implemented.');
 
   // Данные для стандартных тарифов
   standardPlans = [
-    { students: 40, price: 3050 },
-    { students: 45, price: 3410 },
-    { students: 50, price: 3750 },
+    { students: 36, price: 3050 },
+    { students: 30, price: 3410 },
+    { students: 25, price: 3750 },
+    { students: 20, price: 3050 },
+    { students: 15, price: 3410 },
+    { students: 10, price: 3750 },
+    { students: 7, price: 3050 },
+    { students: 5, price: 3410 },
+    { students: 2, price: 3750 },
   ];
 
   // Данные для Pro тарифов
@@ -28,6 +34,9 @@ throw new Error('Method not implemented.');
     { students: 200, price: 27500 },
     { students: 250, price: 33000 },
     { students: 300, price: 39000 },
+    { students: 400, price: 27500 },
+    { students: 500, price: 33000 },
+    { students: 600, price: 39000 },
   ];
 
   // Разделенные на группы для карусели
