@@ -1,12 +1,142 @@
 <!-- tariff-status.component.html -->
+
 <div class="alert alert-warning mt-4">
   <i class="fas fa-exclamation-circle"></i> Тариф не оплачен. Оплатите тариф для возобновления доступа к платформе.
 </div>
 
 <div class="d-flex justify-content-between mt-3">
-  <div>
-    <h5>Ежемесячный платёж</h5>
-    <p>0 RUB</p>
-  </div>
-  <button class="btn btn-primary">Продлить тариф</button>
+  <button class="btn btn-primary" (click)="openModal()">Продлить тариф</button>
 </div>
+
+<!-- Модальное окно для выбора продуктов -->
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showModal }" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Выбор продуктов <span class="badge bg-warning text-dark">Pro (beta)</span></h5>
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Выберите продукты, которые хотите использовать</p>
+        <div class="d-flex flex-column">
+          <!-- Карточка продукта "Онлайн-уроки" -->
+          <div class="d-flex justify-content-between align-items-center border p-2 mb-2">
+            <div class="d-flex align-items-center">
+              <img src="online-lessons-icon.png" alt="Онлайн-уроки" class="me-2" style="width: 24px;">
+              <span>Онлайн-уроки</span>
+            </div>
+            <button class="btn btn-link text-primary" (click)="openTariffModal()">Добавить</button>
+          </div>
+          <!-- Карточка продукта "Марафоны" -->
+          <div class="d-flex justify-content-between align-items-center border p-2">
+            <div class="d-flex align-items-center">
+              <img src="marathons-icon.png" alt="Марафоны" class="me-2" style="width: 24px;">
+              <span>Марафоны</span>
+            </div>
+            <button class="btn btn-link text-primary">Добавить</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Выбор тарифов для Онлайн-уроков -->
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showTariffModal }" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">Онлайн-уроки <span class="badge bg-warning text-dark">Pro (beta)</span></h5>
+        <button type="button" class="close text-white" (click)="closeTariffModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <div id="tariffCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            <!-- Тариф 1 -->
+            <div class="carousel-item active">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">50 учеников</h5>
+                  <p class="card-text">7500 RUB в месяц</p>
+                  <button class="btn btn-primary">Активировать</button>
+                </div>
+              </div>
+            </div>
+            <!-- Тариф 2 -->
+            <div class="carousel-item">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">100 учеников</h5>
+                  <p class="card-text">14500 RUB в месяц</p>
+                  <button class="btn btn-primary">Активировать</button>
+                </div>
+              </div>
+            </div>
+            <!-- Тариф 3 -->
+            <div class="carousel-item">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">150 учеников</h5>
+                  <p class="card-text">21000 RUB в месяц</p>
+                  <button class="btn btn-primary">Активировать</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Кнопки управления каруселью -->
+          <button class="carousel-control-prev" type="button" data-bs-target="#tariffCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#tariffCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+
+        <!-- Блок с преимуществами тарифа Pro -->
+        <div class="mt-4">
+          <h6 class="text-center">На тарифе Pro доступно</h6>
+          <div class="d-flex flex-wrap justify-content-center mt-3">
+            <div class="feature-card text-center p-2 m-2">
+              <i class="icon-management"></i>
+              <p>Инструменты управления учебным процессом</p>
+            </div>
+            <div class="feature-card text-center p-2 m-2">
+              <i class="icon-teachers"></i>
+              <p>Неограниченное кол-во учителей и администраторов</p>
+            </div>
+            <div class="feature-card text-center p-2 m-2">
+              <i class="icon-learners"></i>
+              <p>Возможность обучать любое кол-во учеников</p>
+            </div>
+            <div class="feature-card text-center p-2 m-2">
+              <i class="icon-label"></i>
+              <p>Возможность подключить White Label и Рекламный блок</p>
+            </div>
+            <div class="feature-card text-center p-2 m-2">
+              <i class="icon-analytics"></i>
+              <p>Отслеживание оплаченных уроков и приём оплат</p>
+            </div>
+            <div class="feature-card text-center p-2 m-2">
+              <i class="icon-database"></i>
+              <p>Общая база материалов школы</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link" (click)="showAllFeatures()">Посмотреть все возможности</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
