@@ -64,13 +64,15 @@
               <button class="btn btn-outline-primary me-2" (click)="viewStandardTariff()">Тарифы Стандарт</button>
               <button class="btn btn-primary" (click)="viewProTariff()">Pro</button>
             </div>
-            <!-- Pro View with Carousel Items -->
-            <div *ngFor="let plan of proPlans; let i = index" [ngClass]="{'carousel-item': true, 'active': activeProIndex === i}">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">{{ plan.students }} учеников</h5>
-                  <p class="card-text">{{ plan.price }} RUB в месяц</p>
-                  <button class="btn btn-primary">Активировать</button>
+            <!-- Pro View with groups of 3 Carousel Items -->
+            <div *ngFor="let group of proPlanGroups; let i = index" [ngClass]="{'carousel-item': true, 'active': activeProIndex === i}">
+              <div class="d-flex justify-content-center">
+                <div class="card m-2" *ngFor="let plan of group">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ plan.students }} учеников</h5>
+                    <p class="card-text">{{ plan.price }} RUB в месяц</p>
+                    <button class="btn btn-primary">Активировать</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -92,5 +94,6 @@
     </div>
   </div>
 </div>
+
 
 
