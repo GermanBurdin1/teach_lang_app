@@ -5,25 +5,34 @@ import { Component } from '@angular/core';
   templateUrl: './tariff-status.component.html',
 })
 export class TariffStatusComponent {
+showAllFeatures() {
+throw new Error('Method not implemented.');
+}
   showModal: boolean = false;
   showTariffModal: boolean = false;
   isProView: boolean = false;
-  activeProIndex: number = -1;
+  activeIndex: number = 0; // 0: главный слайд, -1... для стандартных, 1... для Pro
 
-  proPlans: { students: number; price: number }[] = [
+  // Данные для стандартных тарифов
+  standardPlans = [
+    { students: 40, price: 3050 },
+    { students: 45, price: 3410 },
+    { students: 50, price: 3750 },
+  ];
+
+  // Данные для Pro тарифов
+  proPlans = [
     { students: 50, price: 7500 },
     { students: 100, price: 14500 },
     { students: 150, price: 21000 },
     { students: 200, price: 27500 },
     { students: 250, price: 33000 },
-    { students: 300, price: 39000 }
+    { students: 300, price: 39000 },
   ];
 
-  proPlanGroups: { students: number; price: number }[][] = [];
-
-  constructor() {
-    this.proPlanGroups = this.chunkArray(this.proPlans, 3);
-  }
+  // Разделенные на группы для карусели
+  standardPlanGroups = this.chunkArray(this.standardPlans, 3);
+  proPlanGroups = this.chunkArray(this.proPlans, 3);
 
   openModal() {
     this.showModal = true;
@@ -40,43 +49,34 @@ export class TariffStatusComponent {
 
   closeTariffModal() {
     this.showTariffModal = false;
-    this.isProView = false;
-    this.activeProIndex = -1;
+    this.activeIndex = 0; // Вернуться к главному слайду
   }
 
   viewStandardTariff() {
-    this.isProView = false;
-    this.activeProIndex = -1;
+    this.activeIndex = -1; // Левый слайд с тарифами стандарт
   }
 
   viewProTariff() {
-    this.isProView = true;
-    this.activeProIndex = 0;
+    this.activeIndex = 1; // Правый слайд с тарифами Pro
   }
 
   navigateCarousel(direction: string) {
     if (direction === 'next') {
-      if (this.activeProIndex === -1) {
-        // Переход от начального экрана к Pro тарифам
-        this.activeProIndex = 0;
+      if (this.activeIndex === -1) {
+        this.activeIndex = 0; // Переход к главному слайду
       } else {
-        this.activeProIndex = (this.activeProIndex + 1) % this.proPlanGroups.length;
+        this.activeIndex++;
       }
     } else if (direction === 'prev') {
-      if (this.activeProIndex === 0) {
-        // Возврат к начальному экрану
-        this.activeProIndex = -1;
-      } else if (this.activeProIndex > 0) {
-        this.activeProIndex = (this.activeProIndex - 1 + this.proPlanGroups.length) % this.proPlanGroups.length;
+      if (this.activeIndex === 1) {
+        this.activeIndex = 0; // Переход к главному слайду
+      } else {
+        this.activeIndex--;
       }
     }
   }
 
-  showAllFeatures() {
-    alert('Показать все возможности тарифа Pro');
-  }
-
-  private chunkArray(array: { students: number; price: number }[], chunkSize: number): { students: number; price: number }[][] {
+  private chunkArray(array: { students: number; price: number }[], chunkSize: number) {
     const results = [];
     for (let i = 0; i < array.length; i += chunkSize) {
       results.push(array.slice(i, i + chunkSize));

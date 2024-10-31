@@ -44,56 +44,68 @@
   </div>
 </div>
 
-<!-- Tariff Selection Modal -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showTariffModal }" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title">Онлайн-уроки <span class="badge bg-warning text-dark">Pro (beta)</span></h5>
+        <h5 class="modal-title">Онлайн-уроки <span class="badge bg-warning text-dark">{{ activeIndex === -1 ? 'Стандарт' : activeIndex === 1 ? 'Pro' : 'Pro (beta)' }}</span></h5>
         <button type="button" class="close text-white" (click)="closeTariffModal()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body text-center">
-        <!-- Carousel with initial and Pro views -->
-        <div id="tariffCarousel" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-inner">
-            <!-- Начальный экран с тарифами -->
-            <div [ngClass]="{'carousel-item': true, 'active': activeProIndex === -1}">
-              <p>Меньше учеников и ограниченные возможности доступны на тарифе Стандарт</p>
-              <button class="btn btn-outline-primary me-2" (click)="viewStandardTariff()">Тарифы Стандарт</button>
-              <button class="btn btn-primary" (click)="viewProTariff()">Pro</button>
-            </div>
-            <!-- Pro View with groups of 3 Carousel Items -->
-            <div *ngFor="let group of proPlanGroups; let i = index" [ngClass]="{'carousel-item': true, 'active': activeProIndex === i}">
-              <div class="d-flex justify-content-center">
-                <div class="card m-2" *ngFor="let plan of group">
-                  <div class="card-body">
-                    <h5 class="card-title">{{ plan.students }} учеников</h5>
-                    <p class="card-text">{{ plan.price }} RUB в месяц</p>
-                    <button class="btn btn-primary">Активировать</button>
-                  </div>
-                </div>
+        <!-- Главный слайд с выбором тарифа -->
+        <div *ngIf="activeIndex === 0" class="carousel-item active">
+          <p>Меньше учеников и ограниченные возможности доступны на тарифе Стандарт</p>
+          <button class="btn btn-outline-primary me-2" (click)="viewStandardTariff()">Тарифы Стандарт</button>
+          <button class="btn btn-primary" (click)="viewProTariff()">Pro</button>
+        </div>
+
+        <!-- Стандартные тарифы (левее главного) -->
+        <div *ngIf="activeIndex < 0" class="carousel-item active">
+          <div class="d-flex justify-content-center">
+            <div class="card m-2" *ngFor="let plan of standardPlanGroups[-activeIndex - 1]">
+              <div class="card-body">
+                <h5 class="card-title">{{ plan.students }} учеников</h5>
+                <p class="card-text">{{ plan.price }} RUB в месяц</p>
+                <button class="btn btn-primary">Активировать</button>
               </div>
             </div>
           </div>
-          <!-- Carousel Navigation -->
-          <button class="carousel-control-prev" type="button" (click)="navigateCarousel('prev')">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" (click)="navigateCarousel('next')">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
+        </div>
+
+        <!-- Pro тарифы (правее главного) -->
+        <div *ngIf="activeIndex > 0" class="carousel-item active">
+          <div class="d-flex justify-content-center">
+            <div class="card m-2" *ngFor="let plan of proPlanGroups[activeIndex - 1]">
+              <div class="card-body">
+                <h5 class="card-title">{{ plan.students }} учеников</h5>
+                <p class="card-text">{{ plan.price }} RUB в месяц</p>
+                <button class="btn btn-primary">Активировать</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Навигация -->
       <div class="modal-footer">
+        <button *ngIf="activeIndex !== 0" class="carousel-control-prev bg-dark text-light" type="button" (click)="navigateCarousel('prev')">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button *ngIf="activeIndex !== 0" class="carousel-control-next bg-dark text-light" type="button" (click)="navigateCarousel('next')">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
         <button type="button" class="btn btn-link" (click)="showAllFeatures()">Посмотреть все возможности</button>
       </div>
     </div>
   </div>
 </div>
+
+
+
 
 
 
