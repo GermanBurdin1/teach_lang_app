@@ -1,5 +1,3 @@
-<!-- tariff-status.component.html -->
-
 <div class="alert alert-warning mt-4">
   <i class="fas fa-exclamation-circle"></i> Тариф не оплачен. Оплатите тариф для возобновления доступа к платформе.
 </div>
@@ -8,7 +6,7 @@
   <button class="btn btn-primary" (click)="openModal()">Продлить тариф</button>
 </div>
 
-<!-- Модальное окно для выбора продуктов -->
+<!-- Product Selection Modal -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showModal }" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -21,7 +19,7 @@
       <div class="modal-body">
         <p>Выберите продукты, которые хотите использовать</p>
         <div class="d-flex flex-column">
-          <!-- Карточка продукта "Онлайн-уроки" -->
+          <!-- Product card "Online Lessons" -->
           <div class="d-flex justify-content-between align-items-center border p-2 mb-2">
             <div class="d-flex align-items-center">
               <img src="online-lessons-icon.png" alt="Онлайн-уроки" class="me-2" style="width: 24px;">
@@ -29,7 +27,7 @@
             </div>
             <button class="btn btn-link text-primary" (click)="openTariffModal()">Добавить</button>
           </div>
-          <!-- Карточка продукта "Марафоны" -->
+          <!-- Product card "Marathons" -->
           <div class="d-flex justify-content-between align-items-center border p-2">
             <div class="d-flex align-items-center">
               <img src="marathons-icon.png" alt="Марафоны" class="me-2" style="width: 24px;">
@@ -46,7 +44,7 @@
   </div>
 </div>
 
-<!-- Modal: Выбор тарифов для Онлайн-уроков -->
+<!-- Tariff Selection Modal -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showTariffModal }" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -57,79 +55,35 @@
         </button>
       </div>
       <div class="modal-body text-center">
-        <div id="tariffCarousel" class="carousel slide" data-bs-ride="carousel">
+        <!-- Conditional Carousel Views -->
+        <div *ngIf="!isProView">
+          <p>Меньше учеников и ограниченные возможности доступны на тарифе Стандарт</p>
+          <button class="btn btn-outline-primary me-2" (click)="viewStandardTariff()">Тарифы Стандарт</button>
+          <button class="btn btn-primary" (click)="viewProTariff()">Pro</button>
+        </div>
+
+        <div *ngIf="isProView" class="carousel slide" id="tariffCarousel">
           <div class="carousel-inner">
-            <!-- Тариф 1 -->
-            <div class="carousel-item active">
+            <!-- Pro View with Carousel Items -->
+            <div *ngFor="let plan of proPlans; let i = index" [ngClass]="{'carousel-item': true, 'active': i === activeProIndex}">
               <div class="card">
                 <div class="card-body">
-                  <h5 class="card-title">50 учеников</h5>
-                  <p class="card-text">7500 RUB в месяц</p>
-                  <button class="btn btn-primary">Активировать</button>
-                </div>
-              </div>
-            </div>
-            <!-- Тариф 2 -->
-            <div class="carousel-item">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">100 учеников</h5>
-                  <p class="card-text">14500 RUB в месяц</p>
-                  <button class="btn btn-primary">Активировать</button>
-                </div>
-              </div>
-            </div>
-            <!-- Тариф 3 -->
-            <div class="carousel-item">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">150 учеников</h5>
-                  <p class="card-text">21000 RUB в месяц</p>
+                  <h5 class="card-title">{{ plan.students }} учеников</h5>
+                  <p class="card-text">{{ plan.price }} RUB в месяц</p>
                   <button class="btn btn-primary">Активировать</button>
                 </div>
               </div>
             </div>
           </div>
-          <!-- Кнопки управления каруселью -->
-          <button class="carousel-control-prev" type="button" data-bs-target="#tariffCarousel" data-bs-slide="prev">
+          <!-- Carousel Navigation -->
+          <button class="carousel-control-prev" type="button" (click)="navigateCarousel('prev')">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
           </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#tariffCarousel" data-bs-slide="next">
+          <button class="carousel-control-next" type="button" (click)="navigateCarousel('next')">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
           </button>
-        </div>
-
-        <!-- Блок с преимуществами тарифа Pro -->
-        <div class="mt-4">
-          <h6 class="text-center">На тарифе Pro доступно</h6>
-          <div class="d-flex flex-wrap justify-content-center mt-3">
-            <div class="feature-card text-center p-2 m-2">
-              <i class="icon-management"></i>
-              <p>Инструменты управления учебным процессом</p>
-            </div>
-            <div class="feature-card text-center p-2 m-2">
-              <i class="icon-teachers"></i>
-              <p>Неограниченное кол-во учителей и администраторов</p>
-            </div>
-            <div class="feature-card text-center p-2 m-2">
-              <i class="icon-learners"></i>
-              <p>Возможность обучать любое кол-во учеников</p>
-            </div>
-            <div class="feature-card text-center p-2 m-2">
-              <i class="icon-label"></i>
-              <p>Возможность подключить White Label и Рекламный блок</p>
-            </div>
-            <div class="feature-card text-center p-2 m-2">
-              <i class="icon-analytics"></i>
-              <p>Отслеживание оплаченных уроков и приём оплат</p>
-            </div>
-            <div class="feature-card text-center p-2 m-2">
-              <i class="icon-database"></i>
-              <p>Общая база материалов школы</p>
-            </div>
-          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -138,5 +92,4 @@
     </div>
   </div>
 </div>
-
 

@@ -2,11 +2,19 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-tariff-status',
-  templateUrl: './tariff-status.component.html'
+  templateUrl: './tariff-status.component.html',
 })
 export class TariffStatusComponent {
   showModal: boolean = false;
   showTariffModal: boolean = false;
+  isProView: boolean = false;
+  activeProIndex: number = 0;
+
+  proPlans = [
+    { students: 50, price: 7500 },
+    { students: 100, price: 14500 },
+    { students: 150, price: 21000 },
+  ];
 
   openModal() {
     this.showModal = true;
@@ -18,22 +26,33 @@ export class TariffStatusComponent {
 
   openTariffModal() {
     this.showTariffModal = true;
-    this.closeModal(); // Закрыть первое окно при открытии второго
+    this.closeModal();
   }
 
   closeTariffModal() {
     this.showTariffModal = false;
+    this.isProView = false;
+    this.activeProIndex = 0;
   }
 
-  selectProTariff() {
-    const carousel = document.querySelector('#tariffCarousel') as HTMLElement;
-    if (carousel) {
-      carousel.dispatchEvent(new Event('slide'));
+  viewStandardTariff() {
+    this.isProView = false;
+  }
+
+  viewProTariff() {
+    this.isProView = true;
+  }
+
+  navigateCarousel(direction: string) {
+    if (direction === 'next') {
+      this.activeProIndex = (this.activeProIndex + 1) % this.proPlans.length;
+    } else if (direction === 'prev') {
+      this.activeProIndex = (this.activeProIndex - 1 + this.proPlans.length) % this.proPlans.length;
     }
   }
 
   showAllFeatures() {
-    // Логика для показа всех возможностей тарифа
+    alert('Показать все возможности тарифа Pro');
   }
 }
 
