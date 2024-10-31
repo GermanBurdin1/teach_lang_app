@@ -8,5 +8,4 @@ import { Component } from '@angular/core';
 export class TariffsComponent {
   onlineLessonsProduct = { name: 'Онлайн-уроки', description: 'Максимальное количество учеников: 50', price: 7500 };
   marathonsProduct = { name: 'Марафоны', description: 'Участие оплачивается отдельно', price: 750 };
-  blendedLearningProduct = { name: 'Смешанное обучение', description: 'Скоро', price: 0 };
 }
