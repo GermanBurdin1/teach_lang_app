@@ -55,17 +55,17 @@
         </button>
       </div>
       <div class="modal-body text-center">
-        <!-- Conditional Carousel Views -->
-        <div *ngIf="!isProView">
-          <p>Меньше учеников и ограниченные возможности доступны на тарифе Стандарт</p>
-          <button class="btn btn-outline-primary me-2" (click)="viewStandardTariff()">Тарифы Стандарт</button>
-          <button class="btn btn-primary" (click)="viewProTariff()">Pro</button>
-        </div>
-
-        <div *ngIf="isProView" class="carousel slide" id="tariffCarousel">
+        <!-- Carousel with initial and Pro views -->
+        <div id="tariffCarousel" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">
+            <!-- Начальный экран с тарифами -->
+            <div [ngClass]="{'carousel-item': true, 'active': activeProIndex === -1}">
+              <p>Меньше учеников и ограниченные возможности доступны на тарифе Стандарт</p>
+              <button class="btn btn-outline-primary me-2" (click)="viewStandardTariff()">Тарифы Стандарт</button>
+              <button class="btn btn-primary" (click)="viewProTariff()">Pro</button>
+            </div>
             <!-- Pro View with Carousel Items -->
-            <div *ngFor="let plan of proPlans; let i = index" [ngClass]="{'carousel-item': true, 'active': i === activeProIndex}">
+            <div *ngFor="let plan of proPlans; let i = index" [ngClass]="{'carousel-item': true, 'active': activeProIndex === i}">
               <div class="card">
                 <div class="card-body">
                   <h5 class="card-title">{{ plan.students }} учеников</h5>
@@ -92,4 +92,5 @@
     </div>
   </div>
 </div>
+
 
