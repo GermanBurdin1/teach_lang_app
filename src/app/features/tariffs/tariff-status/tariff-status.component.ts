@@ -5,9 +5,9 @@ import { Component } from '@angular/core';
   templateUrl: './tariff-status.component.html',
 })
 export class TariffStatusComponent {
-showAllFeatures() {
-throw new Error('Method not implemented.');
-}
+  showAllFeatures() {
+    throw new Error('Method not implemented.');
+  }
   showModal: boolean = false;
   showTariffModal: boolean = false;
   isProView: boolean = false;
@@ -70,20 +70,21 @@ throw new Error('Method not implemented.');
   }
 
   navigateCarousel(direction: string) {
-    if (direction === 'next') {
-      if (this.activeIndex === -1) {
-        this.activeIndex = 0; // Переход к главному слайду
-      } else {
-        this.activeIndex++;
-      }
-    } else if (direction === 'prev') {
-      if (this.activeIndex === 1) {
-        this.activeIndex = 0; // Переход к главному слайду
-      } else {
-        this.activeIndex--;
-      }
+    if (direction === 'next' && this.activeIndex < 3) { // Ограничение вправо на +3
+      this.activeIndex++;
+    } else if (direction === 'prev' && this.activeIndex > -3) { // Ограничение влево на -3
+      this.activeIndex--;
     }
   }
+
+  isPrevDisabled(): boolean {
+    return this.activeIndex === -3 || this.activeIndex === 0; // Отключаем кнопку "влево" на крайнем левом (-3) и на главном (0)
+  }
+
+  isNextDisabled(): boolean {
+    return this.activeIndex === 3 || this.activeIndex === 0; // Отключаем кнопку "вправо" на крайнем правом (+3) и на главном (0)
+  }
+
 
   private chunkArray(array: { students: number; price: number }[], chunkSize: number) {
     const results = [];
