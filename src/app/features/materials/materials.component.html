@@ -5,19 +5,16 @@
   <!-- Вкладки навигации -->
   <ul class="nav nav-tabs" id="materialsTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="catalog-tab" data-bs-toggle="tab" data-bs-target="#catalog" type="button" role="tab" aria-controls="catalog" aria-selected="true">
-        Каталог
-      </button>
+      <button class="nav-link active" id="catalog-tab" data-bs-toggle="tab" data-bs-target="#catalog" type="button"
+        role="tab" aria-controls="catalog" aria-selected="true">Каталог</button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="false">
-        Личные
-      </button>
+      <button class="nav-link" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button"
+        role="tab" aria-controls="personal" aria-selected="false">Личные</button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="interactive-tab" data-bs-toggle="tab" data-bs-target="#interactive" type="button" role="tab" aria-controls="interactive" aria-selected="false">
-        Интерактивные доски
-      </button>
+      <button class="nav-link" id="interactive-tab" data-bs-toggle="tab" data-bs-target="#interactive" type="button"
+        role="tab" aria-controls="interactive" aria-selected="false">Интерактивные доски</button>
     </li>
   </ul>
 
@@ -30,15 +27,14 @@
 
     <!-- Вкладка "Личные" -->
     <div class="tab-pane fade" id="personal" role="tabpanel" aria-labelledby="personal-tab">
-      <!-- Поисковая строка и фильтр -->
       <div class="d-flex justify-content-between mb-3">
         <input type="text" class="form-control w-75" placeholder="Поиск материалов и уроков">
         <button class="btn btn-outline-secondary ms-2"><i class="bi bi-funnel"></i> Фильтр</button>
       </div>
-      <p>Кол-во материалов: 1</p>
+      <p>Кол-во материалов: {{ courses.length }}</p>
 
-      <!-- Карточки материалов -->
       <div class="row">
+        <!-- Карточка для создания нового курса -->
         <div class="col-3">
           <div class="card text-center" data-bs-toggle="modal" data-bs-target="#createMaterialModal">
             <div class="card-body">
@@ -47,11 +43,16 @@
             </div>
           </div>
         </div>
-        <div class="col-3">
-          <div class="card bg-light-green text-center">
+
+        <!-- Перебор существующих курсов -->
+        <div class="col-3" *ngFor="let course of courses">
+          <div class="card text-center">
+            <div class="card-header">
+              <button (click)="openDeleteModal(course.id)" class="btn btn-sm btn-danger" aria-label="Удалить курс">×</button>
+            </div>
             <div class="card-body">
-              <div class="display-4">A</div>
-              <p class="card-text">A1</p>
+              <div class="display-4">{{ course.letter }}</div>
+              <p class="card-text">{{ course.name }}</p>
             </div>
           </div>
         </div>
@@ -64,8 +65,28 @@
     </div>
   </div>
 
-  <!-- Модальное окно -->
-  <div class="modal fade" id="createMaterialModal" tabindex="-1" aria-labelledby="createMaterialModalLabel" aria-hidden="true">
+  <!-- Модальное окно для подтверждения удаления -->
+  <div *ngIf="showDeleteModal" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Подтвердите удаление</h5>
+          <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Вы уверены, что хотите удалить курс?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Отмена</button>
+          <button type="button" class="btn btn-danger" (click)="deleteCourse()">Удалить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно создания материала -->
+  <div class="modal fade" id="createMaterialModal" tabindex="-1" aria-labelledby="createMaterialModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -91,11 +112,13 @@
                 <div class="mb-3">
                   <label class="form-label">Обложка</label>
                   <div class="d-flex align-items-center">
-                    <div class="me-3" style="width: 50px; height: 50px; background-color: #e6f7d4; text-align: center; line-height: 50px; font-size: 1.5em; border-radius: 5px;">
+                    <div class="me-3"
+                      style="width: 50px; height: 50px; background-color: #e6f7d4; text-align: center; line-height: 50px; font-size: 1.5em; border-radius: 5px;">
                       A
                     </div>
                     <input type="file" id="fileInput" class="d-none" (change)="onFileSelected($event)">
-                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('fileInput').click()">Загрузить</button>
+                    <button type="button" class="btn btn-outline-secondary"
+                      onclick="document.getElementById('fileInput').click()">Загрузить</button>
                   </div>
                 </div>
                 <div class="mb-3">
