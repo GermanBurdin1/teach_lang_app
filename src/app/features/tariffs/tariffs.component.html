@@ -1,11 +1,27 @@
-<!-- tariff.component.html -->
-<div class="container mt-4 d-flex flex-column">
-  <app-balance class="mb-4"></app-balance> <!-- Компонент для отображения баланса -->
+<div class="container mt-4">
+  <!-- Вкладки навигации -->
+  <ul class="nav nav-tabs" id="tariffTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" id="tariffs-tab" data-bs-toggle="tab" href="#tariffs" role="tab" aria-controls="tariffs" aria-selected="true">Тарифы</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="payments-tab" data-bs-toggle="tab" href="#payments" role="tab" aria-controls="payments" aria-selected="false">Оплата</a>
+    </li>
+  </ul>
 
-  <app-tariff-status class="mb-4"></app-tariff-status> <!-- Компонент для отображения статуса тарифа -->
+  <!-- Содержимое вкладок -->
+  <div class="tab-content mt-3" id="tariffTabsContent">
+    <!-- Вкладка "Тарифы" -->
+    <div class="tab-pane fade show active" id="tariffs" role="tabpanel" aria-labelledby="tariffs-tab">
+      <app-tariff-status class="mb-4"></app-tariff-status> <!-- Компонент для отображения статуса тарифа -->
+      <app-product-card [product]="onlineLessonsProduct" class="mb-4"></app-product-card> <!-- Продуктовая карточка -->
+      <app-product-card [product]="marathonsProduct" class="mb-4"></app-product-card> <!-- Продуктовая карточка -->
+      <app-additional-services class="mt-4"></app-additional-services> <!-- Дополнительные услуги -->
+    </div>
 
-  <!-- Карточки продуктов, размещенные вертикально -->
-  <app-product-card [product]="onlineLessonsProduct" class="mb-4"></app-product-card> <!-- Продуктовая карточка -->
-  <app-product-card [product]="marathonsProduct" class="mb-4"></app-product-card> <!-- Продуктовая карточка -->
-  <app-additional-services class="mt-4"></app-additional-services> <!-- Дополнительные услуги -->
+    <!-- Вкладка "Оплата" -->
+    <div class="tab-pane fade" id="payments" role="tabpanel" aria-labelledby="payments-tab">
+      <app-balance class="mb-4"></app-balance> <!-- Компонент для отображения баланса -->
+    </div>
+  </div>
 </div>
