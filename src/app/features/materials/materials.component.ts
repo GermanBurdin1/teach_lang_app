@@ -7,6 +7,7 @@ import { Tooltip } from 'bootstrap';
   styleUrls: ['./materials.component.css']
 })
 export class MaterialsComponent implements AfterViewInit {
+document: any;
 
   ngAfterViewInit(): void {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -90,4 +91,21 @@ export class MaterialsComponent implements AfterViewInit {
     // Логика применения выбранных фильтров
   }
 
+  ///////////////////////////////// интерактивная карта
+  isCreateBoardModalOpen = false;
+
+  openCreateBoardModal(): void {
+    this.isCreateBoardModalOpen = true;
+    console.log('Открытие модального окна для создания новой доски');
+  }
+
+  closeCreateBoardModal(): void {
+    this.isCreateBoardModalOpen = false;
+    console.log('Закрытие модального окна для создания новой доски');
+  }
+
+  triggerFileInput(): void {
+    const fileInput = document.getElementById('coverUpload') as HTMLInputElement;
+    fileInput?.click();
+  }
 }

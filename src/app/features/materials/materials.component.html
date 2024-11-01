@@ -64,7 +64,19 @@
 
     <!-- Вкладка "Интерактивные доски" -->
     <div class="tab-pane fade" id="interactive" role="tabpanel" aria-labelledby="interactive-tab">
-      <p>Содержимое для вкладки "Интерактивные доски" здесь...</p>
+      <div class="tir-info"
+        style="min-height: 368px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+        <!-- Заменённая иконка -->
+        <i class="bi bi-card-text" style="font-size: 3rem; color: #999;"></i>
+
+        <!-- Текстовое сообщение -->
+        <p class="text-muted mt-3">Интерактивные доски не найдены</p>
+
+        <!-- Кнопка для создания новой доски -->
+        <button class="btn btn-primary mt-3" (click)="openCreateBoardModal()">
+          Создать новую доску
+        </button>
+      </div>
     </div>
   </div>
 
@@ -251,7 +263,47 @@
       </div>
     </div>
   </div>
+  <!-- Модальное окно для создания доски -->
+  <div *ngIf="isCreateBoardModalOpen" class="modal fade show d-block" tabindex="-1"
+    style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-4">
+        <!-- Заголовок с иконкой и названием -->
+        <div class="text-center mb-3">
+          <!-- Простая замена иконки, можно кастомизировать -->
+          <i class="bi bi-card-text" style="font-size: 3rem; color: #999;"></i>
+          <h5 class="modal-title mt-2">Создать доску</h5>
+        </div>
 
+        <!-- Тело модального окна -->
+        <div class="modal-body">
+          <!-- Обложка -->
+          <div class="d-flex align-items-center mb-3">
+            <label class="form-label me-3" style="width: 80px;">Обложка</label>
+            <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;"></div>
+            <!-- Скрытое поле для загрузки файла -->
+            <input type="file" id="coverUpload" class="d-none" (change)="onFileSelected($event)">
+
+            <!-- Кнопка для открытия диалога выбора файла -->
+            <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+
+          </div>
+
+          <!-- Название доски -->
+          <div class="mb-3">
+            <label for="boardName" class="form-label">Название</label>
+            <input type="text" id="boardName" class="form-control" placeholder="Введите название">
+          </div>
+        </div>
+
+        <!-- Кнопки в подвале модального окна -->
+        <div class="modal-footer d-flex justify-content-end">
+          <button type="button" class="btn btn-secondary" (click)="closeCreateBoardModal()">Отмена</button>
+          <button type="button" class="btn btn-primary">Создать</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
 </div>
