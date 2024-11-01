@@ -55,7 +55,7 @@
         </button>
       </div>
       <div class="modal-body text-center">
-        <!-- Главный слайд с выбором тарифа -->
+
         <!-- Главный слайд с выбором тарифа -->
         <div *ngIf="activeIndex === 0" class="carousel-item active">
           <!-- Кнопка выбора длительности подписки -->
@@ -77,7 +77,6 @@
               </button>
             </div>
           </div>
-
           <!-- Секция с преимуществами тарифа Pro -->
           <div class="text-start">
             <h6 class="text-center mb-4">На тарифе Pro доступно</h6>
@@ -115,6 +114,18 @@
                 <h5 class="card-title">{{ plan.students }} учеников</h5>
                 <p class="card-text">{{ plan.price }} RUB в месяц</p>
                 <button class="btn btn-primary">Активировать</button>
+              </div>
+            </div>
+          </div>
+          <!-- Секция с преимуществами тарифа Pro -->
+          <div class="text-start">
+            <h6 class="text-center mb-4">На тарифе Pro доступно</h6>
+            <div class="row row-cols-2 row-cols-md-3 g-3">
+              <div class="col" *ngFor="let feature of proFeatures">
+                <div class="border rounded p-3 text-center bg-dark text-light">
+                  <i class="{{ feature.icon }} mb-2" style="font-size: 1.5em;"></i>
+                  <p class="mb-0 small">{{ feature.description }}</p>
+                </div>
               </div>
             </div>
           </div>
