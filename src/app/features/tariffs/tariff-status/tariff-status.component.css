@@ -5,3 +5,12 @@
   justify-content: center;
   align-items: center;
 }
+
+.custom-carousel-button {
+  width: 50px; /* Задайте нужную ширину */
+  height: 50px; /* Ограничение высоты */
+  align-items: center; /* Центрирование содержимого по вертикали */
+  justify-content: center; /* Центрирование содержимого по горизонтали */
+  top: 50%; /* Центрирование кнопки по высоте */
+  transform: translateY(-50%);
+}

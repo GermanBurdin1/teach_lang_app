@@ -134,20 +134,21 @@
 
       <!-- Навигация -->
       <div class="modal-footer">
-        <button *ngIf="!isPrevDisabled()" class="carousel-control-prev bg-dark text-light" type="button"
-          (click)="navigateCarousel('prev')">
+        <button *ngIf="!isPrevDisabled()" class="carousel-control-prev bg-dark text-light custom-carousel-button"
+          type="button" (click)="navigateCarousel('prev')">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Previous</span>
         </button>
 
-        <button *ngIf="!isNextDisabled()" class="carousel-control-next bg-dark text-light" type="button"
-          (click)="navigateCarousel('next')">
+        <button *ngIf="!isNextDisabled()" class="carousel-control-next bg-dark text-light custom-carousel-button"
+          type="button" (click)="navigateCarousel('next')">
           <span class="carousel-control-next-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Next</span>
         </button>
 
         <button type="button" class="btn btn-link" (click)="showAllFeatures()">Посмотреть все возможности</button>
       </div>
+
     </div>
   </div>
 </div>
