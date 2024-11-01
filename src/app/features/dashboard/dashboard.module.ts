@@ -7,6 +7,7 @@ import { MarathonsComponent } from '../marathons/marathons.component';
 import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { LayoutModule } from "../../layout/layout.module";
     LayoutModule,
     CommonModule,
     RouterModule.forChild([]),
-    DashboardRoutingModule
+    DashboardRoutingModule,
+    FormsModule,
 ]
 })
 export class DashboardModule { }

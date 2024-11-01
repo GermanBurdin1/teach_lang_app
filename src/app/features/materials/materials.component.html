@@ -29,7 +29,9 @@
     <div class="tab-pane fade" id="personal" role="tabpanel" aria-labelledby="personal-tab">
       <div class="d-flex justify-content-between mb-3">
         <input type="text" class="form-control w-75" placeholder="Поиск материалов и уроков">
-        <button class="btn btn-outline-secondary ms-2"><i class="bi bi-funnel"></i> Фильтр</button>
+        <button class="btn btn-outline-secondary ms-2" (click)="openFilterModal()">
+          <i class="bi bi-funnel"></i> Фильтр
+        </button>
       </div>
       <p>Кол-во материалов: {{ courses.length }}</p>
 
@@ -209,4 +211,47 @@
       </div>
     </div>
   </div>
+  <!-- Модальное окно для фильтра -->
+
+  <div *ngIf="isFilterModalOpen" class="modal fade show d-block" tabindex="-1" role="dialog"
+    aria-labelledby="filterModalLabel" aria-hidden="true" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-4">
+        <div class="inner">
+          <!-- Закрытие модального окна -->
+          <div class="icon close" (click)="closeFilterModal()">
+            <i class="bi bi-x-lg"></i>
+          </div>
+          <!-- Заголовок модального окна -->
+          <div class="head">
+            <div class="title left">Фильтр</div>
+          </div>
+          <!-- Тело модального окна -->
+          <div class="body mt-3">
+            <button class="tir-button is-fill gray is-medium w-100 mb-3" (click)="resetFilters()">Сбросить все</button>
+
+            <!-- Фильтры с использованием <select> -->
+            <div class="tir-label mb-3" *ngFor="let filter of filters">
+              <span class="label">{{ filter.label }}</span>
+              <div class="field">
+                <select class="form-select" [(ngModel)]="selectedFilters[filter.type]">
+                  <option [value]="null" disabled selected>{{ filter.placeholder }}</option>
+                  <option *ngFor="let option of filter.options" [value]="option">{{ option }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Подвал модального окна -->
+          <div class="footer mt-3 d-flex justify-content-end">
+            <button class="tir-button is-fill gray is-medium me-2" (click)="closeFilterModal()">Отмена</button>
+            <button class="tir-button is-fill blue is-medium" (click)="applyFilters()">Применить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
 </div>

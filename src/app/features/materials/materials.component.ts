@@ -51,4 +51,43 @@ export class MaterialsComponent implements AfterViewInit {
       this.closeDeleteModal();
     }
   }
+
+  //фильтры => oсновные
+
+  isFilterModalOpen = false;
+  selectedFilters: any = {}; // Объект для хранения выбранных значений фильтров
+
+  filters = [
+    { label: 'Язык', placeholder: 'Выберите язык', type: 'language', options: ['Русский', 'Английский', 'Испанский'] },
+    { label: 'Возраст', placeholder: 'Выберите возраст', type: 'age', options: ['Дети', 'Подростки', 'Взрослые'] },
+    { label: 'Уровень', placeholder: 'Выберите уровень', type: 'level', options: ['Начальный', 'Средний', 'Продвинутый'] },
+    { label: 'Тип', placeholder: 'Выберите тип', type: 'type', options: ['Общий', 'Бизнес', 'Для путешествий'] },
+    { label: 'Навыки', placeholder: 'Выберите навык', type: 'skills', options: ['Грамматика', 'Лексика', 'Письмо'] },
+    { label: 'Время', placeholder: 'Выберите время', type: 'time', options: ['Утро', 'День', 'Вечер'] },
+    { label: 'Грамматика', placeholder: 'Введите тип', type: 'grammar', options: ['Основы', 'Продвинутый'] },
+    { label: 'Лексика', placeholder: 'Выберите лексику', type: 'vocabulary', options: ['Базовая', 'Продвинутая'] },
+    { label: 'Функции', placeholder: 'Выберите функции', type: 'functions', options: ['Разговор', 'Письмо', 'Чтение'] },
+    { label: 'Другое', placeholder: 'Выберите тег', type: 'other', options: ['Дополнительный', 'Специальный'] }
+  ];
+
+
+
+  openFilterModal(): void {
+    this.isFilterModalOpen = true;
+  }
+
+  closeFilterModal(): void {
+    this.isFilterModalOpen = false;
+  }
+
+  resetFilters(): void {
+    this.selectedFilters = {}; // Сбрасываем все выбранные фильтры
+    console.log('Сбросить все фильтры');
+  }
+
+  applyFilters(): void {
+    console.log('Применить фильтры', this.selectedFilters);
+    // Логика применения выбранных фильтров
+  }
+
 }
