@@ -1,11 +1,57 @@
-<!-- balance.component.html -->
-<div class="d-flex justify-content-between align-items-center p-3" style="border-bottom: 1px solid #dee2e6;">
-  <div>
-    <h4>Баланс школы</h4>
-    <p>0 RUB</p>
+      <div class="d-flex justify-content-between align-items-center my-3">
+        <div>
+          <span>Баланс:</span> <strong>0 RUB</strong>
+        </div>
+        <button class="btn btn-primary" (click)="openBalanceModal()">Пополнить баланс</button>
+      </div>
+
+      <!-- История оплат -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Операция</th>
+              <th>Название</th>
+              <th>Период</th>
+              <th>Баланс</th>
+              <th>Оплачено</th>
+              <th>Реквизиты</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>31 янв. 2023 в 12:57</td>
+              <td>Пробный тариф</td>
+              <td>—</td>
+              <td>3 дней</td>
+              <td>0 RUB</td>
+              <td>0 RUB</td>
+              <td>Баланс</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+  <!-- Модальное окно пополнения баланса -->
+  <div *ngIf="isBalanceModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-4">
+        <div class="text-center mb-3">
+          <img src="assets/icons/money-bag.png" alt="Пополнить баланс" style="width: 50px;">
+          <h5 class="modal-title mt-2">Пополнить баланс</h5>
+          <p>Введите сумму для пополнения баланса вашего аккаунта</p>
+        </div>
+
+        <div class="modal-body">
+          <input type="number" class="form-control text-center mb-2" placeholder="0">
+          <span class="text-muted">RUB</span>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-center">
+          <button type="button" class="btn btn-primary" (click)="payWithCard()">Оплатить картой</button>
+          <button type="button" class="btn btn-secondary" (click)="closeBalanceModal()">Отмена</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <div>
-    <button class="btn btn-primary">Пополнить баланс</button>
-    <button class="btn btn-outline-secondary">История оплат</button>
-  </div>
-</div>
