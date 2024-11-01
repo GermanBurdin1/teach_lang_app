@@ -48,7 +48,8 @@
         <div class="col-3" *ngFor="let course of courses">
           <div class="card text-center">
             <div class="card-header">
-              <button (click)="openDeleteModal(course.id)" class="btn btn-sm btn-danger" aria-label="Удалить курс">×</button>
+              <button (click)="openDeleteModal(course.id)" class="btn btn-sm btn-danger"
+                aria-label="Удалить курс">×</button>
             </div>
             <div class="card-body">
               <div class="display-4">{{ course.letter }}</div>
@@ -66,7 +67,8 @@
   </div>
 
   <!-- Модальное окно для подтверждения удаления -->
-  <div *ngIf="showDeleteModal" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+  <div *ngIf="showDeleteModal" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5);"
+    tabindex="-1" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -137,16 +139,65 @@
                     <option value="en">Английский</option>
                   </select>
                 </div>
-                <div class="mb-3">
-                  <label class="form-label">Разделы</label>
-                  <input type="checkbox" class="form-check-input">
+                <div class="mb-3 d-flex align-items-center">
+                  <label class="form-label mb-0 me-2">Разделы</label>
+
+                  <!-- Tooltip icon with question mark -->
+                  <i class="bi bi-question-circle ms-1 text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Включив эту опцию, вы сможете группировать уроки по разделам"></i>
+
+                  <!-- Toggle switch -->
+                  <div class="form-check form-switch ms-auto">
+                    <input type="checkbox" class="form-check-input" id="sectionsSwitch">
+                  </div>
                 </div>
+
               </form>
             </div>
 
             <!-- Вкладка Теги -->
             <div class="tab-pane fade" id="tags">
-              <p>Содержимое вкладки "Теги".</p>
+              <form>
+                <div class="mb-3">
+                  <label for="ageSelect" class="form-label">Возраст</label>
+                  <select id="ageSelect" class="form-select">
+                    <option selected>Выберите возраст</option>
+                    <option value="children">Дети</option>
+                    <option value="teens">Подростки</option>
+                    <option value="adults">Взрослые</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="levelSelect" class="form-label">Уровень</label>
+                  <select id="levelSelect" class="form-select">
+                    <option selected>Выберите уровень</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="elementary">Elementary</option>
+                    <option value="preIntermediate">Pre-intermediate</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="upperIntermediate">Upper-Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="proficiency">Proficiency</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="typeSelect" class="form-label">Тип</label>
+                  <select id="typeSelect" class="form-select">
+                    <option selected>Выберите тип</option>
+                    <option value="general">Общий</option>
+                    <option value="business">Бизнес</option>
+                    <option value="examPreparation">Подготовка к экзаменам</option>
+                    <option value="travel">Для путешествий</option>
+                    <option value="songs">По песням</option>
+                    <option value="movies">По фильмам и сериалам</option>
+                    <option value="cartoons">По мультфильмам</option>
+                    <option value="speeches">Речи и интервью</option>
+                    <option value="other">Другое</option>
+                  </select>
+                </div>
+              </form>
             </div>
           </div>
         </div>

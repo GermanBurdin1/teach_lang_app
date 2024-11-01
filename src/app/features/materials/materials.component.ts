@@ -1,11 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
+import { Tooltip } from 'bootstrap';
 
 @Component({
   selector: 'app-materials',
   templateUrl: './materials.component.html',
   styleUrls: ['./materials.component.css']
 })
-export class MaterialsComponent {
+export class MaterialsComponent implements AfterViewInit {
+
+  ngAfterViewInit(): void {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+      new Tooltip(tooltipTriggerEl);
+    });
+  }
+
   selectedFile: File | null = null;
   courses = [
     { id: 1, name: 'A1', letter: 'A' }
