@@ -13,6 +13,15 @@ export class TariffStatusComponent {
   isProView: boolean = false;
   activeIndex: number = 0; // 0: главный слайд, -1... для стандартных, 1... для Pro
 
+  proFeatures = [
+    { icon: 'icon-management', description: 'Инструменты управления учебным процессом' },
+    { icon: 'icon-unlimited-teachers', description: 'Неограниченное кол-во учителей и администраторов' },
+    { icon: 'icon-students', description: 'Возможность обучать любое кол-во учеников' },
+    { icon: 'icon-white-label', description: 'Возможность подключить White Label и Рекламный блок' },
+    { icon: 'icon-payments', description: 'Отслеживание количества оплаченных уроков и приём оплат' },
+    { icon: 'icon-materials', description: 'Общая база материалов школы' }
+  ];
+
   // Данные для стандартных тарифов
   standardPlans = [
     { students: 36, price: 3050 },

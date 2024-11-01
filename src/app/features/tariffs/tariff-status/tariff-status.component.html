@@ -48,7 +48,8 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title">Онлайн-уроки <span class="badge bg-warning text-dark">{{ activeIndex === -1 ? 'Стандарт' : activeIndex === 1 ? 'Pro' : 'Pro (beta)' }}</span></h5>
+        <h5 class="modal-title">Онлайн-уроки <span class="badge bg-warning text-dark">{{ activeIndex === -1 ? 'Стандарт'
+            : activeIndex === 1 ? 'Pro' : 'Pro (beta)' }}</span></h5>
         <button type="button" class="close text-white" (click)="closeTariffModal()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -56,10 +57,32 @@
       <div class="modal-body text-center">
         <!-- Главный слайд с выбором тарифа -->
         <div *ngIf="activeIndex === 0" class="carousel-item active">
+          <!-- Кнопка выбора длительности подписки -->
+          <div class="mb-3">
+            <button class="btn btn-outline-secondary">1 мес</button>
+          </div>
+
+          <!-- Информационный текст -->
           <p>Меньше учеников и ограниченные возможности доступны на тарифе Стандарт</p>
+
+          <!-- Кнопки для выбора тарифов -->
           <button class="btn btn-outline-primary me-2" (click)="viewStandardTariff()">Тарифы Стандарт</button>
           <button class="btn btn-primary" (click)="viewProTariff()">Pro</button>
+
+          <!-- Секция с преимуществами тарифа Pro -->
+          <div class="mt-4">
+            <h6>На тарифе Pro доступно</h6>
+            <div class="row mt-3">
+              <div class="col-6 col-md-4 mb-3" *ngFor="let feature of proFeatures">
+                <div class="feature-card p-3">
+                  <i class="{{ feature.icon }}"></i>
+                  <p>{{ feature.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
 
         <!-- Стандартные тарифы (левее главного) -->
         <div *ngIf="activeIndex < 0" class="carousel-item active">
@@ -90,32 +113,20 @@
 
       <!-- Навигация -->
       <div class="modal-footer">
-        <button
-    *ngIf="!isPrevDisabled()"
-    class="carousel-control-prev bg-dark text-light"
-    type="button"
-    (click)="navigateCarousel('prev')">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-</button>
+        <button *ngIf="!isPrevDisabled()" class="carousel-control-prev bg-dark text-light" type="button"
+          (click)="navigateCarousel('prev')">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
 
-<button
-    *ngIf="!isNextDisabled()"
-    class="carousel-control-next bg-dark text-light"
-    type="button"
-    (click)="navigateCarousel('next')">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-</button>
+        <button *ngIf="!isNextDisabled()" class="carousel-control-next bg-dark text-light" type="button"
+          (click)="navigateCarousel('next')">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
 
         <button type="button" class="btn btn-link" (click)="showAllFeatures()">Посмотреть все возможности</button>
       </div>
     </div>
   </div>
 </div>
-
-
-
-
-
-
