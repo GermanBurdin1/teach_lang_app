@@ -85,7 +85,9 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Часовой пояс</label>
-              <input type="text" class="form-control" placeholder="Часовой пояс ученика">
+              <select class="form-select">
+                <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+              </select>
             </div>
 
             <!-- Дополнительная информация -->
@@ -107,7 +109,9 @@
               </div>
               <div class="mb-3">
                 <label class="form-label">Периодичность обучения</label>
-                <input type="text" class="form-control" placeholder="Выберите периодичность обучения">
+                <select class="form-select">
+                  <option *ngFor="let frequency of frequencies">{{ frequency }}</option>
+                </select>
               </div>
               <div class="mb-3">
                 <label class="form-label">Цель изучения</label>
@@ -133,3 +137,4 @@
     </div>
   </div>
 </div>
+
