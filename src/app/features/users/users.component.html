@@ -90,6 +90,9 @@
 
             <!-- Дополнительная информация -->
             <div *ngIf="showAdditionalInfo">
+              <div class="separator mb-2">
+                <span>Дополнительная информация</span>
+              </div>
               <div class="mb-3">
                 <label class="form-label">Ссылка для связи</label>
                 <input type="text" class="form-control" placeholder="Ссылка для связи">
@@ -126,8 +129,6 @@
           <button type="button" class="btn btn-secondary" (click)="closeCreateStudentModal()">Отмена</button>
           <button type="button" class="btn btn-primary">Создать</button>
         </div>
-
-
       </div>
     </div>
   </div>

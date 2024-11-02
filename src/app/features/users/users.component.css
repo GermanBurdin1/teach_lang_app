@@ -1,0 +1,14 @@
+.separator {
+  display: flex;
+  align-items: center;
+  color: #9e9e9e; /* Менее тёмный цвет */
+  font-size: 14px;
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #e0e0e0; /* Цвет линии сепарации */
+  margin: 0 8px;
+}
