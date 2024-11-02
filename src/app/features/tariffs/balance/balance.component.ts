@@ -6,6 +6,7 @@ import { Component } from '@angular/core';
 })
 export class BalanceComponent {
   isBalanceModalOpen = false;
+  isPaymentModalOpen = false;
 
   // Открыть модальное окно пополнения баланса
   openBalanceModal(): void {
@@ -17,10 +18,14 @@ export class BalanceComponent {
     this.isBalanceModalOpen = false;
   }
 
-  // Действие при нажатии на "Оплатить картой"
+  // Открыть модальное окно оплаты
   payWithCard(): void {
-    console.log('Платеж выполняется...');
-    // Добавьте логику для обработки платежа
-    this.closeBalanceModal(); // Закрываем модальное окно после выполнения платежа
+    this.isBalanceModalOpen = false;
+    this.isPaymentModalOpen = true;
+  }
+
+  // Закрыть модальное окно оплаты
+  closePaymentModal(): void {
+    this.isPaymentModalOpen = false;
   }
 }

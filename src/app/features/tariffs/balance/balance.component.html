@@ -55,3 +55,34 @@
       </div>
     </div>
   </div>
+
+  <!-- Модальное окно для ввода данных карты -->
+  <div *ngIf="isPaymentModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-4">
+        <div class="text-center mb-3">
+          <h5 class="modal-title mt-2">Предоставление права доступа к платформе</h5>
+          <p class="text-primary display-4">400,00 ₽</p>
+        </div>
+
+        <div class="modal-body">
+          <input type="text" class="form-control mb-3" placeholder="Номер карты">
+          <div class="d-flex gap-2">
+            <input type="text" class="form-control" placeholder="MM / ГГ">
+            <input type="text" class="form-control" placeholder="CVV">
+          </div>
+          <div class="form-check my-3">
+            <input type="checkbox" class="form-check-input" id="sendReceipt">
+            <label class="form-check-label" for="sendReceipt">Отправить квитанцию на E-mail</label>
+          </div>
+          <input type="email" class="form-control mb-3" placeholder="Email">
+        </div>
+
+        <div class="modal-footer d-flex flex-column gap-2">
+          <button type="button" class="btn btn-primary w-100">Оплатить 400,00 ₽</button>
+          <button type="button" class="btn btn-warning w-100">Оплатить <i class="bi bi-apple-pay"></i></button>
+          <button type="button" class="btn btn-dark w-100">Оплатить <i class="bi bi-google-pay"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
