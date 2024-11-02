@@ -1,48 +1,36 @@
 <div class="container mt-4" style="max-width: 900px;">
-  <!-- Заголовок страницы -->
   <h2 class="mb-4">Пользователи</h2>
 
-  <!-- Вкладки Ученики/Учителя -->
   <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
     <li class="nav-item">
-      <a class="nav-link active" id="students-tab" data-bs-toggle="tab" href="#students" role="tab" aria-controls="students" aria-selected="true">Ученики</a>
+      <a class="nav-link active" id="students-tab" data-bs-toggle="tab" href="#students" role="tab"
+         aria-controls="students" aria-selected="true">Ученики</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" id="teachers-tab" data-bs-toggle="tab" href="#teachers" role="tab" aria-controls="teachers" aria-selected="false">Учителя</a>
+      <a class="nav-link" id="teachers-tab" data-bs-toggle="tab" href="#teachers" role="tab"
+         aria-controls="teachers" aria-selected="false">Учителя</a>
     </li>
   </ul>
 
-  <!-- Контент для вкладок -->
   <div class="tab-content" id="myTabContent">
-    <!-- Контент для вкладки Ученики -->
     <div class="tab-pane fade show active" id="students" role="tabpanel" aria-labelledby="students-tab">
-      <!-- Поиск пользователей -->
       <div class="input-group mb-3">
         <input type="text" class="form-control" placeholder="Поиск учеников..." aria-label="Поиск учеников">
       </div>
 
-      <!-- Вывод количества учеников -->
       <p class="mb-3">Ученики: <strong>1</strong></p>
 
-      <!-- Кнопка Добавить нового ученика -->
-      <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center">
+      <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center"
+              (click)="openCreateStudentModal()">
         <i class="fas fa-user-plus mr-2"></i> Добавить нового ученика
       </button>
 
-      <!-- Список пользователей -->
-      <div class="card mb-4 mx-auto" style="max-width: 600px;"> <!-- Ограничили ширину и выровняли по центру -->
+      <div class="card mb-4 mx-auto" style="max-width: 600px;">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div>
             <h5>German</h5>
             <p class="mb-1"><strong>ID:</strong> 2042946</p>
             <p class="mb-1"><strong>Email:</strong> germanburdin1&#64;gmail.com</p>
-            <p class="mb-0">
-              <!-- Иконки с действиями -->
-              <i class="fas fa-info-circle mr-2"></i>
-              <i class="fas fa-ban mr-2"></i>
-              <i class="fas fa-star mr-2"></i>
-              <i class="fas fa-walking"></i>
-            </p>
           </div>
           <div>
             <button class="btn btn-outline-primary">Профиль ученика <i class="fas fa-arrow-right"></i></button>
@@ -51,25 +39,92 @@
       </div>
     </div>
 
-    <!-- Контент для вкладки Учителя -->
     <div class="tab-pane fade" id="teachers" role="tabpanel" aria-labelledby="teachers-tab">
-      <!-- Поиск учителей -->
       <div class="input-group mb-3">
         <input type="text" class="form-control" placeholder="Поиск учителей..." aria-label="Поиск учителей">
       </div>
 
-      <!-- Вывод количества учителей -->
       <p class="mb-3">Учителей: <strong>0</strong></p>
 
-      <!-- Кнопка Добавить нового учителя -->
       <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center">
         <i class="fas fa-user-plus mr-2"></i> Добавить нового учителя
       </button>
+    </div>
+  </div>
 
-      <!-- Список учителей (пустой, для примера) -->
-      <div class="card mb-4 mx-auto" style="max-width: 600px;">
-        <div class="card-body">
-          <p>Пока нет учителей.</p>
+  <!-- Модальное окно добавления ученика -->
+  <div *ngIf="isCreateStudentModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateStudentModal($event)">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content p-4">
+        <div class="modal-header">
+          <h5 class="modal-title">Создать ученика</h5>
+          <button type="button" class="btn-close" (click)="closeCreateStudentModal()"></button>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <!-- Основные поля -->
+            <div class="mb-3">
+              <label class="form-label">Почта</label>
+              <input type="email" class="form-control" placeholder="Эл. почта ученика">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Телефон</label>
+              <input type="tel" class="form-control" placeholder="Номер телефона ученика">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Имя</label>
+              <input type="text" class="form-control" placeholder="Имя ученика">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Родной язык</label>
+              <select class="form-select">
+                <option>Russian</option>
+                <option>English</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Часовой пояс</label>
+              <input type="text" class="form-control" placeholder="Часовой пояс ученика">
+            </div>
+
+            <!-- Дополнительная информация -->
+            <div *ngIf="showAdditionalInfo">
+              <div class="mb-3">
+                <label class="form-label">Ссылка для связи</label>
+                <input type="text" class="form-control" placeholder="Ссылка для связи">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Skype</label>
+                <input type="text" class="form-control" placeholder="Логин ученика в Skype">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Направление</label>
+                <input type="text" class="form-control" placeholder="Выберите направление обучения">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Периодичность обучения</label>
+                <input type="text" class="form-control" placeholder="Выберите периодичность обучения">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Цель изучения</label>
+                <textarea class="form-control" rows="3" placeholder="Напишите цель изучения"></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Заметка</label>
+                <textarea class="form-control" rows="3" placeholder="Напишите заметку"></textarea>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
+              {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
+            </button>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCreateStudentModal()">Отмена</button>
+          <button type="button" class="btn btn-primary">Создать</button>
         </div>
       </div>
     </div>
