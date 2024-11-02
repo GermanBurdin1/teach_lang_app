@@ -1,88 +1,94 @@
-      <div class="d-flex justify-content-between align-items-center my-3">
-        <div>
-          <span>Баланс:</span> <strong>0 RUB</strong>
-        </div>
-        <button class="btn btn-primary" (click)="openBalanceModal()">Пополнить баланс</button>
+<div class="d-flex justify-content-between align-items-center my-3">
+  <div>
+    <span>Баланс:</span> <strong>0 RUB</strong>
+  </div>
+  <button class="btn btn-primary" (click)="openBalanceModal()">Пополнить баланс</button>
+</div>
+
+<!-- История оплат -->
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th>Операция</th>
+        <th>Название</th>
+        <th>Период</th>
+        <th>Баланс</th>
+        <th>Оплачено</th>
+        <th>Реквизиты</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>31 янв. 2023 в 12:57</td>
+        <td>Пробный тариф</td>
+        <td>—</td>
+        <td>3 дней</td>
+        <td>0 RUB</td>
+        <td>0 RUB</td>
+        <td>Баланс</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Модальное окно пополнения баланса -->
+<div *ngIf="isBalanceModalOpen" class="modal fade show d-block" tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="text-center mb-3">
+        <img src="assets/icons/money-bag.png" alt="Пополнить баланс" style="width: 50px;">
+        <h5 class="modal-title mt-2">Пополнить баланс</h5>
+        <p>Введите сумму для пополнения баланса вашего аккаунта</p>
       </div>
 
-      <!-- История оплат -->
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Дата</th>
-              <th>Операция</th>
-              <th>Название</th>
-              <th>Период</th>
-              <th>Баланс</th>
-              <th>Оплачено</th>
-              <th>Реквизиты</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>31 янв. 2023 в 12:57</td>
-              <td>Пробный тариф</td>
-              <td>—</td>
-              <td>3 дней</td>
-              <td>0 RUB</td>
-              <td>0 RUB</td>
-              <td>Баланс</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="modal-body">
+        <input type="number" class="form-control text-center mb-2" placeholder="0">
+        <span class="text-muted">RUB</span>
       </div>
 
-  <!-- Модальное окно пополнения баланса -->
-  <div *ngIf="isBalanceModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content p-4">
-        <div class="text-center mb-3">
-          <img src="assets/icons/money-bag.png" alt="Пополнить баланс" style="width: 50px;">
-          <h5 class="modal-title mt-2">Пополнить баланс</h5>
-          <p>Введите сумму для пополнения баланса вашего аккаунта</p>
-        </div>
-
-        <div class="modal-body">
-          <input type="number" class="form-control text-center mb-2" placeholder="0">
-          <span class="text-muted">RUB</span>
-        </div>
-
-        <div class="modal-footer d-flex justify-content-center">
-          <button type="button" class="btn btn-primary" (click)="payWithCard()">Оплатить картой</button>
-          <button type="button" class="btn btn-secondary" (click)="closeBalanceModal()">Отмена</button>
-        </div>
+      <div class="modal-footer d-flex justify-content-center">
+        <button type="button" class="btn btn-primary" (click)="payWithCard()">Оплатить картой</button>
+        <button type="button" class="btn btn-secondary" (click)="closeBalanceModal()">Отмена</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Модальное окно для ввода данных карты -->
-  <div *ngIf="isPaymentModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content p-4">
-        <div class="text-center mb-3">
-          <h5 class="modal-title mt-2">Предоставление права доступа к платформе</h5>
-          <p class="text-primary display-4">400,00 ₽</p>
-        </div>
+<!-- Модальное окно для ввода данных карты -->
+<div *ngIf="isPaymentModalOpen" class="modal fade show d-block" tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5);" (click)="closePaymentModal()">
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content p-4">
+      <div class="text-center mb-3">
+        <h5 class="modal-title mt-2">Предоставление права доступа к платформе</h5>
+        <p class="text-primary display-4">400,00 ₽</p>
+      </div>
 
-        <div class="modal-body">
-          <input type="text" class="form-control mb-3" placeholder="Номер карты">
-          <div class="d-flex gap-2">
-            <input type="text" class="form-control" placeholder="MM / ГГ">
-            <input type="text" class="form-control" placeholder="CVV">
-          </div>
-          <div class="form-check my-3">
-            <input type="checkbox" class="form-check-input" id="sendReceipt">
-            <label class="form-check-label" for="sendReceipt">Отправить квитанцию на E-mail</label>
-          </div>
-          <input type="email" class="form-control mb-3" placeholder="Email">
+      <div class="modal-body">
+        <input type="text" class="form-control mb-3" placeholder="Номер карты">
+        <div class="d-flex gap-2">
+          <input type="text" class="form-control" placeholder="MM / ГГ">
+          <input type="text" class="form-control" placeholder="CVV">
         </div>
+        <div class="form-check my-3">
+          <input type="checkbox" class="form-check-input" id="sendReceipt">
+          <label class="form-check-label" for="sendReceipt">Отправить квитанцию на E-mail</label>
+        </div>
+        <input type="email" class="form-control mb-3" placeholder="Email">
+      </div>
 
-        <div class="modal-footer d-flex flex-column gap-2">
-          <button type="button" class="btn btn-primary w-100">Оплатить 400,00 ₽</button>
-          <button type="button" class="btn btn-warning w-100">Оплатить <i class="bi bi-apple-pay"></i></button>
-          <button type="button" class="btn btn-dark w-100">Оплатить <i class="bi bi-google-pay"></i></button>
-        </div>
+      <div class="modal-footer d-flex flex-column gap-2">
+        <button type="button" class="btn btn-primary w-100">Оплатить 400,00 ₽</button>
+        <button type="button" class="btn btn-warning w-100">
+          Оплатить <i class="bi bi-apple"></i>
+        </button>
+        <button type="button" class="btn btn-dark w-100">
+          Оплатить <i class="bi bi-google"></i>
+        </button>
       </div>
     </div>
   </div>
+</div>
