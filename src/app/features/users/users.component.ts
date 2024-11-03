@@ -83,59 +83,57 @@ export class UsersComponent {
     {
       title: 'Учитель онлайн-уроков',
       description: 'Сотрудник сможет проводить онлайн-уроки',
-      icon: 'bi bi-camera-video', // Иконка Bootstrap для камеры
-      enabled: true,
+      icon: 'bi bi-person-video3', // Иконка для примера
+      enabled: false,
       expanded: false,
+      isFeatureEnabled: false,
     },
     {
       title: 'Куратор марафонов',
       description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
-      icon: 'bi bi-trophy', // Иконка Bootstrap для трофея
+      icon: 'bi bi-award', // Иконка для примера
       enabled: false,
       expanded: false,
+      isFeatureEnabled: false,
     },
     {
       title: 'Администратор',
       description: 'Сотрудник сможет администрировать учебный процесс',
-      icon: 'bi bi-person-badge', // Иконка Bootstrap для бейджа
+      icon: 'bi bi-gear', // Иконка для примера
       enabled: false,
       expanded: false,
+      isFeatureEnabled: false,
     },
   ];
 
-  selectedLanguages: string[] = [];
-  availableLanguages = [
-    { name: 'Английский' },
-    { name: 'Русский' },
-    { name: 'Французский' },
-    // Добавьте другие языки по необходимости
-  ];
-
+  selectedLanguages: string = 'Английский';
+  availableLanguages = ['Русский', 'Английский', 'Французский'];
   days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
   hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
 
-  togglePossibility(possibility: any): void {
+  togglePossibility(possibility: any) {
     possibility.expanded = !possibility.expanded;
   }
 
-  fillSchedule(): void {
-    // Логика заполнения графика (по умолчанию)
-    console.log('Заполнить график');
+  toggleFeature(possibility: any) {
+    possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
   }
 
-  fillTeacherSchedule(): void {
+  fillSchedule() {
+    // Логика заполнения графика автоматически
+  }
+
+  fillTeacherSchedule() {
     // Логика заполнения графика учителем
-    console.log('Заполнить график учителя');
   }
 
-  toggleTimeSlot(day: string, hour: string): void {
-    // Логика переключения времени
-    console.log(`Время выбрано: ${day}, ${hour}`);
+  toggleTimeSlot(day: string, hour: string) {
+    // Логика для переключения состояния временного слота
   }
 
   isTimeSlotActive(day: string, hour: string): boolean {
-    // Логика проверки активности слота (например, проверить, заполнено ли время)
-    return false;
+    // Логика для определения, активен ли временной слот
+    return false; // Примерная реализация
   }
 
 }
