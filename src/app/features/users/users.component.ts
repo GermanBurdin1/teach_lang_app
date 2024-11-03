@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
-export class UsersComponent {
+export class UsersComponent implements OnInit {
   isCreateStudentModalOpen = false;
   isCreateTeacherModalOpen = false;
   showAdditionalInfo = false;
@@ -19,28 +19,88 @@ export class UsersComponent {
     { value: 'Zoom', label: 'Zoom', icon: 'bi bi-camera-video' }
   ];
 
-
-  // Timezone options (all UTC)
   timezones = [
     'UTC-12:00', 'UTC-11:00', 'UTC-10:00', 'UTC-09:00', 'UTC-08:00', 'UTC-07:00', 'UTC-06:00', 'UTC-05:00', 'UTC-04:00',
     'UTC-03:00', 'UTC-02:00', 'UTC-01:00', 'UTC+00:00', 'UTC+01:00', 'UTC+02:00', 'UTC+03:00', 'UTC+04:00',
     'UTC+05:00', 'UTC+06:00', 'UTC+07:00', 'UTC+08:00', 'UTC+09:00', 'UTC+10:00', 'UTC+11:00', 'UTC+12:00'
   ];
 
-  // Frequency options for "Периодичность обучения"
   frequencies = [
     '1 раз в неделю', '2 раза в неделю', '3 раза в неделю', '4 раза в неделю',
     '5 раз в неделю', '6 раз в неделю', '7 раз в неделю'
   ];
+
+  possibilities = [
+    {
+      title: 'Учитель онлайн-уроков',
+      description: 'Сотрудник сможет проводить онлайн-уроки',
+      icon: 'bi bi-person-video3',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+    {
+      title: 'Куратор марафонов',
+      description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
+      icon: 'bi bi-award',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+    {
+      title: 'Администратор',
+      description: 'Сотрудник сможет администрировать учебный процесс',
+      icon: 'bi bi-gear',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+  ];
+
+  selectedLanguages: string = 'Английский';
+  availableLanguages = ['Русский', 'Английский', 'Французский'];
+  daysWithDates: string[] = [];
+  hours: string[] = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+  showButton: { [key: string]: boolean } = {};
+  activeSlots: Record<string, boolean> = {};
+  teacherWillFill: boolean = false;
+  currentTimeSlot: { day: string; hour: string } | null = null;
+
+  ngOnInit() {
+    this.initializeDaysWithDates();
+    this.updateCurrentTime();
+    setInterval(() => this.updateCurrentTime(), 60000); // Обновление каждые 60 секунд
+  }
+
+  initializeDaysWithDates() {
+    const today = new Date();
+    this.daysWithDates = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' });
+      const dayDate = date.toLocaleDateString('ru-RU', { day: 'numeric' });
+      this.daysWithDates.push(`${dayName}, ${dayDate}`);
+    }
+  }
+
+  updateCurrentTime() {
+    const now = new Date();
+    const currentDay = now.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric' });
+    const currentHour = `${now.getHours()}:00`;
+    this.currentTimeSlot = { day: currentDay, hour: currentHour };
+  }
+
+  isCurrentTime(day: string, hour: string): boolean {
+    return this.currentTimeSlot?.day === day && this.currentTimeSlot?.hour === hour;
+  }
 
   openCreateStudentModal(): void {
     this.isCreateStudentModalOpen = true;
   }
 
   closeCreateStudentModal(event?: MouseEvent): void {
-    if (event) {
-      event.stopPropagation();
-    }
+    if (event) event.stopPropagation();
     this.isCreateStudentModalOpen = false;
   }
 
@@ -49,9 +109,7 @@ export class UsersComponent {
   }
 
   closeCreateTeacherModal(event?: MouseEvent): void {
-    if (event) {
-      event.stopPropagation();
-    }
+    if (event) event.stopPropagation();
     this.isCreateTeacherModalOpen = false;
   }
 
@@ -73,43 +131,8 @@ export class UsersComponent {
   }
 
   updateLinkPlaceholder(): void {
-    if (this.selectedPlatform === 'Skype') {
-      this.linkPlaceholder = 'Введите ссылку для Skype';
-    } else {
-      this.linkPlaceholder = 'Введите ссылку для Zoom';
-    }
+    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
   }
-  possibilities = [
-    {
-      title: 'Учитель онлайн-уроков',
-      description: 'Сотрудник сможет проводить онлайн-уроки',
-      icon: 'bi bi-person-video3', // Иконка для примера
-      enabled: false,
-      expanded: false,
-      isFeatureEnabled: false,
-    },
-    {
-      title: 'Куратор марафонов',
-      description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
-      icon: 'bi bi-award', // Иконка для примера
-      enabled: false,
-      expanded: false,
-      isFeatureEnabled: false,
-    },
-    {
-      title: 'Администратор',
-      description: 'Сотрудник сможет администрировать учебный процесс',
-      icon: 'bi bi-gear', // Иконка для примера
-      enabled: false,
-      expanded: false,
-      isFeatureEnabled: false,
-    },
-  ];
-
-  selectedLanguages: string = 'Английский';
-  availableLanguages = ['Русский', 'Английский', 'Французский'];
-  days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-  hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
 
   togglePossibility(possibility: any) {
     possibility.expanded = !possibility.expanded;
@@ -120,20 +143,32 @@ export class UsersComponent {
   }
 
   fillSchedule() {
-    // Логика заполнения графика автоматически
+    this.teacherWillFill = false;
   }
 
   fillTeacherSchedule() {
-    // Логика заполнения графика учителем
+    this.teacherWillFill = true;
   }
 
   toggleTimeSlot(day: string, hour: string) {
-    // Логика для переключения состояния временного слота
+    const slotKey = `${day}-${hour}`;
+    this.activeSlots[slotKey] = !this.activeSlots[slotKey];
+  }
+
+  showSelectButton(day: string, hour: string) {
+    this.showButton[`${day}-${hour}`] = true;
+  }
+
+  hideSelectButton(day: string, hour: string) {
+    this.showButton[`${day}-${hour}`] = false;
+  }
+
+  selectSlot(day: string, hour: string) {
+    this.toggleTimeSlot(day, hour);
   }
 
   isTimeSlotActive(day: string, hour: string): boolean {
-    // Логика для определения, активен ли временной слот
-    return false; // Примерная реализация
+    return this.activeSlots[`${day}-${hour}`] || false;
   }
-
 }
+

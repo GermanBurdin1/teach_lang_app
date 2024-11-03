@@ -17,3 +17,33 @@
   font-size: 1.5rem; /* Измените размер иконки по мере необходимости */
   color: #6c757d;
 }
+
+
+.schedule-table td {
+  position: relative;
+  text-align: center;
+}
+
+.schedule-table td .btn {
+  display: none;
+}
+
+.schedule-table td:hover .btn {
+  display: inline-block;
+}
+
+.schedule-table td.active-slot {
+  color: green;
+}
+
+.schedule-table .time-label {
+  font-weight: bold;
+}
+
+.schedule-table .current-time {
+  border-top: 2px solid red;
+}
+
+.active-slot {
+  background-color: #d1f7c4; /* Цвет для активного слота */
+}

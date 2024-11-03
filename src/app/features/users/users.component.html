@@ -261,18 +261,38 @@
                 <label class="form-label">Рабочий график</label>
                 <div class="d-flex mb-2">
                   <button class="btn btn-outline-primary me-2" (click)="fillSchedule()">Заполнить</button>
-                  <button class="btn btn-outline-secondary" (click)="fillTeacherSchedule()">Заполнить учитель</button>
+                  <button class="btn btn-outline-secondary" (click)="fillTeacherSchedule()">Заполнит учитель</button>
                 </div>
-                <table class="table table-bordered schedule-table">
+                <table *ngIf="!teacherWillFill" class="table table-bordered schedule-table">
                   <thead>
                     <tr>
-                      <th *ngFor="let day of days">{{ day }}</th>
+                      <th></th> <!-- Пустой заголовок для столбца времени -->
+                      <th *ngFor="let day of daysWithDates">{{ day }}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr *ngFor="let hour of hours">
-                      <td *ngFor="let day of days" (click)="toggleTimeSlot(day, hour)">
-                        <span [class.active]="isTimeSlotActive(day, hour)">-</span>
+                      <td class="time-label">{{ hour }}</td> <!-- Столбец с часами -->
+                      <td
+                        *ngFor="let day of daysWithDates"
+                        (mouseenter)="showSelectButton(day, hour)"
+                        (mouseleave)="hideSelectButton(day, hour)"
+                        (click)="toggleTimeSlot(day, hour)"
+                        [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}"
+                      >
+                        <ng-container *ngIf="!isTimeSlotActive(day, hour)">
+                          <button
+                          *ngIf="showButton[day + hour]"
+                          class="btn btn-outline-primary btn-sm"
+                          style="position: relative; z-index: 10; background-color: yellow; color: black;"
+                          (click)="selectSlot(day, hour); $event.stopPropagation()"
+                          >
+                            Выбрать
+                          </button>
+                        </ng-container>
+                        <ng-container *ngIf="isTimeSlotActive(day, hour)">
+                          <i class="bi bi-check2-circle text-success"></i>
+                        </ng-container>
                       </td>
                     </tr>
                   </tbody>
