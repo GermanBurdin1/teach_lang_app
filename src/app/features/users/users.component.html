@@ -273,20 +273,12 @@
                   <tbody>
                     <tr *ngFor="let hour of hours">
                       <td class="time-label">{{ hour }}</td> <!-- Столбец с часами -->
-                      <td
-                        *ngFor="let day of daysWithDates"
-                        (mouseenter)="showSelectButton(day, hour)"
-                        (mouseleave)="hideSelectButton(day, hour)"
-                        (click)="toggleTimeSlot(day, hour)"
-                        [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}"
-                      >
+                      <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
+                        (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
+                        [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
                         <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-                          <button
-                          *ngIf="showButton[day + hour]"
-                          class="btn btn-outline-primary btn-sm"
-                          style="position: relative; z-index: 10; background-color: yellow; color: black;"
-                          (click)="selectSlot(day, hour); $event.stopPropagation()"
-                          >
+                          <button *ngIf="showButton[day + hour]" class="btn btn-primary btn-sm"
+                            (click)="selectSlot(day, hour); $event.stopPropagation()">
                             Выбрать
                           </button>
                         </ng-container>

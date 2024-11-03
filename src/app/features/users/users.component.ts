@@ -156,10 +156,12 @@ export class UsersComponent implements OnInit {
   }
 
   showSelectButton(day: string, hour: string) {
+    console.log("hello");
     this.showButton[`${day}-${hour}`] = true;
   }
 
   hideSelectButton(day: string, hour: string) {
+    console.log("goodbye");
     this.showButton[`${day}-${hour}`] = false;
   }
 
