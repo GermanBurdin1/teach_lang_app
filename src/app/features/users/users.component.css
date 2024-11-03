@@ -12,3 +12,8 @@
   border-bottom: 1px solid #e0e0e0; /* Цвет линии сепарации */
   margin: 0 8px;
 }
+
+.possibility-icon {
+  font-size: 1.5rem; /* Измените размер иконки по мере необходимости */
+  color: #6c757d;
+}

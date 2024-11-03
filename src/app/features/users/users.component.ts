@@ -79,4 +79,63 @@ export class UsersComponent {
       this.linkPlaceholder = 'Введите ссылку для Zoom';
     }
   }
+  possibilities = [
+    {
+      title: 'Учитель онлайн-уроков',
+      description: 'Сотрудник сможет проводить онлайн-уроки',
+      icon: 'bi bi-camera-video', // Иконка Bootstrap для камеры
+      enabled: true,
+      expanded: false,
+    },
+    {
+      title: 'Куратор марафонов',
+      description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
+      icon: 'bi bi-trophy', // Иконка Bootstrap для трофея
+      enabled: false,
+      expanded: false,
+    },
+    {
+      title: 'Администратор',
+      description: 'Сотрудник сможет администрировать учебный процесс',
+      icon: 'bi bi-person-badge', // Иконка Bootstrap для бейджа
+      enabled: false,
+      expanded: false,
+    },
+  ];
+
+  selectedLanguages: string[] = [];
+  availableLanguages = [
+    { name: 'Английский' },
+    { name: 'Русский' },
+    { name: 'Французский' },
+    // Добавьте другие языки по необходимости
+  ];
+
+  days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+
+  togglePossibility(possibility: any): void {
+    possibility.expanded = !possibility.expanded;
+  }
+
+  fillSchedule(): void {
+    // Логика заполнения графика (по умолчанию)
+    console.log('Заполнить график');
+  }
+
+  fillTeacherSchedule(): void {
+    // Логика заполнения графика учителем
+    console.log('Заполнить график учителя');
+  }
+
+  toggleTimeSlot(day: string, hour: string): void {
+    // Логика переключения времени
+    console.log(`Время выбрано: ${day}, ${hour}`);
+  }
+
+  isTimeSlotActive(day: string, hour: string): boolean {
+    // Логика проверки активности слота (например, проверить, заполнено ли время)
+    return false;
+  }
+
 }

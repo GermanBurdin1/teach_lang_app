@@ -198,27 +198,86 @@
             <div class="mb-3">
               <label class="form-label">Ссылка для связи</label>
               <div class="input-group">
-                <ng-select
-                  [(ngModel)]="selectedPlatform"
-                  name="selectedPlatform"
-                  (change)="updateLinkPlaceholder()"
-                  [clearable]="false"
-                  [searchable]="false"
-                  bindLabel="label"
-                  bindValue="value"
-                  class="form-select">
+                <ng-select [(ngModel)]="selectedPlatform" name="selectedPlatform" (change)="updateLinkPlaceholder()"
+                  [clearable]="false" [searchable]="false" bindLabel="label" bindValue="value" class="form-select">
                   <ng-option *ngFor="let platform of platforms" [value]="platform.value">
                     <i [class]="platform.icon" style="margin-right: 5px;"></i>{{ platform.label }}
                   </ng-option>
                 </ng-select>
 
-                <input type="text" class="form-control" [placeholder]="linkPlaceholder" [(ngModel)]="linkInput" name="linkInput">
+                <input type="text" class="form-control" [placeholder]="linkPlaceholder" [(ngModel)]="linkInput"
+                  name="linkInput">
               </div>
             </div>
 
           </div>
         </form>
       </div>
+      <div class="possibilities-section mt-3">
+        <h6 class="fw-bold">Возможности</h6>
+        <div *ngFor="let possibility of possibilities" class="possibility-item">
+          <!-- Заголовок возможности -->
+          <div class="possibility-header d-flex align-items-center justify-content-between"
+            (click)="togglePossibility(possibility)">
+            <div class="d-flex align-items-center">
+              <i [class]="possibility.icon" class="possibility-icon me-3"></i>
+              <div>
+                <div class="fw-bold">{{ possibility.title }}</div>
+                <div class="text-muted">{{ possibility.description }}</div>
+              </div>
+            </div>
+            <span class="badge" [ngClass]="possibility.enabled ? 'badge-enabled' : 'badge-disabled'">
+              {{ possibility.enabled ? 'Включено' : 'Отключено' }}
+            </span>
+            <i class="bi" [ngClass]="possibility.expanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </div>
+
+          <!-- Разворачиваемая информация -->
+          <div *ngIf="possibility.expanded" class="possibility-content mt-3">
+            <!-- Тоггл для активации возможности -->
+            <div class="mb-3">
+              <label class="form-label">Активация возможности</label>
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="possibility.enabled">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <!-- Выпадающий список для выбора языков -->
+            <div class="mb-3">
+              <label class="form-label">Преподаваемые языки</label>
+              <ng-select [(ngModel)]="selectedLanguages" [items]="availableLanguages" bindLabel="name" [multiple]="true"
+                placeholder="Выберите преподаваемые языки">
+              </ng-select>
+            </div>
+
+            <!-- Рабочий график -->
+            <div class="mb-3">
+              <label class="form-label">Рабочий график</label>
+              <div class="d-flex mb-2">
+                <button class="btn btn-outline-primary me-2" (click)="fillSchedule()">Заполнить</button>
+                <button class="btn btn-outline-secondary" (click)="fillTeacherSchedule()">Заполнить учитель</button>
+              </div>
+              <table class="table table-bordered schedule-table">
+                <thead>
+                  <tr>
+                    <th *ngFor="let day of days">{{ day }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let hour of hours">
+                    <td *ngFor="let day of days" (click)="toggleTimeSlot(day, hour)">
+                      <span [class.active]="isTimeSlotActive(day, hour)">-</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
 
       <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
         <button type="button" class="btn btn-secondary" (click)="closeCreateTeacherModal()">Отмена</button>
