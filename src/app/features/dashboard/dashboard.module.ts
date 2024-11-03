@@ -8,6 +8,7 @@ import { StudentDashboardComponent } from './student-dashboard/student-dashboard
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import { FormsModule } from '@angular/forms';
     RouterModule.forChild([]),
     DashboardRoutingModule,
     FormsModule,
+    NgSelectModule,
 ]
 })
 export class DashboardModule { }

@@ -12,6 +12,13 @@ export class UsersComponent {
   selectedFile: File | null = null;
   selectedPlatform = 'Skype';
   linkPlaceholder = 'Введите ссылку для Skype';
+  linkInput: string | undefined;
+
+  platforms = [
+    { value: 'Skype', label: 'Skype', icon: 'bi bi-skype' },
+    { value: 'Zoom', label: 'Zoom', icon: 'bi bi-camera-video' }
+  ];
+
 
   // Timezone options (all UTC)
   timezones = [
@@ -66,6 +73,10 @@ export class UsersComponent {
   }
 
   updateLinkPlaceholder(): void {
-    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
+    if (this.selectedPlatform === 'Skype') {
+      this.linkPlaceholder = 'Введите ссылку для Skype';
+    } else {
+      this.linkPlaceholder = 'Введите ссылку для Zoom';
+    }
   }
 }

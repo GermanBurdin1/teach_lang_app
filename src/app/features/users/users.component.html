@@ -198,13 +198,24 @@
             <div class="mb-3">
               <label class="form-label">Ссылка для связи</label>
               <div class="input-group">
-                <select class="form-select" [(ngModel)]="selectedPlatform" (change)="updateLinkPlaceholder()">
-                  <option value="Skype">Skype</option>
-                  <option value="Zoom">Zoom</option>
-                </select>
-                <input type="text" class="form-control" [placeholder]="linkPlaceholder">
+                <ng-select
+                  [(ngModel)]="selectedPlatform"
+                  name="selectedPlatform"
+                  (change)="updateLinkPlaceholder()"
+                  [clearable]="false"
+                  [searchable]="false"
+                  bindLabel="label"
+                  bindValue="value"
+                  class="form-select">
+                  <ng-option *ngFor="let platform of platforms" [value]="platform.value">
+                    <i [class]="platform.icon" style="margin-right: 5px;"></i>{{ platform.label }}
+                  </ng-option>
+                </ng-select>
+
+                <input type="text" class="form-control" [placeholder]="linkPlaceholder" [(ngModel)]="linkInput" name="linkInput">
               </div>
             </div>
+
           </div>
         </form>
       </div>
