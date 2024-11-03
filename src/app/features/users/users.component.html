@@ -277,7 +277,7 @@
                         (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
                         [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
                         <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-                          <button *ngIf="showButton[day + hour]" class="btn btn-primary btn-sm"
+                          <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
                             (click)="selectSlot(day, hour); $event.stopPropagation()">
                             Выбрать
                           </button>
@@ -286,6 +286,7 @@
                           <i class="bi bi-check2-circle text-success"></i>
                         </ng-container>
                       </td>
+
                     </tr>
                   </tbody>
                 </table>
