@@ -9,6 +9,7 @@ export class UsersComponent {
   isCreateStudentModalOpen = false;
   isCreateTeacherModalOpen = false;
   showAdditionalInfo = false;
+  selectedFile: File | null = null;
 
   // Timezone options (all UTC)
   timezones = [
@@ -47,5 +48,18 @@ export class UsersComponent {
 
   toggleAdditionalInfo(): void {
     this.showAdditionalInfo = !this.showAdditionalInfo;
+  }
+
+  triggerFileInput(): void {
+    const fileInput = document.getElementById('avatarUpload') as HTMLElement;
+    fileInput.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      console.log('Выбранный файл:', this.selectedFile.name);
+    }
   }
 }
