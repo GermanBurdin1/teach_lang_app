@@ -10,6 +10,8 @@ export class UsersComponent {
   isCreateTeacherModalOpen = false;
   showAdditionalInfo = false;
   selectedFile: File | null = null;
+  selectedPlatform = 'Skype';
+  linkPlaceholder = 'Введите ссылку для Skype';
 
   // Timezone options (all UTC)
   timezones = [
@@ -61,5 +63,9 @@ export class UsersComponent {
       this.selectedFile = input.files[0];
       console.log('Выбранный файл:', this.selectedFile.name);
     }
+  }
+
+  updateLinkPlaceholder(): void {
+    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
   }
 }

@@ -197,7 +197,13 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Ссылка для связи</label>
-              <input type="text" class="form-control" placeholder="Ссылка для связи">
+              <div class="input-group">
+                <select class="form-select" [(ngModel)]="selectedPlatform" (change)="updateLinkPlaceholder()">
+                  <option value="Skype">Skype</option>
+                  <option value="Zoom">Zoom</option>
+                </select>
+                <input type="text" class="form-control" [placeholder]="linkPlaceholder">
+              </div>
             </div>
           </div>
         </form>
