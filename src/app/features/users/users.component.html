@@ -4,11 +4,11 @@
   <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
     <li class="nav-item">
       <a class="nav-link active" id="students-tab" data-bs-toggle="tab" href="#students" role="tab"
-         aria-controls="students" aria-selected="true">Ученики</a>
+        aria-controls="students" aria-selected="true">Ученики</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" id="teachers-tab" data-bs-toggle="tab" href="#teachers" role="tab"
-         aria-controls="teachers" aria-selected="false">Учителя</a>
+      <a class="nav-link" id="teachers-tab" data-bs-toggle="tab" href="#teachers" role="tab" aria-controls="teachers"
+        aria-selected="false">Учителя</a>
     </li>
   </ul>
 
@@ -21,7 +21,7 @@
       <p class="mb-3">Ученики: <strong>1</strong></p>
 
       <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center"
-              (click)="openCreateStudentModal()">
+        (click)="openCreateStudentModal()">
         <i class="fas fa-user-plus mr-2"></i> Добавить нового ученика
       </button>
 
@@ -46,14 +46,16 @@
 
       <p class="mb-3">Учителей: <strong>0</strong></p>
 
-      <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center">
+      <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center"
+        (click)="openCreateTeacherModal()">
         <i class="fas fa-user-plus mr-2"></i> Добавить нового учителя
       </button>
     </div>
   </div>
 
   <!-- Модальное окно добавления ученика -->
-  <div *ngIf="isCreateStudentModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateStudentModal($event)">
+  <div *ngIf="isCreateStudentModalOpen" class="modal fade show d-block" tabindex="-1"
+    style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateStudentModal($event)">
     <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
       <div class="modal-content p-4">
         <div class="modal-header">
@@ -137,4 +139,73 @@
     </div>
   </div>
 </div>
+<!-- Modal for Adding a New Teacher -->
+<div *ngIf="isCreateTeacherModalOpen" class="modal fade show d-block" tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateTeacherModal($event)">
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content p-4">
+      <div class="modal-header">
+        <h5 class="modal-title">Создать сотрудника</h5>
+        <button type="button" class="btn-close" (click)="closeCreateTeacherModal()"></button>
+      </div>
 
+      <div class="modal-body">
+        <form>
+          <!-- Avatar Upload -->
+          <div class="mb-3 d-flex align-items-center">
+            <label class="form-label me-3">Аватарка</label>
+            <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;"></div>
+            <button type="button" class="btn btn-outline-secondary">Загрузить</button>
+          </div>
+
+          <!-- Basic Info -->
+          <div class="mb-3">
+            <label class="form-label">Почта</label>
+            <input type="email" class="form-control" placeholder="Почта">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Имя</label>
+            <input type="text" class="form-control" placeholder="Имя">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Родной язык</label>
+            <select class="form-select">
+              <option>Russian</option>
+              <option>English</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Часовой пояс</label>
+            <select class="form-select">
+              <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+            </select>
+          </div>
+
+          <!-- Additional Information -->
+          <div class="separator mb-2">
+            <span>Дополнительная информация</span>
+          </div>
+          <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
+            {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
+          </button>
+
+          <div *ngIf="showAdditionalInfo" class="mt-3">
+            <div class="mb-3">
+              <label class="form-label">Телефон</label>
+              <input type="tel" class="form-control" placeholder="Телефон">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ссылка для связи</label>
+              <input type="text" class="form-control" placeholder="Ссылка для связи">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
+        <button type="button" class="btn btn-secondary" (click)="closeCreateTeacherModal()">Отмена</button>
+        <button type="button" class="btn btn-primary">Создать</button>
+      </div>
+    </div>
+  </div>
+</div>

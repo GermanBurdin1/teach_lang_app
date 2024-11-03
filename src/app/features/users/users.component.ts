@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
 })
 export class UsersComponent {
   isCreateStudentModalOpen = false;
+  isCreateTeacherModalOpen = false;
   showAdditionalInfo = false;
 
   // Timezone options (all UTC)
@@ -31,6 +32,17 @@ export class UsersComponent {
       event.stopPropagation();
     }
     this.isCreateStudentModalOpen = false;
+  }
+
+  openCreateTeacherModal(): void {
+    this.isCreateTeacherModalOpen = true;
+  }
+
+  closeCreateTeacherModal(event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.isCreateTeacherModalOpen = false;
   }
 
   toggleAdditionalInfo(): void {
