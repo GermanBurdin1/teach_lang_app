@@ -218,7 +218,7 @@
         <div *ngFor="let possibility of possibilities" class="possibility-item">
           <!-- Заголовок возможности -->
           <div class="possibility-header d-flex align-items-center justify-content-between"
-            (click)="togglePossibility(possibility)">
+               (click)="togglePossibility(possibility)">
             <div class="d-flex align-items-center">
               <i [class]="possibility.icon" class="possibility-icon me-3"></i>
               <div>
@@ -234,19 +234,52 @@
 
           <!-- Разворачиваемая информация -->
           <div *ngIf="possibility.expanded" class="possibility-content mt-3">
-            <!-- Тоггл для активации возможности -->
+            <!-- Общий переключатель для активации возможности -->
             <div class="mb-3">
               <label class="form-label">Активация возможности</label>
               <div class="form-check form-switch">
-                <input type="checkbox" [(ngModel)]="possibility.enabled" class="form-check-input" id="send-mails"
-                  (change)="toggleFeature(possibility)">
+                <input type="checkbox" [(ngModel)]="possibility.enabled" class="form-check-input"
+                       id="send-mails" (change)="toggleFeature(possibility)">
               </div>
             </div>
 
-            <!-- Дополнительные настройки, отображаются только при включенной возможности -->
-            <div *ngIf="possibility.enabled">
-              <!-- Выпадающий список для выбора языков (отображается только при включенной возможности) -->
-              <div *ngIf="possibility.isFeatureEnabled" class="mb-3 row align-items-center">
+            <!-- Дополнительные настройки для роли "Администратор" -->
+            <ng-container *ngIf="possibility.role === 'admin' && possibility.enabled">
+              <div class="mb-3">
+                <label class="form-label">Доступ к разделам</label>
+              </div>
+
+              <div *ngFor="let section of sections" class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center">
+                  <i [class]="section.icon" class="me-2"></i>
+                  <label class="form-check-label" for="{{section.name}}">{{ section.name }}</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input type="checkbox" class="form-check-input" [(ngModel)]="section.enabled" id="{{section.name}}">
+                </div>
+              </div>
+
+              <!-- Сепаратор -->
+              <div class="separator mt-4 mb-2">
+                <span>Дополнительные возможности</span>
+              </div>
+
+              <!-- Сквозной вход -->
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-door-open me-2"></i>
+                  <label class="form-check-label" for="cross-entry">Сквозной вход</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input type="checkbox" class="form-check-input" [(ngModel)]="crossEntryEnabled" id="cross-entry">
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Дополнительные настройки для роли "Учитель онлайн-уроков" -->
+            <ng-container *ngIf="possibility.role === 'teacher' && possibility.enabled">
+              <!-- Выпадающий список для выбора языков -->
+              <div class="mb-3 row align-items-center">
                 <label class="col-form-label col-3 text-end">Преподаваемые языки</label>
                 <div class="col-9">
                   <select class="form-select" [(ngModel)]="selectedLanguages">
@@ -254,7 +287,6 @@
                   </select>
                 </div>
               </div>
-
 
               <!-- Рабочий график -->
               <div class="mb-3">
@@ -273,12 +305,15 @@
                   <tbody>
                     <tr *ngFor="let hour of hours">
                       <td class="time-label">{{ hour }}</td> <!-- Столбец с часами -->
-                      <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
-                        (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
-                        [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+                      <td *ngFor="let day of daysWithDates"
+                          (mouseenter)="showSelectButton(day, hour)"
+                          (mouseleave)="hideSelectButton(day, hour)"
+                          (click)="toggleTimeSlot(day, hour)"
+                          [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
                         <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-                          <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
-                            (click)="selectSlot(day, hour); $event.stopPropagation()">
+                          <button *ngIf="showButton[day + '-' + hour]"
+                                  class="btn btn-primary btn-sm"
+                                  (click)="selectSlot(day, hour); $event.stopPropagation()">
                             Выбрать
                           </button>
                         </ng-container>
@@ -286,12 +321,11 @@
                           <i class="bi bi-check2-circle text-success"></i>
                         </ng-container>
                       </td>
-
                     </tr>
                   </tbody>
                 </table>
               </div>
-            </div>
+            </ng-container>
           </div>
         </div>
       </div>

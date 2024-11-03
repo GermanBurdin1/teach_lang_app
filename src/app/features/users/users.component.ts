@@ -35,6 +35,7 @@ export class UsersComponent implements OnInit {
       title: 'Учитель онлайн-уроков',
       description: 'Сотрудник сможет проводить онлайн-уроки',
       icon: 'bi bi-person-video3',
+      role: 'teacher',
       enabled: false,
       expanded: false,
       isFeatureEnabled: false,
@@ -43,6 +44,7 @@ export class UsersComponent implements OnInit {
       title: 'Куратор марафонов',
       description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
       icon: 'bi bi-award',
+      role: 'teacher',
       enabled: false,
       expanded: false,
       isFeatureEnabled: false,
@@ -51,10 +53,20 @@ export class UsersComponent implements OnInit {
       title: 'Администратор',
       description: 'Сотрудник сможет администрировать учебный процесс',
       icon: 'bi bi-gear',
+      role: 'admin',
       enabled: false,
       expanded: false,
       isFeatureEnabled: false,
     },
+  ];
+
+  sections = [
+    { name: 'Показатели', icon: 'bi bi-grid', enabled: false },
+    { name: 'Выручка и платежи', icon: 'bi bi-currency-dollar', enabled: false },
+    { name: 'Пользователи', icon: 'bi bi-people', enabled: false },
+    { name: 'Онлайн-уроки', icon: 'bi bi-mortarboard', enabled: false },
+    { name: 'Марафоны', icon: 'bi bi-activity', enabled: false },
+    { name: 'Материалы', icon: 'bi bi-journal', enabled: false }
   ];
 
   selectedLanguages: string = 'Английский';
@@ -65,6 +77,7 @@ export class UsersComponent implements OnInit {
   activeSlots: Record<string, boolean> = {};
   teacherWillFill: boolean = false;
   currentTimeSlot: { day: string; hour: string } | null = null;
+  crossEntryEnabled: boolean = false;
 
   ngOnInit() {
     this.initializeDaysWithDates();
@@ -139,8 +152,17 @@ export class UsersComponent implements OnInit {
   }
 
   toggleFeature(possibility: any) {
-    possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
+    if (possibility.role === 'admin') {
+      // Логика для администратора
+      possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
+      // Дополнительные действия для администратора
+    } else if (possibility.role === 'teacher') {
+      // Логика для учителя
+      possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
+      // Дополнительные действия для учителя
+    }
   }
+
 
   fillSchedule() {
     this.teacherWillFill = false;
