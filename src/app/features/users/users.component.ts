@@ -13,6 +13,29 @@ export class UsersComponent implements OnInit {
   selectedPlatform = 'Skype';
   linkPlaceholder = 'Введите ссылку для Skype';
   linkInput: string | undefined;
+  teachers: Array<{ name: string; id: number; email: string; nativeLanguage: string }> = [];
+
+  newTeacher: { name: string; email: string; nativeLanguage: string; id: number } = {
+    name: '',
+    email: '',
+    nativeLanguage: '',
+    id: Date.now(),
+  };
+
+  addTeacher() {
+    this.newTeacher.id = Date.now();
+
+    this.teachers.push({ ...this.newTeacher });
+
+    this.isCreateTeacherModalOpen = false;
+
+    this.newTeacher = {
+      name: '',
+      email: '',
+      nativeLanguage: '',
+      id: Date.now(),
+    };
+  }
 
   platforms = [
     { value: 'Skype', label: 'Skype', icon: 'bi bi-skype' },

@@ -53,6 +53,21 @@
     </div>
   </div>
 
+  <!-- Карточки учителей -->
+  <div *ngFor="let teacher of teachers" class="card mb-4 mx-auto" style="max-width: 600px;">
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <div>
+        <h5>{{ teacher.name }}</h5>
+        <p class="mb-1"><strong>ID:</strong> {{ teacher.id }}</p>
+        <p class="mb-1"><strong>Email:</strong> {{ teacher.email }}</p>
+        <p class="mb-1"><strong>Native language:</strong> {{ teacher.nativeLanguage }}</p>
+      </div>
+      <div>
+        <button class="btn btn-outline-primary">Профиль учителя <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Модальное окно добавления ученика -->
   <div *ngIf="isCreateStudentModalOpen" class="modal fade show d-block" tabindex="-1"
     style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateStudentModal($event)">
@@ -162,17 +177,17 @@
           <!-- Basic Info -->
           <div class="mb-3">
             <label class="form-label">Почта</label>
-            <input type="email" class="form-control" placeholder="Почта">
+            <input type="email" class="form-control" placeholder="Почта" [(ngModel)]="newTeacher.email" name="teacherEmail">
           </div>
           <div class="mb-3">
             <label class="form-label">Имя</label>
-            <input type="text" class="form-control" placeholder="Имя">
+            <input type="text" class="form-control" placeholder="Имя" [(ngModel)]="newTeacher.name" name="teacherName">
           </div>
           <div class="mb-3">
             <label class="form-label">Родной язык</label>
-            <select class="form-select">
-              <option>Russian</option>
-              <option>English</option>
+            <select class="form-select" [(ngModel)]="newTeacher.nativeLanguage" name="teacherNativeLanguage">
+              <option value="Russian">Russian</option>
+              <option value="English">English</option>
             </select>
           </div>
           <div class="mb-3">
@@ -335,8 +350,10 @@
 
       <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
         <button type="button" class="btn btn-secondary" (click)="closeCreateTeacherModal()">Отмена</button>
-        <button type="button" class="btn btn-primary">Создать</button>
+        <button type="button" class="btn btn-primary" (click)="addTeacher()">Создать</button>
       </div>
     </div>
   </div>
 </div>
+
+
