@@ -14,6 +14,7 @@ export class UsersComponent implements OnInit {
   linkPlaceholder = 'Введите ссылку для Skype';
   linkInput: string | undefined;
   teachers: Array<{ name: string; id: number; email: string; nativeLanguage: string }> = [];
+  tooltipVisible: string | null = null;
 
   newTeacher: { name: string; email: string; nativeLanguage: string; id: number } = {
     name: '',
@@ -35,6 +36,15 @@ export class UsersComponent implements OnInit {
       nativeLanguage: '',
       id: Date.now(),
     };
+  }
+
+  showTooltip(role: string): void {
+    console.log("hello");
+    this.tooltipVisible = role;
+  }
+
+  hideTooltip(): void {
+    this.tooltipVisible = null;
   }
 
   platforms = [
