@@ -23,20 +23,30 @@ export class UsersComponent implements OnInit {
     id: Date.now(),
   };
 
-  addTeacher() {
-    this.newTeacher.id = Date.now();
-
-    this.teachers.push({ ...this.newTeacher });
-
+  addTeacher(): void {
+    const newTeacher = { ...this.newTeacher, id: Date.now() };
+    this.teachers.push(newTeacher);
+    this.saveTeachers();
+    this.clearNewTeacherForm();
     this.isCreateTeacherModalOpen = false;
+}
 
-    this.newTeacher = {
-      name: '',
-      email: '',
-      nativeLanguage: '',
-      id: Date.now(),
-    };
+
+  saveTeachers(): void {
+    localStorage.setItem('teachers', JSON.stringify(this.teachers));
   }
+
+  loadTeachers(): void {
+    const savedTeachers = localStorage.getItem('teachers');
+    if (savedTeachers) {
+      this.teachers = JSON.parse(savedTeachers);
+    }
+  }
+
+  clearNewTeacherForm(): void {
+    this.newTeacher = { name: '', email: '', nativeLanguage: '', id: Date.now() };
+  }
+
 
   showTooltip(role: string): void {
     console.log("hello");
@@ -113,9 +123,10 @@ export class UsersComponent implements OnInit {
   crossEntryEnabled: boolean = false;
 
   ngOnInit() {
+    this.loadTeachers();
     this.initializeDaysWithDates();
     this.updateCurrentTime();
-    setInterval(() => this.updateCurrentTime(), 60000); // Обновление каждые 60 секунд
+    setInterval(() => this.updateCurrentTime(), 60000);
   }
 
   initializeDaysWithDates() {
