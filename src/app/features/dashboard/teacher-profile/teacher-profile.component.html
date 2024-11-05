@@ -1,6 +1,6 @@
 <div class="teacher-profile">
+  <!-- Основная информация о преподавателе -->
   <div *ngIf="teacherData">
-    <!-- Основная информация о преподавателе -->
     <h2>{{ teacherData.name }}</h2>
     <p>ID: {{ teacherData.id }}</p>
     <p>Email: {{ teacherData.email }}</p>
@@ -28,10 +28,11 @@
       </li>
     </ul>
 
+    <!-- Содержимое подвкладки "Учитель" -->
     <div *ngIf="activeSubTab === 'Учитель'">
       <p>Расписание уроков</p>
       <div class="d-flex align-items-center mb-3">
-        <button class="btn btn-outline-secondary me-2" (click)="previousWeek()">&lt;</button>
+        <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
         <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
         <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
       </div>
@@ -40,13 +41,27 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th *ngFor="let date of getWeekDates()">{{ date | date: 'EEE, d' }}</th>
+            <th>Время</th>
+            <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let hour of ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']">
-            <td *ngFor="let date of getWeekDates()">
-              <button class="btn btn-outline-primary btn-sm" (click)="addLesson(date, hour)">Добавить</button>
+          <tr *ngFor="let hour of hours">
+            <td>{{ hour }}</td>
+            <td *ngFor="let day of getWeekDates()"
+                (mouseenter)="showSelectButton(day, hour)"
+                (mouseleave)="hideSelectButton(day, hour)"
+                [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+              <ng-container *ngIf="!isTimeSlotActive(day, hour)">
+                <button *ngIf="showButton[day + '-' + hour]"
+                        class="btn btn-primary btn-sm"
+                        (click)="selectSlot(day, hour); $event.stopPropagation()">
+                  Выбрать
+                </button>
+              </ng-container>
+              <ng-container *ngIf="isTimeSlotActive(day, hour)">
+                <i class="bi bi-check2-circle text-success"></i>
+              </ng-container>
             </td>
           </tr>
         </tbody>
@@ -54,12 +69,12 @@
     </div>
   </div>
 
-  <!-- Контент для вкладки Марафоны -->
+  <!-- Контент для вкладки "Марафоны" -->
   <div *ngIf="activeTab === 'Марафоны'">
     <p>Информация о марафонах</p>
   </div>
 
-  <!-- Контент для вкладки Администратор -->
+  <!-- Контент для вкладки "Администратор" -->
   <div *ngIf="activeTab === 'Администратор'">
     <p>Информация о правах администратора</p>
   </div>

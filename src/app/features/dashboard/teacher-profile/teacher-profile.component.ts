@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 interface Lesson {
-  date: string;
-  time: string;
+  day: string;
+  hour: string;
+  topic?: string; // Дополнительные свойства урока, если нужны
 }
 
 @Component({
@@ -15,13 +16,16 @@ export class TeacherProfileComponent implements OnInit {
   teacherId: number | null = null;
   teacherData: any;
   tabs = ['Онлайн-уроки', 'Марафоны', 'Администратор'];
-  activeTab = this.tabs[0];
   subTabs = ['Учитель', 'Классы', 'Личные материалы'];
-  activeSubTab = this.subTabs[0];
+  activeTab: string = this.tabs[0];
+  activeSubTab: string = this.subTabs[0];
 
-  // Расписание уроков
   schedule: Lesson[] = [];
-  currentWeekStart: Date;
+  currentWeekStart: Date = new Date();
+
+  hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
+  showButton: { [key: string]: boolean } = {};
+  activeSlots: Record<string, boolean> = {};
 
   constructor(private route: ActivatedRoute) {
     this.currentWeekStart = this.getStartOfWeek(new Date());
@@ -50,9 +54,9 @@ export class TeacherProfileComponent implements OnInit {
 
   getStartOfWeek(date: Date): Date {
     const start = new Date(date);
-    start.setDate(date.getDate() - date.getDay() + 1); // Start on Monday
-    start.setHours(0, 0, 0, 0);
-    return start;
+    const day = start.getDay();
+    const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Начало недели - понедельник
+    return new Date(start.setDate(diff));
   }
 
   getWeekDates(): Date[] {
@@ -65,17 +69,36 @@ export class TeacherProfileComponent implements OnInit {
     return dates;
   }
 
-  previousWeek(): void {
-    this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
-  }
-
   nextWeek(): void {
     this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
   }
 
-  addLesson(date: Date, time: string): void {
-    const lesson: Lesson = { date: date.toDateString(), time };
-    this.schedule.push(lesson);
+  previousWeek(): void {
+    this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
+  }
+
+  showSelectButton(day: Date, hour: string): void {
+    this.showButton[day + '-' + hour] = true;
+  }
+
+  hideSelectButton(day: Date, hour: string): void {
+    this.showButton[day + '-' + hour] = false;
+  }
+
+  selectSlot(day: Date, hour: string): void {
+    const slotKey = `${day}-${hour}`;
+    this.activeSlots[slotKey] = !this.activeSlots[slotKey];
+  }
+
+  isTimeSlotActive(day: Date, hour: string): boolean {
+    const slotKey = `${day}-${hour}`;
+    return this.activeSlots[slotKey] || false;
+  }
+
+  isCurrentTime(day: Date, hour: string): boolean {
+    const now = new Date();
+    const currentDay = day.toDateString() === now.toDateString();
+    const currentHour = hour === `${now.getHours()}:00`;
+    return currentDay && currentHour;
   }
 }
-
