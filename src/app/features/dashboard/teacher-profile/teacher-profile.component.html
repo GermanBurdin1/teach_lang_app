@@ -1,0 +1,38 @@
+<div class="teacher-profile" *ngIf="teacherData">
+  <!-- Информация о преподавателе -->
+  <div class="profile-info mb-4">
+    <h2>{{ teacherData.name }}</h2>
+    <p><strong>ID:</strong> {{ teacherData.id }}</p>
+    <p><strong>Email:</strong> {{ teacherData.email }}</p>
+    <!-- Здесь можно добавить другие данные учителя, если нужно -->
+  </div>
+
+  <!-- Вкладки -->
+  <ul class="nav nav-tabs">
+    <li *ngFor="let tab of tabs" class="nav-item">
+      <a class="nav-link" [class.active]="tab === activeTab" (click)="switchTab(tab)">
+        {{ tab }}
+      </a>
+    </li>
+  </ul>
+
+  <!-- Контент вкладок -->
+  <div class="tab-content mt-3">
+    <!-- Контент для вкладки "Онлайн-уроки" -->
+    <div *ngIf="activeTab === 'Онлайн-уроки'" class="tab-pane active">
+      <p><strong>Статус:</strong> Активирован</p>
+      <p><strong>Проведено уроков:</strong> 0</p>
+      <p><strong>Загруженность:</strong> 0%</p>
+    </div>
+
+    <!-- Контент для вкладки "Марафоны" -->
+    <div *ngIf="activeTab === 'Марафоны'" class="tab-pane active">
+      <p>Краткая информация о марафонах.</p>
+    </div>
+
+    <!-- Контент для вкладки "Администратор" -->
+    <div *ngIf="activeTab === 'Администратор'" class="tab-pane active">
+      <p>Информация о правах администратора.</p>
+    </div>
+  </div>
+</div>

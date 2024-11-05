@@ -6,6 +6,7 @@ import { MaterialsComponent } from '../materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
 import { SettingsComponent } from '../settings/settings.component';
 import { TariffsComponent } from '../tariffs/tariffs.component';
+import { TeacherProfileComponent } from './teacher-profile/teacher-profile.component';
 
 const routes: Routes = [
   {
@@ -13,6 +14,7 @@ const routes: Routes = [
     component: StudentDashboardComponent,
     children: [
       { path: 'users', component: UsersComponent },
+      { path: 'users/teacher/:id', component: TeacherProfileComponent },
       { path: 'materials', component: MaterialsComponent },
       { path: 'marathons', component: MarathonsComponent },
       { path: 'settings', component: SettingsComponent },

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users',
@@ -6,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
+
   isCreateStudentModalOpen = false;
   isCreateTeacherModalOpen = false;
   showAdditionalInfo = false;
@@ -15,6 +17,8 @@ export class UsersComponent implements OnInit {
   linkInput: string | undefined;
   teachers: Array<{ name: string; id: number; email: string; nativeLanguage: string }> = [];
   tooltipVisible: string | null = null;
+
+  constructor(private router: Router) {}
 
   newTeacher: { name: string; email: string; nativeLanguage: string; id: number } = {
     name: '',
@@ -47,6 +51,9 @@ export class UsersComponent implements OnInit {
     this.newTeacher = { name: '', email: '', nativeLanguage: '', id: Date.now() };
   }
 
+  openTeacherProfile(id: number): void {
+    this.router.navigate([`/student-dashboard/users/teacher/${id}`]);
+  }
 
   showTooltip(role: string): void {
     console.log("hello");

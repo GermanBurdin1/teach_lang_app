@@ -5,6 +5,7 @@ import { UsersComponent } from '../users/users.component';
 import { MaterialsComponent } from '../materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
 import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
+import { TeacherProfileComponent } from './teacher-profile/teacher-profile.component';
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
@@ -16,7 +17,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
     UsersComponent,
     MaterialsComponent,
     MarathonsComponent,
-    StudentDashboardComponent
+    StudentDashboardComponent,
+    TeacherProfileComponent
   ],
   imports: [
     LayoutModule,
