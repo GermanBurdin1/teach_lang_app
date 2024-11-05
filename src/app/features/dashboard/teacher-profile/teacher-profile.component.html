@@ -15,10 +15,9 @@
     </li>
   </ul>
 
-  <!-- Контент для вкладки Онлайн-уроки -->
+  <!-- Вкладка "Онлайн-уроки" -->
   <div *ngIf="activeTab === 'Онлайн-уроки'">
-    <p>Статус учителя в онлайн-уроках: <span class="text-success">Активирован</span></p>
-    <button class="btn btn-outline-secondary me-2">Деактивировать</button>
+    <p>Статус учителя: <span class="text-success">Активирован</span></p>
 
     <!-- Подвкладки (Учитель, Классы, Личные материалы) -->
     <ul class="nav nav-pills mb-3">
@@ -29,66 +28,29 @@
       </li>
     </ul>
 
-    <!-- Контент подвкладок -->
     <div *ngIf="activeSubTab === 'Учитель'">
-      <div class="d-flex mb-3">
-        <div class="me-3">
-          <p><strong>Провед. уроков:</strong> 0</p>
-        </div>
-        <div>
-          <p><strong>Загруженность:</strong> 0%</p>
-        </div>
+      <p>Расписание уроков</p>
+      <div class="d-flex align-items-center mb-3">
+        <button class="btn btn-outline-secondary me-2" (click)="previousWeek()">&lt;</button>
+        <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
+        <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
       </div>
 
-      <!-- Расписание уроков -->
-      <div>
-        <p><strong>Расписание уроков</strong></p>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <button class="btn btn-outline-secondary"><</button>
-          <span>4 нояб. - 10 нояб.</span>
-          <button class="btn btn-outline-secondary">></button>
-          <select class="form-select w-auto ms-3">
-            <option>13:55 (UTC+3)</option>
-            <!-- Добавьте дополнительные опции, если нужно -->
-          </select>
-          <button class="btn btn-outline-secondary ms-2"><i class="fas fa-cog"></i></button>
-        </div>
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Пн, 4</th>
-              <th>Вт, 5</th>
-              <th>Ср, 6</th>
-              <th>Чт, 7</th>
-              <th>Пт, 8</th>
-              <th>Сб, 9</th>
-              <th>Вс, 10</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <!-- Добавьте дополнительные строки для расписания, если нужно -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Контент для подвкладки Классы -->
-    <div *ngIf="activeSubTab === 'Классы'">
-      <p>Информация о классах преподавателя</p>
-    </div>
-
-    <!-- Контент для подвкладки Личные материалы -->
-    <div *ngIf="activeSubTab === 'Личные материалы'">
-      <p>Личные материалы преподавателя</p>
+      <!-- Таблица расписания -->
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th *ngFor="let date of getWeekDates()">{{ date | date: 'EEE, d' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hour of ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']">
+            <td *ngFor="let date of getWeekDates()">
+              <button class="btn btn-outline-primary btn-sm" (click)="addLesson(date, hour)">Добавить</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
