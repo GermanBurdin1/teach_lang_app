@@ -50,10 +50,10 @@
             <td>{{ hour }}</td>
             <td *ngFor="let day of getWeekDates()"
                 (mouseenter)="showSelectButton(day, hour)"
-                (mouseleave)="hideSelectButton(day, hour)"
-                [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+                (mouseleave)="hideSelectButton()"
+                [ngClass]="{'active-slot bg-success text-white': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
               <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-                <button *ngIf="showButton[day + '-' + hour]"
+                <button *ngIf="showButton === (day + '-' + hour)"
                         class="btn btn-primary btn-sm"
                         (click)="selectSlot(day, hour); $event.stopPropagation()">
                   Выбрать
