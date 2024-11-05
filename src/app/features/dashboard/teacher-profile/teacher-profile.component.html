@@ -1,14 +1,13 @@
-<div class="teacher-profile" *ngIf="teacherData">
-  <!-- Информация о преподавателе -->
-  <div class="profile-info mb-4">
+<div class="teacher-profile">
+  <div *ngIf="teacherData">
+    <!-- Основная информация о преподавателе -->
     <h2>{{ teacherData.name }}</h2>
-    <p><strong>ID:</strong> {{ teacherData.id }}</p>
-    <p><strong>Email:</strong> {{ teacherData.email }}</p>
-    <!-- Здесь можно добавить другие данные учителя, если нужно -->
+    <p>ID: {{ teacherData.id }}</p>
+    <p>Email: {{ teacherData.email }}</p>
   </div>
 
-  <!-- Вкладки -->
-  <ul class="nav nav-tabs">
+  <!-- Основные вкладки (Онлайн-уроки, Марафоны, Администратор) -->
+  <ul class="nav nav-tabs mb-3">
     <li *ngFor="let tab of tabs" class="nav-item">
       <a class="nav-link" [class.active]="tab === activeTab" (click)="switchTab(tab)">
         {{ tab }}
@@ -16,23 +15,90 @@
     </li>
   </ul>
 
-  <!-- Контент вкладок -->
-  <div class="tab-content mt-3">
-    <!-- Контент для вкладки "Онлайн-уроки" -->
-    <div *ngIf="activeTab === 'Онлайн-уроки'" class="tab-pane active">
-      <p><strong>Статус:</strong> Активирован</p>
-      <p><strong>Проведено уроков:</strong> 0</p>
-      <p><strong>Загруженность:</strong> 0%</p>
+  <!-- Контент для вкладки Онлайн-уроки -->
+  <div *ngIf="activeTab === 'Онлайн-уроки'">
+    <p>Статус учителя в онлайн-уроках: <span class="text-success">Активирован</span></p>
+    <button class="btn btn-outline-secondary me-2">Деактивировать</button>
+
+    <!-- Подвкладки (Учитель, Классы, Личные материалы) -->
+    <ul class="nav nav-pills mb-3">
+      <li *ngFor="let subTab of subTabs" class="nav-item">
+        <a class="nav-link" [class.active]="subTab === activeSubTab" (click)="switchSubTab(subTab)">
+          {{ subTab }}
+        </a>
+      </li>
+    </ul>
+
+    <!-- Контент подвкладок -->
+    <div *ngIf="activeSubTab === 'Учитель'">
+      <div class="d-flex mb-3">
+        <div class="me-3">
+          <p><strong>Провед. уроков:</strong> 0</p>
+        </div>
+        <div>
+          <p><strong>Загруженность:</strong> 0%</p>
+        </div>
+      </div>
+
+      <!-- Расписание уроков -->
+      <div>
+        <p><strong>Расписание уроков</strong></p>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <button class="btn btn-outline-secondary"><</button>
+          <span>4 нояб. - 10 нояб.</span>
+          <button class="btn btn-outline-secondary">></button>
+          <select class="form-select w-auto ms-3">
+            <option>13:55 (UTC+3)</option>
+            <!-- Добавьте дополнительные опции, если нужно -->
+          </select>
+          <button class="btn btn-outline-secondary ms-2"><i class="fas fa-cog"></i></button>
+        </div>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Пн, 4</th>
+              <th>Вт, 5</th>
+              <th>Ср, 6</th>
+              <th>Чт, 7</th>
+              <th>Пт, 8</th>
+              <th>Сб, 9</th>
+              <th>Вс, 10</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+            </tr>
+            <!-- Добавьте дополнительные строки для расписания, если нужно -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Контент для вкладки "Марафоны" -->
-    <div *ngIf="activeTab === 'Марафоны'" class="tab-pane active">
-      <p>Краткая информация о марафонах.</p>
+    <!-- Контент для подвкладки Классы -->
+    <div *ngIf="activeSubTab === 'Классы'">
+      <p>Информация о классах преподавателя</p>
     </div>
 
-    <!-- Контент для вкладки "Администратор" -->
-    <div *ngIf="activeTab === 'Администратор'" class="tab-pane active">
-      <p>Информация о правах администратора.</p>
+    <!-- Контент для подвкладки Личные материалы -->
+    <div *ngIf="activeSubTab === 'Личные материалы'">
+      <p>Личные материалы преподавателя</p>
     </div>
+  </div>
+
+  <!-- Контент для вкладки Марафоны -->
+  <div *ngIf="activeTab === 'Марафоны'">
+    <p>Информация о марафонах</p>
+  </div>
+
+  <!-- Контент для вкладки Администратор -->
+  <div *ngIf="activeTab === 'Администратор'">
+    <p>Информация о правах администратора</p>
   </div>
 </div>

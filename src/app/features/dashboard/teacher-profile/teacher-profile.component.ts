@@ -8,16 +8,18 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class TeacherProfileComponent implements OnInit {
   teacherId: number | null = null;
-  teacherData: any; // Структура данных учителя
+  teacherData: any; // структура данных учителя
   tabs = ['Онлайн-уроки', 'Марафоны', 'Администратор'];
   activeTab = this.tabs[0];
+  subTabs = ['Учитель', 'Классы', 'Личные материалы'];
+  activeSubTab = this.subTabs[0];
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.teacherId = Number(this.route.snapshot.paramMap.get('id'));
 
-    // Загрузка данных учителя по ID из локального хранилища
+    // Загрузите данные учителя по ID (например, из локального хранилища или через сервис)
     const savedTeachers = localStorage.getItem('teachers');
     if (savedTeachers) {
       const teachers = JSON.parse(savedTeachers);
@@ -27,5 +29,9 @@ export class TeacherProfileComponent implements OnInit {
 
   switchTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  switchSubTab(subTab: string): void {
+    this.activeSubTab = subTab;
   }
 }
