@@ -121,11 +121,11 @@ export class UsersComponent implements OnInit {
 
   selectedLanguages: string = 'Английский';
   availableLanguages = ['Русский', 'Английский', 'Французский'];
+  teacherWillFill: boolean = false;
   daysWithDates: string[] = [];
   hours: string[] = Array.from({ length: 24 }, (_, i) => `${i}:00`);
   showButton: { [key: string]: boolean } = {};
   activeSlots: Record<string, boolean> = {};
-  teacherWillFill: boolean = false;
   currentTimeSlot: { day: string; hour: string } | null = null;
   crossEntryEnabled: boolean = false;
 

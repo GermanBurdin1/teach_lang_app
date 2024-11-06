@@ -24,8 +24,10 @@ export class TeacherProfileComponent implements OnInit {
   currentWeekStart: Date = new Date();
 
   hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
-  showButton: string | null = null;
+  daysWithDates: string[] = [];
+  showButton: { [key: string]: boolean } = {};
   activeSlots: Record<string, boolean> = {};
+  currentTimeSlot: { day: string; hour: string } | null = null;
 
   constructor(private route: ActivatedRoute) {
     this.currentWeekStart = this.getStartOfWeek(new Date());
@@ -34,6 +36,7 @@ export class TeacherProfileComponent implements OnInit {
   ngOnInit(): void {
     this.teacherId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadTeacherData();
+    this.daysWithDates = this.getWeekDates().map(date => date.toISOString().split('T')[0]);
   }
 
   loadTeacherData(): void {
@@ -77,29 +80,31 @@ export class TeacherProfileComponent implements OnInit {
     this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
   }
 
-  showSelectButton(day: Date, hour: string): void {
-    this.showButton = `${day}-${hour}`;
-  }
-
-  hideSelectButton(): void {
-    this.showButton = null;
-  }
-
-  selectSlot(day: Date, hour: string): void {
+  toggleTimeSlot(day: string, hour: string) {
     const slotKey = `${day}-${hour}`;
     this.activeSlots[slotKey] = !this.activeSlots[slotKey];
-    this.showButton = null;
   }
 
-  isTimeSlotActive(day: Date, hour: string): boolean {
-    const slotKey = `${day}-${hour}`;
-    return this.activeSlots[slotKey] || false;
+  showSelectButton(day: string, hour: string) {
+    console.log("hello");
+    this.showButton[`${day}-${hour}`] = true;
   }
 
-  isCurrentTime(day: Date, hour: string): boolean {
-    const now = new Date();
-    const currentDay = day.toDateString() === now.toDateString();
-    const currentHour = hour === `${now.getHours()}:00`;
-    return currentDay && currentHour;
+  hideSelectButton(day: string, hour: string) {
+    console.log("goodbye");
+    this.showButton[`${day}-${hour}`] = false;
   }
+
+  selectSlot(day: string, hour: string) {
+    this.toggleTimeSlot(day, hour);
+  }
+
+  isTimeSlotActive(day: string, hour: string): boolean {
+    return this.activeSlots[`${day}-${hour}`] || false;
+  }
+
+  isCurrentTime(day: string, hour: string): boolean {
+    return this.currentTimeSlot?.day === day && this.currentTimeSlot?.hour === hour;
+  }
+
 }
