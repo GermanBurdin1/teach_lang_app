@@ -24,6 +24,8 @@ export class TeacherProfileComponent implements OnInit {
   currentWeekStart: Date = new Date();
 
   hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
+  startHour: string = '09:00';
+  endHour: string = '22:00';
   timezones = [
     'UTC-12:00', 'UTC-11:00', 'UTC-10:00', 'UTC-09:00', 'UTC-08:00', 'UTC-07:00', 'UTC-06:00', 'UTC-05:00', 'UTC-04:00',
     'UTC-03:00', 'UTC-02:00', 'UTC-01:00', 'UTC+00:00', 'UTC+01:00', 'UTC+02:00', 'UTC+03:00', 'UTC+04:00',
@@ -33,6 +35,8 @@ export class TeacherProfileComponent implements OnInit {
   showButton: { [key: string]: boolean } = {};
   activeSlots: Record<string, boolean> = {};
   currentTimeSlot: { day: string; hour: string } | null = null;
+
+  settingsMenuOpen = false;
 
   constructor(private route: ActivatedRoute) {
     this.currentWeekStart = this.getStartOfWeek(new Date());
@@ -91,12 +95,10 @@ export class TeacherProfileComponent implements OnInit {
   }
 
   showSelectButton(day: string, hour: string) {
-    console.log("hello");
     this.showButton[`${day}-${hour}`] = true;
   }
 
   hideSelectButton(day: string, hour: string) {
-    console.log("goodbye");
     this.showButton[`${day}-${hour}`] = false;
   }
 
@@ -112,10 +114,27 @@ export class TeacherProfileComponent implements OnInit {
     return this.currentTimeSlot?.day === day && this.currentTimeSlot?.hour === hour;
   }
 
-  settingsMenuOpen = false;
-
   toggleSettingsMenu(): void {
     this.settingsMenuOpen = !this.settingsMenuOpen;
   }
 
+  onStartHourChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    if (target) {
+      this.startHour = target.value;
+    }
+  }
+
+  onEndHourChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    if (target) {
+      this.endHour = target.value;
+    }
+  }
+
+  filterHours(): string[] {
+    const startIndex = this.hours.indexOf(this.startHour);
+    const endIndex = this.hours.indexOf(this.endHour);
+    return this.hours.slice(startIndex, endIndex + 1);
+  }
 }

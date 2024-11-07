@@ -40,8 +40,9 @@
         </div>
 
         <!-- Блок выбора часового пояса и настроек -->
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center mb-3">
           <div class="me-3">
+            <label class="form-label">Часовой пояс</label>
             <select class="form-select">
               <option *ngFor="let timezone of timezones">{{ timezone }}</option>
             </select>
@@ -53,11 +54,11 @@
             <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
               <label for="start-hour" class="form-label">Отображаемые часы</label>
               <div class="d-flex align-items-center">
-                <select id="start-hour" class="form-select w-auto">
+                <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
                   <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
                 </select>
                 <span class="mx-2">до</span>
-                <select id="end-hour" class="form-select w-auto">
+                <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
                   <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
                 </select>
               </div>
@@ -75,8 +76,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let hour of hours">
-            <td class="time-label">{{ hour }}</td> <!-- Столбец с часами -->
+          <tr *ngFor="let hour of filterHours()">
+            <td class="time-label">{{ hour }}</td>
             <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
               (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
               [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
