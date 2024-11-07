@@ -42,17 +42,8 @@
         <!-- Блок выбора часового пояса и настроек -->
         <div class="d-flex align-items-center">
           <div class="me-3">
-            <span>Часовой пояс:</span>
-            <select class="form-select d-inline-block w-auto ms-2">
-              <!-- Опции для выбора часовых поясов -->
-              <option value="UTC-12:00">UTC-12:00</option>
-              <option value="UTC-11:00">UTC-11:00</option>
-              <!-- Добавьте другие опции по необходимости -->
-              <option value="UTC+0:00" selected>UTC+0:00</option>
-              <option value="UTC+1:00">UTC+1:00</option>
-              <option value="UTC+2:00">UTC+2:00</option>
-              <option value="UTC+3:00">UTC+3:00</option>
-              <!-- ... -->
+            <select class="form-select">
+              <option *ngFor="let timezone of timezones">{{ timezone }}</option>
             </select>
           </div>
           <div class="position-relative">
