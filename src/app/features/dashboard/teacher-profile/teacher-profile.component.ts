@@ -107,4 +107,10 @@ export class TeacherProfileComponent implements OnInit {
     return this.currentTimeSlot?.day === day && this.currentTimeSlot?.hour === hour;
   }
 
+  settingsMenuOpen = false;
+
+  toggleSettingsMenu(): void {
+    this.settingsMenuOpen = !this.settingsMenuOpen;
+  }
+
 }

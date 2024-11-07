@@ -31,10 +31,48 @@
     <!-- Содержимое подвкладки "Учитель" -->
     <div *ngIf="activeSubTab === 'Учитель'">
       <p>Расписание уроков</p>
-      <div class="d-flex align-items-center mb-3">
-        <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
-        <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
-        <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Блок управления неделями -->
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
+          <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
+          <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
+        </div>
+
+        <!-- Блок выбора часового пояса и настроек -->
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <span>Часовой пояс:</span>
+            <select class="form-select d-inline-block w-auto ms-2">
+              <!-- Опции для выбора часовых поясов -->
+              <option value="UTC-12:00">UTC-12:00</option>
+              <option value="UTC-11:00">UTC-11:00</option>
+              <!-- Добавьте другие опции по необходимости -->
+              <option value="UTC+0:00" selected>UTC+0:00</option>
+              <option value="UTC+1:00">UTC+1:00</option>
+              <option value="UTC+2:00">UTC+2:00</option>
+              <option value="UTC+3:00">UTC+3:00</option>
+              <!-- ... -->
+            </select>
+          </div>
+          <div class="position-relative">
+            <button class="btn btn-outline-secondary" (click)="toggleSettingsMenu()">
+              <i class="bi bi-gear"></i>
+            </button>
+            <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
+              <label for="start-hour" class="form-label">Отображаемые часы</label>
+              <div class="d-flex align-items-center">
+                <select id="start-hour" class="form-select w-auto">
+                  <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+                </select>
+                <span class="mx-2">до</span>
+                <select id="end-hour" class="form-select w-auto">
+                  <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Таблица расписания -->
@@ -48,15 +86,12 @@
         <tbody>
           <tr *ngFor="let hour of hours">
             <td class="time-label">{{ hour }}</td> <!-- Столбец с часами -->
-            <td *ngFor="let day of daysWithDates"
-                (mouseenter)="showSelectButton(day, hour)"
-                (mouseleave)="hideSelectButton(day, hour)"
-                (click)="toggleTimeSlot(day, hour)"
-                [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+            <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
+              (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
+              [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
               <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-                <button *ngIf="showButton[day + '-' + hour]"
-                        class="btn btn-primary btn-sm"
-                        (click)="selectSlot(day, hour); $event.stopPropagation()">
+                <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
+                  (click)="selectSlot(day, hour); $event.stopPropagation()">
                   Выбрать
                 </button>
               </ng-container>
@@ -69,6 +104,7 @@
       </table>
     </div>
   </div>
+
 
   <!-- Контент для вкладки "Марафоны" -->
   <div *ngIf="activeTab === 'Марафоны'">
