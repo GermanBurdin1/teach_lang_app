@@ -46,6 +46,7 @@ export class TeacherProfileComponent implements OnInit {
     this.teacherId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadTeacherData();
     this.daysWithDates = this.getWeekDates().map(date => date.toISOString().split('T')[0]);
+    this.loadHourRangeFromLocalStorage();
   }
 
   loadTeacherData(): void {
@@ -122,6 +123,7 @@ export class TeacherProfileComponent implements OnInit {
     const target = event.target as HTMLSelectElement;
     if (target) {
       this.startHour = target.value;
+      this.saveHourRangeToLocalStorage(); // Save changes to local storage
     }
   }
 
@@ -129,6 +131,7 @@ export class TeacherProfileComponent implements OnInit {
     const target = event.target as HTMLSelectElement;
     if (target) {
       this.endHour = target.value;
+      this.saveHourRangeToLocalStorage(); // Save changes to local storage
     }
   }
 
@@ -137,4 +140,23 @@ export class TeacherProfileComponent implements OnInit {
     const endIndex = this.hours.indexOf(this.endHour);
     return this.hours.slice(startIndex, endIndex + 1);
   }
+
+  loadHourRangeFromLocalStorage(): void {
+    const savedStartHour = localStorage.getItem('startHour');
+    const savedEndHour = localStorage.getItem('endHour');
+    if (savedStartHour && this.hours.includes(savedStartHour)) {
+      this.startHour = savedStartHour;
+    }
+    if (savedEndHour && this.hours.includes(savedEndHour)) {
+      this.endHour = savedEndHour;
+    }
+  }
+
+  saveHourRangeToLocalStorage(): void {
+    localStorage.setItem('startHour', this.startHour);
+    localStorage.setItem('endHour', this.endHour);
+  }
+
+  conductedLessonsCount: number = 0;
+  workloadPercentage: number = 0;
 }

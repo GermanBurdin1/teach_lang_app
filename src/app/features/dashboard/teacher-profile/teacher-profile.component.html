@@ -30,6 +30,23 @@
 
     <!-- Содержимое подвкладки "Учитель" -->
     <div *ngIf="activeSubTab === 'Учитель'">
+      <!-- Счетчики -->
+      <div class="d-flex justify-content-between mb-3">
+        <div class="p-3 border rounded d-flex align-items-center">
+          <i class="bi bi-person-circle me-2" style="font-size: 32px;"></i>
+          <div>
+            <p class="mb-0">Провед. уроков</p>
+            <span>{{ conductedLessonsCount }}</span>
+          </div>
+        </div>
+        <div class="p-3 border rounded d-flex align-items-center">
+          <i class="bi bi-lightning me-2" style="font-size: 32px; color: orange;"></i>
+          <div>
+            <p class="mb-0">Загруженность</p>
+            <span>{{ workloadPercentage }}%</span>
+          </div>
+        </div>
+      </div>
       <p>Расписание уроков</p>
       <div class="d-flex justify-content-between align-items-center mb-3">
         <!-- Блок управления неделями -->
