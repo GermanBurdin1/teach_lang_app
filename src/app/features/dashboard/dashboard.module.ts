@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
     MaterialsComponent,
     MarathonsComponent,
     StudentDashboardComponent,
-    TeacherProfileComponent
+    TeacherProfileComponent,
+    OnlineLessonsComponent
   ],
   imports: [
     LayoutModule,

@@ -1,1 +1,157 @@
-<p>online-lessons works!</p>
+<div class="online-lessons">
+  <!-- Основные вкладки (Расписание, Ученики, Группы, Учителя, Заявки) -->
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item" *ngFor="let tab of ['Расписание', 'Ученики', 'Группы', 'Учителя', 'Заявки']">
+      <a class="nav-link" [class.active]="activeLessonTab === tab" (click)="switchLessonTab(tab)">
+        {{ tab }}
+      </a>
+    </li>
+  </ul>
+
+  <!-- Содержимое для первой вкладки "Расписание" -->
+  <div *ngIf="activeLessonTab === 'Расписание'">
+    <!-- Содержимое из логики календаря -->
+    <p>Расписание уроков</p>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <!-- Блок управления неделями -->
+      <div class="d-flex align-items-center">
+        <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
+        <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
+        <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
+      </div>
+
+      <!-- Блок выбора часового пояса и настроек -->
+      <div class="d-flex align-items-center mb-3">
+        <div class="me-3">
+          <label class="form-label">Часовой пояс</label>
+          <select class="form-select">
+            <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+          </select>
+        </div>
+        <div class="position-relative">
+          <button class="btn btn-outline-secondary" (click)="toggleSettingsMenu()">
+            <i class="bi bi-gear"></i>
+          </button>
+          <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
+            <label for="start-hour" class="form-label">Отображаемые часы</label>
+            <div class="d-flex align-items-center">
+              <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
+                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+              </select>
+              <span class="mx-2">до</span>
+              <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
+                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Таблица расписания -->
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Время</th>
+          <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hour of filterHours()">
+          <td class="time-label">{{ hour }}</td>
+          <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
+            (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
+            [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+            <ng-container *ngIf="!isTimeSlotActive(day, hour)">
+              <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
+                (click)="selectSlot(day, hour); $event.stopPropagation()">
+                Выбрать
+              </button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Модальное окно -->
+<div *ngIf="showModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header border-0 justify-content-center position-relative">
+        <div class="modal-icon mb-3">
+          <i class="bi bi-info-circle-fill" style="font-size: 48px; color: #007bff;"></i>
+        </div>
+        <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="modal-title mb-3" id="modalTitle">Добавление урока</h5>
+        <p>Это время отмечено как нерабочее время преподавателя. Продолжить постановку урока на это время?</p>
+      </div>
+      <div class="modal-footer justify-content-center border-0">
+        <button type="button" class="btn btn-outline-secondary me-3" (click)="closeModal()">Отмена</button>
+        <button type="button" class="btn btn-primary" (click)="openNewLessonModal()">Продолжить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно с вкладками -->
+<div *ngIf="showNewLessonModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header border-0 justify-content-between align-items-center">
+        <h5 class="modal-title" id="newLessonModalTitle">Новый урок</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeNewLessonModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Вкладки -->
+        <ul class="nav nav-tabs mb-3 justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeLessonTab === 'individual'" (click)="switchLessonTab('individual')">Индивидуальный</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeLessonTab === 'group'" (click)="switchLessonTab('group')">Групповой</a>
+          </li>
+        </ul>
+
+        <!-- Содержимое для индивидуального урока -->
+        <div *ngIf="activeLessonTab === 'individual'">
+          <input type="text" class="form-control mb-3" placeholder="Поиск учеников" />
+          <div class="p-4 border rounded d-flex flex-column align-items-center">
+            <div class="mb-3" style="font-size: 64px;">👋</div>
+            <p>Для планирования уроков сначала создайте класс</p>
+            <button class="btn btn-primary">Перейти к ученикам</button>
+          </div>
+        </div>
+
+        <!-- Содержимое для группового урока -->
+        <div *ngIf="activeLessonTab === 'group'">
+          <input type="text" class="form-control mb-3" placeholder="Поиск групп" />
+          <div class="p-4 border rounded d-flex flex-column align-items-center">
+            <div class="mb-3" style="font-size: 64px;">👥</div>
+            <p>Для планирования уроков сначала создайте класс</p>
+            <button class="btn btn-primary">Перейти к группам</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- Содержимое для других вкладок -->
+  <div *ngIf="activeLessonTab === 'Ученики'">
+    <p>Контент для вкладки "Ученики"</p>
+  </div>
+  <div *ngIf="activeLessonTab === 'Группы'">
+    <p>Контент для вкладки "Группы"</p>
+  </div>
+  <div *ngIf="activeLessonTab === 'Учителя'">
+    <p>Контент для вкладки "Учителя"</p>
+  </div>
+  <div *ngIf="activeLessonTab === 'Заявки'">
+    <p>Контент для вкладки "Заявки"</p>
+  </div>
+</div>
