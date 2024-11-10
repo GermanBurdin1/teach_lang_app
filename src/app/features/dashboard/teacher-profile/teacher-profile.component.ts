@@ -195,4 +195,139 @@ export class TeacherProfileComponent implements OnInit {
     // Логика для скачивания статистики
     alert('Скачать статистику');
   }
+
+  possibilities = [
+    {
+      title: 'Учитель онлайн-уроков',
+      description: 'Сотрудник сможет проводить онлайн-уроки',
+      icon: 'bi bi-person-video3',
+      role: 'teacher',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+    {
+      title: 'Куратор марафонов',
+      description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
+      icon: 'bi bi-award',
+      role: 'teacher',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+    {
+      title: 'Администратор',
+      description: 'Сотрудник сможет администрировать учебный процесс',
+      icon: 'bi bi-gear',
+      role: 'admin',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+  ];
+
+  sections = [
+    { name: 'Показатели', icon: 'bi bi-grid', enabled: false },
+    { name: 'Выручка и платежи', icon: 'bi bi-currency-dollar', enabled: false },
+    { name: 'Пользователи', icon: 'bi bi-people', enabled: false },
+    { name: 'Онлайн-уроки', icon: 'bi bi-mortarboard', enabled: false },
+    { name: 'Марафоны', icon: 'bi bi-activity', enabled: false },
+    { name: 'Материалы', icon: 'bi bi-journal', enabled: false }
+  ];
+
+  platforms = [
+    { value: 'Skype', label: 'Skype', icon: 'bi bi-skype' },
+    { value: 'Zoom', label: 'Zoom', icon: 'bi bi-camera-video' }
+  ];
+
+  newTeacher: { name: string; email: string; nativeLanguage: string; id: number } = {
+    name: '',
+    email: '',
+    nativeLanguage: '',
+    id: Date.now(),
+  };
+
+  editInfo(): void {
+    const newTeacher = { ...this.newTeacher, id: Date.now() };
+    this.teachers.push(newTeacher);
+    this.saveTeachers();
+    this.clearNewTeacherForm();
+    this.isEditModalOpen = false;
+  }
+
+  teachers: Array<{ name: string; id: number; email: string; nativeLanguage: string }> = [];
+
+  clearNewTeacherForm(): void {
+    this.newTeacher = { name: '', email: '', nativeLanguage: '', id: Date.now() };
+  }
+
+  saveTeachers(): void {
+    localStorage.setItem('teachers', JSON.stringify(this.teachers));
+  }
+
+  isEditModalOpen = false;
+  showAdditionalInfo = false;
+  selectedFile: File | null = null;
+  selectedPlatform = 'Skype';
+  linkPlaceholder = 'Введите ссылку для Skype';
+  linkInput: string | undefined;
+  teacherWillFill: boolean = false;
+  selectedLanguages: string = 'Английский';
+  availableLanguages = ['Русский', 'Английский', 'Французский'];
+  crossEntryEnabled: boolean = false;
+
+  openEditModal(): void {
+    this.isEditModalOpen = true;
+  }
+
+  closeEditModal(event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.isEditModalOpen = false;
+  }
+
+  toggleAdditionalInfo(): void {
+    this.showAdditionalInfo = !this.showAdditionalInfo;
+  }
+
+  triggerFileInput(): void {
+    const fileInput = document.getElementById('avatarUpload') as HTMLElement;
+    fileInput.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      console.log('Выбранный файл:', this.selectedFile.name);
+    }
+  }
+
+  updateLinkPlaceholder(): void {
+    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
+  }
+
+  togglePossibility(possibility: any) {
+    possibility.expanded = !possibility.expanded;
+  }
+
+  toggleFeature(possibility: any) {
+    if (possibility.role === 'admin') {
+      // Логика для администратора
+      possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
+      // Дополнительные действия для администратора
+    } else if (possibility.role === 'teacher') {
+      // Логика для учителя
+      possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
+      // Дополнительные действия для учителя
+    }
+  }
+
+
+  fillSchedule() {
+    this.teacherWillFill = false;
+  }
+
+  fillTeacherSchedule() {
+    this.teacherWillFill = true;
+  }
 }
