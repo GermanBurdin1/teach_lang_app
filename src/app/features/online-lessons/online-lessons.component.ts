@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-online-lessons',
@@ -38,9 +39,17 @@ export class OnlineLessonsComponent {
   showNewLessonModal = false;
   activeModalTab: string = 'individual';
 
+  constructor(private route: ActivatedRoute) {}
+
   ngOnInit(): void {
     this.daysWithDates = this.getWeekDates().map(date => date.toISOString().split('T')[0]);
     this.loadHourRangeFromLocalStorage();
+    this.route.queryParams.subscribe(params => {
+      if (params['activeTab']) {
+        this.activeLessonTab = params['activeTab'];
+      }
+    });
+
   }
 
   getStartOfWeek(date: Date): Date {

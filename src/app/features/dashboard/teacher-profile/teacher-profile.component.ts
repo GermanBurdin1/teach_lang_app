@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 interface Lesson {
   day: string;
@@ -42,7 +43,7 @@ export class TeacherProfileComponent implements OnInit {
   activeLessonTab: string = 'individual';
 
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, private router: Router) {
     this.currentWeekStart = this.getStartOfWeek(new Date());
   }
 
@@ -180,5 +181,9 @@ export class TeacherProfileComponent implements OnInit {
 
   closeModal(): void {
     this.showModal = false;
+  }
+
+  goToOnlineLessons(): void {
+    this.router.navigate(['/online-lessons'], { queryParams: { activeTab: 'Ученики' } });
   }
 }

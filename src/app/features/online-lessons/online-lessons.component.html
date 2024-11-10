@@ -161,90 +161,90 @@
     </button>
 
     <!-- Модальное окно добавления ученика -->
-<div *ngIf="isCreateStudentModalOpen" class="modal fade show d-block" tabindex="-1"
-style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateStudentModal($event)">
-<div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
-  <div class="modal-content p-4">
-    <div class="modal-header">
-      <h5 class="modal-title">Создать ученика</h5>
-      <button type="button" class="btn-close" (click)="closeCreateStudentModal()"></button>
+    <div *ngIf="isCreateStudentModalOpen" class="modal fade show d-block" tabindex="-1"
+      style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateStudentModal($event)">
+      <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+        <div class="modal-content p-4">
+          <div class="modal-header">
+            <h5 class="modal-title">Создать ученика</h5>
+            <button type="button" class="btn-close" (click)="closeCreateStudentModal()"></button>
+          </div>
+
+          <div class="modal-body">
+            <form>
+              <!-- Основные поля -->
+              <div class="mb-3">
+                <label class="form-label">Почта</label>
+                <input type="email" class="form-control" placeholder="Эл. почта ученика">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Телефон</label>
+                <input type="tel" class="form-control" placeholder="Номер телефона ученика">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Имя</label>
+                <input type="text" class="form-control" placeholder="Имя ученика">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Родной язык</label>
+                <select class="form-select">
+                  <option>Russian</option>
+                  <option>English</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Часовой пояс</label>
+                <select class="form-select">
+                  <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+                </select>
+              </div>
+
+              <!-- Дополнительная информация -->
+              <div *ngIf="showAdditionalInfo">
+                <div class="separator mb-2">
+                  <span>Дополнительная информация</span>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Ссылка для связи</label>
+                  <input type="text" class="form-control" placeholder="Ссылка для связи">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Skype</label>
+                  <input type="text" class="form-control" placeholder="Логин ученика в Skype">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Направление</label>
+                  <input type="text" class="form-control" placeholder="Выберите направление обучения">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Периодичность обучения</label>
+                  <select class="form-select">
+                    <option *ngFor="let frequency of frequencies">{{ frequency }}</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Цель изучения</label>
+                  <textarea class="form-control" rows="3" placeholder="Напишите цель изучения"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Заметка</label>
+                  <textarea class="form-control" rows="3" placeholder="Напишите заметку"></textarea>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
+                {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
+              </button>
+            </form>
+          </div>
+
+          <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
+            <button type="button" class="btn btn-secondary" (click)="closeCreateStudentModal()">Отмена</button>
+            <button type="button" class="btn btn-primary">Создать</button>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div class="modal-body">
-      <form>
-        <!-- Основные поля -->
-        <div class="mb-3">
-          <label class="form-label">Почта</label>
-          <input type="email" class="form-control" placeholder="Эл. почта ученика">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Телефон</label>
-          <input type="tel" class="form-control" placeholder="Номер телефона ученика">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Имя</label>
-          <input type="text" class="form-control" placeholder="Имя ученика">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Родной язык</label>
-          <select class="form-select">
-            <option>Russian</option>
-            <option>English</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Часовой пояс</label>
-          <select class="form-select">
-            <option *ngFor="let timezone of timezones">{{ timezone }}</option>
-          </select>
-        </div>
-
-        <!-- Дополнительная информация -->
-        <div *ngIf="showAdditionalInfo">
-          <div class="separator mb-2">
-            <span>Дополнительная информация</span>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Ссылка для связи</label>
-            <input type="text" class="form-control" placeholder="Ссылка для связи">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Skype</label>
-            <input type="text" class="form-control" placeholder="Логин ученика в Skype">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Направление</label>
-            <input type="text" class="form-control" placeholder="Выберите направление обучения">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Периодичность обучения</label>
-            <select class="form-select">
-              <option *ngFor="let frequency of frequencies">{{ frequency }}</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Цель изучения</label>
-            <textarea class="form-control" rows="3" placeholder="Напишите цель изучения"></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Заметка</label>
-            <textarea class="form-control" rows="3" placeholder="Напишите заметку"></textarea>
-          </div>
-        </div>
-
-        <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
-          {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
-        </button>
-      </form>
-    </div>
-
-    <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
-      <button type="button" class="btn btn-secondary" (click)="closeCreateStudentModal()">Отмена</button>
-      <button type="button" class="btn btn-primary">Создать</button>
-    </div>
-  </div>
-</div>
-</div>
 
 
   </div>
