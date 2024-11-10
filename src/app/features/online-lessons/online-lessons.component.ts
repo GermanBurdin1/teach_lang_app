@@ -30,6 +30,7 @@ export class OnlineLessonsComponent {
 
   showModal = false;
   showNewLessonModal = false;
+  activeModalTab: string = 'individual';
 
   ngOnInit(): void {
     this.daysWithDates = this.getWeekDates().map(date => date.toISOString().split('T')[0]);
@@ -75,6 +76,7 @@ export class OnlineLessonsComponent {
   }
 
   selectSlot(day: string, hour: string) {
+    this.showModal = true;
     this.toggleTimeSlot(day, hour);
   }
 
@@ -140,6 +142,10 @@ export class OnlineLessonsComponent {
 
   closeModal(): void {
     this.showModal = false;
+  }
+
+  switchModalTab(tab: string): void {
+    this.activeModalTab = tab;
   }
 
 }
