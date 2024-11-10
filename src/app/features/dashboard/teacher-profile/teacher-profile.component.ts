@@ -37,6 +37,7 @@ export class TeacherProfileComponent implements OnInit {
   currentTimeSlot: { day: string; hour: string } | null = null;
 
   settingsMenuOpen = false;
+  showModal = false;
 
   constructor(private route: ActivatedRoute) {
     this.currentWeekStart = this.getStartOfWeek(new Date());
@@ -104,6 +105,7 @@ export class TeacherProfileComponent implements OnInit {
   }
 
   selectSlot(day: string, hour: string) {
+    this.showModal = true;
     this.toggleTimeSlot(day, hour);
   }
 
@@ -159,4 +161,13 @@ export class TeacherProfileComponent implements OnInit {
 
   conductedLessonsCount: number = 0;
   workloadPercentage: number = 0;
+
+  confirmLesson(): void {
+    console.log('Lesson confirmed');
+    this.showModal = false;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+  }
 }
