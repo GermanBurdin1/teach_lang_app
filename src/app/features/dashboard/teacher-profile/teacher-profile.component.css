@@ -1,0 +1,41 @@
+.teacher-profile {
+  padding: 20px;
+}
+
+.back-button-container {
+  display: inline-block;
+}
+
+.avatar-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  font-size: 24px;
+  color: #fff;
+  background-color: #f5f5f5;
+}
+
+.profile-header .profile-info h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.profile-header .profile-info .d-flex {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.actions .btn {
+  font-size: 14px;
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+}

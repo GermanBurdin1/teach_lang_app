@@ -1,10 +1,46 @@
 <div class="teacher-profile">
-  <!-- Основная информация о преподавателе -->
-  <div *ngIf="teacherData">
-    <h2>{{ teacherData.name }}</h2>
-    <p>ID: {{ teacherData.id }}</p>
-    <p>Email: {{ teacherData.email }}</p>
+  <!-- Profile Header -->
+<div class="d-flex align-items-center mb-4">
+  <!-- Back Button -->
+  <button class="btn btn-light me-3" (click)="navigateBack()">
+    <i class="bi bi-arrow-left"></i>
+  </button>
+
+  <!-- Avatar -->
+  <div class="avatar-circle bg-light text-center d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px; border-radius: 50%;">
+    <span class="text-uppercase">{{ teacherData?.name[0] }}</span>
   </div>
+
+  <!-- Profile Information -->
+  <div>
+    <h2 class="mb-1">{{ teacherData?.name }}</h2>
+    <div class="d-flex align-items-center">
+      <span class="me-3">
+        <i class="bi bi-person-badge-fill me-1"></i> {{ teacherData?.id }}
+      </span>
+      <span>
+        <i class="bi bi-envelope-fill me-1"></i> {{ teacherData?.email }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="ms-auto d-flex align-items-center">
+    <button class="btn btn-outline-secondary me-2">Редактировать</button>
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+        ...
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li>
+          <button class="dropdown-item" (click)="downloadStatistics()">
+            <i class="bi bi-download"></i> Скачать статистику
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
 
   <!-- Основные вкладки (Онлайн-уроки, Марафоны, Администратор) -->
   <ul class="nav nav-tabs mb-3">

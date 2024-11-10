@@ -186,4 +186,13 @@ export class TeacherProfileComponent implements OnInit {
   goToOnlineLessons(): void {
     this.router.navigate(['/online-lessons'], { queryParams: { activeTab: 'Ученики' } });
   }
+
+  navigateBack() {
+    this.router.navigate(['/student-dashboard/users']);
+  }
+
+  downloadStatistics() {
+    // Логика для скачивания статистики
+    alert('Скачать статистику');
+  }
 }
