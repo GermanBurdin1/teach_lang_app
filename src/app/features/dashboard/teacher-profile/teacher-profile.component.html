@@ -139,7 +139,50 @@
       </div>
       <div class="modal-footer justify-content-center border-0">
         <button type="button" class="btn btn-outline-secondary me-3" (click)="closeModal()">Отмена</button>
-        <button type="button" class="btn btn-primary" (click)="confirmLesson()">Продолжить</button>
+        <button type="button" class="btn btn-primary" (click)="openNewLessonModal()">Продолжить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно с вкладками -->
+<div *ngIf="showNewLessonModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header border-0 justify-content-between align-items-center">
+        <h5 class="modal-title" id="newLessonModalTitle">Новый урок</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeNewLessonModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Вкладки -->
+        <ul class="nav nav-tabs mb-3 justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeLessonTab === 'individual'" (click)="switchLessonTab('individual')">Индивидуальный</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeLessonTab === 'group'" (click)="switchLessonTab('group')">Групповой</a>
+          </li>
+        </ul>
+
+        <!-- Содержимое для индивидуального урока -->
+        <div *ngIf="activeLessonTab === 'individual'">
+          <input type="text" class="form-control mb-3" placeholder="Поиск учеников" />
+          <div class="p-4 border rounded d-flex flex-column align-items-center">
+            <div class="mb-3" style="font-size: 64px;">👋</div>
+            <p>Для планирования уроков сначала создайте класс</p>
+            <button class="btn btn-primary">Перейти к ученикам</button>
+          </div>
+        </div>
+
+        <!-- Содержимое для группового урока -->
+        <div *ngIf="activeLessonTab === 'group'">
+          <input type="text" class="form-control mb-3" placeholder="Поиск групп" />
+          <div class="p-4 border rounded d-flex flex-column align-items-center">
+            <div class="mb-3" style="font-size: 64px;">👥</div>
+            <p>Для планирования уроков сначала создайте класс</p>
+            <button class="btn btn-primary">Перейти к группам</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

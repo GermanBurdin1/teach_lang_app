@@ -38,6 +38,9 @@ export class TeacherProfileComponent implements OnInit {
 
   settingsMenuOpen = false;
   showModal = false;
+  showNewLessonModal = false;
+  activeLessonTab: string = 'individual';
+
 
   constructor(private route: ActivatedRoute) {
     this.currentWeekStart = this.getStartOfWeek(new Date());
@@ -162,9 +165,17 @@ export class TeacherProfileComponent implements OnInit {
   conductedLessonsCount: number = 0;
   workloadPercentage: number = 0;
 
-  confirmLesson(): void {
-    console.log('Lesson confirmed');
-    this.showModal = false;
+  openNewLessonModal(): void {
+    this.showModal = false; // Закрываем первую модалку
+    this.showNewLessonModal = true; // Открываем модалку с вкладками
+  }
+
+  closeNewLessonModal(): void {
+    this.showNewLessonModal = false;
+  }
+
+  switchLessonTab(tab: string): void {
+    this.activeLessonTab = tab;
   }
 
   closeModal(): void {
