@@ -149,16 +149,11 @@
 
   <!-- Содержимое для других вкладок -->
   <div *ngIf="activeLessonTab === 'Ученики'">
-    <div class="input-group mb-3">
-      <input type="text" class="form-control" placeholder="Поиск учеников..." aria-label="Поиск учеников">
+    <div class="text-center mt-4">
+      <div class="emoji-container mb-3" style="font-size: 48px;">👋</div>
+      <p class="lead">Для проведения индивидуальных онлайн-уроков создайте ученика</p>
+      <button class="btn btn-primary mt-3" (click)="openCreateStudentModal()">Создать ученика</button>
     </div>
-
-    <p class="mb-3">Ученики: <strong>1</strong></p>
-
-    <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center"
-      (click)="openCreateStudentModal()">
-      <i class="fas fa-user-plus mr-2"></i> Добавить нового ученика
-    </button>
 
     <!-- Модальное окно добавления ученика -->
     <div *ngIf="isCreateStudentModalOpen" class="modal fade show d-block" tabindex="-1"
