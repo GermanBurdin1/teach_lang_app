@@ -173,8 +173,43 @@
     </div>
   </div>
   <!-- Контент для вкладки "Марафоны" -->
-  <div *ngIf="activeTab === 'Марафоны'">
-    <p>Информация о марафонах</p>
+  <div *ngIf="activeTab === 'Марафоны'" class="text-center">
+    <div class="mb-4">
+      <img src="assets/images/runner-icon.png" alt="Марафоны" width="50" />
+      <p>У вас не подключены марафоны. Чтобы подключить, перейдите в тарифы.</p>
+      <button class="btn btn-primary" (click)="openMarathonModal()">Подключить</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно для подключения -->
+  <div *ngIf="showMarathonModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="marathonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+        <div class="modal-header border-0 justify-content-center position-relative">
+          <h5 class="modal-title" id="marathonModalTitle">Марафоны</h5>
+          <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" (click)="closeMarathonModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-warning">Pro (beta)</p>
+          <div class="price-box mb-3">
+            <p>Разовая стоимость за 1 ученика</p>
+            <h4>120 RUB</h4>
+            <p>+ 750 RUB в месяц</p>
+          </div>
+          <button class="btn btn-primary mb-3">Подключить</button>
+          <div>
+            <h6>На тарифе Pro доступно</h6>
+            <div class="features-grid">
+              <div *ngFor="let feature of proFeatures" class="feature-item">
+                <i [class]="feature.icon"></i>
+                <p>{{ feature.description }}</p>
+              </div>
+            </div>
+            <a href="#" class="text-info">Посмотреть все возможности</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Контент для вкладки "Администратор" -->

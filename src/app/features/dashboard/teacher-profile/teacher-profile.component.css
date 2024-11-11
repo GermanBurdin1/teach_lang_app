@@ -52,3 +52,24 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
 }
+
+/* marathons */
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 1rem;
+}
+.feature-item {
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+}
+.price-box {
+  background: #282c34;
+  padding: 15px;
+  border-radius: 8px;
+  color: #fff;
+}

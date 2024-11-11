@@ -362,4 +362,23 @@ export class TeacherProfileComponent implements OnInit {
     console.log('Учитель деактивирован');
     this.closeDeactivateModal();
   }
+
+  // marathon
+  showMarathonModal: boolean = false;
+  proFeatures = [
+    { icon: 'bi bi-star', description: 'Включены все возможности тарифа "Стандарт"' },
+    { icon: 'bi bi-people', description: 'Возможность назначения кураторов' },
+    { icon: 'bi bi-cash', description: 'Приём оплат от учеников внутри платформы' },
+    { icon: 'bi bi-gear', description: 'Автоматизация открытия доступа к марафонам' },
+    { icon: 'bi bi-badge', description: 'Возможность подключить White Label и Рекламный блок' },
+    { icon: 'bi bi-bar-chart', description: 'Контроль процесса обучения' }
+  ];
+
+  openMarathonModal() {
+    this.showMarathonModal = true;
+  }
+
+  closeMarathonModal() {
+    this.showMarathonModal = false;
+  }
 }
