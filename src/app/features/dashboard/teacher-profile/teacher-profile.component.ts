@@ -194,11 +194,11 @@ export class TeacherProfileComponent implements OnInit {
   showStatisticsModal = false;
 
   downloadStatistics() {
-    this.showStatisticsModal = true; // Открывает модальное окно
+    this.showStatisticsModal = true;
   }
 
   closeStatisticsModal() {
-    this.showStatisticsModal = false; // Закрывает модальное окно
+    this.showStatisticsModal = false;
   }
 
   possibilities = [
@@ -335,4 +335,15 @@ export class TeacherProfileComponent implements OnInit {
   fillTeacherSchedule() {
     this.teacherWillFill = true;
   }
+
+  showTooltip(role: string): void {
+    console.log("hello");
+    this.tooltipVisible = role;
+  }
+
+  hideTooltip(): void {
+    this.tooltipVisible = null;
+  }
+
+tooltipVisible: string | null = null;
 }

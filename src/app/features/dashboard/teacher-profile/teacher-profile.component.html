@@ -27,7 +27,8 @@
 
     <!-- Actions -->
     <div class="ms-auto d-flex align-items-center">
-      <button class="btn btn-outline-secondary me-2" id="dropdownMenuButton" (click)="openEditModal()">Редактировать</button>
+      <button class="btn btn-outline-secondary me-2" id="dropdownMenuButton"
+        (click)="openEditModal()">Редактировать</button>
       <div class="dropdown" tabindex="0">
         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
           data-bs-toggle="dropdown" aria-expanded="false">
@@ -54,112 +55,127 @@
   </ul>
 
   <!-- Вкладка "Онлайн-уроки" -->
-  <div *ngIf="activeTab === 'Онлайн-уроки'">
-    <p>Статус учителя: <span class="text-success">Активирован</span></p>
-
-    <!-- Подвкладки (Учитель, Классы, Личные материалы) -->
-    <ul class="nav nav-pills mb-3">
-      <li *ngFor="let subTab of subTabs" class="nav-item">
-        <a class="nav-link" [class.active]="subTab === activeSubTab" (click)="switchSubTab(subTab)">
-          {{ subTab }}
-        </a>
-      </li>
-    </ul>
-
-    <!-- Содержимое подвкладки "Учитель" -->
-    <div *ngIf="activeSubTab === 'Учитель'">
-      <!-- Счетчики -->
-      <div class="d-flex justify-content-between mb-3">
-        <div class="p-3 border rounded d-flex align-items-center">
-          <i class="bi bi-person-circle me-2" style="font-size: 32px;"></i>
-          <div>
-            <p class="mb-0">Провед. уроков</p>
-            <span>{{ conductedLessonsCount }}</span>
+  <div *ngIf="activeTab === 'Онлайн-уроки'" class="d-flex justify-content-between align-items-center">
+    <!-- Статус и подсказка -->
+    <div class="d-flex align-items-center">
+      <p class="mb-0">Статус учителя в онлайн-уроках:
+        <span class="text-success">Активирован</span>
+        <div class="ms-2 position-relative" (mouseenter)="showTooltip('teacherStatus')" (mouseleave)="hideTooltip()">
+          <i class="fas fa-question-circle text-info"></i>
+          <div *ngIf="tooltipVisible === 'teacherStatus'" class="simple-tooltip bg-dark text-light p-2 rounded">
+            <i class="fas fa-info-circle me-2"></i> Выберите период, за который нужна статистика
           </div>
         </div>
-        <div class="p-3 border rounded d-flex align-items-center">
-          <i class="bi bi-lightning me-2" style="font-size: 32px; color: orange;"></i>
-          <div>
-            <p class="mb-0">Загруженность</p>
-            <span>{{ workloadPercentage }}%</span>
-          </div>
+    </div>
+
+    <!-- Кнопка деактивации -->
+    <button class="btn btn-outline-secondary">Деактивировать</button>
+  </div>
+
+
+  <!-- Подвкладки (Учитель, Классы, Личные материалы) -->
+  <ul class="nav nav-pills mb-3">
+    <li *ngFor="let subTab of subTabs" class="nav-item">
+      <a class="nav-link" [class.active]="subTab === activeSubTab" (click)="switchSubTab(subTab)">
+        {{ subTab }}
+      </a>
+    </li>
+  </ul>
+
+  <!-- Содержимое подвкладки "Учитель" -->
+  <div *ngIf="activeSubTab === 'Учитель'">
+    <!-- Счетчики -->
+    <div class="d-flex justify-content-between mb-3">
+      <div class="p-3 border rounded d-flex align-items-center">
+        <i class="bi bi-person-circle me-2" style="font-size: 32px;"></i>
+        <div>
+          <p class="mb-0">Провед. уроков</p>
+          <span>{{ conductedLessonsCount }}</span>
         </div>
       </div>
-      <p>Расписание уроков</p>
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <!-- Блок управления неделями -->
-        <div class="d-flex align-items-center">
-          <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
-          <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
-          <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
+      <div class="p-3 border rounded d-flex align-items-center">
+        <i class="bi bi-lightning me-2" style="font-size: 32px; color: orange;"></i>
+        <div>
+          <p class="mb-0">Загруженность</p>
+          <span>{{ workloadPercentage }}%</span>
         </div>
+      </div>
+    </div>
+    <p>Расписание уроков</p>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <!-- Блок управления неделями -->
+      <div class="d-flex align-items-center">
+        <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
+        <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
+        <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
+      </div>
 
-        <!-- Блок выбора часового пояса и настроек -->
-        <div class="d-flex align-items-center mb-3">
-          <div class="me-3">
-            <label class="form-label">Часовой пояс</label>
-            <select class="form-select">
-              <option *ngFor="let timezone of timezones">{{ timezone }}</option>
-            </select>
-          </div>
-          <div class="position-relative">
-            <button class="btn btn-outline-secondary" (click)="toggleSettingsMenu()">
-              <i class="bi bi-gear"></i>
-            </button>
-            <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
-              <label for="start-hour" class="form-label">Отображаемые часы</label>
-              <div class="d-flex align-items-center">
-                <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
-                  <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
-                </select>
-                <span class="mx-2">до</span>
-                <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
-                  <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
-                </select>
-              </div>
+      <!-- Блок выбора часового пояса и настроек -->
+      <div class="d-flex align-items-center mb-3">
+        <div class="me-3">
+          <label class="form-label">Часовой пояс</label>
+          <select class="form-select">
+            <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+          </select>
+        </div>
+        <div class="position-relative">
+          <button class="btn btn-outline-secondary" (click)="toggleSettingsMenu()">
+            <i class="bi bi-gear"></i>
+          </button>
+          <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
+            <label for="start-hour" class="form-label">Отображаемые часы</label>
+            <div class="d-flex align-items-center">
+              <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
+                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+              </select>
+              <span class="mx-2">до</span>
+              <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
+                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+              </select>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Таблица расписания -->
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Время</th>
-            <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let hour of filterHours()">
-            <td class="time-label">{{ hour }}</td>
-            <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
-              (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
-              [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
-              <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-                <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
-                  (click)="selectSlot(day, hour); $event.stopPropagation()">
-                  Выбрать
-                </button>
-              </ng-container>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
 
-
-  <!-- Контент для вкладки "Марафоны" -->
-  <div *ngIf="activeTab === 'Марафоны'">
-    <p>Информация о марафонах</p>
-  </div>
-
-  <!-- Контент для вкладки "Администратор" -->
-  <div *ngIf="activeTab === 'Администратор'">
-    <p>Информация о правах администратора</p>
+    <!-- Таблица расписания -->
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Время</th>
+          <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hour of filterHours()">
+          <td class="time-label">{{ hour }}</td>
+          <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
+            (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
+            [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+            <ng-container *ngIf="!isTimeSlotActive(day, hour)">
+              <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
+                (click)="selectSlot(day, hour); $event.stopPropagation()">
+                Выбрать
+              </button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
+
+<!-- Контент для вкладки "Марафоны" -->
+<div *ngIf="activeTab === 'Марафоны'">
+  <p>Информация о марафонах</p>
+</div>
+
+<!-- Контент для вкладки "Администратор" -->
+<div *ngIf="activeTab === 'Администратор'">
+  <p>Информация о правах администратора</p>
+</div>
+
 
 <!-- Модальное окно -->
 <div *ngIf="showModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="modalTitle"
@@ -432,8 +448,8 @@
   </div>
 </div>
 
-<div *ngIf="showStatisticsModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="statisticsModalTitle"
-  aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+<div *ngIf="showStatisticsModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+  aria-labelledby="statisticsModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
       <div class="modal-header">
