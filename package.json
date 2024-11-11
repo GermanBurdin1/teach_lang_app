@@ -23,6 +23,7 @@
     "agora-rtc-sdk-ng": "^4.22.1",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "ngx-bootstrap": "^18.1.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"

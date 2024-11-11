@@ -16,7 +16,8 @@ import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { TariffsModule } from './features/tariffs/tariffs.module';
 import { SettingsModule } from './features/settings/settings.module';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,8 @@ import { SettingsModule } from './features/settings/settings.module';
     SharedModule,
     TariffsModule,
     SettingsModule,
+    BrowserAnimationsModule,
+    BsDropdownModule.forRoot()
 ],
   bootstrap: [AppComponent]
 })

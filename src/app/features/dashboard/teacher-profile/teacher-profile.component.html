@@ -1,46 +1,48 @@
 <div class="teacher-profile">
   <!-- Profile Header -->
-<div class="d-flex align-items-center mb-4">
-  <!-- Back Button -->
-  <button class="btn btn-light me-3" (click)="navigateBack()">
-    <i class="bi bi-arrow-left"></i>
-  </button>
+  <div class="d-flex align-items-center mb-4">
+    <!-- Back Button -->
+    <button class="btn btn-light me-3" (click)="navigateBack()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
 
-  <!-- Avatar -->
-  <div class="avatar-circle bg-light text-center d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px; border-radius: 50%;">
-    <span class="text-uppercase">{{ teacherData?.name[0] }}</span>
-  </div>
+    <!-- Avatar -->
+    <div class="avatar-circle bg-light text-center d-flex justify-content-center align-items-center me-3"
+      style="width: 60px; height: 60px; border-radius: 50%;">
+      <span class="text-uppercase">{{ teacherData?.name[0] }}</span>
+    </div>
 
-  <!-- Profile Information -->
-  <div>
-    <h2 class="mb-1">{{ teacherData?.name }}</h2>
-    <div class="d-flex align-items-center">
-      <span class="me-3">
-        <i class="bi bi-person-badge-fill me-1"></i> {{ teacherData?.id }}
-      </span>
-      <span>
-        <i class="bi bi-envelope-fill me-1"></i> {{ teacherData?.email }}
-      </span>
+    <!-- Profile Information -->
+    <div>
+      <h2 class="mb-1">{{ teacherData?.name }}</h2>
+      <div class="d-flex align-items-center">
+        <span class="me-3">
+          <i class="bi bi-person-badge-fill me-1"></i> {{ teacherData?.id }}
+        </span>
+        <span>
+          <i class="bi bi-envelope-fill me-1"></i> {{ teacherData?.email }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="ms-auto d-flex align-items-center">
+      <button class="btn btn-outline-secondary me-2" id="dropdownMenuButton" (click)="openEditModal()">Редактировать</button>
+      <div class="dropdown" tabindex="0">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          ...
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <li>
+            <button class="dropdown-item" (click)="downloadStatistics()">
+              <i class="bi bi-download"></i> Скачать статистику
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
-
-  <!-- Actions -->
-  <div class="ms-auto d-flex align-items-center">
-    <button class="btn btn-outline-secondary me-2" (click)="openEditModal()">Редактировать</button>
-    <div class="dropdown">
-      <button class="btn btn-outline-secondary dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-        ...
-      </button>
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <li>
-          <button class="dropdown-item" (click)="downloadStatistics()">
-            <i class="bi bi-download"></i> Скачать статистику
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
 
   <!-- Основные вкладки (Онлайн-уроки, Марафоны, Администратор) -->
   <ul class="nav nav-tabs mb-3">
@@ -231,8 +233,8 @@
   </div>
 </div>
 
-<div *ngIf="isEditModalOpen" class="modal fade show d-block" tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeEditModal($event)">
+<div *ngIf="isEditModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);"
+  (click)="closeEditModal($event)">
   <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
     <div class="modal-content p-4">
       <div class="modal-header">
@@ -253,7 +255,8 @@
           <!-- Basic Info -->
           <div class="mb-3">
             <label class="form-label">Почта</label>
-            <input type="email" class="form-control" placeholder="Почта" [(ngModel)]="newTeacher.email" name="teacherEmail">
+            <input type="email" class="form-control" placeholder="Почта" [(ngModel)]="newTeacher.email"
+              name="teacherEmail">
           </div>
           <div class="mb-3">
             <label class="form-label">Имя</label>
@@ -309,7 +312,7 @@
         <div *ngFor="let possibility of possibilities" class="possibility-item">
           <!-- Заголовок возможности -->
           <div class="possibility-header d-flex align-items-center justify-content-between"
-               (click)="togglePossibility(possibility)">
+            (click)="togglePossibility(possibility)">
             <div class="d-flex align-items-center">
               <i [class]="possibility.icon" class="possibility-icon me-3"></i>
               <div>
@@ -329,8 +332,8 @@
             <div class="mb-3">
               <label class="form-label">Активация возможности</label>
               <div class="form-check form-switch">
-                <input type="checkbox" [(ngModel)]="possibility.enabled" class="form-check-input"
-                       id="send-mails" (change)="toggleFeature(possibility)">
+                <input type="checkbox" [(ngModel)]="possibility.enabled" class="form-check-input" id="send-mails"
+                  (change)="toggleFeature(possibility)">
               </div>
             </div>
 
@@ -396,15 +399,12 @@
                   <tbody>
                     <tr *ngFor="let hour of hours">
                       <td class="time-label">{{ hour }}</td> <!-- Столбец с часами -->
-                      <td *ngFor="let day of daysWithDates"
-                          (mouseenter)="showSelectButton(day, hour)"
-                          (mouseleave)="hideSelectButton(day, hour)"
-                          (click)="toggleTimeSlot(day, hour)"
-                          [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+                      <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
+                        (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
+                        [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
                         <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-                          <button *ngIf="showButton[day + '-' + hour]"
-                                  class="btn btn-primary btn-sm"
-                                  (click)="selectSlot(day, hour); $event.stopPropagation()">
+                          <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
+                            (click)="selectSlot(day, hour); $event.stopPropagation()">
                             Выбрать
                           </button>
                         </ng-container>

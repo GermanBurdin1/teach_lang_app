@@ -194,6 +194,7 @@ export class TeacherProfileComponent implements OnInit {
   downloadStatistics() {
     // Логика для скачивания статистики
     alert('Скачать статистику');
+    console.log("hello")
   }
 
   possibilities = [
