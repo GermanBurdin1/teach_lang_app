@@ -62,14 +62,15 @@
         <span class="text-success">Активирован</span>
         <div class="ms-2 position-relative" (mouseenter)="showTooltip('teacherStatus')" (mouseleave)="hideTooltip()">
           <i class="fas fa-question-circle text-info"></i>
-          <div *ngIf="tooltipVisible === 'teacherStatus'" class="simple-tooltip bg-dark text-light p-2 rounded">
-            <i class="fas fa-info-circle me-2"></i> Выберите период, за который нужна статистика
-          </div>
+          <div *ngIf="tooltipVisible === 'teacherStatus'" class="simple-tooltip bg-dark text-light p-2 rounded" style="white-space: normal; max-width: 600px;">
+						<i class="fas fa-info-circle me-4"></i> При деактивации преподаватель перестанет выводиться в списке доступных для новых учеников. Но сможет проводить уроки с уже добавленными учениками.
+					</div>
+
         </div>
     </div>
 
     <!-- Кнопка деактивации -->
-    <button class="btn btn-outline-secondary">Деактивировать</button>
+    <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Деактивировать</button>
   </div>
 
 
@@ -164,7 +165,6 @@
     </table>
   </div>
 </div>
-
 
 <!-- Контент для вкладки "Марафоны" -->
 <div *ngIf="activeTab === 'Марафоны'">
@@ -498,6 +498,33 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeStatisticsModal()">Отмена</button>
         <button type="button" class="btn btn-primary">Скачать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showDeactivateModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="deactivateTeacherModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header border-0 justify-content-center">
+        <div class="modal-icon mb-3">
+          <i class="bi bi-exclamation-circle" style="font-size: 48px; color: #007bff;"></i>
+        </div>
+        <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" (click)="closeDeactivateModal()"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="modal-title mb-3" id="deactivateTeacherModalTitle">Деактивировать учителя</h5>
+        <p>Вы действительно хотите деактивировать этого учителя?</p>
+        <div class="alert alert-info mb-2">
+          <i class="bi bi-info-circle"></i> Деактивированный учитель перестанет выводиться в списке для назначения в классах
+        </div>
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> Деактивированный учитель сможет продолжить проводить уроки в класса, в которые он уже добавлен
+        </div>
+      </div>
+      <div class="modal-footer justify-content-center border-0">
+        <button type="button" class="btn btn-secondary me-3" (click)="closeDeactivateModal()">Отмена</button>
+        <button type="button" class="btn btn-primary" (click)="confirmDeactivation()">Деактивировать</button>
       </div>
     </div>
   </div>

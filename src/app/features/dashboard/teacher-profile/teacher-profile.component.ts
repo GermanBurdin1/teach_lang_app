@@ -345,5 +345,21 @@ export class TeacherProfileComponent implements OnInit {
     this.tooltipVisible = null;
   }
 
-tooltipVisible: string | null = null;
+  tooltipVisible: string | null = null;
+
+  showDeactivateModal = false;
+
+  openDeactivateModal() {
+    this.showDeactivateModal = true;
+  }
+
+  closeDeactivateModal() {
+    this.showDeactivateModal = false;
+  }
+
+  confirmDeactivation() {
+    // Логика деактивации
+    console.log('Учитель деактивирован');
+    this.closeDeactivateModal();
+  }
 }
