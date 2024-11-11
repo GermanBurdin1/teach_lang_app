@@ -55,117 +55,121 @@
   </ul>
 
   <!-- Вкладка "Онлайн-уроки" -->
-  <div *ngIf="activeTab === 'Онлайн-уроки'" class="d-flex justify-content-between align-items-center">
-    <!-- Статус и подсказка -->
-    <div class="d-flex align-items-center">
-      <p class="mb-0">Статус учителя в онлайн-уроках:
-        <span class="text-success">Активирован</span>
-        <div class="ms-2 position-relative" (mouseenter)="showTooltip('teacherStatus')" (mouseleave)="hideTooltip()">
-          <i class="fas fa-question-circle text-info"></i>
-          <div *ngIf="tooltipVisible === 'teacherStatus'" class="simple-tooltip bg-dark text-light p-2 rounded" style="white-space: normal; max-width: 600px;">
-						<i class="fas fa-info-circle me-4"></i> При деактивации преподаватель перестанет выводиться в списке доступных для новых учеников. Но сможет проводить уроки с уже добавленными учениками.
-					</div>
-
+  <div *ngIf="activeTab === 'Онлайн-уроки'">
+    <!-- Подвкладки (Учитель, Классы, Личные материалы) -->
+    <ul class="nav nav-pills mb-3">
+      <li *ngFor="let subTab of subTabs" class="nav-item">
+        <a class="nav-link" [class.active]="subTab === activeSubTab" (click)="switchSubTab(subTab)">
+          {{ subTab }}
+        </a>
+      </li>
+    </ul>
+    <!-- Содержимое подвкладки "Учитель" -->
+    <div *ngIf="activeSubTab === 'Учитель'">
+      <!-- Контейнер для статуса учителя и кнопки деактивации -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Статус и подсказка -->
+        <div class="d-flex align-items-center">
+          <p class="mb-0">Статус учителя в онлайн-уроках:
+            <span class="text-success">Активирован</span>
+          </p>
+          <div class="ms-2 position-relative" (mouseenter)="showTooltip('teacherStatus')" (mouseleave)="hideTooltip()">
+            <i class="fas fa-question-circle text-info"></i>
+            <div *ngIf="tooltipVisible === 'teacherStatus'" class="simple-tooltip bg-dark text-light p-2 rounded"
+              style="white-space: normal; max-width: 600px;">
+              <i class="fas fa-info-circle me-4"></i> При деактивации преподаватель перестанет выводиться в списке
+              доступных
+              для новых учеников. Но сможет проводить уроки с уже добавленными учениками.
+            </div>
+          </div>
         </div>
-    </div>
 
-    <!-- Кнопка деактивации -->
-    <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Деактивировать</button>
-  </div>
-
-
-  <!-- Подвкладки (Учитель, Классы, Личные материалы) -->
-  <ul class="nav nav-pills mb-3">
-    <li *ngFor="let subTab of subTabs" class="nav-item">
-      <a class="nav-link" [class.active]="subTab === activeSubTab" (click)="switchSubTab(subTab)">
-        {{ subTab }}
-      </a>
-    </li>
-  </ul>
-
-  <!-- Содержимое подвкладки "Учитель" -->
-  <div *ngIf="activeSubTab === 'Учитель'">
-    <!-- Счетчики -->
-    <div class="d-flex justify-content-between mb-3">
-      <div class="p-3 border rounded d-flex align-items-center">
-        <i class="bi bi-person-circle me-2" style="font-size: 32px;"></i>
-        <div>
-          <p class="mb-0">Провед. уроков</p>
-          <span>{{ conductedLessonsCount }}</span>
-        </div>
-      </div>
-      <div class="p-3 border rounded d-flex align-items-center">
-        <i class="bi bi-lightning me-2" style="font-size: 32px; color: orange;"></i>
-        <div>
-          <p class="mb-0">Загруженность</p>
-          <span>{{ workloadPercentage }}%</span>
-        </div>
-      </div>
-    </div>
-    <p>Расписание уроков</p>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <!-- Блок управления неделями -->
-      <div class="d-flex align-items-center">
-        <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
-        <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
-        <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
+        <!-- Кнопка деактивации -->
+        <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Деактивировать</button>
       </div>
 
-      <!-- Блок выбора часового пояса и настроек -->
-      <div class="d-flex align-items-center mb-3">
-        <div class="me-3">
-          <label class="form-label">Часовой пояс</label>
-          <select class="form-select">
-            <option *ngFor="let timezone of timezones">{{ timezone }}</option>
-          </select>
+      <!-- Счетчики -->
+      <div class="d-flex justify-content-between mb-3">
+        <div class="p-3 border rounded d-flex align-items-center">
+          <i class="bi bi-person-circle me-2" style="font-size: 32px;"></i>
+          <div>
+            <p class="mb-0">Провед. уроков</p>
+            <span>{{ conductedLessonsCount }}</span>
+          </div>
         </div>
-        <div class="position-relative">
-          <button class="btn btn-outline-secondary" (click)="toggleSettingsMenu()">
-            <i class="bi bi-gear"></i>
-          </button>
-          <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
-            <label for="start-hour" class="form-label">Отображаемые часы</label>
-            <div class="d-flex align-items-center">
-              <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
-                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
-              </select>
-              <span class="mx-2">до</span>
-              <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
-                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
-              </select>
+        <div class="p-3 border rounded d-flex align-items-center">
+          <i class="bi bi-lightning me-2" style="font-size: 32px; color: orange;"></i>
+          <div>
+            <p class="mb-0">Загруженность</p>
+            <span>{{ workloadPercentage }}%</span>
+          </div>
+        </div>
+      </div>
+      <p>Расписание уроков</p>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Блок управления неделями -->
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
+          <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
+          <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
+        </div>
+
+        <!-- Блок выбора часового пояса и настроек -->
+        <div class="d-flex align-items-center mb-3">
+          <div class="me-3">
+            <label class="form-label">Часовой пояс</label>
+            <select class="form-select">
+              <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+            </select>
+          </div>
+          <div class="position-relative">
+            <button class="btn btn-outline-secondary" (click)="toggleSettingsMenu()">
+              <i class="bi bi-gear"></i>
+            </button>
+            <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
+              <label for="start-hour" class="form-label">Отображаемые часы</label>
+              <div class="d-flex align-items-center">
+                <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
+                  <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+                </select>
+                <span class="mx-2">до</span>
+                <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
+                  <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Таблица расписания -->
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Время</th>
-          <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let hour of filterHours()">
-          <td class="time-label">{{ hour }}</td>
-          <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
-            (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
-            [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
-            <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-              <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
-                (click)="selectSlot(day, hour); $event.stopPropagation()">
-                Выбрать
-              </button>
-            </ng-container>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <!-- Таблица расписания -->
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Время</th>
+            <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hour of filterHours()">
+            <td class="time-label">{{ hour }}</td>
+            <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
+              (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
+              [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+              <ng-container *ngIf="!isTimeSlotActive(day, hour)">
+                <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
+                  (click)="selectSlot(day, hour); $event.stopPropagation()">
+                  Выбрать
+                </button>
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
   </div>
 </div>
-
 <!-- Контент для вкладки "Марафоны" -->
 <div *ngIf="activeTab === 'Марафоны'">
   <p>Информация о марафонах</p>
@@ -175,6 +179,7 @@
 <div *ngIf="activeTab === 'Администратор'">
   <p>Информация о правах администратора</p>
 </div>
+
 
 
 <!-- Модальное окно -->
@@ -503,23 +508,27 @@
   </div>
 </div>
 
-<div *ngIf="showDeactivateModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="deactivateTeacherModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+<div *ngIf="showDeactivateModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+  aria-labelledby="deactivateTeacherModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
       <div class="modal-header border-0 justify-content-center">
         <div class="modal-icon mb-3">
           <i class="bi bi-exclamation-circle" style="font-size: 48px; color: #007bff;"></i>
         </div>
-        <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" (click)="closeDeactivateModal()"></button>
+        <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close"
+          (click)="closeDeactivateModal()"></button>
       </div>
       <div class="modal-body">
         <h5 class="modal-title mb-3" id="deactivateTeacherModalTitle">Деактивировать учителя</h5>
         <p>Вы действительно хотите деактивировать этого учителя?</p>
         <div class="alert alert-info mb-2">
-          <i class="bi bi-info-circle"></i> Деактивированный учитель перестанет выводиться в списке для назначения в классах
+          <i class="bi bi-info-circle"></i> Деактивированный учитель перестанет выводиться в списке для назначения в
+          классах
         </div>
         <div class="alert alert-info">
-          <i class="bi bi-info-circle"></i> Деактивированный учитель сможет продолжить проводить уроки в класса, в которые он уже добавлен
+          <i class="bi bi-info-circle"></i> Деактивированный учитель сможет продолжить проводить уроки в класса, в
+          которые он уже добавлен
         </div>
       </div>
       <div class="modal-footer justify-content-center border-0">
