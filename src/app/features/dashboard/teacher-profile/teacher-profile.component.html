@@ -431,3 +431,58 @@
     </div>
   </div>
 </div>
+
+<div *ngIf="showStatisticsModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="statisticsModalTitle"
+  aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statisticsModalTitle">Статистика</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeStatisticsModal()"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-info">Выберите период, за который нужна статистика</p>
+        <!-- Начало периода -->
+        <div class="mb-3">
+          <label for="startDate" class="form-label">Начало</label>
+          <div class="d-flex gap-2">
+            <select id="startDateDay" class="form-select">
+              <option>10</option>
+              <!-- Добавь другие значения дней -->
+            </select>
+            <select id="startDateMonth" class="form-select">
+              <option>Ноябрь</option>
+              <!-- Добавь другие месяцы -->
+            </select>
+            <select id="startDateYear" class="form-select">
+              <option>2024</option>
+              <!-- Добавь другие годы -->
+            </select>
+          </div>
+        </div>
+        <!-- Конец периода -->
+        <div class="mb-3">
+          <label for="endDate" class="form-label">Конец</label>
+          <div class="d-flex gap-2">
+            <select id="endDateDay" class="form-select">
+              <option>11</option>
+              <!-- Добавь другие значения дней -->
+            </select>
+            <select id="endDateMonth" class="form-select">
+              <option>Ноябрь</option>
+              <!-- Добавь другие месяцы -->
+            </select>
+            <select id="endDateYear" class="form-select">
+              <option>2024</option>
+              <!-- Добавь другие годы -->
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeStatisticsModal()">Отмена</button>
+        <button type="button" class="btn btn-primary">Скачать</button>
+      </div>
+    </div>
+  </div>
+</div>

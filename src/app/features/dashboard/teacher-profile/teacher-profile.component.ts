@@ -191,10 +191,14 @@ export class TeacherProfileComponent implements OnInit {
     this.router.navigate(['/student-dashboard/users']);
   }
 
+  showStatisticsModal = false;
+
   downloadStatistics() {
-    // Логика для скачивания статистики
-    alert('Скачать статистику');
-    console.log("hello")
+    this.showStatisticsModal = true; // Открывает модальное окно
+  }
+
+  closeStatisticsModal() {
+    this.showStatisticsModal = false; // Закрывает модальное окно
   }
 
   possibilities = [
