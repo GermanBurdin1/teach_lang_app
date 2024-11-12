@@ -181,13 +181,16 @@
     </div>
   </div>
 
-  <!-- Модальное окно для подключения -->
-  <div *ngIf="showMarathonModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="marathonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <!-- Модальное окно для подключения марафона -->
+  <div *ngIf="showMarathonModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+    aria-labelledby="marathonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5); z-index: 1040;">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+        <!-- Содержимое модалки -->
         <div class="modal-header border-0 justify-content-center position-relative">
           <h5 class="modal-title" id="marathonModalTitle">Марафоны</h5>
-          <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" (click)="closeMarathonModal()"></button>
+          <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close"
+            (click)="closeMarathonModal()"></button>
         </div>
         <div class="modal-body">
           <p class="text-warning">Pro (beta)</p>
@@ -196,7 +199,7 @@
             <h4>120 RUB</h4>
             <p>+ 750 RUB в месяц</p>
           </div>
-          <button class="btn btn-primary mb-3">Подключить</button>
+          <button class="btn btn-primary mb-3" (click)="openProductSelectionModal()">Подключить</button>
           <div>
             <h6>На тарифе Pro доступно</h6>
             <div class="features-grid">
@@ -205,12 +208,131 @@
                 <p>{{ feature.description }}</p>
               </div>
             </div>
-            <a href="#" class="text-info">Посмотреть все возможности</a>
+            <a href="#" class="text-info" (click)="openAdditionalModal(); $event.preventDefault()">Посмотреть все
+              возможности</a>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Дополнительное модальное окно -->
+  <div *ngIf="showAdditionalModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+    aria-labelledby="additionalModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.7); z-index: 1050;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+        <div class="modal-header">
+          <h5 class="modal-title" id="additionalModalTitle">Все возможности</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeAdditionalModal()"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Полный список возможностей -->
+          <ul class="list-unstyled">
+            <li><strong>Общие</strong></li>
+            <li>Сотрудники</li>
+            <li>Контроль доступа</li>
+            <li>Правила платежей на платформе</li>
+            <li>Показатели и отчёты</li>
+            <li>API</li>
+            <li>Оплата от юр. лица</li>
+
+            <li class="mt-3"><strong>Продвижение</strong></li>
+            <li>Брендирование</li>
+            <li>Рекламный баннер</li>
+
+            <li class="mt-3"><strong>Онлайн-уроки</strong></li>
+            <li>Индивидуальные и групповые классы</li>
+            <li>Синхронизация действий в реальном времени</li>
+            <li>Видеосвязь и чат</li>
+            <li>Готовые уроки</li>
+            <li>Конструктор уроков</li>
+            <li>25+ шаблонов интерактивных упражнений</li>
+            <li>Алгоритмы для создания уроков</li>
+            <li>Учет индивидуальных баллов и рейтинга учеников</li>
+            <li>Словарь и примечания</li>
+            <li>Тренажёр слов</li>
+            <li>Репетиционные уроки</li>
+            <li>Домашние задания</li>
+            <li>Оповещения учеников</li>
+            <li>Личный сайт и заявки от учеников</li>
+            <li>Интерактивные комплекты учеников</li>
+            <li>Учителя классов</li>
+
+            <li class="mt-3"><strong>Марафоны</strong></li>
+            <li>Автоматический доступ и ограничение</li>
+            <li>5 режимов доступа для учеников</li>
+            <li>Синхронизация этапов</li>
+            <li>Автоматизация открытия и ручная торговля марафонов</li>
+            <li>Обратная связь для учеников</li>
+            <li>Конструктор курсов</li>
+            <li>25+ шаблонов интерактивных упражнений</li>
+            <li>Алгоритмы для создания уроков</li>
+            <li>Учет индивидуальных баллов и рейтинга учеников</li>
+            <li>Словарь и примечания</li>
+            <li>Тренажёр слов</li>
+            <li>Курсы марафонов</li>
+            <li>Уровни доступа</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно для выбора продуктов -->
+  <div *ngIf="showProductSelectionModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+    style="background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center">
+        <div class="modal-header">
+          <h5 class="modal-title">Выбор продуктов</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeProductSelectionModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Выберите продукты, которые хотите использовать</p>
+          <div class="product-item mb-3 d-flex justify-content-between align-items-center">
+            <div>Онлайн-уроки</div>
+            <button class="btn btn-link">Добавить</button>
+          </div>
+          <div class="product-item d-flex justify-content-between align-items-center">
+            <div>Марафоны</div>
+            <span class="badge bg-success">Подключено</span>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" (click)="closeProductSelectionModal()">Отмена</button>
+          <button type="button" class="btn btn-primary" (click)="proceedToPayment()">Продолжить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно для подтверждения оплаты -->
+  <div *ngIf="showPaymentConfirmationModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+    style="background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center">
+        <div class="modal-header">
+          <h5 class="modal-title">Подтвердите оплату</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closePaymentConfirmationModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Тариф: Pro (beta)</p>
+          <p>Период: 30 дн.</p>
+          <p>Марафоны: 750.00 RUB</p>
+          <p class="text-muted small">* Ученики оплачиваются отдельно...</p>
+          <p>Итоговая стоимость: <strong>750.00 RUB</strong></p>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" (click)="closePaymentConfirmationModal()">Отмена</button>
+          <button type="button" class="btn btn-primary">Оплатить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
 
   <!-- Контент для вкладки "Администратор" -->
   <div *ngIf="activeTab === 'Администратор'">

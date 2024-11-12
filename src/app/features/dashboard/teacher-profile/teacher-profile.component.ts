@@ -381,4 +381,41 @@ export class TeacherProfileComponent implements OnInit {
   closeMarathonModal() {
     this.showMarathonModal = false;
   }
+
+  showAdditionalModal: boolean = false;
+
+  openAdditionalModal(): void {
+    this.showAdditionalModal = true;
+  }
+
+  closeAdditionalModal(): void {
+    this.showAdditionalModal = false;
+  }
+
+  closeMainModal(): void {
+    this.showMarathonModal = false;
+  }
+
+  showProductSelectionModal: boolean = false; // Модальное окно для выбора продукта
+  showPaymentConfirmationModal: boolean = false; // Модальное окно для подтверждения оплаты
+
+  // Открыть модальное окно выбора продукта
+  openProductSelectionModal(): void {
+    this.showMarathonModal = false;
+    this.showProductSelectionModal = true;
+  }
+
+  // Перейти к модальному окну подтверждения оплаты
+  proceedToPayment(): void {
+    this.showProductSelectionModal = false;
+    this.showPaymentConfirmationModal = true;
+  }
+
+  closeProductSelectionModal(): void {
+    this.showProductSelectionModal = false;
+  }
+  closePaymentConfirmationModal(): void {
+    this.showPaymentConfirmationModal = false;
+  }
+
 }
