@@ -1,46 +1,301 @@
-<!-- Profile Header -->
-<div class="mb-4">
-  <!-- Back Button -->
-  <div class="d-flex align-items-center">
-    <button class="btn btn-light me-3" (click)="navigateBack()">
-      <i class="bi bi-arrow-left"></i>
-    </button>
+<div class="student-profile" style="max-width: 800px; margin: 0 auto;">
+  <!-- Profile Header -->
+  <div class="mb-4">
+    <!-- Back Button -->
+    <div class="d-flex align-items-center">
+      <button class="btn btn-light me-3" (click)="navigateBack()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
 
-    <!-- Avatar -->
-    <div class="avatar-circle bg-light text-center d-flex justify-content-center align-items-center me-3"
-      style="width: 60px; height: 60px; border-radius: 50%;">
-      <span class="text-uppercase">{{ studentData?.name[0] }}</span>
-    </div>
-
-    <!-- Profile Information -->
-    <div>
-      <h2 class="mb-1">{{ studentData?.name }}</h2>
-      <div class="d-flex align-items-center">
-        <span class="me-3">
-          <i class="bi bi-person-badge-fill me-1"></i> {{ studentData?.id }}
-        </span>
-        <span>
-          <i class="bi bi-envelope-fill me-1"></i> {{ studentData?.email }}
-        </span>
+      <!-- Avatar -->
+      <div class="avatar-circle bg-light text-center d-flex justify-content-center align-items-center me-3"
+        style="width: 60px; height: 60px; border-radius: 50%;">
+        <span class="text-uppercase">{{ studentData?.name[0] }}</span>
       </div>
 
-      <!-- Actions - Moved under Profile Information -->
-      <div class="mt-2">
-        <button class="btn btn-outline-secondary me-2" id="dropdownMenuButton"
-          (click)="openEditModal()">Редактировать</button>
-        <div class="dropdown d-inline-block" tabindex="0">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            ...
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <li>
-              <button class="dropdown-item" (click)="downloadStatistics()">
-                <i class="bi bi-download"></i> Скачать статистику
-              </button>
-            </li>
-          </ul>
+      <!-- Profile Information -->
+      <div>
+        <h2 class="mb-1">{{ studentData?.name }}</h2>
+        <div class="d-flex align-items-center">
+          <span class="me-3">
+            <i class="bi bi-person-badge-fill me-1"></i> {{ studentData?.id }}
+          </span>
+          <span>
+            <i class="bi bi-envelope-fill me-1"></i> {{ studentData?.email }}
+          </span>
         </div>
+
+        <!-- Actions - Moved under Profile Information -->
+        <div class="mt-2">
+          <button class="btn btn-outline-secondary me-2" id="dropdownMenuButton"
+            (click)="openEditModal()">Редактировать</button>
+          <div class="dropdown d-inline-block" tabindex="0">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              ...
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <li>
+                <button class="dropdown-item" (click)="downloadStatistics()">
+                  <i class="bi bi-download"></i> Скачать статистику
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Контейнер для статуса учителя и кнопки деактивации -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Статус и подсказка -->
+    <div class="d-flex align-items-center">
+      <p class="mb-0">Статус учителя в онлайн-уроках:
+        <span class="text-success">Активирован</span>
+      </p>
+      <div class="ms-2 position-relative" (mouseenter)="showTooltip('teacherStatus')" (mouseleave)="hideTooltip()">
+        <i class="fas fa-question-circle text-info"></i>
+        <div *ngIf="tooltipVisible === 'teacherStatus'" class="simple-tooltip bg-dark text-light p-2 rounded"
+          style="white-space: normal; max-width: 600px;">
+          <i class="fas fa-info-circle me-4"></i> При деактивации преподаватель перестанет выводиться в списке
+          доступных
+          для новых учеников. Но сможет проводить уроки с уже добавленными учениками.
+        </div>
+      </div>
+    </div>
+
+    <!-- Кнопка деактивации -->
+    <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Деактивировать</button>
+  </div>
+</div>
+
+<div *ngIf="isEditModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);"
+  (click)="closeEditModal($event)">
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content p-4">
+      <div class="modal-header">
+        <h5 class="modal-title">Создать ученика</h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form>
+          <!-- Avatar Upload -->
+          <div class="mb-3 d-flex align-items-center">
+            <label class="form-label me-3">Аватарка</label>
+            <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;"></div>
+            <input type="file" id="avatarUpload" class="d-none" (change)="onFileSelected($event)">
+            <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+          </div>
+
+          <!-- Basic Info -->
+          <div class="mb-3">
+            <label class="form-label">Почта</label>
+            <input type="email" class="form-control" placeholder="Почта" [(ngModel)]="newStudent.email"
+              name="teacherEmail">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Пароль</label>
+            <input type="password" class="form-control" placeholder="Пароль" [(ngModel)]="newStudent.password"
+              name="studentPassword">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Имя</label>
+            <input type="text" class="form-control" placeholder="Имя" [(ngModel)]="newStudent.name" name="teacherName">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Телефон</label>
+            <input type="tel" class="form-control" placeholder="Телефон">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Родной язык</label>
+            <select class="form-select" [(ngModel)]="newStudent.nativeLanguage" name="teacherNativeLanguage">
+              <option value="Russian">Russian</option>
+              <option value="English">English</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Часовой пояс</label>
+            <select class="form-select">
+              <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+            </select>
+          </div>
+
+          <!-- Button to Trigger Delete Modal -->
+          <div class="mb-3">
+            <button type="button" class="btn btn-danger" (click)="openDeleteStudentModal()">Удалить ученика</button>
+          </div>
+
+          <!-- Delete Confirmation Modal -->
+          <div *ngIf="showDeleteStudentModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+            aria-labelledby="deleteStudentModalTitle" aria-hidden="true"
+            style="background: rgba(0, 0, 0, 0.5); z-index: 1050;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+                <div class="modal-header border-0 justify-content-center">
+                  <div class="modal-icon mb-3">
+                    <i class="bi bi-exclamation-circle" style="font-size: 48px; color: #dc3545;"></i>
+                  </div>
+                  <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;"
+                    aria-label="Close" (click)="closeDeleteStudentModal()"></button>
+                </div>
+                <div class="modal-body">
+                  <h5 class="modal-title mb-3" id="deleteStudentModalTitle">Удалить ученика</h5>
+                  <p>Вы действительно хотите удалить этого ученика?</p>
+                  <div class="alert alert-danger">
+                    <i class="bi bi-info-circle"></i> Это действие невозможно отменить.
+                  </div>
+                </div>
+                <div class="modal-footer justify-content-center border-0">
+                  <button type="button" class="btn btn-secondary me-3"
+                    (click)="closeDeleteStudentModal()">Отмена</button>
+                  <button type="button" class="btn btn-danger" (click)="confirmDeleteStudent()">Удалить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Information -->
+          <div *ngIf="showAdditionalInfo">
+            <div class="separator mb-2">
+              <span>Дополнительная информация</span>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Ссылка для связи</label>
+              <div class="input-group">
+                <ng-select [(ngModel)]="selectedPlatform" name="selectedPlatform" (change)="updateLinkPlaceholder()"
+                  [clearable]="false" [searchable]="false" bindLabel="label" bindValue="value" class="form-select">
+                  <ng-option *ngFor="let platform of platforms" [value]="platform.value">
+                    <i [class]="platform.icon" style="margin-right: 5px;"></i>{{ platform.label }}
+                  </ng-option>
+                </ng-select>
+
+                <input type="text" class="form-control" [placeholder]="linkPlaceholder" [(ngModel)]="linkInput"
+                  name="linkInput">
+              </div>
+            </div>
+
+            <!-- Периодичность обучения -->
+            <div class="mb-3">
+              <label class="form-label">Периодичность обучения</label>
+              <select class="form-select" [(ngModel)]="selectedFrequency">
+                <option *ngFor="let frequency of frequencies">{{ frequency }}</option>
+              </select>
+            </div>
+
+            <!-- Цель изучения -->
+            <div class="mb-3">
+              <label class="form-label">Цель изучения</label>
+              <textarea class="form-control" rows="3" placeholder="Напишите цель изучения"
+                [(ngModel)]="studyGoal"></textarea>
+            </div>
+
+            <!-- Заметка -->
+            <div class="mb-3">
+              <label class="form-label">Заметка</label>
+              <textarea class="form-control" rows="3" placeholder="Напишите заметку" [(ngModel)]="note"></textarea>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
+            {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
+          </button>
+
+          <div *ngIf="showAdditionalInfo" class="mt-3">
+
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Отмена</button>
+        <button type="button" class="btn btn-primary" (click)="editInfo()">Создать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showStatisticsModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+  aria-labelledby="statisticsModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statisticsModalTitle">Статистика</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeStatisticsModal()"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-info">Выберите период, за который нужна статистика</p>
+        <!-- Начало периода -->
+        <div class="mb-3">
+          <label for="startDate" class="form-label">Начало</label>
+          <div class="d-flex gap-2">
+            <select id="startDateDay" class="form-select">
+              <option>10</option>
+              <!-- Добавь другие значения дней -->
+            </select>
+            <select id="startDateMonth" class="form-select">
+              <option>Ноябрь</option>
+              <!-- Добавь другие месяцы -->
+            </select>
+            <select id="startDateYear" class="form-select">
+              <option>2024</option>
+              <!-- Добавь другие годы -->
+            </select>
+          </div>
+        </div>
+        <!-- Конец периода -->
+        <div class="mb-3">
+          <label for="endDate" class="form-label">Конец</label>
+          <div class="d-flex gap-2">
+            <select id="endDateDay" class="form-select">
+              <option>11</option>
+              <!-- Добавь другие значения дней -->
+            </select>
+            <select id="endDateMonth" class="form-select">
+              <option>Ноябрь</option>
+              <!-- Добавь другие месяцы -->
+            </select>
+            <select id="endDateYear" class="form-select">
+              <option>2024</option>
+              <!-- Добавь другие годы -->
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeStatisticsModal()">Отмена</button>
+        <button type="button" class="btn btn-primary">Скачать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showDeactivateModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+  aria-labelledby="deactivateTeacherModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header border-0 justify-content-center">
+        <div class="modal-icon mb-3">
+          <i class="bi bi-exclamation-circle" style="font-size: 48px; color: #007bff;"></i>
+        </div>
+        <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close"
+          (click)="closeDeactivateModal()"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="modal-title mb-3" id="deactivateTeacherModalTitle">Деактивировать учителя</h5>
+        <p>Вы действительно хотите деактивировать этого учителя?</p>
+        <div class="alert alert-info mb-2">
+          <i class="bi bi-info-circle"></i> Деактивированный учитель перестанет выводиться в списке для назначения в
+          классах
+        </div>
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> Деактивированный учитель сможет продолжить проводить уроки в класса, в
+          которые он уже добавлен
+        </div>
+      </div>
+      <div class="modal-footer justify-content-center border-0">
+        <button type="button" class="btn btn-secondary me-3" (click)="closeDeactivateModal()">Отмена</button>
+        <button type="button" class="btn btn-primary" (click)="confirmDeactivation()">Деактивировать</button>
       </div>
     </div>
   </div>

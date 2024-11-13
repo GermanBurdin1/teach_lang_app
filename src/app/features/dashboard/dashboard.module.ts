@@ -6,6 +6,7 @@ import { MaterialsComponent } from '../materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
 import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
 import { TeacherProfileComponent } from './teacher-profile/teacher-profile.component';
+import { StudentProfileComponent } from './student-profile/student-profile.component';
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
@@ -21,6 +22,7 @@ import { TariffsModule } from "../tariffs/tariffs.module";
     MarathonsComponent,
     StudentDashboardComponent,
     TeacherProfileComponent,
+    StudentProfileComponent,
     OnlineLessonsComponent
   ],
   imports: [
