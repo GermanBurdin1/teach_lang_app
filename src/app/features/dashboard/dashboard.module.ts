@@ -11,6 +11,7 @@ import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
+import { TariffsModule } from "../tariffs/tariffs.module";
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { OnlineLessonsComponent } from '../online-lessons/online-lessons.compone
     DashboardRoutingModule,
     FormsModule,
     NgSelectModule,
+    TariffsModule
 ]
 })
 export class DashboardModule { }

@@ -291,7 +291,8 @@
           <p>Выберите продукты, которые хотите использовать</p>
           <div class="product-item mb-3 d-flex justify-content-between align-items-center">
             <div>Онлайн-уроки</div>
-            <button class="btn btn-link">Добавить</button>
+            <button class="btn btn-link" (click)="openTariffModal()">Добавить</button>
+            <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal" (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
           </div>
           <div class="product-item d-flex justify-content-between align-items-center">
             <div>Марафоны</div>
