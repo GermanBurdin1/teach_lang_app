@@ -9,12 +9,47 @@ import { Router } from '@angular/router';
 })
 export class StudentProfileComponent {
 
-  constructor(private route: ActivatedRoute) {
+  isEditModalOpen = false;
+  studentData: any;
+  studentId: number | null = null;
+
+
+  constructor(private route: ActivatedRoute, private router: Router) {
 
   }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.studentId = Number(id); // Сохраните id, если нужно
+      this.loadStudentData();
+    }
+  }
+
+  loadStudentData(): void {
+    const savedStudents = localStorage.getItem('students');
+    if (savedStudents) {
+      const students = JSON.parse(savedStudents);
+      this.studentData = students.find((student: any) => student.id === this.studentId);
+    }
+  }
+
+  openEditModal(): void {
+    this.isEditModalOpen = true;
+  }
+
+  navigateBack() {
+    this.router.navigate(['/student-dashboard/users']);
+  }
+
+  showStatisticsModal = false;
+
+  downloadStatistics() {
+    this.showStatisticsModal = true;
+  }
+
+  closeStatisticsModal() {
+    this.showStatisticsModal = false;
   }
 
 }

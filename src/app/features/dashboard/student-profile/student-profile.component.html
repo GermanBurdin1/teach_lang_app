@@ -1,1 +1,47 @@
-<h1>Hello</h1>
+<!-- Profile Header -->
+<div class="mb-4">
+  <!-- Back Button -->
+  <div class="d-flex align-items-center">
+    <button class="btn btn-light me-3" (click)="navigateBack()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+
+    <!-- Avatar -->
+    <div class="avatar-circle bg-light text-center d-flex justify-content-center align-items-center me-3"
+      style="width: 60px; height: 60px; border-radius: 50%;">
+      <span class="text-uppercase">{{ studentData?.name[0] }}</span>
+    </div>
+
+    <!-- Profile Information -->
+    <div>
+      <h2 class="mb-1">{{ studentData?.name }}</h2>
+      <div class="d-flex align-items-center">
+        <span class="me-3">
+          <i class="bi bi-person-badge-fill me-1"></i> {{ studentData?.id }}
+        </span>
+        <span>
+          <i class="bi bi-envelope-fill me-1"></i> {{ studentData?.email }}
+        </span>
+      </div>
+
+      <!-- Actions - Moved under Profile Information -->
+      <div class="mt-2">
+        <button class="btn btn-outline-secondary me-2" id="dropdownMenuButton"
+          (click)="openEditModal()">Редактировать</button>
+        <div class="dropdown d-inline-block" tabindex="0">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            ...
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <li>
+              <button class="dropdown-item" (click)="downloadStatistics()">
+                <i class="bi bi-download"></i> Скачать статистику
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
