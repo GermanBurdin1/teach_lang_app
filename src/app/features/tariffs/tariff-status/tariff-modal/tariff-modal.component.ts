@@ -22,17 +22,33 @@ export class TariffModalComponent {
     { icon: 'icon-materials', description: 'Общая база материалов школы' }
   ];
 
-  standardPlanGroups = this.chunkArray([
+  standardPlans = [
     { students: 36, price: 3050 },
     { students: 30, price: 3410 },
-    // ... другие планы
-  ], 3);
+    { students: 25, price: 3750 },
+    { students: 20, price: 3050 },
+    { students: 15, price: 3410 },
+    { students: 10, price: 3750 },
+    { students: 7, price: 3050 },
+    { students: 5, price: 3410 },
+    { students: 2, price: 3750 },
+  ];
 
-  proPlanGroups = this.chunkArray([
+  proPlans = [
     { students: 50, price: 7500 },
     { students: 100, price: 14500 },
-    // ... другие планы
-  ], 3);
+    { students: 150, price: 21000 },
+    { students: 200, price: 27500 },
+    { students: 250, price: 33000 },
+    { students: 300, price: 39000 },
+    { students: 400, price: 27500 },
+    { students: 500, price: 33000 },
+    { students: 600, price: 39000 },
+  ];
+
+  standardPlanGroups = this.chunkArray(this.standardPlans, 3);
+
+  proPlanGroups = this.chunkArray(this.proPlans, 3);
 
   closeTariffModal(): void {
     this.showTariffModal = false;
