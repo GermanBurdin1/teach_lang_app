@@ -8,6 +8,7 @@ import { SettingsComponent } from '../settings/settings.component';
 import { TariffsComponent } from '../tariffs/tariffs.component';
 import { TeacherProfileComponent } from './teacher-profile/teacher-profile.component';
 import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
+import { StudentProfileComponent } from './student-profile/student-profile.component';
 
 const routes: Routes = [
   {
@@ -16,6 +17,7 @@ const routes: Routes = [
     children: [
       { path: 'users', component: UsersComponent },
       { path: 'users/teacher/:id', component: TeacherProfileComponent },
+      { path: 'users/student/:id', component: StudentProfileComponent },
       { path: 'online-lessons', component: OnlineLessonsComponent },
       { path: 'materials', component: MaterialsComponent },
       { path: 'marathons', component: MarathonsComponent },

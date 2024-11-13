@@ -18,7 +18,7 @@ export class UsersComponent implements OnInit {
   teachers: Array<{ name: string; id: number; email: string; nativeLanguage: string }> = [];
   tooltipVisible: string | null = null;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   newTeacher: { name: string; email: string; nativeLanguage: string; id: number } = {
     name: '',
@@ -33,7 +33,7 @@ export class UsersComponent implements OnInit {
     this.saveTeachers();
     this.clearNewTeacherForm();
     this.isCreateTeacherModalOpen = false;
-}
+  }
 
 
   saveTeachers(): void {
@@ -131,6 +131,7 @@ export class UsersComponent implements OnInit {
 
   ngOnInit() {
     this.loadTeachers();
+    this.loadStudents();
     this.initializeDaysWithDates();
     this.updateCurrentTime();
     setInterval(() => this.updateCurrentTime(), 60000);
@@ -244,6 +245,43 @@ export class UsersComponent implements OnInit {
 
   isTimeSlotActive(day: string, hour: string): boolean {
     return this.activeSlots[`${day}-${hour}`] || false;
+  }
+
+  // students
+  students: Array<{ name: string; id: number; email: string }> = [];
+
+  newStudent: { name: string; email: string; id: number } = {
+    name: '',
+    email: '',
+    id: Date.now(),
+  };
+
+  addStudent(): void {
+    const newStudent = { ...this.newStudent, id: Date.now() };
+    this.students.push(newStudent);
+    this.saveStudents();
+    this.clearNewStudentForm();
+    this.isCreateStudentModalOpen = false;
+  }
+
+  saveStudents(): void {
+    localStorage.setItem('students', JSON.stringify(this.students));
+  }
+
+  loadStudents(): void {
+    const savedStudents = localStorage.getItem('students');
+    if (savedStudents) {
+      this.students = JSON.parse(savedStudents);
+    }
+  }
+
+  clearNewStudentForm(): void {
+    this.newStudent = { name: '', email: '', id: Date.now() };
+  }
+
+
+  openStudentProfile(id: number): void {
+    this.router.navigate([`/student-dashboard/users/student/${id}`]);
   }
 }
 
