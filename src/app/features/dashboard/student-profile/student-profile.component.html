@@ -67,6 +67,34 @@
     <!-- Кнопка деактивации -->
     <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Деактивировать</button>
   </div>
+
+  <div class="container mt-4">
+    <!-- Button to add class -->
+    <button class="btn btn-primary mt-3" (click)="openAccessModal()">
+      Добавить класс
+    </button>
+  </div>
+
+  <!-- Modal for restricted access -->
+  <div *ngIf="showAccessModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="accessModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+        <div class="modal-header">
+          <h5 class="modal-title" id="accessModalTitle">Доступ ограничен</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeAccessModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Доступ в виртуальный класс заблокирован для вас и ваших учеников. Оплатите выбранный тариф, чтобы продолжить использование платформы.</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-secondary" (click)="closeAccessModal()">Позже</button>
+          <button class="btn btn-primary" (click)="openTariffModal()">Добавить</button>
+          <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal" (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div *ngIf="isEditModalOpen" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);"

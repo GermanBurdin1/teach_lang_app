@@ -172,8 +172,28 @@ export class StudentProfileComponent {
     '1 раз в неделю', '2 раза в неделю', '3 раза в неделю',
     '4 раза в неделю', '5 раз в неделю', '6 раз в неделю', '7 раз в неделю'
   ];
-  selectedFrequency: string = '1 раз в неделю'; // Выбор по умолчанию
+  selectedFrequency: string = '1 раз в неделю';
   studyGoal: string = '';
   note: string = '';
+
+  showAccessModal: boolean = false;
+
+  openAccessModal(): void {
+    this.showAccessModal = true;
+  }
+
+  closeAccessModal(): void {
+    this.showAccessModal = false;
+  }
+
+  showTariffModal: boolean = false; // Управляет отображением <app-tariff-status>
+
+  openTariffModal(): void {
+    this.showTariffModal = true; // Открыть модалку
+  }
+
+  closeTariffModal(): void {
+    this.showTariffModal = false; // Закрыть модалку
+  }
 
 }
