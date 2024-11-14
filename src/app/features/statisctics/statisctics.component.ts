@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Chart, registerables } from 'chart.js';
 
 @Component({
   selector: 'app-statisctics',
@@ -14,59 +13,12 @@ export class StatiscticsComponent {
   selectedLessonPeriod = 'Год';
   currentWeekStart: Date = new Date();
   hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
-  schedule: any[] = []; // Тип изменён на any[]
 
-  chart: Chart | null = null;
 
   constructor() {
     this.currentWeekStart = this.getStartOfWeek(new Date());
-    Chart.register(...registerables);
   }
 
-  ngOnInit(): void {
-    this.createStudentsChart();
-    this.createLessonsChart();
-  }
-
-  createStudentsChart(): void {
-    new Chart('studentsChart', {
-      type: 'line',
-      data: {
-        labels: Array.from({ length: 12 }, (_, i) => `Месяц ${i + 1}`),
-        datasets: [{
-          label: 'Учеников',
-          data: [0, 2, 4, 3, 5, 2, 0, 3, 1, 0, 2, 4],
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 2,
-          fill: false
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    });
-  }
-
-  createLessonsChart(): void {
-    new Chart('lessonsChart', {
-      type: 'line',
-      data: {
-        labels: Array.from({ length: 12 }, (_, i) => `Месяц ${i + 1}`),
-        datasets: [{
-          label: 'Уроков',
-          data: [1, 1, 2, 0, 3, 0, 1, 4, 2, 0, 1, 0],
-          borderColor: 'rgba(153, 102, 255, 1)',
-          borderWidth: 2,
-          fill: false
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    });
-  }
   getStartOfWeek(date: Date): Date {
     const start = new Date(date);
     const day = start.getDay();

@@ -1,0 +1,22 @@
+.chart-wrapper {
+  margin-bottom: 24px;
+}
+.chart-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 200px;
+  background: #f7f7f7;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.bar {
+  width: 20px;
+  background-color: #007bff;
+  border-radius: 4px;
+  transition: height 0.3s ease-in-out;
+}
+.bar:hover {
+  background-color: #0056b3;
+}
