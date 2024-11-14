@@ -1,5 +1,16 @@
-<div class="online-lessons">
+<div class="online-lessons" style="max-width: 800px; margin: 0 auto;">
+  <h2 class="mb-3">Онлайн-уроки</h2>
   <!-- Основные вкладки (Расписание, Ученики, Группы, Учителя, Заявки) -->
+  <div class="alert alert-danger d-flex justify-content-between align-items-center"
+    style="padding: 16px; border-radius: 8px;">
+    <div>
+      <i class="bi bi-info-circle-fill me-2" style="color: #f44336;"></i>
+      Онлайн-уроки не оплачены. Для проведения онлайн-уроков оплатите тариф.
+    </div>
+    <button class="btn btn-primary" (click)="openTariffModal()">Добавить</button>
+    <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal"
+      (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
+  </div>
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item" *ngFor="let tab of ['Расписание', 'Ученики', 'Группы', 'Учителя', 'Заявки']">
       <a class="nav-link" [class.active]="activeLessonTab === tab" (click)="switchLessonTab(tab)">
@@ -244,7 +255,35 @@
 
   </div>
   <div *ngIf="activeLessonTab === 'Группы'">
-    <p>Контент для вкладки "Группы"</p>
+    <div class="text-center mt-4">
+      <div class="emoji-container mb-3" style="font-size: 64px;">👥</div>
+      <p class="lead">Для проведения групповых онлайн-уроков создайте группу</p>
+      <!-- Button to add class -->
+      <button class="btn btn-primary mt-3" (click)="openAccessModal()">
+        Создать группу
+      </button>
+    </div>
+    <div *ngIf="showAccessModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+      aria-labelledby="accessModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+          <div class="modal-header">
+            <h5 class="modal-title" id="accessModalTitle">Доступ ограничен</h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="closeAccessModal()"></button>
+          </div>
+          <div class="modal-body">
+            <p>Доступ в виртуальный класс заблокирован для вас и ваших учеников. Оплатите выбранный тариф, чтобы
+              продолжить использование платформы.</p>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" (click)="closeAccessModal()">Позже</button>
+            <button class="btn btn-primary" (click)="openTariffModal()">Добавить</button>
+            <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal"
+              (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div *ngIf="activeLessonTab === 'Учителя'">
     <p>Контент для вкладки "Учителя"</p>

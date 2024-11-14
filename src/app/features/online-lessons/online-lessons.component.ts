@@ -176,4 +176,25 @@ export class OnlineLessonsComponent {
     this.showAdditionalInfo = !this.showAdditionalInfo;
   }
 
+  // тарифы
+  showTariffModal: boolean = false; // Управляет отображением <app-tariff-status>
+
+  openTariffModal(): void {
+    this.showTariffModal = true; // Открыть модалку
+  }
+
+  closeTariffModal(): void {
+    this.showTariffModal = false; // Закрыть модалку
+  }
+
+  showAccessModal: boolean = false;
+
+  openAccessModal(): void {
+    this.showAccessModal = true;
+  }
+
+  closeAccessModal(): void {
+    this.showAccessModal = false;
+  }
+
 }
