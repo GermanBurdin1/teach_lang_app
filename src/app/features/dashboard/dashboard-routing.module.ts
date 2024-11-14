@@ -9,6 +9,7 @@ import { TariffsComponent } from '../tariffs/tariffs.component';
 import { TeacherProfileComponent } from './teacher-profile/teacher-profile.component';
 import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
 import { StudentProfileComponent } from './student-profile/student-profile.component';
+import { StatiscticsComponent } from '../statisctics/statisctics.component';
 
 const routes: Routes = [
   {
@@ -23,6 +24,7 @@ const routes: Routes = [
       { path: 'marathons', component: MarathonsComponent },
       { path: 'settings', component: SettingsComponent },
       { path: 'tariffs', component: TariffsComponent },
+      { path: 'statistics', component: StatiscticsComponent },
       { path: '', redirectTo: 'users', pathMatch: 'full' }
     ]
   }

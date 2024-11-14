@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
 import { TariffsModule } from "../tariffs/tariffs.module";
+import { StatiscticsComponent } from '../statisctics/statisctics.component';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { TariffsModule } from "../tariffs/tariffs.module";
     StudentDashboardComponent,
     TeacherProfileComponent,
     StudentProfileComponent,
-    OnlineLessonsComponent
+    OnlineLessonsComponent,
+    StatiscticsComponent
   ],
   imports: [
     LayoutModule,
