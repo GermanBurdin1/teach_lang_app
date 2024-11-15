@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-online-lessons',
@@ -39,7 +39,8 @@ export class OnlineLessonsComponent {
   showNewLessonModal = false;
   activeModalTab: string = 'individual';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private router: Router) {}
+
 
   ngOnInit(): void {
     this.daysWithDates = this.getWeekDates().map(date => date.toISOString().split('T')[0]);
@@ -49,6 +50,10 @@ export class OnlineLessonsComponent {
         this.activeLessonTab = params['activeTab'];
       }
     });
+    this.loadTeachers();
+    this.initializeDaysWithDates();
+    this.updateCurrentTime();
+    setInterval(() => this.updateCurrentTime(), 60000);
 
   }
 
@@ -195,6 +200,178 @@ export class OnlineLessonsComponent {
 
   closeAccessModal(): void {
     this.showAccessModal = false;
+  }
+
+  // вкладка учителя
+  tooltipVisible: string | null = null;
+  isCreateTeacherModalOpen = false;
+  teachers: Array<{ name: string; id: number; email: string; nativeLanguage: string }> = [];
+
+  showTooltip(role: string): void {
+    console.log("hello");
+    this.tooltipVisible = role;
+  }
+
+  hideTooltip(): void {
+    this.tooltipVisible = null;
+  }
+
+  openCreateTeacherModal(): void {
+    this.isCreateTeacherModalOpen = true;
+  }
+
+  closeCreateTeacherModal(event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.isCreateTeacherModalOpen = false;
+  }
+
+  openTeacherProfile(id: number): void {
+    this.router.navigate([`/student-dashboard/users/teacher/${id}`]);
+  }
+
+  newTeacher: { name: string; email: string; nativeLanguage: string; id: number } = {
+    name: '',
+    email: '',
+    nativeLanguage: '',
+    id: Date.now(),
+  };
+
+  addTeacher(): void {
+    const newTeacher = { ...this.newTeacher, id: Date.now() };
+    this.teachers.push(newTeacher);
+    this.saveTeachers();
+    this.clearNewTeacherForm();
+    this.isCreateTeacherModalOpen = false;
+  }
+
+
+  saveTeachers(): void {
+    localStorage.setItem('teachers', JSON.stringify(this.teachers));
+  }
+
+  loadTeachers(): void {
+    const savedTeachers = localStorage.getItem('teachers');
+    if (savedTeachers) {
+      this.teachers = JSON.parse(savedTeachers);
+    }
+  }
+
+  clearNewTeacherForm(): void {
+    this.newTeacher = { name: '', email: '', nativeLanguage: '', id: Date.now() };
+  }
+
+  platforms = [
+    { value: 'Skype', label: 'Skype', icon: 'bi bi-skype' },
+    { value: 'Zoom', label: 'Zoom', icon: 'bi bi-camera-video' }
+  ];
+
+  possibilities = [
+    {
+      title: 'Учитель онлайн-уроков',
+      description: 'Сотрудник сможет проводить онлайн-уроки',
+      icon: 'bi bi-person-video3',
+      role: 'teacher',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+    {
+      title: 'Куратор марафонов',
+      description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
+      icon: 'bi bi-award',
+      role: 'teacher',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+    {
+      title: 'Администратор',
+      description: 'Сотрудник сможет администрировать учебный процесс',
+      icon: 'bi bi-gear',
+      role: 'admin',
+      enabled: false,
+      expanded: false,
+      isFeatureEnabled: false,
+    },
+  ];
+
+  sections = [
+    { name: 'Показатели', icon: 'bi bi-grid', enabled: false },
+    { name: 'Выручка и платежи', icon: 'bi bi-currency-dollar', enabled: false },
+    { name: 'Пользователи', icon: 'bi bi-people', enabled: false },
+    { name: 'Онлайн-уроки', icon: 'bi bi-mortarboard', enabled: false },
+    { name: 'Марафоны', icon: 'bi bi-activity', enabled: false },
+    { name: 'Материалы', icon: 'bi bi-journal', enabled: false }
+  ];
+
+  selectedLanguages: string = 'Английский';
+  availableLanguages = ['Русский', 'Английский', 'Французский'];
+  teacherWillFill: boolean = false;
+  crossEntryEnabled: boolean = false;
+  selectedPlatform = 'Skype';
+  selectedFile: File | null = null;
+  linkPlaceholder = 'Введите ссылку для Skype';
+  linkInput: string | undefined;
+
+  initializeDaysWithDates() {
+    const today = new Date();
+    this.daysWithDates = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' });
+      const dayDate = date.toLocaleDateString('ru-RU', { day: 'numeric' });
+      this.daysWithDates.push(`${dayName}, ${dayDate}`);
+    }
+  }
+
+  updateCurrentTime() {
+    const now = new Date();
+    const currentDay = now.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric' });
+    const currentHour = `${now.getHours()}:00`;
+    this.currentTimeSlot = { day: currentDay, hour: currentHour };
+  }
+
+  updateLinkPlaceholder(): void {
+    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
+  }
+
+  togglePossibility(possibility: any) {
+    possibility.expanded = !possibility.expanded;
+  }
+
+  toggleFeature(possibility: any) {
+    if (possibility.role === 'admin') {
+      // Логика для администратора
+      possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
+      // Дополнительные действия для администратора
+    } else if (possibility.role === 'teacher') {
+      // Логика для учителя
+      possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
+      // Дополнительные действия для учителя
+    }
+  }
+
+
+  fillSchedule() {
+    this.teacherWillFill = false;
+  }
+
+  fillTeacherSchedule() {
+    this.teacherWillFill = true;
+  }
+
+  triggerFileInput(): void {
+    const fileInput = document.getElementById('avatarUpload') as HTMLElement;
+    fileInput.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      console.log('Выбранный файл:', this.selectedFile.name);
+    }
   }
 
 }
