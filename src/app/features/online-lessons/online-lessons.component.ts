@@ -374,4 +374,25 @@ export class OnlineLessonsComponent {
     }
   }
 
+  //заявки
+  isFormValid: boolean = false; // Добавлено свойство для проверки валидности формы
+  link: string = 'https://example.com'; // Ссылка для отображения в поле
+  showInvalidIcon: boolean = false;
+
+  copyLink(): void {
+    navigator.clipboard.writeText(this.link).then(
+      () => {
+        console.log('Ссылка скопирована в буфер обмена.');
+      },
+      (err) => {
+        console.error('Ошибка при копировании ссылки: ', err);
+      }
+    );
+  }
+
+  openSettings(): void {
+    console.log('Открытие страницы настроек.');
+    // Здесь можно добавить логику открытия отдельной страницы или модального окна для настроек
+  }
+
 }
