@@ -6,6 +6,7 @@ import { RegisterComponent } from './features/auth/register/register.component';
 import { AdminDashboardComponent } from './features/dashboard/admin-dashboard/admin-dashboard.component';
 import { LessonPageComponent } from './features/lessons/lesson-page/lesson-page.component';
 import { VideoCallComponent } from './features/lessons/video-call/video-call.component';
+import { LandingComponent } from './features/landing/landing.component';
 
 export const routes: Routes = [
   { path: '', component: VocabularyComponent },
@@ -19,5 +20,6 @@ export const routes: Routes = [
   },
   { path: 'lesson-page', component: LessonPageComponent },
   { path: 'video-call', component: VideoCallComponent },
+  { path: 'landing', component: LandingComponent},
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
