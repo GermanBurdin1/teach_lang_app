@@ -7,6 +7,7 @@ import { AdminDashboardComponent } from './features/dashboard/admin-dashboard/ad
 import { LessonPageComponent } from './features/lessons/lesson-page/lesson-page.component';
 import { VideoCallComponent } from './features/lessons/video-call/video-call.component';
 import { LandingComponent } from './features/landing/landing.component';
+import { PreviewLandingComponent } from './features/landing/preview-landing/preview-landing.component';
 
 export const routes: Routes = [
   { path: '', component: VocabularyComponent },
@@ -21,5 +22,6 @@ export const routes: Routes = [
   { path: 'lesson-page', component: LessonPageComponent },
   { path: 'video-call', component: VideoCallComponent },
   { path: 'landing', component: LandingComponent},
+  { path: 'landing/preview', component: PreviewLandingComponent},
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

@@ -1,0 +1,6 @@
+<div *ngFor="let block of data" class="preview-block">
+  <h2>{{ block.title }}</h2>
+  <p>{{ block.subtitle }}</p>
+  <img *ngIf="block.image" [src]="block.image" alt="Изображение">
+  <button *ngIf="block.buttonText">{{ block.buttonText }}</button>
+</div>
