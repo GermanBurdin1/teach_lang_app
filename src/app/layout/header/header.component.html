@@ -2,48 +2,54 @@
   <div class="container-fluid d-flex justify-content-end align-items-center">
     <!-- Dropdown для помощи -->
     <div class="dropdown mx-2">
-      <button class="btn btn-outline-primary dropdown-toggle" type="button" id="helpDropdown" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        Помощь
+      <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center" type="button" id="helpDropdown"
+        data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-rocket me-2"></i> Помощь
       </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="helpDropdown">
-        <li><a class="dropdown-item" href="/demo-tour">Демо-тур</a></li>
-        <li><a class="dropdown-item" href="/training-articles">Обучающие статьи</a></li>
-        <li><a class="dropdown-item" href="/blog">Блог</a></li>
-        <li><a class="dropdown-item" href="/youtube-channel">YouTube-канал</a></li>
-        <li><a class="dropdown-item" href="/support">Техподдержка</a></li>
-      </ul>
+      <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="helpDropdown" style="width: 250px; border-radius: 8px;">
+        <h6 class="mb-3 d-flex align-items-center">
+          <i class="fas fa-school me-2 text-primary"></i> С чего начать
+        </h6>
+        <ul class="list-unstyled mb-0">
+          <li><a class="dropdown-item" href="/demo-tour">Демо-тур</a></li>
+          <li><a class="dropdown-item" href="/training-articles">Обучающие статьи</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/blog">Блог</a></li>
+          <li><a class="dropdown-item" href="/youtube-channel">YouTube-канал</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="/support">Техподдержка</a></li>
+        </ul>
+      </div>
     </div>
+
 
     <!-- Dropdown для информации о тарифе -->
     <div class="dropdown mx-2">
-      <button class="btn btn-danger dropdown-toggle" type="button" id="tariffDropdown" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        0 дн.
+      <button class="btn btn-danger d-flex align-items-center dropdown-toggle" type="button" id="tariffDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 16px; padding: 5px 10px;">
+        <i class="fas fa-crown me-2"></i> 0 дн.
       </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="tariffDropdown">
-        <li class="dropdown-item-text">Информация о тарифе</li>
-        <li>
-          <p class="dropdown-item-text text-danger">Тариф не оплачен. Оплатите тариф для возобновления доступа к
-            платформе.</p>
-        </li>
-        <li><a class="dropdown-item" href="/tariffs">Перейти к тарифам</a></li>
-      </ul>
+      <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="tariffDropdown" style="width: 250px; border-radius: 8px;">
+        <h6 class="text-center">Информация о тарифе</h6>
+        <div class="text-center my-2">
+          <i class="fas fa-exclamation-triangle text-danger" style="font-size: 24px;"></i>
+        </div>
+        <p class="text-center text-muted mb-2">Тариф не оплачен. Оплатите тариф для возобновления доступа к платформе.</p>
+        <a class="btn btn-primary w-100" href="/tariffs">Перейти к тарифам</a>
+      </div>
     </div>
 
-    <!-- Dropdown для баланса -->
     <div class="dropdown mx-2">
-      <button class="btn btn-outline-dark dropdown-toggle" type="button" id="balanceDropdown" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        0 RUB
+      <button class="btn btn-outline-dark dropdown-toggle d-flex align-items-center" type="button" id="balanceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-wallet me-2"></i> 0 RUB
       </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="balanceDropdown">
-        <li class="dropdown-item-text">Баланс денежных средств</li>
-        <li>
-          <p class="dropdown-item-text">С баланса школы оплачиваются тарифы, учебники и т.д.</p>
-        </li>
-        <li><a class="dropdown-item" href="/recharge-balance">Пополнить баланс</a></li>
-      </ul>
+      <div class="dropdown-menu dropdown-menu-end p-3 text-center" aria-labelledby="balanceDropdown" style="width: 250px; border-radius: 8px;">
+        <h6 class="mb-3">Баланс денежных средств</h6>
+        <div class="bg-light p-3 rounded mb-3" style="font-size: 24px; color: #555;">
+          0 <span style="font-size: 14px;">RUB</span>
+        </div>
+        <p class="text-muted mb-3">С баланса школы оплачиваются тарифы, учебники и т.д.</p>
+        <a class="btn btn-primary w-100" href="/recharge-balance" style="background-color: #00bfff; border: none;">Пополнить баланс</a>
+      </div>
     </div>
 
     <!-- Иконка пользователя -->
@@ -53,10 +59,8 @@
         <span class="user-icon rounded-circle d-flex align-items-center justify-content-center me-2">
           G
         </span>
-        <i class="fas fa-chevron-down"></i>
       </button>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-        <li><a class="dropdown-item" href="/old-version"><i class="fas fa-undo-alt me-2"></i> Старая версия</a></li>
         <li><a class="dropdown-item" href="/profile-settings"><i class="fas fa-cog me-2"></i> Настройки профиля</a></li>
         <li><a class="dropdown-item" href="/tariffs"><i class="fas fa-star me-2"></i> Тарифы</a></li>
         <li>
@@ -66,5 +70,3 @@
         <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Выход</a></li>
       </ul>
     </div>
-  </div>
-</nav>
