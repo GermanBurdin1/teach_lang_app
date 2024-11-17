@@ -1,6 +1,26 @@
-<div *ngFor="let block of data" class="preview-block">
-  <h2>{{ block.title }}</h2>
-  <p>{{ block.subtitle }}</p>
-  <img *ngIf="block.image" [src]="block.image" alt="Изображение">
-  <button *ngIf="block.buttonText">{{ block.buttonText }}</button>
-</div>
+<header>
+  <div class="header-container" *ngIf="data && data.length > 0">
+    <div class="rounded-element"></div>
+    <div class="text-container">
+      <h1>{{ data[0].title || 'Место для заголовка' }}</h1>
+      <p>{{ data[0].subtitle || 'Место для подзаголовка' }}</p>
+      <button class="cta-button">{{ data[0].buttonText || 'Оставьте заявку' }}</button>
+      <p class="note">{{ data[0].callToAction || 'Оставьте заявку на обучение' }}</p>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="form-section">
+    <h2>Оставьте заявку на обучение прямо сейчас</h2>
+    <form>
+      <input type="text" placeholder="Введите имя">
+      <input type="email" placeholder="Введите email">
+      <input type="tel" placeholder="Введите номер телефона">
+      <button type="submit">Отправить</button>
+    </form>
+  </section>
+</main>
+<footer>
+  <p class="footer-note">© Ваша компания</p>
+</footer>
+

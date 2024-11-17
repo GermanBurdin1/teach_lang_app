@@ -30,11 +30,14 @@ const defaultData = [
   styleUrls: ['./preview-landing.component.css']
 })
 export class PreviewLandingComponent implements OnInit {
-  data: any;
+  data: any[] = defaultData;
 
   constructor(private landingDataService: LandingDataService) {}
 
   ngOnInit(): void {
-    this.data = this.landingDataService.getAllData() || defaultData;
+    const filledData = this.landingDataService.getAllData();
+    if (filledData && filledData.length > 0) {
+      this.data = filledData; // Заменяем дефолтные данные заполненными
+    }
   }
 }
