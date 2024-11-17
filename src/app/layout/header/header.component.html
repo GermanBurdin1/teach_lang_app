@@ -1,1 +1,70 @@
-<p>header works!</p>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid d-flex justify-content-end align-items-center">
+    <!-- Dropdown для помощи -->
+    <div class="dropdown mx-2">
+      <button class="btn btn-outline-primary dropdown-toggle" type="button" id="helpDropdown" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        Помощь
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="helpDropdown">
+        <li><a class="dropdown-item" href="/demo-tour">Демо-тур</a></li>
+        <li><a class="dropdown-item" href="/training-articles">Обучающие статьи</a></li>
+        <li><a class="dropdown-item" href="/blog">Блог</a></li>
+        <li><a class="dropdown-item" href="/youtube-channel">YouTube-канал</a></li>
+        <li><a class="dropdown-item" href="/support">Техподдержка</a></li>
+      </ul>
+    </div>
+
+    <!-- Dropdown для информации о тарифе -->
+    <div class="dropdown mx-2">
+      <button class="btn btn-danger dropdown-toggle" type="button" id="tariffDropdown" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        0 дн.
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="tariffDropdown">
+        <li class="dropdown-item-text">Информация о тарифе</li>
+        <li>
+          <p class="dropdown-item-text text-danger">Тариф не оплачен. Оплатите тариф для возобновления доступа к
+            платформе.</p>
+        </li>
+        <li><a class="dropdown-item" href="/tariffs">Перейти к тарифам</a></li>
+      </ul>
+    </div>
+
+    <!-- Dropdown для баланса -->
+    <div class="dropdown mx-2">
+      <button class="btn btn-outline-dark dropdown-toggle" type="button" id="balanceDropdown" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        0 RUB
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="balanceDropdown">
+        <li class="dropdown-item-text">Баланс денежных средств</li>
+        <li>
+          <p class="dropdown-item-text">С баланса школы оплачиваются тарифы, учебники и т.д.</p>
+        </li>
+        <li><a class="dropdown-item" href="/recharge-balance">Пополнить баланс</a></li>
+      </ul>
+    </div>
+
+    <!-- Иконка пользователя -->
+    <div class="dropdown mx-2">
+      <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown"
+        data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="user-icon rounded-circle d-flex align-items-center justify-content-center me-2">
+          G
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li><a class="dropdown-item" href="/old-version"><i class="fas fa-undo-alt me-2"></i> Старая версия</a></li>
+        <li><a class="dropdown-item" href="/profile-settings"><i class="fas fa-cog me-2"></i> Настройки профиля</a></li>
+        <li><a class="dropdown-item" href="/tariffs"><i class="fas fa-star me-2"></i> Тарифы</a></li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li><a class="dropdown-item" href="/dark-mode"><i class="fas fa-moon me-2"></i> Темная тема</a></li>
+        <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Выход</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
