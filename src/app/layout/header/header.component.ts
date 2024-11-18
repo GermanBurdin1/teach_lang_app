@@ -44,4 +44,28 @@ export class HeaderComponent {
     this.isPaymentModalOpen = false;
   }
 
+  isDemoTourOpen = false;
+  currentStep = 1;
+
+  openDemoTour(): void {
+    this.isDemoTourOpen = true;
+    this.currentStep = 1; // Устанавливаем начальный шаг
+  }
+
+  closeDemoTour(): void {
+    this.isDemoTourOpen = false;
+  }
+
+  nextStep(): void {
+    if (this.currentStep < 10) {
+      this.currentStep++;
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
 }
