@@ -72,6 +72,7 @@ export class HeaderComponent {
 
   closeTourModal(): void {
     this.isTourModalOpen = false;
+    this.removeHighlight(); // Удаляем overlay при закрытии
   }
 
   nextStep(): void {
@@ -104,32 +105,54 @@ export class HeaderComponent {
     }
 
     // Подсветка выделенного элемента, если указано
-  if (step.highlightElementId) {
-    this.addHighlightOverlay(step.position);
-  } else {
-    this.removeHighlight();
-  }
+    if (step.highlightElementId) {
+      this.addHighlightOverlay(step.position);
+    } else {
+      this.removeHighlight();
+    }
   }
 
   addHighlightOverlay(position: { top: string; left: string }): void {
-    let highlightOverlay = document.getElementById('highlight-overlay');
-    if (!highlightOverlay) {
-      highlightOverlay = document.createElement('div');
-      highlightOverlay.id = 'highlight-overlay';
-      highlightOverlay.style.position = 'absolute';
-      highlightOverlay.style.background = 'rgba(0, 123, 255, 0.2)';
-      highlightOverlay.style.border = '2px solid rgba(0, 123, 255, 0.8)';
-      highlightOverlay.style.zIndex = '1050'; // Above other elements
-      highlightOverlay.style.pointerEvents = 'none'; // Allow clicks to pass through
-      document.body.appendChild(highlightOverlay);
+    // Удаляем существующий highlightOverlay, если он есть
+    let existingHighlightOverlay = document.getElementById('highlight-overlay');
+    if (existingHighlightOverlay) {
+        existingHighlightOverlay.remove();
     }
 
-    highlightOverlay.style.top = '90px';
-    highlightOverlay.style.left = position.left;
-    highlightOverlay.style.width = '64px'; // Width as per your example
-    highlightOverlay.style.height = '418px'; // Height as per your example
-    highlightOverlay.style.padding = '3px';
-  }
+    // Создаем новый highlightOverlay
+    const highlightOverlay = document.createElement('div');
+    highlightOverlay.id = 'highlight-overlay';
+    highlightOverlay.style.position = 'fixed';
+    highlightOverlay.style.top = '0';
+    highlightOverlay.style.left = '0';
+    highlightOverlay.style.width = '100vw';
+    highlightOverlay.style.height = '100vh';
+    highlightOverlay.style.background = 'rgba(0, 0, 0, 0.5)'; // Постоянный цвет фона
+    highlightOverlay.style.zIndex = '1040'; // Убедитесь, что это выше других элементов
+    highlightOverlay.style.pointerEvents = 'none'; // Пропускаем клики
+    document.body.appendChild(highlightOverlay);
+
+    // Рассчитываем размеры и позицию "дырки"
+    const top = parseInt(position.top.replace('px', ''), 10) - 130;
+    const left = parseInt(position.left.replace('px', ''), 10);
+    const width = 64; // Ширина области
+    const height = 418; // Высота области
+
+    // Устанавливаем clip-path для создания "дырки"
+    highlightOverlay.style.clipPath = `
+      polygon(
+        0 0,
+        100% 0,
+        100% 100%,
+        0 100%,
+        0 0,
+        ${left}px ${top}px,
+        ${left}px ${top + height}px,
+        ${left + width}px ${top + height}px,
+        ${left + width}px ${top}px,
+        ${left}px ${top}px
+      )`;
+}
 
   removeHighlight(): void {
     const highlightOverlay = document.getElementById('highlight-overlay');
