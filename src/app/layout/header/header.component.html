@@ -1,4 +1,33 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="d-flex align-items-center">
+    <!-- Кнопка с иконкой для открытия панели -->
+    <button class="btn btn-light p-2 me-3" id="expandHeaderButton" (click)="toggleExpandHeader()" style="border-radius: 8px;">
+      <i class="fas fa-th"></i> <!-- Иконка сетки -->
+    </button>
+  </div>
+
+  <!-- Панель, которая раскрывает весь header -->
+  <div class="expanded-header bg-white shadow-lg" *ngIf="isHeaderExpanded" style="width: 100%; position: absolute; top: 100%; left: 0; z-index: 1040;">
+    <div class="container p-4">
+      <div class="d-flex justify-content-center">
+        <!-- Карточка Администратора -->
+        <div class="card text-center p-3 mx-2" style="width: 200px; cursor: pointer;" (click)="switchToAdmin()">
+          <img src="path/to/admin-icon.png" alt="Администратор" class="mb-2" style="width: 40px;">
+          <h6 class="mb-1">Администратор</h6>
+          <span class="badge bg-success mb-2">Активен</span>
+          <p class="small text-muted">Административный кабинет школы</p>
+        </div>
+        <!-- Карточка Ученик -->
+        <div class="card text-center p-3 mx-2" style="width: 200px; cursor: pointer;" (click)="switchToStudent()">
+          <img src="path/to/student-icon.png" alt="Кабинет ученика" class="mb-2" style="width: 40px;">
+          <h6 class="mb-1">Кабинет ученика</h6>
+          <span class="badge bg-success mb-2">Активен</span>
+          <p class="small text-muted">Получайте знания в интерактивном формате</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="container-fluid d-flex justify-content-end align-items-center">
     <!-- Dropdown для помощи -->
     <div class="dropdown mx-2">

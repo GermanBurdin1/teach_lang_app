@@ -6,5 +6,19 @@ import { Component } from '@angular/core';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
+  isHeaderExpanded = false;
 
+  toggleExpandHeader(): void {
+    this.isHeaderExpanded = !this.isHeaderExpanded;
+  }
+
+  switchToAdmin(): void {
+    // Логика для переключения на роль администратора
+    alert('Переключение на администратора');
+  }
+
+  switchToStudent(): void {
+    // Логика для переключения на роль ученика
+    alert('Переключение на ученика');
+  }
 }
