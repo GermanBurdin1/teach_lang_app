@@ -124,7 +124,7 @@ export class HeaderComponent {
       document.body.appendChild(highlightOverlay);
     }
 
-    highlightOverlay.style.top = position.top;
+    highlightOverlay.style.top = '90px';
     highlightOverlay.style.left = position.left;
     highlightOverlay.style.width = '64px'; // Width as per your example
     highlightOverlay.style.height = '418px'; // Height as per your example
