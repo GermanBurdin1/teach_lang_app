@@ -95,7 +95,7 @@
 
     <!-- Модальное окно пополнения суммы -->
     <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showBalanceModal }" role="dialog"
-      style="background: rgba(0, 0, 0, 0.5);">
+      style="background: rgba(0, 0, 0, 0.5);" *ngIf="showBalanceModal">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -107,15 +107,53 @@
               <i class="fas fa-money-bag" style="font-size: 40px; color: #FFD700;"></i>
             </div>
             <p class="text-center">Введите сумму для пополнения баланса вашего аккаунта</p>
-            <input type="number" class="form-control mb-3" placeholder="0" min="0">
+            <input type="number" [(ngModel)]="amountToTopUp" class="form-control mb-3" placeholder="0" min="0">
             <p class="text-center">RUB</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary w-100">Оплатить картой</button>
+            <button class="btn btn-primary" (click)="payWithCard()">Пополнить баланс</button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Модальное окно для ввода данных карты -->
+    <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isPaymentModalOpen }"
+      style="background-color: rgba(0, 0, 0, 0.5);" *ngIf="isPaymentModalOpen">
+      <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+        <div class="modal-content p-4">
+          <div class="text-center mb-3">
+            <h5 class="modal-title mt-2">Предоставление права доступа к платформе</h5>
+            <p class="text-primary display-4">{{ amountToTopUp | currency:'RUB':'symbol':'1.2-2' }}</p>
+          </div>
+          <div class="modal-body">
+            <input type="text" class="form-control mb-3" placeholder="Номер карты">
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control" placeholder="MM / ГГ">
+              <input type="text" class="form-control" placeholder="CVV">
+            </div>
+            <div class="form-check my-3">
+              <input type="checkbox" class="form-check-input" id="sendReceipt">
+              <label class="form-check-label" for="sendReceipt">Отправить квитанцию на E-mail</label>
+            </div>
+            <input type="email" class="form-control mb-3" placeholder="Email">
+          </div>
+          <div class="modal-footer d-flex flex-column gap-2">
+            <button type="button" class="btn btn-primary w-100">Оплатить {{ amountToTopUp |
+              currency:'RUB':'symbol':'1.2-2' }}</button>
+            <button type="button" class="btn btn-warning w-100">
+              Оплатить <i class="bi bi-apple"></i>
+            </button>
+            <button type="button" class="btn btn-dark w-100">
+              Оплатить <i class="bi bi-google"></i>
+            </button>
+            <button type="button" class="btn btn-secondary w-100 mt-2" (click)="closePaymentModal()">Закрыть</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 
     <!-- Иконка пользователя -->
     <div class="dropdown mx-2">

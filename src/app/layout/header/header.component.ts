@@ -24,6 +24,8 @@ export class HeaderComponent {
 
   // ajouter de l'argent
   showBalanceModal = false;
+  isPaymentModalOpen = false;
+  amountToTopUp: number = 0;
 
   openBalanceModal(): void {
     this.showBalanceModal = true;
@@ -32,4 +34,14 @@ export class HeaderComponent {
   closeBalanceModal(): void {
     this.showBalanceModal = false;
   }
+
+  payWithCard(): void {
+    this.showBalanceModal = false;
+    this.isPaymentModalOpen = true;
+  }
+
+  closePaymentModal(): void {
+    this.isPaymentModalOpen = false;
+  }
+
 }
