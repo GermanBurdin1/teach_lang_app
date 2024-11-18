@@ -117,16 +117,21 @@
       </div>
     </div>
 
+
     <!-- Модальное окно для ввода данных карты -->
     <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isPaymentModalOpen }"
       style="background-color: rgba(0, 0, 0, 0.5);" *ngIf="isPaymentModalOpen">
       <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
         <div class="modal-content p-4">
-          <div class="text-center mb-3">
+          <div class="modal-header">
             <h5 class="modal-title mt-2">Предоставление права доступа к платформе</h5>
-            <p class="text-primary display-4">{{ amountToTopUp | currency:'RUB':'symbol':'1.2-2' }}</p>
+            <!-- Кнопка-крестик для закрытия модального окна -->
+            <button type="button" class="btn-close" aria-label="Close" (click)="closePaymentModal()"></button>
           </div>
           <div class="modal-body">
+            <div class="text-center mb-3">
+              <p class="text-primary display-4">{{ amountToTopUp | currency:'RUB':'symbol':'1.2-2' }}</p>
+            </div>
             <input type="text" class="form-control mb-3" placeholder="Номер карты">
             <div class="d-flex gap-2">
               <input type="text" class="form-control" placeholder="MM / ГГ">
@@ -147,12 +152,10 @@
             <button type="button" class="btn btn-dark w-100">
               Оплатить <i class="bi bi-google"></i>
             </button>
-            <button type="button" class="btn btn-secondary w-100 mt-2" (click)="closePaymentModal()">Закрыть</button>
           </div>
         </div>
       </div>
     </div>
-
 
 
     <!-- Иконка пользователя -->
