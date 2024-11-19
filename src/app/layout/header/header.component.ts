@@ -76,6 +76,18 @@ export class HeaderComponent {
   }
 
   nextStep(): void {
+    const modalElements = document.querySelectorAll('.modal.show.d-block, .modal.fade');
+    modalElements.forEach(modal => {
+        // Приведение к типу HTMLElement для доступа к свойству 'style'
+        if (modal instanceof HTMLElement) {
+            const currentBgColor = window.getComputedStyle(modal).backgroundColor;
+            if (currentBgColor === 'rgba(0, 0, 0, 0.5)') {
+                // Если уже есть, удаляем его
+                modal.style.backgroundColor = 'transparent';
+            }
+        }
+    });
+    // Переход на следующий шаг
     this.currentStep++;
     if (this.currentStep < this.tourSteps.length) {
       this.updateModalPosition();
@@ -116,7 +128,7 @@ export class HeaderComponent {
     // Удаляем существующий highlightOverlay, если он есть
     let existingHighlightOverlay = document.getElementById('highlight-overlay');
     if (existingHighlightOverlay) {
-        existingHighlightOverlay.remove();
+      existingHighlightOverlay.remove();
     }
 
     // Создаем новый highlightOverlay
@@ -152,7 +164,7 @@ export class HeaderComponent {
         ${left + width}px ${top}px,
         ${left}px ${top}px
       )`;
-}
+  }
 
   removeHighlight(): void {
     const highlightOverlay = document.getElementById('highlight-overlay');
