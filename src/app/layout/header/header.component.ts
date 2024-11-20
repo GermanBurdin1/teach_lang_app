@@ -213,7 +213,7 @@ export class HeaderComponent {
     }
 
     if (this.currentStep === 7) {
-      top = 10;
+      top = 9;
       left = 940;
       width = 140;
       height = 50;
