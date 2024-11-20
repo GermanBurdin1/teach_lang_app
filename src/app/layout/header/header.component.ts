@@ -91,6 +91,12 @@ export class HeaderComponent {
       content: 'Здесь хранятся интерактивные учебники и готовые уроки от методистов платформы или ваших  коллег, которые вы можете использовать на занятиях. А если подходящего урока нет в каталоге, создать собственные материалы поможет конструктор уроков с 25+ шаблонами упражнений и AI-ассистентом. ',
       position: { top: '130px', left: '10px' },
       highlightElementId: 'online-courses'
+    },
+    {
+      title: 'Подробнее о платформе',
+      content: 'В нашей базе знаний вы найдёте обучающие статьи с подробными инструкциями для работы на платформе.',
+      position: { top: '-200px', left: '650px' },
+      highlightElementId: 'online-courses'
     }
   ];
 
@@ -205,6 +211,13 @@ export class HeaderComponent {
       top = parseInt(position.top.replace('px', ''), 0) + 145;
       height = 50;
     }
+
+    if (this.currentStep === 7) {
+      top = 10;
+      left = 940;
+      width = 140;
+      height = 50;
+  }
 
 
     // Устанавливаем clip-path для создания "дырки"
