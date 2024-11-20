@@ -59,8 +59,38 @@ export class HeaderComponent {
     {
       title: 'Разделы личного кабинета',
       content: 'Здесь находятся активированные модули платформы...',
-      position: { top: '230px', left: '10px' }, // Корректировка положения
+      position: { top: '250px', left: '10px' }, // Корректировка положения
       highlightElementId: 'sidebar' // ID элемента для подсветки
+    },
+    {
+      title: 'Настройки платформы',
+      content: 'В Настройках расположено редактирование личного профиля...',
+      position: { top: '200px', left: '10px' }, // Позиция может быть скорректирована при необходимости
+      highlightElementId: 'settings' // ID элемента для подсветки (если необходимо)
+    },
+    {
+      title: 'Тарифы, история оплат и промокоды',
+      content: 'Перейдите в этот раздел чтобы выбрать подходящий тарифный план, посмотреть историю оплат или ввести промокод.',
+      position: { top: '255px', left: '10px' }, // Позиция может быть скорректирована при необходимости
+      highlightElementId: 'tariffs' // ID элемента для подсветки (если необходимо)
+    },
+    {
+      title: 'Онлайн-уроки в реальном времени',
+      content: 'В этом разделе вы сможете проводить индивидуальные или групповые уроки в режиме реального времени. Приглашайте учеников и создавайте для них онлайн-классы с интерактивными учебными материалами, видесвязью, чатом и виртуальной доской. Все действия в классе будут мгновенно синхронизироваться между вами и учениками. Добавляйте уроки в расписание, чтобы ученики знали, когда будет следующий урок..',
+      position: { top: '70px', left: '10px' }, // Позиция может быть скорректирована при необходимости
+      highlightElementId: 'online-courses' // ID элемента для подсветки (если необходимо)
+    },
+    {
+      title: 'Онлайн-курсы для асинхронного обучения',
+      content: 'Здесь создаются и проводятся  авторские онлайн-курсы для самостоятельного обучения.Более 25 видов интерактивных заданий с автопроверкой, 5 режимов прохождения, подсчёт баллов и таблица лидеров. Участники смогут проходить курсы в удобное время, а вы сможете давать обратную связь для каждого урока и упражнения.',
+      position: { top: '30px', left: '10px' },
+      highlightElementId: 'online-courses'
+    },
+    {
+      title: 'Учебные материалы',
+      content: 'Здесь хранятся интерактивные учебники и готовые уроки от методистов платформы или ваших  коллег, которые вы можете использовать на занятиях. А если подходящего урока нет в каталоге, создать собственные материалы поможет конструктор уроков с 25+ шаблонами упражнений и AI-ассистентом. ',
+      position: { top: '130px', left: '10px' },
+      highlightElementId: 'online-courses'
     }
   ];
 
@@ -78,14 +108,14 @@ export class HeaderComponent {
   nextStep(): void {
     const modalElements = document.querySelectorAll('.modal.show.d-block, .modal.fade');
     modalElements.forEach(modal => {
-        // Приведение к типу HTMLElement для доступа к свойству 'style'
-        if (modal instanceof HTMLElement) {
-            const currentBgColor = window.getComputedStyle(modal).backgroundColor;
-            if (currentBgColor === 'rgba(0, 0, 0, 0.5)') {
-                // Если уже есть, удаляем его
-                modal.style.backgroundColor = 'transparent';
-            }
+      // Приведение к типу HTMLElement для доступа к свойству 'style'
+      if (modal instanceof HTMLElement) {
+        const currentBgColor = window.getComputedStyle(modal).backgroundColor;
+        if (currentBgColor === 'rgba(0, 0, 0, 0.5)') {
+          // Если уже есть, удаляем его
+          modal.style.backgroundColor = 'transparent';
         }
+      }
     });
     // Переход на следующий шаг
     this.currentStep++;
@@ -145,10 +175,37 @@ export class HeaderComponent {
     document.body.appendChild(highlightOverlay);
 
     // Рассчитываем размеры и позицию "дырки"
-    const top = parseInt(position.top.replace('px', ''), 10) - 130;
-    const left = parseInt(position.left.replace('px', ''), 10);
-    const width = 64; // Ширина области
-    const height = 418; // Высота области
+    let top = parseInt(position.top.replace('px', ''), 10) - 150;
+    let left = parseInt(position.left.replace('px', ''), 5);
+    let width = 64; // Ширина области
+    let height = 418; // Высота области
+
+    // Изменение высоты на третьем шаге
+    if (this.currentStep === 2) {
+      top = parseInt(position.top.replace('px', ''), 0) + 210;
+      height = 50;
+    }
+
+    if (this.currentStep === 3) {
+      top = parseInt(position.top.replace('px', ''), 0) + 210;
+      height = 50;
+    }
+
+    if (this.currentStep === 4) {
+      top = parseInt(position.top.replace('px', ''), 0) + 145;
+      height = 50;
+    }
+
+    if (this.currentStep === 5) {
+      top = parseInt(position.top.replace('px', ''), 0) + 130;
+      height = 50;
+    }
+
+    if (this.currentStep === 6) {
+      top = parseInt(position.top.replace('px', ''), 0) + 145;
+      height = 50;
+    }
+
 
     // Устанавливаем clip-path для создания "дырки"
     highlightOverlay.style.clipPath = `
