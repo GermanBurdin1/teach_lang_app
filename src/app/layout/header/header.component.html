@@ -67,15 +67,25 @@
             <p>{{ tourSteps[currentStep].content }}</p>
           </div>
           <div class="modal-footer d-flex justify-content-between">
-            <span>{{ currentStep + 1 }} из {{ tourSteps.length }}</span>
-            <button *ngIf="currentStep < tourSteps.length - 1" class="btn btn-primary"
-              (click)="nextStep()">Далее</button>
-            <button *ngIf="currentStep === tourSteps.length - 1" class="btn btn-primary"
-              (click)="closeTourModal()">Завершить</button>
+            <div>
+              <!-- Кнопка "Назад" видна только начиная со второго шага -->
+              <button *ngIf="currentStep > 0" class="btn btn-secondary" (click)="previousStep()">Назад</button>
+            </div>
+            <div>
+              <!-- Отображение текущего и общего числа шагов -->
+              <span>{{ currentStep + 1 }} из {{ tourSteps.length }}</span>
+              <!-- Кнопка "Далее" -->
+              <button *ngIf="currentStep < tourSteps.length - 1" class="btn btn-primary"
+                (click)="nextStep()">Далее</button>
+              <!-- Кнопка "Завершить" на последнем шаге -->
+              <button *ngIf="currentStep === tourSteps.length - 1" class="btn btn-primary"
+                (click)="closeTourModal()">Завершить</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
 
 
 

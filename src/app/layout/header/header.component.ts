@@ -132,6 +132,13 @@ export class HeaderComponent {
     }
   }
 
+  previousStep(): void {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+      this.updateModalPosition();
+    }
+  }
+
   updateModalPosition(): void {
     const step = this.tourSteps[this.currentStep];
 
