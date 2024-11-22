@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
+import { TawkService } from '../../../services/support-chat.service';
 
 interface Lesson {
   day: string;
@@ -43,7 +44,7 @@ export class TeacherProfileComponent implements OnInit {
   activeLessonTab: string = 'individual';
 
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(private route: ActivatedRoute, private router: Router, private tawkService: TawkService) {
     this.currentWeekStart = this.getStartOfWeek(new Date());
   }
 
@@ -52,6 +53,7 @@ export class TeacherProfileComponent implements OnInit {
     this.loadTeacherData();
     this.daysWithDates = this.getWeekDates().map(date => date.toISOString().split('T')[0]);
     this.loadHourRangeFromLocalStorage();
+    this.tawkService.loadTawkScript();
   }
 
   loadTeacherData(): void {
