@@ -97,6 +97,12 @@ export class HeaderComponent {
 			content: 'В нашей базе знаний вы найдёте обучающие статьи с подробными инструкциями для работы на платформе.',
 			position: { top: '-200px', left: '650px' },
 			highlightElementId: 'online-courses'
+		},
+		{
+			title: 'Если понадобится помощь',
+			content: 'Напишите нам в поддержку, нажав на эту иконку. Мы на связи с с 9:00 до 21:00 (GMT+3).',
+			position: { top: '-200px', left: '650px' },
+			highlightElementId: 'online-courses'
 		}
 	];
 
@@ -229,6 +235,13 @@ export class HeaderComponent {
 				left = 940;
 				width = 140;
 				height = 50;
+			}
+
+			if (this.currentStep === 8) {
+				top = 700;
+				left = 1300;
+				width = 140;
+				height = 700;
 			}
 
 
