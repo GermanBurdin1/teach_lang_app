@@ -26,11 +26,11 @@ const routes: Routes = [
       { path: 'school/settings', component: SettingsComponent },
       { path: 'school/tariffs', component: TariffsComponent },
       { path: 'school/statistics', component: StatiscticsComponent },
-      { path: '', redirectTo: 'school/statistics', pathMatch: 'full' },
       { path: 'student/wordsTeaching', component: WordsComponent },
     ]
   }
 ];
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

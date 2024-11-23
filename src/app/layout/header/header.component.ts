@@ -18,16 +18,21 @@ export class HeaderComponent {
 	}
 
 	switchToAdmin(): void {
+    this.isHeaderExpanded = false; // Закрываем выпадающую область
+    localStorage.setItem('isSchoolDashboard', JSON.stringify(true)); // Сохраняем выбор в localStorage
     this.router.navigate(['/']).then(() => {
-      this.dashboardService.switchToSchoolDashboard(); // Переключение на кабинет школы
-    }); // Переключаем на кабинет школы
+      this.dashboardService.switchToSchoolDashboard(); // Обновляем состояние через сервис
+    });
   }
 
   switchToStudent(): void {
+    this.isHeaderExpanded = false; // Закрываем выпадающую область
+    localStorage.setItem('isSchoolDashboard', JSON.stringify(false)); // Сохраняем выбор в localStorage
     this.router.navigate(['student/wordsTeaching']).then(() => {
-      this.dashboardService.switchToStudentDashboard(); // Переключение на кабинет ученика
-    }); // Переключаем на кабинет ученика
+      this.dashboardService.switchToStudentDashboard(); // Обновляем состояние через сервис
+    });
   }
+
 
 	// ajouter de l'argent
 	showBalanceModal = false;
