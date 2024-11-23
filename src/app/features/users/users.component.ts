@@ -52,7 +52,8 @@ export class UsersComponent implements OnInit {
   }
 
   openTeacherProfile(id: number): void {
-    this.router.navigate([`/student-dashboard/users/teacher/${id}`]);
+    console.log(id);
+    this.router.navigate([`/cabinet/school/users/teacher/${id}`]);
   }
 
   showTooltip(role: string): void {
@@ -281,7 +282,7 @@ export class UsersComponent implements OnInit {
 
 
   openStudentProfile(id: number): void {
-    this.router.navigate([`/student-dashboard/users/student/${id}`]);
+    this.router.navigate([`/cabinet/school/users/student/${id}`]);
   }
 }
 

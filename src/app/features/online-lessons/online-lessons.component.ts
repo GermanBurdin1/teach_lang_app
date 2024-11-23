@@ -226,7 +226,7 @@ export class OnlineLessonsComponent {
   }
 
   openTeacherProfile(id: number): void {
-    this.router.navigate([`/student-dashboard/users/teacher/${id}`]);
+    this.router.navigate([`/cabinet/school/users/teacher/${id}`]);
   }
 
   newTeacher: { name: string; email: string; nativeLanguage: string; id: number } = {
