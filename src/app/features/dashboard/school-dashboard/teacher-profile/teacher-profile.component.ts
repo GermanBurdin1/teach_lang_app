@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { TawkService } from '../../../services/support-chat.service';
+import { TawkService } from '../../../../services/support-chat.service';
 
 interface Lesson {
   day: string;

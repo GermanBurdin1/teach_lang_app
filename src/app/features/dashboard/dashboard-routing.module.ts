@@ -6,9 +6,9 @@ import { MaterialsComponent } from '../materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
 import { SettingsComponent } from '../settings/settings.component';
 import { TariffsComponent } from '../tariffs/tariffs.component';
-import { TeacherProfileComponent } from './teacher-profile/teacher-profile.component';
+import { TeacherProfileComponent } from './school-dashboard/teacher-profile/teacher-profile.component';
 import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
-import { StudentProfileComponent } from './student-profile/student-profile.component';
+import { StudentProfileComponent } from './school-dashboard/student-profile/student-profile.component';
 import { StatiscticsComponent } from '../statisctics/statisctics.component';
 
 const routes: Routes = [
