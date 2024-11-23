@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
 	selector: 'app-header',
@@ -6,21 +8,26 @@ import { Component } from '@angular/core';
 	styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-	isHeaderExpanded = false;
+
+  isHeaderExpanded = false;
+
+  constructor(private router: Router, private dashboardService: DashboardService) {}
 
 	toggleExpandHeader(): void {
 		this.isHeaderExpanded = !this.isHeaderExpanded;
 	}
 
 	switchToAdmin(): void {
-		// Логика для переключения на роль администратора
-		alert('Переключение на администратора');
-	}
+    this.router.navigate(['/']).then(() => {
+      this.dashboardService.switchToSchoolDashboard(); // Переключение на кабинет школы
+    }); // Переключаем на кабинет школы
+  }
 
-	switchToStudent(): void {
-		// Логика для переключения на роль ученика
-		alert('Переключение на ученика');
-	}
+  switchToStudent(): void {
+    this.router.navigate(['/']).then(() => {
+      this.dashboardService.switchToStudentDashboard(); // Переключение на кабинет ученика
+    }); // Переключаем на кабинет ученика
+  }
 
 	// ajouter de l'argent
 	showBalanceModal = false;

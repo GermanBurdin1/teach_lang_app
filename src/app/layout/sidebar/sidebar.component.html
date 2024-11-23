@@ -1,50 +1,64 @@
-<div class="container mt-4" style="max-width: 800px;">
-  <!-- Пункт меню Показатели -->
-  <div class="uc-menu-item">
-    <a routerLink="school/statistics" class="icon-container">
-      <i class="fas fa-tachometer-alt uc-menu-icon"></i>
-    </a>
+<div class="sidebar">
+  <div *ngIf="isSchoolDashboard; else studentDashboard">
+    <!-- Вкладки для административного кабинета -->
+    <div class="uc-menu-item">
+      <a routerLink="school/statistics" class="icon-container">
+        <i class="fas fa-tachometer-alt uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="school/users" class="icon-container">
+        <i class="fas fa-users uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="school/online-lessons" class="icon-container">
+        <i class="fas fa-chalkboard-teacher uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="school/materials" class="icon-container">
+        <i class="fas fa-book uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="school/marathons" class="icon-container">
+        <i class="fas fa-running uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="school/settings" class="icon-container">
+        <i class="fas fa-cog uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="school/tariffs" class="icon-container">
+        <i class="fas fa-dollar-sign uc-menu-icon"></i>
+      </a>
+    </div>
   </div>
 
-  <!-- Пункт меню Пользователи -->
-  <div class="uc-menu-item">
-    <a routerLink="school/users" class="icon-container">
-      <i class="fas fa-users uc-menu-icon"></i>
-    </a>
-  </div>
-
-  <!-- Пункт меню онлайн-уроки -->
-  <div class="uc-menu-item">
-    <a routerLink="school/online-lessons" class="icon-container">
-      <i class="fas fa-lessons uc-menu-icon"></i>
-    </a>
-  </div>
-
-  <!-- Пункт меню Материалы -->
-  <div class="uc-menu-item">
-    <a routerLink="school/materials" class="icon-container">
-      <i class="fas fa-book uc-menu-icon"></i>
-    </a>
-  </div>
-
-  <!-- Пункт меню Марафоны -->
-  <div class="uc-menu-item">
-    <a routerLink="school/marathons" class="icon-container">
-      <i class="fas fa-running uc-menu-icon"></i>
-    </a>
-  </div>
-
-  <!-- Пункт меню Настройки -->
-  <div class="uc-menu-item">
-    <a routerLink="school/settings" class="icon-container">
-      <i class="fas fa-cog uc-menu-icon"></i>
-    </a>
-  </div>
-
-  <!-- Пункт меню Тарифы -->
-  <div class="uc-menu-item">
-    <a routerLink="school/tariffs" class="icon-container">
-      <i class="fas fa-dollar-sign uc-menu-icon"></i>
-    </a>
-  </div>
+  <ng-template #studentDashboard>
+    <!-- Вкладки для ученического кабинета -->
+    <div class="uc-menu-item">
+      <a routerLink="student/courses" class="icon-container">
+        <i class="fas fa-graduation-cap uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="student/profile" class="icon-container">
+        <i class="fas fa-user uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="student/assignments" class="icon-container">
+        <i class="fas fa-tasks uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="student/progress" class="icon-container">
+        <i class="fas fa-chart-line uc-menu-icon"></i>
+      </a>
+    </div>
+  </ng-template>
 </div>
