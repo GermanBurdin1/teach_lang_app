@@ -16,16 +16,16 @@ const routes: Routes = [
     path: '',
     component: StudentDashboardComponent,
     children: [
-      { path: 'school', component: UsersComponent },
+      { path: 'school/users', component: UsersComponent },
       { path: 'users/teacher/:id', component: TeacherProfileComponent },
       { path: 'users/student/:id', component: StudentProfileComponent },
-      { path: 'online-lessons', component: OnlineLessonsComponent },
-      { path: 'materials', component: MaterialsComponent },
-      { path: 'marathons', component: MarathonsComponent },
-      { path: 'settings', component: SettingsComponent },
-      { path: 'tariffs', component: TariffsComponent },
-      { path: 'statistics', component: StatiscticsComponent },
-      { path: '', redirectTo: 'school', pathMatch: 'full' }
+      { path: 'school/online-lessons', component: OnlineLessonsComponent },
+      { path: 'school/materials', component: MaterialsComponent },
+      { path: 'school/marathons', component: MarathonsComponent },
+      { path: 'school/settings', component: SettingsComponent },
+      { path: 'school/tariffs', component: TariffsComponent },
+      { path: 'school/statistics', component: StatiscticsComponent },
+      { path: '', redirectTo: 'school/statistics', pathMatch: 'full' }
     ]
   }
 ];
