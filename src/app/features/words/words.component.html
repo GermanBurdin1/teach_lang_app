@@ -1,0 +1,126 @@
+<div class="container my-4 words-container">
+  <!-- Заголовок -->
+  <h2 class="text-center mb-4">Мои слова</h2>
+
+  <!-- Карточки статистики -->
+  <div class="row text-center mb-4">
+    <div class="col-md-3">
+      <div class="card p-3 stat-card">
+        <span class="display-4">🥳</span>
+        <p class="mb-2">Выучено слов</p>
+        <h4 class="mb-0">0</h4>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 stat-card">
+        <span class="display-4">🔥</span>
+        <p class="mb-2">На изучении</p>
+        <h4 class="mb-0">0</h4>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 stat-card">
+        <span class="display-4">🏃</span>
+        <p class="mb-2">Средний темп</p>
+        <h4 class="mb-0">0</h4>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 stat-card">
+        <span class="display-4">🏆</span>
+        <p class="mb-2">Рекорд за день</p>
+        <h4 class="mb-0">0</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Вкладки -->
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        [class.active]="activeTab === 'studying'"
+        (click)="setActiveTab('studying')"
+        >На изучении</a
+      >
+    </li>
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        [class.active]="activeTab === 'completed'"
+        (click)="setActiveTab('completed')"
+        >Изучено</a
+      >
+    </li>
+  </ul>
+
+  <!-- Фильтры -->
+  <div class="d-flex justify-content-center mb-3">
+    <div class="form-check me-4">
+      <input
+        class="form-check-input"
+        type="radio"
+        name="filter"
+        [value]="'allWords'"
+        [(ngModel)]="filter"
+        id="allWordsFilter"
+      />
+      <label class="form-check-label" for="allWordsFilter">Все слова</label>
+    </div>
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="radio"
+        name="filter"
+        [value]="'lessonWords'"
+        [(ngModel)]="filter"
+        id="lessonWordsFilter"
+      />
+      <label class="form-check-label" for="lessonWordsFilter">Слова по урокам</label>
+    </div>
+  </div>
+
+  <!-- Содержимое вкладок -->
+  <div class="tab-content">
+    <div *ngIf="activeTab === 'studying'">
+      <div class="d-flex justify-content-center align-items-center mb-3">
+        <button class="btn btn-primary me-3">Учить слова</button>
+        <select
+          class="form-select w-auto me-3"
+          [(ngModel)]="selectedLanguage"
+        >
+          <option>RU > EN</option>
+          <option>EN > RU</option>
+        </select>
+        <input
+          type="text"
+          class="form-control w-auto me-3"
+          placeholder="Добавить слово"
+          [(ngModel)]="newWord"
+        />
+        <button class="btn btn-success" (click)="addWord()">➤</button>
+      </div>
+      <div class="text-center" *ngIf="studyingWords.length === 0">
+        <img
+          src="path/to/icon.png"
+          alt="Нет слов"
+          class="img-fluid mb-3"
+          style="max-width: 100px;"
+        />
+        <p>У вас нет слов для изучения</p>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab === 'completed'">
+      <div class="text-center" *ngIf="completedWords.length === 0">
+        <img
+          src="path/to/icon.png"
+          alt="Нет слов"
+          class="img-fluid mb-3"
+          style="max-width: 100px;"
+        />
+        <p>У вас нет выученных слов</p>
+      </div>
+    </div>
+  </div>
+</div>

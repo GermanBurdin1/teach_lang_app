@@ -10,6 +10,7 @@ import { TeacherProfileComponent } from './school-dashboard/teacher-profile/teac
 import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
 import { StudentProfileComponent } from './school-dashboard/student-profile/student-profile.component';
 import { StatiscticsComponent } from '../statisctics/statisctics.component';
+import { WordsComponent } from '../words/words.component';
 
 const routes: Routes = [
   {
@@ -25,7 +26,8 @@ const routes: Routes = [
       { path: 'school/settings', component: SettingsComponent },
       { path: 'school/tariffs', component: TariffsComponent },
       { path: 'school/statistics', component: StatiscticsComponent },
-      { path: '', redirectTo: 'school/statistics', pathMatch: 'full' }
+      { path: '', redirectTo: 'school/statistics', pathMatch: 'full' },
+      { path: 'student/wordsTeaching', component: WordsComponent },
     ]
   }
 ];

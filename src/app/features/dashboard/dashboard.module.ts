@@ -14,6 +14,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
 import { TariffsModule } from "../tariffs/tariffs.module";
 import { StatiscticsComponent } from '../statisctics/statisctics.component';
+import { WordsComponent } from '../words/words.component';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { StatiscticsComponent } from '../statisctics/statisctics.component';
     TeacherProfileComponent,
     StudentProfileComponent,
     OnlineLessonsComponent,
-    StatiscticsComponent
+    StatiscticsComponent,
+    WordsComponent
   ],
   imports: [
     LayoutModule,

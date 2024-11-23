@@ -24,7 +24,7 @@ export class HeaderComponent {
   }
 
   switchToStudent(): void {
-    this.router.navigate(['/']).then(() => {
+    this.router.navigate(['student/wordsTeaching']).then(() => {
       this.dashboardService.switchToStudentDashboard(); // Переключение на кабинет ученика
     }); // Переключаем на кабинет ученика
   }
