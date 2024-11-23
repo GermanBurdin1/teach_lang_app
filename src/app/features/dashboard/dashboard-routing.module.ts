@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
+import { SchoolDashboardComponent } from './school-dashboard/school-dashboard.component';
 import { UsersComponent } from '../users/users.component';
 import { MaterialsComponent } from '../materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
@@ -14,7 +14,7 @@ import { StatiscticsComponent } from '../statisctics/statisctics.component';
 const routes: Routes = [
   {
     path: '',
-    component: StudentDashboardComponent,
+    component: SchoolDashboardComponent,
     children: [
       { path: 'school/users', component: UsersComponent },
       { path: 'users/teacher/:id', component: TeacherProfileComponent },

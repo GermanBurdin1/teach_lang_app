@@ -4,7 +4,7 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { UsersComponent } from '../users/users.component';
 import { MaterialsComponent } from '../materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
-import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
+import { SchoolDashboardComponent } from './school-dashboard/school-dashboard.component';
 import { TeacherProfileComponent } from './teacher-profile/teacher-profile.component';
 import { StudentProfileComponent } from './student-profile/student-profile.component';
 import { RouterModule } from '@angular/router';
@@ -21,7 +21,7 @@ import { StatiscticsComponent } from '../statisctics/statisctics.component';
     UsersComponent,
     MaterialsComponent,
     MarathonsComponent,
-    StudentDashboardComponent,
+    SchoolDashboardComponent,
     TeacherProfileComponent,
     StudentProfileComponent,
     OnlineLessonsComponent,
