@@ -16,7 +16,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'admin-dashboard', component: AdminDashboardComponent },
   {
-    path: 'student-dashboard',
+    path: 'cabinet/school',
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
   },
   { path: 'lesson-page', component: LessonPageComponent },

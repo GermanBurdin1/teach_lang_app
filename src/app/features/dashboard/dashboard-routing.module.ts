@@ -16,7 +16,7 @@ const routes: Routes = [
     path: '',
     component: StudentDashboardComponent,
     children: [
-      { path: 'users', component: UsersComponent },
+      { path: 'school', component: UsersComponent },
       { path: 'users/teacher/:id', component: TeacherProfileComponent },
       { path: 'users/student/:id', component: StudentProfileComponent },
       { path: 'online-lessons', component: OnlineLessonsComponent },
@@ -25,7 +25,7 @@ const routes: Routes = [
       { path: 'settings', component: SettingsComponent },
       { path: 'tariffs', component: TariffsComponent },
       { path: 'statistics', component: StatiscticsComponent },
-      { path: '', redirectTo: 'users', pathMatch: 'full' }
+      { path: '', redirectTo: 'school', pathMatch: 'full' }
     ]
   }
 ];
