@@ -20,7 +20,7 @@ export class HeaderComponent {
 	switchToAdmin(): void {
     this.isHeaderExpanded = false; // Закрываем выпадающую область
     localStorage.setItem('isSchoolDashboard', JSON.stringify(true)); // Сохраняем выбор в localStorage
-    this.router.navigate(['/']).then(() => {
+    this.router.navigate(['school/statistics']).then(() => {
       this.dashboardService.switchToSchoolDashboard(); // Обновляем состояние через сервис
     });
   }
