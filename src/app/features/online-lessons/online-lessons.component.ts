@@ -403,4 +403,52 @@ export class OnlineLessonsComponent {
 
   }
 
+  isCreateClassModalOpen: boolean = false; // Управляет отображением модального окна
+  newClassName: string = ''; // Название нового класса
+  classAvatarPreview: string = 'A'; // Предварительный просмотр аватарки
+  classes: Array<{ id: number; name: string; description: string }> = []; // Список классов
+
+  openCreateClassModal(): void {
+    this.isCreateClassModalOpen = true;
+  }
+
+  closeCreateClassModal(event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.isCreateClassModalOpen = false;
+  }
+
+  onClassAvatarSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.classAvatarPreview = 'A'; // Заглушка для аватарки, можно заменить логикой чтения файла
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  createClass(): void {
+    if (this.newClassName.trim() === '') {
+      alert('Введите название класса!');
+      return;
+    }
+
+    const newClass = {
+      id: Date.now(),
+      name: this.newClassName,
+      description: 'Описание класса'
+    };
+
+    this.classes.push(newClass);
+    this.newClassName = '';
+    this.isCreateClassModalOpen = false;
+  }
+
+  openClassManagement(classId: number): void {
+    console.log(`Открытие управления для класса с ID: ${classId}`);
+    // Здесь вы можете добавить логику перехода на страницу управления классом или отображения модального окна
+  }
+
 }

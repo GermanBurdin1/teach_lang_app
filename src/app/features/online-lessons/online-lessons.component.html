@@ -1,7 +1,8 @@
 <div class="online-lessons" style="max-width: 800px; margin: 0 auto;">
   <h2 class="mb-3">Онлайн-уроки</h2>
   <!-- Основные вкладки (Расписание, Ученики, Группы, Учителя, Заявки) -->
-  <div *ngIf="!isPaidOrTrial" class="alert alert-danger d-flex justify-content-between align-items-center" style="padding: 16px; border-radius: 8px;">
+  <div *ngIf="!isPaidOrTrial" class="alert alert-danger d-flex justify-content-between align-items-center"
+    style="padding: 16px; border-radius: 8px;">
     <div>
       <i class="bi bi-info-circle-fill me-2" style="color: #f44336;"></i>
       Онлайн-уроки не оплачены. Для проведения онлайн-уроков оплатите тариф.
@@ -11,7 +12,8 @@
       (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
   </div>
   <ul class="nav nav-tabs mb-3">
-    <li class="nav-item" *ngFor="let tab of (isPaidOrTrial ? ['Классы','Расписание', 'Ученики', 'Заявки'] : ['Расписание', 'Ученики', 'Группы', 'Учителя', 'Заявки'])">
+    <li class="nav-item"
+      *ngFor="let tab of (isPaidOrTrial ? ['Классы','Расписание', 'Ученики', 'Заявки'] : ['Расписание', 'Ученики', 'Группы', 'Учителя', 'Заявки'])">
       <a class="nav-link" [class.active]="activeLessonTab === tab" (click)="switchLessonTab(tab)">
         {{ tab }}
       </a>
@@ -609,4 +611,89 @@
       </div>
     </div>
 
+  </div>
+
+
+  <div *ngIf="activeLessonTab === 'Классы'" class="tab-pane fade show active" id="classes" role="tabpanel"
+    aria-labelledby="classes-tab">
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="Поиск классов..." aria-label="Поиск классов">
+    </div>
+
+    <p class="mb-3">Классы: <strong>1</strong></p>
+
+    <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center"
+      (click)="openCreateClassModal()">
+      <i class="fas fa-plus-circle mr-2"></i> Создать новый класс
+    </button>
+
+    <!-- Карточки классов -->
+    <div class="class-card card mb-3" *ngFor="let classItem of classes">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <!-- Левая часть с информацией о классе -->
+        <div>
+          <!-- Название класса -->
+          <div class="d-flex align-items-center mb-2">
+            <h5 class="me-2">{{ classItem.name }}</h5>
+            <div class="position-relative" (mouseenter)="showTooltip('class')" (mouseleave)="hideTooltip()">
+              <i class="fas fa-check-circle text-primary"></i>
+              <div *ngIf="tooltipVisible === 'class'" class="simple-tooltip">
+                Информация о классе
+              </div>
+            </div>
+          </div>
+
+          <!-- ID и описание -->
+          <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-id-badge text-muted me-1"></i> {{ classItem.id }}
+            <span class="mx-2 text-muted">|</span>
+            <i class="fas fa-info-circle text-muted me-1"></i> {{ classItem.description }}
+          </div>
+        </div>
+
+        <!-- Кнопка Управление, выровненная вертикально -->
+        <button class="btn btn-outline-primary align-self-start" (click)="openClassManagement(classItem.id)">
+          Управление
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно создания класса -->
+  <div *ngIf="isCreateClassModalOpen" class="modal fade show d-block" tabindex="-1"
+    style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateClassModal($event)">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content p-4">
+        <div class="modal-header">
+          <h5 class="modal-title">Создать класс</h5>
+          <button type="button" class="btn-close" (click)="closeCreateClassModal()"></button>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <!-- Поле для загрузки аватарки -->
+            <div class="mb-3 d-flex align-items-center">
+              <label class="form-label me-3">Аватарка</label>
+              <div class="avatar-preview me-3"
+                style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 50%; text-align: center; line-height: 40px;">
+                {{ classAvatarPreview }}
+              </div>
+              <input type="file" id="avatarUpload" class="d-none" (change)="onClassAvatarSelected($event)">
+              <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+            </div>
+
+            <!-- Поле для названия класса -->
+            <div class="mb-3">
+              <label class="form-label">Название класса</label>
+              <input type="text" class="form-control" placeholder="Введите название класса" [(ngModel)]="newClassName" name="className" />
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
+          <button type="button" class="btn btn-secondary" (click)="closeCreateClassModal()">Отмена</button>
+          <button type="button" class="btn btn-primary" (click)="createClass()">Добавить</button>
+        </div>
+      </div>
+    </div>
   </div>
