@@ -39,7 +39,7 @@ export class OnlineLessonsComponent {
   showNewLessonModal = false;
   activeModalTab: string = 'individual';
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router) { }
 
 
   ngOnInit(): void {
@@ -54,6 +54,8 @@ export class OnlineLessonsComponent {
     this.initializeDaysWithDates();
     this.updateCurrentTime();
     setInterval(() => this.updateCurrentTime(), 60000);
+
+    this.checkPaidOrTrialStatus();
 
   }
 
@@ -392,7 +394,13 @@ export class OnlineLessonsComponent {
 
   openSettings(): void {
     console.log('Открытие страницы настроек.');
-    // Здесь можно добавить логику открытия отдельной страницы или модального окна для настроек
+  }
+
+  //payé
+  isPaidOrTrial: boolean = true;
+
+  checkPaidOrTrialStatus(): void {
+
   }
 
 }

@@ -12,6 +12,7 @@ export class StudentProfileComponent {
   isEditModalOpen = false;
   studentData: any;
   studentId: number | null = null;
+  isTariffPaid: boolean = true;
 
 
   constructor(private route: ActivatedRoute, private router: Router) {
@@ -195,5 +196,40 @@ export class StudentProfileComponent {
   closeTariffModal(): void {
     this.showTariffModal = false; // Закрыть модалку
   }
+
+  // si payé
+
+  openAddClassModal(): void {
+    if (this.isTariffPaid) {
+      this.showAddClassModal = true; // Показываем интерфейс добавления класса
+    } else {
+      this.openAccessModal(); // Показываем модалку оплаты тарифа
+    }
+  }
+
+  showAddClassModal: boolean = false;
+
+  closeAddClassModal(): void {
+    this.showAddClassModal = false;
+  }
+
+  classType: string = 'individual';
+  className: string = '';
+
+  setClassType(type: string): void {
+    this.classType = type;
+  }
+
+  saveClass(): void {
+    // Логика сохранения класса
+    console.log('Класс добавлен:', { type: this.classType, name: this.className, cover: this.selectedFile });
+    this.closeAddClassModal();
+  }
+
+  selectedTab: string = 'individual'; // По умолчанию выбран "Индивидуальный"
+  setTab(tab: string): void {
+    this.selectedTab = tab;
+  }
+
 
 }

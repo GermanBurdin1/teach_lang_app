@@ -70,10 +70,11 @@
 
   <div class="container mt-4">
     <!-- Button to add class -->
-    <button class="btn btn-primary mt-3" (click)="openAccessModal()">
+    <button class="btn btn-primary mt-3" (click)="isTariffPaid ? openAddClassModal() : openAccessModal()">
       Добавить класс
     </button>
   </div>
+
 
   <!-- Modal for restricted access -->
   <div *ngIf="showAccessModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="accessModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
@@ -94,6 +95,68 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal for Adding Class -->
+<div *ngIf="showAddClassModal" class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header">
+        <h5 class="modal-title">Добавить класс</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeAddClassModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Вкладки -->
+        <div class="d-flex justify-content-between">
+          <button class="btn" [class.active]="selectedTab === 'individual'" (click)="setTab('individual')">Индивидуальный</button>
+          <button class="btn" [class.active]="selectedTab === 'group'" (click)="setTab('group')">Групповой</button>
+          <button class="btn" [class.active]="selectedTab === 'marathon'" (click)="setTab('marathon')">Марафон</button>
+        </div>
+
+        <!-- Содержимое вкладки -->
+        <div *ngIf="selectedTab === 'individual'" class="mt-3">
+          <label>Обложка</label>
+          <input type="file" (change)="onFileSelected($event)" class="form-control" />
+          <div class="mt-3">
+            <label>Название класса</label>
+            <input type="text" class="form-control" [(ngModel)]="className" placeholder="Введите название класса" />
+          </div>
+        </div>
+
+        <div *ngIf="selectedTab === 'group'" class="mt-3">
+          <label>Поиск групп</label>
+          <input type="text" class="form-control" placeholder="Поиск групп" />
+          <div class="mt-3">
+            <button class="btn btn-outline-primary">+ Новый класс</button>
+          </div>
+        </div>
+
+        <div *ngIf="selectedTab === 'marathon'" class="mt-3">
+          <label>Название марафона</label>
+          <input type="text" class="form-control" placeholder="Введите название марафона" />
+          <div class="mt-3">
+            <label>Дата начала</label>
+            <input type="date" class="form-control" />
+          </div>
+          <div class="mt-3">
+            <label>Дата окончания</label>
+            <input type="date" class="form-control" />
+          </div>
+          <div class="mt-3">
+            <label>Описание</label>
+            <textarea class="form-control" rows="3" placeholder="Введите описание марафона"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer justify-content-center">
+        <button class="btn btn-secondary" (click)="closeAddClassModal()">Отмена</button>
+        <button class="btn btn-primary" (click)="saveClass()">Добавить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 </div>
 

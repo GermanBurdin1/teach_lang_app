@@ -1,8 +1,7 @@
 <div class="online-lessons" style="max-width: 800px; margin: 0 auto;">
   <h2 class="mb-3">Онлайн-уроки</h2>
   <!-- Основные вкладки (Расписание, Ученики, Группы, Учителя, Заявки) -->
-  <div class="alert alert-danger d-flex justify-content-between align-items-center"
-    style="padding: 16px; border-radius: 8px;">
+  <div *ngIf="!isPaidOrTrial" class="alert alert-danger d-flex justify-content-between align-items-center" style="padding: 16px; border-radius: 8px;">
     <div>
       <i class="bi bi-info-circle-fill me-2" style="color: #f44336;"></i>
       Онлайн-уроки не оплачены. Для проведения онлайн-уроков оплатите тариф.
@@ -12,7 +11,7 @@
       (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
   </div>
   <ul class="nav nav-tabs mb-3">
-    <li class="nav-item" *ngFor="let tab of ['Расписание', 'Ученики', 'Группы', 'Учителя', 'Заявки']">
+    <li class="nav-item" *ngFor="let tab of (isPaidOrTrial ? ['Классы','Расписание', 'Ученики', 'Заявки'] : ['Расписание', 'Ученики', 'Группы', 'Учителя', 'Заявки'])">
       <a class="nav-link" [class.active]="activeLessonTab === tab" (click)="switchLessonTab(tab)">
         {{ tab }}
       </a>
