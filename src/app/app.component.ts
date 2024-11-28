@@ -20,7 +20,6 @@ export class AppComponent implements OnInit {
   }
 
   isDashboardRoute(): boolean {
-    // Проверяем, содержит ли текущий URL часть "dashboard"
     return this.router.url === '/student-dashboard';
   }
 }

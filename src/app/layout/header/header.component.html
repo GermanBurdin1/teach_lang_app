@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light" *ngIf="!isLessonMaterialRoute">
   <div class="d-flex align-items-center">
     <!-- Кнопка с иконкой для открытия панели -->
     <button class="btn btn-light p-2 me-3" id="expandHeaderButton" (click)="toggleExpandHeader()"
@@ -7,7 +7,6 @@
     </button>
   </div>
 
-  <!-- Панель, которая раскрывает весь header -->
   <!-- Панель, которая раскрывает весь header -->
   <div class="expanded-header bg-white shadow-lg" *ngIf="isHeaderExpanded"
     style="width: 100%; position: absolute; top: 100%; left: 0; z-index: 1040;">
@@ -211,3 +210,69 @@
         <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Выход</a></li>
       </ul>
     </div>
+  </div>
+</nav>
+
+
+<!-- Хедер для LessonMaterialComponent -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light" *ngIf="isLessonMaterialRoute">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center">
+      <button class="btn btn-primary me-3" (click)="navigateToLesson()">Другой урок</button>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-end">
+      <div class="dropdown mx-2">
+        <button class="btn btn-outline-primary dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown"
+          aria-expanded="false">
+          Добавить учеников
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+          <li><a class="dropdown-item" href="#" (click)="openAddStudentModal()">Ученики класса</a></li>
+          <li><a class="dropdown-item" href="#" (click)="openSettings()">Настройки класса</a></li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <li><a class="dropdown-item" href="#" (click)="openLeaveClassModal()">Выйти из класса</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" tabindex="-1" *ngIf="showAddStudentModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Добавить ученика</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeAddStudentModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Содержимое модалки -->
+        <p>Здесь будет форма для добавления учеников.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeAddStudentModal()">Отмена</button>
+        <button class="btn btn-primary">Добавить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" *ngIf="showLeaveClassModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Выйти из класса</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeLeaveClassModal()"></button>
+      </div>
+      <div class="modal-body">
+        <p>Вы действительно хотите выйти из класса?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeLeaveClassModal()">Отмена</button>
+        <button class="btn btn-danger">Выйти</button>
+      </div>
+    </div>
+  </div>
+</div>
