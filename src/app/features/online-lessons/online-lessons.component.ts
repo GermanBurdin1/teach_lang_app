@@ -447,8 +447,8 @@ export class OnlineLessonsComponent {
   }
 
   openClassManagement(classId: number): void {
-    console.log(`Открытие управления для класса с ID: ${classId}`);
-    // Здесь вы можете добавить логику перехода на страницу управления классом или отображения модального окна
+    this.router.navigate([`/classroom/${classId}/lesson`]);
+    console.log(`Переход к управлению классом с ID: ${classId}`);
   }
 
 }

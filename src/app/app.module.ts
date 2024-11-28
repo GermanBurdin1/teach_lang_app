@@ -19,6 +19,7 @@ import { SettingsModule } from './features/settings/settings.module';
 import { LandingModule } from './features/landing/landing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { ClassroomModule } from './classroom/classroom.module';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     SettingsModule,
     LandingModule,
     BrowserAnimationsModule,
-    BsDropdownModule.forRoot()
+    BsDropdownModule.forRoot(),
+    ClassroomModule
 ],
   bootstrap: [AppComponent]
 })

@@ -23,5 +23,6 @@ export const routes: Routes = [
   { path: 'video-call', component: VideoCallComponent },
   { path: 'landing', component: LandingComponent},
   { path: 'landing/preview', component: PreviewLandingComponent},
+  { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule) },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
