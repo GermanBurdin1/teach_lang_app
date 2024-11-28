@@ -306,37 +306,43 @@ export class HeaderComponent {
   //for class
   isLessonMaterialRoute = false;
 
-  navigateToLesson(): void {
-    this.router.navigate(['/classroom', 123, 'lesson']); // Примерный роут
-  }
+  // Управление модальным окном "Пользователи"
+  isUserModalOpen = false;
 
-  openAddStudentModal(): void {
-    console.log('Открыть модалку добавления ученика');
-    // Реализовать логику открытия модалки
-  }
-
-  openSettings(): void {
-    console.log('Открыть настройки класса');
-    // Реализовать логику открытия настроек
-  }
-
-  openLeaveClassModal(): void {
-    console.log('Открыть модалку выхода из класса');
-    // Реализовать логику открытия модалки выхода
-  }
-
+  // Управление модальным окном "Добавить учеников"
   showAddStudentModal = false;
-  showLeaveClassModal = false;
 
+  // Пример списка пользователей
+  users = [
+    { initials: 'J', name: 'Jean', email: 'jean@example.com' },
+    { initials: 'E', name: 'Elena', email: 'elena@example.com' },
+    { initials: 'M', name: 'Michael', email: 'michael@example.com' }
+  ];
 
+  // Открыть модальное окно для пользователей
+  openUserModal(): void {
+    this.isUserModalOpen = true;
+  }
+
+  // Закрыть модальное окно для пользователей
+  closeUserModal(): void {
+    this.isUserModalOpen = false;
+  }
+
+  // Открыть модальное окно "Добавить учеников"
+  openAddStudentModal(): void {
+    this.showAddStudentModal = true;
+  }
+
+  // Закрыть модальное окно "Добавить учеников"
   closeAddStudentModal(): void {
     this.showAddStudentModal = false;
   }
 
-
-  closeLeaveClassModal(): void {
-    this.showLeaveClassModal = false;
+  // Навигация на другой урок
+  navigateToLesson(): void {
+    // Здесь будет логика навигации
+    console.log('Перейти на другой урок');
   }
-
 
 }
