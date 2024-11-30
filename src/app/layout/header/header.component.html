@@ -281,7 +281,14 @@
 </nav>
 
 <!-- Модальное окно для пользователей -->
-<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isUserModalOpen }" *ngIf="isUserModalOpen" style="background-color: rgba(0, 0, 0, 0.5);">
+<!-- Модальное окно для пользователей -->
+<div
+  class="modal fade"
+  tabindex="-1"
+  [ngClass]="{ 'show d-block': isUserModalOpen }"
+  *ngIf="isUserModalOpen"
+  style="background-color: rgba(0, 0, 0, 0.5);"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -289,22 +296,43 @@
         <button type="button" class="btn-close" aria-label="Close" (click)="closeUserModal()"></button>
       </div>
       <div class="modal-body">
-        <div *ngFor="let user of users" class="d-flex align-items-center mb-3">
-          <div class="user-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3">
+        <div *ngFor="let user of users" class="user-card d-flex align-items-center mb-3 position-relative">
+          <!-- Иконка пользователя -->
+          <div
+            class="user-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+            (mouseenter)="showTooltip(user.role)"
+            (mouseleave)="hideTooltip()"
+          >
             {{ user.initials }}
           </div>
+
+          <!-- Подсказка -->
+          <div
+            *ngIf="tooltipVisible === user.role"
+            class="tooltip-container position-absolute"
+          >
+            {{ getTooltipText(user.role) }}
+          </div>
+
+          <!-- Информация о пользователе -->
           <div>
-            <p class="mb-0">{{ user.name }}</p>
-            <small class="text-muted">{{ user.email }}</small>
+            <p class="mb-0 fw-bold">{{ user.name }}</p>
+            <p class="mb-0 text-muted small">
+              <i class="fas fa-id-badge me-1"></i> {{ user.id }}
+            </p>
+            <p class="mb-0 text-muted small">
+              <i class="fas fa-envelope me-1"></i> {{ user.email }}
+            </p>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeUserModal()">Закрыть</button>
+        <button class="btn btn-primary">Посмотреть всех учеников</button>
       </div>
     </div>
   </div>
 </div>
+
 
 <!-- Модальное окно "Добавить учеников" -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showAddStudentModal }" *ngIf="showAddStudentModal" style="background-color: rgba(0, 0, 0, 0.5);">

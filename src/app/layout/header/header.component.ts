@@ -314,9 +314,20 @@ export class HeaderComponent {
 
   // Пример списка пользователей
   users = [
-    { initials: 'J', name: 'Jean', email: 'jean@example.com' },
-    { initials: 'E', name: 'Elena', email: 'elena@example.com' },
-    { initials: 'M', name: 'Michael', email: 'michael@example.com' }
+    {
+      initials: 'J',
+      name: 'Jean',
+      email: 'coding_german@',
+      id: '2477981',
+      role: 'student',
+    },
+    {
+      initials: 'A',
+      name: 'Alice',
+      email: 'alice@example.com',
+      id: '1234567',
+      role: 'student',
+    },
   ];
 
   // Открыть модальное окно для пользователей
@@ -343,6 +354,27 @@ export class HeaderComponent {
   navigateToLesson(): void {
     // Здесь будет логика навигации
     console.log('Перейти на другой урок');
+  }
+
+  tooltipVisible: string | null = null;
+
+  showTooltip(role: string): void {
+    this.tooltipVisible = role;
+  }
+
+  hideTooltip(): void {
+    this.tooltipVisible = null;
+  }
+
+  getTooltipText(role: string): string {
+    switch (role) {
+      case 'student':
+        return 'Ученик в классе';
+      case 'teacher':
+        return 'Преподаватель';
+      default:
+        return '';
+    }
   }
 
 }
