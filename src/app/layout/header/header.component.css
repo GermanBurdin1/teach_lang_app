@@ -98,3 +98,8 @@
 .modal-body img {
   border-radius: 50%;
 }
+
+tr.selected {
+  background-color: #d1e7dd; 
+}
+

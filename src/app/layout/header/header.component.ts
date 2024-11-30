@@ -435,24 +435,36 @@ export class HeaderComponent {
 
   selectedStudent: any = null;
 
-selectStudent(student: any): void {
-  this.selectedStudent = student;
-}
-
-addSelectedStudent(): void {
-  if (this.selectedStudent) {
-    this.users.push(this.selectedStudent); // Добавить в класс
-    console.log('Добавлен ученик:', this.selectedStudent);
-    this.selectedStudent = null;
-    this.switchModalView('default'); // Вернуться в начальное состояние.
+  selectStudent(student: any): void {
+    if (this.selectedStudent?.id === student.id) {
+      // Если студент уже выбран, снять выбор
+      this.selectedStudent = null;
+    } else {
+      // Если студент еще не выбран, выбрать
+      this.selectedStudent = student;
+    }
   }
-}
 
-getAvailableStudents(): any[] {
-  return this.allStudents.filter(
-    (user) => !this.users.some((s) => s.id === user.id)
-  );
-}
+  addSelectedStudent(): void {
+    if (this.selectedStudent) {
+      const alreadyExists = this.users.some(
+        (s) => s.id === this.selectedStudent.id
+      );
+      if (!alreadyExists) {
+        this.users.push(this.selectedStudent); // Добавить в класс
+        console.log('Добавлен ученик:', this.selectedStudent);
+      }
+      this.selectedStudent = null; // Снять выбор
+      this.switchModalView('default'); // Вернуться в начальное состояние
+    }
+  }
+
+
+  getAvailableStudents(): any[] {
+    return this.allStudents.filter(
+      (user) => !this.users.some((s) => s.id === user.id)
+    );
+  }
 
 
 }
