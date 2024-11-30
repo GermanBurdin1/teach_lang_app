@@ -318,14 +318,14 @@ export class HeaderComponent {
       initials: 'J',
       name: 'Jean',
       email: 'coding_german@',
-      id: '2477981',
+      id: 2477981,
       role: 'student',
     },
     {
       initials: 'A',
       name: 'Alice',
       email: 'alice@example.com',
-      id: '1234567',
+      id: 1234567,
       role: 'student',
     },
   ];
@@ -378,9 +378,9 @@ export class HeaderComponent {
 
   // Список всех учеников
   allStudents = [
-    { id: 1, name: 'Jean', email: 'coding_german@', initials: 'J', online: true },
-    { id: 2, name: 'Alice', email: 'alice@example.com', initials: 'A', online: false },
-    { id: 3, name: 'Bob', email: 'bob@example.com', initials: 'B', online: true },
+    { id: 1, name: 'German', email: 'coding_german@', initials: 'J', online: true },
+    { id: 2, name: 'Aliska', email: 'alice@example.com', initials: 'A', online: false },
+    { id: 3, name: 'Bobchenko', email: 'bob@example.com', initials: 'B', online: true },
     // Добавьте других учеников
   ];
 
@@ -397,27 +397,61 @@ export class HeaderComponent {
 
   showAddAdditionalStudentModal: boolean = false;
 
-openAddAdditionalStudentModal(): void {
-  this.showAddAdditionalStudentModal = true;
+  openAddAdditionalStudentModal(): void {
+    this.showAddAdditionalStudentModal = true;
+    this.currentModalView = 'default';
+  }
+
+  closeAddAdditionalStudentModal(): void {
+    this.showAddAdditionalStudentModal = false;
+  }
+
+  addStudentByLink(): void {
+    console.log('Добавить по ссылке');
+    // Реализуйте логику добавления по ссылке
+  }
+
+  addStudentByEmail(): void {
+    console.log('Добавить по эл. почте');
+    // Реализуйте логику добавления по электронной почте
+  }
+
+  addStudentFromExisting(): void {
+    console.log('Выбрать из существующих');
+    // Реализуйте логику выбора из существующих
+  }
+
+  currentModalView: string = 'default'; // Управление отображением ('default' или 'link')
+  inviteLink: string = 'https://new.progressme.ru/invite/1587'; // Ссылка для приглашения
+
+  switchModalView(view: string): void {
+    this.currentModalView = view;
+  }
+
+  copyLink(): void {
+    navigator.clipboard.writeText(this.inviteLink);
+    alert('Ссылка скопирована!');
+  }
+
+  selectedStudent: any = null;
+
+selectStudent(student: any): void {
+  this.selectedStudent = student;
 }
 
-closeAddAdditionalStudentModal(): void {
-  this.showAddAdditionalStudentModal = false;
+addSelectedStudent(): void {
+  if (this.selectedStudent) {
+    this.users.push(this.selectedStudent); // Добавить в класс
+    console.log('Добавлен ученик:', this.selectedStudent);
+    this.selectedStudent = null;
+    this.switchModalView('default'); // Вернуться в начальное состояние.
+  }
 }
 
-addStudentByLink(): void {
-  console.log('Добавить по ссылке');
-  // Реализуйте логику добавления по ссылке
-}
-
-addStudentByEmail(): void {
-  console.log('Добавить по эл. почте');
-  // Реализуйте логику добавления по электронной почте
-}
-
-addStudentFromExisting(): void {
-  console.log('Выбрать из существующих');
-  // Реализуйте логику выбора из существующих
+getAvailableStudents(): any[] {
+  return this.allStudents.filter(
+    (user) => !this.users.some((s) => s.id === user.id)
+  );
 }
 
 
