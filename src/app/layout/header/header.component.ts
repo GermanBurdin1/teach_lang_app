@@ -547,11 +547,25 @@ export class HeaderComponent {
     }
   }
 
-
-
-
   hideClassSettingsTooltip(): void {
     this.classSettingsTooltip = null;
   }
+
+  //загрузить свой фон
+  uploadCustomBackground(): void {
+    const fileInput = document.getElementById('uploadBackground') as HTMLInputElement;
+    fileInput.click(); // Имитируем клик по скрытому инпуту
+  }
+
+  onBackgroundUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      // Логика для загрузки файла, например, отправка на сервер
+      console.log('Выбран файл:', file.name);
+    }
+  }
+
 
 }
