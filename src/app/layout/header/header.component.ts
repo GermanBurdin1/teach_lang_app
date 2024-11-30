@@ -552,20 +552,26 @@ export class HeaderComponent {
   }
 
   //загрузить свой фон
-  uploadCustomBackground(): void {
-    const fileInput = document.getElementById('uploadBackground') as HTMLInputElement;
-    fileInput.click(); // Имитируем клик по скрытому инпуту
+  uploadFile(inputId: string): void {
+    const fileInput = document.getElementById(inputId) as HTMLInputElement;
+    fileInput.click();
   }
 
-  onBackgroundUpload(event: Event): void {
+  onFileUpload(event: Event, type: 'cover' | 'background'): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+      console.log(`Выбран файл для ${type}:`, file.name);
 
-      // Логика для загрузки файла, например, отправка на сервер
-      console.log('Выбран файл:', file.name);
+      // Дополнительная обработка
+      const reader = new FileReader();
+      reader.onload = () => {
+        console.log(`Предпросмотр файла для ${type}:`, reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   }
+
 
 
 }

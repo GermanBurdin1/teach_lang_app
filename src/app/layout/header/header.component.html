@@ -663,10 +663,12 @@
           <div class="row mb-3">
             <label for="classCover" class="col-4 col-form-label text-end">Обложка</label>
             <div class="col-8">
-              <button class="btn btn-light">Загрузить</button>
+              <button class="btn btn-light" (click)="uploadFile('uploadCover')">Загрузить</button>
+<input type="file" id="uploadCover" class="d-none" (change)="onFileUpload($event, 'cover')" />
               <small class="text-muted d-block">PNG или JPEG, до 500x500px</small>
             </div>
           </div>
+
 
           <!-- Название класса -->
           <div class="row mb-3 align-items-center">
@@ -744,10 +746,9 @@
                 </div>
               </div>
               <!-- Кнопка для загрузки фона -->
-              <button class="btn btn-light mt-2" (click)="uploadCustomBackground()">Загрузить свой фон</button>
+              <button class="btn btn-light mt-2" (click)="uploadFile('uploadBackground')">Загрузить свой фон</button>
+<input type="file" id="uploadBackground" class="d-none" (change)="onFileUpload($event, 'background')" />
 
-              <!-- Инпут для загрузки файла -->
-              <input type="file" id="uploadBackground" class="d-none" (change)="onBackgroundUpload($event)" />
             </div>
           </div>
 
