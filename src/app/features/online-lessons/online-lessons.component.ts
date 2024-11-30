@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -56,7 +56,13 @@ export class OnlineLessonsComponent {
     setInterval(() => this.updateCurrentTime(), 60000);
 
     this.checkPaidOrTrialStatus();
-
+// Загружаем сохранённые классы из localStorage
+const savedClasses = localStorage.getItem('classes');
+if (savedClasses) {
+  this.classes = JSON.parse(savedClasses);
+} else {
+  this.classes = [];
+}
   }
 
   getStartOfWeek(date: Date): Date {
@@ -438,10 +444,16 @@ export class OnlineLessonsComponent {
     const newClass = {
       id: Date.now(),
       name: this.newClassName,
-      description: 'Описание класса'
+      description: 'Описание класса',
     };
 
+    // Добавляем класс в массив
     this.classes.push(newClass);
+
+    // Сохраняем массив классов в localStorage
+    localStorage.setItem('classes', JSON.stringify(this.classes));
+
+    // Очищаем поле и закрываем модалку
     this.newClassName = '';
     this.isCreateClassModalOpen = false;
   }
