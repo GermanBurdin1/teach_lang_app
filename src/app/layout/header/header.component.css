@@ -100,6 +100,28 @@
 }
 
 tr.selected {
-  background-color: #d1e7dd; 
+  background-color: #d1e7dd;
 }
 
+.tooltip-box {
+  position: absolute;
+  z-index: 1050;
+  background-color: #4a4a4a; /* Серый фон */
+  color: #fff; /* Белый текст */
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.tooltip-box::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; /* Указатель ниже подсказки */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #4a4a4a transparent transparent transparent; /* Указатель серого цвета */
+}

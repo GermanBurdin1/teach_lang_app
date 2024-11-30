@@ -486,19 +486,72 @@ export class HeaderComponent {
   //выйти
   showLeaveClassModal: boolean = false;
 
-openLeaveClassModal(): void {
-  this.showLeaveClassModal = true; // Открыть модалку
-}
+  openLeaveClassModal(): void {
+    this.showLeaveClassModal = true; // Открыть модалку
+  }
 
-closeLeaveClassModal(): void {
-  this.showLeaveClassModal = false; // Закрыть модалку
-}
+  closeLeaveClassModal(): void {
+    this.showLeaveClassModal = false; // Закрыть модалку
+  }
 
-confirmLeaveClass(): void {
-  console.log('Пользователь покинул класс'); // Логика выхода (если есть дополнительные действия)
-  this.closeLeaveClassModal(); // Закрыть модалку
-  this.router.navigate(['/school/online-lessons']); // Перенаправить на указанную страницу
-}
+  confirmLeaveClass(): void {
+    console.log('Пользователь покинул класс'); // Логика выхода (если есть дополнительные действия)
+    this.closeLeaveClassModal(); // Закрыть модалку
+    this.router.navigate(['/school/online-lessons']); // Перенаправить на указанную страницу
+  }
 
+  //настройки класса
+  showClassSettingsModal: boolean = false;
+  openClassSettingsModal(): void {
+    this.showClassSettingsModal = true;
+  }
+
+  closeClassSettingsModal(): void {
+    this.showClassSettingsModal = false;
+  }
+
+  tooltipPosition = { top: '0px', left: '0px' };
+
+  classSettingsTooltips = {
+    quickTranslation: 'Перевод текста по выделению',
+    lessonDuration: 'Продолжительность одного занятия',
+    classBackground: 'Выберите фон, который будет отображаться в виртуальном классе',
+    statistics: 'Начислять ученикам баллы за верные ответы и отображать их в результатах уроков',
+    studentRating: 'Показывать рейтинговую таблицу учеников, согласно набранным баллам.',
+  };
+
+  classSettingsTooltip: string | null = null;
+
+  showClassSettingsTooltip(
+    type: keyof typeof this.classSettingsTooltips,
+    event: MouseEvent
+  ): void {
+    this.classSettingsTooltip = this.classSettingsTooltips[type] || null;
+
+    // Вычисляем позицию подсказки
+    const target = event.target as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const modalRect = document.querySelector('.modal-dialog')?.getBoundingClientRect();
+
+    if (modalRect) {
+      this.tooltipPosition = {
+        top: `${rect.top - modalRect.top + window.scrollY - 30}px`, // Поднимаем подсказку над иконкой
+        left: `${rect.left - modalRect.left + rect.width / 2 + 10}px`, // Смещаем правее относительно центра
+      };
+    } else {
+      // Запасной вариант
+      this.tooltipPosition = {
+        top: `${rect.top + window.scrollY - 30}px`, // Поднимаем над иконкой
+        left: `${rect.left + window.scrollX + rect.width / 2 + 10}px`, // Смещаем правее относительно центра
+      };
+    }
+  }
+
+
+
+
+  hideClassSettingsTooltip(): void {
+    this.classSettingsTooltip = null;
+  }
 
 }
