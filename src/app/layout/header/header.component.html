@@ -298,12 +298,18 @@
       <div class="modal-body">
         <div *ngFor="let user of users" class="user-card d-flex align-items-center mb-3 position-relative">
           <!-- Иконка пользователя -->
-          <div
-            class="user-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
-            (mouseenter)="showTooltip(user.role)"
-            (mouseleave)="hideTooltip()"
-          >
-            {{ user.initials }}
+          <div class="position-relative me-3">
+            <div class="user-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center">
+              {{ user.initials }}
+            </div>
+            <div
+              class="online-indicator"
+              (mouseenter)="showTooltip(user.role)"
+              (mouseleave)="hideTooltip()"
+            >
+              <i class="fas fa-circle text-success"></i>
+              <div class="tooltip" *ngIf="tooltipVisible === user.role">Ученик в классе</div>
+            </div>
           </div>
 
           <!-- Подсказка -->
@@ -327,28 +333,117 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary">Посмотреть всех учеников</button>
+        <button class="btn btn-primary" (click)="openStudentListModal()">Посмотреть всех учеников</button>
       </div>
     </div>
   </div>
 </div>
 
 
-<!-- Модальное окно "Добавить учеников" -->
-<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showAddStudentModal }" *ngIf="showAddStudentModal" style="background-color: rgba(0, 0, 0, 0.5);">
+<!-- Модальное окно "Посмотреть всех учеников" -->
+<div
+  class="modal fade"
+  tabindex="-1"
+  [ngClass]="{ 'show d-block': showStudentListModal }"
+  *ngIf="showStudentListModal"
+  style="background-color: rgba(0, 0, 0, 0.5);"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Добавить учеников</h5>
-        <button type="button" class="btn-close" aria-label="Close" (click)="closeAddStudentModal()"></button>
+        <h5 class="modal-title">Список учеников</h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="closeStudentListModal()"
+        ></button>
       </div>
       <div class="modal-body">
-        <p>Форма для добавления учеников будет здесь.</p>
+        <div *ngFor="let student of allStudents" class="user-card d-flex align-items-center mb-3">
+          <div class="position-relative me-3">
+            <div
+              class="user-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+            >
+              {{ student.initials }}
+            </div>
+            <div
+              class="online-indicator"
+              *ngIf="student.online"
+              (mouseenter)="showTooltip(student.name)"
+              (mouseleave)="hideTooltip()"
+            >
+              <i class="fas fa-circle text-success"></i>
+              <div class="tooltip" *ngIf="tooltipVisible === student.name">Ученик онлайн</div>
+            </div>
+          </div>
+          <div>
+            <p class="mb-0">{{ student.name }}</p>
+            <small class="text-muted">
+              <i class="fas fa-id-badge me-2"></i>{{ student.id }}
+            </small>
+            <br />
+            <small class="text-muted">
+              <i class="fas fa-envelope me-2"></i>{{ student.email }}
+            </small>
+          </div>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeAddStudentModal()">Отмена</button>
-        <button class="btn btn-primary">Добавить</button>
+      <button class="btn btn-outline-primary w-100" (click)="openAddAdditionalStudentModal()">
+        <i class="fas fa-plus me-2"></i> Добавить ученика
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно "Добавить ученика" -->
+<div
+  class="modal fade"
+  tabindex="-1"
+  [ngClass]="{ 'show d-block': showAddAdditionalStudentModal }"
+  *ngIf="showAddAdditionalStudentModal"
+  style="background-color: rgba(0, 0, 0, 0.5);"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="closeAddAdditionalStudentModal()"
+        ></button>
+      </div>
+      <div class="modal-body text-center">
+        <!-- Картинка -->
+        <div
+          class="circle mx-auto mb-3"
+          style="
+            background-image: url('https://cdn.cloudstori.com/shells/words_shell/words_shell_3.1.5.15/img/Emoji-138.2e600385.png');
+            width: 100px;
+            height: 100px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+          "
+        >
+          <span></span>
+        </div>
+        <h5 class="modal-title fw-bold">Добавить ученика</h5>
+        <div class="d-grid gap-3 mt-4">
+          <button class="btn btn-light py-2" (click)="addStudentByLink()">
+            <i class="fas fa-link me-2"></i> Добавить по ссылке
+          </button>
+          <button class="btn btn-light py-2" (click)="addStudentByEmail()">
+            <i class="fas fa-envelope me-2"></i> Добавить по эл. почте
+          </button>
+          <button class="btn btn-light py-2" (click)="addStudentFromExisting()">
+            <i class="fas fa-users me-2"></i> Выбрать из существующих
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+

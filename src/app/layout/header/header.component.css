@@ -12,3 +12,89 @@
   margin-left: 0.5rem;
   margin-right: 0.5rem;
 }
+
+.user-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: bold;
+  position: relative;
+}
+
+.tooltip-container {
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  top: -10px;
+  left: 20px;
+  z-index: 1000;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.user-card {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.user-card:last-child {
+  border-bottom: none;
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+
+.online-indicator .fa-circle {
+  font-size: 10px;
+}
+
+.add-student-btn {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.add-student-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.add-student-btn i {
+  font-size: 20px;
+}
+
+.modal-content {
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-light {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+}
+
+.btn-light:hover {
+  background-color: #f8f9fa;
+}
+
+.modal-body img {
+  border-radius: 50%;
+}

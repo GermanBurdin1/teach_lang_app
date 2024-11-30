@@ -330,7 +330,6 @@ export class HeaderComponent {
     },
   ];
 
-  // Открыть модальное окно для пользователей
   openUserModal(): void {
     this.isUserModalOpen = true;
   }
@@ -376,5 +375,50 @@ export class HeaderComponent {
         return '';
     }
   }
+
+  // Список всех учеников
+  allStudents = [
+    { id: 1, name: 'Jean', email: 'coding_german@', initials: 'J', online: true },
+    { id: 2, name: 'Alice', email: 'alice@example.com', initials: 'A', online: false },
+    { id: 3, name: 'Bob', email: 'bob@example.com', initials: 'B', online: true },
+    // Добавьте других учеников
+  ];
+
+
+  showStudentListModal: boolean = false; // Переменная для управления отображением модального окна
+
+  openStudentListModal(): void {
+    this.showStudentListModal = true; // Открыть модалку
+  }
+
+  closeStudentListModal(): void {
+    this.showStudentListModal = false; // Закрыть модалку
+  }
+
+  showAddAdditionalStudentModal: boolean = false;
+
+openAddAdditionalStudentModal(): void {
+  this.showAddAdditionalStudentModal = true;
+}
+
+closeAddAdditionalStudentModal(): void {
+  this.showAddAdditionalStudentModal = false;
+}
+
+addStudentByLink(): void {
+  console.log('Добавить по ссылке');
+  // Реализуйте логику добавления по ссылке
+}
+
+addStudentByEmail(): void {
+  console.log('Добавить по эл. почте');
+  // Реализуйте логику добавления по электронной почте
+}
+
+addStudentFromExisting(): void {
+  console.log('Выбрать из существующих');
+  // Реализуйте логику выбора из существующих
+}
+
 
 }
