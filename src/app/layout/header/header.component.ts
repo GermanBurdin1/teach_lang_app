@@ -476,12 +476,29 @@ export class HeaderComponent {
   closeStudentTabsModal(): void {
     this.showStudentTabsModal = false; // Закрываем модалку
   }
-  
+
   activeTab: string = 'link'; // Начальная активная вкладка
 
   switchTab(tab: string): void {
     this.activeTab = tab; // Переключение активной вкладки
   }
+
+  //выйти
+  showLeaveClassModal: boolean = false;
+
+openLeaveClassModal(): void {
+  this.showLeaveClassModal = true; // Открыть модалку
+}
+
+closeLeaveClassModal(): void {
+  this.showLeaveClassModal = false; // Закрыть модалку
+}
+
+confirmLeaveClass(): void {
+  console.log('Пользователь покинул класс'); // Логика выхода (если есть дополнительные действия)
+  this.closeLeaveClassModal(); // Закрыть модалку
+  this.router.navigate(['/school/online-lessons']); // Перенаправить на указанную страницу
+}
 
 
 }

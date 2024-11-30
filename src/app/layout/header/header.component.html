@@ -239,7 +239,7 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end text-start" aria-labelledby="settingsDropdown">
           <li>
-            <a class="dropdown-item" href="#">
+            <a class="dropdown-item" href="#" (click)="openStudentListModal(); $event.preventDefault()">
               <i class="fas fa-users me-2"></i> Ученики класса
             </a>
           </li>
@@ -273,11 +273,14 @@
           </li>
         </ul>
       </div>
+
+      <button class="btn btn-outline-danger ms-2" (click)="openLeaveClassModal()">
+        <i class="fas fa-sign-out-alt me-2"></i> Выйти
+      </button>
     </div>
   </div>
 </nav>
 
-<!-- Модальное окно для пользователей -->
 <!-- Модальное окно для пользователей -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isUserModalOpen }" *ngIf="isUserModalOpen"
   style="background-color: rgba(0, 0, 0, 0.5);">
@@ -602,6 +605,36 @@
           </ul>
           <button class="btn btn-primary w-100 mt-3" [disabled]="!selectedStudent" (click)="addSelectedStudent()">Добавить ученика</button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showLeaveClassModal }" *ngIf="showLeaveClassModal" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center">Выйти из класса</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeLeaveClassModal()"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="circle mx-auto mb-3" style="
+              background-color: #d9eaf7;
+              color: #007bff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 80px;
+              height: 80px;
+              border-radius: 50%;
+            ">
+          <i class="fas fa-info-circle" style="font-size: 36px;"></i>
+        </div>
+        <p>Вы действительно хотите выйти из класса?</p>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button class="btn btn-outline-secondary" (click)="closeLeaveClassModal()">Отмена</button>
+        <button class="btn btn-danger" (click)="confirmLeaveClass()">Выйти</button>
       </div>
     </div>
   </div>
