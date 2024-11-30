@@ -648,7 +648,7 @@
 </div>
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showClassSettingsModal }"
   *ngIf="showClassSettingsModal" style="background-color: rgba(0, 0, 0, 0.5);">
-  <div class="modal-dialog modal-dialog-centered position-relative">
+  <div class="modal-dialog modal-dialog-centered modal-lg position-relative">
     <div class="modal-content p-4">
       <div *ngIf="classSettingsTooltip" class="tooltip-box" [ngStyle]="tooltipPosition">
         {{ classSettingsTooltip }}
@@ -660,8 +660,8 @@
       <div class="modal-body">
         <form>
           <!-- Обложка -->
-          <div class="d-flex align-items-center mb-3">
-            <label for="classCover" class="form-label col-4 text-end pe-3">Обложка</label>
+          <div class="row mb-3">
+            <label for="classCover" class="col-4 col-form-label text-end">Обложка</label>
             <div class="col-8">
               <button class="btn btn-light">Загрузить</button>
               <small class="text-muted d-block">PNG или JPEG, до 500x500px</small>
@@ -669,16 +669,16 @@
           </div>
 
           <!-- Название класса -->
-          <div class="d-flex align-items-center mb-3">
-            <label for="className" class="form-label col-4 text-end pe-3">Название класса</label>
+          <div class="row mb-3 align-items-center">
+            <label for="className" class="col-4 col-form-label text-end">Название класса</label>
             <div class="col-8">
               <input type="text" id="className" class="form-control" placeholder="Введите название класса" />
             </div>
           </div>
 
           <!-- Быстрый перевод -->
-          <div class="d-flex align-items-center mb-3">
-            <label for="quickTranslation" class="form-label col-4 text-end pe-3">
+          <div class="row mb-3 align-items-center">
+            <label for="quickTranslation" class="col-4 col-form-label text-end">
               Быстрый перевод
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('quickTranslation', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
@@ -686,17 +686,16 @@
               </span>
             </label>
             <div class="col-8">
-              <div data-v-022eab77="" class="tir-toggle" size="medium">
-                <span data-v-022eab77="" class="control is-check">
-                  <div data-v-022eab77="" class="point"></div>
-                </span>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="quickTranslationSwitch" checked />
+                <label class="form-check-label" for="quickTranslationSwitch"></label>
               </div>
             </div>
           </div>
 
           <!-- Длительность урока -->
-          <div class="d-flex align-items-center mb-3">
-            <label for="lessonDuration" class="form-label col-4 text-end pe-3">
+          <div class="row mb-3 align-items-center">
+            <label for="lessonDuration" class="col-4 col-form-label text-end">
               Длительность урока
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('lessonDuration', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
@@ -713,8 +712,8 @@
           </div>
 
           <!-- Фон в классе -->
-          <div class="d-flex align-items-center mb-3">
-            <label for="classBackground" class="form-label col-4 text-end pe-3">
+          <div class="row mb-3 align-items-center">
+            <label for="classBackground" class="col-4 col-form-label text-end">
               Фон в классе
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('classBackground', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
@@ -731,8 +730,8 @@
           </div>
 
           <!-- Статистика -->
-          <div class="d-flex align-items-center mb-3">
-            <label for="enableStats" class="form-label col-4 text-end pe-3">
+          <div class="row mb-3 align-items-center">
+            <label for="enableStats" class="col-4 col-form-label text-end">
               Статистика
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('statistics', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
@@ -740,17 +739,15 @@
               </span>
             </label>
             <div class="col-8">
-              <div data-v-022eab77="" class="tir-toggle" size="medium">
-                <span data-v-022eab77="" class="control is-check">
-                  <div data-v-022eab77="" class="point"></div>
-                </span>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableStatsSwitch" checked />
+                <label class="form-check-label" for="enableStatsSwitch"></label>
               </div>
             </div>
           </div>
 
-          <!-- Рейтинг ученика -->
-          <div class="d-flex align-items-center mb-3">
-            <label for="studentRating" class="form-label col-4 text-end pe-3">
+          <div class="row mb-3">
+            <label for="studentRating" class="col-4 col-form-label text-end">
               Рейтинг ученика
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('studentRating', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
@@ -758,19 +755,25 @@
               </span>
             </label>
             <div class="col-8">
-              <div data-v-022eab77="" class="tir-toggle" size="medium">
-                <span data-v-022eab77="" class="control is-check">
-                  <div data-v-022eab77="" class="point"></div>
-                </span>
+              <div class="d-flex flex-column gap-2">
+                <!-- Переключатель -->
+                <div class="form-check form-switch align-self-start" style="margin-top: 0.6rem;">
+                  <input class="form-check-input" type="checkbox" id="studentRatingSwitch" checked />
+                  <label class="form-check-label" for="studentRatingSwitch"></label>
+                </div>
+
+                <!-- Выбор отображения -->
+                <select class="form-select" style="width: 100%;">
+                  <option>Отображать</option>
+                  <option>Первых 3-х учеников</option>
+                </select>
+
+                <!-- Выбор места ученика -->
+                <select class="form-select" style="width: 100%;">
+                  <option>Место ученика</option>
+                  <option>Показывать</option>
+                </select>
               </div>
-              <select class="form-select ms-3" style="width: auto;">
-                <option>Отображать</option>
-                <option>Первых 3-х учеников</option>
-              </select>
-              <select class="form-select ms-3" style="width: auto;">
-                <option>Место ученика</option>
-                <option>Показывать</option>
-              </select>
             </div>
           </div>
         </form>
@@ -782,4 +785,5 @@
     </div>
   </div>
 </div>
+
 
