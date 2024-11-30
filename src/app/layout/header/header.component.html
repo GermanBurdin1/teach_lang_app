@@ -225,7 +225,8 @@
     <!-- Блок кнопок и дропдаунов -->
     <div class="d-flex align-items-center justify-content-end">
       <!-- Кнопка "Добавить учеников" -->
-      <button class="btn btn-outline-primary me-2" (click)="openAddStudentModal()">Добавить учеников</button>
+      <button class="btn btn-outline-primary me-2" (click)="openStudentTabsModal()">Добавить учеников</button>
+
 
       <!-- Кнопка "Пользователи" -->
       <button class="btn btn-outline-secondary me-2" (click)="openUserModal()">Пользователи</button>
@@ -508,6 +509,99 @@
         </ng-container>
 
 
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentTabsModal }" *ngIf="showStudentTabsModal" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Добавить ученика</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeStudentTabsModal()"></button>
+      </div>
+
+      <!-- Вкладки -->
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="{ active: activeTab === 'link' }" (click)="switchTab('link')">По ссылке</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="{ active: activeTab === 'email' }" (click)="switchTab('email')">Вручную</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="{ active: activeTab === 'existing' }" (click)="switchTab('existing')">Существующего</a>
+        </li>
+      </ul>
+
+      <!-- Содержимое вкладок -->
+      <div class="modal-body">
+        <!-- Вкладка "По ссылке" -->
+        <div *ngIf="activeTab === 'link'">
+          <div class="circle mx-auto mb-3" style="
+              background-image: url('https://cdn-icons-png.flaticon.com/512/847/847969.png');
+              width: 80px;
+              height: 80px;
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              border-radius: 50%;
+            "></div>
+          <h5 class="modal-title fw-bold">Добавить по ссылке</h5>
+          <input type="text" class="form-control text-center mt-3" readonly [value]="inviteLink" />
+          <button class="btn btn-primary mt-3" (click)="copyLink()">Скопировать ссылку</button>
+          <div class="alert alert-info mt-3" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            Отправьте эту ссылку ученику — он сможет зарегистрироваться или войти в свой аккаунт и автоматически присоединиться к этому классу.
+          </div>
+        </div>
+
+        <!-- Вкладка "Вручную" -->
+        <div *ngIf="activeTab === 'email'">
+          <div class="circle mx-auto mb-3" style="
+              background-image: url('https://cdn-icons-png.flaticon.com/512/561/561127.png');
+              width: 80px;
+              height: 80px;
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              border-radius: 50%;
+            "></div>
+          <h5 class="modal-title fw-bold">Добавить вручную</h5>
+          <form>
+            <div class="mb-3">
+              <label class="form-label">Имя</label>
+              <input type="text" class="form-control" placeholder="Имя ученика" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" placeholder="Email ученика" />
+            </div>
+            <button class="btn btn-primary w-100">Добавить</button>
+          </form>
+        </div>
+
+        <!-- Вкладка "Существующего" -->
+        <div *ngIf="activeTab === 'existing'">
+          <div class="circle mx-auto mb-3" style="
+              background-image: url('https://cdn-icons-png.flaticon.com/512/4086/4086679.png');
+              width: 80px;
+              height: 80px;
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              border-radius: 50%;
+            "></div>
+          <h5 class="modal-title fw-bold text-center">Выбрать из существующих</h5>
+          <ul class="list-group">
+            <li *ngFor="let student of getAvailableStudents()" class="list-group-item d-flex justify-content-between align-items-center" (click)="selectStudent(student)" [class.selected]="selectedStudent?.id === student.id">
+              {{ student.name }}
+              <i class="fas fa-check-circle text-success" *ngIf="selectedStudent?.id === student.id"></i>
+            </li>
+          </ul>
+          <button class="btn btn-primary w-100 mt-3" [disabled]="!selectedStudent" (click)="addSelectedStudent()">Добавить ученика</button>
+        </div>
       </div>
     </div>
   </div>

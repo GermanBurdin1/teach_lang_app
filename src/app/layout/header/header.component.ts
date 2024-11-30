@@ -466,5 +466,22 @@ export class HeaderComponent {
     );
   }
 
+  showStudentTabsModal: boolean = false; // Новая переменная для отображения модалки
+
+  openStudentTabsModal(): void {
+    this.showStudentTabsModal = true; // Открываем модалку
+    this.activeTab = 'link'; // Начальная вкладка
+  }
+
+  closeStudentTabsModal(): void {
+    this.showStudentTabsModal = false; // Закрываем модалку
+  }
+  
+  activeTab: string = 'link'; // Начальная активная вкладка
+
+  switchTab(tab: string): void {
+    this.activeTab = tab; // Переключение активной вкладки
+  }
+
 
 }
