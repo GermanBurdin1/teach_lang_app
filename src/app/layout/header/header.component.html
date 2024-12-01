@@ -654,8 +654,11 @@
         {{ classSettingsTooltip }}
       </div>
       <div class="modal-header">
-        <h5 class="modal-title">Настроить класс</h5>
-        <button type="button" class="btn-close" aria-label="Close" (click)="closeClassSettingsModal()"></button>
+        <div class="modal-header d-flex justify-content-between align-items-center">
+          <!-- Картинка вместо текста "Настройки" -->
+          <img [src]="classCover || 'https://via.placeholder.com/150'" alt="Обложка класса" style="height: 100px;">
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeClassSettingsModal()"></button>
+        </div>
       </div>
       <div class="modal-body">
         <form>
@@ -664,7 +667,7 @@
             <label for="classCover" class="col-4 col-form-label text-end">Обложка</label>
             <div class="col-8">
               <button class="btn btn-light" (click)="uploadFile('uploadCover')">Загрузить</button>
-<input type="file" id="uploadCover" class="d-none" (change)="onFileUpload($event, 'cover')" />
+              <input type="file" id="uploadCover" class="d-none" (change)="onFileUpload($event, 'cover')" />
               <small class="text-muted d-block">PNG или JPEG, до 500x500px</small>
             </div>
           </div>
@@ -713,42 +716,60 @@
             </div>
           </div>
 
-          <!-- Фон в классе -->
           <div class="row mb-3">
             <label for="classBackground" class="col-4 col-form-label text-end">
               Фон в классе
-              <span class="ms-2" (mouseenter)="showClassSettingsTooltip('classBackground', $event)"
-                (mouseleave)="hideClassSettingsTooltip()">
-                <i class="fas fa-info-circle"></i>
-              </span>
             </label>
             <div class="col-8">
               <div class="d-flex gap-2 flex-wrap">
-                <div class="border p-1" style="width: 70px; height: 70px; cursor: pointer;">
+                <!-- Изображение 1 -->
+                <div
+                  class="border p-1"
+                  [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/7a150821-adc2-405e-a328-24997ef5814d.png'}"
+                  style="width: 70px; height: 70px; cursor: pointer;"
+                  (click)="selectBackground('https://media.docstorio.com/files/Groups/7a150821-adc2-405e-a328-24997ef5814d.png')">
                   <img src="https://media.docstorio.com/files/Groups/7a150821-adc2-405e-a328-24997ef5814d.png"
-                    alt="Image Li 7" style="width: 100%; height: 100%; object-fit: cover;">
+                       alt="Image Li 7" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <div class="border p-1" style="width: 70px; height: 70px; cursor: pointer;">
+                <!-- Изображение 2 -->
+                <div
+                  class="border p-1"
+                  [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/f6cac5a6-6dcd-48ff-98ad-34217e5c93fd.png'}"
+                  style="width: 70px; height: 70px; cursor: pointer;"
+                  (click)="selectBackground('https://media.docstorio.com/files/Groups/f6cac5a6-6dcd-48ff-98ad-34217e5c93fd.png')">
                   <img src="https://media.docstorio.com/files/Groups/f6cac5a6-6dcd-48ff-98ad-34217e5c93fd.png"
-                    alt="Image Li 6" style="width: 100%; height: 100%; object-fit: cover;">
+                       alt="Image Li 6" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <div class="border p-1" style="width: 70px; height: 70px; cursor: pointer;">
+                <!-- Изображение 3 -->
+                <div
+                  class="border p-1"
+                  [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/fb4af339-6f53-4fcc-80c9-71988e27011e.png'}"
+                  style="width: 70px; height: 70px; cursor: pointer;"
+                  (click)="selectBackground('https://media.docstorio.com/files/Groups/fb4af339-6f53-4fcc-80c9-71988e27011e.png')">
                   <img src="https://media.docstorio.com/files/Groups/fb4af339-6f53-4fcc-80c9-71988e27011e.png"
-                    alt="Image Li 4" style="width: 100%; height: 100%; object-fit: cover;">
+                       alt="Image Li 4" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <div class="border p-1" style="width: 70px; height: 70px; cursor: pointer;">
+                <!-- Изображение 4 -->
+                <div
+                  class="border p-1"
+                  [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/0cfa4cac-26e7-4910-a03f-0ed879522e87.png'}"
+                  style="width: 70px; height: 70px; cursor: pointer;"
+                  (click)="selectBackground('https://media.docstorio.com/files/Groups/0cfa4cac-26e7-4910-a03f-0ed879522e87.png')">
                   <img src="https://media.docstorio.com/files/Groups/0cfa4cac-26e7-4910-a03f-0ed879522e87.png"
-                    alt="Image Li 3" style="width: 100%; height: 100%; object-fit: cover;">
+                       alt="Image Li 3" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <div class="border p-1" style="width: 70px; height: 70px; cursor: pointer;">
+                <!-- Изображение 5 -->
+                <div
+                  class="border p-1"
+                  [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/a6da79a9-bae8-4f8d-a44f-1e75452217b8.png'}"
+                  style="width: 70px; height: 70px; cursor: pointer;"
+                  (click)="selectBackground('https://media.docstorio.com/files/Groups/a6da79a9-bae8-4f8d-a44f-1e75452217b8.png')">
                   <img src="https://media.docstorio.com/files/Groups/a6da79a9-bae8-4f8d-a44f-1e75452217b8.png"
-                    alt="Image Li 5" style="width: 100%; height: 100%; object-fit: cover;">
+                       alt="Image Li 5" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
               </div>
-              <!-- Кнопка для загрузки фона -->
               <button class="btn btn-light mt-2" (click)="uploadFile('uploadBackground')">Загрузить свой фон</button>
-<input type="file" id="uploadBackground" class="d-none" (change)="onFileUpload($event, 'background')" />
-
+              <input type="file" id="uploadBackground" class="d-none" (change)="onFileUpload($event, 'background')" />
             </div>
           </div>
 
@@ -811,7 +832,7 @@
       </div>
       <div class="modal-footer d-flex justify-content-center">
         <button type="button" class="btn btn-secondary" (click)="closeClassSettingsModal()">Отмена</button>
-        <button type="button" class="btn btn-primary">Сохранить</button>
+        <button type="button" class="btn btn-primary" (click)="saveBackground()">Сохранить</button>
       </div>
     </div>
   </div>

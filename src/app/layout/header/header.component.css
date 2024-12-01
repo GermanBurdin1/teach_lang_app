@@ -125,3 +125,8 @@ tr.selected {
   border-style: solid;
   border-color: #4a4a4a transparent transparent transparent; /* Указатель серого цвета */
 }
+
+.selected-border {
+  border: 3px solid #007bff;
+  border-radius: 5px;
+}

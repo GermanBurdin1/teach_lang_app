@@ -1,11 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BackgroundService } from '../../services/background.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lesson-material',
-
   templateUrl: './lesson-material.component.html',
-  styleUrl: './lesson-material.component.css'
+  styleUrls: ['./lesson-material.component.css'],
 })
-export class LessonMaterialComponent {
+export class LessonMaterialComponent implements OnInit, OnDestroy {
+  backgroundStyle: string = '';
+  private backgroundSubscription: Subscription | undefined;
 
+  constructor(private backgroundService: BackgroundService) {}
+
+  ngOnInit(): void {
+    // Подписываемся на изменения фона
+    this.backgroundSubscription = this.backgroundService.background$.subscribe(
+      (newBackground) => {
+        this.backgroundStyle = newBackground;
+        console.log('Обновленный фон:', this.backgroundStyle);
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    // Отписываемся при уничтожении компонента
+    if (this.backgroundSubscription) {
+      this.backgroundSubscription.unsubscribe();
+    }
+  }
 }

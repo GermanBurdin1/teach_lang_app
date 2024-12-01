@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { DashboardService } from '../../services/dashboard.service';
+import { BackgroundService } from '../../services/background.service';
+
 
 @Component({
   selector: 'app-header',
@@ -12,7 +14,7 @@ export class HeaderComponent {
 
   isHeaderExpanded = false;
 
-  constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute) { }
+  constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService) { }
 
   ngOnInit(): void {
     this.router.events
@@ -550,7 +552,8 @@ export class HeaderComponent {
   hideClassSettingsTooltip(): void {
     this.classSettingsTooltip = null;
   }
-
+  //обложка
+  classCover: string | null = null;
   //загрузить свой фон
   uploadFile(inputId: string): void {
     const fileInput = document.getElementById(inputId) as HTMLInputElement;
@@ -572,5 +575,19 @@ export class HeaderComponent {
     }
   }
 
+  // меняе bg в classroom
 
+  selectedBackground: string = ''; // Временный фон
+
+  // Метод для временного выбора фона
+  selectBackground(imageUrl: string): void {
+    console.log("selected bg");
+
+    this.selectedBackground = imageUrl; // Устанавливаем временный фон
+  }
+
+  saveBackground(): void {
+    this.backgroundService.setBackground(this.selectedBackground); // Сохраняем фон через сервис
+    this.closeClassSettingsModal();
+  }
 }

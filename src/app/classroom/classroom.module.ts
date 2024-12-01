@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LessonMaterialComponent } from './lesson-material/lesson-material.component';
+import { LayoutModule } from '../layout/layout.module';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
@@ -13,6 +14,7 @@ const routes: Routes = [
   ],
   imports: [
     CommonModule,
+    LayoutModule,
     RouterModule.forChild(routes) // Маршрут компонента
   ]
 })
