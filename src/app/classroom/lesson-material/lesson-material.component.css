@@ -29,7 +29,7 @@
   border-radius: 10px;
   padding: 20px;
   gap: 20px;
-  height: 100%; /* Растяжение по высоте */
+  height: 85vh; /* Растяжение по высоте */
 }
 
 .main-title {
@@ -37,6 +37,10 @@
   font-weight: 600;
   color: #4a4a4a;
   margin-bottom: 20px;
+}
+
+.option-cards {
+  height: 100%;
 }
 
 .option-card {
@@ -47,8 +51,8 @@
   background: #ffffff;
   border: 1px solid #e6e6e6;
   border-radius: 10px;
-  width: 48%;
-  height: 150px;
+  height: 80%; /* Автоматическая высота */
+  flex-grow: 0; /* Растяжение карточек внутри родителя */
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
 }
@@ -81,4 +85,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.row {
+  gap: 15px; /* Добавляет расстояние между колонками */
 }
