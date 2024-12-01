@@ -1,31 +1,47 @@
-<div class="container mt-4" [ngStyle]="{ 'backgroundImage': backgroundStyle, 'backgroundSize': 'cover' }">
-  <h2 class="text-center mb-4">Задайте обучающий материал</h2>
-  <div class="row">
-    <!-- Левая часть с выбором материалов -->
-    <div class="col-md-8">
-      <div class="row g-3">
-        <div class="col-6">
-          <div class="card text-center p-4">
-            <div class="emoji mb-3" style="font-size: 48px;">✨</div>
-            <h5 class="card-title">Создать свой обучающий материал</h5>
+<div
+  class="container mt-4"
+  [ngStyle]="{ 'backgroundImage': backgroundStyle, 'backgroundSize': 'cover' }"
+>
+  <div class="row justify-content-between align-items-start">
+    <!-- Левая часть с иконками -->
+    <div class="col-md-2 list-section d-flex flex-column align-items-center">
+      <div class="icon-item"></div>
+      <div class="icon-item"></div>
+      <div class="icon-item"></div>
+    </div>
+
+    <!-- Центральная часть с карточками -->
+    <div class="col-md-7 cards-section d-flex flex-column justify-content-between">
+      <h2 class="text-center main-title">Задайте обучающий материал</h2>
+      <div class="d-flex justify-content-between">
+        <div
+          class="option-card"
+          (mouseover)="highlightCard('create')"
+          (mouseout)="resetCard('create')"
+        >
+          <div class="emoji mb-2">✨</div>
+          <div class="card-title text-center">
+            Создать свой обучающий материал
           </div>
         </div>
-        <div class="col-6">
-          <div class="card text-center p-4">
-            <div class="emoji mb-3" style="font-size: 48px;">📖</div>
-            <h5 class="card-title">Выбрать готовый обучающий материал</h5>
+        <div
+          class="option-card"
+          (mouseover)="highlightCard('choose')"
+          (mouseout)="resetCard('choose')"
+        >
+          <div class="emoji mb-2">📖</div>
+          <div class="card-title text-center">
+            Выбрать готовый обучающий материал
           </div>
         </div>
       </div>
     </div>
 
     <!-- Правая часть с кнопкой звонка -->
-    <div class="col-md-4">
-      <div class="call-card card p-4 text-center">
-        <div class="icon mb-3" style="font-size: 48px;">📞</div>
-        <h6>Позвоните ученикам группы, когда урок начнется</h6>
-        <button class="btn btn-success mt-3">Позвонить</button>
-      </div>
+    <div class="col-md-3 call-card text-center">
+      <div class="icon mb-3">📞</div>
+      <h6>Позвоните ученикам группы, когда урок начнется</h6>
+      <button class="btn btn-success">Позвонить</button>
     </div>
   </div>
 </div>

@@ -29,4 +29,17 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       this.backgroundSubscription.unsubscribe();
     }
   }
+
+  // стилизация
+  highlight: string | null = null;
+
+  highlightCard(card: string) {
+    this.highlight = card;
+  }
+
+  resetCard(card: string) {
+    if (this.highlight === card) {
+      this.highlight = null;
+    }
+  }
 }
