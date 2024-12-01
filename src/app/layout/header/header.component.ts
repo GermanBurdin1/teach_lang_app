@@ -20,6 +20,7 @@ export class HeaderComponent {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
+        console.log('NavigationEnd triggered:', this.router.url);
         this.checkLessonMaterialRoute();
       });
 
@@ -40,18 +41,19 @@ export class HeaderComponent {
   }
 
 
-  switchToAdmin(): void {
-    this.isHeaderExpanded = false; // Закрываем выпадающую область
-    localStorage.setItem('isSchoolDashboard', JSON.stringify(true)); // Сохраняем выбор в localStorage
-    this.router.navigate(['school/statistics']).then(() => {
-      this.dashboardService.switchToSchoolDashboard(); // Обновляем состояние через сервис
-    });
+  switchToAdmin(): void { // Проверяем, чтобы не редиректить с classroom
+      this.isHeaderExpanded = false;
+      localStorage.setItem('isSchoolDashboard', JSON.stringify(true));
+      this.router.navigate(['school/statistics']).then(() => {
+        this.dashboardService.switchToSchoolDashboard();
+      });
   }
 
   switchToStudent(): void {
     this.isHeaderExpanded = false; // Закрываем выпадающую область
     localStorage.setItem('isSchoolDashboard', JSON.stringify(false)); // Сохраняем выбор в localStorage
     this.router.navigate(['student/wordsTeaching']).then(() => {
+      console.log('Redirected to /school/statistics from switchToStudent' );
       this.dashboardService.switchToStudentDashboard(); // Обновляем состояние через сервис
     });
   }
@@ -589,5 +591,16 @@ export class HeaderComponent {
   saveBackground(): void {
     this.backgroundService.setBackground(this.selectedBackground); // Сохраняем фон через сервис
     this.closeClassSettingsModal();
+  }
+
+  // openSchedule
+  showScheduleModal: boolean = false;
+
+  openScheduleModal(): void {
+    this.showScheduleModal = true;
+  }
+
+  closeScheduleModal(): void {
+    this.showScheduleModal = false;
   }
 }

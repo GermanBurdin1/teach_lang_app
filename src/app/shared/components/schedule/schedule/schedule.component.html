@@ -1,0 +1,33 @@
+<p>Расписание уроков</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <!-- Блок управления неделями -->
+  <div class="d-flex align-items-center">
+    <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
+    <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
+    <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
+  </div>
+  <!-- Часовой пояс -->
+  <div class="me-3">
+    <label class="form-label">Часовой пояс</label>
+    <select class="form-select">
+      <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+    </select>
+  </div>
+</div>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Время</th>
+      <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let hour of filterHours()">
+      <td class="time-label">{{ hour }}</td>
+      <td *ngFor="let day of daysWithDates"
+          (click)="toggleTimeSlot(day, hour)"
+          [ngClass]="{'active-slot': isTimeSlotActive(day, hour)}">
+      </td>
+    </tr>
+  </tbody>
+</table>

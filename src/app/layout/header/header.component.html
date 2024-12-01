@@ -244,7 +244,7 @@
             </a>
           </li>
           <li>
-            <a class="dropdown-item" href="#">
+            <a class="dropdown-item" href="#" (click)="openScheduleModal(); $event.preventDefault()">
               <i class="fas fa-calendar-alt me-2"></i> Расписание уроков
             </a>
           </li>
@@ -833,6 +833,24 @@
       <div class="modal-footer d-flex justify-content-center">
         <button type="button" class="btn btn-secondary" (click)="closeClassSettingsModal()">Отмена</button>
         <button type="button" class="btn btn-primary" (click)="saveBackground()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка -->
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showScheduleModal }" *ngIf="showScheduleModal" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Расписание уроков</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeScheduleModal()"></button>
+      </div>
+      <div class="modal-body">
+        <app-schedule></app-schedule>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeScheduleModal()">Закрыть</button>
       </div>
     </div>
   </div>

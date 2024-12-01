@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ScheduleComponent } from './components/schedule/schedule/schedule.component';
 
 
 
 @NgModule({
-  declarations: [],
+  declarations: [ScheduleComponent],
   imports: [
-    CommonModule
-  ]
+    CommonModule,
+  ],
+  exports: [ScheduleComponent]
 })
 export class SharedModule { }
