@@ -5,9 +5,7 @@
   <div class="row justify-content-between align-items-start">
     <!-- Левая часть с иконками -->
     <div class="col-md-2 list-section d-flex flex-column align-items-center">
-      <div class="icon-item"></div>
-      <div class="icon-item"></div>
-      <div class="icon-item"></div>
+      <div *ngFor="let icon of listIcons" [class]="icon" class="icon-item"></div>
     </div>
 
     <!-- Центральная часть с карточками -->
@@ -15,15 +13,13 @@
       <h2 class="text-center main-title">Задайте обучающий материал</h2>
       <div class="d-flex option-cards justify-content-between">
         <div
-          class="option-card"
-          (mouseover)="highlightCard('create')"
-          (mouseout)="resetCard('create')"
-        >
-          <div class="emoji mb-2">✨</div>
-          <div class="card-title text-center">
-            Создать свой обучающий материал
-          </div>
-        </div>
+  class="option-card"
+  (mouseover)="highlightCard('create')"
+  (mouseout)="resetCard('create')"
+  (click)="openLanguageModal()">
+  <div class="emoji mb-2">✨</div>
+  <div class="card-title text-center">Создать свой обучающий материал</div>
+</div>
         <div
           class="option-card"
           (mouseover)="highlightCard('choose')"
@@ -45,3 +41,28 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showLanguageModal }" *ngIf="showLanguageModal" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered modal-sm text-center">
+    <div class="modal-content p-4 text-center">
+      <div class="modal-header border-0">
+        <div class="circle" style="background-image: url('https://cdn.cloudstori.com/shells/words_shell/words_shell_3.1.5.15/img/Emoji-44.dd0170ec.png'); height: 80px; width: 80px; background-size: cover; margin: 0 auto;"></div>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeLanguageModal()"></button>
+      </div>
+      <div class="modal-body">
+        <h5 class="mb-4">Выберите язык</h5>
+        <p class="mb-3">Какой язык будет преподаваться в этом классе?</p>
+        <select class="form-select" [(ngModel)]="selectedLanguage">
+          <option *ngFor="let language of languages" [value]="language.value">
+            <i [class]="language.icon" style="margin-right: 10px;"></i>{{ language.label }}
+          </option>
+        </select>
+      </div>
+      <div class="modal-footer border-0 d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" (click)="closeLanguageModal()">Отмена</button>
+        <button type="button" class="btn btn-primary" (click)="saveLanguage()">Продолжить</button>
+      </div>
+    </div>
+  </div>
+</div>
+

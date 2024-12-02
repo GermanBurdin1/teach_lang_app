@@ -90,3 +90,28 @@
 .row {
   gap: 15px; /* Добавляет расстояние между колонками */
 }
+
+.modal-content {
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-select {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.circle {
+  display: inline-block;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+}
