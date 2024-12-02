@@ -26,6 +26,19 @@ export class HeaderComponent {
 
     // Проверяем текущий маршрут при загрузке компонента
     this.checkLessonMaterialRoute();
+
+    // Загружаем обложку из localStorage
+    const savedCover = localStorage.getItem('classCover');
+    if (savedCover) {
+      this.classCover = savedCover; // Устанавливаем обложку
+    }
+
+    // Загружаем фон из localStorage
+    const savedBackground = localStorage.getItem('selectedBackground');
+    if (savedBackground) {
+      this.selectedBackground = savedBackground; // Устанавливаем фон
+      this.backgroundService.setBackground(this.selectedBackground); // Применяем фон
+    }
   }
 
   private checkLessonMaterialRoute(): void {
@@ -42,18 +55,18 @@ export class HeaderComponent {
 
 
   switchToAdmin(): void { // Проверяем, чтобы не редиректить с classroom
-      this.isHeaderExpanded = false;
-      localStorage.setItem('isSchoolDashboard', JSON.stringify(true));
-      this.router.navigate(['school/statistics']).then(() => {
-        this.dashboardService.switchToSchoolDashboard();
-      });
+    this.isHeaderExpanded = false;
+    localStorage.setItem('isSchoolDashboard', JSON.stringify(true));
+    this.router.navigate(['school/statistics']).then(() => {
+      this.dashboardService.switchToSchoolDashboard();
+    });
   }
 
   switchToStudent(): void {
     this.isHeaderExpanded = false; // Закрываем выпадающую область
     localStorage.setItem('isSchoolDashboard', JSON.stringify(false)); // Сохраняем выбор в localStorage
     this.router.navigate(['student/wordsTeaching']).then(() => {
-      console.log('Redirected to /school/statistics from switchToStudent' );
+      console.log('Redirected to /school/statistics from switchToStudent');
       this.dashboardService.switchToStudentDashboard(); // Обновляем состояние через сервис
     });
   }
@@ -571,7 +584,11 @@ export class HeaderComponent {
       // Дополнительная обработка
       const reader = new FileReader();
       reader.onload = () => {
-        console.log(`Предпросмотр файла для ${type}:`, reader.result);
+        if (type === 'cover') {
+          this.classCover = reader.result as string; // Сохраняем обложку
+        } else if (type === 'background') {
+          this.selectedBackground = reader.result as string; // Сохраняем фон
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -588,8 +605,23 @@ export class HeaderComponent {
     this.selectedBackground = imageUrl; // Устанавливаем временный фон
   }
 
-  saveBackground(): void {
-    this.backgroundService.setBackground(this.selectedBackground); // Сохраняем фон через сервис
+  saveSettings(): void {
+    // Сохраняем фон через сервис
+    this.backgroundService.setBackground(this.selectedBackground);
+
+    // Сохраняем обложку
+    if (this.classCover) {
+      console.log('Сохранена обложка:', this.classCover);
+      localStorage.setItem('classCover', this.classCover); // Сохраняем обложку в localStorage
+    }
+
+    // Сохраняем фон
+    if (this.selectedBackground) {
+      console.log('Сохранён фон:', this.selectedBackground);
+      localStorage.setItem('selectedBackground', this.selectedBackground); // Сохраняем фон в localStorage
+    }
+
+    // Закрываем модалку
     this.closeClassSettingsModal();
   }
 

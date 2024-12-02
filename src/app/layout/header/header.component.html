@@ -235,7 +235,8 @@
       <div class="dropdown">
         <button class="btn btn-outline-primary dropdown-toggle" id="settingsDropdown" data-bs-toggle="dropdown"
           aria-expanded="false">
-          Настройки
+          <img [src]="classCover || 'https://via.placeholder.com/150'" alt="Настройки"
+            style="height: 32px; width: 32px; object-fit: cover;">
         </button>
         <ul class="dropdown-menu dropdown-menu-end text-start" aria-labelledby="settingsDropdown">
           <li>
@@ -723,49 +724,44 @@
             <div class="col-8">
               <div class="d-flex gap-2 flex-wrap">
                 <!-- Изображение 1 -->
-                <div
-                  class="border p-1"
+                <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/7a150821-adc2-405e-a328-24997ef5814d.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
                   (click)="selectBackground('https://media.docstorio.com/files/Groups/7a150821-adc2-405e-a328-24997ef5814d.png')">
                   <img src="https://media.docstorio.com/files/Groups/7a150821-adc2-405e-a328-24997ef5814d.png"
-                       alt="Image Li 7" style="width: 100%; height: 100%; object-fit: cover;">
+                    alt="Image Li 7" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <!-- Изображение 2 -->
-                <div
-                  class="border p-1"
+                <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/f6cac5a6-6dcd-48ff-98ad-34217e5c93fd.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
                   (click)="selectBackground('https://media.docstorio.com/files/Groups/f6cac5a6-6dcd-48ff-98ad-34217e5c93fd.png')">
                   <img src="https://media.docstorio.com/files/Groups/f6cac5a6-6dcd-48ff-98ad-34217e5c93fd.png"
-                       alt="Image Li 6" style="width: 100%; height: 100%; object-fit: cover;">
+                    alt="Image Li 6" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <!-- Изображение 3 -->
-                <div
-                  class="border p-1"
+                <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/fb4af339-6f53-4fcc-80c9-71988e27011e.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
                   (click)="selectBackground('https://media.docstorio.com/files/Groups/fb4af339-6f53-4fcc-80c9-71988e27011e.png')">
                   <img src="https://media.docstorio.com/files/Groups/fb4af339-6f53-4fcc-80c9-71988e27011e.png"
-                       alt="Image Li 4" style="width: 100%; height: 100%; object-fit: cover;">
+                    alt="Image Li 4" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <!-- Изображение 4 -->
-                <div
-                  class="border p-1"
+                <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/0cfa4cac-26e7-4910-a03f-0ed879522e87.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
                   (click)="selectBackground('https://media.docstorio.com/files/Groups/0cfa4cac-26e7-4910-a03f-0ed879522e87.png')">
                   <img src="https://media.docstorio.com/files/Groups/0cfa4cac-26e7-4910-a03f-0ed879522e87.png"
-                       alt="Image Li 3" style="width: 100%; height: 100%; object-fit: cover;">
+                    alt="Image Li 3" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <!-- Изображение 5 -->
-                <div
-                  class="border p-1"
+                <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/a6da79a9-bae8-4f8d-a44f-1e75452217b8.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
                   (click)="selectBackground('https://media.docstorio.com/files/Groups/a6da79a9-bae8-4f8d-a44f-1e75452217b8.png')">
                   <img src="https://media.docstorio.com/files/Groups/a6da79a9-bae8-4f8d-a44f-1e75452217b8.png"
-                       alt="Image Li 5" style="width: 100%; height: 100%; object-fit: cover;">
+                    alt="Image Li 5" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
               </div>
               <button class="btn btn-light mt-2" (click)="uploadFile('uploadBackground')">Загрузить свой фон</button>
@@ -832,14 +828,16 @@
       </div>
       <div class="modal-footer d-flex justify-content-center">
         <button type="button" class="btn btn-secondary" (click)="closeClassSettingsModal()">Отмена</button>
-        <button type="button" class="btn btn-primary" (click)="saveBackground()">Сохранить</button>
+        <!-- Кнопка сохранить -->
+        <button type="button" class="btn btn-primary" (click)="saveSettings()">Сохранить</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Модалка -->
-<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showScheduleModal }" *ngIf="showScheduleModal" style="background-color: rgba(0, 0, 0, 0.5);">
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showScheduleModal }" *ngIf="showScheduleModal"
+  style="background-color: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
