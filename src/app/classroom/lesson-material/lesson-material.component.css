@@ -17,6 +17,22 @@
   border: 1px solid #dcdcdc;
   border-radius: 6px;
   margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-item > i {
+  font-size: 24px; /* Установите единый размер */
+  line-height: 1;
+}
+
+.icon-empty {
+  font-size: 24px; /* Соответствие иконкам Font Awesome */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #dcdcdc;
 }
 
 .cards-section {

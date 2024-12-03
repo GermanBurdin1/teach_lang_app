@@ -13,6 +13,18 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   constructor(private backgroundService: BackgroundService) {}
 
+  listIcons: string[] = [
+    'icon-empty', // Заглушка для первой иконки
+    'icon-empty', // Заглушка для второй иконки
+    'icon-empty', // Заглушка для третьей иконки
+    'fas fa-chalkboard', // Заполненная иконка
+  ];
+
+  trackByIndex(index: number, item: string): number {
+    return index;
+  }
+
+
   ngOnInit(): void {
     // Подписываемся на изменения фона
     this.backgroundSubscription = this.backgroundService.background$.subscribe(
@@ -20,8 +32,6 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         this.backgroundStyle = newBackground;
       }
     );
-
-    this.listIcons = ['icon iconedv-Board page-section-left-items_board'];
   }
 
   ngOnDestroy(): void {
@@ -71,24 +81,22 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     { label: 'Swedish', value: 'sv', icon: 'fas fa-flag-sweden' },
   ];
 
-  //левая часть страницы
-  listIcons: string[] = ['icon iconedv-Board page-section-left-items_board']; // Изначально одна иконка
-
   saveLanguage(): void {
     console.log('Выбранный язык:', this.selectedLanguage);
 
-    // Обновляем список иконок
+    // Обновляем массив иконок
     this.listIcons = [
-      'tir-badge iconedv-Chat',
-      'iconedv-Translate',
-      'icon-timer iconedv-Timer',
-      'icon iconedv-Board page-section-left-items_board'
+        'fas fa-comment-alt', // Chat icon
+        'fas fa-language', // Translate icon
+        'fas fa-clock', // Timer icon
+        'fas fa-chalkboard', // Board icon
     ];
+
+    console.log('Updated icons:', this.listIcons);
 
     // Закрываем модалку
     this.closeLanguageModal();
-  }
-
+}
 
 
 }
