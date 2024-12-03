@@ -3,6 +3,7 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { DashboardService } from '../../services/dashboard.service';
 import { BackgroundService } from '../../services/background.service';
+import { LessonTabsService } from '../../services/lesson-tabs.service';
 
 
 @Component({
@@ -11,10 +12,12 @@ import { BackgroundService } from '../../services/background.service';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
+  showTabs = false;
+  activeLessonTab: 'cards' | 'lesson' | 'homework' = 'cards';
 
   isHeaderExpanded = false;
 
-  constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService) { }
+  constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService) { }
 
   ngOnInit(): void {
     this.router.events
@@ -39,6 +42,18 @@ export class HeaderComponent {
       this.selectedBackground = savedBackground; // Устанавливаем фон
       this.backgroundService.setBackground(this.selectedBackground); // Применяем фон
     }
+
+    this.lessonTabsService.tabsVisible$.subscribe((isVisible) => {
+      this.showTabs = isVisible;
+    });
+
+    this.lessonTabsService.activeTab$.subscribe((tab) => {
+      this.activeLessonTab = tab;
+    });
+  }
+
+  setActiveTab(tab: 'cards' | 'lesson' | 'homework'): void {
+    this.lessonTabsService.setActiveTab(tab);
   }
 
   private checkLessonMaterialRoute(): void {

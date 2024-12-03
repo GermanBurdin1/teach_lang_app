@@ -1,0 +1,19 @@
+.tabs-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs-header {
+  border-bottom: 1px solid #ccc;
+}
+
+.tabs-header .btn {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.tabs-header .btn.active {
+  border-bottom: 2px solid #007bff;
+  font-weight: bold;
+}

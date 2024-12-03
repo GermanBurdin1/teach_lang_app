@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BackgroundService } from '../../services/background.service';
 import { Subscription } from 'rxjs';
+import { LessonTabsService } from '../../services/lesson-tabs.service';
 
 @Component({
   selector: 'app-lesson-material',
@@ -11,7 +12,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
 
-  constructor(private backgroundService: BackgroundService) {}
+  constructor(private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService) {}
 
   listIcons: string[] = [
     'icon-empty', // Заглушка для первой иконки
@@ -32,6 +33,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         this.backgroundStyle = newBackground;
       }
     );
+
   }
 
   ngOnDestroy(): void {
@@ -93,6 +95,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     ];
 
     console.log('Updated icons:', this.listIcons);
+
+    this.lessonTabsService.setTabsVisible(true); // Делаем вкладки видимыми
+    this.lessonTabsService.setActiveTab('cards'); // Устанавливаем активную вкладку
 
     // Закрываем модалку
     this.closeLanguageModal();

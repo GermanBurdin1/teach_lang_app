@@ -222,6 +222,34 @@
       <button class="btn btn-primary me-3" (click)="navigateToLesson()">Другой урок</button>
     </div>
 
+    <!-- Вкладки -->
+    <div class="d-flex align-items-center">
+      <button
+        *ngIf="showTabs"
+        class="btn btn-outline-primary me-2"
+        [class.active]="activeTab === 'cards'"
+        (click)="setActiveTab('cards')"
+      >
+        Карточки
+      </button>
+      <button
+        *ngIf="showTabs"
+        class="btn btn-outline-primary me-2"
+        [class.active]="activeTab === 'lesson'"
+        (click)="setActiveTab('lesson')"
+      >
+        Урок
+      </button>
+      <button
+        *ngIf="showTabs"
+        class="btn btn-outline-primary"
+        [class.active]="activeTab === 'homework'"
+        (click)="setActiveTab('homework')"
+      >
+        Домашняя работа
+      </button>
+    </div>
+
     <!-- Блок кнопок и дропдаунов -->
     <div class="d-flex align-items-center justify-content-end">
       <!-- Кнопка "Добавить учеников" -->
