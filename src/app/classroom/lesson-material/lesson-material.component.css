@@ -1,19 +1,38 @@
-.container {
-  max-width: 1140px;
-  margin: 0 auto;
-  height: 100vh; /* Высота экрана */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* Центрирование по вертикали */
+html, body {
+  height: 100%; /* Устанавливаем 100% высоты для базовых элементов */
+  margin: 0;
 }
 
-.row {
+.container {
+  height: 100vh; /* Растягиваем контейнер на всю высоту окна */
   display: flex;
-  flex-wrap: nowrap; /* Отключаем перенос строк */
-  justify-content: space-between; /* Равномерное распределение колонок */
-  align-items: flex-start; /* Выравнивание элементов по началу */
-  gap: 15px; /* Расстояние между колонками */
+  flex-direction: column;
+  justify-content: flex-start; /* Выравнивание по началу */
 }
+
+.cards-section {
+  width: 60%; /* Центральная секция занимает 60% ширины */
+  height: 100%; /* Растягиваем на всю высоту родителя */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Разделяем содержимое сверху и снизу */
+  align-items: center; /* Центрируем содержимое по горизонтали */
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.row {
+  height: 100%; /* Растягиваем строку на всю доступную высоту */
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch; /* Растягиваем дочерние элементы */
+  gap: 15px;
+}
+
 
 .list-section {
   width: 15%; /* Ограничиваем ширину левой части */
@@ -49,6 +68,7 @@
 
 .cards-section {
   width: 60%; /* Центральная секция занимает 60% ширины */
+  height: 70vh;
   display: flex;
   flex-direction: column;
   justify-content: center; /* Центрирование по вертикали */
@@ -158,4 +178,100 @@
 .nav-link.active {
   border-color: #007bff; /* Подчеркивание активной ссылки */
   font-weight: bold;
+}
+
+
+.lesson-content img {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 20px; /* Расстояние между изображением и текстом */
+}
+
+.lesson-content p {
+  font-size: 18px;
+  color: #6c757d; /* Цвет текста для соответствия дизайну */
+  margin-bottom: 20px; /* Отступ между текстом и кнопкой */
+}
+
+.lesson-view .btn-primary {
+  background-color: #00aaff; /* Цвет кнопки "Добавить упражнение" */
+  border-color: #00aaff;
+}
+
+.lesson-view .btn-primary:hover {
+  background-color: #008fcc;
+  border-color: #008fcc;
+}
+
+.lesson-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Распределяем кнопки по краям */
+  width: 100%;
+  padding: 0 20px; /* Отступы слева и справа */
+}
+
+.lesson-navigation .btn-secondary {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 6px 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  color: #6c757d;
+}
+
+.lesson-navigation .btn-secondary::before {
+  content: '\2190'; /* Юникод для стрелки назад */
+  margin-right: 5px;
+}
+
+.lesson-navigation .btn-primary {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 6px 10px;
+  background-color: #00aaff;
+  border: 1px solid #00aaff;
+  color: #ffffff;
+}
+
+.lesson-navigation .btn-primary::after {
+  content: '\2192'; /* Юникод для стрелки вперед */
+  margin-left: 5px;
+}
+
+.lesson-navigation .btn-danger {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 6px 10px;
+  background-color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+  color: #ffffff;
+}
+
+.lesson-navigation .btn-danger::before {
+  content: '\2691'; /* Юникод для флажка */
+  margin-right: 5px;
+}
+
+.lesson-content {
+  margin-top: 20px; /* Отступ сверху */
+  margin-bottom: 30px; /* Отступ снизу */
+}
+
+.lessonView-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4a4a4a; /* Цвет заголовка */
+  text-align: left; /* Выравнивание текста по левому краю */
+  margin: 20px 0; /* Отступы сверху и снизу */
+  padding-left: 20px; /* Отступ слева от края */
 }
