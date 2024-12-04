@@ -8,7 +8,7 @@
     </div>
 
     <!-- Центральная часть с карточками и вкладками -->
-    <div class="col-md-8 d-flex flex-column align-items-center justify-content-center cards-section">
+    <div class="col-md-8 d-flex flex-column align-items-center justify-content-between cards-section">
       <app-tabs [showTabs]="false">
         <ng-container *ngIf="(lessonTabsService.contentView$ | async) === 'default'" tab-content-cards>
           <h2 class="text-center main-title">Задайте обучающий материал</h2>
@@ -42,6 +42,20 @@
           </div>
 
         </ng-container>
+        <ng-container *ngIf="(lessonTabsService.contentView$ | async) === 'homeworkView'" tab-content-homework>
+          <h2 class="text-center main-title">Домашняя работа</h2>
+          <div class="d-flex option-cards justify-content-between">
+            <div class="option-card">
+              <div class="emoji mb-2">≡</div>
+              <div class="card-title text-center">Выбрать упражнение</div>
+            </div>
+            <div class="option-card">
+              <div class="emoji mb-2">✎</div>
+              <div class="card-title text-center">Создать упражнение</div>
+            </div>
+          </div>
+        </ng-container>
+
       </app-tabs>
     </div>
 

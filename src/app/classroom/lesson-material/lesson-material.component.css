@@ -11,12 +11,12 @@ html, body {
 }
 
 .cards-section {
-  width: 60%; /* Центральная секция занимает 60% ширины */
-  height: 100%; /* Растягиваем на всю высоту родителя */
+  width: 60%;
+  height: auto; /* Высота будет зависеть от содержимого */
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Разделяем содержимое сверху и снизу */
-  align-items: center; /* Центрируем содержимое по горизонтали */
+  justify-content: space-between;
+  align-items: center;
   background: #ffffff;
   border: 1px solid #e6e6e6;
   border-radius: 10px;
@@ -64,20 +64,6 @@ html, body {
   justify-content: center;
   align-items: center;
   color: #dcdcdc;
-}
-
-.cards-section {
-  width: 60%; /* Центральная секция занимает 60% ширины */
-  height: 70vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Центрирование по вертикали */
-  align-items: center; /* Центрирование по горизонтали */
-  background: #ffffff;
-  border: 1px solid #e6e6e6;
-  border-radius: 10px;
-  padding: 20px;
-  gap: 20px;
 }
 
 .main-title {
