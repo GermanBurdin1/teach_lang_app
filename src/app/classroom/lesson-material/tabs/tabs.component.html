@@ -1,11 +1,16 @@
 <div class="tabs-content mt-4">
-  <ng-container *ngIf="activeTab === 'cards'">
+  <!-- Вкладка "Карточки" -->
+  <ng-container *ngIf="(lessonTabsService.activeTab$ | async) === 'cards'">
     <ng-content select="[tab-content-cards]"></ng-content>
   </ng-container>
-  <ng-container *ngIf="activeTab === 'lesson'">
-    <h2>Содержимое вкладки "Урок"</h2>
+
+  <!-- Вкладка "Урок" -->
+  <ng-container *ngIf="(lessonTabsService.activeTab$ | async) === 'lesson'">
+    <ng-content select="[tab-content-lesson]"></ng-content>
   </ng-container>
-  <ng-container *ngIf="activeTab === 'homework'">
-    <h2>Содержимое вкладки "Домашняя работа"</h2>
+
+  <!-- Вкладка "Домашняя работа" -->
+  <ng-container *ngIf="(lessonTabsService.activeTab$ | async) === 'homework'">
+    <ng-content select="[tab-content-homework]"></ng-content>
   </ng-container>
 </div>

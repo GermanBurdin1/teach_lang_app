@@ -1,22 +1,28 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LessonTabsService } from '../../../services/lesson-tabs.service';
 
 @Component({
   selector: 'app-tabs',
-  standalone: true, // Указываем, что компонент является Standalone
+  standalone: true,
   templateUrl: './tabs.component.html',
   styleUrls: ['./tabs.component.css'],
-  imports: [CommonModule], // Здесь можно импортировать другие Standalone-компоненты, директивы и пайпы
+  imports: [CommonModule],
 })
-export class TabsComponent {
+export class TabsComponent implements OnInit {
   @Input() showTabs: boolean = false;
-  activeTab: 'cards' | 'lesson' | 'homework' = 'cards';
 
-  setActiveTab(tab: 'cards' | 'lesson' | 'homework') {
-    this.activeTab = tab;
+  constructor(public lessonTabsService: LessonTabsService) {}
+
+  ngOnInit(): void {
+    // Для отладки, чтобы видеть изменения активной вкладки
+    this.lessonTabsService.activeTab$.subscribe((tab) => {
+      console.log('Active tab changed to:', tab);
+    });
   }
 
-  ngOnChanges(): void {
-    console.log('showTabs значение:', this.showTabs);
+  setActiveTab(tab: 'cards' | 'lesson' | 'homework'): void {
+    this.lessonTabsService.setActiveTab(tab);
   }
 }
+
