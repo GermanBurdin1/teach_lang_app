@@ -141,3 +141,21 @@
   background-size: cover;
   background-position: center;
 }
+
+.nav-link {
+  font-size: 16px;
+  color: #007bff;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.nav-link.active {
+  border-color: #007bff; /* Подчеркивание активной ссылки */
+  font-weight: bold;
+}

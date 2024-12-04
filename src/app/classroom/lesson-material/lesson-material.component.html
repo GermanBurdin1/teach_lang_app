@@ -13,7 +13,7 @@
    <!-- Центральная часть с карточками и вкладками -->
    <div class="col-md-8 d-flex flex-column align-items-center justify-content-center cards-section">
     <app-tabs [showTabs]="false">
-      <div tab-content-cards>
+      <ng-container *ngIf="(lessonTabsService.contentView$ | async) === 'default'" tab-content-cards>
         <h2 class="text-center main-title">Задайте обучающий материал</h2>
         <div class="d-flex option-cards justify-content-between">
           <div
@@ -34,7 +34,24 @@
             <div class="card-title text-center">Выбрать готовый обучающий материал</div>
           </div>
         </div>
-      </div>
+      </ng-container>
+
+      <!-- Содержимое вкладки "Урок" -->
+      <ng-container *ngIf="(lessonTabsService.contentView$ | async) === 'lessonView'" tab-content-lesson>
+        <div class="lesson-view text-center">
+          <h2>Section 1</h2>
+          <div class="lesson-content text-center">
+            <img src="" alt="Book Icon" />
+            <p>В этом разделе еще нет упражнений. Добавьте упражнение.</p>
+            <button class="btn btn-primary">Добавить упражнение</button>
+          </div>
+          <div class="lesson-navigation d-flex justify-content-between mt-3">
+            <button class="btn btn-secondary">&larr; Назад</button>
+            <button class="btn btn-primary">Далее &rarr;</button>
+            <button class="btn btn-danger">Завершить раздел</button>
+          </div>
+        </div>
+      </ng-container>
     </app-tabs>
   </div>
 

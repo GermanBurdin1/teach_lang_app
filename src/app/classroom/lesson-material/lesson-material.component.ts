@@ -12,7 +12,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
 
-  constructor(private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService) {}
+  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService) {}
 
   listIcons: string[] = [
     'icon-empty', // Заглушка для первой иконки
@@ -33,6 +33,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         this.backgroundStyle = newBackground;
       }
     );
+    this.lessonTabsService.contentView$.subscribe((value) => {
+      console.log('Observed contentView:', value);
+    });
 
   }
 
@@ -97,7 +100,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     console.log('Updated icons:', this.listIcons);
 
     this.lessonTabsService.setTabsVisible(true); // Делаем вкладки видимыми
-    this.lessonTabsService.setActiveTab('cards'); // Устанавливаем активную вкладку
+    this.lessonTabsService.setActiveTab('lesson'); // Переключаемся на вкладку "Урок"
+    this.lessonTabsService.setContentView('lessonView'); // Меняем отображение на "Урок"
+
+    console.log('Текущее значение contentView после изменения:', this.lessonTabsService.contentView);
 
     // Закрываем модалку
     this.closeLanguageModal();

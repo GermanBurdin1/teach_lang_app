@@ -15,4 +15,8 @@ export class TabsComponent {
   setActiveTab(tab: 'cards' | 'lesson' | 'homework') {
     this.activeTab = tab;
   }
+
+  ngOnChanges(): void {
+    console.log('showTabs значение:', this.showTabs);
+  }
 }
