@@ -224,25 +224,30 @@
 
     <nav class="navbar">
       <div class="navbar-nav">
+        <!-- Dropdown для информации об уроке -->
+        <div class="dropdown me-3" *ngIf="isLessonStarted$ | async">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            {{ (lessonDescription$ | async)?.lesson }}
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <li class="dropdown-item">
+              <strong>Урок:</strong> {{ (lessonDescription$ | async)?.lesson }}
+            </li>
+            <li class="dropdown-item">
+              <strong>Курс:</strong> {{ (lessonDescription$ | async)?.course }}
+            </li>
+          </ul>
+        </div>
         <!-- Ссылка "Урок" -->
-        <a
-          *ngIf="showTabs"
-          href="javascript:void(0)"
-          class="nav-link"
-          [class.active]="activeTab === 'lesson'"
-          (click)="setActiveTab('lesson')"
-        >
+        <a *ngIf="showTabs" href="javascript:void(0)" class="nav-link" [class.active]="activeTab === 'lesson'"
+          (click)="setActiveTab('lesson')">
           Урок
         </a>
 
         <!-- Ссылка "Домашняя работа" -->
-        <a
-          *ngIf="showTabs"
-          href="javascript:void(0)"
-          class="nav-link"
-          [class.active]="activeTab === 'homework'"
-          (click)="setActiveTab('homework')"
-        >
+        <a *ngIf="showTabs" href="javascript:void(0)" class="nav-link" [class.active]="activeTab === 'homework'"
+          (click)="setActiveTab('homework')">
           Домашняя работа
         </a>
       </div>
@@ -303,7 +308,7 @@
       </div>
 
       <button class="btn btn-outline-danger ms-2" (click)="openLeaveClassModal()">
-        <i class="fas fa-sign-out-alt me-2"></i> Выйти
+        <i class="fas fa-sign-out-alt me-2"></i>
       </button>
     </div>
   </div>

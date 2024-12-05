@@ -12,7 +12,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
 
-  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService) {}
+  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService) { }
 
   listIcons: string[] = [
     'icon-empty', // Заглушка для первой иконки
@@ -87,27 +87,26 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   ];
 
   saveLanguage(): void {
-    console.log('Выбранный язык:', this.selectedLanguage);
-
     // Обновляем массив иконок
     this.listIcons = [
-        'fas fa-comment-alt', // Chat icon
-        'fas fa-language', // Translate icon
-        'fas fa-clock', // Timer icon
-        'fas fa-chalkboard', // Board icon
+      'fas fa-comment-alt', // Chat icon
+      'fas fa-language', // Translate icon
+      'fas fa-clock', // Timer icon
+      'fas fa-chalkboard', // Board icon
     ];
-
-    console.log('Updated icons:', this.listIcons);
 
     this.lessonTabsService.setTabsVisible(true); // Делаем вкладки видимыми
     this.lessonTabsService.setActiveTab('lesson'); // Переключаемся на вкладку "Урок"
     this.lessonTabsService.setContentView('lessonView'); // Меняем отображение на "Урок"
+    this.lessonTabsService.setRightPanelVisible(true); // Делаем правую панель видимой
+    this.lessonTabsService.setLessonStarted(true); // Указываем, что урок начат
+    this.lessonTabsService.setLessonDescription({
+      lesson: 'Lesson 1',
+      course: 'Course 1',
+    }); // Устанавливаем описание урока
 
-    console.log('Текущее значение contentView после изменения:', this.lessonTabsService.contentView);
-
-    // Закрываем модалку
     this.closeLanguageModal();
-}
+  }
 
 
 }

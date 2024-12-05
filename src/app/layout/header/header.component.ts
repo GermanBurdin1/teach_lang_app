@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { DashboardService } from '../../services/dashboard.service';
 import { BackgroundService } from '../../services/background.service';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
+import { Observable } from 'rxjs';
 
 
 @Component({
@@ -14,12 +15,18 @@ import { LessonTabsService } from '../../services/lesson-tabs.service';
 export class HeaderComponent {
   showTabs = false;
   activeLessonTab: 'cards' | 'lesson' | 'homework' = 'cards';
-
   isHeaderExpanded = false;
+  showLessonDescription = false;
+  lessonDescription$!: Observable<{ lesson: string; course: string } | null>;
+  isLessonStarted$!: Observable<boolean>;
 
   constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService) { }
 
   ngOnInit(): void {
+
+    this.lessonDescription$ = this.lessonTabsService.lessonDescription$;
+    this.isLessonStarted$ = this.lessonTabsService.lessonStarted$;
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -50,6 +57,7 @@ export class HeaderComponent {
     this.lessonTabsService.activeTab$.subscribe((tab) => {
       this.activeLessonTab = tab;
     });
+
   }
 
   setActiveTab(tab: 'cards' | 'lesson' | 'homework'): void {
