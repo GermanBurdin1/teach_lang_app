@@ -1,3 +1,20 @@
 <div class="board-container">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button (click)="moveCanvas('up')">⬆️</button>
+    <button (click)="moveCanvas('left')">⬅️</button>
+    <button (click)="moveCanvas('down')">⬇️</button>
+    <button (click)="moveCanvas('right')">➡️</button>
+    <button (click)="resetPosition()">🔄 Сброс</button>
+  </div>
+
+  <!-- Zoom Controls -->
+  <div class="zoom-controls">
+    <button (click)="zoomIn()">➕ Зум +</button>
+    <button (click)="zoomOut()">➖ Зум -</button>
+    <span>Масштаб: {{ zoomLevel | number: '1.0-2' }}</span>
+  </div>
+
+  <!-- Canvas -->
   <canvas id="drawingCanvas"></canvas>
 </div>
