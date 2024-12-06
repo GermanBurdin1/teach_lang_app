@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit} from '@angular/core';
 import { BackgroundService } from '../../services/background.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-lesson-material',
@@ -12,7 +13,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
 
-  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService) { }
+  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router ) { }
 
   listIcons: string[] = [
     'icon-empty', // Заглушка для первой иконки
@@ -108,5 +109,8 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.closeLanguageModal();
   }
 
-
+  // Открытие интерактивной доски
+  openInteractiveBoard(): void {
+    this.router.navigate([`${this.lessonTabsService.getCurrentLessonId()}/board`]); // Убедитесь, что ID урока указан
+  }
 }

@@ -14,7 +14,7 @@ export class LessonTabsService {
     lesson: 'Lesson 1',
     course: 'Course 1',
   }); // Название урока и курса
-
+  private currentLessonIdSource = new BehaviorSubject<string>('1');
 
   activeTab$ = this.activeTabSource.asObservable();
   tabsVisible$ = this.tabsVisibleSource.asObservable();
@@ -22,6 +22,7 @@ export class LessonTabsService {
   rightPanelVisible$ = this.rightPanelVisibleSource.asObservable();
   lessonDescription$ = this.lessonDescriptionSource.asObservable();
   lessonStarted$ = this.lessonStartedSource.asObservable();
+  currentLessonId$ = this.currentLessonIdSource.asObservable();
 
   setActiveTab(tab: 'cards' | 'lesson' | 'homework'): void {
     this.activeTabSource.next(tab);
@@ -60,5 +61,13 @@ export class LessonTabsService {
 
   setLessonStarted(started: boolean): void {
     this.lessonStartedSource.next(started);
+  }
+
+  setCurrentLessonId(id: string): void {
+    this.currentLessonIdSource.next(id);
+  }
+
+  getCurrentLessonId(): string {
+    return this.currentLessonIdSource.value;
   }
 }

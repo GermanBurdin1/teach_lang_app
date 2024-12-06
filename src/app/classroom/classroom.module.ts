@@ -6,8 +6,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TabsComponent } from './lesson-material/tabs/tabs.component';
 
+
 const routes: Routes = [
-  { path: ':id/lesson', component: LessonMaterialComponent }
+  { path: ':id/lesson', component: LessonMaterialComponent },
+  {
+    path: ':id/board',
+    loadComponent: () => import('./lesson-material/interactive-board/interactive-board.component').then(m => m.InteractiveBoardComponent)
+  } 
 ];
 
 @NgModule({
