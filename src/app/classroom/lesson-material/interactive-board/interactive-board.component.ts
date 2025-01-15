@@ -334,4 +334,66 @@ export class InteractiveBoardComponent implements AfterViewInit {
     this.canvas.setHeight(window.innerHeight);
     this.addGrid();
   }
+
+  addText(): void {
+    const text = new fabric.Textbox('Введите текст', {
+      left: 100,
+      top: 100,
+      fontSize: 20,
+      fontFamily: 'Arial',
+      fill: '#000000',
+      width: 200,
+      editable: true, // Позволяет редактировать текст
+    });
+
+    this.canvas.add(text);
+    this.canvas.setActiveObject(text); // Выделяем текст
+    console.log('Добавлен текст:', text);
+  }
+
+  changeFontFamily(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const fontFamily = selectElement.value;
+
+    const activeObject = this.canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'textbox') {
+      (activeObject as fabric.Textbox).fontFamily = fontFamily;
+      this.canvas.renderAll();
+      console.log('Изменён шрифт текста:', fontFamily);
+    }
+  }
+
+
+  changeFontSize(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const fontSize = parseInt(inputElement.value, 10);
+
+    const activeObject = this.canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'textbox') {
+      (activeObject as fabric.Textbox).fontSize = fontSize;
+      this.canvas.renderAll();
+      console.log('Изменён размер текста:', fontSize);
+    }
+  }
+
+
+  changeTextColor(event: Event): void {
+    const inputElement = event.target as HTMLInputElement | null; // Приведение типа
+    if (inputElement && inputElement.value) { // Проверка на null
+      const color = inputElement.value;
+      const activeObject = this.canvas.getActiveObject();
+      if (activeObject && activeObject.type === 'textbox') {
+        (activeObject as fabric.Textbox).fill = color; // Изменение цвета текста
+        this.canvas.renderAll();
+        console.log('Изменён цвет текста:', color);
+      } else {
+        console.log('Нет активного текстового объекта для изменения цвета.');
+      }
+    } else {
+      console.error('Ошибка: Не удалось получить значение цвета.');
+    }
+  }
+
+
+
 }

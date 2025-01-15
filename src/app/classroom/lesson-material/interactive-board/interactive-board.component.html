@@ -19,6 +19,25 @@
     <label for="brush-width">Толщина кисти:</label>
     <input id="brush-width" type="range" min="1" max="20" [(ngModel)]="brushWidth"
       (change)="changeBrushWidth(brushWidth)" />
+
+      <button (click)="addText()">Добавить текст</button>
+
+      <label for="fontFamily">Шрифт:</label>
+      <select id="fontFamily" (change)="changeFontFamily($event)">
+        <option value="Arial">Arial</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+      </select>
+
+
+      <label for="fontSize">Размер:</label>
+      <input id="fontSize" type="number" min="10" max="100" (input)="changeFontSize($event)" />
+
+
+      <label for="textColor">Цвет текста:</label>
+      <input id="textColor" type="color" value="#000000" (input)="changeTextColor($event)" />
+
   </div>
 
   <!-- Zoom Controls -->
@@ -29,6 +48,7 @@
     <button (click)="zoomSelectedFigureOut()">Zoom Out Selected</button>
     <span>Масштаб: {{ zoomLevel | number: '1.0-2' }}</span>
   </div>
+
 
 
   <!-- Canvas -->
