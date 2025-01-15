@@ -1,19 +1,27 @@
 import { Component, AfterViewInit, HostListener } from '@angular/core';
 import * as fabric from 'fabric';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-interactive-board',
   standalone: true,
   templateUrl: './interactive-board.component.html',
   styleUrls: ['./interactive-board.component.css'],
-  imports: [CommonModule], // Добавьте CommonModule
+  imports: [CommonModule,FormsModule],
 })
 export class InteractiveBoardComponent implements AfterViewInit {
   canvas!: fabric.Canvas;
   zoomLevel = 1; // Current zoom level
   panX = 0; // Horizontal pan offset
   panY = 0; // Vertical pan offset
+
+  // Brush settings
+  brushColor = '#000000'; // Default brush color
+  brushWidth = 5; // Default brush width
+
+  // Current tool
+  currentTool: 'brush' | 'rectangle' | 'circle' = 'brush';
 
   ngAfterViewInit(): void {
     this.canvas = new fabric.Canvas('drawingCanvas', {
@@ -22,19 +30,21 @@ export class InteractiveBoardComponent implements AfterViewInit {
       height: window.innerHeight,
     });
 
+    this.setBrush();
     this.addGrid();
     this.setupZoom();
     this.setupPan();
   }
 
+  // Zoom in and out
   zoomIn(): void {
     this.zoomLevel = Math.min(this.zoomLevel + 0.1, 3); // Limit zoom to 3x
-    this.canvas.setZoom(this.zoomLevel);
+    this.updateCanvasTransform();
   }
 
   zoomOut(): void {
     this.zoomLevel = Math.max(this.zoomLevel - 0.1, 0.5); // Limit zoom to 0.5x
-    this.canvas.setZoom(this.zoomLevel);
+    this.updateCanvasTransform();
   }
 
   moveCanvas(direction: 'up' | 'down' | 'left' | 'right'): void {
@@ -61,6 +71,58 @@ export class InteractiveBoardComponent implements AfterViewInit {
     this.panY = 0;
     this.zoomLevel = 1;
     this.updateCanvasTransform();
+  }
+
+  // Set brush properties
+  setBrush(): void {
+    this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
+    this.canvas.freeDrawingBrush.color = this.brushColor;
+    this.canvas.freeDrawingBrush.width = this.brushWidth;
+  }
+
+  // Change brush color
+  changeBrushColor(color: string): void {
+    this.brushColor = color;
+    this.setBrush();
+  }
+
+  // Change brush width
+  changeBrushWidth(width: number): void {
+    this.brushWidth = width;
+    this.setBrush();
+  }
+
+  // Select tool
+  selectTool(tool: 'brush' | 'rectangle' | 'circle'): void {
+    this.currentTool = tool;
+    this.canvas.isDrawingMode = tool === 'brush';
+  }
+
+  // Draw rectangle
+  drawRectangle(): void {
+    const rect = new fabric.Rect({
+      left: 100,
+      top: 100,
+      width: 100,
+      height: 100,
+      fill: 'transparent',
+      stroke: this.brushColor,
+      strokeWidth: this.brushWidth,
+    });
+    this.canvas.add(rect);
+  }
+
+  // Draw circle
+  drawCircle(): void {
+    const circle = new fabric.Circle({
+      left: 150,
+      top: 150,
+      radius: 50,
+      fill: 'transparent',
+      stroke: this.brushColor,
+      strokeWidth: this.brushWidth,
+    });
+    this.canvas.add(circle);
   }
 
   private updateCanvasTransform(): void {
@@ -130,7 +192,7 @@ export class InteractiveBoardComponent implements AfterViewInit {
     });
 
     this.canvas.on('mouse:up', () => {
-      this.canvas.isDrawingMode = true;
+      this.canvas.isDrawingMode = this.currentTool === 'brush';
       this.canvas.setCursor('default');
       this.canvas.renderAll();
     });

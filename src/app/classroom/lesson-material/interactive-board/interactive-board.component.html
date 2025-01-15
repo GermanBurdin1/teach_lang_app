@@ -1,11 +1,35 @@
 <div class="board-container">
   <!-- Toolbar -->
   <div class="toolbar">
+    <!-- Movement Controls -->
     <button (click)="moveCanvas('up')">⬆️</button>
     <button (click)="moveCanvas('left')">⬅️</button>
     <button (click)="moveCanvas('down')">⬇️</button>
     <button (click)="moveCanvas('right')">➡️</button>
     <button (click)="resetPosition()">🔄 Сброс</button>
+
+    <!-- Tool Selection -->
+    <button (click)="selectTool('brush')">Brush</button>
+    <button (click)="selectTool('rectangle')">Rectangle</button>
+    <button (click)="selectTool('circle')">Circle</button>
+
+    <!-- Brush Settings -->
+    <label for="brush-color">Цвет кисти:</label>
+    <input
+      id="brush-color"
+      type="color"
+      [(ngModel)]="brushColor"
+      (change)="changeBrushColor(brushColor)"
+    />
+    <label for="brush-width">Толщина кисти:</label>
+    <input
+      id="brush-width"
+      type="range"
+      min="1"
+      max="20"
+      [(ngModel)]="brushWidth"
+      (change)="changeBrushWidth(brushWidth)"
+    />
   </div>
 
   <!-- Zoom Controls -->
