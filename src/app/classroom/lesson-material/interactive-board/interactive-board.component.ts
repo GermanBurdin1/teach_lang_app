@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   templateUrl: './interactive-board.component.html',
   styleUrls: ['./interactive-board.component.css'],
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
 })
 export class InteractiveBoardComponent implements AfterViewInit {
   canvas!: fabric.Canvas;
@@ -95,8 +95,86 @@ export class InteractiveBoardComponent implements AfterViewInit {
   // Select tool
   selectTool(tool: 'brush' | 'rectangle' | 'circle'): void {
     this.currentTool = tool;
+
+    // Включаем режим рисования только для кисти
     this.canvas.isDrawingMode = tool === 'brush';
+
+    if (tool === 'rectangle' || tool === 'circle') {
+      this.canvas.off('mouse:down'); // Сбрасываем все предыдущие слушатели
+      this.canvas.off('mouse:move');
+      this.canvas.off('mouse:up');
+
+      let shape: fabric.Rect | fabric.Circle | null = null;
+      let startX = 0;
+      let startY = 0;
+
+      // Начало рисования фигуры
+      this.canvas.on('mouse:down', (opt) => {
+        const pointer = this.canvas.getPointer(opt.e);
+        startX = pointer.x;
+        startY = pointer.y;
+
+        if (tool === 'rectangle') {
+          shape = new fabric.Rect({
+            left: startX,
+            top: startY,
+            width: 0,
+            height: 0,
+            fill: 'transparent',
+            stroke: this.brushColor,
+            strokeWidth: this.brushWidth,
+          });
+        } else if (tool === 'circle') {
+          shape = new fabric.Circle({
+            left: startX,
+            top: startY,
+            radius: 0,
+            fill: 'transparent',
+            stroke: this.brushColor,
+            strokeWidth: this.brushWidth,
+          });
+        }
+
+        if (shape) {
+          this.canvas.add(shape);
+        }
+      });
+
+      // Рисование фигуры при перемещении мыши
+      this.canvas.on('mouse:move', (opt) => {
+        if (!shape) return;
+
+        const pointer = this.canvas.getPointer(opt.e);
+
+        if (tool === 'rectangle' && shape instanceof fabric.Rect) {
+          shape.set({
+            width: Math.abs(pointer.x - startX),
+            height: Math.abs(pointer.y - startY),
+            left: Math.min(startX, pointer.x),
+            top: Math.min(startY, pointer.y),
+          });
+        } else if (tool === 'circle' && shape instanceof fabric.Circle) {
+          const radius = Math.sqrt(
+            Math.pow(pointer.x - startX, 2) + Math.pow(pointer.y - startY, 2)
+          );
+          shape.set({ radius });
+        }
+
+        this.canvas.renderAll();
+      });
+
+      // Завершение рисования фигуры
+      this.canvas.on('mouse:up', () => {
+        shape = null; // Сбрасываем текущую фигуру
+      });
+    } else {
+      // Если включён инструмент "brush", отключаем обработку фигур
+      this.canvas.off('mouse:down');
+      this.canvas.off('mouse:move');
+      this.canvas.off('mouse:up');
+    }
   }
+
 
   // Draw rectangle
   drawRectangle(): void {
