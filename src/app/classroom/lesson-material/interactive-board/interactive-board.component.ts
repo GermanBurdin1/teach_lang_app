@@ -34,6 +34,7 @@ export class InteractiveBoardComponent implements AfterViewInit {
     this.addGrid();
     this.setupZoom();
     this.setupPan();
+    this.trackObjectAddition();
   }
 
   // Zoom in and out
@@ -156,22 +157,22 @@ export class InteractiveBoardComponent implements AfterViewInit {
 
         shape = tool === 'rectangle'
           ? new fabric.Rect({
-              left: startX,
-              top: startY,
-              width: 0,
-              height: 0,
-              fill: 'transparent',
-              stroke: this.brushColor,
-              strokeWidth: this.brushWidth,
-            })
+            left: startX,
+            top: startY,
+            width: 0,
+            height: 0,
+            fill: 'transparent',
+            stroke: this.brushColor,
+            strokeWidth: this.brushWidth,
+          })
           : new fabric.Circle({
-              left: startX,
-              top: startY,
-              radius: 0,
-              fill: 'transparent',
-              stroke: this.brushColor,
-              strokeWidth: this.brushWidth,
-            });
+            left: startX,
+            top: startY,
+            radius: 0,
+            fill: 'transparent',
+            stroke: this.brushColor,
+            strokeWidth: this.brushWidth,
+          });
 
         console.log('Создана фигура:', shape);
         this.canvas.add(shape);
@@ -224,6 +225,7 @@ export class InteractiveBoardComponent implements AfterViewInit {
       scaleY: 1, // Начальный масштаб по Y
     });
     this.canvas.add(rect);
+    this.actionHistory.push(rect);
   }
 
   // Draw circle
@@ -239,6 +241,7 @@ export class InteractiveBoardComponent implements AfterViewInit {
       scaleY: 1, // Начальный масштаб по Y
     });
     this.canvas.add(circle);
+    this.actionHistory.push(circle);
   }
 
 
@@ -348,6 +351,7 @@ export class InteractiveBoardComponent implements AfterViewInit {
 
     this.canvas.add(text);
     this.canvas.setActiveObject(text); // Выделяем текст
+    this.actionHistory.push(text);
     console.log('Добавлен текст:', text);
   }
 
@@ -391,6 +395,38 @@ export class InteractiveBoardComponent implements AfterViewInit {
       }
     } else {
       console.error('Ошибка: Не удалось получить значение цвета.');
+    }
+  }
+
+  resetCanvas(): void {
+    this.canvas.clear(); // Очистить все объекты с холста
+    this.addGrid(); // Добавить сетку обратно после сброса
+    this.actionHistory = [];
+    console.log('Холст сброшен');
+  }
+
+  actionHistory: fabric.Object[] = []; // Хранилище истории действий
+
+  // Отслеживание добавления объектов
+  trackObjectAddition(): void {
+    this.canvas.on('object:added', (e) => {
+      if (e.target) {
+        this.actionHistory.push(e.target); // Сохраняем объект в историю
+        console.log('Объект добавлен в историю:', e.target);
+      }
+    });
+  }
+
+  // Метод для отмены последнего действия
+  undoLastAction(): void {
+    if (this.actionHistory.length > 0) {
+      const lastObject = this.actionHistory.pop();
+      if (lastObject) {
+        this.canvas.remove(lastObject);
+        console.log('Последнее действие отменено:', lastObject);
+      }
+    } else {
+      console.log('Нет действий для отмены');
     }
   }
 
