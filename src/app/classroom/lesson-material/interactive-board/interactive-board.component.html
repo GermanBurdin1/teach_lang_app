@@ -15,29 +15,21 @@
 
     <!-- Brush Settings -->
     <label for="brush-color">Цвет кисти:</label>
-    <input
-      id="brush-color"
-      type="color"
-      [(ngModel)]="brushColor"
-      (change)="changeBrushColor(brushColor)"
-    />
+    <input id="brush-color" type="color" [(ngModel)]="brushColor" (change)="changeBrushColor(brushColor)" />
     <label for="brush-width">Толщина кисти:</label>
-    <input
-      id="brush-width"
-      type="range"
-      min="1"
-      max="20"
-      [(ngModel)]="brushWidth"
-      (change)="changeBrushWidth(brushWidth)"
-    />
+    <input id="brush-width" type="range" min="1" max="20" [(ngModel)]="brushWidth"
+      (change)="changeBrushWidth(brushWidth)" />
   </div>
 
   <!-- Zoom Controls -->
   <div class="zoom-controls">
     <button (click)="zoomIn()">➕ Зум +</button>
     <button (click)="zoomOut()">➖ Зум -</button>
+    <button (click)="zoomSelectedFigureIn()">Zoom In Selected</button>
+    <button (click)="zoomSelectedFigureOut()">Zoom Out Selected</button>
     <span>Масштаб: {{ zoomLevel | number: '1.0-2' }}</span>
   </div>
+
 
   <!-- Canvas -->
   <canvas id="drawingCanvas"></canvas>
