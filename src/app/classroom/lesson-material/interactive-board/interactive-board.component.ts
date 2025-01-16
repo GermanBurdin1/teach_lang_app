@@ -2,6 +2,7 @@ import { Component, AfterViewInit, HostListener } from '@angular/core';
 import * as fabric from 'fabric';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { log } from 'fabric/fabric-impl';
 
 @Component({
   selector: 'app-interactive-board',
@@ -174,7 +175,6 @@ export class InteractiveBoardComponent implements AfterViewInit {
             strokeWidth: this.brushWidth,
           });
 
-        console.log('Создана фигура:', shape);
         this.canvas.add(shape);
       });
 
@@ -197,19 +197,14 @@ export class InteractiveBoardComponent implements AfterViewInit {
           shape.set({ radius });
         }
 
-        console.log('Фигура изменена:', shape);
         this.canvas.renderAll();
       });
 
       this.canvas.on('mouse:up', () => {
-        console.log('Рисование завершено:', shape);
         shape = null;
       });
     }
   }
-
-
-
 
   // Draw rectangle
   drawRectangle(): void {
@@ -412,7 +407,6 @@ export class InteractiveBoardComponent implements AfterViewInit {
     this.canvas.on('object:added', (e) => {
       if (e.target) {
         this.actionHistory.push(e.target); // Сохраняем объект в историю
-        console.log('Объект добавлен в историю:', e.target);
       }
     });
   }
@@ -430,6 +424,38 @@ export class InteractiveBoardComponent implements AfterViewInit {
     }
   }
 
+  // удалить объект
+  showDeleteModal: boolean = false;
+
+  deleteObject(): void {
+    const activeObject = this.canvas.getActiveObject();
+    if (activeObject) {
+      this.canvas.remove(activeObject); // Удалить объект
+      console.log('Объект удалён:', activeObject);
+    } else {
+      console.log('Нет выделенного объекта для удаления.');
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Delete' || event.key === 'Del') {
+      const activeObject = this.canvas.getActiveObject();
+      if (activeObject) {
+
+        this.showDeleteModal = true; // Открыть модалку
+      }
+    }
+  }
+
+  confirmDelete(): void {
+    this.deleteObject();
+    this.showDeleteModal = false;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteModal = false;
+  }
 
 
 }
