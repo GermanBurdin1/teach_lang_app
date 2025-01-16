@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100%; /* Устанавливаем 100% высоты для базовых элементов */
   margin: 0;
 }
@@ -24,7 +25,6 @@ html, body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-
 .row {
   height: 100%; /* Растягиваем строку на всю доступную высоту */
   display: flex;
@@ -32,7 +32,6 @@ html, body {
   align-items: stretch; /* Растягиваем дочерние элементы */
   gap: 15px;
 }
-
 
 .list-section {
   width: 15%; /* Ограничиваем ширину левой части */
@@ -51,6 +50,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 }
 
 .icon-item > i {
@@ -166,7 +166,6 @@ html, body {
   font-weight: bold;
 }
 
-
 .lesson-content img {
   width: 72px;
   height: 72px;
@@ -210,7 +209,7 @@ html, body {
 }
 
 .lesson-navigation .btn-secondary::before {
-  content: '\2190'; /* Юникод для стрелки назад */
+  content: "\2190"; /* Юникод для стрелки назад */
   margin-right: 5px;
 }
 
@@ -227,7 +226,7 @@ html, body {
 }
 
 .lesson-navigation .btn-primary::after {
-  content: '\2192'; /* Юникод для стрелки вперед */
+  content: "\2192"; /* Юникод для стрелки вперед */
   margin-left: 5px;
 }
 
@@ -244,7 +243,7 @@ html, body {
 }
 
 .lesson-navigation .btn-danger::before {
-  content: '\2691'; /* Юникод для флажка */
+  content: "\2691"; /* Юникод для флажка */
   margin-right: 5px;
 }
 
