@@ -36,7 +36,27 @@ export class InteractiveBoardComponent implements AfterViewInit {
     this.setupZoom();
     this.setupPan();
     this.trackObjectAddition();
+
+    // Обработка завершения рисования кистью
+    this.canvas.on('path:created', (event) => {
+      const path = event.path;
+      path.selectable = true;
+      path.evented = true;
+      this.canvas.add(path);
+      this.canvas.setActiveObject(path);
+      this.canvas.renderAll();
+      this.canvas.discardActiveObject();
+      this.canvas.setActiveObject(path);
+      this.actionHistory.push(path);
+      this.canvas.isDrawingMode = false;
+      // this.canvas.renderAll();
+
+      console.log('Создан объект кистью:', path);
+    });
+
   }
+
+
 
   // Zoom in and out
   zoomIn(): void {
@@ -203,6 +223,13 @@ export class InteractiveBoardComponent implements AfterViewInit {
       this.canvas.on('mouse:up', () => {
         shape = null;
       });
+    }
+
+    if (tool === 'brush') {
+      this.canvas.isDrawingMode = true; // Включаем режим рисования
+      this.setBrush(); // Настраиваем кисть
+    } else {
+      this.canvas.isDrawingMode = false; // Выключаем режим рисования
     }
   }
 
@@ -406,7 +433,10 @@ export class InteractiveBoardComponent implements AfterViewInit {
   trackObjectAddition(): void {
     this.canvas.on('object:added', (e) => {
       if (e.target) {
+        e.target.selectable = true; // Убедиться, что объект выделяем
+        e.target.evented = true; // Реагирует на события
         this.actionHistory.push(e.target); // Сохраняем объект в историю
+        console.log('Добавлен объект:', e.target);
       }
     });
   }
@@ -428,10 +458,14 @@ export class InteractiveBoardComponent implements AfterViewInit {
   showDeleteModal: boolean = false;
 
   deleteObject(): void {
+    console.log("ФУНКЦИЯ ВЫЗВАНА!!!!!!");
     const activeObject = this.canvas.getActiveObject();
     if (activeObject) {
-      this.canvas.remove(activeObject); // Удалить объект
+      this.canvas.remove(activeObject);
+      this.actionHistory = this.actionHistory.filter(obj => obj !== activeObject); // Удаляем из истории
       console.log('Объект удалён:', activeObject);
+      this.canvas.discardActiveObject();
+      this.canvas.renderAll();
     } else {
       console.log('Нет выделенного объекта для удаления.');
     }
@@ -442,8 +476,9 @@ export class InteractiveBoardComponent implements AfterViewInit {
     if (event.key === 'Delete' || event.key === 'Del') {
       const activeObject = this.canvas.getActiveObject();
       if (activeObject) {
-
-        this.showDeleteModal = true; // Открыть модалку
+        this.showDeleteModal = true; // Открываем модальное окно
+      } else {
+        console.log('Нет активного объекта для удаления.');
       }
     }
   }
