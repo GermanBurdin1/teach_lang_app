@@ -1,6 +1,8 @@
 <div class="online-lessons" style="max-width: 800px; margin: 0 auto;">
   <h2 class="mb-3">Создать новый класс</h2>
   <button class="btn btn-outline-primary me-2" (click)="openStudentTabsModal()">Добавить учеников</button>
+  <!-- Кнопка "Пользователи" -->
+  <button class="btn btn-outline-secondary me-2" (click)="openUserModal()">Пользователи</button>
   <!-- Оповещение о необходимости оплаты тарифа -->
   <div *ngIf="!isPaidOrTrial" class="alert alert-danger d-flex justify-content-between align-items-center"
     style="padding: 16px; border-radius: 8px;">
@@ -94,6 +96,192 @@
           <button type="button" class="btn btn-primary" (click)="createClass()">Добавить</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentTabsModal }" *ngIf="showStudentTabsModal"
+  style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Добавить ученика</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeStudentTabsModal()"></button>
+      </div>
+
+      <!-- Вкладки -->
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="{ active: activeTab === 'link' }" (click)="switchTab('link')">По ссылке</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="{ active: activeTab === 'email' }" (click)="switchTab('email')">Вручную</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [ngClass]="{ active: activeTab === 'existing' }"
+            (click)="switchTab('existing')">Существующего</a>
+        </li>
+      </ul>
+
+      <!-- Содержимое вкладок -->
+      <div class="modal-body">
+        <!-- Вкладка "По ссылке" -->
+        <div *ngIf="activeTab === 'link'">
+          <div class="circle mx-auto mb-3" style="
+              background-image: url('https://cdn-icons-png.flaticon.com/512/847/847969.png');
+              width: 80px;
+              height: 80px;
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              border-radius: 50%;
+            "></div>
+          <h5 class="modal-title fw-bold">Добавить по ссылке</h5>
+          <input type="text" class="form-control text-center mt-3" readonly [value]="inviteLink" />
+          <button class="btn btn-primary mt-3" (click)="copyLink()">Скопировать ссылку</button>
+          <div class="alert alert-info mt-3" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            Отправьте эту ссылку ученику — он сможет зарегистрироваться или войти в свой аккаунт и автоматически
+            присоединиться к этому классу.
+          </div>
+        </div>
+
+        <!-- Вкладка "Вручную" -->
+        <div *ngIf="activeTab === 'email'">
+          <div class="circle mx-auto mb-3" style="
+              background-image: url('https://cdn-icons-png.flaticon.com/512/561/561127.png');
+              width: 80px;
+              height: 80px;
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              border-radius: 50%;
+            "></div>
+          <h5 class="modal-title fw-bold">Добавить вручную</h5>
+          <form>
+            <div class="mb-3">
+              <label class="form-label">Имя</label>
+              <input type="text" class="form-control" placeholder="Имя ученика" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" placeholder="Email ученика" />
+            </div>
+            <button class="btn btn-primary w-100">Добавить</button>
+          </form>
+        </div>
+
+        <!-- Вкладка "Существующего" -->
+        <div *ngIf="activeTab === 'existing'">
+          <div class="circle mx-auto mb-3" style="
+              background-image: url('https://cdn-icons-png.flaticon.com/512/4086/4086679.png');
+              width: 80px;
+              height: 80px;
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              border-radius: 50%;
+            "></div>
+          <h5 class="modal-title fw-bold text-center">Выбрать из существующих</h5>
+          <ul class="list-group">
+            <li *ngFor="let student of getAvailableStudents()"
+              class="list-group-item d-flex justify-content-between align-items-center" (click)="selectStudent(student)"
+              [class.selected]="selectedStudent?.id === student.id">
+              {{ student.name }}
+              <i class="fas fa-check-circle text-success" *ngIf="selectedStudent?.id === student.id"></i>
+            </li>
+          </ul>
+          <button class="btn btn-primary w-100 mt-3" [disabled]="!selectedStudent"
+            (click)="addSelectedStudent()">Добавить ученика</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для пользователей -->
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isUserModalOpen }" *ngIf="isUserModalOpen"
+  style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Пользователи</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeUserModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let user of users" class="user-card d-flex align-items-center mb-3 position-relative">
+          <!-- Иконка пользователя -->
+          <div class="position-relative me-3">
+            <div
+              class="user-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center">
+              {{ user.initials }}
+            </div>
+            <div class="online-indicator" (mouseenter)="showTooltip(user.role)" (mouseleave)="hideTooltip()">
+              <i class="fas fa-circle text-success"></i>
+              <div class="tooltip" *ngIf="tooltipVisible === user.role">Ученик в классе</div>
+            </div>
+          </div>
+
+          <!-- Подсказка -->
+          <div *ngIf="tooltipVisible === user.role" class="tooltip-container position-absolute">
+            {{ getTooltipText(user.role) }}
+          </div>
+
+          <!-- Информация о пользователе -->
+          <div>
+            <p class="mb-0 fw-bold">{{ user.name }}</p>
+            <p class="mb-0 text-muted small">
+              <i class="fas fa-id-badge me-1"></i> {{ user.id }}
+            </p>
+            <p class="mb-0 text-muted small">
+              <i class="fas fa-envelope me-1"></i> {{ user.email }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="openStudentListModal()">Посмотреть всех учеников</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentListModal }" *ngIf="showStudentListModal"
+  style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Список учеников</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeStudentListModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let student of allStudents" class="user-card d-flex align-items-center mb-3">
+          <div class="position-relative me-3">
+            <div
+              class="user-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center">
+              {{ student.initials }}
+            </div>
+            <div class="online-indicator" *ngIf="student.online" (mouseenter)="showTooltip(student.name)"
+              (mouseleave)="hideTooltip()">
+              <i class="fas fa-circle text-success"></i>
+              <div class="tooltip" *ngIf="tooltipVisible === student.name">Ученик онлайн</div>
+            </div>
+          </div>
+          <div>
+            <p class="mb-0">{{ student.name }}</p>
+            <small class="text-muted">
+              <i class="fas fa-id-badge me-2"></i>{{ student.id }}
+            </small>
+            <br />
+            <small class="text-muted">
+              <i class="fas fa-envelope me-2"></i>{{ student.email }}
+            </small>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-outline-primary w-100" (click)="openAddAdditionalStudentModal()">
+        <i class="fas fa-plus me-2"></i> Добавить ученика
+      </button>
     </div>
   </div>
 </div>
@@ -245,101 +433,4 @@
   </div>
 </div>
 
-<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentTabsModal }" *ngIf="showStudentTabsModal"
-  style="background-color: rgba(0, 0, 0, 0.5);">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-4">
-      <div class="modal-header border-0">
-        <h5 class="modal-title">Добавить ученика</h5>
-        <button type="button" class="btn-close" aria-label="Close" (click)="closeStudentTabsModal()"></button>
-      </div>
 
-      <!-- Вкладки -->
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <a class="nav-link" [ngClass]="{ active: activeTab === 'link' }" (click)="switchTab('link')">По ссылке</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" [ngClass]="{ active: activeTab === 'email' }" (click)="switchTab('email')">Вручную</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" [ngClass]="{ active: activeTab === 'existing' }"
-            (click)="switchTab('existing')">Существующего</a>
-        </li>
-      </ul>
-
-      <!-- Содержимое вкладок -->
-      <div class="modal-body">
-        <!-- Вкладка "По ссылке" -->
-        <div *ngIf="activeTab === 'link'">
-          <div class="circle mx-auto mb-3" style="
-              background-image: url('https://cdn-icons-png.flaticon.com/512/847/847969.png');
-              width: 80px;
-              height: 80px;
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
-              border-radius: 50%;
-            "></div>
-          <h5 class="modal-title fw-bold">Добавить по ссылке</h5>
-          <input type="text" class="form-control text-center mt-3" readonly [value]="inviteLink" />
-          <button class="btn btn-primary mt-3" (click)="copyLink()">Скопировать ссылку</button>
-          <div class="alert alert-info mt-3" role="alert">
-            <i class="fas fa-info-circle me-2"></i>
-            Отправьте эту ссылку ученику — он сможет зарегистрироваться или войти в свой аккаунт и автоматически
-            присоединиться к этому классу.
-          </div>
-        </div>
-
-        <!-- Вкладка "Вручную" -->
-        <div *ngIf="activeTab === 'email'">
-          <div class="circle mx-auto mb-3" style="
-              background-image: url('https://cdn-icons-png.flaticon.com/512/561/561127.png');
-              width: 80px;
-              height: 80px;
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
-              border-radius: 50%;
-            "></div>
-          <h5 class="modal-title fw-bold">Добавить вручную</h5>
-          <form>
-            <div class="mb-3">
-              <label class="form-label">Имя</label>
-              <input type="text" class="form-control" placeholder="Имя ученика" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" placeholder="Email ученика" />
-            </div>
-            <button class="btn btn-primary w-100">Добавить</button>
-          </form>
-        </div>
-
-        <!-- Вкладка "Существующего" -->
-        <div *ngIf="activeTab === 'existing'">
-          <div class="circle mx-auto mb-3" style="
-              background-image: url('https://cdn-icons-png.flaticon.com/512/4086/4086679.png');
-              width: 80px;
-              height: 80px;
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
-              border-radius: 50%;
-            "></div>
-          <h5 class="modal-title fw-bold text-center">Выбрать из существующих</h5>
-          <ul class="list-group">
-            <li *ngFor="let student of getAvailableStudents()"
-              class="list-group-item d-flex justify-content-between align-items-center" (click)="selectStudent(student)"
-              [class.selected]="selectedStudent?.id === student.id">
-              {{ student.name }}
-              <i class="fas fa-check-circle text-success" *ngIf="selectedStudent?.id === student.id"></i>
-            </li>
-          </ul>
-          <button class="btn btn-primary w-100 mt-3" [disabled]="!selectedStudent"
-            (click)="addSelectedStudent()">Добавить ученика</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>

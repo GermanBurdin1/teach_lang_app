@@ -546,4 +546,37 @@ if (savedClasses) {
     }
   }
 
+  //пользователи
+  openUserModal(): void {
+    this.isUserModalOpen = true;
+  }
+
+  // Закрыть модальное окно для пользователей
+  // Управление модальным окном "Пользователи"
+  isUserModalOpen = false;
+  closeUserModal(): void {
+    this.isUserModalOpen = false;
+  }
+
+  getTooltipText(role: string): string {
+    switch (role) {
+      case 'student':
+        return 'Ученик в классе';
+      case 'teacher':
+        return 'Преподаватель';
+      default:
+        return '';
+    }
+  }
+
+  showStudentListModal: boolean = false; // Переменная для управления отображением модального окна
+
+  openStudentListModal(): void {
+    this.showStudentListModal = true; // Открыть модалку
+  }
+
+  closeStudentListModal(): void {
+    this.showStudentListModal = false; // Закрыть модалку
+  }
+
 }
