@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './online-lessons.component.css'
 })
 export class OnlineLessonsComponent {
-  activeLessonTab: string = 'Расписание';
+  activeLessonTab: string = 'Классы';
   isCreateStudentModalOpen = false;
   showAdditionalInfo = false;
 
@@ -380,22 +380,6 @@ if (savedClasses) {
       this.selectedFile = input.files[0];
       console.log('Выбранный файл:', this.selectedFile.name);
     }
-  }
-
-  //заявки
-  isFormValid: boolean = false; // Добавлено свойство для проверки валидности формы
-  link: string = 'https://example.com'; // Ссылка для отображения в поле
-  showInvalidIcon: boolean = false;
-
-  copyLink(): void {
-    navigator.clipboard.writeText(this.link).then(
-      () => {
-        console.log('Ссылка скопирована в буфер обмена.');
-      },
-      (err) => {
-        console.error('Ошибка при копировании ссылки: ', err);
-      }
-    );
   }
 
   openSettings(): void {

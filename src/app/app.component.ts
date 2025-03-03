@@ -13,7 +13,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     const isSchoolDashboard = JSON.parse(localStorage.getItem('isSchoolDashboard') || 'true');
     if (isSchoolDashboard) {
-      this.router.navigate(['school/statistics']);
+      this.router.navigate(['school/marathons']);
     } else {
       this.router.navigate(['student/wordsTeaching']);
     }

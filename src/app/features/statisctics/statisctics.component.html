@@ -75,38 +75,4 @@
     </div>
   </div>
 
-  <div class="upcoming-lessons-container" style="max-width: 800px; margin: 0 auto;">
-    <h2 style="margin-bottom: 16px;">Ближайшие уроки</h2>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <!-- Кнопки для переключения недель -->
-      <div style="display: flex; align-items: center;">
-        <button style="padding: 8px 16px; border-radius: 4px; border: 1px solid #ccc; background: #ffffff;"
-          (click)="previousWeek()">Предыдущая неделя</button>
-        <span style="margin: 0 16px;">{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM'
-          }}</span>
-        <button style="padding: 8px 16px; border-radius: 4px; border: 1px solid #ccc; background: #ffffff;"
-          (click)="nextWeek()">Следующая неделя</button>
-      </div>
-    </div>
-
-    <!-- Таблица с расписанием уроков -->
-    <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
-      <thead>
-        <tr>
-          <th style="border: 1px solid #ccc; padding: 8px;">Время</th>
-          <th *ngFor="let day of getWeekDates()" style="border: 1px solid #ccc; padding: 8px;">{{ day | date: 'EEE, d
-            MMM'
-            }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let hour of hours">
-          <td style="border: 1px solid #ccc; padding: 8px;">{{ hour }}</td>
-          <td *ngFor="let day of getWeekDates()" style="border: 1px solid #ccc; padding: 8px; text-align: center;">
-            <!-- Здесь можно указать данные о занятиях, если они есть -->
-            <span *ngIf="isLessonScheduled(day, hour)">Урок</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+ 

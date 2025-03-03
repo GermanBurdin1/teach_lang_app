@@ -6,6 +6,7 @@ import { TariffStatusComponent } from './tariff-status/tariff-status.component';
 import { ProductCardComponent } from './product-card/product-card.component';
 import { AdditionalServicesComponent } from './additional-services/additional-services.component';
 import { TariffModalComponent } from './tariff-status/tariff-modal/tariff-modal.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { TariffModalComponent } from './tariff-status/tariff-modal/tariff-modal.
     AdditionalServicesComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    RouterModule.forChild([]),
   ],
   exports: [
     TariffsComponent,
