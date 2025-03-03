@@ -447,4 +447,103 @@ if (savedClasses) {
     console.log(`Переход к управлению классом с ID: ${classId}`);
   }
 
+  //добавить учеников
+  showStudentTabsModal: boolean = false;
+  openStudentTabsModal(): void {
+    this.showStudentTabsModal = true; // Открываем модалку
+    console.log("Открытие модалки: showStudentTabsModal =", this.showStudentTabsModal);
+
+  }
+
+  closeStudentTabsModal(): void {
+    this.showStudentTabsModal = false; // Закрываем модалку
+  }
+
+  activeTab: string = 'link'; // Начальная активная вкладка
+
+  switchTab(tab: string): void {
+    this.activeTab = tab; // Переключение активной вкладки
+  }
+
+  showAddAdditionalStudentModal: boolean = false;
+
+  currentModalView: string = 'default'; // Управление отображением ('default' или 'link')
+  inviteLink: string = 'https://new.progressme.ru/invite/1587'; // Ссылка для приглашения
+
+  switchModalView(view: string): void {
+    this.currentModalView = view;
+  }
+
+
+  openAddAdditionalStudentModal(): void {
+    this.showAddAdditionalStudentModal = true;
+    this.currentModalView = 'default';
+  }
+
+  closeAddAdditionalStudentModal(): void {
+    this.showAddAdditionalStudentModal = false;
+  }
+
+  copyLink(): void {
+    navigator.clipboard.writeText(this.inviteLink);
+    alert('Ссылка скопирована!');
+  }
+
+  users = [
+    {
+      initials: 'J',
+      name: 'Jean',
+      email: 'coding_german@',
+      id: 2477981,
+      role: 'student',
+    },
+    {
+      initials: 'A',
+      name: 'Alice',
+      email: 'alice@example.com',
+      id: 1234567,
+      role: 'student',
+    },
+  ];
+
+  // Список всех учеников
+  allStudents = [
+    { id: 1, name: 'German', email: 'coding_german@', initials: 'J', online: true },
+    { id: 2, name: 'Aliska', email: 'alice@example.com', initials: 'A', online: false },
+    { id: 3, name: 'Bobchenko', email: 'bob@example.com', initials: 'B', online: true },
+    // Добавьте других учеников
+  ];
+
+  getAvailableStudents(): any[] {
+    return this.allStudents.filter(
+      (user) => !this.users.some((s) => s.id === user.id)
+    );
+  }
+
+  selectedStudent: any = null;
+
+  selectStudent(student: any): void {
+    if (this.selectedStudent?.id === student.id) {
+      // Если студент уже выбран, снять выбор
+      this.selectedStudent = null;
+    } else {
+      // Если студент еще не выбран, выбрать
+      this.selectedStudent = student;
+    }
+  }
+
+  addSelectedStudent(): void {
+    if (this.selectedStudent) {
+      const alreadyExists = this.users.some(
+        (s) => s.id === this.selectedStudent.id
+      );
+      if (!alreadyExists) {
+        this.users.push(this.selectedStudent); // Добавить в класс
+        console.log('Добавлен ученик:', this.selectedStudent);
+      }
+      this.selectedStudent = null; // Снять выбор
+      this.switchModalView('default'); // Вернуться в начальное состояние
+    }
+  }
+
 }
