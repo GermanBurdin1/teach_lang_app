@@ -15,6 +15,7 @@ import { OnlineLessonsComponent } from '../online-lessons/online-lessons.compone
 import { TariffsModule } from "../tariffs/tariffs.module";
 // import { StatiscticsComponent } from '../statisctics/statisctics.component';
 import { WordsComponent } from '../words/words.component';
+import { SharedModule } from '../../shared/shared.module';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { WordsComponent } from '../words/words.component';
     DashboardRoutingModule,
     FormsModule,
     NgSelectModule,
-    TariffsModule
+    TariffsModule,
+    SharedModule
 ]
 })
 export class DashboardModule { }

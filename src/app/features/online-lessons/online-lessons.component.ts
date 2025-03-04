@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BackgroundService } from '../../services/background.service';
 
 @Component({
   selector: 'app-online-lessons',
@@ -10,6 +11,7 @@ export class OnlineLessonsComponent {
   activeLessonTab: string = 'Классы';
   isCreateStudentModalOpen = false;
   showAdditionalInfo = false;
+  classCover: string | null = null;
 
   switchLessonTab(tab: string): void {
     this.activeLessonTab = tab;
@@ -39,7 +41,7 @@ export class OnlineLessonsComponent {
   showNewLessonModal = false;
   activeModalTab: string = 'individual';
 
-  constructor(private route: ActivatedRoute, private router: Router) { }
+  constructor(private route: ActivatedRoute, private router: Router, private backgroundService: BackgroundService) { }
 
 
   ngOnInit(): void {
@@ -577,6 +579,141 @@ if (savedClasses) {
 
   closeStudentListModal(): void {
     this.showStudentListModal = false; // Закрыть модалку
+  }
+
+  // Загружаем обложку из localStorage
+  savedCover = localStorage.getItem('classCover');
+  if (savedCover: any) {
+    this.classCover = savedCover; 
+  }
+
+  // Загружаем фон из localStorage
+  savedBackground = localStorage.getItem('selectedBackground');
+
+  // openSchedule
+  showScheduleModal: boolean = false;
+
+  openScheduleModal(): void {
+    this.showScheduleModal = true;
+  }
+
+  //настройки класса
+  showClassSettingsModal: boolean = false;
+  openClassSettingsModal(): void {
+    this.showClassSettingsModal = true;
+  }
+
+  //выйти
+  showLeaveClassModal: boolean = false;
+
+  openLeaveClassModal(): void {
+    this.showLeaveClassModal = true; // Открыть модалку
+  }
+
+  closeClassSettingsModal(): void {
+    this.showClassSettingsModal = false;
+  }
+
+  tooltipPosition = { top: '0px', left: '0px' };
+
+  classSettingsTooltips = {
+    quickTranslation: 'Перевод текста по выделению',
+    lessonDuration: 'Продолжительность одного занятия',
+    classBackground: 'Выберите фон, который будет отображаться в виртуальном классе',
+    statistics: 'Начислять ученикам баллы за верные ответы и отображать их в результатах уроков',
+    studentRating: 'Показывать рейтинговую таблицу учеников, согласно набранным баллам.',
+  };
+
+  classSettingsTooltip: string | null = null;
+
+  showClassSettingsTooltip(
+    type: keyof typeof this.classSettingsTooltips,
+    event: MouseEvent
+  ): void {
+    this.classSettingsTooltip = this.classSettingsTooltips[type] || null;
+
+    // Вычисляем позицию подсказки
+    const target = event.target as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const modalRect = document.querySelector('.modal-dialog')?.getBoundingClientRect();
+
+    if (modalRect) {
+      this.tooltipPosition = {
+        top: `${rect.top - modalRect.top + window.scrollY - 30}px`, // Поднимаем подсказку над иконкой
+        left: `${rect.left - modalRect.left + rect.width / 2 + 10}px`, // Смещаем правее относительно центра
+      };
+    } else {
+      // Запасной вариант
+      this.tooltipPosition = {
+        top: `${rect.top + window.scrollY - 30}px`, // Поднимаем над иконкой
+        left: `${rect.left + window.scrollX + rect.width / 2 + 10}px`, // Смещаем правее относительно центра
+      };
+    }
+  }
+
+  hideClassSettingsTooltip(): void {
+    this.classSettingsTooltip = null;
+  }
+
+  //загрузить свой фон
+  uploadFile(inputId: string): void {
+    const fileInput = document.getElementById(inputId) as HTMLInputElement;
+    fileInput.click();
+  }
+
+  onFileUpload(event: Event, type: 'cover' | 'background'): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      console.log(`Выбран файл для ${type}:`, file.name);
+
+      // Дополнительная обработка
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (type === 'cover') {
+          this.classCover = reader.result as string; // Сохраняем обложку
+        } else if (type === 'background') {
+          this.selectedBackground = reader.result as string; // Сохраняем фон
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // меняе bg в classroom
+
+  selectedBackground: string = ''; // Временный фон
+
+  // Метод для временного выбора фона
+  selectBackground(imageUrl: string): void {
+    console.log("selected bg");
+
+    this.selectedBackground = imageUrl; // Устанавливаем временный фон
+  }
+
+  saveSettings(): void {
+    // Сохраняем фон через сервис
+    this.backgroundService.setBackground(this.selectedBackground);
+
+    // Сохраняем обложку
+    if (this.classCover) {
+      console.log('Сохранена обложка:', this.classCover);
+      localStorage.setItem('classCover', this.classCover); // Сохраняем обложку в localStorage
+    }
+
+    // Сохраняем фон
+    if (this.selectedBackground) {
+      console.log('Сохранён фон:', this.selectedBackground);
+      localStorage.setItem('selectedBackground', this.selectedBackground); // Сохраняем фон в localStorage
+    }
+
+    // Закрываем модалку
+    this.closeClassSettingsModal();
+  }
+
+
+  closeScheduleModal(): void {
+    this.showScheduleModal = false;
   }
 
 }
