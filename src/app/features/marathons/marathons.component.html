@@ -65,82 +65,81 @@
 
 <!-- Модальное окно -->
 <div *ngIf="showModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="modalTitle"
-aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
-<div class="modal-dialog modal-dialog-centered" role="document">
-  <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
-    <div class="modal-header border-0 justify-content-center position-relative">
-      <div class="modal-icon mb-3">
-        <i class="bi bi-info-circle-fill" style="font-size: 48px; color: #007bff;"></i>
+  aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header border-0 justify-content-center position-relative">
+        <div class="modal-icon mb-3">
+          <i class="bi bi-info-circle-fill" style="font-size: 48px; color: #007bff;"></i>
+        </div>
+        <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close"
+          (click)="closeTimetableModal()"></button>
       </div>
-      <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close"
-        (click)="closeTimetableModal()"></button>
-    </div>
-    <div class="modal-body">
-      <h5 class="modal-title mb-3" id="modalTitle">Добавление урока</h5>
-      <p>Это время отмечено как нерабочее время преподавателя. Продолжить постановку урока на это время?</p>
-    </div>
-    <div class="modal-footer justify-content-center border-0">
-      <button type="button" class="btn btn-outline-secondary me-3" (click)="closeTimetableModal()">Отмена</button>
-      <button type="button" class="btn btn-primary" (click)="openNewLessonModal()">Продолжить</button>
+      <div class="modal-body">
+        <h5 class="modal-title mb-3" id="modalTitle">Добавление урока</h5>
+        <p>Это время отмечено как нерабочее время преподавателя. Продолжить постановку урока на это время?</p>
+      </div>
+      <div class="modal-footer justify-content-center border-0">
+        <button type="button" class="btn btn-outline-secondary me-3" (click)="closeTimetableModal()">Отмена</button>
+        <button type="button" class="btn btn-primary" (click)="openNewLessonModal()">Продолжить</button>
+      </div>
     </div>
   </div>
-</div>
 </div>
 
 <!-- Модальное окно с вкладками -->
 <div *ngIf="showNewLessonModal" class="modal fade show d-block" tabindex="-1" role="dialog"
-aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
-<div class="modal-dialog modal-dialog-centered" role="document">
-  <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
-    <div class="modal-header border-0 justify-content-between align-items-center">
-      <h5 class="modal-title" id="newLessonModalTitle">Новый урок</h5>
-      <button type="button" class="btn-close" aria-label="Close" (click)="closeNewLessonModal()"></button>
-    </div>
-    <div class="modal-body">
-      <!-- Вкладки модального окна -->
-      <ul class="nav nav-tabs mb-3 justify-content-center">
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="activeModalTab === 'individual'"
-            (click)="switchModalTab('individual')">Индивидуальный</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="activeModalTab === 'group'"
-            (click)="switchModalTab('group')">Групповой</a>
-        </li>
-      </ul>
-
-      <!-- Содержимое для индивидуального урока -->
-      <div *ngIf="activeModalTab === 'individual'">
-        <input type="text" class="form-control mb-3" placeholder="Поиск учеников" />
-        <div class="p-4 border rounded d-flex flex-column align-items-center">
-          <div class="mb-3" style="font-size: 64px;">👋</div>
-          <p>Для планирования уроков сначала создайте класс</p>
-          <button class="btn btn-primary">Перейти к ученикам</button>
-        </div>
+  aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
+      <div class="modal-header border-0 justify-content-between align-items-center">
+        <h5 class="modal-title" id="newLessonModalTitle">Новый урок</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeNewLessonModal()"></button>
       </div>
+      <div class="modal-body">
+        <!-- Вкладки модального окна -->
+        <ul class="nav nav-tabs mb-3 justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeModalTab === 'individual'"
+              (click)="switchModalTab('individual')">Индивидуальный</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeModalTab === 'group'"
+              (click)="switchModalTab('group')">Групповой</a>
+          </li>
+        </ul>
 
-      <!-- Содержимое для группового урока -->
-      <div *ngIf="activeModalTab === 'group'">
-        <input type="text" class="form-control mb-3" placeholder="Поиск групп" />
-        <div class="p-4 border rounded d-flex flex-column align-items-center">
-          <div class="mb-3" style="font-size: 64px;">👥</div>
-          <p>Для планирования уроков сначала создайте класс</p>
-          <button class="btn btn-primary">Перейти к группам</button>
+        <!-- Содержимое для индивидуального урока -->
+        <div *ngIf="activeModalTab === 'individual'">
+          <input type="text" class="form-control mb-3" placeholder="Поиск учеников" />
+          <div class="p-4 border rounded d-flex flex-column align-items-center">
+            <div class="mb-3" style="font-size: 64px;">👋</div>
+            <p>Для планирования уроков сначала создайте класс</p>
+            <button class="btn btn-primary">Перейти к ученикам</button>
+          </div>
         </div>
-      </div>
 
+        <!-- Содержимое для группового урока -->
+        <div *ngIf="activeModalTab === 'group'">
+          <input type="text" class="form-control mb-3" placeholder="Поиск групп" />
+          <div class="p-4 border rounded d-flex flex-column align-items-center">
+            <div class="mb-3" style="font-size: 64px;">👥</div>
+            <p>Для планирования уроков сначала создайте класс</p>
+            <button class="btn btn-primary">Перейти к группам</button>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
-</div>
 </div>
 
 <!-- Основная структура: Курсы слева, Контент справа -->
 <div class="container mt-4 d-flex">
   <!-- Вертикальные вкладки курсов -->
   <div class="nav flex-column nav-pills me-3" style="min-width: 200px;">
-    <a *ngFor="let course of courses" class="nav-link"
-       [class.active]="course === selectedCourse"
-       (click)="selectCourse(course)">
+    <a *ngFor="let course of courses" class="nav-link" [class.active]="course === selectedCourse"
+      (click)="selectCourse(course)">
       {{ course }}
     </a>
   </div>
@@ -149,9 +148,7 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
   <div class="d-flex" *ngIf="isCourseOpen">
     <!-- Вертикальные вкладки внутри курса -->
     <div class="nav flex-column nav-tabs me-3" style="min-width: 200px;">
-      <a *ngFor="let tab of courseTabs" class="nav-link"
-         [class.active]="tab === selectedTab"
-         (click)="selectTab(tab)">
+      <a *ngFor="let tab of courseTabs" class="nav-link" [class.active]="tab === selectedTab" (click)="selectTab(tab)">
         {{ tab }}
       </a>
     </div>
@@ -172,16 +169,16 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
           <!-- Вкладки навигации -->
           <ul class="nav nav-tabs" id="materialsTabs" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="catalog-tab" data-bs-toggle="tab" data-bs-target="#catalog" type="button"
-                role="tab" aria-controls="catalog" aria-selected="true">Каталог</button>
+              <button class="nav-link active" id="catalog-tab" data-bs-toggle="tab" data-bs-target="#catalog"
+                type="button" role="tab" aria-controls="catalog" aria-selected="true">Каталог</button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button"
                 role="tab" aria-controls="personal" aria-selected="false">Личные</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="interactive-tab" data-bs-toggle="tab" data-bs-target="#interactive" type="button"
-                role="tab" aria-controls="interactive" aria-selected="false">Интерактивные доски</button>
+              <button class="nav-link" id="interactive-tab" data-bs-toggle="tab" data-bs-target="#interactive"
+                type="button" role="tab" aria-controls="interactive" aria-selected="false">Интерактивные доски</button>
             </li>
           </ul>
 
@@ -205,7 +202,7 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
               <div class="row">
                 <!-- Карточка для создания нового курса -->
                 <div class="col-3">
-                  <div class="card text-center" data-bs-toggle="modal" data-bs-target="#createMaterialModal">
+                  <div class="card text-center" (click)="openCreateCourseModal()">
                     <div class="card-body">
                       <div class="text-primary fs-3">+</div>
                       <p class="card-text">Создать новый курс</p>
@@ -214,20 +211,22 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
                 </div>
 
                 <!-- Перебор существующих курсов -->
-          <div class="col-3" *ngFor="let course of coursesCreated">
-            <div class="card text-center">
-              <div class="card-header">
-                <button (click)="openDeleteModal(course.id)" class="btn btn-sm btn-danger"
-                  aria-label="Удалить курс">×</button>
-              </div>
-              <div class="card-body">
-                <div class="display-4">{{ course.letter }}</div>
-                <p class="card-text">{{ course.name }}</p>
+                <div class="col-3" *ngFor="let course of coursesCreated">
+                  <div class="card text-center">
+                    <div class="card-header">
+                      <button (click)="openDeleteModal(course.id)" class="btn btn-sm btn-danger"
+                        aria-label="Удалить курс">×</button>
+                    </div>
+                    <div class="card-body">
+                      <div class="display-4">{{ course.letter }}</div>
+                      <p class="card-text">
+                        <a [routerLink]="['/school/course', course.id]">{{ course.name }}</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
             <!-- Вкладка "Интерактивные доски" -->
             <div class="tab-pane fade" id="interactive" role="tabpanel" aria-labelledby="interactive-tab">
@@ -324,7 +323,8 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
                           <label class="form-label mb-0 me-2">Разделы</label>
 
                           <!-- Tooltip icon with question mark -->
-                          <i class="bi bi-question-circle ms-1 text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                          <i class="bi bi-question-circle ms-1 text-primary" data-bs-toggle="tooltip"
+                            data-bs-placement="top"
                             title="Включив эту опцию, вы сможете группировать уроки по разделам"></i>
 
                           <!-- Toggle switch -->
@@ -407,7 +407,8 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
                   </div>
                   <!-- Тело модального окна -->
                   <div class="body mt-3">
-                    <button class="tir-button is-fill gray is-medium w-100 mb-3" (click)="resetFilters()">Сбросить все</button>
+                    <button class="tir-button is-fill gray is-medium w-100 mb-3" (click)="resetFilters()">Сбросить
+                      все</button>
 
                     <!-- Фильтры с использованием <select> -->
                     <div class="tir-label mb-3" *ngFor="let filter of filters">
@@ -447,12 +448,14 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
                   <!-- Обложка -->
                   <div class="d-flex align-items-center mb-3">
                     <label class="form-label me-3" style="width: 80px;">Обложка</label>
-                    <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;"></div>
+                    <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;">
+                    </div>
                     <!-- Скрытое поле для загрузки файла -->
                     <input type="file" id="coverUpload" class="d-none" (change)="onFileSelected($event)">
 
                     <!-- Кнопка для открытия диалога выбора файла -->
-                    <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+                    <button type="button" class="btn btn-outline-secondary"
+                      (click)="triggerFileInput()">Загрузить</button>
 
                   </div>
 
@@ -521,8 +524,7 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
           <div class="chart-wrapper">
             <h3 style="text-align: center; margin-bottom: 12px;">График Учеников</h3>
             <div class="chart-container" style="display: flex; justify-content: space-around; height: 150px;">
-              <div *ngFor="let height of statistics.studentsChartData"
-                   class="bar" [style.height]="height + '%'">
+              <div *ngFor="let height of statistics.studentsChartData" class="bar" [style.height]="height + '%'">
               </div>
             </div>
           </div>
@@ -538,8 +540,7 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
           <div class="chart-wrapper">
             <h3 style="text-align: center; margin-bottom: 12px;">График Уроков</h3>
             <div class="chart-container" style="display: flex; justify-content: space-around; height: 150px;">
-              <div *ngFor="let height of statistics.lessonsChartData"
-                   class="bar" [style.height]="height + '%'">
+              <div *ngFor="let height of statistics.lessonsChartData" class="bar" [style.height]="height + '%'">
               </div>
             </div>
           </div>
@@ -547,4 +548,23 @@ aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba
       </div>
     </div>
   </ng-container>
+</div>
+
+<!-- Модальное окно -->
+<div *ngIf="showCreateCourseModal" class="modal d-block">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Создание курса</h5>
+        <button type="button" class="close" (click)="closeCreateCourseModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" [(ngModel)]="newCourseName" class="form-control" placeholder="Название курса">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeCreateCourseModal()">Отмена</button>
+        <button type="button" class="btn btn-success" (click)="createCourse()">Создать</button>
+      </div>
+    </div>
+  </div>
 </div>

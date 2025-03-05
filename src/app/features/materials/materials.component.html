@@ -246,10 +246,7 @@
             <div class="tir-label mb-3" *ngFor="let filter of filters">
               <span class="label">{{ filter.label }}</span>
               <div class="field">
-                <select class="form-select" [(ngModel)]="selectedFilters[filter.type]">
-                  <option [value]="null" disabled selected>{{ filter.placeholder }}</option>
-                  <option *ngFor="let option of filter.options" [value]="option">{{ option }}</option>
-                </select>
+                
               </div>
             </div>
           </div>

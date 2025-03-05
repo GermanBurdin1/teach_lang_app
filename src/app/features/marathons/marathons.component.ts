@@ -272,9 +272,6 @@ export class MarathonsComponent implements AfterViewInit {
   }
 
   selectedFile: File | null = null;
-  coursesCreated = [
-    { id: 1, name: 'A1', letter: 'A' }
-  ];
 
   selectedCourseId: number | null = null;
   showDeleteModal = false;
@@ -363,5 +360,42 @@ export class MarathonsComponent implements AfterViewInit {
   triggerFileInput(): void {
     const fileInput = document.getElementById('coverUpload') as HTMLInputElement;
     fileInput?.click();
+  }
+
+  ///////////////////////////////////////////////////////////////////////создание курса
+  showCreateCourseModal = false;
+  newCourseName = '';
+  coursesCreated: { id: number; name: string; letter: string }[] = [];
+
+
+  // Открываем модальное окно
+  openCreateCourseModal(): void {
+    this.showCreateCourseModal = true;
+  }
+
+  // Закрываем модальное окно
+  closeCreateCourseModal(): void {
+    this.showCreateCourseModal = false;
+    this.newCourseName = ''; // Очищаем поле
+  }
+
+  // Создание курса (можно добавить генерацию ID и сохранение в массив)
+  createCourse(): void {
+    if (this.newCourseName.trim()) {
+      const newCourse = {
+        id: this.generateCourseId(),
+        name: this.newCourseName,
+        letter: this.newCourseName.charAt(0).toUpperCase() 
+      };
+      this.coursesCreated.push(newCourse);
+      this.closeCreateCourseModal();
+    }
+  }
+
+  // Метод генерации уникального ID
+  private generateCourseId(): number {
+    return this.coursesCreated.length > 0
+      ? Math.max(...this.coursesCreated.map(course => course.id)) + 1
+      : 1;
   }
 }
