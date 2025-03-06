@@ -62,6 +62,7 @@ export class MarathonsComponent implements AfterViewInit {
     this.loadHourRangeFromLocalStorage(); // Загружаем диапазон отображаемых часов
     this.updateCurrentTime(); // Обновляем текущее время
     setInterval(() => this.updateCurrentTime(), 60000); // Запускаем автообновление раз в минуту
+    this.loadCourses();
   }
 
   updateCurrentTime() {
@@ -385,10 +386,22 @@ export class MarathonsComponent implements AfterViewInit {
       const newCourse = {
         id: this.generateCourseId(),
         name: this.newCourseName,
-        letter: this.newCourseName.charAt(0).toUpperCase() 
+        letter: this.newCourseName.charAt(0).toUpperCase()
       };
       this.coursesCreated.push(newCourse);
+      this.saveCourses();
       this.closeCreateCourseModal();
+    }
+  }
+
+  saveCourses(): void {
+    localStorage.setItem('courses', JSON.stringify(this.coursesCreated));
+  }
+
+  loadCourses(): void {
+    const savedCourses = localStorage.getItem('courses');
+    if (savedCourses) {
+      this.coursesCreated = JSON.parse(savedCourses);
     }
   }
 
