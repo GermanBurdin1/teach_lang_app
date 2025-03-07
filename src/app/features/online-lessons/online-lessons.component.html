@@ -16,7 +16,7 @@
 
     <!-- Здесь будет весь контент OnlineLessonsComponent -->
     <div class="online-lessons" style="max-width: 800px; margin: 0 auto;">
-      <h2 class="mb-3">Создать новый класс</h2>
+      <h2 class="mb-3">Создать новое занятие</h2>
       <button class="btn btn-outline-primary me-2" (click)="openStudentTabsModal()">Добавить учеников</button>
       <!-- Кнопка "Пользователи" -->
       <button class="btn btn-outline-secondary me-2" (click)="openUserModal()">Пользователи</button>
@@ -80,14 +80,14 @@
       <!-- Контент "Классы" -->
       <div class="tab-pane fade show active" id="classes" role="tabpanel" aria-labelledby="classes-tab">
         <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Поиск классов..." aria-label="Поиск классов">
+          <input type="text" class="form-control" placeholder="Поиск занятий..." aria-label="Поиск занятий">
         </div>
 
-        <p class="mb-3">Классы: <strong>{{ classes.length }}</strong></p>
+        <p class="mb-3">Занятия: <strong>{{ classes.length }}</strong></p>
 
         <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center"
           (click)="openCreateClassModal()">
-          <i class="fas fa-plus-circle mr-2"></i> Создать новый класс
+          <i class="fas fa-plus-circle mr-2"></i> Создать новое занятие
         </button>
 
         <!-- Карточки классов -->
@@ -116,7 +116,7 @@
 
             <!-- Кнопка Управление, выровненная вертикально -->
             <button class="btn btn-outline-primary align-self-start" (click)="openClassManagement(classItem.id)">
-              Управление
+              Начать урок
             </button>
           </div>
         </div>

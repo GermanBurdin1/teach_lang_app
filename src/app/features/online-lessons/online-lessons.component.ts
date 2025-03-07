@@ -439,7 +439,7 @@ this.loadSelectedCourse();
     const newClass = {
       id: Date.now(),
       name: this.newClassName,
-      description: 'Описание класса',
+      description: 'Описание занятия',
     };
 
     // Добавляем класс в массив
