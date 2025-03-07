@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BackgroundService } from '../../services/background.service';
+import { MarathonsComponent } from '../marathons/marathons.component';
 
 @Component({
   selector: 'app-online-lessons',
   templateUrl: './online-lessons.component.html',
   styleUrl: './online-lessons.component.css'
 })
-export class OnlineLessonsComponent {
+export class OnlineLessonsComponent implements OnInit, AfterViewInit {
+  @ViewChild('marathonsComponent') marathonsComponent!: MarathonsComponent;
   activeLessonTab: string = 'Классы';
   isCreateStudentModalOpen = false;
   showAdditionalInfo = false;
@@ -65,6 +67,13 @@ if (savedClasses) {
 } else {
   this.classes = [];
 }
+
+this.loadSelectedCourse();
+  }
+
+  ngAfterViewInit() {
+    // После рендера компонента забираем курсы
+    this.courses = this.marathonsComponent.courses;
   }
 
   getStartOfWeek(date: Date): Date {
@@ -584,7 +593,7 @@ if (savedClasses) {
   // Загружаем обложку из localStorage
   savedCover = localStorage.getItem('classCover');
   if (savedCover: any) {
-    this.classCover = savedCover; 
+    this.classCover = savedCover;
   }
 
   // Загружаем фон из localStorage
@@ -714,6 +723,30 @@ if (savedClasses) {
 
   closeScheduleModal(): void {
     this.showScheduleModal = false;
+  }
+
+  //выбор курсов
+  courses: string[] = [];
+  selectedCourse: string | null = null;
+
+  receiveCourses(courses: string[]): void {
+    this.courses = courses;
+  }
+
+  selectCourse(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    if (target) {
+      this.selectedCourse = target.value;
+      localStorage.setItem('selectedCourse', this.selectedCourse);
+    }
+  }
+
+
+  loadSelectedCourse(): void {
+    const savedCourse = localStorage.getItem('selectedCourse');
+    if (savedCourse) {
+      this.selectedCourse = savedCourse;
+    }
   }
 
 }

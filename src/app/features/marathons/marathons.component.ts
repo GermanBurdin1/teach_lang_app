@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, Output, EventEmitter, OnInit } from '@angular/core';
 import { Tooltip } from 'bootstrap';
 
 @Component({
@@ -6,7 +6,8 @@ import { Tooltip } from 'bootstrap';
   templateUrl: './marathons.component.html',
   styleUrls: ['./marathons.component.css']
 })
-export class MarathonsComponent implements AfterViewInit {
+export class MarathonsComponent implements AfterViewInit, OnInit {
+  @Output() coursesEmitter = new EventEmitter<string[]>();
   document: any;
   // Основные вкладки
   mainTabs: string[] = ['Онлайн-уроки', 'Марафоны', 'Администратор'];
@@ -63,6 +64,7 @@ export class MarathonsComponent implements AfterViewInit {
     this.updateCurrentTime(); // Обновляем текущее время
     setInterval(() => this.updateCurrentTime(), 60000); // Запускаем автообновление раз в минуту
     this.loadCourses();
+    this.coursesEmitter.emit(this.courses);
   }
 
   updateCurrentTime() {
