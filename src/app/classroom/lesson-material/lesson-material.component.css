@@ -33,11 +33,20 @@ body {
   gap: 15px;
 }
 
+.video-wrapper {
+  display: flex;
+  align-items: flex-start; /* Выравнивание вверх */
+  height: auto;
+  min-height: 360px; /* Минимальная высота */
+  margin-top: 10px; /* Поднимаем блок выше */
+}
+
 .list-section {
-  width: 15%; /* Ограничиваем ширину левой части */
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Иконки остаются наверху */
+  gap: 10px; /* Расстояние между иконками */
+  margin-top: 10px; /* Поднимаем иконки */
 }
 
 .icon-item {
@@ -46,7 +55,6 @@ body {
   background: #f2f2f2;
   border: 1px solid #dcdcdc;
   border-radius: 6px;
-  margin-bottom: 15px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -55,7 +63,7 @@ body {
 
 .icon-item > i {
   font-size: 24px;
-  line-height: 1;
+  color: #4a4a4a;
 }
 
 .icon-empty {

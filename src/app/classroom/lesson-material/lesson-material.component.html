@@ -1,22 +1,21 @@
 <div class="container mt-4" [ngStyle]="{ 'backgroundImage': backgroundStyle, 'backgroundSize': 'cover' }">
 
-  <!-- Контейнер для видео, центрируем -->
-  <div class="row justify-content-center">
-    <div class="col-md-8 d-flex justify-content-center">
-      <app-video-call #videoCall *ngIf="showVideoCall"></app-video-call>
-    </div>
-  </div>
+  <div class="row justify-content-center align-items-start video-wrapper">
 
-  <!-- Основной контент -->
-  <div class="row justify-content-between align-items-start">
     <!-- Левая часть с иконками -->
-    <div class="col-md-2 list-section d-flex flex-column align-items-center">
+    <div class="col-md-2 list-section d-flex flex-column align-items-start">
       <div *ngFor="let icon of listIcons; let i = index; trackBy: trackByIndex"
            class="icon-item"
            (click)="icon === 'fas fa-chalkboard' ? openInteractiveBoard() : null">
         <i [ngClass]="icon"></i>
       </div>
     </div>
+
+    <!-- Контейнер с видео -->
+    <div class="col-md-8 d-flex justify-content-center">
+      <app-video-call #videoCall *ngIf="showVideoCall"></app-video-call>
+    </div>
+
   </div>
 
 </div>
