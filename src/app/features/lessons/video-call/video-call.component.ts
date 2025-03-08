@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, HostListener } from '@angular/core';
 import AgoraRTC, { IAgoraRTCClient, ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
 import { TokenService } from '../../../services/token.service';
 
@@ -25,6 +25,12 @@ export class VideoCallComponent implements OnInit {
   token = '';
   remoteVideos: ElementRef<HTMLVideoElement>[] = [];
   callActive: boolean = false;
+  // Размер видео
+  minSize = 300;
+  maxSize = 1000;
+  videoWidth = 640;
+  videoHeight = 360;
+  resizing = false;
 
   @Output() callStarted = new EventEmitter<void>();
   @Output() callEnded = new EventEmitter<void>();
@@ -179,4 +185,25 @@ export class VideoCallComponent implements OnInit {
 
     console.log('Client leaves channel');
   }
+
+// Начало изменения размера
+startResize(event: MouseEvent) {
+  this.resizing = true;
+  event.preventDefault();
+}
+
+@HostListener('document:mousemove', ['$event'])
+onResize(event: MouseEvent) {
+  if (!this.resizing) return;
+  const newWidth = Math.max(this.minSize, Math.min(this.maxSize, event.clientX - this.localVideo.nativeElement.offsetLeft));
+  const newHeight = (newWidth / 16) * 9; // Сохраняем соотношение 16:9
+  this.videoWidth = newWidth;
+  this.videoHeight = newHeight;
+}
+
+@HostListener('document:mouseup')
+stopResize() {
+  this.resizing = false;
+}
+
 }

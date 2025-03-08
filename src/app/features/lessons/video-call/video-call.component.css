@@ -1,7 +1,40 @@
+.video-call-container {
+  width: 100%;
+  max-width: 640px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column; /* Элементы идут вертикально */
+  align-items: center; /* Центрируем */
+}
+
+/* Разные размеры видео */
+.video-call-container.small .local-video-container {
+  max-width: 320px;
+}
+
+.video-call-container.medium .local-video-container {
+  max-width: 640px;
+}
+
+.video-call-container.large .local-video-container {
+  max-width: 1000px;
+}
+
+.local-video-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.video-controls {
+  margin-top: 10px; /* Отступ между видео и кнопкой */
+  display: flex;
+  justify-content: center; /* Центрируем кнопки */
+  gap: 10px;
+  width: 100%;
+}
+
 .end-call-btn {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
   background-color: red;
   color: white;
   font-size: 16px;
@@ -9,8 +42,51 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
-  &:hover {
-    background-color: darkred;
-  }
+.end-call-btn:hover {
+  background-color: darkred;
+}
+
+.size-btn {
+  background-color: blue;
+  color: white;
+  font-size: 14px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.size-btn:hover {
+  background-color: darkblue;
+}
+
+.video-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  border-radius: 8px;
+  overflow: hidden;
+  user-select: none;
+}
+
+.video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 15px;
+  height: 15px;
+  background: white;
+  border-radius: 50%;
+  cursor: nwse-resize;
 }
