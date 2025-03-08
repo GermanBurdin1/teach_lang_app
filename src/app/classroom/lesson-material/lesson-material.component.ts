@@ -1,19 +1,24 @@
-import { Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked} from '@angular/core';
 import { BackgroundService } from '../../services/background.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
-import { Router } from '@angular/router';
+import { Router,ActivatedRoute } from '@angular/router';
+import { VideoCallComponent } from '../../features/lessons/video-call/video-call.component';
 
 @Component({
   selector: 'app-lesson-material',
   templateUrl: './lesson-material.component.html',
   styleUrls: ['./lesson-material.component.css'],
 })
-export class LessonMaterialComponent implements OnInit, OnDestroy {
+export class LessonMaterialComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('videoCall', { read: VideoCallComponent }) videoCallComponent!: VideoCallComponent;
+
+
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
+  private isVideoCallStarted = false;
 
-  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router ) { }
+  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute ) { }
 
   listIcons: string[] = [
     'icon-empty', // Заглушка для первой иконки
@@ -38,6 +43,20 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       console.log('Observed contentView:', value);
     });
 
+    this.route.queryParams.subscribe(params => {
+      if (params['startCall'] === 'true') {
+        this.startVideoCall();
+      }
+    });
+
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.showVideoCall && !this.isVideoCallStarted && this.videoCallComponent) {
+      console.log('✅ VideoCallComponent найден в ngAfterViewChecked, запускаем startCall()');
+      this.isVideoCallStarted = true;
+      this.videoCallComponent.startCall();
+    }
   }
 
   ngOnDestroy(): void {
@@ -64,53 +83,27 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   showLanguageModal: boolean = false; // Отображение модального окна
   selectedLanguage: string = ''; // Выбранный язык
 
-  // Открыть модалку
-  openLanguageModal(): void {
-    this.showLanguageModal = true;
-  }
-
-  // Закрыть модалку
-  closeLanguageModal(): void {
-    this.showLanguageModal = false;
-  }
-
-  languages = [
-    { label: 'English', value: 'en', icon: 'fas fa-flag-usa' },
-    { label: 'French', value: 'fr', icon: 'fas fa-flag-france' },
-    { label: 'German', value: 'de', icon: 'fas fa-flag-germany' },
-    { label: 'Spanish', value: 'es', icon: 'fas fa-flag-spain' },
-    { label: 'Italian', value: 'it', icon: 'fas fa-flag-italy' },
-    { label: 'Polish', value: 'pl', icon: 'fas fa-flag-poland' },
-    { label: 'Russian', value: 'ru', icon: 'fas fa-flag-russia' },
-    { label: 'Portuguese', value: 'pt', icon: 'fas fa-flag-portugal' },
-    { label: 'Dutch', value: 'nl', icon: 'fas fa-flag-netherlands' },
-    { label: 'Swedish', value: 'sv', icon: 'fas fa-flag-sweden' },
-  ];
-
-  saveLanguage(): void {
-    // Обновляем массив иконок
-    this.listIcons = [
-      'fas fa-comment-alt', // Chat icon
-      'fas fa-language', // Translate icon
-      'fas fa-clock', // Timer icon
-      'fas fa-chalkboard', // Board icon
-    ];
-
-    this.lessonTabsService.setTabsVisible(true); // Делаем вкладки видимыми
-    this.lessonTabsService.setActiveTab('lesson'); // Переключаемся на вкладку "Урок"
-    this.lessonTabsService.setContentView('lessonView'); // Меняем отображение на "Урок"
-    this.lessonTabsService.setRightPanelVisible(true); // Делаем правую панель видимой
-    this.lessonTabsService.setLessonStarted(true); // Указываем, что урок начат
-    this.lessonTabsService.setLessonDescription({
-      lesson: 'Lesson 1',
-      course: 'Course 1',
-    }); // Устанавливаем описание урока
-
-    this.closeLanguageModal();
-  }
 
   // Открытие интерактивной доски
   openInteractiveBoard(): void {
     this.router.navigate([`${this.lessonTabsService.getCurrentLessonId()}/board`]); // Убедитесь, что ID урока указан
   }
+
+
+
+  startVideoCall(): void {
+    console.log('🎥 startVideoCall() вызван');
+    this.showVideoCall = true;
+  }
+
+  set showVideoCall(value: boolean) {
+    console.log('🔄 showVideoCall изменён:', value);
+    this._showVideoCall = value;
+  }
+
+  get showVideoCall(): boolean {
+    return this._showVideoCall;
+  }
+
+  private _showVideoCall = false;
 }

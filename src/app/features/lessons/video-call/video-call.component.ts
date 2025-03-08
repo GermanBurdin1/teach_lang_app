@@ -30,16 +30,33 @@ export class VideoCallComponent implements OnInit {
 
   constructor(private tokenService: TokenService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    console.log('📹 VideoCallComponent загружен');
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+  .then(stream => {
+    console.log('✅ Камера работает:', stream);
+  })
+  .catch(error => {
+    console.error('❌ Ошибка при доступе к камере:', error);
+  });
+}
+
+
 
   // Функции вызываемые извне, чтобы начать и завершить звонок
   public async startCall(): Promise<void> {
     try {
+      console.log('🔵 startCall() вызван');
+
       this.token = await this.tokenService.getToken(this.channelName);
+      console.log('🔵 Получен токен:', this.token);
+
       await this.joinChannel();
+      console.log('✅ Успешно подключился к каналу');
+
       this.callStarted.emit();
     } catch (error) {
-      console.error('Failed to start call', error);
+      console.error('❌ Ошибка при старте звонка:', error);
     }
   }
 
@@ -54,49 +71,70 @@ export class VideoCallComponent implements OnInit {
 
   // Присоединение к каналу
   private async joinChannel(): Promise<void> {
-    if (!this.token) {
-      throw new Error('Token is not available for joining channel.');
+    try {
+        if (!this.token) {
+            throw new Error('❌ Token is not available for joining channel.');
+        }
+
+        console.log('🔵 Начинаем подключение к каналу:', this.channelName);
+
+        this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        console.log('🎙️ Аудиотрек успешно создан.');
+
+        this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+        console.log('📹 Видеотрек успешно создан:', this.localTracks.videoTrack);
+
+        if (this.localVideo.nativeElement) {
+            console.log('🎥 Воспроизведение локального видео начато.');
+            this.localTracks.videoTrack.play(this.localVideo.nativeElement);
+        }
+
+        console.log('🔵 Присоединяюсь к каналу Agora:', this.channelName);
+        await this.agoraClient.join(this.appId, this.channelName, this.token);
+        console.log('✅ Успешно подключился к каналу.');
+
+        console.log('📡 Публикую видеопоток...');
+        await this.agoraClient.publish(Object.values(this.localTracks).filter(track => track !== null) as ILocalTrack[]);
+        console.log('✅ Видеопоток опубликован.');
+
+        this.agoraClient.on('user-published', async (user, mediaType) => {
+            console.log(`👤 Пользователь ${user.uid} опубликовал медиа: ${mediaType}`);
+            await this.agoraClient.subscribe(user, mediaType);
+            console.log(`✅ Подписка на ${mediaType} пользователя ${user.uid} успешна.`);
+
+            if (mediaType === 'video' && user.videoTrack) {
+                console.log(`📹 Видеотрек получен от пользователя ${user.uid}, воспроизведение...`);
+                const remoteVideoTrack = user.videoTrack;
+
+                const videoElement = document.createElement('video');
+                videoElement.id = `video_${user.uid}`;
+                document.body.appendChild(videoElement);
+                remoteVideoTrack.play(videoElement);
+
+                this.remoteVideos.push(new ElementRef(videoElement));
+            }
+
+            if (mediaType === 'audio' && user.audioTrack) {
+                console.log(`🔊 Аудиотрек получен от пользователя ${user.uid}, воспроизведение...`);
+                user.audioTrack.play();
+            }
+        });
+
+        this.agoraClient.on('user-unpublished', (user) => {
+            console.log(`🚫 Пользователь ${user.uid} прекратил публикацию.`);
+            const index = this.remoteVideos.findIndex(x => x.nativeElement.id === `video_${user.uid}`);
+            if (index !== -1) {
+                console.log(`🗑️ Удаляем видео элемент пользователя ${user.uid}`);
+                this.remoteVideos[index].nativeElement.remove();
+                this.remoteVideos.splice(index, 1);
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка при присоединении к каналу:', error);
     }
+}
 
-    this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-
-    if (this.localVideo.nativeElement) {
-      this.localTracks.videoTrack.play(this.localVideo.nativeElement);
-    }
-
-    await this.agoraClient.join(this.appId, this.channelName, this.token);
-    await this.agoraClient.publish(Object.values(this.localTracks).filter(track => track !== null) as ILocalTrack[]);
-
-    console.log('Publish success');
-
-    this.agoraClient.on('user-published', async (user, mediaType) => {
-      await this.agoraClient.subscribe(user, mediaType);
-      console.log('Subscribe success');
-
-      if (mediaType === 'video' && user.videoTrack) {
-        const remoteVideoTrack = user.videoTrack;
-
-        const videoElement = document.createElement('video');
-        document.body.appendChild(videoElement);
-        remoteVideoTrack.play(videoElement);
-
-        this.remoteVideos.push(new ElementRef(videoElement));
-      }
-
-      if (mediaType === 'audio' && user.audioTrack) {
-        user.audioTrack.play();
-      }
-    });
-
-    this.agoraClient.on('user-unpublished', (user) => {
-      const index = this.remoteVideos.findIndex(x => x.nativeElement.id === `video_${user.uid}`);
-      if (index !== -1) {
-        this.remoteVideos[index].nativeElement.remove();
-        this.remoteVideos.splice(index, 1);
-      }
-    });
-  }
 
   // Завершение вызова
   private async leaveChannel(): Promise<void> {

@@ -454,7 +454,7 @@ this.loadSelectedCourse();
   }
 
   openClassManagement(classId: number): void {
-    this.router.navigate([`/classroom/${classId}/lesson`]);
+    this.router.navigate([`/classroom/${classId}/lesson`], { queryParams: { startCall: true } });
     console.log(`Переход к управлению классом с ID: ${classId}`);
   }
 
