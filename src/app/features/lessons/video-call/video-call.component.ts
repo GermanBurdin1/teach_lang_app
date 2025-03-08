@@ -25,6 +25,8 @@ export class VideoCallComponent implements OnInit {
   token = '';
   remoteVideos: ElementRef<HTMLVideoElement>[] = [];
   callActive: boolean = false;
+  showControls: boolean = false;
+  private controlTimeout: any;
   // Размер видео
   minSize = 300;
   maxSize = 1000;
@@ -206,4 +208,17 @@ stopResize() {
   this.resizing = false;
 }
 
+showVideoControls(): void {
+  this.showControls = true;
+  clearTimeout(this.controlTimeout);
+  this.controlTimeout = setTimeout(() => {
+    this.showControls = false;
+  }, 3000);
+}
+
+hideVideoControls(): void {
+  this.controlTimeout = setTimeout(() => {
+    this.showControls = false;
+  }, 3000);
+}
 }

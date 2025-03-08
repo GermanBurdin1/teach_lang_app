@@ -90,3 +90,28 @@
   border-radius: 50%;
   cursor: nwse-resize;
 }
+
+.control-btn {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7); /* Затемнение */
+  color: white;
+  font-size: 14px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.video-container:hover .control-btn,
+.video-container.show-controls .control-btn {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
