@@ -5,4 +5,8 @@
   <div id="remote-videos" class="remote-videos">
     <!-- Элементы видео для удаленных пользователей будут добавляться программно -->
   </div>
+  <!-- Кнопка toggle для завершения/возобновления звонка -->
+  <button class="btn btn-danger end-call-btn" (click)="toggleCall()">
+    {{ callActive ? 'Завершить звонок' : 'Возобновить видеозвонок' }}
+  </button>
 </div>

@@ -24,6 +24,7 @@ export class VideoCallComponent implements OnInit {
   channelName = 'rtc_token';
   token = '';
   remoteVideos: ElementRef<HTMLVideoElement>[] = [];
+  callActive: boolean = false;
 
   @Output() callStarted = new EventEmitter<void>();
   @Output() callEnded = new EventEmitter<void>();
@@ -55,17 +56,47 @@ export class VideoCallComponent implements OnInit {
       console.log('✅ Успешно подключился к каналу');
 
       this.callStarted.emit();
+      this.callActive = true;
     } catch (error) {
       console.error('❌ Ошибка при старте звонка:', error);
     }
   }
 
+  public async toggleCall(): Promise<void> {
+    if (this.callActive) {
+      await this.endCall();
+    } else {
+      await this.startCall();
+    }
+  }
+
   public async endCall(): Promise<void> {
     try {
-      await this.leaveChannel();
+      console.log('🔴 Завершаем звонок...');
+
+      this.localTracks.videoTrack?.stop();
+      this.localTracks.videoTrack?.close();
+      this.localTracks.audioTrack?.stop();
+      this.localTracks.audioTrack?.close();
+
+      this.agoraClient.remoteUsers.forEach(user => {
+        this.agoraClient.unsubscribe(user);
+      });
+
+      await this.agoraClient.leave();
+      console.log('✅ Клиент покинул канал');
+
       this.callEnded.emit();
+      this.callActive = false; // Очищаем флаг после завершения звонка
+
+      // Очищаем видеоэлементы
+      if (this.localVideo.nativeElement) {
+        this.localVideo.nativeElement.srcObject = null;
+      }
+      document.querySelectorAll('video[id^="video_"]').forEach(video => video.remove());
+
     } catch (error) {
-      console.error('Failed to end call', error);
+      console.error('❌ Ошибка при завершении звонка:', error);
     }
   }
 
