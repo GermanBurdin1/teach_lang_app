@@ -2,7 +2,7 @@ import { Component, AfterViewInit, HostListener } from '@angular/core';
 import * as fabric from 'fabric';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { log } from 'fabric/fabric-impl';
+
 
 @Component({
   selector: 'app-interactive-board',

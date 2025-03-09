@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, HostListener, Input } from '@angular/core';
 import AgoraRTC, { IAgoraRTCClient, ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
 import { TokenService } from '../../../services/token.service';
 
@@ -9,6 +9,7 @@ import { TokenService } from '../../../services/token.service';
 })
 export class VideoCallComponent implements OnInit {
   @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
+  @Input() isFloatingMode: boolean = false; // Флаг плавающего режима
 
   agoraClient: IAgoraRTCClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
   localTracks: {

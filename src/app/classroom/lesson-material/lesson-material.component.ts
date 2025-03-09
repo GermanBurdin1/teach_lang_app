@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked} from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked, HostListener} from '@angular/core';
 import { BackgroundService } from '../../services/background.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
@@ -17,6 +17,15 @@ export class LessonMaterialComponent implements OnInit, OnDestroy, AfterViewChec
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
+
+  // Флаг плавающего видео
+  isFloatingVideo: boolean = false;
+  floatingVideoPosition = { x: window.innerWidth - 320, y: 20 }; // Изначальная позиция (справа сверху)
+  dragging = false;
+  offsetX = 0;
+  offsetY = 0;
+
+
 
   constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute ) { }
 
@@ -86,11 +95,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy, AfterViewChec
 
   // Открытие интерактивной доски
   openInteractiveBoard(): void {
+    this.isFloatingVideo = true;
+    this.videoCallComponent.videoWidth = 320;
+    this.videoCallComponent.videoHeight = 180;
     this.router.navigate([`${this.lessonTabsService.getCurrentLessonId()}/board`]); // Убедитесь, что ID урока указан
   }
-
-
-
   startVideoCall(): void {
     console.log('🎥 startVideoCall() вызван');
     this.showVideoCall = true;
@@ -106,4 +115,26 @@ export class LessonMaterialComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   private _showVideoCall = false;
+
+   // Функции для перемещения окна
+   startDrag(event: MouseEvent): void {
+    this.dragging = true;
+    this.offsetX = event.clientX - this.floatingVideoPosition.x;
+    this.offsetY = event.clientY - this.floatingVideoPosition.y;
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent): void {
+    if (!this.dragging) return;
+    const maxX = window.innerWidth - 320; // Максимальная ширина
+    const maxY = window.innerHeight - 180; // Максимальная высота
+
+    this.floatingVideoPosition.x = Math.max(0, Math.min(event.clientX - this.offsetX, maxX));
+    this.floatingVideoPosition.y = Math.max(0, Math.min(event.clientY - this.offsetY, maxY));
+}
+
+  @HostListener('document:mouseup')
+  stopDrag(): void {
+    this.dragging = false;
+  }
 }
