@@ -1,33 +1,24 @@
-import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked, HostListener} from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked, HostListener } from '@angular/core';
 import { BackgroundService } from '../../services/background.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
-import { Router,ActivatedRoute } from '@angular/router';
-import { VideoCallComponent } from '../../features/lessons/video-call/video-call.component';
+import { Router, ActivatedRoute } from '@angular/router';
+import { VideoCallService } from '../../services/video-call.service';
 
 @Component({
   selector: 'app-lesson-material',
   templateUrl: './lesson-material.component.html',
   styleUrls: ['./lesson-material.component.css'],
 })
-export class LessonMaterialComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('videoCall', { read: VideoCallComponent }) videoCallComponent!: VideoCallComponent;
+export class LessonMaterialComponent implements OnInit, OnDestroy {
 
 
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
 
-  // Флаг плавающего видео
-  isFloatingVideo: boolean = false;
-  floatingVideoPosition = { x: window.innerWidth - 320, y: 20 }; // Изначальная позиция (справа сверху)
-  dragging = false;
-  offsetX = 0;
-  offsetY = 0;
 
-
-
-  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute ) { }
+  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute, public videoService: VideoCallService) { }
 
   listIcons: string[] = [
     'icon-empty', // Заглушка для первой иконки
@@ -40,39 +31,51 @@ export class LessonMaterialComponent implements OnInit, OnDestroy, AfterViewChec
     return index;
   }
 
-
   ngOnInit(): void {
-    // Подписываемся на изменения фона
+    console.log('✅ LessonMaterialComponent загружен');
+
     this.backgroundSubscription = this.backgroundService.background$.subscribe(
       (newBackground) => {
         this.backgroundStyle = newBackground;
       }
     );
+
     this.lessonTabsService.contentView$.subscribe((value) => {
-      console.log('Observed contentView:', value);
+      console.log('🔍 Observed contentView:', value);
     });
 
+    // Восстанавливаем обычное видео при возврате в класс
+    if (this.videoService.getRegularVideoActive()) {
+      console.log('🎥 Восстанавливаем обычное видео после возврата в класс');
+      this.videoService.startVideoCall(); // Запускаем обычное видео
+    }
+
+    // Выключаем Floating Video при возврате в класс
+    this.videoService.setFloatingVideoActive(false);
+    this.videoService.toggleFloatingVideo(false);
+
     this.route.queryParams.subscribe(params => {
+      console.log('📍 Получены queryParams:', params);
+
       if (params['startCall'] === 'true') {
-        this.startVideoCall();
+        console.log('🎥 Старт видеозвонка по параметру URL');
+        this.videoService.startVideoCall();
       }
     });
 
+    this.videoService.resetVideoSize();
+
   }
 
-  ngAfterViewChecked(): void {
-    if (this.showVideoCall && !this.isVideoCallStarted && this.videoCallComponent) {
-      console.log('✅ VideoCallComponent найден в ngAfterViewChecked, запускаем startCall()');
-      this.isVideoCallStarted = true;
-      this.videoCallComponent.startCall();
-    }
-  }
 
   ngOnDestroy(): void {
-    // Отписываемся при уничтожении компонента
     if (this.backgroundSubscription) {
+      console.log('📢 Отписка от backgroundSubscription');
       this.backgroundSubscription.unsubscribe();
     }
+
+    // ❌ НЕ СБРАСЫВАЕМ ВИДЕО, ЧТОБЫ ОНО НЕ ПРОПАДАЛО
+    console.log(`🎥 Перед удалением компонента showVideoCall$ = ${this.videoService.showVideoCallSubject.getValue()}`);
   }
 
   // стилизация
@@ -95,15 +98,30 @@ export class LessonMaterialComponent implements OnInit, OnDestroy, AfterViewChec
 
   // Открытие интерактивной доски
   openInteractiveBoard(): void {
-    this.isFloatingVideo = true;
-    this.videoCallComponent.videoWidth = 320;
-    this.videoCallComponent.videoHeight = 180;
-    this.router.navigate([`${this.lessonTabsService.getCurrentLessonId()}/board`]); // Убедитесь, что ID урока указан
+    console.log('🔗 Навигация к', `${this.lessonTabsService.getCurrentLessonId()}/board`);
+
+    // Скрываем обычное видео перед переходом
+    this.videoService.setRegularVideoActive(false);
+
+    // Включаем плавающее видео
+    this.videoService.setFloatingVideoActive(true);
+    this.videoService.setFloatingVideoSize(320, 180);
+
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate([`${this.lessonTabsService.getCurrentLessonId()}/board`]);
+    });
   }
+
   startVideoCall(): void {
-    console.log('🎥 startVideoCall() вызван');
-    this.showVideoCall = true;
+    if (this.videoService.showVideoCallSubject.getValue()) {
+      console.log('⚠ Видео уже запущено, не дублируем');
+      return;
+    }
+
+    console.log('🎥 Запуск видеозвонка');
+    this.videoService.startVideoCall();
   }
+
 
   set showVideoCall(value: boolean) {
     console.log('🔄 showVideoCall изменён:', value);
@@ -116,25 +134,13 @@ export class LessonMaterialComponent implements OnInit, OnDestroy, AfterViewChec
 
   private _showVideoCall = false;
 
-   // Функции для перемещения окна
-   startDrag(event: MouseEvent): void {
-    this.dragging = true;
-    this.offsetX = event.clientX - this.floatingVideoPosition.x;
-    this.offsetY = event.clientY - this.floatingVideoPosition.y;
-  }
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
-    if (!this.dragging) return;
-    const maxX = window.innerWidth - 320; // Максимальная ширина
-    const maxY = window.innerHeight - 180; // Максимальная высота
+    this.videoService.onResize(event);
+  }
 
-    this.floatingVideoPosition.x = Math.max(0, Math.min(event.clientX - this.offsetX, maxX));
-    this.floatingVideoPosition.y = Math.max(0, Math.min(event.clientY - this.offsetY, maxY));
-}
-
-  @HostListener('document:mouseup')
-  stopDrag(): void {
-    this.dragging = false;
+  startDrag(event: MouseEvent): void {
+    this.videoService.startResize(event);
   }
 }

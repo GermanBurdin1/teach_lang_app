@@ -4,28 +4,18 @@
 
     <!-- Левая часть с иконками -->
     <div class="col-md-2 list-section d-flex flex-column align-items-start">
-      <div *ngFor="let icon of listIcons; let i = index; trackBy: trackByIndex"
-           class="icon-item"
-           (click)="icon === 'fas fa-chalkboard' ? openInteractiveBoard() : null">
+      <div *ngFor="let icon of listIcons; let i = index; trackBy: trackByIndex" class="icon-item"
+        (click)="icon === 'fas fa-chalkboard' ? openInteractiveBoard() : null">
         <i [ngClass]="icon"></i>
       </div>
     </div>
 
     <!-- Контейнер с видео -->
-    <div class="col-md-8 d-flex justify-content-center" *ngIf="!isFloatingVideo">
-      <app-video-call #videoCall *ngIf="showVideoCall" [isFloatingMode]="false"></app-video-call>
+    <div class="col-md-8 d-flex justify-content-center">
+      <app-video-call *ngIf="(videoService.showVideoCall$ | async) && !(videoService.isFloatingVideo$ | async)"
+        [isFloatingMode]="false"></app-video-call>
     </div>
 
-
-  </div>
-
-  <div class="floating-video" *ngIf="isFloatingVideo" [style.left.px]="floatingVideoPosition.x" [style.top.px]="floatingVideoPosition.y"
-       (mousedown)="startDrag($event)">
-
-    <!-- Кнопка закрытия плавающего видео -->
-    <button class="close-btn-floating-video" (click)="isFloatingVideo = false">✖</button>
-
-    <app-video-call #videoCall *ngIf="showVideoCall" [isFloatingMode]="true"></app-video-call>
   </div>
 
 </div>

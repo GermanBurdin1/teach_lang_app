@@ -1,7 +1,11 @@
-import { Component, AfterViewInit, HostListener } from '@angular/core';
+import { Component, AfterViewInit, HostListener, OnInit } from '@angular/core';
 import * as fabric from 'fabric';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { VideoCallService } from '../../../services/video-call.service';
+import { ClassroomModule } from '../../classroom.module';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 
 @Component({
@@ -9,9 +13,9 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   templateUrl: './interactive-board.component.html',
   styleUrls: ['./interactive-board.component.css'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ClassroomModule],
 })
-export class InteractiveBoardComponent implements AfterViewInit {
+export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   canvas!: fabric.Canvas;
   zoomLevel = 1; // Current zoom level
   panX = 0; // Horizontal pan offset
@@ -23,7 +27,32 @@ export class InteractiveBoardComponent implements AfterViewInit {
 
   // Current tool
   currentTool: 'brush' | 'rectangle' | 'circle' = 'brush';
+  // Флаг плавающего видео
+  isFloatingVideo: boolean = false;
+  floatingVideoPosition = { x: window.innerWidth - 320, y: 20 }; // Изначальная позиция (справа сверху)
+  dragging = false;
+  offsetX = 0;
+  offsetY = 0;
 
+
+  constructor(private cdr: ChangeDetectorRef, public videoService: VideoCallService) {}
+
+  ngOnInit(): void {
+    console.log('📌 BoardComponent загружен');
+    setTimeout(() => {
+      if (!this.videoService.isFloatingVideoSubject.getValue()) {
+        console.log('🟢 Включаем плавающее видео');
+        this.videoService.toggleFloatingVideo(true);
+      } else {
+        console.log('✅ Плавающее видео уже включено');
+      }
+
+      // 🔥 Задержка перед обновлением Board
+      setTimeout(() => {
+        this.cdr.detectChanges();
+      }, 100);
+    }, 500);
+  }
   ngAfterViewInit(): void {
     this.canvas = new fabric.Canvas('drawingCanvas', {
       isDrawingMode: true,
@@ -490,6 +519,31 @@ export class InteractiveBoardComponent implements AfterViewInit {
 
   cancelDelete(): void {
     this.showDeleteModal = false;
+  }
+
+  startResize(event: MouseEvent): void {
+    event.preventDefault();
+
+    console.log("🔄 Начало изменения размера видео");
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      this.videoService.resizeVideo(deltaX, deltaY);
+    };
+
+    const onMouseUp = () => {
+      console.log("✅ Завершение изменения размера видео");
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
   }
 
 

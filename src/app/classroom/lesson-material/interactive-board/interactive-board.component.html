@@ -55,22 +55,39 @@
 
   <!-- Canvas -->
   <canvas id="drawingCanvas"></canvas>
-<!-- Модалка для подтверждения удаления -->
-<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showDeleteModal }" *ngIf="showDeleteModal"
-  style="background-color: rgba(0, 0, 0, 0.5);">
-  <div class="modal-dialog modal-dialog-centered modal-sm text-center">
-    <div class="modal-content p-4">
-      <div class="modal-header border-0">
-        <h5 class="modal-title">Удалить элемент?</h5>
-        <button type="button" class="btn-close" aria-label="Close" (click)="cancelDelete()"></button>
-      </div>
-      <div class="modal-body">
-        <p>Вы уверены, что хотите удалить этот элемент?</p>
-      </div>
-      <div class="modal-footer border-0 d-flex justify-content-between">
-        <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Отмена</button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()">Удалить</button>
+  <!-- Модалка для подтверждения удаления -->
+  <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showDeleteModal }" *ngIf="showDeleteModal"
+    style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-sm text-center">
+      <div class="modal-content p-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Удалить элемент?</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="cancelDelete()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Вы уверены, что хотите удалить этот элемент?</p>
+        </div>
+        <div class="modal-footer border-0 d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Отмена</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()">Удалить</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+
+  <div class="floating-video" *ngIf="(videoService.isFloatingVideo$ | async) && (videoService.showVideoCall$ | async); else delayRender"
+    [style.left.px]="videoService.floatingVideoPosition.x" [style.top.px]="videoService.floatingVideoPosition.y"
+    [style.width.px]="videoService.videoWidth" [style.height.px]="videoService.videoHeight">
+
+    <button class="close-btn-floating-video" (click)="videoService.toggleFloatingVideo(false)">✖</button>
+
+    <app-video-call *ngIf="videoService.showVideoCall$ | async" [isFloatingMode]="true"></app-video-call>
+
+    <!-- Область для изменения размера -->
+    <div class="resize-handle" (mousedown)="startResize($event)"></div>
+  </div>
+
+  <ng-template #delayRender>
+    <p>Загрузка видео...</p>
+  </ng-template>

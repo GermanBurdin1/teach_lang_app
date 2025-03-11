@@ -8,11 +8,15 @@ import { TabsComponent } from './lesson-material/tabs/tabs.component';
 import { VideoCallComponent } from '../features/lessons/video-call/video-call.component';
 
 
+
 const routes: Routes = [
   { path: ':id/lesson', component: LessonMaterialComponent },
   {
     path: ':id/board',
-    loadComponent: () => import('./lesson-material/interactive-board/interactive-board.component').then(m => m.InteractiveBoardComponent)
+    loadComponent: () =>
+      import('./lesson-material/interactive-board/interactive-board.component').then(
+        (m) => m.InteractiveBoardComponent
+      )
   }
 ];
 
@@ -27,6 +31,7 @@ const routes: Routes = [
     FormsModule,
     TabsComponent,
     RouterModule.forChild(routes) // Маршрут компонента
-  ]
+  ],
+  exports: [VideoCallComponent]
 })
 export class ClassroomModule { }
