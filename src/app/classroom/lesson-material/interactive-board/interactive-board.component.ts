@@ -6,8 +6,6 @@ import { VideoCallService } from '../../../services/video-call.service';
 import { ClassroomModule } from '../../classroom.module';
 import { ChangeDetectorRef } from '@angular/core';
 
-
-
 @Component({
   selector: 'app-interactive-board',
   standalone: true,
@@ -84,8 +82,6 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
     });
 
   }
-
-
 
   // Zoom in and out
   zoomIn(): void {
@@ -533,6 +529,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
       const deltaX = moveEvent.clientX - startX;
       const deltaY = moveEvent.clientY - startY;
 
+      // Передаем дельту в обе стороны, чтобы ресайз был пропорциональный
       this.videoService.resizeVideo(deltaX, deltaY);
     };
 
@@ -544,6 +541,34 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
+  }
+
+  startDrag(event: MouseEvent): void {
+    this.dragging = true;
+    this.offsetX = event.clientX - this.videoService.floatingVideoPosition.x;
+    this.offsetY = event.clientY - this.videoService.floatingVideoPosition.y;
+
+    document.addEventListener("mousemove", this.onDragMove.bind(this));
+    document.addEventListener("mouseup", this.stopDrag.bind(this));
+  }
+
+  onDragMove(event: MouseEvent): void {
+    if (!this.dragging) return;
+
+    const maxX = window.innerWidth - this.videoService.videoWidth;
+    const maxY = window.innerHeight - this.videoService.videoHeight;
+
+    this.videoService.floatingVideoPosition.x = Math.max(0, Math.min(event.clientX - this.offsetX, maxX));
+    this.videoService.floatingVideoPosition.y = Math.max(0, Math.min(event.clientY - this.offsetY, maxY));
+
+    this.cdr.detectChanges(); // 🔥 Форсируем обновление Angular
+  }
+
+
+  stopDrag(): void {
+    this.dragging = false;
+    document.removeEventListener("mousemove", this.onDragMove.bind(this));
+    document.removeEventListener("mouseup", this.stopDrag.bind(this));
   }
 
 

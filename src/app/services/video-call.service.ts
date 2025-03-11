@@ -119,33 +119,36 @@ export class VideoCallService {
   }
 
   resizeVideo(deltaX: number, deltaY: number): void {
-    const aspectRatio = 16 / 9;
+    const aspectRatio = 9 / 16; // Соотношение сторон для портретного видео
 
     const minWidth = 320;
-    const minHeight = 180;
+    const minHeight = minWidth * aspectRatio; // Минимальная высота
     const maxWidth = 1280;
-    const maxHeight = 720;
+    const maxHeight = maxWidth * aspectRatio; // Максимальная высота
 
-    // Вычисляем новый размер с сохранением пропорций (ширина - основной параметр)
-    let newWidth = Math.max(minWidth, Math.min(this._videoSize.width + deltaX, maxWidth));
-    let newHeight = newWidth / aspectRatio;
+    // Выбираем основное направление изменения размера (берем наибольшее)
+    let sizeChange = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
 
-    // Проверяем, чтобы высота тоже оставалась в допустимых пределах
+    // Вычисляем новую высоту и ширину
+    let newWidth = Math.max(minWidth, Math.min(this._videoSize.width + sizeChange, maxWidth));
+    let newHeight = newWidth * aspectRatio;
+
+    // Проверяем границы по высоте
     if (newHeight < minHeight) {
       newHeight = minHeight;
-      newWidth = newHeight * aspectRatio;
-    }
-    if (newHeight > maxHeight) {
+      newWidth = newHeight / aspectRatio;
+    } else if (newHeight > maxHeight) {
       newHeight = maxHeight;
-      newWidth = newHeight * aspectRatio;
+      newWidth = newHeight / aspectRatio;
     }
 
     // Применяем новые размеры
     this._videoSize.width = newWidth;
     this._videoSize.height = newHeight;
 
-    console.log(`📏 Новый размер видео: ${newWidth}x${newHeight}`);
+    console.log(`📏 Новый размер видео (ПОРТРЕТ): ${newWidth}x${newHeight}`);
   }
+
 
   onResize(event: MouseEvent): void {
     if (!this.dragging) return;
