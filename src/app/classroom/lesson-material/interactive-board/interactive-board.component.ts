@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, HostListener, OnInit } from '@angular/core';
+import { Component, AfterViewInit, HostListener, OnInit, ViewChild, ElementRef } from '@angular/core';
 import * as fabric from 'fabric';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { ChangeDetectorRef } from '@angular/core';
   imports: [CommonModule, FormsModule, ClassroomModule],
 })
 export class InteractiveBoardComponent implements OnInit, AfterViewInit {
+  @ViewChild('videoCallElement', { static: false }) videoCallElement!: ElementRef;
   canvas!: fabric.Canvas;
   zoomLevel = 1; // Current zoom level
   panX = 0; // Horizontal pan offset
@@ -80,6 +81,11 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
       console.log('Создан объект кистью:', path);
     });
+
+    setTimeout(() => {
+      const videoElements = document.querySelectorAll('app-video-call');
+      console.log(`🔍 Найдено <app-video-call>:`, videoElements.length);
+    }, 1000);
 
   }
 
@@ -545,31 +551,52 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
   startDrag(event: MouseEvent): void {
     this.dragging = true;
-    this.offsetX = event.clientX - this.videoService.floatingVideoPosition.x;
-    this.offsetY = event.clientY - this.videoService.floatingVideoPosition.y;
 
-    document.addEventListener("mousemove", this.onDragMove.bind(this));
-    document.addEventListener("mouseup", this.stopDrag.bind(this));
-  }
+    // Получаем сам элемент floating-video
+    const floatingVideo = document.querySelector('.floating-video') as HTMLElement;
+    if (!floatingVideo) return;
 
-  onDragMove(event: MouseEvent): void {
+    // Запоминаем текущее положение видео
+    const rect = floatingVideo.getBoundingClientRect();
+    this.offsetX = event.clientX - rect.left;
+    this.offsetY = event.clientY - rect.top;
+
+    document.addEventListener('mousemove', this.onDragMove.bind(this));
+    document.addEventListener('mouseup', this.stopDrag.bind(this));
+}
+
+onDragMove(event: MouseEvent): void {
     if (!this.dragging) return;
 
-    const maxX = window.innerWidth - this.videoService.videoWidth;
-    const maxY = window.innerHeight - this.videoService.videoHeight;
+    const floatingVideo = document.querySelector('.floating-video') as HTMLElement;
+    if (!floatingVideo) return;
 
-    this.videoService.floatingVideoPosition.x = Math.max(0, Math.min(event.clientX - this.offsetX, maxX));
-    this.videoService.floatingVideoPosition.y = Math.max(0, Math.min(event.clientY - this.offsetY, maxY));
+    const maxX = window.innerWidth - floatingVideo.offsetWidth;
+    const maxY = window.innerHeight - floatingVideo.offsetHeight;
 
-    this.cdr.detectChanges(); // 🔥 Форсируем обновление Angular
-  }
+    // Вычисляем новую позицию с учетом границ экрана
+    const newX = Math.max(0, Math.min(event.clientX - this.offsetX, maxX));
+    const newY = Math.max(0, Math.min(event.clientY - this.offsetY, maxY));
 
+    console.log(`🔄 Перемещение: (${newX}, ${newY})`);
 
-  stopDrag(): void {
+    // Применяем новую позицию к floating-video
+    floatingVideo.style.left = `${newX}px`;
+    floatingVideo.style.top = `${newY}px`;
+
+    // Обновляем координаты в сервисе
+    this.videoService.floatingVideoPosition.x = newX;
+    this.videoService.floatingVideoPosition.y = newY;
+
+    this.cdr.detectChanges();
+}
+
+stopDrag(): void {
     this.dragging = false;
-    document.removeEventListener("mousemove", this.onDragMove.bind(this));
-    document.removeEventListener("mouseup", this.stopDrag.bind(this));
-  }
+    document.removeEventListener('mousemove', this.onDragMove.bind(this));
+    document.removeEventListener('mouseup', this.stopDrag.bind(this));
+}
+
 
 
 }

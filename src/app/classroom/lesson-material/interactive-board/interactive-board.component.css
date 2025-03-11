@@ -62,27 +62,16 @@ canvas {
   padding: 10px 20px;
 }
 
+
 .floating-video {
-  position: absolute;
-  cursor: grab; /* Показывает, что окно можно перетаскивать */
-  z-index: 1000; /* Поверх всех элементов */
-  background: black;
-  border-radius: 10px;
-  overflow: hidden;
-  user-select: none; /* Отключает выделение текста при перетаскивании */
+  position: fixed;
+  transform: translate(0, 0);
+  cursor: grab;
+  z-index: 1000;
+  user-select: none;
+  transition: transform 0.15s ease-out; /* Делаем движение плавным */
 }
 
 .floating-video:active {
-  cursor: grabbing; /* Курсор при перетаскивании */
-}
-
-.resize-handle {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.5);
-  cursor: nwse-resize;
-  z-index: 2000;
+  cursor: grabbing;
 }

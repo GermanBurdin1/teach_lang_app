@@ -72,7 +72,7 @@ export class VideoCallService {
     // }
 
     this.isFloatingVideoSubject.next(state);
-    console.log('✅ isFloatingVideo$ изменён:', this.isFloatingVideoSubject.getValue());
+    console.log(`🎥 toggleFloatingVideo вызван с состоянием: ${state}`);
   }
 
 

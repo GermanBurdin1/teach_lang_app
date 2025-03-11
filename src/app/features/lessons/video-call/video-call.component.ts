@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, OnDestroy } from '@angular/core';
 import { VideoCallService } from '../../../services/video-call.service';
 
 @Component({
@@ -13,7 +13,9 @@ export class VideoCallComponent implements OnInit {
   constructor(public videoCallService: VideoCallService) { }
 
   ngOnInit(): void {
-    console.log('📹 VideoCallComponent загружен', { isFloatingMode: this.isFloatingMode });
+    console.log('📹 VideoCallComponent загружен в ngOnInit', { isFloatingMode: this.isFloatingMode });
+    console.log("🎥 video-call.component.ts → ngOnInit() сработал!");
+    console.log(`🎥 video-call.component.ts → Создан ${new Date().toISOString()}`);
   }
 
   ngAfterViewInit(): void {
@@ -27,7 +29,13 @@ export class VideoCallComponent implements OnInit {
     }
 
     this.initLocalVideo();
+    console.log("🎥 video-call.component.ts → ngAfterViewInit() сработал!");
   }
+
+  ngOnDestroy() {
+    console.log("❌ video-call.component.ts → Компонент уничтожен!");
+  }
+
 
   private initLocalVideo(): void {
     if (!this.videoCallService.localTracks.videoTrack) {
