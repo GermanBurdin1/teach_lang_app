@@ -1,4 +1,4 @@
-<div class="video-call-container" [class.floating]="isFloatingMode">
+<div class="video-call-container" [class.floating]="isFloatingMode" [class.screen-sharing-active]="isScreenSharing">
   <div class="video-container"
        #localVideoContainer
        [style.width.px]="videoWidth"
@@ -8,17 +8,26 @@
 
     <video #localVideo autoplay playsinline class="video-stream"></video>
 
-    <!-- Кнопка управления звонком поверх видео -->
+    <!-- Кнопки управления звонком -->
     <button class="control-btn" *ngIf="showControls" (click)="toggleCall()">
       {{ callActive ? '⏹ Завершить' : '▶ Возобновить' }}
     </button>
+
+    <!-- Кнопка "Поделиться экраном" -->
+    <button class="control-btn share-screen-btn" *ngIf="showControls" (click)="toggleScreenSharing()">
+      {{ isScreenSharing ? '🛑 Остановить экран' : '📺 Поделиться экраном' }}
+    </button>
+
 
     <!-- Область для изменения размера -->
     <div class="resize-handle" (mousedown)="startResize($event)"></div>
   </div>
 
   <div id="remote-videos" class="remote-videos">
-    <!-- Видео удаленных пользователей -->
+    <ng-container *ngFor="let uid of remoteUserIds">
+      <div class="remote-video-container">
+        <video id="remote-video-{{ uid }}" autoplay playsinline class="video-stream"></video>
+      </div>
+    </ng-container>
   </div>
 </div>
-

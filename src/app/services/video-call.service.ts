@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import AgoraRTC, { IAgoraRTCClient, ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
+import { WebSocketService } from './web-socket.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -33,10 +35,13 @@ export class VideoCallService {
   token = '';
   callActive: boolean = false;
   showControls = false;
-  controlTimeout: any;
+  controlTimeout: any; // Объявляем свойство rtmClient
+  userId!: string; // Добавляем userId, если его нет
 
-  constructor() {
+
+  constructor(private wsService: WebSocketService) {
     console.log('⚡ VideoCallService создан');
+    this.setupEventListeners();
   }
 
   startVideoCall(): void {
@@ -78,27 +83,55 @@ export class VideoCallService {
 
   async joinChannel(): Promise<void> {
     try {
-        console.log("🎥 Создаем аудио- и видеотреки...");
-        this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-        this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      console.log("🎥 Создаем аудио- и видеотреки...");
+      this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
 
-        console.log("✅ Видеотрек создан:", this.localTracks.videoTrack);
+      console.log("✅ Видеотрек создан:", this.localTracks.videoTrack);
 
-        // ⬇️ Если токен пустой, передаем null
-        const tokenToUse = this.token.trim() ? this.token : null;
-        console.log(`🔑 Используем токен: ${tokenToUse || 'null'}`);
+      const tokenToUse = this.token.trim() ? this.token : null;
+      console.log(`🔑 Используем токен: ${tokenToUse || 'null'}`);
 
-        await this.agoraClient.join(this.appId, this.channelName, tokenToUse);
-        console.log("✅ Подключились к каналу");
+      await this.agoraClient.join(this.appId, this.channelName, tokenToUse);
+      console.log("✅ Подключились к каналу");
 
-        await this.agoraClient.publish(Object.values(this.localTracks).filter(track => track !== null) as ILocalTrack[]);
-        console.log("📡 Поток опубликован");
+      await this.agoraClient.publish(Object.values(this.localTracks).filter(track => track !== null) as ILocalTrack[]);
+      console.log("📡 Поток опубликован");
 
-        this.callActive = true;
+      this.callActive = true;
+      // 📌 Добавляем подписку на новых пользователей
+      this.agoraClient.on("user-published", async (user, mediaType) => {
+        await this.agoraClient.subscribe(user, mediaType);
+        console.log(`👤 Новый пользователь: ${user.uid}`);
+
+        if (mediaType === "video") {
+          this.remoteUsers[user.uid] = {
+            videoTrack: user.videoTrack as IRemoteVideoTrack,
+            audioTrack: user.audioTrack as IRemoteAudioTrack
+          };
+          user.videoTrack?.play(`remote-video-${user.uid}`);
+        }
+
+        if (mediaType === "audio") {
+          user.audioTrack?.play();
+        }
+      });
+
+      // 📌 Удаляем пользователей, если они отключаются
+      this.agoraClient.on("user-unpublished", (user) => {
+        console.log(`❌ Пользователь отключился: ${user.uid}`);
+        delete this.remoteUsers[user.uid];
+        const videoElement = document.getElementById(`remote-video-${user.uid}`);
+        if (videoElement) {
+          videoElement.remove();
+        }
+      });
+
+
     } catch (error) {
-        console.error('❌ Ошибка подключения:', error);
+      console.error('❌ Ошибка подключения:', error);
     }
-}
+  }
 
   async leaveChannel(): Promise<void> {
     this.localTracks.videoTrack?.stop();
@@ -209,5 +242,127 @@ export class VideoCallService {
   getFloatingVideoActive(): boolean {
     return this.isFloatingVideoActive;
   }
+
+  //screensharing
+
+  private screenTrack: ILocalVideoTrack | null = null;
+  private audioTrack: ILocalAudioTrack | null = null;
+
+  async startScreenSharing() {
+    try {
+      if (this.screenTrack) {
+        console.warn("🔴 Экран уже транслируется");
+        return;
+      }
+
+      // 1️⃣ Создаём видеотрек экрана + аудиотрек
+      const tracks = await AgoraRTC.createScreenVideoTrack(
+        { encoderConfig: "1080p_1", screenSourceType: "screen" }, "enable"
+      );
+
+      if (Array.isArray(tracks)) {
+        [this.screenTrack, this.audioTrack] = tracks;
+      } else {
+        this.screenTrack = tracks;
+      }
+
+      // 2️⃣ Публикуем видеотрек
+      await this.agoraClient.publish(this.screenTrack);
+      console.log("✅ Экран успешно транслируется");
+
+      // 3️⃣ Публикуем аудиотрек, если он есть
+      if (this.audioTrack) {
+        await this.agoraClient.publish(this.audioTrack);
+        console.log("🔊 Звук экрана транслируется");
+      }
+
+    } catch (error) {
+      console.error("❌ Ошибка при захвате экрана:", error);
+    }
+  }
+
+  async stopScreenSharing() {
+    try {
+      if (!this.screenTrack) {
+        console.warn("⚠ Нет активной трансляции экрана");
+        return;
+      }
+
+      // 1️⃣ Отписываем трек экрана
+      await this.agoraClient.unpublish(this.screenTrack);
+      this.screenTrack.stop();
+      this.screenTrack.close();
+      this.screenTrack = null;
+
+      console.log("✅ Трансляция экрана остановлена");
+
+      // 2️⃣ Отписываем аудиотрек, если он есть
+      if (this.audioTrack) {
+        await this.agoraClient.unpublish(this.audioTrack);
+        this.audioTrack.stop();
+        this.audioTrack.close();
+        this.audioTrack = null;
+
+        console.log("🔊 Звук экрана отключён");
+      }
+    } catch (error) {
+      console.error("❌ Ошибка при остановке трансляции экрана:", error);
+    }
+  }
+
+  // ✅ 1. Автоостановка экрана при смене камеры
+  private setupEventListeners() {
+    AgoraRTC.onCameraChanged = async () => {
+      console.warn("📷 Камера была изменена, останавливаем трансляцию экрана...");
+      await this.stopScreenSharing();
+    };
+  }
+
+  // ✅ 2. Проверяем, не выключил ли пользователь экран вручную
+  startTrackMonitoring() {
+    setInterval(async () => {
+      if (this.screenTrack && !this.screenTrack.isPlaying) {
+        console.warn("🚫 Пользователь прекратил трансляцию экрана");
+        await this.stopScreenSharing();
+      }
+    }, 3000);
+  }
+
+  // ✅ 3. Проверяем поддержку системы перед началом трансляции
+  async checkSystemSupport(): Promise<boolean> {
+    const isSupported = AgoraRTC.checkSystemRequirements();
+    if (!isSupported) {
+      console.error("❌ Ваше устройство не поддерживает трансляцию экрана");
+      return false;
+    }
+    return true;
+  }
+
+  //функции принятия звонка
+  inviteUserToCall(userId: string) {
+    this.wsService.sendMessage('call_invite', {
+      from: this.getCurrentUserId(),
+      to: userId
+    });
+  }
+
+  acceptCall(fromUserId: string) {
+    this.wsService.sendMessage('call_accept', {
+      from: this.getCurrentUserId(),
+      to: fromUserId
+    });
+  }
+
+  rejectCall(fromUserId: string) {
+    this.wsService.sendMessage('call_reject', {
+      from: this.getCurrentUserId(),
+      to: fromUserId
+    });
+  }
+
+  private getCurrentUserId(): string {
+    return localStorage.getItem('userId') || 'unknown';
+  }
+
 
 }

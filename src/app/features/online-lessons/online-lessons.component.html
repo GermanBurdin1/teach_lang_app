@@ -1,14 +1,14 @@
 <div class="container mt-4">
 
-<!-- Скрытый компонент, чтобы взять из него данные -->
-<app-marathons #marathonsComponent style="display: none;"></app-marathons>
+  <!-- Скрытый компонент, чтобы взять из него данные -->
+  <app-marathons #marathonsComponent style="display: none;"></app-marathons>
 
-<h2>Выберите курс</h2>
-<select class="form-select mb-3" (change)="selectCourse($event)">
-  <option *ngFor="let course of courses" [value]="course">
-    {{ course }}
-  </option>
-</select>
+  <h2>Выберите курс</h2>
+  <select class="form-select mb-3" (change)="selectCourse($event)">
+    <option *ngFor="let course of courses" [value]="course">
+      {{ course }}
+    </option>
+  </select>
 
 
   <div *ngIf="selectedCourse">
@@ -17,9 +17,6 @@
     <!-- Здесь будет весь контент OnlineLessonsComponent -->
     <div class="online-lessons" style="max-width: 800px; margin: 0 auto;">
       <h2 class="mb-3">Создать новое занятие</h2>
-      <button class="btn btn-outline-primary me-2" (click)="openStudentTabsModal()">Добавить учеников</button>
-      <!-- Кнопка "Пользователи" -->
-      <button class="btn btn-outline-secondary me-2" (click)="openUserModal()">Пользователи</button>
 
       <!-- Dropdown для настроек -->
       <div class="dropdown">
@@ -95,31 +92,34 @@
           <div class="card-body d-flex justify-content-between align-items-center">
             <!-- Левая часть с информацией о классе -->
             <div>
-              <!-- Название класса -->
-              <div class="d-flex align-items-center mb-2">
-                <h5 class="me-2">{{ classItem.name }}</h5>
-                <div class="position-relative" (mouseenter)="showTooltip('class')" (mouseleave)="hideTooltip()">
-                  <i class="fas fa-check-circle text-primary"></i>
-                  <div *ngIf="tooltipVisible === 'class'" class="simple-tooltip">
-                    Информация о классе
-                  </div>
-                </div>
-              </div>
+              <h5 class="me-2">{{ classItem.name }}</h5>
 
-              <!-- ID и описание -->
               <div class="d-flex align-items-center mb-2">
                 <i class="fas fa-id-badge text-muted me-1"></i> {{ classItem.id }}
                 <span class="mx-2 text-muted">|</span>
-                <i class="fas fa-info-circle text-muted me-1"></i> {{ classItem.description }}
+                <i class="fas fa-users text-muted me-1"></i>
+
+                <span *ngIf="getClassParticipants(classItem.id).length > 0">
+                  Участвуют:
+                  <span *ngFor="let student of getClassParticipants(classItem.id).slice(0, 2); let last = last">
+                    {{ student.name }}{{ last ? '' : ', ' }}
+                  </span>
+                  <span *ngIf="getClassParticipants(classItem.id).length > 2">
+                    <button class="btn btn-sm btn-outline-secondary ms-2" (click)="openUserModal()">
+                      +{{ getClassParticipants(classItem.id).length - 2 }}
+                    </button>
+                  </span>
+                </span>
               </div>
             </div>
 
-            <!-- Кнопка Управление, выровненная вертикально -->
             <button class="btn btn-outline-primary align-self-start" (click)="openClassManagement(classItem.id)">
               Начать урок
             </button>
           </div>
         </div>
+
+
       </div>
 
       <!-- Модальное окно создания класса -->
@@ -142,13 +142,17 @@
                     {{ classAvatarPreview }}
                   </div>
                   <input type="file" id="avatarUpload" class="d-none" (change)="onClassAvatarSelected($event)">
-                  <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+                  <button type="button" class="btn btn-outline-secondary"
+                    (click)="triggerFileInput()">Загрузить</button>
                 </div>
-
+                <button class="btn btn-outline-primary w-100 mb-3" (click)="openStudentTabsModal()">
+                  <i class="fas fa-user-plus me-2"></i> Добавить учеников
+                </button>
                 <!-- Поле для названия класса -->
                 <div class="mb-3">
                   <label class="form-label">Название класса</label>
-                  <input type="text" class="form-control" placeholder="Введите название класса" [(ngModel)]="newClassName" name="className" />
+                  <input type="text" class="form-control" placeholder="Введите название класса"
+                    [(ngModel)]="newClassName" name="className" />
                 </div>
               </form>
             </div>
@@ -162,8 +166,8 @@
       </div>
     </div>
 
-    <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentTabsModal }" *ngIf="showStudentTabsModal"
-      style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentTabsModal }"
+      *ngIf="showStudentTabsModal" style="background-color: rgba(0, 0, 0, 0.5);">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content p-4">
           <div class="modal-header border-0">
@@ -247,8 +251,8 @@
               <h5 class="modal-title fw-bold text-center">Выбрать из существующих</h5>
               <ul class="list-group">
                 <li *ngFor="let student of getAvailableStudents()"
-                  class="list-group-item d-flex justify-content-between align-items-center" (click)="selectStudent(student)"
-                  [class.selected]="selectedStudent?.id === student.id">
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                  (click)="selectStudent(student)" [class.selected]="selectedStudent?.id === student.id">
                   {{ student.name }}
                   <i class="fas fa-check-circle text-success" *ngIf="selectedStudent?.id === student.id"></i>
                 </li>
@@ -308,8 +312,8 @@
       </div>
     </div>
 
-    <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentListModal }" *ngIf="showStudentListModal"
-      style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentListModal }"
+      *ngIf="showStudentListModal" style="background-color: rgba(0, 0, 0, 0.5);">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
@@ -360,7 +364,8 @@
               <i class="fas fa-arrow-left"></i>
             </button>
             <!-- Кнопка "Закрыть" -->
-            <button type="button" class="btn-close" aria-label="Close" (click)="closeAddAdditionalStudentModal()"></button>
+            <button type="button" class="btn-close" aria-label="Close"
+              (click)="closeAddAdditionalStudentModal()"></button>
           </div>
 
           <div class="modal-body text-center">
@@ -521,7 +526,6 @@
                 </div>
               </div>
 
-
               <!-- Название класса -->
               <div class="row mb-3 align-items-center">
                 <label for="className" class="col-4 col-form-label text-end">Название класса</label>
@@ -612,8 +616,10 @@
                         alt="Image Li 5" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                   </div>
-                  <button class="btn btn-light mt-2" (click)="uploadFile('uploadBackground')">Загрузить свой фон</button>
-                  <input type="file" id="uploadBackground" class="d-none" (change)="onFileUpload($event, 'background')" />
+                  <button class="btn btn-light mt-2" (click)="uploadFile('uploadBackground')">Загрузить свой
+                    фон</button>
+                  <input type="file" id="uploadBackground" class="d-none"
+                    (change)="onFileUpload($event, 'background')" />
                 </div>
               </div>
 

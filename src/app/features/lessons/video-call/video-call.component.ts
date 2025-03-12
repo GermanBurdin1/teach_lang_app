@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, OnDestroy } from '@angular/core';
 import { VideoCallService } from '../../../services/video-call.service';
+import { WebSocketService } from '../../../services/web-socket.service';
 
 @Component({
   selector: 'app-video-call',
@@ -8,14 +9,49 @@ import { VideoCallService } from '../../../services/video-call.service';
 })
 export class VideoCallComponent implements OnInit {
   @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
-  @Input() isFloatingMode: boolean = false; // Флаг плавающего режима
+  @Input() isFloatingMode: boolean = false;
+  remoteUserIds: string[] = [];
 
-  constructor(public videoCallService: VideoCallService) { }
+  constructor(public videoCallService: VideoCallService, private wsService: WebSocketService) { }
 
   ngOnInit(): void {
     console.log('📹 VideoCallComponent загружен в ngOnInit', { isFloatingMode: this.isFloatingMode });
     console.log("🎥 video-call.component.ts → ngOnInit() сработал!");
     console.log(`🎥 video-call.component.ts → Создан ${new Date().toISOString()}`);
+    this.videoCallService.joinChannel().then(() => {
+      if (this.videoCallService.localTracks.videoTrack) {
+        this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
+      }
+    });
+
+    this.videoCallService.agoraClient.on('user-published', (user) => {
+      this.remoteUserIds.push(user.uid.toString());
+    });
+
+    this.videoCallService.agoraClient.on('user-unpublished', (user) => {
+      this.remoteUserIds = this.remoteUserIds.filter(uid => uid !== user.uid.toString());
+    });
+
+    this.wsService.listen('call_invite').subscribe((data: any) => {
+      console.log(`📞 Входящий вызов от ${data.from}`);
+
+      const acceptCall = confirm(`📞 Входящий вызов от ${data.from}. Принять?`);
+      if (acceptCall) {
+        this.videoCallService.acceptCall(data.from);
+      } else {
+        this.videoCallService.rejectCall(data.from);
+      }
+    });
+
+    this.wsService.listen('call_reject').subscribe((data: any) => {
+      console.log(`📵 Пользователь ${data.from} отклонил вызов.`);
+      alert(`📵 Пользователь ${data.from} отклонил вызов.`);
+    });
+
+    this.wsService.listen('call_accept').subscribe((data: any) => {
+      console.log(`✅ Пользователь ${data.from} принял вызов.`);
+      this.videoCallService.startVideoCall();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -112,5 +148,26 @@ export class VideoCallComponent implements OnInit {
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
   }
+
+  //screensharing
+  isScreenSharing = false;
+
+  async toggleScreenSharing() {
+    // Проверяем поддержку устройства перед началом трансляции
+    const isSupported = await this.videoCallService.checkSystemSupport();
+    if (!isSupported) {
+        alert("Ваш браузер не поддерживает трансляцию экрана!");
+        return;
+    }
+
+    if (this.isScreenSharing) {
+        await this.videoCallService.stopScreenSharing();
+    } else {
+        await this.videoCallService.startScreenSharing();
+        this.videoCallService.startTrackMonitoring(); // Начинаем мониторинг трека
+    }
+
+    this.isScreenSharing = !this.isScreenSharing;
+}
 
 }

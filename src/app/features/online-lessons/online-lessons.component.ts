@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BackgroundService } from '../../services/background.service';
 import { MarathonsComponent } from '../marathons/marathons.component';
+import { VideoCallService } from '../../services/video-call.service';
 
 @Component({
   selector: 'app-online-lessons',
@@ -43,7 +44,7 @@ export class OnlineLessonsComponent implements OnInit, AfterViewInit {
   showNewLessonModal = false;
   activeModalTab: string = 'individual';
 
-  constructor(private route: ActivatedRoute, private router: Router, private backgroundService: BackgroundService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private backgroundService: BackgroundService, private videoCallService: VideoCallService) { }
 
 
   ngOnInit(): void {
@@ -60,15 +61,15 @@ export class OnlineLessonsComponent implements OnInit, AfterViewInit {
     setInterval(() => this.updateCurrentTime(), 60000);
 
     this.checkPaidOrTrialStatus();
-// Загружаем сохранённые классы из localStorage
-const savedClasses = localStorage.getItem('classes');
-if (savedClasses) {
-  this.classes = JSON.parse(savedClasses);
-} else {
-  this.classes = [];
-}
+    // Загружаем сохранённые классы из localStorage
+    const savedClasses = localStorage.getItem('classes');
+    if (savedClasses) {
+      this.classes = JSON.parse(savedClasses);
+    } else {
+      this.classes = [];
+    }
 
-this.loadSelectedCourse();
+    this.loadSelectedCourse();
   }
 
   ngAfterViewInit() {
@@ -439,24 +440,33 @@ this.loadSelectedCourse();
     const newClass = {
       id: Date.now(),
       name: this.newClassName,
-      description: 'Описание занятия',
+      description: 'Описание занятия'
     };
 
-    // Добавляем класс в массив
     this.classes.push(newClass);
-
-    // Сохраняем массив классов в localStorage
     localStorage.setItem('classes', JSON.stringify(this.classes));
 
-    // Очищаем поле и закрываем модалку
     this.newClassName = '';
     this.isCreateClassModalOpen = false;
   }
 
+
   openClassManagement(classId: number): void {
+    console.log(`📞 Начало урока в классе с ID: ${classId}`);
+
+    // Получаем список пользователей класса
+    const classParticipants = this.getClassParticipants(classId);
+
+    if (classParticipants.length === 0) {
+        console.warn("⚠ Нет участников в классе!");
+        return;
+    }
+
+    // Перенаправляем в виртуальный класс
     this.router.navigate([`/classroom/${classId}/lesson`], { queryParams: { startCall: true } });
-    console.log(`Переход к управлению классом с ID: ${classId}`);
-  }
+}
+
+
 
   //добавить учеников
   showStudentTabsModal: boolean = false;
@@ -501,21 +511,11 @@ this.loadSelectedCourse();
   }
 
   users = [
-    {
-      initials: 'J',
-      name: 'Jean',
-      email: 'coding_german@',
-      id: 2477981,
-      role: 'student',
-    },
-    {
-      initials: 'A',
-      name: 'Alice',
-      email: 'alice@example.com',
-      id: 1234567,
-      role: 'student',
-    },
+    { initials: 'J', name: 'Jean', email: 'coding_german@', id: 2477981, role: 'student', classId: 1 },
+    { initials: 'A', name: 'Alice', email: 'alice@example.com', id: 1234567, role: 'student', classId: 1 },
+    { initials: 'K', name: 'Karl', email: 'karl@example.com', id: 3456789, role: 'student', classId: 2 },
   ];
+
 
   // Список всех учеников
   allStudents = [
@@ -524,6 +524,37 @@ this.loadSelectedCourse();
     { id: 3, name: 'Bobchenko', email: 'bob@example.com', initials: 'B', online: true },
     // Добавьте других учеников
   ];
+
+  getClassParticipants(classId: number): any[] {
+    const participants = this.users.filter(user => user.classId === classId);
+
+    // Если в классе нет участников, добавляем первого свободного ученика
+    if (participants.length === 0 && this.allStudents.length > 0) {
+      const student = this.allStudents.find(student => !this.users.some(u => u.id === student.id));
+
+      if (student) {
+        const newStudent = {
+          id: student.id,
+          name: student.name,
+          email: student.email,
+          initials: student.initials,
+          online: student.online,
+          role: 'student',  // Добавляем роль
+          classId: classId  // Присваиваем classId
+        };
+
+        this.users.push(newStudent);
+        localStorage.setItem('users', JSON.stringify(this.users)); // Сохраняем пользователя
+
+        return [newStudent]; // Возвращаем массив с новым студентом
+      }
+    }
+
+    return participants;
+  }
+
+
+
 
   getAvailableStudents(): any[] {
     return this.allStudents.filter(
@@ -592,7 +623,7 @@ this.loadSelectedCourse();
 
   // Загружаем обложку из localStorage
   savedCover = localStorage.getItem('classCover');
-  if (savedCover: any) {
+  if(savedCover: any) {
     this.classCover = savedCover;
   }
 

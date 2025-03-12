@@ -151,3 +151,59 @@
   padding: 5px 10px;
   border-radius: 5px;
 }
+
+.remote-videos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.remote-video-container {
+  width: 180px;
+  height: 100px;
+  background: black;
+  margin: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+}
+
+/* screensharing */
+.control-btn {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: rgba(0, 123, 255, 0.8);
+  color: white;
+  transition: background 0.3s;
+}
+
+.control-btn:hover {
+  background-color: rgba(0, 86, 179, 0.9);
+}
+
+/* Стили для кнопки "Поделиться экраном" */
+.share-screen-btn {
+  left: 120px; /* Отступ слева */
+}
+
+.screen-sharing-active {
+  border: 4px dashed red;
+  animation: blink-border 1s infinite alternate;
+}
+
+@keyframes blink-border {
+  from {
+    border-color: red;
+  }
+  to {
+    border-color: transparent;
+  }
+}
