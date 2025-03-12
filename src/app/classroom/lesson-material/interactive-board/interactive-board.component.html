@@ -78,20 +78,21 @@
 
   <div class="floating-video"
     *ngIf="(videoService.isFloatingVideo$ | async) && (videoService.showVideoCall$ | async); else delayRender"
-    [style.left.px]="videoService.floatingVideoPosition.x" [style.top.px]="videoService.floatingVideoPosition.y"
-    [style.width.px]="videoService.videoWidth" [style.height.px]="videoService.videoHeight"
+    [style.left.px]="videoService.floatingVideoPosition.x"
+    [style.top.px]="videoService.floatingVideoPosition.y"
     (mousedown)="startDrag($event)">
 
     <!-- Кнопка закрытия -->
     <button class="close-btn-floating-video" (click)="videoService.toggleFloatingVideo(false)">✖</button>
 
-    <!-- Компонент видеозвонка -->
-    <app-video-call #videoCallElement *ngIf="videoService.showVideoCall$ | async"
-      [isFloatingMode]="true"></app-video-call>
+    <!-- Контейнер для адаптивного видео -->
+    <div class="video-container">
+        <app-video-call #videoCallElement *ngIf="videoService.showVideoCall$ | async"
+          [isFloatingMode]="true"></app-video-call>
+    </div>
 
-    <!-- Область для изменения размера -->
-    <div class="resize-handle" (mousedown)="startResize($event)"></div>
-  </div>
+</div>
+
 
 
   <ng-template #delayRender>

@@ -85,6 +85,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       const videoElements = document.querySelectorAll('app-video-call');
       console.log(`🔍 Найдено <app-video-call>:`, videoElements.length);
+      this.videoService.onResize(new MouseEvent('resize'));
     }, 1000);
 
   }
@@ -523,30 +524,10 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
     this.showDeleteModal = false;
   }
 
-  startResize(event: MouseEvent): void {
-    event.preventDefault();
 
-    console.log("🔄 Начало изменения размера видео");
-
-    const startX = event.clientX;
-    const startY = event.clientY;
-
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      const deltaX = moveEvent.clientX - startX;
-      const deltaY = moveEvent.clientY - startY;
-
-      // Передаем дельту в обе стороны, чтобы ресайз был пропорциональный
-      this.videoService.resizeVideo(deltaX, deltaY);
-    };
-
-    const onMouseUp = () => {
-      console.log("✅ Завершение изменения размера видео");
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent): void {
+    this.videoService.onResize(event);
   }
 
   startDrag(event: MouseEvent): void {
