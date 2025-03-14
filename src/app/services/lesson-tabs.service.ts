@@ -64,6 +64,7 @@ export class LessonTabsService {
   }
 
   setCurrentLessonId(id: string): void {
+    console.log(`📌 Устанавливаем ID урока: ${id}`);
     this.currentLessonIdSource.next(id);
   }
 

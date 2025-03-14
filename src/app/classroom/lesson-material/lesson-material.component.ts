@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { VideoCallService } from '../../services/video-call.service';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-lesson-material',
@@ -16,6 +17,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
+  showBoard = false;
 
 
   constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute, public videoService: VideoCallService) { }
@@ -63,10 +65,21 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       }
     });
 
+    console.log('📍 ActivatedRoute snapshot:', this.route.snapshot.paramMap.keys);
+    console.log('📍 ActivatedRoute param id:', this.route.snapshot.paramMap.get('id'));
+
+    this.route.paramMap.subscribe(params => {
+      console.log('📍 paramMap содержит:', params.keys);
+      const lessonId = params.get('id');
+      if (lessonId) {
+        console.log(`🔄 Обновляем lessonId: ${lessonId}`);
+        this.lessonTabsService.setCurrentLessonId(lessonId);
+      }
+    });
+
     this.videoService.resetVideoSize();
 
   }
-
 
   ngOnDestroy(): void {
     if (this.backgroundSubscription) {
@@ -100,13 +113,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   openInteractiveBoard(): void {
     console.log('🔗 Навигация к', `${this.lessonTabsService.getCurrentLessonId()}/board`);
 
-    // Скрываем обычное видео перед переходом
     this.videoService.setRegularVideoActive(false);
-
-    // Включаем плавающее видео
     this.videoService.setFloatingVideoActive(true);
     this.videoService.setFloatingVideoSize(320, 180);
 
+    // Принудительное уничтожение и пересоздание доски
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate([`${this.lessonTabsService.getCurrentLessonId()}/board`]);
     });
