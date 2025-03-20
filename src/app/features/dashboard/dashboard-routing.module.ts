@@ -11,7 +11,8 @@ import { OnlineLessonsComponent } from '../online-lessons/online-lessons.compone
 import { StudentProfileComponent } from './school-dashboard/student-profile/student-profile.component';
 // import { StatiscticsComponent } from '../statisctics/statisctics.component';
 import { WordsComponent } from '../words/words.component';
-import { MaterialsComponent } from '../marathons/materials/materials.component'
+import { MaterialsComponent } from '../marathons/materials/materials.component';
+import { TrainerComponent } from '../trainer/trainer.component';
 
 const routes: Routes = [
   {
@@ -28,6 +29,7 @@ const routes: Routes = [
       { path: 'school/tariffs', component: TariffsComponent },
       // { path: 'school/statistics', component: StatiscticsComponent },
       { path: 'student/wordsTeaching', component: WordsComponent },
+      { path: 'student/trainer', component: TrainerComponent },
       {path: 'school/course/:id', component: MaterialsComponent}
     ]
   }

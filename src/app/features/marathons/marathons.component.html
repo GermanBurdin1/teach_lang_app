@@ -1,68 +1,78 @@
 <div class="upcoming-lessons-container" style="max-width: 800px; margin: 0 auto;">
   <h2 style="margin-bottom: 16px;">Cours DELF et DALF</h2>
+  <!-- 🔹 Кнопка свернуть / развернуть -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <!-- Блок управления неделями -->
-    <h3>Cours prochains</h3>
-    <div class="d-flex align-items-center">
-      <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
-      <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
-      <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
-    </div>
+    <button class="btn btn-outline-secondary" (click)="toggleTimetable()">
+      {{ isTimetableCollapsed ? '➕ Развернуть' : '➖ Свернуть' }}
+    </button>
+  </div>
 
-    <!-- Блок выбора часового пояса и настроек -->
-    <div class="d-flex align-items-center mb-3">
-      <div class="me-3">
-        <label class="form-label">Часовой пояс</label>
-        <select class="form-select">
-          <option *ngFor="let timezone of timezones">{{ timezone }}</option>
-        </select>
+  <!-- 🔹 Обертка для скрытия "Cours prochains" и таблицы -->
+  <div *ngIf="!isTimetableCollapsed">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <!-- Блок управления неделями -->
+      <h3>Cours prochains</h3>
+      <div class="d-flex align-items-center">
+        <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
+        <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
+        <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
       </div>
-      <div class="position-relative">
-        <button class="btn btn-outline-secondary" (click)="toggleSettingsMenu()">
-          <i class="bi bi-gear"></i>
-        </button>
-        <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
-          <label for="start-hour" class="form-label">Отображаемые часы</label>
-          <div class="d-flex align-items-center">
-            <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
-              <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
-            </select>
-            <span class="mx-2">до</span>
-            <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
-              <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
-            </select>
+
+      <!-- Блок выбора часового пояса и настроек -->
+      <div class="d-flex align-items-center mb-3">
+        <div class="me-3">
+          <label class="form-label">Часовой пояс</label>
+          <select class="form-select">
+            <option *ngFor="let timezone of timezones">{{ timezone }}</option>
+          </select>
+        </div>
+        <div class="position-relative">
+          <button class="btn btn-outline-secondary" (click)="toggleSettingsMenu()">
+            <i class="bi bi-gear"></i>
+          </button>
+          <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
+            <label for="start-hour" class="form-label">Отображаемые часы</label>
+            <div class="d-flex align-items-center">
+              <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
+                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+              </select>
+              <span class="mx-2">до</span>
+              <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
+                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Таблица расписания -->
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Время</th>
+          <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hour of filterHours()">
+          <td class="time-label">{{ hour }}</td>
+          <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
+            (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
+            [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
+            <ng-container *ngIf="!isTimeSlotActive(day, hour)">
+              <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
+                (click)="selectSlot(day, hour); $event.stopPropagation()">
+                Выбрать
+              </button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-
-  <!-- Таблица расписания -->
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Время</th>
-        <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let hour of filterHours()">
-        <td class="time-label">{{ hour }}</td>
-        <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
-          (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
-          [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
-          <ng-container *ngIf="!isTimeSlotActive(day, hour)">
-            <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
-              (click)="selectSlot(day, hour); $event.stopPropagation()">
-              Выбрать
-            </button>
-          </ng-container>
-        </td>
-      </tr>
-    </tbody>
-  </table>
 </div>
-
 <!-- Модальное окно -->
 <div *ngIf="showModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="modalTitle"
   aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
@@ -197,7 +207,7 @@
                   <i class="bi bi-funnel"></i> Фильтр
                 </button>
               </div>
-              <p>Кол-во материалов: {{ courses.length }}</p>
+              <p>Кол-во материалов: {{ coursesCreated.length }}</p>
 
               <div class="row">
                 <!-- Карточка для создания нового курса -->

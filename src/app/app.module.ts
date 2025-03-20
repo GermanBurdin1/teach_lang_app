@@ -5,7 +5,6 @@ import { LayoutModule } from './layout/layout.module';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { VocabularyModule } from './features/vocabulary/vocabulary.module';
-
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 import { AboutModule } from './features/about/about.module';
@@ -20,6 +19,8 @@ import { LandingModule } from './features/landing/landing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ClassroomModule } from './classroom/classroom.module';
+import { provideHttpClient } from '@angular/common/http';
+
 
 @NgModule({
   declarations: [
@@ -43,8 +44,9 @@ import { ClassroomModule } from './classroom/classroom.module';
     LandingModule,
     BrowserAnimationsModule,
     BsDropdownModule.forRoot(),
-    ClassroomModule
+    ClassroomModule,
 ],
+  providers: [provideHttpClient()],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

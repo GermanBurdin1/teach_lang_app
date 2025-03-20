@@ -1,0 +1,394 @@
+<div class="trainer-container">
+  <h2>🎓 Тренажёр</h2>
+
+  <div class="trainer-tabs">
+    <button (click)="setActiveTab('audio')" [class.active]="activeTab === 'audio'">🎧 Аудирование</button>
+    <button (click)="setActiveTab('reading')" [class.active]="activeTab === 'reading'">📖 Чтение</button>
+    <button (click)="setActiveTab('writing')" [class.active]="activeTab === 'writing'">✍ Письмо</button>
+    <button (click)="setActiveTab('speaking')" [class.active]="activeTab === 'speaking'">🗣 Устная речь</button>
+    <button (click)="setActiveTab('grammar')" [class.active]="activeTab === 'grammar'">📚 Грамматика</button>
+    <button (click)="setActiveTab('exam')" [class.active]="activeTab === 'exam'">🎯 Экзамен</button>
+  </div>
+
+  <!-- Аудирование -->
+  <div *ngIf="activeTab === 'audio'">
+    <h3>🎤 Аудирование</h3>
+
+    <div class="audio-tabs">
+      <button (click)="setAudioTask('dictation')" [class.active]="audioTask === 'dictation'">📝 Диктант</button>
+      <button (click)="setAudioTask('choice')" [class.active]="audioTask === 'choice'">✅ Выбор ответа</button>
+      <button (click)="setAudioTask('sequence')" [class.active]="audioTask === 'sequence'">🔄 Расстановка
+        событий</button>
+      <button (click)="setAudioTask('paraphrase')" [class.active]="audioTask === 'paraphrase'">✍
+        Перефразирование</button>
+      <button (click)="setAudioTask('intonation')" [class.active]="audioTask === 'intonation'">🎭 Интонация</button>
+    </div>
+
+    <audio controls>
+      <source src="{{ currentAudio }}" type="audio/mpeg">
+    </audio>
+
+    <!-- Диктант с пропусками -->
+    <div *ngIf="audioTask === 'dictation'">
+      <h4>📝 Диктант с пропусками</h4>
+      <p>{{ maskedText }}</p>
+      <input [(ngModel)]="userDictation" placeholder="Введите пропущенные слова..." />
+      <button (click)="checkDictation()">Проверить</button>
+      <p *ngIf="resultDictation">{{ resultDictation }}</p>
+    </div>
+
+    <!-- Выбор правильного ответа -->
+    <div *ngIf="audioTask === 'choice'">
+      <h4>✅ Выбор правильного ответа</h4>
+      <div *ngFor="let option of choiceOptions">
+        <button (click)="checkChoice(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="resultChoice">{{ resultChoice }}</p>
+    </div>
+
+    <!-- Расстановка событий -->
+    <div *ngIf="audioTask === 'sequence'">
+      <h4>🔄 Расстановка событий</h4>
+      <ul>
+        <li *ngFor="let event of shuffledEvents" (click)="reorder(event)">
+          {{ event }}
+        </li>
+      </ul>
+      <button (click)="checkSequence()">Проверить</button>
+      <p *ngIf="resultSequence">{{ resultSequence }}</p>
+    </div>
+
+    <!-- Перефразирование -->
+    <div *ngIf="audioTask === 'paraphrase'">
+      <h4>✍ Перефразирование</h4>
+      <textarea [(ngModel)]="paraphraseInput" placeholder="Передайте услышанное своими словами..."></textarea>
+      <button (click)="checkParaphrase()">Проверить</button>
+      <p *ngIf="resultParaphrase">{{ resultParaphrase }}</p>
+    </div>
+
+    <!-- Распознавание интонации -->
+    <div *ngIf="audioTask === 'intonation'">
+      <h4>🎭 Определение интонации</h4>
+      <p>Какое настроение у говорящего?</p>
+      <div>
+        <button (click)="checkIntonation('joy')">😊 Радость</button>
+        <button (click)="checkIntonation('anger')">😡 Гнев</button>
+        <button (click)="checkIntonation('sarcasm')">🤨 Сарказм</button>
+      </div>
+      <p *ngIf="resultIntonation">{{ resultIntonation }}</p>
+    </div>
+  </div>
+
+  <!-- Чтение -->
+  <div *ngIf="activeTab === 'reading'">
+    <h3>📖 Тренажёры для чтения</h3>
+
+    <div class="reading-tabs">
+      <button (click)="setReadingTask('matchTitle')" [class.active]="readingTask === 'matchTitle'">📌 Найди
+        соответствие</button>
+      <button (click)="setReadingTask('mainIdea')" [class.active]="readingTask === 'mainIdea'">💡 Смысловой
+        анализ</button>
+      <button (click)="setReadingTask('paraphrase')" [class.active]="readingTask === 'paraphrase'">✍
+        Перефразирование</button>
+      <button (click)="setReadingTask('argumentation')" [class.active]="readingTask === 'argumentation'">📊
+        Аргументация</button>
+    </div>
+
+    <!-- Найди соответствие -->
+    <div *ngIf="readingTask === 'matchTitle'">
+      <h4>📌 Найдите правильный заголовок</h4>
+      <p>{{ readingText }}</p>
+      <div *ngFor="let option of readingOptions">
+        <button (click)="checkReading(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="readingResult">{{ readingResult }}</p>
+    </div>
+
+    <!-- Смысловой анализ -->
+    <div *ngIf="readingTask === 'mainIdea'">
+      <h4>💡 Определите основную мысль</h4>
+      <p>{{ analysisText }}</p>
+      <div *ngFor="let option of analysisOptions">
+        <button (click)="checkMainIdea(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="analysisResult">{{ analysisResult }}</p>
+    </div>
+
+    <!-- Перефразирование -->
+    <div *ngIf="readingTask === 'paraphrase'">
+      <h4>✍ Перефразируйте предложение</h4>
+      <p>{{ paraphraseText }}</p>
+      <textarea [(ngModel)]="paraphraseReadingInput" placeholder="Напишите перефразированное предложение..."></textarea>
+      <button (click)="checkReadingParaphrase()">Проверить</button>
+      <p *ngIf="readingParaphraseResult">{{ readingParaphraseResult }}</p>
+    </div>
+
+    <!-- Определение аргументации -->
+    <div *ngIf="readingTask === 'argumentation'">
+      <h4>📊 Определите тезисы и аргументы</h4>
+      <p>{{ argumentationText }}</p>
+      <p>Какова структура аргументации?</p>
+      <div *ngFor="let option of argumentationOptions">
+        <button (click)="checkArgumentation(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="argumentationResult">{{ argumentationResult }}</p>
+    </div>
+  </div>
+
+  <!-- Письмо -->
+  <div *ngIf="activeTab === 'writing'">
+    <h3>✍ Тренажёры для письма</h3>
+
+    <div class="writing-tabs">
+      <button (click)="setWritingTask('plan')" [class.active]="writingTask === 'plan'">📜 Составление плана</button>
+      <button (click)="setWritingTask('styleCheck')" [class.active]="writingTask === 'styleCheck'">🧐 Автопроверка
+        стиля</button>
+      <button (click)="setWritingTask('expressions')" [class.active]="writingTask === 'expressions'">💬 Тренажёр
+        выражений</button>
+      <button (click)="setWritingTask('topicGeneration')" [class.active]="writingTask === 'topicGeneration'">🎲
+        Генерация тем</button>
+      <button (click)="setWritingTask('errorCorrection')" [class.active]="writingTask === 'errorCorrection'">✅
+        Редактирование ошибок</button>
+    </div>
+
+    <!-- Составление плана -->
+    <div *ngIf="writingTask === 'plan'">
+      <h4>📜 Составьте план эссе</h4>
+      <textarea [(ngModel)]="essayPlan" placeholder="Introduction, développement, conclusion..."></textarea>
+      <button (click)="checkEssayPlan()">Проверить</button>
+      <p *ngIf="essayFeedback">{{ essayFeedback }}</p>
+    </div>
+
+    <!-- Автопроверка стиля -->
+    <div *ngIf="writingTask === 'styleCheck'">
+      <h4>🧐 Автопроверка стиля</h4>
+      <textarea [(ngModel)]="essayText" placeholder="Введите текст для анализа..."></textarea>
+      <button (click)="checkStyle()">Анализировать</button>
+      <p *ngIf="styleFeedback">{{ styleFeedback }}</p>
+    </div>
+
+    <!-- Тренажёр выражений -->
+    <div *ngIf="writingTask === 'expressions'">
+      <h4>💬 Выберите правильное выражение</h4>
+      <p>{{ expressionSentence }}</p>
+      <div *ngFor="let option of expressionOptions">
+        <button (click)="checkExpression(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="expressionFeedback">{{ expressionFeedback }}</p>
+    </div>
+
+    <!-- Генерация тем -->
+    <div *ngIf="writingTask === 'topicGeneration'">
+      <h4>🎲 Случайная тема эссе</h4>
+      <p><strong>Тема:</strong> {{ generatedTopic }}</p>
+      <button (click)="generateTopic()">🔄 Генерировать новую тему</button>
+      <textarea [(ngModel)]="generatedEssayPlan" placeholder="Введите план эссе..."></textarea>
+      <button (click)="checkGeneratedPlan()">Проверить</button>
+      <p *ngIf="generatedPlanFeedback">{{ generatedPlanFeedback }}</p>
+    </div>
+
+    <!-- Редактирование ошибок -->
+    <div *ngIf="writingTask === 'errorCorrection'">
+      <h4>✅ Исправьте ошибки в тексте</h4>
+      <p>{{ incorrectSentence }}</p>
+      <textarea [(ngModel)]="correctedSentence" placeholder="Введите исправленный текст..."></textarea>
+      <button (click)="checkCorrection()">Проверить</button>
+      <p *ngIf="correctionFeedback">{{ correctionFeedback }}</p>
+    </div>
+  </div>
+
+  <!-- Устная речь -->
+  <div *ngIf="activeTab === 'speaking'">
+    <h3>🗣 Тренажёры устной речи</h3>
+
+    <div class="speaking-tabs">
+      <button (click)="setSpeakingTask('argumentation')" [class.active]="speakingTask === 'argumentation'">📢 Разбор
+        аргументации</button>
+      <button (click)="setSpeakingTask('improvTopics')" [class.active]="speakingTask === 'improvTopics'">🎭
+        Импровизация</button>
+      <button (click)="setSpeakingTask('translation')" [class.active]="speakingTask === 'translation'">🌍 Синхронный
+        перевод</button>
+      <button (click)="setSpeakingTask('dialogues')" [class.active]="speakingTask === 'dialogues'">💬 Разговорные
+        сценарии</button>
+      <button (click)="setSpeakingTask('intonation')" [class.active]="speakingTask === 'intonation'">🎤 Интонация и
+        акцент</button>
+    </div>
+
+    <!-- Разбор аргументации -->
+    <div *ngIf="speakingTask === 'argumentation'">
+      <h4>📢 Запишите голосовой ответ</h4>
+      <p><b>{{ speakingQuestion }}</b></p>
+      <button (click)="startRecording()">🎤 Записать</button>
+      <p *ngIf="recording">{{ recordingMessage }}</p>
+    </div>
+
+    <!-- Импровизированные темы -->
+    <div *ngIf="speakingTask === 'improvTopics'">
+      <h4>🎭 Импровизированная тема</h4>
+      <p><strong>Тема:</strong> {{ improvTopic }}</p>
+      <button (click)="generateImprovTopic()">🔄 Новая тема</button>
+      <p>У вас есть <b>60 секунд</b>, чтобы подготовиться.</p>
+      <button (click)="startImprovTimer()">⏳ Начать отсчёт</button>
+      <p *ngIf="improvTimer">{{ improvTimerMessage }}</p>
+    </div>
+
+    <!-- Синхронный перевод -->
+    <div *ngIf="speakingTask === 'translation'">
+      <h4>🌍 Переведите фразу</h4>
+      <p><i>{{ translationSentence }}</i></p>
+      <textarea [(ngModel)]="userTranslation" placeholder="Переведите здесь..."></textarea>
+      <button (click)="checkTranslation()">Проверить</button>
+      <p *ngIf="translationFeedback">{{ translationFeedback }}</p>
+    </div>
+
+    <!-- Разговорные сценарии -->
+    <div *ngIf="speakingTask === 'dialogues'">
+      <h4>💬 Выберите ответ в диалоге</h4>
+      <p>{{ dialoguePrompt }}</p>
+      <div *ngFor="let option of dialogueOptions">
+        <button (click)="checkDialogue(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="dialogueFeedback">{{ dialogueFeedback }}</p>
+    </div>
+
+    <!-- Интонация и акцент -->
+    <div *ngIf="speakingTask === 'intonation'">
+      <h4>🎤 Определите интонацию</h4>
+      <p>{{ intonationSentence }}</p>
+      <button (click)="checkIntonation('joy')">😊 Радость</button>
+      <button (click)="checkIntonation('anger')">😡 Гнев</button>
+      <button (click)="checkIntonation('sarcasm')">🤨 Сарказм</button>
+      <p *ngIf="intonationFeedback">{{ intonationFeedback }}</p>
+    </div>
+  </div>
+
+
+  <!-- Грамматика и лексика -->
+  <div *ngIf="activeTab === 'grammar'">
+    <h3>📚 Тренажёры по грамматике и лексике</h3>
+
+    <div class="grammar-tabs">
+      <button (click)="setGrammarTask('connectors')" [class.active]="grammarTask === 'connectors'">🔗 Связки</button>
+      <button (click)="setGrammarTask('sentenceBuilder')" [class.active]="grammarTask === 'sentenceBuilder'">📝
+        Конструктор предложений</button>
+      <button (click)="setGrammarTask('miniGames')" [class.active]="grammarTask === 'miniGames'">🎮 Мини-игры</button>
+      <button (click)="setGrammarTask('context')" [class.active]="grammarTask === 'context'">📖 Лексика в
+        контексте</button>
+      <button (click)="setGrammarTask('synonyms')" [class.active]="grammarTask === 'synonyms'">🔄 Синонимы и
+        антонимы</button>
+    </div>
+
+    <!-- Тренажёр соединений фраз -->
+    <div *ngIf="grammarTask === 'connectors'">
+      <h4>🔗 Выберите правильную логическую связку</h4>
+      <p>{{ sentenceWithBlank }}</p>
+      <div *ngFor="let option of connectorOptions">
+        <button (click)="checkConnector(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="connectorResult">{{ connectorResult }}</p>
+    </div>
+
+    <!-- Конструктор предложений -->
+    <div *ngIf="grammarTask === 'sentenceBuilder'">
+      <h4>📝 Соберите предложение</h4>
+      <p>Перетащите слова в правильном порядке:</p>
+      <ul>
+        <li *ngFor="let word of shuffledSentenceWords" (click)="reorderSentence(word)">
+          {{ word }}
+        </li>
+      </ul>
+      <button (click)="checkSentenceOrder()">Проверить</button>
+      <p *ngIf="sentenceOrderResult">{{ sentenceOrderResult }}</p>
+    </div>
+
+    <!-- Грамматические мини-игры -->
+    <div *ngIf="grammarTask === 'miniGames'">
+      <h4>🎮 Выберите правильную форму глагола</h4>
+      <p>{{ verbQuestion }}</p>
+      <div *ngFor="let option of verbOptions">
+        <button (click)="checkVerb(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="verbResult">{{ verbResult }}</p>
+    </div>
+
+    <!-- Контекстный тренажёр лексики -->
+    <div *ngIf="grammarTask === 'context'">
+      <h4>📖 Выберите подходящее слово</h4>
+      <p>{{ contextSentence }}</p>
+      <div *ngFor="let option of contextOptions">
+        <button (click)="checkContext(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="contextResult">{{ contextResult }}</p>
+    </div>
+
+    <!-- Синонимы и антонимы -->
+    <div *ngIf="grammarTask === 'synonyms'">
+      <h4>🔄 Подберите синоним</h4>
+      <p>{{ synonymQuestion }}</p>
+      <div *ngFor="let option of synonymOptions">
+        <button (click)="checkSynonym(option)">{{ option }}</button>
+      </div>
+      <p *ngIf="synonymResult">{{ synonymResult }}</p>
+    </div>
+  </div>
+
+
+  <!-- Экзамен -->
+  <div *ngIf="activeTab === 'exam'">
+    <h3>🎯 Симуляция экзамена</h3>
+    <button (click)="startExam()" *ngIf="!examStarted">📢 Начать экзамен</button>
+
+    <div *ngIf="examStarted">
+      <p><b>Экзамен начался! Выполните задания последовательно.</b></p>
+
+      <!-- Тест по аудированию -->
+      <div *ngIf="examStep === 'listening'">
+        <h4>🎧 Аудирование</h4>
+        <audio controls>
+          <source src="{{ examAudio }}" type="audio/mpeg">
+        </audio>
+        <p>Выберите правильный ответ:</p>
+        <div *ngFor="let option of listeningOptions">
+          <button (click)="checkListening(option)">{{ option }}</button>
+        </div>
+      </div>
+
+      <!-- Тест по чтению -->
+      <div *ngIf="examStep === 'reading'">
+        <h4>📖 Чтение</h4>
+        <p>{{ examReadingText }}</p>
+        <p>Выберите правильный ответ:</p>
+        <div *ngFor="let option of readingOptions">
+          <button (click)="checkReading(option)">{{ option }}</button>
+        </div>
+      </div>
+
+      <!-- Письменное задание -->
+      <div *ngIf="examStep === 'writing'">
+        <h4>✍ Письмо</h4>
+        <p>Напишите текст по следующей теме:</p>
+        <p><b>{{ examWritingTopic }}</b></p>
+        <textarea [(ngModel)]="examWritingAnswer" placeholder="Введите ваш ответ..."></textarea>
+        <button (click)="checkWriting()">Проверить</button>
+      </div>
+
+      <!-- Устная речь -->
+      <div *ngIf="examStep === 'speaking'">
+        <h4>🗣 Устная речь</h4>
+        <p>Запишите голосовой ответ на вопрос:</p>
+        <p><b>{{ examSpeakingQuestion }}</b></p>
+        <button (click)="startSpeakingExam()">🎤 Записать</button>
+        <p *ngIf="speakingRecording">{{ speakingRecordingMessage }}</p>
+      </div>
+
+      <!-- Итоговый результат -->
+      <div *ngIf="examStep === 'results'">
+        <h4>✅ Результаты экзамена</h4>
+        <p>🎯 Ваши баллы: <b>{{ examScore }}/100</b></p>
+        <p *ngIf="examFeedback">{{ examFeedback }}</p>
+        <button (click)="restartExam()">🔄 Пройти ещё раз</button>
+      </div>
+    </div>
+  </div>
+
+</div>

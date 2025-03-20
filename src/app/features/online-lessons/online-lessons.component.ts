@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BackgroundService } from '../../services/background.service';
 import { MarathonsComponent } from '../marathons/marathons.component';
@@ -44,7 +44,7 @@ export class OnlineLessonsComponent implements OnInit, AfterViewInit {
   showNewLessonModal = false;
   activeModalTab: string = 'individual';
 
-  constructor(private route: ActivatedRoute, private router: Router, private backgroundService: BackgroundService, private videoCallService: VideoCallService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private backgroundService: BackgroundService, private videoCallService: VideoCallService, private cdr: ChangeDetectorRef) { }
 
 
   ngOnInit(): void {
@@ -75,6 +75,7 @@ export class OnlineLessonsComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // После рендера компонента забираем курсы
     this.courses = this.marathonsComponent.courses;
+    this.cdr.detectChanges();
   }
 
   getStartOfWeek(date: Date): Date {

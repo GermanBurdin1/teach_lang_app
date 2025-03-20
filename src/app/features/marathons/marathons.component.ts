@@ -413,4 +413,12 @@ export class MarathonsComponent implements AfterViewInit, OnInit {
       ? Math.max(...this.coursesCreated.map(course => course.id)) + 1
       : 1;
   }
+
+  //свернуть расписание
+  isTimetableCollapsed = false; // 
+
+  toggleTimetable(): void {
+    this.isTimetableCollapsed = !this.isTimetableCollapsed;
+  }
+
 }
