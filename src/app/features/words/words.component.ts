@@ -9,26 +9,32 @@ export class WordsComponent {
   galaxies = [
     {
       name: 'Кругозор',
+      sanitizedName: 'Кругозор'.replace(/\s+/g, '-'), // Убираем пробелы для id
       subtopics: this.generateSubtopics(6, ['История', 'Наука', 'Искусство', 'Философия', 'Технологии', 'Культура'])
     },
     {
       name: 'Социальные связи',
+      sanitizedName: 'Социальные-связи'.replace(/\s+/g, '-'),
       subtopics: this.generateSubtopics(5, ['Семья', 'Друзья', 'Работа', 'Социальные сети', 'Коммуникация'])
     },
     {
       name: 'Работа и карьера',
+      sanitizedName: 'Работа-и-карьера'.replace(/\s+/g, '-'),
       subtopics: this.generateSubtopics(4, ['Вакансии', 'Навыки', 'Резюме', 'Собеседование'])
     },
     {
       name: 'Предметы',
+      sanitizedName: 'Предметы'.replace(/\s+/g, '-'),
       subtopics: this.generateSubtopics(6, ['Мебель', 'Техника', 'Инструменты', 'Одежда', 'Украшения', 'Игрушки'])
     },
     {
       name: 'Медицина и здоровье',
+      sanitizedName: 'Медицина-и-здоровье'.replace(/\s+/g, '-'),
       subtopics: this.generateSubtopics(5, ['Болезни', 'Лечение', 'Профилактика', 'Здоровый образ жизни', 'Аптеки'])
     },
     {
       name: 'Ситуации и события',
+      sanitizedName: 'Ситуации-и-события'.replace(/\s+/g, '-'),
       subtopics: this.generateSubtopics(4, ['Праздники', 'Катастрофы', 'Спорт', 'Политика'])
     }
   ];
@@ -67,6 +73,7 @@ export class WordsComponent {
     }
     return subtopics;
   }
+
 
   onSubtopicClick(subtopic: any) {
     console.log(`Кликнуто на подтему: ${subtopic.name}`);
