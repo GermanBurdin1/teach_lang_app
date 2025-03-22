@@ -30,19 +30,25 @@
     <div class="column">
       <h3>Показать только слова ({{ words.length }})</h3>
       <div *ngFor="let card of words" class="card-wrapper">
-        <div class="card" [class.flipped]="card.flipped" (click)="flipCard(card)">
-          <div class="card-front">
-            <button class="delete-btn" (click)="deleteItem(card.id, 'word')">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-            <p>{{ card.word }}</p>
-            <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
-          </div>
-          <div class="card-back">
-            <p>{{ card.translation }}</p>
-            <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод" />
-            <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
-            <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+        <div class="card" (click)="flipCard(card)">
+          <div class="card-inner" [class.flipped]="card.flipped">
+            <div class="card-front">
+              <div class="card-header">
+                <button class="delete-btn" (click)="deleteItem(card.id, 'word'); $event.stopPropagation()">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+              <div class="card-body">
+                <p>{{ card.word }}</p>
+                <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
+              </div>
+            </div>
+            <div class="card-back">
+              <p>{{ card.translation }}</p>
+              <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод" />
+              <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
+              <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+            </div>
           </div>
         </div>
       </div>
@@ -52,19 +58,28 @@
     <div class="column">
       <h3>Показать только выражения ({{ expressions.length }})</h3>
       <div *ngFor="let card of expressions" class="card-wrapper">
-        <div class="card" [class.flipped]="card.flipped" (click)="flipCard(card)">
-          <div class="card-front">
-            <button class="delete-btn" (click)="deleteItem(card.id, 'expression')"><i class="fas fa-trash-alt"></i></button>
-            <p>{{ card.word }}</p>
-            <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
-          </div>
-          <div class="card-back">
-            <p>{{ card.translation }}</p>
-            <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод" />
-            <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
-            <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+        <div class="card" (click)="flipCard(card)">
+          <div class="card-inner" [class.flipped]="card.flipped">
+            <div class="card-front">
+              <div class="card-header">
+                <button class="delete-btn" (click)="deleteItem(card.id, 'expression'); $event.stopPropagation()">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+              <div class="card-body">
+                <p>{{ card.word }}</p>
+                <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
+              </div>
+            </div>
+            <div class="card-back">
+              <p>{{ card.translation }}</p>
+              <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод" />
+              <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
+              <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
