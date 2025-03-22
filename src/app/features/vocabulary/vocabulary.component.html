@@ -1,11 +1,72 @@
-<div>
+<div class="vocabulary-container">
   <h1>Dictionnaire</h1>
-  <ul>
-    <li *ngFor="let word of words">{{ word.word }}
-      <button (click)="deleteWord(word.id)">Supprimer</button>
-    </li>
-  </ul>
 
-  <input [(ngModel)]="newWord" placeholder="Ajouter le mot" />
-  <button (click)="addWord()">Ajouter</button>
+ <!-- Выбор типа карточки перед добавлением -->
+<div class="add-item-container">
+  <button (click)="setWordType('word')">Добавить слово</button>
+  <button (click)="setWordType('expression')">Добавить выражение</button>
+</div>
+
+<!-- Поля ввода отображаются только после выбора -->
+<div *ngIf="showInputFields" class="input-fields">
+  <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
+  <input [(ngModel)]="newTranslation" placeholder="Введите перевод (необязательно)" />
+  <button (click)="addItem()">Добавить</button>
+</div>
+
+
+  <!-- Блок сортировки -->
+  <div class="sort-options">
+    <label>Сортировать по:</label>
+    <select [(ngModel)]="sortBy" (change)="sortWords()">
+      <option value="date">Дате добавления</option>
+      <option value="hardest">Сложности</option>
+    </select>
+  </div>
+
+  <!-- Карточки -->
+  <div class="cards-container">
+    <!-- Колонка для слов -->
+    <div class="column">
+      <h3>Показать только слова ({{ words.length }})</h3>
+      <div *ngFor="let card of words" class="card-wrapper">
+        <div class="card" [class.flipped]="card.flipped" (click)="flipCard(card)">
+          <div class="card-front">
+            <button class="delete-btn" (click)="deleteItem(card.id, 'word')">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <p>{{ card.word }}</p>
+            <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
+          </div>
+          <div class="card-back">
+            <p>{{ card.translation }}</p>
+            <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод" />
+            <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
+            <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Колонка для выражений -->
+    <div class="column">
+      <h3>Показать только выражения ({{ expressions.length }})</h3>
+      <div *ngFor="let card of expressions" class="card-wrapper">
+        <div class="card" [class.flipped]="card.flipped" (click)="flipCard(card)">
+          <div class="card-front">
+            <button class="delete-btn" (click)="deleteItem(card.id, 'expression')"><i class="fas fa-trash-alt"></i></button>
+            <p>{{ card.word }}</p>
+            <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
+          </div>
+          <div class="card-back">
+            <p>{{ card.translation }}</p>
+            <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод" />
+            <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
+            <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

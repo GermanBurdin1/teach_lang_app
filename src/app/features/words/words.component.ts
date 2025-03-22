@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-words',
@@ -40,7 +41,7 @@ export class WordsComponent {
   ];
   zoomedGalaxy: any = null;
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   hoverGalaxy(galaxy: any) {
     // Можно добавить анимацию
@@ -62,8 +63,8 @@ export class WordsComponent {
     let subtopics = [];
     for (let i = 0; i < count; i++) {
       let angle = (i / count) * Math.PI * 2;
-      let x = 100 + Math.cos(angle) * 50;
-      let y = 100 + Math.sin(angle) * 50;
+      let x = 100 + Math.cos(angle) * 90; // Используем радиус RX эллипса
+      let y = 100 + Math.sin(angle) * 60; // Используем радиус RY эллипса
 
       subtopics.push({
         x,
@@ -75,9 +76,9 @@ export class WordsComponent {
   }
 
 
-  onSubtopicClick(subtopic: any) {
-    console.log(`Кликнуто на подтему: ${subtopic.name}`);
-    // Тут можно добавить логику перехода
+
+  onSubtopicClick(galaxyName: string, subtopicName: string) {
+    this.router.navigate(['/student/wordsTeaching', galaxyName, subtopicName]); // <-- Редирект на страницу карточек
   }
 
 }

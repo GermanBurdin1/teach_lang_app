@@ -20,6 +20,7 @@
 }
 
 .galaxy-wrapper {
+  overflow: visible;
   position: relative;
   width: 20vw;
   height: 20vw;
@@ -44,14 +45,15 @@
 }
 
 .galaxy-svg {
-  width: 100%;
-  height: 100%;
+  width: 70%;
+  height: 70%;
+  overflow: visible;
 }
 
 .galaxy-svg ellipse {
-  filter: blur(3px) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
+  filter: blur(10px) drop-shadow(0 0 50px rgba(255, 255, 255, 0.9));
   transition: all 0.3s ease;
-  stroke: rgba(255, 255, 255, 0.5);
+  stroke: rgba(255, 255, 255, 0.4);
   stroke-width: 2;
 }
 
@@ -67,14 +69,6 @@
   filter: blur(2px);
 }
 
-
-.galaxy p {
-  position: absolute;
-  bottom: -20px;
-  width: 100%;
-  text-align: center;
-  font-size: 14px;
-}
 
 /* Зумированная галактика */
 .zoomed-galaxy {
@@ -101,7 +95,7 @@
 /* Стиль для названия темы в центре */
 .galaxy text {
   font-weight: bold;
-  font-size: 20px;
+  font-size: 14px;
   fill: white;
   text-anchor: middle;
   dominant-baseline: central;
@@ -114,17 +108,15 @@
 .galaxy-wrapper::before {
   content: "";
   position: absolute;
-  width: 120%;
-  height: 120%;
+  width: 180%;
+  height: 180%;
   background-image:
-    radial-gradient(white 1px, transparent 1px),
-    radial-gradient(white 2px, transparent 2px),
-    radial-gradient(white 3px, transparent 3px);
-  background-size: 6px 6px, 12px 12px, 24px 24px;
-  background-position: 0px 0px, 30px 30px, 80px 80px;
-  opacity: 0.5;
+    radial-gradient(white 1px, transparent 10%),
+    conic-gradient(from 0deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  background-size: 60px 60px, 100%;
+  opacity: 0.4;
+  filter: blur(6px);
   z-index: -1;
-  filter: blur(1px);
 }
 
 

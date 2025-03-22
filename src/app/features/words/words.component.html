@@ -66,7 +66,7 @@
       <g *ngFor="let subtopic of zoomedGalaxy.subtopics">
         <circle [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3"
                 r="30" fill="black"
-                (click)="onSubtopicClick(subtopic)"
+                (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)"
                 style="cursor: pointer;">
         </circle>
         <text [attr.x]="subtopic.x * 3" [attr.y]="subtopic.y * 3 + 8"
