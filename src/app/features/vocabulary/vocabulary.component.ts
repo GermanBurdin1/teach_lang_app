@@ -8,7 +8,10 @@ interface WordCard {
   flipped: boolean;
   hintVisible: boolean;
   isCorrect: boolean | null;
+  hintIndex?: number; // <--- текущий индекс подсказки
+  showTranslation?: boolean; // <--- если нажали "Показать слово"
 }
+
 
 @Component({
   selector: 'app-vocabulary',
@@ -32,17 +35,29 @@ showInputFields: boolean = false;
 
   // Загрузка карточек (пока что просто статичный массив)
   loadWords(): void {
-    const allItems = [
-      { id: 1, word: 'сериал', translation: 'series', type: 'word', userInput: '', flipped: false, hintVisible: true, isCorrect: null },
-      { id: 2, word: 'книга', translation: 'book', type: 'word', userInput: '', flipped: false, hintVisible: true, isCorrect: null },
-      { id: 3, word: 'персонаж', translation: 'character', type: 'word', userInput: '', flipped: false, hintVisible: true, isCorrect: null },
-      { id: 4, word: 'держать в курсе', translation: 'keep updated', type: 'expression', userInput: '', flipped: false, hintVisible: true, isCorrect: null },
-      { id: 5, word: 'выходить из себя', translation: 'lose temper', type: 'expression', userInput: '', flipped: false, hintVisible: true, isCorrect: null },
+    const rawItems = [
+      { id: 1, word: 'сериал', translation: 'series', type: 'word' },
+      { id: 2, word: 'книга', translation: 'book', type: 'word' },
+      { id: 3, word: 'персонаж', translation: 'character', type: 'word' },
+      { id: 4, word: 'держать в курсе', translation: 'keep updated', type: 'expression' },
+      { id: 5, word: 'выходить из себя', translation: 'lose temper', type: 'expression' }
     ];
 
-    this.words = allItems.filter(item => item.type === 'word');
-    this.expressions = allItems.filter(item => item.type === 'expression');
+    const enrichedItems = rawItems.map(item => ({
+      ...item,
+      userInput: '',
+      flipped: false,
+      hintVisible: true,
+      isCorrect: null,
+      hintIndex: 0,
+      showTranslation: false
+    }));
+
+    this.words = enrichedItems.filter(item => item.type === 'word');
+    this.expressions = enrichedItems.filter(item => item.type === 'expression');
   }
+
+
 
   // Метод добавления слова или выражения
   addItem(): void {
@@ -112,4 +127,31 @@ deleteItem(id: number, type: 'word' | 'expression'): void {
       this.words.sort((a, b) => (a.isCorrect === false ? -1 : 1));
     }
   }
+
+  getHint(card: WordCard): string {
+    const full = card.translation;
+    const visible = full
+      .slice(0, card.hintIndex ?? 0)
+      .split('')
+      .join(' ');
+    const hidden = full
+      .slice(card.hintIndex ?? 0)
+      .replace(/./g, '_')
+      .split('')
+      .join(' ');
+    return `${visible} ${hidden}`.trim();
+  }
+
+  revealNextHint(card: WordCard): void {
+    if ((card.hintIndex ?? 0) < card.translation.length - 1) {
+      card.hintIndex = (card.hintIndex ?? 0) + 1;
+    } else {
+      card.showTranslation = true;
+    }
+  }
+
+  showFullTranslation(card: WordCard): void {
+    card.showTranslation = true;
+  }
+
 }

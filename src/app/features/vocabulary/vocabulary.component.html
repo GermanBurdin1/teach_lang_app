@@ -1,18 +1,18 @@
 <div class="vocabulary-container">
   <h1>Dictionnaire</h1>
 
- <!-- Выбор типа карточки перед добавлением -->
-<div class="add-item-container">
-  <button (click)="setWordType('word')">Добавить слово</button>
-  <button (click)="setWordType('expression')">Добавить выражение</button>
-</div>
+  <!-- Выбор типа карточки перед добавлением -->
+  <div class="add-item-container">
+    <button (click)="setWordType('word')">Добавить слово</button>
+    <button (click)="setWordType('expression')">Добавить выражение</button>
+  </div>
 
-<!-- Поля ввода отображаются только после выбора -->
-<div *ngIf="showInputFields" class="input-fields">
-  <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
-  <input [(ngModel)]="newTranslation" placeholder="Введите перевод (необязательно)" />
-  <button (click)="addItem()">Добавить</button>
-</div>
+  <!-- Поля ввода отображаются только после выбора -->
+  <div *ngIf="showInputFields" class="input-fields">
+    <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
+    <input [(ngModel)]="newTranslation" placeholder="Введите перевод (необязательно)" />
+    <button (click)="addItem()">Добавить</button>
+  </div>
 
 
   <!-- Блок сортировки -->
@@ -30,7 +30,7 @@
     <div class="column">
       <h3>Показать только слова ({{ words.length }})</h3>
       <div *ngFor="let card of words" class="card-wrapper">
-        <div class="card" (click)="flipCard(card)">
+        <div class="card">
           <div class="card-inner" [class.flipped]="card.flipped">
             <div class="card-front">
               <div class="card-header">
@@ -42,13 +42,42 @@
                 <p>{{ card.word }}</p>
                 <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
               </div>
+              <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                <i class="fas fa-retweet"></i> <!-- или другая иконка, например fa-rotate -->
+              </button>
             </div>
             <div class="card-back">
-              <p>{{ card.translation }}</p>
-              <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод" />
+              <div class="btn-group">
+                <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
+                        (click)="revealNextHint(card)">
+                  {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
+                </button>
+
+                <button *ngIf="!card.showTranslation"
+                        (click)="showFullTranslation(card)">
+                  Показать слово
+                </button>
+                <input *ngIf="card.isCorrect !== true"
+                       [(ngModel)]="card.userInput"
+                       (keyup.enter)="checkTranslation(card)"
+                       placeholder="Введи перевод"
+                       class="input-field" />
+              </div>
+
+              <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
+                {{ card.showTranslation ? card.translation : getHint(card) }}
+              </p>
+
+
               <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
               <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+
+              <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                <i class="fas fa-retweet"></i>
+              </button>
             </div>
+
+
           </div>
         </div>
       </div>
@@ -58,7 +87,7 @@
     <div class="column">
       <h3>Показать только выражения ({{ expressions.length }})</h3>
       <div *ngFor="let card of expressions" class="card-wrapper">
-        <div class="card" (click)="flipCard(card)">
+        <div class="card">
           <div class="card-inner" [class.flipped]="card.flipped">
             <div class="card-front">
               <div class="card-header">
@@ -70,13 +99,42 @@
                 <p>{{ card.word }}</p>
                 <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
               </div>
+              <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                <i class="fas fa-retweet"></i>
+              </button>
             </div>
             <div class="card-back">
-              <p>{{ card.translation }}</p>
-              <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод" />
+              <div class="btn-group">
+                <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
+                        (click)="revealNextHint(card)">
+                  {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
+                </button>
+
+                <button *ngIf="!card.showTranslation"
+                        (click)="showFullTranslation(card)">
+                  Показать слово
+                </button>
+                <input *ngIf="card.isCorrect !== true"
+                       [(ngModel)]="card.userInput"
+                       (keyup.enter)="checkTranslation(card)"
+                       placeholder="Введи перевод"
+                       class="input-field" />
+              </div>
+
+              <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
+                {{ card.showTranslation ? card.translation : getHint(card) }}
+              </p>
+
+
               <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
               <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+
+              <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                <i class="fas fa-retweet"></i>
+              </button>
             </div>
+
+
           </div>
         </div>
 
