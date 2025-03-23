@@ -21,6 +21,8 @@
     <select [(ngModel)]="sortBy" (change)="sortWords()">
       <option value="date">Дате добавления</option>
       <option value="hardest">Сложности</option>
+      <option value="repeat">Сначала слова на повторение</option>
+      <option value="learned">Отмеченные как знаю</option>
     </select>
   </div>
 
@@ -29,11 +31,14 @@
     <!-- Колонка для слов -->
     <div class="column">
       <h3>Показать только слова ({{ words.length }})</h3>
-      <div *ngFor="let card of words" class="card-wrapper">
+      <div *ngFor="let card of paginatedWords" class="card-wrapper">
         <div class="card">
           <div class="card-inner" [class.flipped]="card.flipped">
             <div class="card-front">
               <div class="card-header">
+                <p class="date-label">
+                  📅 {{ card.createdAt | date:'dd/MM/yyyy' }}
+                </p>
                 <button class="delete-btn" (click)="deleteItem(card.id, 'word'); $event.stopPropagation()">
                   <i class="fas fa-trash-alt"></i>
                 </button>
@@ -47,22 +52,27 @@
               </button>
             </div>
             <div class="card-back">
-              <div class="btn-group">
+              <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
                 <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
-                        (click)="revealNextHint(card)">
+                  (click)="revealNextHint(card)">
                   {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
                 </button>
 
-                <button *ngIf="!card.showTranslation"
-                        (click)="showFullTranslation(card)">
+                <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
                   Показать слово
                 </button>
-                <input *ngIf="card.isCorrect !== true"
-                       [(ngModel)]="card.userInput"
-                       (keyup.enter)="checkTranslation(card)"
-                       placeholder="Введи перевод"
-                       class="input-field" />
+                <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод"
+                  class="input-field" />
               </div>
+
+              <div *ngIf="(card.isCorrect === true || card.showTranslation) && !card.status" class="after-guess-btns">
+                <button (click)="markAsLearned(card)">Я знаю это слово</button>
+                <button (click)="markForRepetition(card)">Повторить позже</button>
+              </div>
+              <div *ngIf="card.status === 'learned'" class="after-guess-btns">
+                <button (click)="resetToPractice(card)">Снова спрятать перевод</button>
+              </div>
+
 
               <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
                 {{ card.showTranslation ? card.translation : getHint(card) }}
@@ -81,16 +91,25 @@
           </div>
         </div>
       </div>
+      <!-- Пагинация для слов -->
+      <div class="pagination">
+        <button (click)="changeWordsPage(-1)">←</button>
+        <span>Стр. {{ currentWordsPage }}</span>
+        <button (click)="changeWordsPage(1)">→</button>
+      </div>
     </div>
 
     <!-- Колонка для выражений -->
     <div class="column">
       <h3>Показать только выражения ({{ expressions.length }})</h3>
-      <div *ngFor="let card of expressions" class="card-wrapper">
+      <div *ngFor="let card of paginatedExpressions" class="card-wrapper">
         <div class="card">
           <div class="card-inner" [class.flipped]="card.flipped">
             <div class="card-front">
               <div class="card-header">
+                <p class="date-label">
+                  📅 {{ card.createdAt | date:'dd/MM/yyyy' }}
+                </p>
                 <button class="delete-btn" (click)="deleteItem(card.id, 'expression'); $event.stopPropagation()">
                   <i class="fas fa-trash-alt"></i>
                 </button>
@@ -104,21 +123,22 @@
               </button>
             </div>
             <div class="card-back">
-              <div class="btn-group">
+              <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
                 <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
-                        (click)="revealNextHint(card)">
+                  (click)="revealNextHint(card)">
                   {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
                 </button>
 
-                <button *ngIf="!card.showTranslation"
-                        (click)="showFullTranslation(card)">
+                <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
                   Показать слово
                 </button>
-                <input *ngIf="card.isCorrect !== true"
-                       [(ngModel)]="card.userInput"
-                       (keyup.enter)="checkTranslation(card)"
-                       placeholder="Введи перевод"
-                       class="input-field" />
+                <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод"
+                  class="input-field" />
+              </div>
+
+              <div *ngIf="(card.isCorrect === true || card.showTranslation) && !card.status" class="after-guess-btns">
+                <button (click)="markAsLearned(card)">Я знаю это слово</button>
+                <button (click)="markForRepetition(card)">Повторить позже</button>
               </div>
 
               <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
@@ -139,6 +159,12 @@
         </div>
 
       </div>
+      <div class="pagination">
+        <button (click)="changeExpressionsPage(-1)">←</button>
+        <span>Стр. {{ currentExpressionsPage }}</span>
+        <button (click)="changeExpressionsPage(1)">→</button>
+      </div>
+
     </div>
   </div>
 
