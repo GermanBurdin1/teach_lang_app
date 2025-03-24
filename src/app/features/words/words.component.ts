@@ -1,12 +1,23 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
+interface WordCard {
+  word: string;
+  translation: string;
+  galaxy: string;
+  subtopic: string;
+  // можно добавить остальные поля при необходимости
+}
+
 @Component({
   selector: 'app-words',
   templateUrl: './words.component.html',
   styleUrls: ['./words.component.css']
 })
 export class WordsComponent {
+  searchQuery: string = '';
+  searchResults: any[] = [];
+
   galaxies = [
     {
       name: 'Кругозор',
@@ -41,7 +52,7 @@ export class WordsComponent {
   ];
   zoomedGalaxy: any = null;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   hoverGalaxy(galaxy: any) {
     // Можно добавить анимацию
@@ -80,5 +91,43 @@ export class WordsComponent {
   onSubtopicClick(galaxyName: string, subtopicName: string) {
     this.router.navigate(['/student/wordsTeaching', galaxyName, subtopicName]); // <-- Редирект на страницу карточек
   }
+
+  ////////////////////////////////поиск слов
+
+  searchWord() {
+    if (!this.searchQuery.trim()) {
+      this.searchResults = [];
+      return;
+    }
+
+    // Здесь должна быть связь с данными, в которых ты хранишь слова
+    const allWords: WordCard[] = JSON.parse(localStorage.getItem('vocabulary_cards') || '[]');
+
+
+    this.searchResults = allWords
+      .filter(card =>
+        card.word.toLowerCase().includes(this.searchQuery.toLowerCase())
+      )
+      .map(card => ({
+        ...card,
+        display: `${card.word} → ${card.translation} (${card.galaxy} → ${card.subtopic})`
+      }));
+  }
+
+  navigateToWord(result: any) {
+    const galaxy = this.galaxies.find(g => g.name === result.galaxy);
+    if (!galaxy) return;
+
+    this.zoomedGalaxy = galaxy;
+
+    setTimeout(() => {
+      const subtopic = galaxy.subtopics.find(s => s.name === result.subtopic);
+      if (!subtopic) return;
+
+      // эмулируем клик на планету
+      this.onSubtopicClick(galaxy.name, subtopic.name);
+    }, 2000); // спустя 2 сек после зума
+  }
+
 
 }

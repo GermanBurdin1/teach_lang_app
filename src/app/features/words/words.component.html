@@ -1,4 +1,18 @@
 <div class="container" [class.zoom-active]="zoomedGalaxy">
+  <div class="search-bar">
+    <input [(ngModel)]="searchQuery" placeholder="Поиск слова..." (input)="searchWord()" />
+    <div *ngIf="searchResults.length" class="search-results">
+      <div *ngFor="let result of searchResults" class="search-result-item">
+        <div>
+          <strong>{{ result.word }}</strong> → {{ result.translation }}
+          <br />
+          <span class="search-path">{{ result.galaxy }} ⇒ {{ result.subtopic }}</span>
+        </div>
+        <button (click)="navigateToWord(result)">Перейти к слову</button>
+      </div>
+    </div>
+  </div>
+
   <h2 *ngIf="!zoomedGalaxy">Выберите категорию</h2>
 
   <div class="galaxies" *ngIf="!zoomedGalaxy">

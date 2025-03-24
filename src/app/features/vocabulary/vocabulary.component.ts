@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 interface WordCard {
   id: number;
@@ -13,8 +14,9 @@ interface WordCard {
   status?: 'learned' | 'repeat' | null;
   type: 'word' | 'expression';
   createdAt: number;
+  galaxy?: string;
+  subtopic?: string;
 }
-
 
 @Component({
   selector: 'app-vocabulary',
@@ -22,6 +24,8 @@ interface WordCard {
   styleUrls: ['./vocabulary.component.css'],
 })
 export class VocabularyComponent implements OnInit {
+  @Input() currentGalaxy: string = '';
+  @Input() currentSubtopic: string = '';
   words: WordCard[] = [];
   expressions: WordCard[] = [];
   newWord: string = '';
@@ -37,8 +41,12 @@ export class VocabularyComponent implements OnInit {
   currentWordsPage = 1;
   currentExpressionsPage = 1;
 
-
+  constructor(private route: ActivatedRoute) {}
   ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      this.currentGalaxy = params.get('galaxy') || '';
+      this.currentSubtopic = params.get('subtopic') || '';
+    });
     const stored = this.loadFromLocalStorage();
     if (stored) {
       this.words = stored.filter(item => item.type === 'word');
@@ -60,7 +68,9 @@ export class VocabularyComponent implements OnInit {
         flipped: false,
         hintVisible: true,
         isCorrect: null,
-        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 5 // 5 дней назад
+        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 5,
+        galaxy: 'Кругозор',
+        subtopic: 'Искусство'
       },
       {
         id: 2,
@@ -71,7 +81,9 @@ export class VocabularyComponent implements OnInit {
         flipped: false,
         hintVisible: true,
         isCorrect: null,
-        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 3 // 3 дня назад
+        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 3,
+        galaxy: 'Кругозор',
+        subtopic: 'Наука'
       },
       {
         id: 3,
@@ -82,7 +94,9 @@ export class VocabularyComponent implements OnInit {
         flipped: false,
         hintVisible: true,
         isCorrect: null,
-        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2 // 2 дня назад
+        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
+        galaxy: 'Кругозор',
+        subtopic: 'Искусство'
       },
       {
         id: 4,
@@ -93,7 +107,9 @@ export class VocabularyComponent implements OnInit {
         flipped: false,
         hintVisible: true,
         isCorrect: null,
-        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 1 // 1 день назад
+        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 1,
+        galaxy: 'Социальные связи',
+        subtopic: 'Коммуникация'
       },
       {
         id: 5,
@@ -104,9 +120,12 @@ export class VocabularyComponent implements OnInit {
         flipped: false,
         hintVisible: true,
         isCorrect: null,
-        createdAt: Date.now() // сегодня
+        createdAt: Date.now(),
+        galaxy: 'Социальные связи',
+        subtopic: 'Семья'
       }
     ];
+
 
 
 
@@ -141,7 +160,9 @@ export class VocabularyComponent implements OnInit {
         isCorrect: null,
         hintIndex: 0,
         showTranslation: false,
-        type: this.newWordType
+        type: this.newWordType,
+        galaxy: this.currentGalaxy,     // <= добавь эту переменную
+        subtopic: this.currentSubtopic
       };
 
       if (this.newWordType === 'word') {
