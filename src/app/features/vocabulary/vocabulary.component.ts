@@ -41,6 +41,9 @@ export class VocabularyComponent implements OnInit {
   currentWordsPage = 1;
   currentExpressionsPage = 1;
 
+  viewMode: 'cards' | 'list' = 'cards'; // по умолчанию карточки
+
+
   constructor(private route: ActivatedRoute) {}
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {

@@ -294,3 +294,23 @@
 .after-guess-btns button:hover {
   background-color: #1976D2;
 }
+
+/* карточки или список */
+
+.view-toggle {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.view-toggle button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.view-toggle button.active {
+  background-color: #6a5acd;
+  color: white;
+}

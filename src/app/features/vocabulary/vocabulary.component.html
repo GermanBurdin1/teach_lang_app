@@ -1,5 +1,9 @@
 <div class="vocabulary-container">
   <h1>Dictionnaire</h1>
+  <div class="view-toggle">
+    <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'">Карточки</button>
+    <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'">Списком</button>
+  </div>
 
   <!-- Выбор типа карточки перед добавлением -->
   <div class="add-item-container">
@@ -30,66 +34,77 @@
     <!-- Колонка для слов -->
     <div class="column">
       <h3>Показать только слова ({{ words.length }})</h3>
-      <div *ngFor="let card of paginatedWords" class="card-wrapper">
-        <div class="card">
-          <div class="card-inner" [class.flipped]="card.flipped">
-            <div class="card-front">
-              <div class="card-header">
-                <p class="date-label">
-                  📅 {{ card.createdAt | date:'dd/MM/yyyy' }}
+      <ng-container *ngIf="viewMode === 'cards'; else wordList">
+        <div *ngFor="let card of paginatedWords" class="card-wrapper">
+          <div class="card">
+            <div class="card-inner" [class.flipped]="card.flipped">
+              <div class="card-front">
+                <div class="card-header">
+                  <p class="date-label">
+                    📅 {{ card.createdAt | date:'dd/MM/yyyy' }}
+                  </p>
+                  <button class="delete-btn" (click)="deleteItem(card.id, 'word'); $event.stopPropagation()">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+                <div class="card-body">
+                  <p>{{ card.word }}</p>
+                  <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
+                </div>
+                <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                  <i class="fas fa-retweet"></i> <!-- или другая иконка, например fa-rotate -->
+                </button>
+              </div>
+              <div class="card-back">
+                <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
+                  <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
+                    (click)="revealNextHint(card)">
+                    {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
+                  </button>
+
+                  <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
+                    Показать слово
+                  </button>
+                  <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод"
+                    class="input-field" />
+                </div>
+
+                <div *ngIf="(card.isCorrect === true || card.showTranslation) && !card.status" class="after-guess-btns">
+                  <button (click)="markAsLearned(card)">Я знаю это слово</button>
+                  <button (click)="markForRepetition(card)">Повторить позже</button>
+                </div>
+                <div *ngIf="card.status === 'learned'" class="after-guess-btns">
+                  <button (click)="resetToPractice(card)">Снова спрятать перевод</button>
+                </div>
+
+
+                <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
+                  {{ card.showTranslation ? card.translation : getHint(card) }}
                 </p>
-                <button class="delete-btn" (click)="deleteItem(card.id, 'word'); $event.stopPropagation()">
-                  <i class="fas fa-trash-alt"></i>
+
+
+                <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
+                <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+
+                <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                  <i class="fas fa-retweet"></i>
                 </button>
               </div>
-              <div class="card-body">
-                <p>{{ card.word }}</p>
-                <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
-              </div>
-              <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
-                <i class="fas fa-retweet"></i> <!-- или другая иконка, например fa-rotate -->
-              </button>
+
+
             </div>
-            <div class="card-back">
-              <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
-                <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
-                  (click)="revealNextHint(card)">
-                  {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
-                </button>
-
-                <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
-                  Показать слово
-                </button>
-                <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод"
-                  class="input-field" />
-              </div>
-
-              <div *ngIf="(card.isCorrect === true || card.showTranslation) && !card.status" class="after-guess-btns">
-                <button (click)="markAsLearned(card)">Я знаю это слово</button>
-                <button (click)="markForRepetition(card)">Повторить позже</button>
-              </div>
-              <div *ngIf="card.status === 'learned'" class="after-guess-btns">
-                <button (click)="resetToPractice(card)">Снова спрятать перевод</button>
-              </div>
-
-
-              <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
-                {{ card.showTranslation ? card.translation : getHint(card) }}
-              </p>
-
-
-              <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
-              <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
-
-              <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
-                <i class="fas fa-retweet"></i>
-              </button>
-            </div>
-
-
           </div>
         </div>
-      </div>
+      </ng-container>
+
+      <ng-template #wordList>
+        <ul class="word-list">
+          <li *ngFor="let word of paginatedWords">
+            <strong>{{ word.word }}</strong> → {{ word.translation }}
+          </li>
+        </ul>
+      </ng-template>
+
       <!-- Пагинация для слов -->
       <div class="pagination">
         <button (click)="changeWordsPage(-1)">←</button>
@@ -101,63 +116,75 @@
     <!-- Колонка для выражений -->
     <div class="column">
       <h3>Показать только выражения ({{ expressions.length }})</h3>
-      <div *ngFor="let card of paginatedExpressions" class="card-wrapper">
-        <div class="card">
-          <div class="card-inner" [class.flipped]="card.flipped">
-            <div class="card-front">
-              <div class="card-header">
-                <p class="date-label">
-                  📅 {{ card.createdAt | date:'dd/MM/yyyy' }}
+      <ng-container *ngIf="viewMode === 'cards'; else expressionList">
+        <div *ngFor="let card of paginatedExpressions" class="card-wrapper">
+          <div class="card">
+            <div class="card-inner" [class.flipped]="card.flipped">
+              <div class="card-front">
+                <div class="card-header">
+                  <p class="date-label">
+                    📅 {{ card.createdAt | date:'dd/MM/yyyy' }}
+                  </p>
+                  <button class="delete-btn" (click)="deleteItem(card.id, 'expression'); $event.stopPropagation()">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+                <div class="card-body">
+                  <p>{{ card.word }}</p>
+                  <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
+                </div>
+                <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                  <i class="fas fa-retweet"></i>
+                </button>
+              </div>
+              <div class="card-back">
+                <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
+                  <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
+                    (click)="revealNextHint(card)">
+                    {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
+                  </button>
+
+                  <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
+                    Показать слово
+                  </button>
+                  <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод"
+                    class="input-field" />
+                </div>
+
+                <div *ngIf="(card.isCorrect === true || card.showTranslation) && !card.status" class="after-guess-btns">
+                  <button (click)="markAsLearned(card)">Я знаю это слово</button>
+                  <button (click)="markForRepetition(card)">Повторить позже</button>
+                </div>
+
+                <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
+                  {{ card.showTranslation ? card.translation : getHint(card) }}
                 </p>
-                <button class="delete-btn" (click)="deleteItem(card.id, 'expression'); $event.stopPropagation()">
-                  <i class="fas fa-trash-alt"></i>
+
+
+                <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
+                <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+
+                <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                  <i class="fas fa-retweet"></i>
                 </button>
               </div>
-              <div class="card-body">
-                <p>{{ card.word }}</p>
-                <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
-              </div>
-              <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
-                <i class="fas fa-retweet"></i>
-              </button>
+
+
             </div>
-            <div class="card-back">
-              <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
-                <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
-                  (click)="revealNextHint(card)">
-                  {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
-                </button>
-
-                <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
-                  Показать слово
-                </button>
-                <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод"
-                  class="input-field" />
-              </div>
-
-              <div *ngIf="(card.isCorrect === true || card.showTranslation) && !card.status" class="after-guess-btns">
-                <button (click)="markAsLearned(card)">Я знаю это слово</button>
-                <button (click)="markForRepetition(card)">Повторить позже</button>
-              </div>
-
-              <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
-                {{ card.showTranslation ? card.translation : getHint(card) }}
-              </p>
-
-
-              <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
-              <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
-
-              <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
-                <i class="fas fa-retweet"></i>
-              </button>
-            </div>
-
-
           </div>
-        </div>
 
-      </div>
+        </div>
+      </ng-container>
+
+      <ng-template #expressionList>
+        <ul class="word-list">
+          <li *ngFor="let expr of paginatedExpressions">
+            <strong>{{ expr.word }}</strong> → {{ expr.translation }}
+          </li>
+        </ul>
+      </ng-template>
+
+      <!-- Пагинация для выражений -->
       <div class="pagination">
         <button (click)="changeExpressionsPage(-1)">←</button>
         <span>Стр. {{ currentExpressionsPage }}</span>
