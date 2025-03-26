@@ -44,93 +44,72 @@ export class VocabularyComponent implements OnInit {
   viewMode: 'cards' | 'list' = 'cards'; // по умолчанию карточки
 
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute) { }
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.currentGalaxy = params.get('galaxy') || '';
       this.currentSubtopic = params.get('subtopic') || '';
+
+      console.log('📌 Galaxy from route:', this.currentGalaxy);
+      console.log('📌 Subtopic from route:', this.currentSubtopic);
     });
+
     const stored = this.loadFromLocalStorage();
-    if (stored) {
-      this.words = stored.filter(item => item.type === 'word');
-      this.expressions = stored.filter(item => item.type === 'expression');
+
+    if (!stored || stored.length === 0) {
+      console.log("log")
+      this.loadWords(); // ⬅️ загрузи тестовые
     } else {
-      this.loadWords(); // если данных нет, загрузи стартовые
+      const relevant = stored.filter(
+        item =>
+          item.galaxy === this.currentGalaxy &&
+          item.subtopic === this.currentSubtopic
+      );
+      this.words = relevant.filter(item => item.type === 'word');
+      this.expressions = relevant.filter(item => item.type === 'expression');
     }
   }
+
 
   // Загрузка карточек (пока что просто статичный массив)
   loadWords(): void {
     const rawItems: WordCard[] = [
-      {
-        id: 1,
-        word: 'сериал',
-        translation: 'series',
-        type: 'word',
-        userInput: '',
-        flipped: false,
-        hintVisible: true,
-        isCorrect: null,
-        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 5,
-        galaxy: 'Кругозор',
-        subtopic: 'Искусство'
-      },
-      {
-        id: 2,
-        word: 'книга',
-        translation: 'book',
-        type: 'word',
-        userInput: '',
-        flipped: false,
-        hintVisible: true,
-        isCorrect: null,
-        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 3,
-        galaxy: 'Кругозор',
-        subtopic: 'Наука'
-      },
-      {
-        id: 3,
-        word: 'персонаж',
-        translation: 'character',
-        type: 'word',
-        userInput: '',
-        flipped: false,
-        hintVisible: true,
-        isCorrect: null,
-        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
-        galaxy: 'Кругозор',
-        subtopic: 'Искусство'
-      },
-      {
-        id: 4,
-        word: 'держать в курсе',
-        translation: 'keep updated',
-        type: 'expression',
-        userInput: '',
-        flipped: false,
-        hintVisible: true,
-        isCorrect: null,
-        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 1,
-        galaxy: 'Социальные связи',
-        subtopic: 'Коммуникация'
-      },
-      {
-        id: 5,
-        word: 'выходить из себя',
-        translation: 'lose temper',
-        type: 'expression',
-        userInput: '',
-        flipped: false,
-        hintVisible: true,
-        isCorrect: null,
-        createdAt: Date.now(),
-        galaxy: 'Социальные связи',
-        subtopic: 'Семья'
-      }
+      // КРУГОЗОР
+      { id: 1, word: 'революция', translation: 'revolution', type: 'word', galaxy: 'Кругозор', subtopic: 'История', ...this.defaultCard() },
+      { id: 2, word: 'империя', translation: 'empire', type: 'word', galaxy: 'Кругозор', subtopic: 'История', ...this.defaultCard() },
+      { id: 3, word: 'атом', translation: 'atom', type: 'word', galaxy: 'Кругозор', subtopic: 'Наука', ...this.defaultCard() },
+      { id: 4, word: 'эксперимент', translation: 'experiment', type: 'word', galaxy: 'Кругозор', subtopic: 'Наука', ...this.defaultCard() },
+      { id: 5, word: 'пьеса', translation: 'play (theater)', type: 'word', galaxy: 'Кругозор', subtopic: 'Искусство', ...this.defaultCard() },
+      { id: 6, word: 'палитра', translation: 'palette', type: 'word', galaxy: 'Кругозор', subtopic: 'Искусство', ...this.defaultCard() },
+      { id: 7, word: 'мыслитель', translation: 'thinker', type: 'word', galaxy: 'Кругозор', subtopic: 'Философия', ...this.defaultCard() },
+      { id: 8, word: 'вопрос бытия', translation: 'question of being', type: 'expression', galaxy: 'Кругозор', subtopic: 'Философия', ...this.defaultCard() },
+      { id: 9, word: 'инновация', translation: 'innovation', type: 'word', galaxy: 'Кругозор', subtopic: 'Технологии', ...this.defaultCard() },
+      { id: 10, word: 'искусственный интеллект', translation: 'artificial intelligence', type: 'expression', galaxy: 'Кругозор', subtopic: 'Технологии', ...this.defaultCard() },
+      { id: 11, word: 'наследие', translation: 'heritage', type: 'word', galaxy: 'Кругозор', subtopic: 'Культура', ...this.defaultCard() },
+      { id: 12, word: 'традиции народа', translation: 'folk traditions', type: 'expression', galaxy: 'Кругозор', subtopic: 'Культура', ...this.defaultCard() },
+
+      // СОЦИАЛЬНЫЕ СВЯЗИ
+      { id: 13, word: 'мама', translation: 'mom', type: 'word', galaxy: 'Социальные связи', subtopic: 'Семья', ...this.defaultCard() },
+      { id: 14, word: 'брат', translation: 'brother', type: 'word', galaxy: 'Социальные связи', subtopic: 'Семья', ...this.defaultCard() },
+      { id: 15, word: 'лучший друг', translation: 'best friend', type: 'expression', galaxy: 'Социальные связи', subtopic: 'Друзья', ...this.defaultCard() },
+      { id: 16, word: 'дружить', translation: 'be friends', type: 'word', galaxy: 'Социальные связи', subtopic: 'Друзья', ...this.defaultCard() },
+      { id: 17, word: 'начальник', translation: 'boss', type: 'word', galaxy: 'Социальные связи', subtopic: 'Работа', ...this.defaultCard() },
+      { id: 18, word: 'рабочий процесс', translation: 'workflow', type: 'expression', galaxy: 'Социальные связи', subtopic: 'Работа', ...this.defaultCard() },
+      { id: 19, word: 'поделиться постом', translation: 'share a post', type: 'expression', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
+      { id: 20, word: 'подписчик', translation: 'follower', type: 'word', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
+      { id: 21, word: 'вести диалог', translation: 'have a dialogue', type: 'expression', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 22, word: 'сообщение', translation: 'message', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+
+      // РАБОТА И КАРЬЕРА
+      { id: 23, word: 'вакансия', translation: 'job opening', type: 'word', galaxy: 'Работа и карьера', subtopic: 'Вакансии', ...this.defaultCard() },
+      { id: 24, word: 'резюме', translation: 'resume', type: 'word', galaxy: 'Работа и карьера', subtopic: 'Вакансии', ...this.defaultCard() },
+      { id: 25, word: 'коммуникабельность', translation: 'communication skills', type: 'word', galaxy: 'Работа и карьера', subtopic: 'Навыки', ...this.defaultCard() },
+      { id: 26, word: 'решать задачи', translation: 'solve tasks', type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Навыки', ...this.defaultCard() },
+      { id: 27, word: 'описание опыта', translation: 'experience description', type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Резюме', ...this.defaultCard() },
+      { id: 28, word: 'образование', translation: 'education', type: 'word', galaxy: 'Работа и карьера', subtopic: 'Резюме', ...this.defaultCard() },
+      { id: 29, word: 'вопрос на собеседовании', translation: 'interview question', type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Собеседование', ...this.defaultCard() },
+      { id: 30, word: 'работодатель', translation: 'employer', type: 'word', galaxy: 'Работа и карьера', subtopic: 'Собеседование', ...this.defaultCard() }
     ];
-
-
-
 
     const enrichedItems = rawItems.map(item => ({
       ...item,
@@ -143,10 +122,26 @@ export class VocabularyComponent implements OnInit {
       showTranslation: false
     }));
 
-    this.words = enrichedItems.filter(item => item.type === 'word');
-    this.expressions = enrichedItems.filter(item => item.type === 'expression');
+    // Оставляем только актуальные карточки по текущей галактике и подтеме
+    const relevant = enrichedItems.filter(
+      item => item.galaxy === this.currentGalaxy && item.subtopic === this.currentSubtopic
+    );
+    this.words = relevant.filter(item => item.type === 'word');
+    this.expressions = relevant.filter(item => item.type === 'expression');
   }
 
+
+  defaultCard() {
+    return {
+      userInput: '',
+      flipped: false,
+      hintVisible: true,
+      isCorrect: null,
+      hintIndex: 0,
+      showTranslation: false,
+      createdAt: Date.now()
+    };
+  }
 
 
   // Метод добавления слова или выражения
@@ -242,8 +237,18 @@ export class VocabularyComponent implements OnInit {
     }
 
     // Разбиваем отфильтрованные обратно по категориям
-    this.words = filtered.filter(card => card.type === 'word');
-    this.expressions = filtered.filter(card => card.type === 'expression');
+    this.words = filtered.filter(card =>
+      card.type === 'word' &&
+      card.galaxy === this.currentGalaxy &&
+      card.subtopic === this.currentSubtopic
+    );
+
+    this.expressions = filtered.filter(card =>
+      card.type === 'expression' &&
+      card.galaxy === this.currentGalaxy &&
+      card.subtopic === this.currentSubtopic
+    );
+
   }
 
   getAllItems(): WordCard[] {
