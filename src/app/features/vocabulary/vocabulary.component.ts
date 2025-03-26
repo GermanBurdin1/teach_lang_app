@@ -52,23 +52,41 @@ export class VocabularyComponent implements OnInit {
 
       console.log('📌 Galaxy from route:', this.currentGalaxy);
       console.log('📌 Subtopic from route:', this.currentSubtopic);
+
+      let stored = this.loadFromLocalStorage();
+
+      if (!stored || stored.length === 0) {
+        console.log("📥 Загружаем карточки впервые...");
+
+        this.loadWords(); // загружаем и сохраняем
+
+        // 🔥 Дай браузеру время на запись
+        setTimeout(() => {
+          const loaded = this.loadFromLocalStorage();
+          if (loaded) {
+            const relevant = loaded.filter(
+              item =>
+                item.galaxy === this.currentGalaxy &&
+                item.subtopic === this.currentSubtopic
+            );
+            this.words = relevant.filter(item => item.type === 'word');
+            this.expressions = relevant.filter(item => item.type === 'expression');
+            console.log('✅ Загрузили после сохранения:', relevant);
+          }
+        }, 100); // 100 мс хватит
+      } else {
+        const relevant = stored.filter(
+          item =>
+            item.galaxy === this.currentGalaxy &&
+            item.subtopic === this.currentSubtopic
+        );
+        this.words = relevant.filter(item => item.type === 'word');
+        this.expressions = relevant.filter(item => item.type === 'expression');
+      }
     });
-
-    const stored = this.loadFromLocalStorage();
-
-    if (!stored || stored.length === 0) {
-      console.log("log")
-      this.loadWords(); // ⬅️ загрузи тестовые
-    } else {
-      const relevant = stored.filter(
-        item =>
-          item.galaxy === this.currentGalaxy &&
-          item.subtopic === this.currentSubtopic
-      );
-      this.words = relevant.filter(item => item.type === 'word');
-      this.expressions = relevant.filter(item => item.type === 'expression');
-    }
   }
+
+
 
 
   // Загрузка карточек (пока что просто статичный массив)
@@ -122,12 +140,14 @@ export class VocabularyComponent implements OnInit {
       showTranslation: false
     }));
 
+    this.saveToLocalStorage(enrichedItems);
     // Оставляем только актуальные карточки по текущей галактике и подтеме
     const relevant = enrichedItems.filter(
       item => item.galaxy === this.currentGalaxy && item.subtopic === this.currentSubtopic
     );
     this.words = relevant.filter(item => item.type === 'word');
     this.expressions = relevant.filter(item => item.type === 'expression');
+
   }
 
 
@@ -294,9 +314,10 @@ export class VocabularyComponent implements OnInit {
     this.saveToLocalStorage();
   }
 
-  saveToLocalStorage(): void {
-    const allItems = [...this.words, ...this.expressions];
+  saveToLocalStorage(cards?: WordCard[]): void {
+    const allItems = cards ?? [...this.words, ...this.expressions];
     localStorage.setItem('vocabulary_cards', JSON.stringify(allItems));
+    console.log('💾 Сохранили в localStorage:', allItems); // <--- добавь это!
   }
 
   loadFromLocalStorage(): WordCard[] | null {

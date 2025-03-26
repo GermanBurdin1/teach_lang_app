@@ -2,12 +2,15 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 interface WordCard {
+  id?: number;
   word: string;
   translation: string;
   galaxy: string;
   subtopic: string;
-  // можно добавить остальные поля при необходимости
+  type?: 'word' | 'expression';
+  createdAt?: number;
 }
+
 
 @Component({
   selector: 'app-words',
@@ -100,19 +103,28 @@ export class WordsComponent {
       return;
     }
 
-    // Здесь должна быть связь с данными, в которых ты хранишь слова
-    const allWords: WordCard[] = JSON.parse(localStorage.getItem('vocabulary_cards') || '[]');
+    const raw = localStorage.getItem('vocabulary_cards');
+    console.log('📦 Из localStorage:', raw);
 
+    const allWords: WordCard[] = JSON.parse(raw || '[]');
+    console.log('📄 Всего слов:', allWords.length);
 
     this.searchResults = allWords
       .filter(card =>
-        card.word.toLowerCase().includes(this.searchQuery.toLowerCase())
+        card.word.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        card.translation.toLowerCase().includes(this.searchQuery.toLowerCase())
       )
       .map(card => ({
         ...card,
-        display: `${card.word} → ${card.translation} (${card.galaxy} → ${card.subtopic})`
+        display: `${card.word} → ${card.translation}`,
+        fullPath: `${card.subtopic} → ${card.galaxy}`
       }));
+
+    console.log('🔎 Найдено результатов:', this.searchResults.length);
   }
+
+
+
 
   navigateToWord(result: any) {
     const galaxy = this.galaxies.find(g => g.name === result.galaxy);
