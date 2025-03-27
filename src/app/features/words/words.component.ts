@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 
 interface WordCard {
@@ -18,9 +18,11 @@ interface WordCard {
   styleUrls: ['./words.component.css']
 })
 export class WordsComponent {
+  @ViewChildren('subtopicElement') subtopicElements!: QueryList<ElementRef>;
   searchQuery: string = '';
   searchResults: any[] = [];
-
+  zoomStyle = {};
+  isZoomingToPlanet = false;
   galaxies = [
     {
       name: 'Кругозор',
@@ -67,11 +69,16 @@ export class WordsComponent {
 
   zoomIntoGalaxy(galaxy: any) {
     this.zoomedGalaxy = galaxy;
+    this.isZoomingToPlanet = false; // <-- обязательно!
+    this.zoomStyle = {}; // сброс
   }
+
 
   resetZoom() {
     this.zoomedGalaxy = null;
+    this.zoomStyle = {}; // ← вот это добавь
   }
+
 
   generateSubtopics(count: number, names: string[]) {
     let subtopics = [];
@@ -130,16 +137,39 @@ export class WordsComponent {
     const galaxy = this.galaxies.find(g => g.name === result.galaxy);
     if (!galaxy) return;
 
+    const subtopicName = result.subtopic;
     this.zoomedGalaxy = galaxy;
 
+    // Включаем флаг зума
+    this.isZoomingToPlanet = true;
+
     setTimeout(() => {
-      const subtopic = galaxy.subtopics.find(s => s.name === result.subtopic);
+      const subtopic = galaxy.subtopics.find(s => s.name === subtopicName);
       if (!subtopic) return;
 
-      // эмулируем клик на планету
-      this.onSubtopicClick(galaxy.name, subtopic.name);
-    }, 2000); // спустя 2 сек после зума
+      const targetX = subtopic.x * 3;
+      const targetY = subtopic.y * 3;
+
+      const offsetX = 300 - targetX;
+      const offsetY = 300 - targetY;
+
+      this.zoomStyle = {
+        transition: 'transform 2s ease',
+        transform: `translate(${offsetX}px, ${offsetY}px) scale(2)`
+      };
+
+      setTimeout(() => {
+        this.isZoomingToPlanet = false; // сбрасываем
+        this.onSubtopicClick(galaxy.name, subtopicName);
+      }, 2500);
+    }, 200);
   }
+
+
+
+
+
+
 
 
 }
