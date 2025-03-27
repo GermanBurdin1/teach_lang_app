@@ -1,4 +1,7 @@
-<div class="container" [class.zoom-active]="zoomedGalaxy">
+<div class="container" [ngClass]="{
+  'zoom-active': zoomedGalaxy,
+  'zoom-to-galaxy': isZoomingToGalaxy
+}">
   <div class="search-bar">
     <input [(ngModel)]="searchQuery" placeholder="Поиск слова..." (input)="searchWord()" />
     <div *ngIf="searchResults.length" class="search-results">
@@ -18,7 +21,7 @@
   <div class="galaxies" *ngIf="!zoomedGalaxy">
     <div *ngFor="let galaxy of galaxies" class="galaxy-wrapper">
       <div class="galaxy" (click)="zoomIntoGalaxy(galaxy)">
-        <svg viewBox="0 0 200 200" class="galaxy-svg">
+        <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg">
           <!-- Генерируем уникальный градиент -->
           <defs>
             <radialGradient [attr.id]="'galaxyGradient-' + galaxy.sanitizedName" cx="50%" cy="50%" r="50%">
@@ -47,7 +50,7 @@
   </div>
 
   <!-- Зумированная галактика -->
-  <div class="zoomed-galaxy" *ngIf="zoomedGalaxy">
+  <div class="zoomed-galaxy" *ngIf="zoomedGalaxy && !isZoomingToGalaxy">
     <button class="back-btn" (click)="resetZoom()">Вернуться</button>
     <div class="zoom-container" [ngStyle]="isZoomingToPlanet ? zoomStyle : {}">
       <svg viewBox="0 0 600 600" class="galaxy-svg zoom">
