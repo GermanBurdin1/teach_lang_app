@@ -43,6 +43,8 @@ export class VocabularyComponent implements OnInit {
 
   viewMode: 'cards' | 'list' = 'cards'; // по умолчанию карточки
   filterType: 'all' | 'word' | 'expression' = 'all';
+  showAddCardModal: boolean = false;
+
 
 
   constructor(private route: ActivatedRoute) { }
@@ -198,10 +200,15 @@ export class VocabularyComponent implements OnInit {
   }
 
   // Выбор типа карточки (слово/выражение) — сразу отображает поля ввода
-  setWordType(type: 'word' | 'expression'): void {
+  openAddCardModal(type: 'word' | 'expression'): void {
     this.newWordType = type;
-    this.showInputFields = true; // Показываем инпуты
+    this.showAddCardModal = true;
   }
+
+  closeAddCardModal(): void {
+    this.showAddCardModal = false;
+  }
+
 
   // Удаление карточки
   deleteItem(id: number, type: 'word' | 'expression'): void {

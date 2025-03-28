@@ -14,11 +14,6 @@
 
 
 
-  <!-- Выбор типа карточки перед добавлением -->
-  <div class="add-item-container">
-    <button (click)="setWordType('word')">Добавить слово</button>
-    <button (click)="setWordType('expression')">Добавить выражение</button>
-  </div>
 
   <!-- Поля ввода отображаются только после выбора -->
   <div *ngIf="showInputFields" class="input-fields">
@@ -43,8 +38,9 @@
     'single-column': filterType !== 'all',
     'two-columns': filterType === 'all'
   }">
-     <!-- Колонка для слов -->
-     <div class="column" *ngIf="filterType === 'all' || filterType === 'word'">
+    <!-- Колонка для слов -->
+    <div class="column" *ngIf="filterType === 'all' || filterType === 'word'">
+      <button class="add-icon-btn" (click)="openAddCardModal('word')" title="Добавить слово"><i class="fas fa-plus"></i></button>
       <h3>
         <div class="pagination-info">
           {{ wordsRangeLabel }}
@@ -131,6 +127,10 @@
     </div>
     <!-- Колонка для выражений -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'expression'">
+      <button class="add-icon-btn" (click)="openAddCardModal('expression')" title="Добавить выражение"
+        aria-label="Добавить выражение">
+        <i class="fas fa-plus"></i>
+      </button>
       <h3>
         <div class="pagination-info">
           {{ expressionsPaginationLabel }}
@@ -215,4 +215,22 @@
     </div>
   </div>
 
+</div>
+
+<div class="modal-overlay" *ngIf="showAddCardModal">
+  <div class="modal card">
+    <div class="card-inner no-flip">
+      <div class="card-front modal-content">
+        <h2 class="modal-title">Добавить {{ newWordType === 'word' ? 'слово' : 'выражение' }}</h2>
+
+        <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
+        <input [(ngModel)]="newTranslation" placeholder="Перевод (необязательно)" />
+
+        <div class="modal-actions">
+          <button (click)="addItem()">Добавить</button>
+          <button class="cancel-btn" (click)="closeAddCardModal()">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
