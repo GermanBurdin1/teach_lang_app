@@ -5,6 +5,14 @@
     <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'">Карточки</button>
     <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'">Списком</button>
   </div>
+  <!-- Фильтрация слов/выражений -->
+  <div class="filter-toggle">
+    <button (click)="filterType = 'all'" [class.active]="filterType === 'all'">Все</button>
+    <button (click)="filterType = 'word'" [class.active]="filterType === 'word'">Только слова</button>
+    <button (click)="filterType = 'expression'" [class.active]="filterType === 'expression'">Только выражения</button>
+  </div>
+
+
 
   <!-- Выбор типа карточки перед добавлением -->
   <div class="add-item-container">
@@ -31,9 +39,12 @@
   </div>
 
   <!-- Карточки -->
-  <div class="cards-container">
-    <!-- Колонка для слов -->
-    <div class="column">
+  <div class="cards-container" [ngClass]="{
+    'single-column': filterType !== 'all',
+    'two-columns': filterType === 'all'
+  }">
+     <!-- Колонка для слов -->
+     <div class="column" *ngIf="filterType === 'all' || filterType === 'word'">
       <h3>
         <div class="pagination-info">
           {{ wordsRangeLabel }}
@@ -119,7 +130,7 @@
 
     </div>
     <!-- Колонка для выражений -->
-    <div class="column">
+    <div class="column" *ngIf="filterType === 'all' || filterType === 'expression'">
       <h3>
         <div class="pagination-info">
           {{ expressionsPaginationLabel }}

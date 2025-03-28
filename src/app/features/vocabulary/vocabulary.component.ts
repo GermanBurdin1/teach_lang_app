@@ -42,6 +42,7 @@ export class VocabularyComponent implements OnInit {
   currentExpressionsPage = 1;
 
   viewMode: 'cards' | 'list' = 'cards'; // по умолчанию карточки
+  filterType: 'all' | 'word' | 'expression' = 'all';
 
 
   constructor(private route: ActivatedRoute) { }
@@ -374,6 +375,15 @@ export class VocabularyComponent implements OnInit {
   get hasPrevExpressionsPage(): boolean {
     return this.currentExpressionsPage > 1;
   }
+
+  get filteredWords(): WordCard[] {
+    return this.filterType === 'all' || this.filterType === 'word' ? this.words : [];
+  }
+
+  get filteredExpressions(): WordCard[] {
+    return this.filterType === 'all' || this.filterType === 'expression' ? this.expressions : [];
+  }
+
 
   changeWordsPage(delta: number): void {
     const maxPage = Math.ceil(this.words.length / this.wordsPerPage);
