@@ -19,7 +19,7 @@
   <h2 *ngIf="!zoomedGalaxy">Выберите категорию</h2>
 
   <div class="galaxies" *ngIf="!zoomedGalaxy">
-    <div *ngFor="let galaxy of galaxies" class="galaxy-wrapper">
+    <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper" #galaxyWrapper>
       <div class="galaxy" (click)="zoomIntoGalaxy(galaxy)">
         <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg">
           <!-- Генерируем уникальный градиент -->

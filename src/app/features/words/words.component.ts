@@ -20,6 +20,9 @@ interface WordCard {
 export class WordsComponent {
   @ViewChildren('subtopicElement') subtopicElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyElement') galaxyElements!: QueryList<ElementRef>;
+  @ViewChildren('galaxyWrapper') galaxyWrappers!: QueryList<ElementRef>;
+
+
   searchQuery: string = '';
   searchResults: any[] = [];
   zoomStyle = {};
@@ -144,24 +147,31 @@ export class WordsComponent {
     if (!galaxy) return;
 
     const galaxyIndex = this.galaxies.indexOf(galaxy);
-    const galaxyElement = this.galaxyElements.get(galaxyIndex)?.nativeElement;
-
+    const galaxyElement = this.galaxyWrappers.get(galaxyIndex)?.nativeElement;
     if (!galaxyElement) return;
 
-    // Удалим класс у всех
-    this.galaxyElements.forEach(el => el.nativeElement.classList.remove('scale-up-galaxy'));
+    // Получаем координаты галактики
+    const galaxyRect = galaxyElement.getBoundingClientRect();
+    const centerX = galaxyRect.left + galaxyRect.width / 2;
+    const centerY = galaxyRect.top + galaxyRect.height / 2;
 
-    // Применим зум к нужной
-    galaxyElement.classList.add('scale-up-galaxy');
+    const viewportCenterX = window.innerWidth / 2;
+    const viewportCenterY = window.innerHeight / 2;
+
+    const offsetX = viewportCenterX - centerX;
+    const offsetY = viewportCenterY - centerY;
 
     this.isZoomingToGalaxy = true;
 
-    // Шаг 1 — прокручиваем прямо к галактике в SVG
-    galaxyElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    // Применяем transform к .galaxies через родительскую обёртку
+    const galaxiesContainer = document.querySelector('.galaxies') as HTMLElement;
+    galaxiesContainer.style.transition = 'transform 1.8s ease';
+    galaxiesContainer.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(2)`;
 
-    // Шаг 2 — через 2 секунды приближаем
+    // Через 2 секунды — показываем zoomedGalaxy
     setTimeout(() => {
       this.isZoomingToGalaxy = false;
+      galaxiesContainer.style.transform = ''; // сброс
       this.zoomedGalaxy = galaxy;
       this.isZoomingToPlanet = true;
 
@@ -186,6 +196,8 @@ export class WordsComponent {
       }, 200);
     }, 2000);
   }
+
+
 
 
 
