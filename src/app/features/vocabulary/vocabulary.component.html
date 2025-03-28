@@ -34,7 +34,11 @@
   <div class="cards-container">
     <!-- Колонка для слов -->
     <div class="column">
-      <h3>Показать только слова ({{ words.length }})</h3>
+      <h3>
+        <div class="pagination-info">
+          {{ wordsRangeLabel }}
+        </div>
+      </h3>
       <ng-container *ngIf="viewMode === 'cards'; else wordList">
         <div *ngFor="let card of paginatedWords" class="card-wrapper">
           <div class="card">
@@ -107,16 +111,20 @@
       </ng-template>
 
       <!-- Пагинация для слов -->
-      <div class="pagination">
-        <button (click)="changeWordsPage(-1)">←</button>
-        <span>Стр. {{ currentWordsPage }}</span>
-        <button (click)="changeWordsPage(1)">→</button>
+      <div class="pagination-controls">
+        <button (click)="changeWordsPage(-1)" [disabled]="!hasPrevWordsPage">⬅</button>
+        <span>Страница {{ currentWordsPage }}</span>
+        <button (click)="changeWordsPage(1)" [disabled]="!hasNextWordsPage">➡</button>
       </div>
-    </div>
 
+    </div>
     <!-- Колонка для выражений -->
     <div class="column">
-      <h3>Показать только выражения ({{ expressions.length }})</h3>
+      <h3>
+        <div class="pagination-info">
+          {{ expressionsPaginationLabel }}
+        </div>
+      </h3>
       <ng-container *ngIf="viewMode === 'cards'; else expressionList">
         <div *ngFor="let card of paginatedExpressions" class="card-wrapper">
           <div class="card">
@@ -186,11 +194,12 @@
       </ng-template>
 
       <!-- Пагинация для выражений -->
-      <div class="pagination">
-        <button (click)="changeExpressionsPage(-1)">←</button>
-        <span>Стр. {{ currentExpressionsPage }}</span>
-        <button (click)="changeExpressionsPage(1)">→</button>
+      <div class="pagination-controls">
+        <button (click)="changeExpressionsPage(-1)" [disabled]="!hasPrevExpressionsPage">⬅</button>
+        <span>Страница {{ currentExpressionsPage }}</span>
+        <button (click)="changeExpressionsPage(1)" [disabled]="!hasNextExpressionsPage">➡</button>
       </div>
+
 
     </div>
   </div>

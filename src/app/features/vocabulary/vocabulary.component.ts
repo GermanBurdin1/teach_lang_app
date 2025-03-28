@@ -53,40 +53,24 @@ export class VocabularyComponent implements OnInit {
       console.log('📌 Galaxy from route:', this.currentGalaxy);
       console.log('📌 Subtopic from route:', this.currentSubtopic);
 
-      let stored = this.loadFromLocalStorage();
+      // 🔁 Всегда перезаписываем карточки
+      this.loadWords();
 
-      if (!stored || stored.length === 0) {
-        console.log("📥 Загружаем карточки впервые...");
+      // ⏱ Немного подождем, чтобы данные точно сохранились
+      setTimeout(() => {
+        const updated = this.loadFromLocalStorage();
+        if (!updated) return;
 
-        this.loadWords(); // загружаем и сохраняем
-
-        // 🔥 Дай браузеру время на запись
-        setTimeout(() => {
-          const loaded = this.loadFromLocalStorage();
-          if (loaded) {
-            const relevant = loaded.filter(
-              item =>
-                item.galaxy === this.currentGalaxy &&
-                item.subtopic === this.currentSubtopic
-            );
-            this.words = relevant.filter(item => item.type === 'word');
-            this.expressions = relevant.filter(item => item.type === 'expression');
-            console.log('✅ Загрузили после сохранения:', relevant);
-          }
-        }, 100); // 100 мс хватит
-      } else {
-        const relevant = stored.filter(
-          item =>
-            item.galaxy === this.currentGalaxy &&
-            item.subtopic === this.currentSubtopic
+        const relevant = updated.filter(
+          item => item.galaxy === this.currentGalaxy && item.subtopic === this.currentSubtopic
         );
         this.words = relevant.filter(item => item.type === 'word');
         this.expressions = relevant.filter(item => item.type === 'expression');
-      }
+
+        console.log('✅ Загружены актуальные карточки:', relevant);
+      }, 100);
     });
   }
-
-
 
 
   // Загрузка карточек (пока что просто статичный массив)
@@ -116,7 +100,18 @@ export class VocabularyComponent implements OnInit {
       { id: 19, word: 'поделиться постом', translation: 'share a post', type: 'expression', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
       { id: 20, word: 'подписчик', translation: 'follower', type: 'word', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
       { id: 21, word: 'вести диалог', translation: 'have a dialogue', type: 'expression', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 22, word: 'сообщение', translation: 'message', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 31, word: 'контакт', translation: 'contact', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 32, word: 'диалог', translation: 'dialogue', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 33, word: 'общение', translation: 'communication', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 34, word: 'разговор', translation: 'conversation', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 35, word: 'вопрос', translation: 'question', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 36, word: 'ответ', translation: 'answer', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 37, word: 'обсуждение', translation: 'discussion', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 38, word: 'высказывание', translation: 'statement', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 39, word: 'недопонимание', translation: 'misunderstanding', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 40, word: 'аргумент', translation: 'argument', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 41, word: 'мнение', translation: 'opinion', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 42, word: 'переписка', translation: 'correspondence', type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
 
       // РАБОТА И КАРЬЕРА
       { id: 23, word: 'вакансия', translation: 'job opening', type: 'word', galaxy: 'Работа и карьера', subtopic: 'Вакансии', ...this.defaultCard() },
@@ -343,6 +338,43 @@ export class VocabularyComponent implements OnInit {
     return this.expressions.slice(start, start + this.expressionsPerPage);
   }
 
+  get totalWords(): number {
+    return this.words.length;
+  }
+
+  get totalExpressions(): number {
+    return this.expressions.length;
+  }
+
+  get wordsRangeLabel(): string {
+    const start = (this.currentWordsPage - 1) * this.wordsPerPage + 1;
+    const end = Math.min(this.currentWordsPage * this.wordsPerPage, this.totalWords);
+    return `Карточки: ${start}–${end} из ${this.totalWords}`;
+  }
+
+  get hasNextWordsPage(): boolean {
+    return this.currentWordsPage * this.wordsPerPage < this.totalWords;
+  }
+
+  get hasPrevWordsPage(): boolean {
+    return this.currentWordsPage > 1;
+  }
+
+  get expressionsPaginationLabel(): string {
+    const total = this.expressions.length;
+    const start = (this.currentExpressionsPage - 1) * this.expressionsPerPage + 1;
+    const end = Math.min(start + this.expressionsPerPage - 1, total);
+    return `Выражения: ${start}–${end} из ${total}`;
+  }
+
+  get hasNextExpressionsPage(): boolean {
+    return this.currentExpressionsPage * this.expressionsPerPage < this.expressions.length;
+  }
+
+  get hasPrevExpressionsPage(): boolean {
+    return this.currentExpressionsPage > 1;
+  }
+
   changeWordsPage(delta: number): void {
     const maxPage = Math.ceil(this.words.length / this.wordsPerPage);
     this.currentWordsPage = Math.max(1, Math.min(this.currentWordsPage + delta, maxPage));
@@ -363,6 +395,7 @@ export class VocabularyComponent implements OnInit {
     card.hintVisible = true; // снова показать «Кликни, чтобы увидеть перевод»
     this.saveToLocalStorage();
   }
+
 
 
 }

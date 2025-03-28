@@ -270,6 +270,27 @@
   cursor: pointer;
 }
 
+.pagination-info {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+}
+
+.pagination-controls {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
 .date-label {
   font-size: 12px;
   font-weight: 500;
