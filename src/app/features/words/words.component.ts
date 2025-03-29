@@ -34,6 +34,8 @@ export class WordsComponent {
   newGlobalTranslation: string = '';
   newGlobalType: 'word' | 'expression' = 'word';
   selectedGalaxy: string = '';
+  selectedSubtopic: string = '';
+  availableSubtopics: string[] = [];
   addSuccessMessage: string = '';
 
   galaxies = [
@@ -217,27 +219,54 @@ export class WordsComponent {
     this.showGlobalAddWordOrExpressionModal = false;
   }
 
-  saveGlobalWord(): void {
-    if (!this.newGlobalWord.trim() || !this.selectedGalaxy) return;
+  saveGlobalWordOrExpression(): void {
+    if (!this.newGlobalWord.trim() || !this.selectedGalaxy || !this.selectedSubtopic) return;
 
     const newCard: WordCard = {
       id: Date.now(),
       word: this.newGlobalWord.trim(),
       translation: this.newGlobalTranslation.trim() || '...',
       galaxy: this.selectedGalaxy,
-      subtopic: 'Общее', // можно изменить или сделать отдельный выбор подтемы
+      subtopic: this.selectedSubtopic,
       type: this.newGlobalType,
       createdAt: Date.now()
     };
 
-    const existing = JSON.parse(localStorage.getItem('vocabulary_cards') || '[]');
-    existing.push(newCard);
-    localStorage.setItem('vocabulary_cards', JSON.stringify(existing));
+    const raw = localStorage.getItem('vocabulary_cards');
+    const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
 
+    allCards.unshift(newCard);
+    localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
+
+    this.addSuccessMessage = '✅ Слово сохранено!';
+
+    // Сброс полей
     this.newGlobalWord = '';
     this.newGlobalTranslation = '';
-    this.addSuccessMessage = '✅ Слово успешно добавлено!';
+    this.selectedGalaxy = '';
+    this.selectedSubtopic = '';
+    this.availableSubtopics = [];
+
+    // Закрытие модалки через небольшую паузу
+    setTimeout(() => {
+      this.addSuccessMessage = '';
+      this.closeGlobalAddWordOrExpressionModal();
+    }, 1000);
   }
 
+
+  toggleGlobalType(): void {
+    this.newGlobalType = this.newGlobalType === 'word' ? 'expression' : 'word';
+  }
+
+  onGalaxySelected(): void {
+    const galaxy = this.galaxies.find(g => g.name === this.selectedGalaxy);
+    if (galaxy) {
+      this.availableSubtopics = galaxy.subtopics.map((s: any) => s.name);
+      this.selectedSubtopic = ''; // сброс предыдущего выбора
+    } else {
+      this.availableSubtopics = [];
+    }
+  }
 
 }

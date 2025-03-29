@@ -57,7 +57,7 @@ export class VocabularyComponent implements OnInit {
       console.log('📌 Subtopic from route:', this.currentSubtopic);
 
       // 🔁 Всегда перезаписываем карточки
-      this.loadWords();
+      // this.loadWords();
 
       // ⏱ Немного подождем, чтобы данные точно сохранились
       setTimeout(() => {

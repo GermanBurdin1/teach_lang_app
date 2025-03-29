@@ -300,3 +300,18 @@ text {
   color: white;
 }
 
+.add-entry-modal__toggle-type {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #6a5acd;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.add-entry-modal__toggle-type:hover {
+  background-color: #5b4abc;
+}
