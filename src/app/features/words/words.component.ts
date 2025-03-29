@@ -29,6 +29,12 @@ export class WordsComponent {
   isZoomingToPlanet = false;
   isZoomingToGalaxy = false;
   focusedGalaxyIndex: number | null = null;
+  showGlobalAddWordOrExpressionModal: boolean = false;
+  newGlobalWord: string = '';
+  newGlobalTranslation: string = '';
+  newGlobalType: 'word' | 'expression' = 'word';
+  selectedGalaxy: string = '';
+  addSuccessMessage: string = '';
 
   galaxies = [
     {
@@ -197,10 +203,41 @@ export class WordsComponent {
     }, 2000);
   }
 
+  //добавление слова или выражения на глобальном уровне
+  openGlobalAddWordOrExpressionModal(): void {
+    this.showGlobalAddWordOrExpressionModal = true;
+    this.newGlobalWord = '';
+    this.newGlobalTranslation = '';
+    this.newGlobalType = 'word';
+    this.selectedGalaxy = '';
+    this.addSuccessMessage = '';
+  }
 
+  closeGlobalAddWordOrExpressionModal(): void {
+    this.showGlobalAddWordOrExpressionModal = false;
+  }
 
+  saveGlobalWord(): void {
+    if (!this.newGlobalWord.trim() || !this.selectedGalaxy) return;
 
+    const newCard: WordCard = {
+      id: Date.now(),
+      word: this.newGlobalWord.trim(),
+      translation: this.newGlobalTranslation.trim() || '...',
+      galaxy: this.selectedGalaxy,
+      subtopic: 'Общее', // можно изменить или сделать отдельный выбор подтемы
+      type: this.newGlobalType,
+      createdAt: Date.now()
+    };
 
+    const existing = JSON.parse(localStorage.getItem('vocabulary_cards') || '[]');
+    existing.push(newCard);
+    localStorage.setItem('vocabulary_cards', JSON.stringify(existing));
+
+    this.newGlobalWord = '';
+    this.newGlobalTranslation = '';
+    this.addSuccessMessage = '✅ Слово успешно добавлено!';
+  }
 
 
 }

@@ -335,23 +335,40 @@
 
 /* карточки или список */
 
-.view-toggle {
+.view-sort-toggle {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-bottom: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
 }
-.view-toggle button {
-  padding: 6px 12px;
+
+.view-toggle-switch {
+  display: flex;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.view-toggle-switch button {
+  background-color: white;
   border: none;
-  background-color: #ccc;
-  border-radius: 5px;
+  padding: 6px 10px;
   cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
 }
-.view-toggle button.active {
+
+.view-toggle-switch button.active {
   background-color: #6a5acd;
   color: white;
 }
+
+.view-toggle-switch button:not(.active):hover {
+  background-color: #f0f0f0;
+}
+
 
 .filter-toggle {
   margin: 15px 0;

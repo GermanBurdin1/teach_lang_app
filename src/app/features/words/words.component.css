@@ -204,3 +204,99 @@ text {
 }
 
 
+/* добавление слова или выражения глобально */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.add-entry-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.add-entry-modal__title {
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.add-entry-modal__type-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.add-entry-modal__input,
+.add-entry-modal__select {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.add-entry-modal__message {
+  color: green;
+  font-size: 14px;
+  text-align: center;
+}
+
+.add-entry-modal__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.add-entry-modal__button {
+  flex: 1;
+  padding: 8px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.add-entry-modal__button:hover {
+  background-color: #45a049;
+}
+
+.add-entry-modal__cancel {
+  background-color: #ccc;
+  color: #333;
+}
+
+.add-entry-modal__cancel:hover {
+  background-color: #bbb;
+}
+
+.add-entry-modal__type-toggle .add-entry-modal__button {
+  background-color: #ccc;
+  color: black;
+}
+
+.add-entry-modal__type-toggle .add-entry-modal__button.active {
+  background-color: #6a5acd;
+  color: white;
+}
+

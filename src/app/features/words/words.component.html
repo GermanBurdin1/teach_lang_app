@@ -16,7 +16,13 @@
     </div>
   </div>
 
-  <h2 *ngIf="!zoomedGalaxy">Выберите категорию</h2>
+  <h2 *ngIf="!zoomedGalaxy">
+    Выберите категорию
+    <button class="add-word-btn" (click)="openGlobalAddWordOrExpressionModal()" title="Добавить слово или выражение">
+      <i class="fas fa-plus"></i>
+    </button>
+  </h2>
+
 
   <div class="galaxies" *ngIf="!zoomedGalaxy">
     <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper" #galaxyWrapper>
@@ -85,3 +91,59 @@
     </div>
   </div>
 </div>
+
+
+<!-- модалка для добавления слова или выражения не глобальном месте-->
+<div class="modal-overlay" *ngIf="showGlobalAddWordOrExpressionModal">
+  <div class="add-entry-modal">
+    <h2 class="add-entry-modal__title">Добавить слово или выражение</h2>
+
+    <div class="add-entry-modal__type-toggle">
+      <button
+        (click)="newGlobalType = 'word'"
+        [class.active]="newGlobalType === 'word'"
+        class="add-entry-modal__button"
+      >
+        Слово
+      </button>
+      <button
+        (click)="newGlobalType = 'expression'"
+        [class.active]="newGlobalType === 'expression'"
+        class="add-entry-modal__button"
+      >
+        Выражение
+      </button>
+    </div>
+
+    <input
+      [(ngModel)]="newGlobalWord"
+      [placeholder]="newGlobalType === 'word' ? 'Введите слово' : 'Введите выражение'"
+      class="add-entry-modal__input"
+    />
+    <input
+      [(ngModel)]="newGlobalTranslation"
+      placeholder="Перевод (необязательно)"
+      class="add-entry-modal__input"
+    />
+
+    <select [(ngModel)]="selectedGalaxy" class="add-entry-modal__select">
+      <option value="" disabled selected>Выберите категорию</option>
+      <option *ngFor="let galaxy of galaxies" [value]="galaxy.name">{{ galaxy.name }}</option>
+    </select>
+
+    <div *ngIf="addSuccessMessage" class="add-entry-modal__message">
+      {{ addSuccessMessage }}
+    </div>
+
+    <div class="add-entry-modal__actions">
+      <button (click)="saveGlobalWord()" class="add-entry-modal__button">Сохранить</button>
+      <button
+        class="add-entry-modal__button add-entry-modal__cancel"
+        (click)="closeGlobalAddWordOrExpressionModal()"
+      >
+        Отмена
+      </button>
+    </div>
+  </div>
+</div>
+

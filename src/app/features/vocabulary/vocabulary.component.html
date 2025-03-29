@@ -1,17 +1,6 @@
 <div class="vocabulary-container">
   <h1>{{ currentSubtopic }}
   </h1>
-  <div class="view-toggle">
-    <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'">Карточки</button>
-    <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'">Списком</button>
-  </div>
-  <!-- Фильтрация слов/выражений -->
-  <div class="filter-toggle">
-    <button (click)="filterType = 'all'" [class.active]="filterType === 'all'">Все</button>
-    <button (click)="filterType = 'word'" [class.active]="filterType === 'word'">Только слова</button>
-    <button (click)="filterType = 'expression'" [class.active]="filterType === 'expression'">Только выражения</button>
-  </div>
-
 
 
 
@@ -22,8 +11,7 @@
     <button (click)="addItem()">Добавить</button>
   </div>
 
-  <!-- Блок сортировки -->
-  <div class="sort-options">
+  <div class="view-sort-toggle">
     <label>Сортировать по:</label>
     <select [(ngModel)]="sortBy" (change)="sortWords()">
       <option value="date">Дате добавления</option>
@@ -31,6 +19,24 @@
       <option value="repeat">Сначала слова на повторение</option>
       <option value="learned">Отмеченные как знаю</option>
     </select>
+
+    <!-- Toggle-переключатель -->
+    <div class="view-toggle-switch">
+      <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'" aria-label="Карточки">
+        📇
+      </button>
+      <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'" aria-label="Списком">
+        📋
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Фильтрация слов/выражений -->
+  <div class="filter-toggle">
+    <button (click)="filterType = 'all'" [class.active]="filterType === 'all'">Все</button>
+    <button (click)="filterType = 'word'" [class.active]="filterType === 'word'">Только слова</button>
+    <button (click)="filterType = 'expression'" [class.active]="filterType === 'expression'">Только выражения</button>
   </div>
 
   <!-- Карточки -->
