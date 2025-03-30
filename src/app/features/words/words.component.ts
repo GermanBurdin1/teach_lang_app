@@ -1,4 +1,5 @@
 import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { VocabularyGptService } from '../../services/vocabulary-gpt.service';
 import { Router } from '@angular/router';
 
 interface WordCard {
@@ -21,7 +22,6 @@ export class WordsComponent {
   @ViewChildren('subtopicElement') subtopicElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyElement') galaxyElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyWrapper') galaxyWrappers!: QueryList<ElementRef>;
-
 
   searchQuery: string = '';
   searchResults: any[] = [];
@@ -72,7 +72,7 @@ export class WordsComponent {
   ];
   zoomedGalaxy: any = null;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private gptService: VocabularyGptService) { }
 
   hoverGalaxy(galaxy: any) {
     // Можно добавить анимацию
@@ -267,6 +267,22 @@ export class WordsComponent {
     } else {
       this.availableSubtopics = [];
     }
+  }
+
+  // классификации слов
+  generateWithGPT(): void {
+    if (!this.newGlobalWord.trim()) return;
+
+    this.gptService.classifyWord(this.newGlobalWord, 'user123').subscribe({
+      next: (res) => {
+        this.selectedGalaxy = res.theme;
+        this.onGalaxySelected(); // обновим подтемы
+        this.selectedSubtopic = res.subtheme;
+      },
+      error: (err) => {
+        console.error('Ошибка при классификации GPT:', err);
+      }
+    });
   }
 
 }

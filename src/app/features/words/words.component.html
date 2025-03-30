@@ -123,6 +123,9 @@
       <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
     </select>
 
+    <button class="generate-button" (click)="generateWithGPT()">
+      🤖 Автоматическая классификация
+    </button>
 
     <!-- Сообщение об успехе -->
     <div *ngIf="addSuccessMessage" class="add-entry-modal__message">

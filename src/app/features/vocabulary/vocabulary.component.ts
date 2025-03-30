@@ -31,7 +31,9 @@ export class VocabularyComponent implements OnInit {
   newWord: string = '';
   newTranslation: string = '';
   showHint: boolean = true; // Подсказка "Кликни, чтобы увидеть перевод"
-  sortBy: string = 'date'; // По умолчанию сортируем по дате
+  sortBy: string = 'all';
+  sortOrderWords: 'asc' | 'desc' = 'desc';
+  sortOrderExpressions: 'asc' | 'desc' = 'desc';
   newWordType: 'word' | 'expression' = 'word';
   // Переменная для управления отображением формы ввода
   showInputFields: boolean = false;
@@ -242,37 +244,67 @@ export class VocabularyComponent implements OnInit {
     }
   }
 
-
   // Сортировка карточек
   sortWords(): void {
-    const allItems = this.getAllItems(); // получить изначальный список
+    const allItems = this.loadFromLocalStorage() || [];
 
-    let filtered = allItems;
+    const relevantItems = allItems.filter(
+      card =>
+        card.galaxy === this.currentGalaxy &&
+        card.subtopic === this.currentSubtopic
+    );
 
-    if (this.sortBy === 'repeat') {
-      filtered = allItems.filter(card => card.status === 'repeat');
-    } else if (this.sortBy === 'learned') {
-      filtered = allItems.filter(card => card.status === 'learned');
-    } else if (this.sortBy === 'hardest') {
-      filtered = allItems.sort((a, b) => (a.isCorrect === false ? -1 : 1));
-    } else if (this.sortBy === 'date') {
-      filtered = allItems.sort((a, b) => b.id - a.id);
+    let filtered = relevantItems;
+
+    switch (this.sortBy) {
+      case 'repeat':
+        filtered = relevantItems.filter(card => card.status === 'repeat');
+        break;
+      case 'learned':
+        filtered = relevantItems.filter(card => card.status === 'learned');
+        break;
+      case 'untranslated':
+        filtered = relevantItems.filter(card => !card.translation || card.translation === '...');
+        break;
+      case 'hardest':
+        filtered = relevantItems.sort((a, b) => (a.isCorrect === false ? -1 : 1));
+        break;
+      case 'all':
+      default:
+        // ничего не фильтруем
+        break;
     }
 
-    // Разбиваем отфильтрованные обратно по категориям
-    this.words = filtered.filter(card =>
-      card.type === 'word' &&
-      card.galaxy === this.currentGalaxy &&
-      card.subtopic === this.currentSubtopic
-    );
+    this.words = filtered
+      .filter(card => card.type === 'word')
+      .sort((a, b) =>
+        this.sortOrderWords === 'desc'
+          ? b.createdAt - a.createdAt
+          : a.createdAt - b.createdAt
+      );
 
-    this.expressions = filtered.filter(card =>
-      card.type === 'expression' &&
-      card.galaxy === this.currentGalaxy &&
-      card.subtopic === this.currentSubtopic
-    );
-
+    this.expressions = filtered
+      .filter(card => card.type === 'expression')
+      .sort((a, b) =>
+        this.sortOrderExpressions === 'desc'
+          ? b.createdAt - a.createdAt
+          : a.createdAt - b.createdAt
+      );
   }
+
+
+
+  toggleSortOrderWords(): void {
+    this.sortOrderWords = this.sortOrderWords === 'desc' ? 'asc' : 'desc';
+    this.sortWords();
+  }
+
+  toggleSortOrderExpressions(): void {
+    this.sortOrderExpressions = this.sortOrderExpressions === 'desc' ? 'asc' : 'desc';
+    this.sortWords();
+  }
+
+
 
   getAllItems(): WordCard[] {
     return [...this.words, ...this.expressions];

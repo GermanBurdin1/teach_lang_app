@@ -11,13 +11,15 @@
     <button (click)="addItem()">Добавить</button>
   </div>
 
+
   <div class="view-sort-toggle">
     <label>Сортировать по:</label>
     <select [(ngModel)]="sortBy" (change)="sortWords()">
-      <option value="date">Дате добавления</option>
-      <option value="hardest">Сложности</option>
-      <option value="repeat">Сначала слова на повторение</option>
-      <option value="learned">Отмеченные как знаю</option>
+      <option value="all"><i class="fas fa-layer-group"></i> Все</option>
+      <option value="repeat"><i class="fas fa-sync-alt"></i> Повторить</option>
+      <option value="learned"><i class="fas fa-check-circle"></i> Выученные</option>
+      <option value="untranslated"><i class="fas fa-question-circle"></i> Без перевода</option>
+      <option value="hardest"><i class="fas fa-fire"></i> Ошибки</option>
     </select>
 
     <!-- Toggle-переключатель -->
@@ -46,17 +48,45 @@
   }">
     <!-- Колонка для слов -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'word'">
-      <button class="add-icon-btn" (click)="openAddCardModal('word')" title="Добавить слово"><i class="fas fa-plus"></i></button>
+      <div class="controls-row">
+        <button class="add-icon-btn" (click)="openAddCardModal('word')" title="Добавить слово">
+          <i class="fas fa-plus"></i>
+        </button>
+        <button class="sort-toggle-btn" (click)="toggleSortOrderWords()"
+          title="Сначала {{ sortOrderWords === 'desc' ? 'новые' : 'старые' }}">
+          <i class="fas" [ngClass]="sortOrderWords === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+        </button>
+
+      </div>
+
       <h3>
         <div class="pagination-info">
           {{ wordsRangeLabel }}
         </div>
       </h3>
       <ng-container *ngIf="viewMode === 'cards'; else wordList">
-        <div *ngFor="let card of paginatedWords" class="card-wrapper">
+        <div *ngFor="let card of paginatedWords" class="card-wrapper" [ngClass]="{
+          'card-wrapper--repeat': sortBy === 'repeat' && card.status === 'repeat',
+          'card-wrapper--learned': sortBy === 'learned' && card.status === 'learned',
+          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translation || card.translation === '...')
+        }">
           <div class="card">
             <div class="card-inner" [class.flipped]="card.flipped">
-              <div class="card-front">
+              <div class="card-front" [ngClass]="{
+                'card-front--repeat': card.status === 'repeat',
+                'card-front--learned': card.status === 'learned',
+                'card-front--untranslated': !card.translation || card.translation === '...'
+              }">
+                <div class="card-icon" *ngIf="sortBy === 'repeat' && card.status === 'repeat'">
+                  <i class="fas fa-sync-alt" title="На повторение"></i>
+                </div>
+                <div class="card-icon" *ngIf="sortBy === 'learned' && card.status === 'learned'">
+                  <i class="fas fa-check-circle" title="Изучено"></i>
+                </div>
+                <div class="card-icon"
+                  *ngIf="sortBy === 'untranslated' && (!card.translation || card.translation === '...')">
+                  <i class="fas fa-question-circle" title="Нет перевода"></i>
+                </div>
                 <div class="card-header">
                   <p class="date-label">
                     📅 {{ card.createdAt | date:'dd/MM/yyyy' }}
@@ -133,20 +163,35 @@
     </div>
     <!-- Колонка для выражений -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'expression'">
-      <button class="add-icon-btn" (click)="openAddCardModal('expression')" title="Добавить выражение"
-        aria-label="Добавить выражение">
-        <i class="fas fa-plus"></i>
-      </button>
+      <div class="controls-row">
+        <button class="add-icon-btn" (click)="openAddCardModal('expression')" title="Добавить выражение"
+          aria-label="Добавить выражение">
+          <i class="fas fa-plus"></i>
+        </button>
+        <button class="sort-toggle-btn" (click)="toggleSortOrderExpressions()"
+          title="Сначала {{ sortOrderExpressions === 'desc' ? 'новые' : 'старые' }}">
+          <i class="fas" [ngClass]="sortOrderExpressions === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+        </button>
+
+      </div>
       <h3>
         <div class="pagination-info">
           {{ expressionsPaginationLabel }}
         </div>
       </h3>
       <ng-container *ngIf="viewMode === 'cards'; else expressionList">
-        <div *ngFor="let card of paginatedExpressions" class="card-wrapper">
+        <div *ngFor="let card of paginatedExpressions" class="card-wrapper" [ngClass]="{
+          'card-wrapper--repeat': sortBy === 'repeat' && card.status === 'repeat',
+          'card-wrapper--learned': sortBy === 'learned' && card.status === 'learned',
+          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translation || card.translation === '...')
+        }">
           <div class="card">
             <div class="card-inner" [class.flipped]="card.flipped">
-              <div class="card-front">
+              <div class="card-front" [ngClass]="{
+                'card-front--repeat': card.status === 'repeat',
+                'card-front--learned': card.status === 'learned',
+                'card-front--untranslated': !card.translation || card.translation === '...'
+              }">
                 <div class="card-header">
                   <p class="date-label">
                     📅 {{ card.createdAt | date:'dd/MM/yyyy' }}
