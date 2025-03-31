@@ -1,6 +1,7 @@
 import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { VocabularyGptService } from '../../services/vocabulary-gpt.service';
 import { Router } from '@angular/router';
+import { TranslationService } from '../../services/translation.service';
 
 interface WordCard {
   id?: number;
@@ -72,7 +73,7 @@ export class WordsComponent {
   ];
   zoomedGalaxy: any = null;
 
-  constructor(private router: Router, private gptService: VocabularyGptService) { }
+  constructor(private router: Router, private gptService: VocabularyGptService, private translationService: TranslationService) { }
 
   hoverGalaxy(galaxy: any) {
     // Можно добавить анимацию
@@ -281,6 +282,29 @@ export class WordsComponent {
       },
       error: (err) => {
         console.error('Ошибка при классификации GPT:', err);
+      }
+    });
+  }
+
+  // перевод
+  autoTranslateWord(): void {
+    if (!this.newGlobalWord.trim()) return;
+
+    this.translationService.translate(this.newGlobalWord, 'ru', 'fr').subscribe({
+      next: (res) => {
+        if (res.translations.length) {
+          this.newGlobalTranslation = res.translations[0];
+        } else {
+          alert('Перевод не найден');
+        }
+      },
+      error: (err) => {
+        if (err.status === 429) {
+          alert('⚠️ Превышен лимит переводов. Подождите минуту и попробуйте снова.');
+        } else {
+          alert('Произошла ошибка при переводе.');
+        }
+        console.error('❌ Ошибка перевода:', err);
       }
     });
   }

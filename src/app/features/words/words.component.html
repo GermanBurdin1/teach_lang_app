@@ -110,6 +110,10 @@
     <input [(ngModel)]="newGlobalWord" [placeholder]="newGlobalType === 'word' ? 'Введите слово' : 'Введите выражение'"
       class="add-entry-modal__input" />
     <input [(ngModel)]="newGlobalTranslation" placeholder="Перевод (необязательно)" class="add-entry-modal__input" />
+    <button (click)="autoTranslateWord()" class="generate-button">
+      🌐 Найти перевод
+    </button>
+
 
     <!-- Категория -->
     <select [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()" class="add-entry-modal__select">
