@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { LexiconService } from '../../services/lexicon.service';
 
 interface WordCard {
   id: number;
@@ -49,7 +50,7 @@ export class VocabularyComponent implements OnInit {
 
 
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(private route: ActivatedRoute, private lexiconService: LexiconService) { }
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.currentGalaxy = params.get('galaxy') || '';
@@ -166,35 +167,54 @@ export class VocabularyComponent implements OnInit {
 
   // Метод добавления слова или выражения
   addItem(): void {
-    if (this.newWord.trim()) {
-      const newCard: WordCard = {
-        id: Date.now(),
-        createdAt: Date.now(),
-        word: this.newWord.trim(),
-        translation: this.newTranslation.trim() || '...', // Перевод не обязателен сразу
-        userInput: '',
-        flipped: false,
-        hintVisible: true,
-        isCorrect: null,
-        hintIndex: 0,
-        showTranslation: false,
-        type: this.newWordType,
-        galaxy: this.currentGalaxy,     // <= добавь эту переменную
-        subtopic: this.currentSubtopic
-      };
+    if (!this.newWord.trim()) return;
 
-      if (this.newWordType === 'word') {
-        this.words.unshift(newCard);
-      } else {
-        this.expressions.unshift(newCard);
+    const newCard: WordCard = {
+      id: Date.now(),
+      createdAt: Date.now(),
+      word: this.newWord.trim(),
+      translation: this.newTranslation.trim() || '...',
+      userInput: '',
+      flipped: false,
+      hintVisible: true,
+      isCorrect: null,
+      hintIndex: 0,
+      showTranslation: false,
+      type: this.newWordType,
+      galaxy: this.currentGalaxy,
+      subtopic: this.currentSubtopic
+    };
+
+    // Пытаемся отправить на backend
+    this.lexiconService.addWord({
+      word: newCard.word,
+      translation: newCard.translation,
+      galaxy: newCard.galaxy!,
+      subtopic: newCard.subtopic!,
+      type: newCard.type
+    }).subscribe({
+      next: (res) => {
+        console.log('✅ Слово добавлено в БД:', res);
+      },
+      error: (err) => {
+        console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err);
       }
-      this.saveToLocalStorage();
+    });
 
-      // Очистка полей ввода
-      this.newWord = '';
-      this.newTranslation = '';
+    // В любом случае сохраняем в localStorage и отображаем в UI
+    if (this.newWordType === 'word') {
+      this.words.unshift(newCard);
+    } else {
+      this.expressions.unshift(newCard);
     }
+
+    this.saveToLocalStorage();
+
+    // Очистка полей
+    this.newWord = '';
+    this.newTranslation = '';
   }
+
 
   // Удаление карточки
   deleteWord(id: number): void {
