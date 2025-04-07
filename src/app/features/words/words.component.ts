@@ -1,7 +1,8 @@
-import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { VocabularyGptService } from '../../services/vocabulary-gpt.service';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
+import textFit from 'textfit';
 
 interface WordCard {
   id?: number;
@@ -23,6 +24,7 @@ export class WordsComponent {
   @ViewChildren('subtopicElement') subtopicElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyElement') galaxyElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyWrapper') galaxyWrappers!: QueryList<ElementRef>;
+  @ViewChildren('labelRef') labelElements!: QueryList<ElementRef>;
 
   searchQuery: string = '';
   searchResults: any[] = [];
@@ -39,6 +41,8 @@ export class WordsComponent {
   availableSubtopics: string[] = [];
   addSuccessMessage: string = '';
   isFromGalaxyShortcut: boolean = false;
+
+
 
   galaxies = [
     {
@@ -73,6 +77,13 @@ export class WordsComponent {
     }
   ];
   zoomedGalaxy: any = null;
+
+  ngAfterViewInit(): void {
+    this.labelElements.changes.subscribe(() => {
+      this.fitSubtopicLabels();
+    });
+    this.fitSubtopicLabels(); // initial
+  }
 
   constructor(private router: Router, private gptService: VocabularyGptService, private translationService: TranslationService) { }
 
@@ -232,7 +243,7 @@ export class WordsComponent {
   }
 
   onGalaxyAddButtonClick(event: MouseEvent, galaxyName: string): void {
-    event.stopPropagation(); 
+    event.stopPropagation();
     this.openAddWordOrExpressionForGalaxy(galaxyName);
   }
 
@@ -342,5 +353,18 @@ export class WordsComponent {
     return `${wordCount} mots / ${exprCount} expressions`;
   }
 
+  fitSubtopicLabels(): void {
+    setTimeout(() => {
+      this.labelElements.forEach(el => {
+        textFit(el.nativeElement, {
+          alignHoriz: true,
+          alignVert: true,
+          multiLine: false,
+          maxFontSize: 20,
+          minFontSize: 8
+        });
+      });
+    }, 0);
+  }
 
 }

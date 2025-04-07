@@ -131,6 +131,19 @@
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 
+.subtopic-label-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 0 5px;
+}
+
 .subtopic-label {
   fill: white;
   font-size: 20px;

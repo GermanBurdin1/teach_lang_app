@@ -106,20 +106,23 @@
 
         <!-- Подтемы (планеты) -->
         <g *ngFor="let subtopic of zoomedGalaxy.subtopics">
-          <g>
-            <title>
-              ({{ getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) }})
-            </title>
-            <circle class="subtopic-planet" #subtopicElement [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3"
-              r="60" (mouseenter)="hoverSubtopic(subtopic)" (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)"
-              style="cursor: pointer;">
-            </circle>
-          </g>
-          <text class="subtopic-label" [attr.x]="subtopic.x * 3" [attr.y]="subtopic.y * 3 + 8" fill="white"
-            font-size="20px" font-family="Arial" text-anchor="middle">
-            {{ subtopic.name }}
-          </text>
+          <title>
+            ({{ getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) }})
+          </title>
+          <circle class="subtopic-planet" #subtopicElement
+                  [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3"
+                  r="60"
+                  (mouseenter)="hoverSubtopic(subtopic)"
+                  (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)">
+          </circle>
+
+          <foreignObject [attr.x]="subtopic.x * 3 - 50" [attr.y]="subtopic.y * 3 - 20" width="100" height="40">
+            <div #labelRef class="subtopic-label-wrapper">
+              {{ subtopic.name }}
+            </div>
+          </foreignObject>
         </g>
+
 
       </svg>
     </div>
