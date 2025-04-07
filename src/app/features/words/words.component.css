@@ -148,19 +148,42 @@ text {
   pointer-events: none;
 }
 
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 .search-bar {
-  width: 100%;
-  padding: 20px;
-  text-align: center;
+  flex: 1; /* поле занимает всё доступное */
 }
 
 .search-bar input {
-  width: 60%;
-  padding: 8px 12px;
-  font-size: 16px;
-  border-radius: 8px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 16px;
 }
+
+.add-word-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 16px;
+  border-radius: 50%;
+  border: none;
+  background-color: #7d5ba6;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
 
 .search-results {
   margin-top: 10px;
@@ -206,6 +229,7 @@ text {
 
 /* добавление слова или выражения глобально */
 
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -220,6 +244,7 @@ text {
 }
 
 .add-entry-modal {
+  position: relative;
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -314,4 +339,46 @@ text {
 
 .add-entry-modal__toggle-type:hover {
   background-color: #5b4abc;
+}
+
+.add-entry-modal__close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+  z-index: 2;
+}
+
+.add-entry-modal__close-btn:hover {
+  color: #000;
+}
+
+.add-entry-modal__close-btn i {
+  pointer-events: none;
+}
+
+
+/* добавить слово напрямую */
+.galaxy-add-button {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  border-radius: 50%;
+  border: none;
+  background-color: #7d5ba6;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.galaxy-add-button:hover {
+  background-color: #5e3e8c;
 }

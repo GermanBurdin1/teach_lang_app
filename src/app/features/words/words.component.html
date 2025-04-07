@@ -2,22 +2,25 @@
   'zoom-active': zoomedGalaxy,
   'zoom-to-galaxy': isZoomingToGalaxy
 }">
-  <div class="search-bar">
-    <input [(ngModel)]="searchQuery" placeholder="Rechercher le mot ou l'expression..." (input)="searchWord()" />
-    <div *ngIf="searchResults.length" class="search-results">
-      <div *ngFor="let result of searchResults" class="search-result-item" (click)="navigateToWord(result)"
-        title="Перейти к слову"
-        style="cursor: pointer; margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-        <strong>{{ result.word }}</strong> — {{ result.translation }}
-        <div style="font-size: 12px; color: gray;">
-          {{ result.fullPath }}
-        </div>
+  <div class="search-bar-container">
+    <div class="search-bar">
+      <input [(ngModel)]="searchQuery" placeholder="Rechercher le mot ou l'expression..." (input)="searchWord()" />
+    </div>
+    <button class="add-word-btn" (click)="openGlobalAddWordOrExpressionModal()" title="Ajouter un mot ou expression">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+
+  <div *ngIf="searchResults.length" class="search-results">
+    <div *ngFor="let result of searchResults" class="search-result-item" (click)="navigateToWord(result)"
+      title="Перейти к слову">
+      <strong>{{ result.word }}</strong> — {{ result.translation }}
+      <div style="font-size: 12px; color: gray;">
+        {{ result.fullPath }}
       </div>
     </div>
   </div>
-  <button class="add-word-btn" (click)="openGlobalAddWordOrExpressionModal()" title="Ajouter un mot ou expression">
-    <i class="fas fa-plus"></i>
-  </button>
+
 
   <h2 *ngIf="!zoomedGalaxy">
   </h2>
@@ -45,6 +48,16 @@
             {{ galaxy.name }}
           </text>
 
+
+          <!-- Плюсик прямо под названием -->
+          <foreignObject x="90" y="115" width="20" height="20">
+            <button class="galaxy-add-button" (click)="onGalaxyAddButtonClick($event, galaxy.name)"
+              title="Добавить слово или выражение">
+              +
+            </button>
+          </foreignObject>
+
+
           <!-- Подтемы (планеты) -->
           <g *ngFor="let subtopic of galaxy.subtopics">
             <title>
@@ -53,6 +66,7 @@
             <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="8" fill="black"></circle>
           </g>
         </svg>
+
       </div>
     </div>
   </div>
@@ -83,13 +97,9 @@
             <title>
               ({{ getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) }})
             </title>
-            <circle #subtopicElement [attr.cx]="subtopic.x * 3"
-                    [attr.cy]="subtopic.y * 3"
-                    r="60"
-                    fill="black"
-                    (mouseenter)="hoverSubtopic(subtopic)"
-                    (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)"
-                    style="cursor: pointer;">
+            <circle #subtopicElement [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3" r="60" fill="black"
+              (mouseenter)="hoverSubtopic(subtopic)" (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)"
+              style="cursor: pointer;">
             </circle>
           </g>
           <text [attr.x]="subtopic.x * 3" [attr.y]="subtopic.y * 3 + 8" fill="white" font-size="20px"
@@ -107,6 +117,10 @@
 <!-- модалка для добавления слова или выражения не глобальном месте-->
 <div class="modal-overlay" *ngIf="showGlobalAddWordOrExpressionModal">
   <div class="add-entry-modal">
+    <button class="add-entry-modal__close-btn" (click)="closeGlobalAddWordOrExpressionModal()" aria-label="Закрыть">
+      <i class="fas fa-times"></i>
+    </button>
+
     <h2 class="add-entry-modal__title">Ajouter un mot ou expression</h2>
 
     <div class="add-entry-modal__type-toggle">
@@ -127,18 +141,20 @@
 
 
     <!-- Категория -->
-    <select [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()" class="add-entry-modal__select">
+    <select *ngIf="!isFromGalaxyShortcut" [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()"
+      class="add-entry-modal__select">
       <option value="" disabled selected>Выберите категорию</option>
       <option *ngFor="let galaxy of galaxies" [value]="galaxy.name">{{ galaxy.name }}</option>
     </select>
 
     <!-- Подтема -->
-    <select *ngIf="availableSubtopics.length" [(ngModel)]="selectedSubtopic" class="add-entry-modal__select">
+    <select *ngIf="availableSubtopics.length && !isFromGalaxyShortcut" [(ngModel)]="selectedSubtopic"
+      class="add-entry-modal__select">
       <option value="" disabled selected>Выберите подтему</option>
       <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
     </select>
 
-    <button class="generate-button" (click)="generateWithGPT()">
+    <button *ngIf="!isFromGalaxyShortcut" class="generate-button" (click)="generateWithGPT()">
       🤖 Автоматическая классификация
     </button>
 

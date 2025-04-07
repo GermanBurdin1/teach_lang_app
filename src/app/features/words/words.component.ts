@@ -38,6 +38,7 @@ export class WordsComponent {
   selectedSubtopic: string = '';
   availableSubtopics: string[] = [];
   addSuccessMessage: string = '';
+  isFromGalaxyShortcut: boolean = false;
 
   galaxies = [
     {
@@ -208,13 +209,33 @@ export class WordsComponent {
 
   //добавление слова или выражения на глобальном уровне
   openGlobalAddWordOrExpressionModal(): void {
+    this.isFromGalaxyShortcut = false; // глобальное добавление
     this.showGlobalAddWordOrExpressionModal = true;
     this.newGlobalWord = '';
     this.newGlobalTranslation = '';
     this.newGlobalType = 'word';
     this.selectedGalaxy = '';
+    this.selectedSubtopic = '';
+    this.availableSubtopics = [];
     this.addSuccessMessage = '';
   }
+
+  openAddWordOrExpressionForGalaxy(galaxyName: string): void {
+    this.isFromGalaxyShortcut = true;
+    this.selectedGalaxy = galaxyName;
+    this.availableSubtopics = this.galaxies.find(g => g.name === galaxyName)?.subtopics.map(s => s.name) || [];
+    this.selectedSubtopic = '';
+    this.newGlobalWord = '';
+    this.newGlobalTranslation = '';
+    this.newGlobalType = 'word';
+    this.showGlobalAddWordOrExpressionModal = true;
+  }
+
+  onGalaxyAddButtonClick(event: MouseEvent, galaxyName: string): void {
+    event.stopPropagation(); 
+    this.openAddWordOrExpressionForGalaxy(galaxyName);
+  }
+
 
   closeGlobalAddWordOrExpressionModal(): void {
     this.showGlobalAddWordOrExpressionModal = false;
