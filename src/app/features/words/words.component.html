@@ -4,7 +4,7 @@
 }">
   <div class="search-bar-container">
     <div class="search-bar">
-      <input [(ngModel)]="searchQuery" placeholder="Rechercher le mot ou l'expression..." (input)="searchWord()" />
+      <input [(ngModel)]="searchQuery" placeholder="Rechercher un mot ou une expression..." (input)="searchWord()" />
     </div>
     <button class="add-word-btn" (click)="openGlobalAddWordOrExpressionModal()" title="Ajouter un mot ou expression">
       <i class="fas fa-plus"></i>
@@ -36,6 +36,12 @@
               <stop offset="0%" style="stop-color:#7d5ba6; stop-opacity:1" />
               <stop offset="100%" style="stop-color:#2c2a4a; stop-opacity:1" />
             </radialGradient>
+
+            <radialGradient id="planetGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffd27f" />
+              <stop offset="60%" stop-color="#ff914d" />
+              <stop offset="100%" stop-color="#cc4b2c" />
+            </radialGradient>
           </defs>
 
           <!-- Применяем градиент -->
@@ -52,7 +58,7 @@
           <!-- Плюсик прямо под названием -->
           <foreignObject x="90" y="115" width="20" height="20">
             <button class="galaxy-add-button" (click)="onGalaxyAddButtonClick($event, galaxy.name)"
-              title="Добавить слово или выражение">
+              title="Ajouter un mot ou une expression">
               +
             </button>
           </foreignObject>
@@ -63,7 +69,8 @@
             <title>
               {{ subtopic.name }} ({{ getWordAndExpressionCount(galaxy.name, subtopic.name) }})
             </title>
-            <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="8" fill="black"></circle>
+            <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="8" fill="url(#planetGradient)">
+            </circle>
           </g>
         </svg>
 
@@ -82,6 +89,12 @@
             <stop offset="0%" style="stop-color:#7d5ba6; stop-opacity:1" />
             <stop offset="100%" style="stop-color:#2c2a4a; stop-opacity:1" />
           </radialGradient>
+
+          <radialGradient id="planetGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffd27f" />
+            <stop offset="60%" stop-color="#ff914d" />
+            <stop offset="100%" stop-color="#cc4b2c" />
+          </radialGradient>
         </defs>
 
         <ellipse cx="300" cy="300" rx="270" ry="180" fill="url(#galaxyGradient-zoom)" />
@@ -97,13 +110,13 @@
             <title>
               ({{ getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) }})
             </title>
-            <circle #subtopicElement [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3" r="60" fill="black"
-              (mouseenter)="hoverSubtopic(subtopic)" (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)"
+            <circle class="subtopic-planet" #subtopicElement [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3"
+              r="60" (mouseenter)="hoverSubtopic(subtopic)" (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)"
               style="cursor: pointer;">
             </circle>
           </g>
-          <text [attr.x]="subtopic.x * 3" [attr.y]="subtopic.y * 3 + 8" fill="white" font-size="20px"
-            font-family="Arial" text-anchor="middle">
+          <text class="subtopic-label" [attr.x]="subtopic.x * 3" [attr.y]="subtopic.y * 3 + 8" fill="white"
+            font-size="20px" font-family="Arial" text-anchor="middle">
             {{ subtopic.name }}
           </text>
         </g>

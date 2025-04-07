@@ -119,11 +119,24 @@
   z-index: -1;
 }
 
-
-
 .zoomed-galaxy .galaxy-svg.zoom {
   width: 60vw;
   height: 60vh;
+}
+
+.subtopic-planet {
+  fill: url(#planetGradient); /* градиентный фон */
+  cursor: pointer;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.subtopic-label {
+  fill: white;
+  font-size: 20px;
+  font-family: Arial;
+  text-anchor: middle;
+  pointer-events: none;
 }
 
 .back-btn {
@@ -151,13 +164,16 @@ text {
 .search-bar-container {
   display: flex;
   align-items: center;
+  justify-content: center; /* Центрирование по горизонтали */
   gap: 10px;
   margin-bottom: 20px;
 }
 
 .search-bar {
-  flex: 1; /* поле занимает всё доступное */
+  width: 75%; /* 3/4 ширины контейнера */
+  max-width: 800px; /* можно ограничить макс. ширину */
 }
+
 
 .search-bar input {
   width: 100%;
