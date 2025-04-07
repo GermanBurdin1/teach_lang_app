@@ -3,7 +3,7 @@
   'zoom-to-galaxy': isZoomingToGalaxy
 }">
   <div class="search-bar">
-    <input [(ngModel)]="searchQuery" placeholder="Поиск слова..." (input)="searchWord()" />
+    <input [(ngModel)]="searchQuery" placeholder="Rechercher le mot ou l'expression..." (input)="searchWord()" />
     <div *ngIf="searchResults.length" class="search-results">
       <div *ngFor="let result of searchResults" class="search-result-item" (click)="navigateToWord(result)"
         title="Перейти к слову"
@@ -15,12 +15,11 @@
       </div>
     </div>
   </div>
+  <button class="add-word-btn" (click)="openGlobalAddWordOrExpressionModal()" title="Ajouter un mot ou expression">
+    <i class="fas fa-plus"></i>
+  </button>
 
   <h2 *ngIf="!zoomedGalaxy">
-    Выберите категорию
-    <button class="add-word-btn" (click)="openGlobalAddWordOrExpressionModal()" title="Добавить слово или выражение">
-      <i class="fas fa-plus"></i>
-    </button>
   </h2>
 
 
@@ -48,6 +47,9 @@
 
           <!-- Подтемы (планеты) -->
           <g *ngFor="let subtopic of galaxy.subtopics">
+            <title>
+              {{ subtopic.name }} ({{ getWordAndExpressionCount(galaxy.name, subtopic.name) }})
+            </title>
             <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="8" fill="black"></circle>
           </g>
         </svg>
@@ -57,7 +59,7 @@
 
   <!-- Зумированная галактика -->
   <div class="zoomed-galaxy" *ngIf="zoomedGalaxy && !isZoomingToGalaxy">
-    <button class="back-btn" (click)="resetZoom()">Вернуться</button>
+    <button class="back-btn" (click)="resetZoom()">Retourner à la page principale</button>
     <div class="zoom-container" [ngStyle]="isZoomingToPlanet ? zoomStyle : {}">
       <svg viewBox="0 0 600 600" class="galaxy-svg zoom">
         <!-- Генерируем уникальный градиент для зума -->
@@ -77,10 +79,19 @@
 
         <!-- Подтемы (планеты) -->
         <g *ngFor="let subtopic of zoomedGalaxy.subtopics">
-          <circle #subtopicElement [attr.data-subtopic]="subtopic.name" [attr.cx]="subtopic.x * 3"
-            [attr.cy]="subtopic.y * 3" r="60" fill="black" (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)"
-            style="cursor: pointer;">
-          </circle>
+          <g>
+            <title>
+              ({{ getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) }})
+            </title>
+            <circle #subtopicElement [attr.cx]="subtopic.x * 3"
+                    [attr.cy]="subtopic.y * 3"
+                    r="60"
+                    fill="black"
+                    (mouseenter)="hoverSubtopic(subtopic)"
+                    (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)"
+                    style="cursor: pointer;">
+            </circle>
+          </g>
           <text [attr.x]="subtopic.x * 3" [attr.y]="subtopic.y * 3 + 8" fill="white" font-size="20px"
             font-family="Arial" text-anchor="middle">
             {{ subtopic.name }}
@@ -96,7 +107,7 @@
 <!-- модалка для добавления слова или выражения не глобальном месте-->
 <div class="modal-overlay" *ngIf="showGlobalAddWordOrExpressionModal">
   <div class="add-entry-modal">
-    <h2 class="add-entry-modal__title">Добавить слово или выражение</h2>
+    <h2 class="add-entry-modal__title">Ajouter un mot ou expression</h2>
 
     <div class="add-entry-modal__type-toggle">
       <!-- Тип карточки: слово/выражение -->

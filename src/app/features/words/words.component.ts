@@ -309,4 +309,17 @@ export class WordsComponent {
     });
   }
 
+  // info combien de mots ou expressions
+  getWordAndExpressionCount(subtopicName: string, galaxyName: string): string {
+    const raw = localStorage.getItem('vocabulary_cards');
+    const all: WordCard[] = raw ? JSON.parse(raw) : [];
+
+    const relevant = all.filter(item => item.galaxy === galaxyName && item.subtopic === subtopicName);
+    const wordCount = relevant.filter(item => item.type === 'word').length;
+    const exprCount = relevant.filter(item => item.type === 'expression').length;
+
+    return `${wordCount} mots / ${exprCount} expressions`;
+  }
+
+
 }

@@ -446,5 +446,21 @@ export class VocabularyComponent implements OnInit {
   }
 
 
+  //подсчет слов и/или выражений
+  getWordAndExpressionCount(): string {
+    const raw = localStorage.getItem('vocabulary_cards');
+    const all: WordCard[] = raw ? JSON.parse(raw) : [];
+
+    const relevant = all.filter(item =>
+      item.galaxy === this.currentGalaxy &&
+      item.subtopic === this.currentSubtopic
+    );
+
+    const wordCount = relevant.filter(item => item.type === 'word').length;
+    const exprCount = relevant.filter(item => item.type === 'expression').length;
+
+    return `${wordCount} слов / ${exprCount} выражений`;
+  }
+
 
 }
