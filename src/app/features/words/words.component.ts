@@ -322,19 +322,23 @@ export class WordsComponent {
   autoTranslateWord(): void {
     if (!this.newGlobalWord.trim()) return;
 
-    this.translationService.translate(this.newGlobalWord, 'ru', 'fr').subscribe({
+    const sourceLang: 'ru' | 'fr' | 'en' = 'ru';
+    const targetLang: 'ru' | 'fr' | 'en' = 'fr';
+
+    this.translationService.requestTranslation(this.newGlobalWord, sourceLang, targetLang).subscribe({
       next: (res) => {
         if (res.translations.length) {
-          this.newGlobalTranslation = res.translations[0];
+          this.newGlobalTranslation = res.translations[0]; // первый найденный вариант
+          console.log(`✅ Перевод получен из ${res.from}:`, res.translations);
         } else {
-          alert('Перевод не найден');
+          alert('Перевод не найден.');
         }
       },
       error: (err) => {
         if (err.status === 429) {
-          alert('⚠️ Превышен лимит переводов. Подождите минуту и попробуйте снова.');
+          alert('⚠️ Превышен лимит переводов. Подождите немного.');
         } else {
-          alert('Произошла ошибка при переводе.');
+          alert('❌ Ошибка при попытке перевода.');
         }
         console.error('❌ Ошибка перевода:', err);
       }

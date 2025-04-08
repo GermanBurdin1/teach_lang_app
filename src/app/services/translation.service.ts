@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 interface TranslationResponse {
@@ -10,20 +10,21 @@ interface TranslationResponse {
   from: 'wiktionary' | 'api';
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class TranslationService {
-  private readonly API_URL = 'http://localhost:3000/translation';
+  private apiUrl = 'http://localhost:3000/translation'; // твой backend путь
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  translate(source: string, sourceLang: string, targetLang: string): Observable<TranslationResponse> {
-    return this.http.get<TranslationResponse>(this.API_URL, {
-      params: {
-        source,
-        sourceLang,
-        targetLang
-      }
-    });
+  requestTranslation(
+    source: string,
+    sourceLang: 'ru' | 'fr' | 'en',
+    targetLang: 'ru' | 'fr' | 'en'
+  ): Observable<TranslationResponse> {
+    return this.http.get<TranslationResponse>(
+      `${this.apiUrl}?source=${encodeURIComponent(source)}&sourceLang=${sourceLang}&targetLang=${targetLang}`
+    );
   }
-
 }

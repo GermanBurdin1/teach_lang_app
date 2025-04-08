@@ -97,7 +97,14 @@
                 </div>
                 <div class="card-body">
                   <p>{{ card.word }}</p>
-                  <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
+                  <span *ngIf="card.hintVisible">
+                    <span *ngIf="card.translation === '...' || !card.translation" class="hint untranslated" (click)="openTranslationForm(card)">
+                      Добавить перевод
+                    </span>
+                    <span *ngIf="card.translation && card.translation !== '...'" class="hint">
+                      Кликни, чтобы увидеть перевод
+                    </span>
+                  </span>
                 </div>
                 <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i> <!-- или другая иконка, например fa-rotate -->
@@ -282,6 +289,27 @@
           <button class="cancel-btn" (click)="closeAddCardModal()">Отмена</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Модалка перевода для непереведённой карточки -->
+<div class="translation-modal-overlay" *ngIf="editingCard">
+  <div class="translation-modal">
+    <button class="close-btn" (click)="cancelTranslationEdit()" aria-label="Закрыть">
+      <i class="fas fa-times"></i>
+    </button>
+    <h2>Добавить перевод</h2>
+    <p><strong>{{ editingCard.word }}</strong></p>
+    <div class="input-group">
+      <input [(ngModel)]="manualTranslation" placeholder="Введите перевод вручную" />
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="saveTranslation()">Сохранить</button>
+      <button (click)="requestTranslation(editingCard)">🌐 Перевести</button>
+      <button (click)="cancelTranslationEdit()">Отмена</button>
     </div>
   </div>
 </div>

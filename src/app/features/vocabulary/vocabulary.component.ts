@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LexiconService } from '../../services/lexicon.service';
+import { TranslationService } from '../../services/translation.service';
 
 interface WordCard {
   id: number;
@@ -25,6 +26,7 @@ interface WordCard {
   styleUrls: ['./vocabulary.component.css'],
 })
 export class VocabularyComponent implements OnInit {
+
   @Input() currentGalaxy: string = '';
   @Input() currentSubtopic: string = '';
   words: WordCard[] = [];
@@ -48,9 +50,10 @@ export class VocabularyComponent implements OnInit {
   filterType: 'all' | 'word' | 'expression' = 'all';
   showAddCardModal: boolean = false;
 
+  editingCard: WordCard | null = null;
+  manualTranslation: string = '';
 
-
-  constructor(private route: ActivatedRoute, private lexiconService: LexiconService) { }
+  constructor(private route: ActivatedRoute, private lexiconService: LexiconService, private translationService: TranslationService) { }
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.currentGalaxy = params.get('galaxy') || '';
@@ -244,9 +247,15 @@ export class VocabularyComponent implements OnInit {
 
   // Переворот карточки
   flipCard(card: WordCard): void {
+    if (!card.translation || card.translation === '...') {
+      this.openTranslationForm(card); // <-- покажем форму
+      return;
+    }
+
     card.flipped = !card.flipped;
-    card.hintVisible = false; // Скрываем подсказку после первого переворота
+    card.hintVisible = false;
   }
+
 
   // Проверка перевода
   checkTranslation(card: WordCard): void {
@@ -332,6 +341,10 @@ export class VocabularyComponent implements OnInit {
 
 
   getHint(card: WordCard): string {
+    if (!card.translation || card.translation === '...') {
+      return 'Добавить перевод';
+    }
+
     const full = card.translation;
     const visible = full
       .slice(0, card.hintIndex ?? 0)
@@ -344,6 +357,7 @@ export class VocabularyComponent implements OnInit {
       .join(' ');
     return `${visible} ${hidden}`.trim();
   }
+
 
   revealNextHint(card: WordCard): void {
     if ((card.hintIndex ?? 0) < card.translation.length - 1) {
@@ -482,5 +496,44 @@ export class VocabularyComponent implements OnInit {
     return `${wordCount} слов / ${exprCount} выражений`;
   }
 
+  //для непереведенных
+  openTranslationForm(card: WordCard): void {
+    this.editingCard = card;
+    this.manualTranslation = '';
+  }
 
+  saveTranslation(): void {
+    if (this.editingCard && this.manualTranslation.trim()) {
+      this.editingCard.translation = this.manualTranslation.trim();
+      this.saveToLocalStorage();
+      this.editingCard = null;
+      this.manualTranslation = '';
+    }
+  }
+
+  cancelTranslationEdit(): void {
+    this.editingCard = null;
+    this.manualTranslation = '';
+  }
+
+  requestTranslation(card: WordCard): void {
+    const langFrom: 'fr' = 'fr'; // пока фиксировано, можно сделать выбор позже
+    const langTo: 'ru' = 'ru';
+
+    this.translationService.requestTranslation(card.word, langFrom, langTo).subscribe({
+      next: (res) => {
+        if (res.translations.length) {
+          card.translation = res.translations[0]; // выбираем первый вариант
+          this.saveToLocalStorage();
+          this.editingCard = null;
+          console.log(`✅ Перевод получен из ${res.from}:`, res.translations);
+        } else {
+          console.warn('⚠️ Перевод не найден');
+        }
+      },
+      error: (err) => {
+        console.error('❌ Ошибка при переводе:', err);
+      }
+    });
+  }
 }
