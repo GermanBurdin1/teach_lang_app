@@ -147,7 +147,23 @@
       </button>
 
     </div>
+    <div class="lang-selectors">
+      <label>С языка:
+        <select [(ngModel)]="sourceLang">
+          <option value="ru">русский</option>
+          <option value="fr">французский</option>
+          <option value="en">английский</option>
+        </select>
+      </label>
 
+      <label>На язык:
+        <select [(ngModel)]="targetLang">
+          <option value="ru">русский</option>
+          <option value="fr">французский</option>
+          <option value="en">английский</option>
+        </select>
+      </label>
+    </div>
     <input [(ngModel)]="newGlobalWord" [placeholder]="newGlobalType === 'word' ? 'Введите слово' : 'Введите выражение'"
       class="add-entry-modal__input" />
     <input [(ngModel)]="newGlobalTranslation" placeholder="Перевод (необязательно)" class="add-entry-modal__input" />

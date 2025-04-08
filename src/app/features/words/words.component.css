@@ -411,3 +411,22 @@ text {
 .galaxy-add-button:hover {
   background-color: #5e3e8c;
 }
+
+.lang-selectors {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.lang-selectors label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.lang-selectors select {
+  margin-top: 4px;
+  padding: 4px;
+}

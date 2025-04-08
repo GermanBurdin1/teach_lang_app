@@ -98,7 +98,8 @@
                 <div class="card-body">
                   <p>{{ card.word }}</p>
                   <span *ngIf="card.hintVisible">
-                    <span *ngIf="card.translation === '...' || !card.translation" class="hint untranslated" (click)="openTranslationForm(card)">
+                    <span *ngIf="card.translation === '...' || !card.translation" class="hint untranslated"
+                      (click)="openTranslationForm(card)">
                       Добавить перевод
                     </span>
                     <span *ngIf="card.translation && card.translation !== '...'" class="hint">
@@ -278,11 +279,34 @@
 <div class="modal-overlay" *ngIf="showAddCardModal">
   <div class="modal card">
     <div class="card-inner no-flip">
+      <button class="add-entry-modal__close-btn" (click)="closeAddCardModal()" aria-label="Закрыть">
+        <i class="fas fa-times"></i>
+      </button>
       <div class="card-front modal-content">
         <h2 class="modal-title">Добавить {{ newWordType === 'word' ? 'слово' : 'выражение' }}</h2>
 
         <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
-        <input [(ngModel)]="newTranslation" placeholder="Перевод (необязательно)" />
+        <button *ngIf="!isManualTranslation" (click)="requestTranslation()" class="generate-button">
+          🌐 Найти перевод
+        </button>
+        <input *ngIf="!isAutoTranslation" [(ngModel)]="newTranslation" (input)="onManualTranslationInput()"
+          placeholder="или введите его сами" />
+        <div class="lang-selectors">
+          <label>С языка:
+            <select [(ngModel)]="sourceLang">
+              <option value="ru">русский</option>
+              <option value="fr">французский</option>
+              <option value="en">английский</option>
+            </select>
+          </label>
+          <label>На язык:
+            <select [(ngModel)]="targetLang">
+              <option value="ru">русский</option>
+              <option value="fr">французский</option>
+              <option value="en">английский</option>
+            </select>
+          </label>
+        </div>
 
         <div class="modal-actions">
           <button (click)="addItem()">Добавить</button>

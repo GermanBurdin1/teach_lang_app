@@ -52,6 +52,12 @@ export class VocabularyComponent implements OnInit {
 
   editingCard: WordCard | null = null;
   manualTranslation: string = '';
+  sourceLang: 'ru' | 'fr' | 'en' = 'fr';
+  targetLang: 'ru' | 'fr' | 'en' = 'ru';
+  isManualTranslation: boolean = false;
+  isAutoTranslation: boolean = false;
+
+
 
   constructor(private route: ActivatedRoute, private lexiconService: LexiconService, private translationService: TranslationService) { }
   ngOnInit(): void {
@@ -516,19 +522,80 @@ export class VocabularyComponent implements OnInit {
     this.manualTranslation = '';
   }
 
-  requestTranslation(card: WordCard): void {
-    const langFrom: 'fr' = 'fr'; // пока фиксировано, можно сделать выбор позже
-    const langTo: 'ru' = 'ru';
+  detectLanguage(word: string): 'ru' | 'fr' | 'en' {
+    if (/^[а-яё\s]+$/i.test(word)) return 'ru';
+    if (/^[a-z\s]+$/i.test(word)) return 'en';
+    if (/^[a-zàâçéèêëîïôûùüÿñæœ\s\-']+$/i.test(word)) return 'fr';
+    return 'en'; // по умолчанию
+  }
 
-    this.translationService.requestTranslation(card.word, langFrom, langTo).subscribe({
+  requestTranslation(card: WordCard | null = null): void {
+    if (this.newWord.trim() === '') return;
+
+    const detectedLang = this.detectLanguage(this.newWord);
+
+    if (detectedLang !== this.sourceLang) {
+      const langNames = { ru: 'русский', fr: 'французский', en: 'английский' };
+      const confirmed = confirm(
+        `Вы выбрали перевод с языка: ${langNames[this.sourceLang]}, но слово "${this.newWord}" выглядит как на ${langNames[detectedLang]}. Переключить язык на ${langNames[detectedLang]}?`
+      );
+      if (confirmed) {
+        this.sourceLang = detectedLang;
+      } else {
+        return;
+      }
+    }
+
+    this.translationService.requestTranslation(this.newWord, this.sourceLang, this.targetLang).subscribe({
       next: (res) => {
         if (res.translations.length) {
-          card.translation = res.translations[0]; // выбираем первый вариант
-          this.saveToLocalStorage();
-          this.editingCard = null;
+          this.newTranslation = res.translations[0];
+          this.isAutoTranslation = true;
+          this.isManualTranslation = false;
+
+          this.showConfetti();
+
           console.log(`✅ Перевод получен из ${res.from}:`, res.translations);
-        } else {
-          console.warn('⚠️ Перевод не найден');
+
+          // 👉 Добавим карточку
+          const newCard: WordCard = {
+            id: Date.now(),
+            createdAt: Date.now(),
+            word: this.newWord.trim(),
+            translation: this.newTranslation,
+            userInput: '',
+            flipped: false,
+            hintVisible: true,
+            isCorrect: null,
+            hintIndex: 0,
+            showTranslation: false,
+            type: this.newWordType,
+            galaxy: this.currentGalaxy,
+            subtopic: this.currentSubtopic
+          };
+
+          // Попробуем отправить на backend
+          this.lexiconService.addWord({
+            word: newCard.word,
+            translation: newCard.translation,
+            galaxy: newCard.galaxy!,
+            subtopic: newCard.subtopic!,
+            type: newCard.type
+          }).subscribe({
+            next: (res) => console.log('✅ Слово добавлено в БД:', res),
+            error: (err) => console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err)
+          });
+
+          if (this.newWordType === 'word') {
+            this.words.unshift(newCard);
+          } else {
+            this.expressions.unshift(newCard);
+          }
+
+          this.saveToLocalStorage();
+          this.newWord = '';
+          this.newTranslation = '';
+          this.closeAddCardModal(); // ✅ Закроем модалку
         }
       },
       error: (err) => {
@@ -536,4 +603,27 @@ export class VocabularyComponent implements OnInit {
       }
     });
   }
+
+  showConfetti(): void {
+    const confettiScript = document.createElement('script');
+    confettiScript.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+    confettiScript.onload = () => {
+      (window as any).confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    };
+    document.body.appendChild(confettiScript);
+  }
+
+  onManualTranslationInput(): void {
+    if (this.newTranslation.trim()) {
+      this.isManualTranslation = true;
+      this.isAutoTranslation = false;
+    } else {
+      this.isManualTranslation = false;
+    }
+  }
+
 }

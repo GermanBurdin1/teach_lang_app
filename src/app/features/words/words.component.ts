@@ -41,9 +41,6 @@ export class WordsComponent {
   availableSubtopics: string[] = [];
   addSuccessMessage: string = '';
   isFromGalaxyShortcut: boolean = false;
-
-
-
   galaxies = [
     {
       name: 'Кругозор',
@@ -77,6 +74,9 @@ export class WordsComponent {
     }
   ];
   zoomedGalaxy: any = null;
+  sourceLang: 'ru' | 'fr' | 'en' = 'ru';
+  targetLang: 'ru' | 'fr' | 'en' = 'fr';
+
 
   ngAfterViewInit(): void {
     this.labelElements.changes.subscribe(() => {
@@ -322,28 +322,55 @@ export class WordsComponent {
   autoTranslateWord(): void {
     if (!this.newGlobalWord.trim()) return;
 
-    const sourceLang: 'ru' | 'fr' | 'en' = 'ru';
-    const targetLang: 'ru' | 'fr' | 'en' = 'fr';
+    const detectedLang = this.detectLang(this.newGlobalWord);
+    if (detectedLang !== this.sourceLang) {
+      const langNames: any = { ru: 'русский', fr: 'французский', en: 'английский' };
+      const confirmSwitch = confirm(`Введённое слово похоже на слово на языке "${langNames[detectedLang]}", а вы выбрали "${langNames[this.sourceLang]}". Переключиться?`);
+      if (confirmSwitch) {
+        this.sourceLang = detectedLang;
+      } else {
+        return;
+      }
+    }
 
-    this.translationService.requestTranslation(this.newGlobalWord, sourceLang, targetLang).subscribe({
+    this.translationService.requestTranslation(this.newGlobalWord, this.sourceLang, this.targetLang).subscribe({
       next: (res) => {
         if (res.translations.length) {
-          this.newGlobalTranslation = res.translations[0]; // первый найденный вариант
-          console.log(`✅ Перевод получен из ${res.from}:`, res.translations);
+          this.newGlobalTranslation = res.translations[0];
+          this.showConfetti(); // 🎉
+          alert(`✅ Перевод: ${res.translations[0]}`);
         } else {
-          alert('Перевод не найден.');
+          alert('⚠️ Перевод не найден.');
         }
       },
       error: (err) => {
-        if (err.status === 429) {
-          alert('⚠️ Превышен лимит переводов. Подождите немного.');
-        } else {
-          alert('❌ Ошибка при попытке перевода.');
-        }
+        alert('❌ Ошибка при попытке перевода.');
         console.error('❌ Ошибка перевода:', err);
       }
     });
   }
+
+  showConfetti(): void {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+    script.onload = () => {
+      (window as any).confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    };
+    document.body.appendChild(script);
+  }
+
+
+  detectLang(word: string): 'ru' | 'fr' | 'en' {
+    if (/^[а-яё\s]+$/i.test(word)) return 'ru';
+    if (/^[a-z\s]+$/i.test(word)) return 'en';
+    if (/^[a-zàâçéèêëîïôûùüÿñæœ\s]+$/i.test(word)) return 'fr';
+    return 'en'; // fallback
+  }
+
 
   // info combien de mots ou expressions
   getWordAndExpressionCount(subtopicName: string, galaxyName: string): string {
