@@ -416,12 +416,25 @@ export class VocabularyComponent implements OnInit {
       card.hintIndex = (card.hintIndex ?? 0) + 1;
     } else {
       card.showTranslation = true;
+      this.lexiconService.updateShowTranslation(card.id, true).subscribe({
+        next: () => console.log('📘 showTranslation сохранено как true'),
+        error: (err) => console.error('❌ Ошибка при сохранении showTranslation:', err)
+      });
     }
+    this.saveToLocalStorage();
   }
 
   showFullTranslation(card: WordCard): void {
     card.showTranslation = true;
+
+    this.lexiconService.updateShowTranslation(card.id, true).subscribe({
+      next: () => console.log('📘 showTranslation сохранено как true'),
+      error: (err) => console.error('❌ Ошибка при сохранении showTranslation:', err)
+    });
+
+    this.saveToLocalStorage();
   }
+
 
   ///////////////////////////////////////////обработка слов
 

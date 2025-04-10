@@ -44,4 +44,11 @@ export class LexiconService {
     return this.http.patch(`/api/lexicon/${id}/status`, { status });
   }
 
+  updateShowTranslation(wordId: number, showTranslation: boolean) {
+    return this.http.patch(`/api/words/${wordId}`, {
+      showTranslation
+    });
+  }
+
+
 }
