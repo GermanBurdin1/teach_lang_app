@@ -579,6 +579,7 @@ export class VocabularyComponent implements OnInit {
     this.editingCard = null;
     this.manualTranslation = '';
   }
+  
 
   detectLanguage(word: string): 'ru' | 'fr' | 'en' {
     if (/^[а-яё\s]+$/i.test(word)) return 'ru';
