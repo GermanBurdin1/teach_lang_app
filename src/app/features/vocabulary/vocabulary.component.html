@@ -68,14 +68,15 @@
         <div *ngFor="let card of paginatedWords" class="card-wrapper" [ngClass]="{
           'card-wrapper--repeat': sortBy === 'repeat' && card.status === 'repeat',
           'card-wrapper--learned': sortBy === 'learned' && card.status === 'learned',
-          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translation || card.translation === '...')
+          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translations[0] || card.translations[0] === '...')
+
         }">
           <div class="card">
             <div class="card-inner" [class.flipped]="card.flipped">
               <div class="card-front" [ngClass]="{
                 'card-front--repeat': card.status === 'repeat',
                 'card-front--learned': card.status === 'learned',
-                'card-front--untranslated': !card.translation || card.translation === '...'
+                'card-front--untranslated': !card.translations[0] || card.translations[0] === '...'
               }">
                 <div class="card-icon" *ngIf="sortBy === 'repeat' && card.status === 'repeat'">
                   <i class="fas fa-sync-alt" title="На повторение"></i>
@@ -84,7 +85,7 @@
                   <i class="fas fa-check-circle" title="Изучено"></i>
                 </div>
                 <div class="card-icon"
-                  *ngIf="sortBy === 'untranslated' && (!card.translation || card.translation === '...')">
+                  *ngIf="sortBy === 'untranslated' && (!card.translations[0] || card.translations[0] === '...')">
                   <i class="fas fa-question-circle" title="Нет перевода"></i>
                 </div>
                 <div class="card-header">
@@ -98,11 +99,11 @@
                 <div class="card-body">
                   <p>{{ card.word }}</p>
                   <span *ngIf="card.hintVisible">
-                    <span *ngIf="card.translation === '...' || !card.translation" class="hint untranslated"
+                    <span *ngIf="card.translations[0] === '...' || !card.translations[0]" class="hint untranslated"
                       (click)="openTranslationForm(card)">
                       Добавить перевод
                     </span>
-                    <span *ngIf="card.translation && card.translation !== '...'" class="hint">
+                    <span *ngIf="card.translations[0] && card.translations[0] !== '...'" class="hint">
                       Кликни, чтобы увидеть перевод
                     </span>
                   </span>
@@ -113,7 +114,7 @@
               </div>
               <div class="card-back">
                 <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
-                  <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
+                  <button *ngIf="card.translations[0] && !card.showTranslation && (card.hintIndex ?? 0) < card.translations[0].length - 1">
                     (click)="revealNextHint(card)">
                     {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
                   </button>
@@ -135,7 +136,7 @@
 
 
                 <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
-                  {{ card.showTranslation ? card.translation : getHint(card) }}
+                  {{ card.showTranslation ? card.translations : getHint(card) }}
                 </p>
 
 
@@ -156,7 +157,7 @@
       <ng-template #wordList>
         <ul class="word-list">
           <li *ngFor="let word of paginatedWords">
-            <strong>{{ word.word }}</strong> → {{ word.translation }}
+            <strong>{{ word.word }}</strong> → {{ word.translations[0] || '...' }}
           </li>
         </ul>
       </ng-template>
@@ -191,14 +192,14 @@
         <div *ngFor="let card of paginatedExpressions" class="card-wrapper" [ngClass]="{
           'card-wrapper--repeat': sortBy === 'repeat' && card.status === 'repeat',
           'card-wrapper--learned': sortBy === 'learned' && card.status === 'learned',
-          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translation || card.translation === '...')
+          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translations[0] || card.translations[0] === '...')
         }">
           <div class="card">
             <div class="card-inner" [class.flipped]="card.flipped">
               <div class="card-front" [ngClass]="{
                 'card-front--repeat': card.status === 'repeat',
                 'card-front--learned': card.status === 'learned',
-                'card-front--untranslated': !card.translation || card.translation === '...'
+                'card-front--untranslated': !card.translations[0] || card.translations[0] === '...'
               }">
                 <div class="card-header">
                   <p class="date-label">
@@ -218,7 +219,7 @@
               </div>
               <div class="card-back">
                 <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
-                  <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translation.length - 1"
+                  <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translations.length - 1"
                     (click)="revealNextHint(card)">
                     {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
                   </button>
@@ -236,7 +237,7 @@
                 </div>
 
                 <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
-                  {{ card.showTranslation ? card.translation : getHint(card) }}
+                  {{ card.showTranslation ? card.translations : getHint(card) }}
                 </p>
 
 
@@ -258,7 +259,7 @@
       <ng-template #expressionList>
         <ul class="word-list">
           <li *ngFor="let expr of paginatedExpressions">
-            <strong>{{ expr.word }}</strong> → {{ expr.translation }}
+            <strong>{{ expr.word }}</strong> → {{ expr.translations }}
           </li>
         </ul>
       </ng-template>
