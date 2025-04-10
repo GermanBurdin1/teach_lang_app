@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environment';
 
 interface TranslationResponse {
   word: string;
@@ -27,4 +28,16 @@ export class TranslationService {
       `${this.apiUrl}?source=${encodeURIComponent(source)}&sourceLang=${sourceLang}&targetLang=${targetLang}`
     );
   }
+
+  saveTranslation(payload: {
+    wordId: number;
+    sourceLang: 'ru' | 'fr' | 'en';
+    targetLang: 'ru' | 'fr' | 'en';
+    source: 'manual' | 'wiktionary' | 'deepl';
+    sourceText: string;
+    translation: string;
+  }) {
+    return this.http.post(`${environment.apiUrl}/translation/manual`, payload);
+  }
+
 }

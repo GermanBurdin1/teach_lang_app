@@ -202,7 +202,6 @@ export class VocabularyComponent implements OnInit {
     };
   }
 
-
   // Метод добавления слова или выражения
   addItem(): void {
     if (!this.newWord.trim()) return;
@@ -218,11 +217,18 @@ export class VocabularyComponent implements OnInit {
       isCorrect: null,
       hintIndex: 0,
       showTranslation: false,
-      status:null,
+      status: null,
       type: this.newWordType,
       galaxy: this.currentGalaxy,
       subtopic: this.currentSubtopic
     };
+
+    console.log('📤 Отправка на backend:', {
+      word: newCard.word,
+      galaxy: newCard.galaxy,
+      subtopic: newCard.subtopic,
+      type: newCard.type
+    });
 
     // Пытаемся отправить на backend
     this.lexiconService.addWord({
@@ -251,8 +257,9 @@ export class VocabularyComponent implements OnInit {
     // Очистка полей
     this.newWord = '';
     this.newTranslation = '';
-  }
 
+    this.closeAddCardModal();
+  }
 
   // Удаление карточки
   deleteWord(id: number): void {
@@ -268,7 +275,6 @@ export class VocabularyComponent implements OnInit {
   closeAddCardModal(): void {
     this.showAddCardModal = false;
   }
-
 
   // Удаление карточки
   deleteItem(id: number, type: 'word' | 'expression'): void {
@@ -290,7 +296,6 @@ export class VocabularyComponent implements OnInit {
     card.flipped = !card.flipped;
     card.hintVisible = false;
   }
-
 
   // Проверка перевода
   checkTranslation(card: WordCard): void {
@@ -355,8 +360,6 @@ export class VocabularyComponent implements OnInit {
       );
   }
 
-
-
   toggleSortOrderWords(): void {
     this.sortOrderWords = this.sortOrderWords === 'desc' ? 'asc' : 'desc';
     this.sortWords();
@@ -366,8 +369,6 @@ export class VocabularyComponent implements OnInit {
     this.sortOrderExpressions = this.sortOrderExpressions === 'desc' ? 'asc' : 'desc';
     this.sortWords();
   }
-
-
 
   getAllItems(): WordCard[] {
     return [...this.words, ...this.expressions];
@@ -545,14 +546,34 @@ export class VocabularyComponent implements OnInit {
     this.manualTranslation = '';
   }
 
-  saveTranslation(): void {
+  saveManualTranslation(): void {
     if (this.editingCard && this.manualTranslation.trim()) {
-      this.editingCard.translations[0] = this.manualTranslation.trim();
-      this.saveToLocalStorage();
-      this.editingCard = null;
-      this.manualTranslation = '';
+      const translationText = this.manualTranslation.trim();
+      // ✅ Отправка перевода в backend
+      this.translationService.saveTranslation({
+        source: "manual",
+        sourceText: this.editingCard.word,
+        translation: translationText,
+        sourceLang: this.sourceLang,
+        targetLang: this.targetLang,
+        wordId: this.editingCard.id,
+      }).subscribe({
+        next: (res) => {
+          console.log('✅ Перевод сохранён в БД (ручной):', res);
+          this.editingCard!.translations[0] = translationText;
+          this.saveToLocalStorage();
+
+          this.editingCard = null;
+          this.manualTranslation = '';
+        },
+        error: (err) => {
+          console.error('❌ Ошибка при сохранении ручного перевода:', err);
+          alert('Упс 😓 Не удалось сохранить перевод. Повторите попытку.');
+        }
+      });
     }
   }
+
 
   cancelTranslationEdit(): void {
     this.editingCard = null;
@@ -606,7 +627,7 @@ export class VocabularyComponent implements OnInit {
             isCorrect: null,
             hintIndex: 0,
             showTranslation: false,
-            status:null,
+            status: null,
             type: this.newWordType,
             galaxy: this.currentGalaxy,
             subtopic: this.currentSubtopic
@@ -662,6 +683,5 @@ export class VocabularyComponent implements OnInit {
       this.isManualTranslation = false;
     }
   }
-
 
 }

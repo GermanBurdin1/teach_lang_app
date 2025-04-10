@@ -114,10 +114,12 @@
               </div>
               <div class="card-back">
                 <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
-                  <button *ngIf="card.translations[0] && !card.showTranslation && (card.hintIndex ?? 0) < card.translations[0].length - 1">
+                  <button
+                    *ngIf="card.translations[0] && !card.showTranslation && (card.hintIndex ?? 0) < card.translations[0].length - 1"
                     (click)="revealNextHint(card)">
                     {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
                   </button>
+
 
                   <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
                     Показать слово
@@ -332,7 +334,7 @@
     </div>
 
     <div class="modal-actions">
-      <button (click)="saveTranslation()">Сохранить</button>
+      <button (click)="saveManualTranslation()">Сохранить</button>
       <button (click)="requestTranslation(editingCard)">🌐 Перевести</button>
       <button (click)="cancelTranslationEdit()">Отмена</button>
     </div>
