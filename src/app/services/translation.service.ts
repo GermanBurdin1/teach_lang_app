@@ -17,7 +17,7 @@ interface TranslationResponse {
 export class TranslationService {
   private apiUrl = 'http://localhost:3000/translation'; // твой backend путь
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   requestTranslation(
     source: string,
@@ -38,6 +38,14 @@ export class TranslationService {
     translation: string;
   }) {
     return this.http.post(`${environment.apiUrl}/translation/manual`, payload);
+  }
+
+  // translation.service.ts
+  updateTranslationExample(payload: {
+    translationId: number;
+    examples: string[];
+  }) {
+    return this.http.patch(`/api/translations/${payload.translationId}/examples`, payload);
   }
 
 }

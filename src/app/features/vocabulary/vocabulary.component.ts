@@ -3,10 +3,16 @@ import { ActivatedRoute } from '@angular/router';
 import { LexiconService } from '../../services/lexicon.service';
 import { TranslationService } from '../../services/translation.service';
 
+interface TranslationEntry {
+  id?: number;
+  target: string;
+  examples?: string[];
+}
+
 interface WordCard {
   id: number;
   word: string;
-  translations: string[];
+  translations: TranslationEntry[];
   userInput: string;
   flipped: boolean;
   hintVisible: boolean;
@@ -53,12 +59,19 @@ export class VocabularyComponent implements OnInit {
   targetLang: 'ru' | 'fr' | 'en' = 'ru';
   isManualTranslation: boolean = false;
   isAutoTranslation: boolean = false;
+  selectedTranslationIndex: number | null = null;
+  showExtraModal: boolean = false;
+  newExample: string = '';
+  showActionChoiceModal: boolean = false;
+  showExtraTranslationModal: boolean = false;
+  showExamplesView: boolean = false;
+  showTranslationsView: boolean = false;
+  forceShowTranslationModal: boolean = false;
 
   constructor(private route: ActivatedRoute, private lexiconService: LexiconService, private translationService: TranslationService) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      console.log("в пизду блять!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
       this.currentGalaxy = params.get('galaxy') || '';
       this.currentSubtopic = params.get('subtopic') || '';
 
@@ -72,7 +85,11 @@ export class VocabularyComponent implements OnInit {
           next: (data) => {
             console.log('📦 Данные от backend:', data);
             const enriched = data.map(card => {
-              const translations = (card.translations?.map(t => t.target) ?? []);
+              const translations = (card.translations ?? []).map(t => ({
+                id: t.id,
+                target: t.target,
+                examples: t.example ? [t.example] : [],
+              }));
 
 
               return {
@@ -120,51 +137,51 @@ export class VocabularyComponent implements OnInit {
   loadWords(): void {
     const rawItems: WordCard[] = [
       // КРУГОЗОР
-      { id: 1, word: 'революция', translations: ['revolution'], type: 'word', galaxy: 'Кругозор', subtopic: 'История', ...this.defaultCard() },
-      { id: 2, word: 'империя', translations: ['empire'], type: 'word', galaxy: 'Кругозор', subtopic: 'История', ...this.defaultCard() },
-      { id: 3, word: 'атом', translations: ['atom'], type: 'word', galaxy: 'Кругозор', subtopic: 'Наука', ...this.defaultCard() },
-      { id: 4, word: 'эксперимент', translations: ['experiment'], type: 'word', galaxy: 'Кругозор', subtopic: 'Наука', ...this.defaultCard() },
-      { id: 5, word: 'пьеса', translations: ['play (theater)'], type: 'word', galaxy: 'Кругозор', subtopic: 'Искусство', ...this.defaultCard() },
-      { id: 6, word: 'палитра', translations: ['palette'], type: 'word', galaxy: 'Кругозор', subtopic: 'Искусство', ...this.defaultCard() },
-      { id: 7, word: 'мыслитель', translations: ['thinker'], type: 'word', galaxy: 'Кругозор', subtopic: 'Философия', ...this.defaultCard() },
-      { id: 8, word: 'вопрос бытия', translations: ['question of being'], type: 'expression', galaxy: 'Кругозор', subtopic: 'Философия', ...this.defaultCard() },
-      { id: 9, word: 'инновация', translations: ['innovation'], type: 'word', galaxy: 'Кругозор', subtopic: 'Технологии', ...this.defaultCard() },
-      { id: 10, word: 'искусственный интеллект', translations: ['artificial intelligence'], type: 'expression', galaxy: 'Кругозор', subtopic: 'Технологии', ...this.defaultCard() },
-      { id: 11, word: 'наследие', translations: ['heritage'], type: 'word', galaxy: 'Кругозор', subtopic: 'Культура', ...this.defaultCard() },
-      { id: 12, word: 'традиции народа', translations: ['folk traditions'], type: 'expression', galaxy: 'Кругозор', subtopic: 'Культура', ...this.defaultCard() },
+      { id: 1, word: 'революция', translations: [{ target: 'revolution' }], type: 'word', galaxy: 'Кругозор', subtopic: 'История', ...this.defaultCard() },
+      { id: 2, word: 'империя', translations: [{ target: 'empire' }], type: 'word', galaxy: 'Кругозор', subtopic: 'История', ...this.defaultCard() },
+      { id: 3, word: 'атом', translations: [{ target: 'atom' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Наука', ...this.defaultCard() },
+      { id: 4, word: 'эксперимент', translations: [{ target: 'experiment' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Наука', ...this.defaultCard() },
+      { id: 5, word: 'пьеса', translations: [{ target: 'play (theater)' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Искусство', ...this.defaultCard() },
+      { id: 6, word: 'палитра', translations: [{ target: 'palette' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Искусство', ...this.defaultCard() },
+      { id: 7, word: 'мыслитель', translations: [{ target: 'thinker' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Философия', ...this.defaultCard() },
+      { id: 8, word: 'вопрос бытия', translations: [{ target: 'question of being' }], type: 'expression', galaxy: 'Кругозор', subtopic: 'Философия', ...this.defaultCard() },
+      { id: 9, word: 'инновация', translations: [{ target: 'innovation' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Технологии', ...this.defaultCard() },
+      { id: 10, word: 'искусственный интеллект', translations: [{ target: 'artificial intelligence' }], type: 'expression', galaxy: 'Кругозор', subtopic: 'Технологии', ...this.defaultCard() },
+      { id: 11, word: 'наследие', translations: [{ target: 'heritage' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Культура', ...this.defaultCard() },
+      { id: 12, word: 'традиции народа', translations: [{ target: 'folk traditions' }], type: 'expression', galaxy: 'Кругозор', subtopic: 'Культура', ...this.defaultCard() },
 
       // СОЦИАЛЬНЫЕ СВЯЗИ
-      { id: 13, word: 'мама', translations: ['mom'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Семья', ...this.defaultCard() },
-      { id: 14, word: 'брат', translations: ['brother'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Семья', ...this.defaultCard() },
-      { id: 15, word: 'лучший друг', translations: ['best friend'], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Друзья', ...this.defaultCard() },
-      { id: 16, word: 'дружить', translations: ['be friends'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Друзья', ...this.defaultCard() },
-      { id: 17, word: 'начальник', translations: ['boss'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Работа', ...this.defaultCard() },
-      { id: 18, word: 'рабочий процесс', translations: ['workflow'], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Работа', ...this.defaultCard() },
-      { id: 19, word: 'поделиться постом', translations: ['share a post'], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
-      { id: 20, word: 'подписчик', translations: ['follower'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
-      { id: 21, word: 'вести диалог', translations: ['have a dialogue'], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 31, word: 'контакт', translations: ['contact'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 32, word: 'диалог', translations: ['dialogue'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 33, word: 'общение', translations: ['communication'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 34, word: 'разговор', translations: ['conversation'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 35, word: 'вопрос', translations: ['question'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 36, word: 'ответ', translations: ['answer'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 37, word: 'обсуждение', translations: ['discussion'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 38, word: 'высказывание', translations: ['statement'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 39, word: 'недопонимание', translations: ['misunderstanding'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 40, word: 'аргумент', translations: ['argument'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 41, word: 'мнение', translations: ['opinion'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 42, word: 'переписка', translations: ['correspondence'], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 13, word: 'мама', translations: [{ target: 'mom' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Семья', ...this.defaultCard() },
+      { id: 14, word: 'брат', translations: [{ target: 'brother' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Семья', ...this.defaultCard() },
+      { id: 15, word: 'лучший друг', translations: [{ target: 'best friend' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Друзья', ...this.defaultCard() },
+      { id: 16, word: 'дружить', translations: [{ target: 'be friends' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Друзья', ...this.defaultCard() },
+      { id: 17, word: 'начальник', translations: [{ target: 'boss' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Работа', ...this.defaultCard() },
+      { id: 18, word: 'рабочий процесс', translations: [{ target: 'workflow' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Работа', ...this.defaultCard() },
+      { id: 19, word: 'поделиться постом', translations: [{ target: 'share a post' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
+      { id: 20, word: 'подписчик', translations: [{ target: 'follower' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
+      { id: 21, word: 'вести диалог', translations: [{ target: 'have a dialogue' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 31, word: 'контакт', translations: [{ target: 'contact' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 32, word: 'диалог', translations: [{ target: 'dialogue' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 33, word: 'общение', translations: [{ target: 'communication' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 34, word: 'разговор', translations: [{ target: 'conversation' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 35, word: 'вопрос', translations: [{ target: 'question' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 36, word: 'ответ', translations: [{ target: 'answer' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 37, word: 'обсуждение', translations: [{ target: 'discussion' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 38, word: 'высказывание', translations: [{ target: 'statement' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 39, word: 'недопонимание', translations: [{ target: 'misunderstanding' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 40, word: 'аргумент', translations: [{ target: 'argument' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 41, word: 'мнение', translations: [{ target: 'opinion' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 42, word: 'переписка', translations: [{ target: 'correspondence' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
 
       // РАБОТА И КАРЬЕРА
-      { id: 23, word: 'вакансия', translations: ['job opening'], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Вакансии', ...this.defaultCard() },
-      { id: 24, word: 'резюме', translations: ['resume'], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Вакансии', ...this.defaultCard() },
-      { id: 25, word: 'коммуникабельность', translations: ['communication skills'], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Навыки', ...this.defaultCard() },
-      { id: 26, word: 'решать задачи', translations: ['solve tasks'], type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Навыки', ...this.defaultCard() },
-      { id: 27, word: 'описание опыта', translations: ['experience description'], type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Резюме', ...this.defaultCard() },
-      { id: 28, word: 'образование', translations: ['education'], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Резюме', ...this.defaultCard() },
-      { id: 29, word: 'вопрос на собеседовании', translations: ['interview question'], type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Собеседование', ...this.defaultCard() },
-      { id: 30, word: 'работодатель', translations: ['employer'], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Собеседование', ...this.defaultCard() }
+      { id: 23, word: 'вакансия', translations: [{ target: 'job opening' }], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Вакансии', ...this.defaultCard() },
+      { id: 24, word: 'резюме', translations: [{ target: 'resume' }], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Вакансии', ...this.defaultCard() },
+      { id: 25, word: 'коммуникабельность', translations: [{ target: 'communication skills' }], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Навыки', ...this.defaultCard() },
+      { id: 26, word: 'решать задачи', translations: [{ target: 'solve tasks' }], type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Навыки', ...this.defaultCard() },
+      { id: 27, word: 'описание опыта', translations: [{ target: 'experience description' }], type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Резюме', ...this.defaultCard() },
+      { id: 28, word: 'образование', translations: [{ target: 'education' }], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Резюме', ...this.defaultCard() },
+      { id: 29, word: 'вопрос на собеседовании', translations: [{ target: 'interview question' }], type: 'expression', galaxy: 'Работа и карьера', subtopic: 'Собеседование', ...this.defaultCard() },
+      { id: 30, word: 'работодатель', translations: [{ target: 'employer' }], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Собеседование', ...this.defaultCard() }
     ];
 
     const enrichedItems = rawItems.map(item => ({
@@ -210,7 +227,7 @@ export class VocabularyComponent implements OnInit {
       id: Date.now(),
       createdAt: Date.now(),
       word: this.newWord.trim(),
-      translations: [this.newTranslation],
+      translations: [{ target: this.newTranslation }],
       userInput: '',
       flipped: false,
       hintVisible: true,
@@ -288,7 +305,7 @@ export class VocabularyComponent implements OnInit {
 
   // Переворот карточки
   flipCard(card: WordCard): void {
-    if (!card.translations[0] || card.translations[0] === '...') {
+    if (!card.translations[0] || card.translations[0].target === '...') {
       this.openTranslationForm(card); // <-- покажем форму
       return;
     }
@@ -299,7 +316,7 @@ export class VocabularyComponent implements OnInit {
 
   // Проверка перевода
   checkTranslation(card: WordCard): void {
-    if (card.userInput.trim().toLowerCase() === card.translations[0].toLowerCase()) {
+    if (card.userInput.trim().toLowerCase() === card.translations[0].target.toLowerCase()) {
       card.isCorrect = true;
       card.status = 'learned';
       this.lexiconService.updateWordStatus(card.id, 'learned').subscribe();
@@ -332,7 +349,7 @@ export class VocabularyComponent implements OnInit {
         filtered = relevantItems.filter(card => card.status === 'learned');
         break;
       case 'untranslated':
-        filtered = relevantItems.filter(card => !card.translations[0] || card.translations[0] === '...');
+        filtered = relevantItems.filter(card => !card.translations[0] || card.translations[0].target === '...');
         break;
       case 'hardest':
         filtered = relevantItems.filter(card => card.status === 'error');
@@ -376,11 +393,11 @@ export class VocabularyComponent implements OnInit {
 
 
   getHint(card: WordCard): string {
-    if (!card.translations[0] || card.translations[0] === '...') {
+    if (!card.translations[0] || card.translations[0].target === '...') {
       return 'Добавить перевод';
     }
 
-    const full = card.translations[0];
+    const full = card.translations[0].target;
     const visible = full
       .slice(0, card.hintIndex ?? 0)
       .split('')
@@ -395,7 +412,7 @@ export class VocabularyComponent implements OnInit {
 
 
   revealNextHint(card: WordCard): void {
-    if ((card.hintIndex ?? 0) < card.translations[0].length - 1) {
+    if ((card.hintIndex ?? 0) < card.translations[0].target.length - 1) {
       card.hintIndex = (card.hintIndex ?? 0) + 1;
     } else {
       card.showTranslation = true;
@@ -501,6 +518,12 @@ export class VocabularyComponent implements OnInit {
     return this.filterType === 'all' || this.filterType === 'expression' ? this.expressions : [];
   }
 
+  get selectedTranslation(): TranslationEntry | null {
+    if (this.editingCard && this.selectedTranslationIndex !== null) {
+      return this.editingCard.translations[this.selectedTranslationIndex] || null;
+    }
+    return null;
+  }
 
   changeWordsPage(delta: number): void {
     const maxPage = Math.ceil(this.words.length / this.wordsPerPage);
@@ -541,12 +564,16 @@ export class VocabularyComponent implements OnInit {
   }
 
   //для непереведенных
-  openTranslationForm(card: WordCard): void {
+  openTranslationForm(card: WordCard, forceShow = false): void {
     this.editingCard = card;
     this.manualTranslation = '';
+    this.forceShowTranslationModal = forceShow;
   }
 
+
   saveManualTranslation(): void {
+    this.showActionChoiceModal = false;
+    this.forceShowTranslationModal = false;
     if (this.editingCard && this.manualTranslation.trim()) {
       const translationText = this.manualTranslation.trim();
       // ✅ Отправка перевода в backend
@@ -560,7 +587,7 @@ export class VocabularyComponent implements OnInit {
       }).subscribe({
         next: (res) => {
           console.log('✅ Перевод сохранён в БД (ручной):', res);
-          this.editingCard!.translations[0] = translationText;
+          this.editingCard!.translations[0].target = translationText;
           this.saveToLocalStorage();
 
           this.editingCard = null;
@@ -575,11 +602,16 @@ export class VocabularyComponent implements OnInit {
   }
 
 
-  cancelTranslationEdit(): void {
+  cancelTranslationEdit({ keepActionChoiceModal = true } = {}): void {
     this.editingCard = null;
     this.manualTranslation = '';
+    if (!keepActionChoiceModal) {
+      this.showActionChoiceModal = false;
+    }
+    this.forceShowTranslationModal = false;
   }
-  
+
+
 
   detectLanguage(word: string): 'ru' | 'fr' | 'en' {
     if (/^[а-яё\s]+$/i.test(word)) return 'ru';
@@ -621,7 +653,7 @@ export class VocabularyComponent implements OnInit {
             id: Date.now(),
             createdAt: Date.now(),
             word: this.newWord.trim(),
-            translations: [this.newTranslation],
+            translations: [{ target: this.newTranslation }],
             userInput: '',
             flipped: false,
             hintVisible: true,
@@ -684,5 +716,84 @@ export class VocabularyComponent implements OnInit {
       this.isManualTranslation = false;
     }
   }
+
+  openExtraModal(card: WordCard, index: number): void {
+    this.editingCard = card;
+    this.selectedTranslationIndex = index;
+    this.newExample = '';
+    this.resetModals(); // добавь этот вызов
+    this.showActionChoiceModal = true;
+  }
+
+  closeExtraModal({ keepActionChoiceModal = true } = {}): void {
+    this.showExtraModal = false;
+    this.newExample = '';
+    this.editingCard = null;
+    this.selectedTranslationIndex = null;
+
+    if (!keepActionChoiceModal) {
+      this.showActionChoiceModal = false;
+    }
+  }
+
+  openExampleModal(): void {
+    // this.resetModals();
+    this.showExtraModal = true;
+  }
+
+  openExtraTranslationModal(): void {
+    // this.resetModals();
+    this.showExtraTranslationModal = true;
+    this.forceShowTranslationModal = true;
+  }
+
+  viewExamples(): void {
+    this.resetModals();
+    this.showExamplesView = true;
+  }
+
+  viewTranslations(): void {
+    this.resetModals();
+    this.showTranslationsView = true;
+  }
+
+  closeAllModals(): void {
+    this.resetModals();
+    this.editingCard = null;
+    this.selectedTranslationIndex = null;
+  }
+
+  resetModals(): void {
+    this.showActionChoiceModal = false;
+    this.showExtraModal = false;
+    this.showExtraTranslationModal = false;
+    this.showExamplesView = false;
+    this.showTranslationsView = false;
+  }
+
+  addExample(): void {
+    if (!this.editingCard || this.selectedTranslationIndex === null) return;
+    const example = this.newExample.trim();
+    if (!example) return;
+
+    const translation = this.editingCard.translations[this.selectedTranslationIndex];
+    translation.examples = translation.examples || [];
+    translation.examples.push(example);
+
+    // Обновляем на backend:
+    if (!translation?.id) return;
+    this.translationService.updateTranslationExample({
+      translationId: translation.id,
+      examples: translation.examples
+    }).subscribe({
+      next: () => {
+        console.log('✅ Пример добавлен');
+        this.saveToLocalStorage();
+        this.newExample = '';
+      },
+      error: (err) => console.error('❌ Ошибка при добавлении примера', err)
+    });
+  }
+
 
 }

@@ -68,7 +68,7 @@
         <div *ngFor="let card of paginatedWords" class="card-wrapper" [ngClass]="{
           'card-wrapper--repeat': sortBy === 'repeat' && card.status === 'repeat',
           'card-wrapper--learned': sortBy === 'learned' && card.status === 'learned',
-          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translations[0] || card.translations[0] === '...')
+          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translations[0] || card.translations[0].target === '...')
 
         }">
           <div class="card">
@@ -76,7 +76,7 @@
               <div class="card-front" [ngClass]="{
                 'card-front--repeat': card.status === 'repeat',
                 'card-front--learned': card.status === 'learned',
-                'card-front--untranslated': !card.translations[0] || card.translations[0] === '...'
+                'card-front--untranslated': !card.translations[0] || card.translations[0].target === '...'
               }">
                 <div class="card-icon" *ngIf="sortBy === 'repeat' && card.status === 'repeat'">
                   <i class="fas fa-sync-alt" title="На повторение"></i>
@@ -85,7 +85,7 @@
                   <i class="fas fa-check-circle" title="Изучено"></i>
                 </div>
                 <div class="card-icon"
-                  *ngIf="sortBy === 'untranslated' && (!card.translations[0] || card.translations[0] === '...')">
+                  *ngIf="sortBy === 'untranslated' && (!card.translations[0] || card.translations[0].target === '...')">
                   <i class="fas fa-question-circle" title="Нет перевода"></i>
                 </div>
                 <div class="card-header">
@@ -99,11 +99,11 @@
                 <div class="card-body">
                   <p>{{ card.word }}</p>
                   <span *ngIf="card.hintVisible">
-                    <span *ngIf="card.translations[0] === '...' || !card.translations[0]" class="hint untranslated"
-                      (click)="openTranslationForm(card)">
+                    <span *ngIf="card.translations[0].target === '...' || !card.translations[0]" class="hint untranslated"
+                      (click)="openTranslationForm(card, true)">
                       Добавить перевод
                     </span>
-                    <span *ngIf="card.translations[0] && card.translations[0] !== '...'" class="hint">
+                    <span *ngIf="card.translations[0] && card.translations[0].target !== '...'" class="hint">
                       Кликни, чтобы увидеть перевод
                     </span>
                   </span>
@@ -115,7 +115,7 @@
               <div class="card-back">
                 <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
                   <button
-                    *ngIf="card.translations[0] && !card.showTranslation && (card.hintIndex ?? 0) < card.translations[0].length - 1"
+                    *ngIf="card.translations[0] && !card.showTranslation && (card.hintIndex ?? 0) < card.translations[0].target.length - 1"
                     (click)="revealNextHint(card)">
                     {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
                   </button>
@@ -137,10 +137,15 @@
                 </div>
 
 
-                <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
-                  {{ card.showTranslation ? card.translations : getHint(card) }}
+                <div *ngIf="card.showTranslation">
+                  <div *ngFor="let t of card.translations; let i = index" class="translation-line">
+                    <p>{{ t.target }}</p>
+                    <button class="translation-entry__more-button" (click)="openExtraModal(card, i)">дополнительно</button>
+                  </div>
+                </div>
+                <p *ngIf="!card.showTranslation && (card.hintIndex ?? 0) > 0" class="hint-display">
+                  {{ getHint(card) }}
                 </p>
-
 
                 <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
                 <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
@@ -194,14 +199,14 @@
         <div *ngFor="let card of paginatedExpressions" class="card-wrapper" [ngClass]="{
           'card-wrapper--repeat': sortBy === 'repeat' && card.status === 'repeat',
           'card-wrapper--learned': sortBy === 'learned' && card.status === 'learned',
-          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translations[0] || card.translations[0] === '...')
+          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translations[0] || card.translations[0].target === '...')
         }">
           <div class="card">
             <div class="card-inner" [class.flipped]="card.flipped">
               <div class="card-front" [ngClass]="{
                 'card-front--repeat': card.status === 'repeat',
                 'card-front--learned': card.status === 'learned',
-                'card-front--untranslated': !card.translations[0] || card.translations[0] === '...'
+                'card-front--untranslated': !card.translations[0] || card.translations[0].target === '...'
               }">
                 <div class="card-header">
                   <p class="date-label">
@@ -238,9 +243,16 @@
                   <button (click)="markForRepetition(card)">Повторить позже</button>
                 </div>
 
-                <p *ngIf="card.showTranslation || (card.hintIndex ?? 0) > 0" class="hint-display">
-                  {{ card.showTranslation ? card.translations : getHint(card) }}
+                <div *ngIf="card.showTranslation">
+                  <div *ngFor="let t of card.translations; let i = index" class="translation-line">
+                    <p>{{ t.target }}</p>
+                    <button (click)="openExtraModal(card, i)">дополнительно</button>
+                  </div>
+                </div>
+                <p *ngIf="!card.showTranslation && (card.hintIndex ?? 0) > 0" class="hint-display">
+                  {{ getHint(card) }}
                 </p>
+
 
 
                 <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
@@ -322,7 +334,7 @@
 
 
 <!-- Модалка перевода для непереведённой карточки -->
-<div class="translation-modal-overlay" *ngIf="editingCard">
+<div class="translation-modal-overlay" *ngIf="editingCard && (forceShowTranslationModal || (!showActionChoiceModal && !showExtraModal && !showExtraTranslationModal))">
   <div class="translation-modal">
     <button class="close-btn" (click)="cancelTranslationEdit()" aria-label="Закрыть">
       <i class="fas fa-times"></i>
@@ -339,4 +351,32 @@
       <button (click)="cancelTranslationEdit()">Отмена</button>
     </div>
   </div>
+</div>
+
+<div *ngIf="showExtraModal" class="translation-modal">
+  <h3 class="translation-modal__title">Добавить пример</h3>
+
+  <input class="translation-modal__input"
+         [(ngModel)]="newExample"
+         placeholder="Введите пример" />
+
+  <div class="translation-modal__button-group">
+    <button class="translation-modal__button" (click)="addExample()">Добавить</button>
+    <button class="translation-modal__button" (click)="closeExtraModal()">Закрыть</button>
+  </div>
+
+  <ul *ngIf="selectedTranslation" class="translation-modal__examples">
+    <li *ngFor="let e of selectedTranslation.examples || []">{{ e }}</li>
+  </ul>
+</div>
+
+
+<!-- Модалка выбора действия -->
+<div *ngIf="showActionChoiceModal" class="modal modal--action-choice">
+  <h3>Что вы хотите сделать?</h3>
+  <button (click)="openExampleModal()">➕ Добавить пример</button>
+  <button (click)="openExtraTranslationModal()">➕ Добавить перевод</button>
+  <button (click)="viewExamples()">👁 Посмотреть примеры</button>
+  <button (click)="viewTranslations()">👁 Посмотреть переводы</button>
+  <button class="modal__close-btn" (click)="closeAllModals()">Отмена</button>
 </div>
