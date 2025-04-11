@@ -63,11 +63,10 @@ export class VocabularyComponent implements OnInit {
   selectedTranslationIndex: number | null = null;
   showExtraModal: boolean = false;
   newExample: string = '';
-  showActionChoiceModal: boolean = false;
   showExtraTranslationModal: boolean = false;
   showExamplesView: boolean = false;
   showTranslationsView: boolean = false;
-  forceShowTranslationModal: boolean = false;
+  enlargedCardId: number | null = null;
 
   constructor(private route: ActivatedRoute, private lexiconService: LexiconService, private translationService: TranslationService) { }
 
@@ -605,13 +604,10 @@ export class VocabularyComponent implements OnInit {
   openTranslationForm(card: WordCard, forceShow = false): void {
     this.editingCard = card;
     this.manualTranslation = '';
-    this.forceShowTranslationModal = forceShow;
   }
 
 
   saveManualTranslation(): void {
-    this.showActionChoiceModal = false;
-    this.forceShowTranslationModal = false;
     if (this.editingCard && this.manualTranslation.trim()) {
       const translationText = this.manualTranslation.trim();
       // ✅ Отправка перевода в backend
@@ -643,10 +639,6 @@ export class VocabularyComponent implements OnInit {
   cancelTranslationEdit({ keepActionChoiceModal = true } = {}): void {
     this.editingCard = null;
     this.manualTranslation = '';
-    if (!keepActionChoiceModal) {
-      this.showActionChoiceModal = false;
-    }
-    this.forceShowTranslationModal = false;
   }
 
 
@@ -756,22 +748,18 @@ export class VocabularyComponent implements OnInit {
   }
 
   openExtraModal(card: WordCard, index: number): void {
+    this.enlargedCardId = card.id;
     this.editingCard = card;
     this.selectedTranslationIndex = index;
     this.newExample = '';
     this.resetModals(); // добавь этот вызов
-    this.showActionChoiceModal = true;
   }
 
-  closeExtraModal({ keepActionChoiceModal = true } = {}): void {
+  closeExtraModal(): void {
     this.showExtraModal = false;
     this.newExample = '';
     this.editingCard = null;
     this.selectedTranslationIndex = null;
-
-    if (!keepActionChoiceModal) {
-      this.showActionChoiceModal = false;
-    }
   }
 
   openExampleModal(): void {
@@ -782,7 +770,6 @@ export class VocabularyComponent implements OnInit {
   openExtraTranslationModal(): void {
     // this.resetModals();
     this.showExtraTranslationModal = true;
-    this.forceShowTranslationModal = true;
   }
 
   viewExamples(): void {
@@ -802,7 +789,7 @@ export class VocabularyComponent implements OnInit {
   }
 
   resetModals(): void {
-    this.showActionChoiceModal = false;
+    this.showAddCardModal = false;
     this.showExtraModal = false;
     this.showExtraTranslationModal = false;
     this.showExamplesView = false;
@@ -833,5 +820,24 @@ export class VocabularyComponent implements OnInit {
     });
   }
 
+  enlargeCard(card: WordCard): void {
+    this.enlargedCardId = card.id;
+    this.editingCard = card;
+  }
+
+  closeEnlargedCard(): void {
+    this.enlargedCardId = null;
+    this.editingCard = null;
+    this.resetModals();
+  }
+
+  toggleEnlargedCard(card: WordCard, index: number): void {
+    if (this.enlargedCardId === card.id) {
+      this.closeEnlargedCard();
+    } else {
+      this.enlargeCard(card);
+      this.selectedTranslationIndex = index;
+    }
+  }
 
 }
