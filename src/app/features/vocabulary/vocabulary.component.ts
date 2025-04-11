@@ -20,6 +20,7 @@ interface WordCard {
   hintIndex: number;
   showTranslation: boolean;
   status: 'learned' | 'repeat' | 'error' | null;
+  revealed?: boolean;
   type: 'word' | 'expression';
   createdAt: number;
   galaxy: string;
@@ -101,7 +102,7 @@ export class VocabularyComponent implements OnInit {
                 hintVisible: true,
                 isCorrect: null,
                 hintIndex: 0,
-                showTranslation: false,
+                showTranslation: card?.revealed ?? false,
                 status: card.status ?? null,
                 createdAt: card.createdAt ?? Date.now(),
               };
@@ -316,18 +317,31 @@ export class VocabularyComponent implements OnInit {
 
   // Проверка перевода
   checkTranslation(card: WordCard): void {
-    if (card.userInput.trim().toLowerCase() === card.translations[0].target.toLowerCase()) {
+    const userAnswer = card.userInput.trim().toLowerCase();
+    const correctAnswer = card.translations[0]?.target?.toLowerCase();
+
+    if (userAnswer === correctAnswer) {
       card.isCorrect = true;
       card.status = 'learned';
-      this.lexiconService.updateWordStatus(card.id, 'learned').subscribe();
-      // ...
+
+      this.lexiconService.updateWordStatus(card.id, 'learned').subscribe({
+        next: () => console.log(`✅ Статус "learned" успешно отправлен для id=${card.id}`),
+        error: (err) => console.error(`❌ Ошибка при отправке "learned" для id=${card.id}:`, err)
+      });
+
     } else {
       card.isCorrect = false;
-      card.status = 'error'; // 👈 записываем ошибку
-      this.lexiconService.updateWordStatus(card.id, 'error').subscribe();
+      card.status = 'error';
+
+      this.lexiconService.updateWordStatus(card.id, 'error').subscribe({
+        next: () => console.log(`⚠️ Статус "error" успешно отправлен для id=${card.id}`),
+        error: (err) => console.error(`❌ Ошибка при отправке "error" для id=${card.id}:`, err)
+      });
     }
+
     this.saveToLocalStorage();
   }
+
 
   // Сортировка карточек
   sortWords(): void {
@@ -416,9 +430,9 @@ export class VocabularyComponent implements OnInit {
       card.hintIndex = (card.hintIndex ?? 0) + 1;
     } else {
       card.showTranslation = true;
-      this.lexiconService.updateShowTranslation(card.id, true).subscribe({
-        next: () => console.log('📘 showTranslation сохранено как true'),
-        error: (err) => console.error('❌ Ошибка при сохранении showTranslation:', err)
+      this.lexiconService.revealWord(card.id).subscribe({
+        next: () => console.log('📘 Перевод показан (revealed = true)'),
+        error: (err) => console.error('❌ Ошибка при вызове revealWord:', err)
       });
     }
     this.saveToLocalStorage();
@@ -427,34 +441,46 @@ export class VocabularyComponent implements OnInit {
   showFullTranslation(card: WordCard): void {
     card.showTranslation = true;
 
-    this.lexiconService.updateShowTranslation(card.id, true).subscribe({
-      next: () => console.log('📘 showTranslation сохранено как true'),
-      error: (err) => console.error('❌ Ошибка при сохранении showTranslation:', err)
+    this.lexiconService.revealWord(card.id).subscribe({
+      next: () => console.log('📘 Перевод показан (revealed = true)'),
+      error: (err) => console.error('❌ Ошибка при вызове revealWord:', err)
     });
-
     this.saveToLocalStorage();
   }
 
+  // showFullTranslation(card: WordCard): void {
+  //   card.showTranslation = true;
+  //   this.lexiconService.markAsRevealed(card.id).subscribe({
+  //     next: () => console.log('👁 Отправили revealed=true'),
+  //     error: err => console.error('❌ Ошибка при отправке revealed:', err)
+  //   });
+  // }
 
   ///////////////////////////////////////////обработка слов
 
   markAsLearned(card: WordCard): void {
     card.status = 'learned';
+
     this.lexiconService.updateWordStatus(card.id, 'learned').subscribe({
-      next: () => console.log('📘 Статус сохранён как "выучено"'),
-      error: err => console.error('❌ Ошибка при обновлении статуса:', err)
+      next: () => console.log(`✅ Статус "learned" обновлён в БД для id=${card.id}`),
+      error: (err) => console.error(`❌ Ошибка при обновлении "learned" для id=${card.id}:`, err)
     });
+
     this.saveToLocalStorage();
   }
 
+
   markForRepetition(card: WordCard): void {
     card.status = 'repeat';
+
     this.lexiconService.updateWordStatus(card.id, 'repeat').subscribe({
-      next: () => console.log('📘 Статус сохранён как "повторить"'),
-      error: err => console.error('❌ Ошибка при обновлении статуса:', err)
+      next: () => console.log(`🔁 Статус "repeat" обновлён в БД для id=${card.id}`),
+      error: (err) => console.error(`❌ Ошибка при обновлении "repeat" для id=${card.id}:`, err)
     });
+
     this.saveToLocalStorage();
   }
+
 
 
   saveToLocalStorage(cards?: WordCard[]): void {
@@ -558,7 +584,6 @@ export class VocabularyComponent implements OnInit {
     card.hintVisible = true; // снова показать «Кликни, чтобы увидеть перевод»
     this.saveToLocalStorage();
   }
-
 
   //подсчет слов и/или выражений
   getWordAndExpressionCount(): string {
@@ -672,7 +697,7 @@ export class VocabularyComponent implements OnInit {
             hintVisible: true,
             isCorrect: null,
             hintIndex: 0,
-            showTranslation: false,
+            showTranslation: card?.revealed ?? false,
             status: null,
             type: this.newWordType,
             galaxy: this.currentGalaxy,

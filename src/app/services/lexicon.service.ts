@@ -20,6 +20,7 @@ export interface BackendWordCard {
   type: 'word' | 'expression';
   createdAt?: number;
   status?: 'learned' | 'repeat' | 'error' | null;
+  revealed?: boolean;
 }
 
 
@@ -41,13 +42,11 @@ export class LexiconService {
   }
 
   updateWordStatus(id: number, status: 'learned' | 'repeat' | 'error' | null): Observable<any> {
-    return this.http.patch(`/api/lexicon/${id}/status`, { status });
+    return this.http.patch(`http://localhost:3000/lexicon/${id}/status`, { status });
   }
 
-  updateShowTranslation(wordId: number, showTranslation: boolean) {
-    return this.http.patch(`/api/words/${wordId}`, {
-      showTranslation
-    });
+  revealWord(id: number): Observable<any> {
+    return this.http.patch(`http://localhost:3000/lexicon/${id}/reveal`, {});
   }
 
 
