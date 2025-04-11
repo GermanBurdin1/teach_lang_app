@@ -152,11 +152,17 @@
                 </div>
 
                 <div *ngIf="enlargedCardId === card.id" class="card-actions-bottom">
-                  <button (click)="openExampleModal(); $event.stopPropagation()">➕ Пример</button>
-                  <button (click)="openExtraTranslationModal(); $event.stopPropagation()">➕ Перевод</button>
-                  <button (click)="viewExamples(); $event.stopPropagation()">👁 Примеры</button>
-                  <button (click)="viewTranslations(); $event.stopPropagation()">👁 Переводы</button>
-                  <button (click)="closeEnlargedCard(); $event.stopPropagation()">❌ Закрыть</button>
+                  <button class="more-info-tooltip-btn" (click)="openExampleModal(); $event.stopPropagation()"><i class="fas fa-plus"></i>
+                    <span class="tooltip-text">Пример</span></button>
+                  <button class="more-info-tooltip-btn" (click)="openExtraTranslationModal(); $event.stopPropagation()"><i
+                      class="fas fa-language"></i>
+                    <span class="tooltip-text">Перевод</span></button>
+                  <button class="more-info-tooltip-btn" (click)="viewExamples(); $event.stopPropagation()"><i class="fas fa-eye"></i>
+                    <span class="tooltip-text">Примеры</span></button>
+                  <button class="more-info-tooltip-btn" (click)="viewTranslations(); $event.stopPropagation()"><i class="fas fa-eye"></i>
+                    <span class="tooltip-text">Переводы</span></button>
+                  <button class="more-info-tooltip-btn" (click)="closeEnlargedCard(); $event.stopPropagation()"><i class="fas fa-times"></i>
+                    <span class="tooltip-text">Закрыть</span></button>
                 </div>
 
                 <p *ngIf="!card.showTranslation && (card.hintIndex ?? 0) > 0" class="hint-display">
