@@ -17,6 +17,7 @@ import { TariffsModule } from "../tariffs/tariffs.module";
 import { WordsComponent } from '../words/words.component';
 import { SharedModule } from '../../shared/shared.module';
 import { TrainerComponent } from '../trainer/trainer.component';
+import { GrammarFieldsComponent } from "../vocabulary/vocabulary-layout/grammar-fields.component";
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import { TrainerComponent } from '../trainer/trainer.component';
     FormsModule,
     NgSelectModule,
     TariffsModule,
-    SharedModule
+    SharedModule,
+    GrammarFieldsComponent
 ]
 })
 export class DashboardModule { }

@@ -109,11 +109,8 @@
           <title>
             ({{ getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) }})
           </title>
-          <circle class="subtopic-planet" #subtopicElement
-                  [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3"
-                  r="60"
-                  (mouseenter)="hoverSubtopic(subtopic)"
-                  (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)">
+          <circle class="subtopic-planet" #subtopicElement [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3" r="60"
+            (mouseenter)="hoverSubtopic(subtopic)" (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)">
           </circle>
 
           <foreignObject [attr.x]="subtopic.x * 3 - 50" [attr.y]="subtopic.y * 3 - 20" width="100" height="40">
@@ -166,7 +163,12 @@
     </div>
     <input [(ngModel)]="newGlobalWord" [placeholder]="newGlobalType === 'word' ? 'Введите слово' : 'Введите выражение'"
       class="add-entry-modal__input" />
-    <input [(ngModel)]="newGlobalTranslation" placeholder="Перевод (необязательно)" class="add-entry-modal__input" />
+    <input [(ngModel)]="newGlobalTranslation" (input)="onGlobalTranslationInput()" placeholder="Перевод (необязательно)"
+      class="add-entry-modal__input" />
+    <app-grammar-fields *ngIf="grammarData && newGlobalType === 'word'" [grammar]="grammarData"
+      (grammarChange)="onGrammarChange($event)">
+    </app-grammar-fields>
+
     <button (click)="autoTranslateWord()" class="generate-button">
       🌐 Найти перевод
     </button>

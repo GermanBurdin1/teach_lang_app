@@ -2,6 +2,7 @@ import { Component, ElementRef, QueryList, ViewChildren, AfterViewInit } from '@
 import { VocabularyGptService } from '../../services/vocabulary-gpt.service';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
+import { GrammarData } from '../vocabulary/models/grammar-data.model';
 import textFit from 'textfit';
 
 interface WordCard {
@@ -12,6 +13,7 @@ interface WordCard {
   subtopic: string;
   type?: 'word' | 'expression';
   createdAt?: number;
+  grammar?: GrammarData
 }
 
 
@@ -76,6 +78,7 @@ export class WordsComponent {
   zoomedGalaxy: any = null;
   sourceLang: 'ru' | 'fr' | 'en' = 'ru';
   targetLang: 'ru' | 'fr' | 'en' = 'fr';
+  grammarData: GrammarData | null = null;
 
 
   ngAfterViewInit(): void {
@@ -262,7 +265,8 @@ export class WordsComponent {
       galaxy: this.selectedGalaxy,
       subtopic: this.selectedSubtopic,
       type: this.newGlobalType,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      grammar: this.grammarData ?? undefined,
     };
 
     const raw = localStorage.getItem('vocabulary_cards');
@@ -285,6 +289,8 @@ export class WordsComponent {
       this.addSuccessMessage = '';
       this.closeGlobalAddWordOrExpressionModal();
     }, 1000);
+
+    this.grammarData = null;
   }
 
 
@@ -396,6 +402,21 @@ export class WordsComponent {
         });
       });
     }, 0);
+  }
+
+  // ajouter l'info liée aux champs grammatiques
+  onGlobalTranslationInput() {
+    if (this.newGlobalTranslation.trim() && this.newGlobalType === 'word') {
+      this.grammarData = {
+        partOfSpeech: 'noun'
+      };
+    } else {
+      this.grammarData = null;
+    }
+  }
+
+  onGrammarChange(updated: GrammarData) {
+    this.grammarData = updated;
   }
 
 }
