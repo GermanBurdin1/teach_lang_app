@@ -291,10 +291,20 @@ export class VocabularyComponent implements OnInit {
   // Выбор типа карточки (слово/выражение) — сразу отображает поля ввода
   openAddCardModal(type: 'word' | 'expression'): void {
     this.newWordType = type;
+    this.newWord = '';
+    this.newTranslation = '';
+    this.newGrammarData = null;
+    this.isManualTranslation = false;
+    this.isAutoTranslation = false;
     this.showAddCardModal = true;
   }
 
   closeAddCardModal(): void {
+    this.newWord = '';
+    this.newTranslation = '';
+    this.newGrammarData = null;
+    this.isManualTranslation = false;
+    this.isAutoTranslation = false;
     this.showAddCardModal = false;
   }
 
