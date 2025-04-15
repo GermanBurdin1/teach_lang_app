@@ -344,6 +344,9 @@
         <h2 class="modal-title">Добавить {{ newWordType === 'word' ? 'слово' : 'выражение' }}</h2>
 
         <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
+        <app-grammar-fields *ngIf="newWordType === 'word' && isManualTranslation && newGrammarData"
+          [grammar]="newGrammarData" (grammarChange)="onGrammarChange($event)">
+        </app-grammar-fields>
         <button *ngIf="!isManualTranslation" (click)="requestTranslation()" class="generate-button">
           🌐 Найти перевод
         </button>

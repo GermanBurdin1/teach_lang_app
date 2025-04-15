@@ -748,8 +748,15 @@ export class VocabularyComponent implements OnInit {
     if (this.newTranslation.trim()) {
       this.isManualTranslation = true;
       this.isAutoTranslation = false;
+
+      // если нет грамматики — добавим дефолтную
+      if (!this.newGrammarData && this.newWordType === 'word') {
+        this.onPartOfSpeechChange('noun'); // или другой дефолт
+      }
+
     } else {
       this.isManualTranslation = false;
+      this.newGrammarData = null;
     }
   }
 
