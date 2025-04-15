@@ -8,6 +8,10 @@
   <div *ngIf="showInputFields" class="input-fields">
     <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
     <input [(ngModel)]="newTranslation" placeholder="Введите перевод (необязательно)" />
+    <app-grammar-fields *ngIf="newWordType === 'word' && isManualTranslation && newGrammarData"
+      [grammar]="newGrammarData" (grammarChange)="onGrammarChange($event)">
+    </app-grammar-fields>
+
     <button (click)="addItem()">Добавить</button>
   </div>
 
@@ -98,7 +102,12 @@
                   </button>
                 </div>
                 <div class="card-body">
-                  <p>{{ card.word }}</p>
+                  <p>
+                    {{ card.word }}
+                    <span class="grammar-badge" *ngIf="card.grammar">
+                      {{ getGrammarBadge(card.grammar) }}
+                    </span>
+                  </p>
                   <span *ngIf="card.hintVisible">
                     <span *ngIf="card.translations[0].target === '...' || !card.translations[0]"
                       class="hint untranslated" (click)="openTranslationForm(card, true)">
@@ -143,25 +152,30 @@
                   <div class="translation-entry" *ngFor="let t of card.translations; let i = index">
                     <p>{{ t.target }}</p>
                     <button class="translation-entry__more-button"
-                      (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
+                      (click)="ensureCardGrammar(card); toggleEnlargedCard(card, i); $event.stopPropagation()">
                       {{ enlargedCardId === card.id ? '↩ обычный режим' : 'дополнительно' }}
                     </button>
+
 
                   </div>
 
                 </div>
 
                 <div *ngIf="enlargedCardId === card.id" class="card-actions-bottom">
-                  <button class="more-info-tooltip-btn" (click)="openExampleModal(); $event.stopPropagation()"><i class="fas fa-plus"></i>
+                  <button class="more-info-tooltip-btn" (click)="openExampleModal(); $event.stopPropagation()"><i
+                      class="fas fa-plus"></i>
                     <span class="tooltip-text">Пример</span></button>
-                  <button class="more-info-tooltip-btn" (click)="openExtraTranslationModal(); $event.stopPropagation()"><i
-                      class="fas fa-language"></i>
+                  <button class="more-info-tooltip-btn"
+                    (click)="openExtraTranslationModal(); $event.stopPropagation()"><i class="fas fa-language"></i>
                     <span class="tooltip-text">Перевод</span></button>
-                  <button class="more-info-tooltip-btn" (click)="viewExamples(); $event.stopPropagation()"><i class="fas fa-eye"></i>
+                  <button class="more-info-tooltip-btn" (click)="viewExamples(); $event.stopPropagation()"><i
+                      class="fas fa-eye"></i>
                     <span class="tooltip-text">Примеры</span></button>
-                  <button class="more-info-tooltip-btn" (click)="viewTranslations(); $event.stopPropagation()"><i class="fas fa-eye"></i>
+                  <button class="more-info-tooltip-btn" (click)="viewTranslations(); $event.stopPropagation()"><i
+                      class="fas fa-eye"></i>
                     <span class="tooltip-text">Переводы</span></button>
-                  <button class="more-info-tooltip-btn" (click)="closeEnlargedCard(); $event.stopPropagation()"><i class="fas fa-times"></i>
+                  <button class="more-info-tooltip-btn" (click)="closeEnlargedCard(); $event.stopPropagation()"><i
+                      class="fas fa-times"></i>
                     <span class="tooltip-text">Закрыть</span></button>
                 </div>
 
@@ -172,9 +186,15 @@
                 <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
                 <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
 
+                <!-- Грамматические поля (только если карточка зумирована и это слово, не выражение) -->
+                <app-grammar-fields *ngIf="card.type === 'word' && enlargedCardId === card.id" [grammar]="card.grammar"
+                  (grammarChange)="card.grammar = $event">
+                </app-grammar-fields>
+
                 <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i>
                 </button>
+
               </div>
 
 
@@ -354,7 +374,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- Модалка перевода для непереведённой карточки -->
 <div class="translation-modal-overlay"

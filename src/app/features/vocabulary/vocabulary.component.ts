@@ -2,6 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LexiconService } from '../../services/lexicon.service';
 import { TranslationService } from '../../services/translation.service';
+import * as Grammar from './models/grammar-data.model';
+import { GrammarData } from './models/grammar-data.model';
 
 interface TranslationEntry {
   id?: number;
@@ -25,6 +27,7 @@ interface WordCard {
   createdAt: number;
   galaxy: string;
   subtopic: string;
+  grammar?: GrammarData;
 }
 
 @Component({
@@ -67,6 +70,8 @@ export class VocabularyComponent implements OnInit {
   showExamplesView: boolean = false;
   showTranslationsView: boolean = false;
   enlargedCardId: number | null = null;
+  newGrammarData: Grammar.GrammarData | null = null;
+  newTranslationGrammar: Grammar.GrammarData | null = null;
 
   constructor(private route: ActivatedRoute, private lexiconService: LexiconService, private translationService: TranslationService) { }
 
@@ -563,6 +568,7 @@ export class VocabularyComponent implements OnInit {
     return null;
   }
 
+
   changeWordsPage(delta: number): void {
     const maxPage = Math.ceil(this.words.length / this.wordsPerPage);
     this.currentWordsPage = Math.max(1, Math.min(this.currentWordsPage + delta, maxPage));
@@ -839,5 +845,87 @@ export class VocabularyComponent implements OnInit {
       this.selectedTranslationIndex = index;
     }
   }
+
+  // код связаный с частями речи
+  onPartOfSpeechChange(partOfSpeech: Grammar.PartOfSpeech): void {
+    switch (partOfSpeech) {
+      case 'noun':
+        this.newGrammarData = { partOfSpeech: 'noun' };
+        break;
+      case 'verb':
+        this.newGrammarData = { partOfSpeech: 'verb' };
+        break;
+      case 'adjective':
+        this.newGrammarData = { partOfSpeech: 'adjective' };
+        break;
+      case 'adverb':
+        this.newGrammarData = { partOfSpeech: 'adverb' };
+        break;
+      case 'pronoun':
+        this.newGrammarData = { partOfSpeech: 'pronoun' };
+        break;
+      case 'preposition':
+        this.newGrammarData = { partOfSpeech: 'preposition' };
+        break;
+      case 'conjunction':
+        this.newGrammarData = { partOfSpeech: 'conjunction' };
+        break;
+      case 'interjection':
+        this.newGrammarData = { partOfSpeech: 'interjection' };
+        break;
+      default:
+        this.newGrammarData = null;
+    }
+  }
+
+  onGrammarChange(updated: GrammarData) {
+    this.newGrammarData = updated;
+  }
+
+  ensureCardGrammar(card: WordCard): void {
+    if (!card.grammar) {
+      card.grammar = { partOfSpeech: '' as Grammar.PartOfSpeech };
+    }
+  }
+
+  getGrammarBadge(grammar: GrammarData): string {
+    const parts: string[] = [];
+
+    switch (grammar.partOfSpeech) {
+      case 'noun':
+        parts.push('n.');
+        const gender = (grammar as Grammar.NounGrammar).gender;
+        if (gender === 'masculine') parts.push('m.');
+        if (gender === 'feminine') parts.push('f.');
+        const number = (grammar as Grammar.NounGrammar).number;
+        if (number === 'singular') parts.push('sg.');
+        if (number === 'plural') parts.push('pl.');
+        break;
+      case 'verb':
+        parts.push('v.');
+        break;
+      case 'adjective':
+        parts.push('adj.');
+        break;
+      case 'adverb':
+        parts.push('adv.');
+        break;
+      case 'pronoun':
+        parts.push('pron.');
+        break;
+      case 'preposition':
+        parts.push('prep.');
+        break;
+      case 'conjunction':
+        parts.push('conj.');
+        break;
+      case 'interjection':
+        parts.push('interj.');
+        break;
+    }
+
+    return parts.join(' ');
+  }
+
 
 }
