@@ -169,9 +169,10 @@
       (grammarChange)="onGrammarChange($event)">
     </app-grammar-fields>
 
-    <button (click)="autoTranslateWord()" class="generate-button">
+    <button *ngIf="!newGlobalTranslation.trim()" (click)="autoTranslateWord()" class="generate-button">
       🌐 Найти перевод
     </button>
+
 
 
     <!-- Категория -->
