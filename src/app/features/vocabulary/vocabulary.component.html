@@ -60,7 +60,9 @@
           title="Сначала {{ sortOrderWords === 'desc' ? 'новые' : 'старые' }}">
           <i class="fas" [ngClass]="sortOrderWords === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
-
+        <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang" title="Сортировать по языку">
+          <i class="fas fa-language"></i>
+        </button>
       </div>
 
       <h3>
@@ -230,7 +232,9 @@
           title="Сначала {{ sortOrderExpressions === 'desc' ? 'новые' : 'старые' }}">
           <i class="fas" [ngClass]="sortOrderExpressions === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
-
+        <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang" title="Сортировать по языку">
+          <i class="fas fa-language"></i>
+        </button>
       </div>
       <h3>
         <div class="pagination-info">

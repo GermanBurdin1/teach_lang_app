@@ -47,6 +47,7 @@ export class VocabularyComponent implements OnInit {
   sortBy: string = 'all';
   sortOrderWords: 'asc' | 'desc' = 'desc';
   sortOrderExpressions: 'asc' | 'desc' = 'desc';
+  sortByLang: boolean = false;
   newWordType: 'word' | 'expression' = 'word';
   // Переменная для управления отображением формы ввода
   showInputFields: boolean = false;
@@ -403,6 +404,16 @@ export class VocabularyComponent implements OnInit {
           ? b.createdAt - a.createdAt
           : a.createdAt - b.createdAt
       );
+
+      if (this.sortByLang) {
+        this.words = this.words.sort((a, b) =>
+          a.word.localeCompare(b.word, this.sourceLang === 'fr' ? 'fr' : this.sourceLang === 'ru' ? 'ru' : 'en')
+        );
+        this.expressions = this.expressions.sort((a, b) =>
+          a.word.localeCompare(b.word, this.sourceLang === 'fr' ? 'fr' : this.sourceLang === 'ru' ? 'ru' : 'en')
+        );
+        return;
+      }
   }
 
   toggleSortOrderWords(): void {
