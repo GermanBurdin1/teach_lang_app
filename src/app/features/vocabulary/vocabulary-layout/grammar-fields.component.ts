@@ -8,6 +8,7 @@ import { AdjectiveGrammar, AdverbGrammar, ConjunctionGrammar, GrammarData, Inter
   standalone: true,
   templateUrl: './grammar-fields.component.html',
   imports: [FormsModule, CommonModule],
+  styleUrls: ['./grammar-fields.component.css']
 })
 export class GrammarFieldsComponent {
   @Input() grammar: GrammarData | undefined;
