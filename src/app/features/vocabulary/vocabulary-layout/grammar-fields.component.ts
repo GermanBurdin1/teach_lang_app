@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AdjectiveGrammar, AdverbGrammar, ConjunctionGrammar, GrammarData, InterjectionGrammar, NounGrammar, PartOfSpeech, PrepositionGrammar, PronounGrammar, VerbGrammar } from '../models/grammar-data.model';
+import { AdjectiveGrammar, AdverbGrammar, ConjunctionGrammar, ExpressionGrammar, GrammarData, InterjectionGrammar, NounGrammar, PartOfSpeech, PrepositionGrammar, PronounGrammar, VerbGrammar } from '../models/grammar-data.model';
 
 @Component({
   selector: 'app-grammar-fields',
@@ -17,7 +17,7 @@ export class GrammarFieldsComponent {
 
   partOfSpeechOptions: PartOfSpeech[] = [
     'noun', 'verb', 'adjective', 'adverb',
-    'pronoun', 'preposition', 'conjunction', 'interjection'
+    'pronoun', 'preposition', 'conjunction', 'interjection', 'expression'
   ];
 
   onPartOfSpeechSelect(partOfSpeech: PartOfSpeech) {
@@ -70,6 +70,8 @@ export class GrammarFieldsComponent {
     }
   }
 
-
+  get expression(): ExpressionGrammar | null {
+    return this.grammar?.partOfSpeech === 'expression' ? this.grammar as ExpressionGrammar : null;
+  }
 
 }

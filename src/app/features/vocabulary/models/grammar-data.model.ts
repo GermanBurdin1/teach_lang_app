@@ -7,7 +7,15 @@ export type PartOfSpeech =
   | 'pronoun'
   | 'preposition'
   | 'conjunction'
-  | 'interjection';
+  | 'interjection'
+  | 'expression';
+
+// ✅ Добавим интерфейс ExpressionGrammar
+export interface ExpressionGrammar {
+  partOfSpeech: 'expression';
+  expressionType?: 'idiom' | 'proverb' | 'saying' | 'collocation' | 'quote' | 'other';
+  origin?: string; // например, «французская пословица»
+}
 
 // ✅ Суммарный тип GrammarData
 export type GrammarData =
@@ -19,6 +27,7 @@ export type GrammarData =
   | PrepositionGrammar
   | ConjunctionGrammar
   | InterjectionGrammar
+  | ExpressionGrammar;
 
 // ✅ Для каждой части речи
 export interface NounGrammar {
