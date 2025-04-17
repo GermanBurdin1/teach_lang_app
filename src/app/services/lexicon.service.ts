@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { GrammarData } from '../features/vocabulary/models/grammar-data.model';
 
 export interface BackendWordCard {
   id?: number;
@@ -21,6 +22,7 @@ export interface BackendWordCard {
   createdAt?: number;
   status?: 'learned' | 'repeat' | 'error' | null;
   revealed?: boolean;
+  grammar?: GrammarData;
 }
 
 

@@ -258,7 +258,8 @@ export class VocabularyComponent implements OnInit {
       word: newCard.word,
       galaxy: newCard.galaxy!,
       subtopic: newCard.subtopic!,
-      type: newCard.type
+      type: newCard.type,
+      grammar: this.newGrammarData ?? undefined
     }).subscribe({
       next: (res) => {
         console.log('✅ Слово добавлено в БД:', res);
@@ -728,7 +729,8 @@ export class VocabularyComponent implements OnInit {
             word: newCard.word,
             galaxy: newCard.galaxy!,
             subtopic: newCard.subtopic!,
-            type: newCard.type
+            type: newCard.type,
+            grammar: this.newGrammarData ?? undefined
           }).subscribe({
             next: (res) => console.log('✅ Слово добавлено в БД:', res),
             error: (err) => console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err)
