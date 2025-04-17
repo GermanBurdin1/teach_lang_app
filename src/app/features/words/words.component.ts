@@ -80,6 +80,11 @@ export class WordsComponent {
   targetLang: 'ru' | 'fr' | 'en' = 'fr';
   grammarData: GrammarData | null = null;
 
+  zoomedZoneLibre = false;
+  showZoneLibre: boolean = false;
+  orphanWords: WordCard[] = [];
+
+
 
   ngAfterViewInit(): void {
     this.labelElements.changes.subscribe(() => {
@@ -419,4 +424,23 @@ export class WordsComponent {
     this.grammarData = updated;
   }
 
+  toggleZoneLibre() {
+    this.showZoneLibre = !this.showZoneLibre;
+
+    // получаем заново при каждом открытии
+    if (this.showZoneLibre) {
+      this.getOrphanWords();
+    }
+
+    setTimeout(() => {
+      this.zoomedZoneLibre = this.showZoneLibre;
+    }, 100);
+  }
+
+
+  getOrphanWords() {
+    const raw = localStorage.getItem('vocabulary_cards');
+    const all: WordCard[] = raw ? JSON.parse(raw) : [];
+    this.orphanWords = all.filter(w => !w.galaxy || !w.subtopic);
+  }
 }

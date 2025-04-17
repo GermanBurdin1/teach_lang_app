@@ -430,3 +430,45 @@ text {
   margin-top: 4px;
   padding: 4px;
 }
+
+
+/* свободная зона не категоризированных слов */
+
+.main-content {
+  display: flex;
+  align-items: flex-start;
+}
+
+.zone-libre-panel {
+  width: 300px;
+  margin-right: 30px;
+}
+
+.zone-libre-toggle {
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #7d5ba6;
+}
+
+.zone-libre-wrapper {
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 8px;
+  max-height: 500px;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.zone-libre-card {
+  padding: 10px;
+  background: white;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.05);
+}
+
+.zone-libre.zoomed {
+  transform: scale(1.6) translateX(100px);
+  z-index: 50;
+}

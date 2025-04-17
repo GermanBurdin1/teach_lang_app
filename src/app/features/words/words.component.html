@@ -24,59 +24,80 @@
 
   <h2 *ngIf="!zoomedGalaxy">
   </h2>
+  <div class="main-content">
+    <div class="zone-libre-panel" *ngIf="!zoomedGalaxy">
+      <!-- Здесь будет зона с нераспределёнными словами -->
+      <div class="zone-libre-toggle" (click)="toggleZoneLibre()">
+        📦 {{ showZoneLibre ? 'Скрыть' : 'Слова без категории' }}
+      </div>
+
+      <div class="zone-libre-wrapper" *ngIf="zoomedZoneLibre">
+        <div class="zone-libre-container">
+          <h3>Слова без категории</h3>
+          <div class="zone-libre-word-list">
+            <div class="zone-libre-card" *ngFor="let word of orphanWords">
+              <div><strong>{{ word.word }}</strong></div>
+              <div>{{ word.translation }}</div>
+              <div style="font-size: 12px; color: gray">{{ word.type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="galaxies" *ngIf="!zoomedGalaxy">
+      <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper" #galaxyWrapper>
+        <div class="galaxy" (click)="zoomIntoGalaxy(galaxy)">
+          <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg">
+            <!-- Генерируем уникальный градиент -->
+            <defs>
+              <radialGradient [attr.id]="'galaxyGradient-' + galaxy.sanitizedName" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" style="stop-color:#7d5ba6; stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#2c2a4a; stop-opacity:1" />
+              </radialGradient>
+
+              <radialGradient id="planetGradient" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffd27f" />
+                <stop offset="60%" stop-color="#ff914d" />
+                <stop offset="100%" stop-color="#cc4b2c" />
+              </radialGradient>
+            </defs>
+
+            <!-- Применяем градиент -->
+            <ellipse cx="100" cy="100" rx="90" ry="60"
+              [attr.fill]="'url(#galaxyGradient-' + galaxy.sanitizedName + ')'" />
+
+            <!-- Название темы в центре -->
+            <text x="100" y="105" fill="white" font-size="20px" font-weight="bold" font-family="Arial"
+              text-anchor="middle">
+              {{ galaxy.name }}
+            </text>
 
 
-  <div class="galaxies" *ngIf="!zoomedGalaxy">
-    <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper" #galaxyWrapper>
-      <div class="galaxy" (click)="zoomIntoGalaxy(galaxy)">
-        <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg">
-          <!-- Генерируем уникальный градиент -->
-          <defs>
-            <radialGradient [attr.id]="'galaxyGradient-' + galaxy.sanitizedName" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" style="stop-color:#7d5ba6; stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#2c2a4a; stop-opacity:1" />
-            </radialGradient>
-
-            <radialGradient id="planetGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#ffd27f" />
-              <stop offset="60%" stop-color="#ff914d" />
-              <stop offset="100%" stop-color="#cc4b2c" />
-            </radialGradient>
-          </defs>
-
-          <!-- Применяем градиент -->
-          <ellipse cx="100" cy="100" rx="90" ry="60"
-            [attr.fill]="'url(#galaxyGradient-' + galaxy.sanitizedName + ')'" />
-
-          <!-- Название темы в центре -->
-          <text x="100" y="105" fill="white" font-size="20px" font-weight="bold" font-family="Arial"
-            text-anchor="middle">
-            {{ galaxy.name }}
-          </text>
+            <!-- Плюсик прямо под названием -->
+            <foreignObject x="90" y="115" width="20" height="20">
+              <button class="galaxy-add-button" (click)="onGalaxyAddButtonClick($event, galaxy.name)"
+                title="Ajouter un mot ou une expression">
+                +
+              </button>
+            </foreignObject>
 
 
-          <!-- Плюсик прямо под названием -->
-          <foreignObject x="90" y="115" width="20" height="20">
-            <button class="galaxy-add-button" (click)="onGalaxyAddButtonClick($event, galaxy.name)"
-              title="Ajouter un mot ou une expression">
-              +
-            </button>
-          </foreignObject>
+            <!-- Подтемы (планеты) -->
+            <g *ngFor="let subtopic of galaxy.subtopics">
+              <title>
+                {{ subtopic.name }} ({{ getWordAndExpressionCount(galaxy.name, subtopic.name) }})
+              </title>
+              <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="8" fill="url(#planetGradient)">
+              </circle>
+            </g>
+          </svg>
 
-
-          <!-- Подтемы (планеты) -->
-          <g *ngFor="let subtopic of galaxy.subtopics">
-            <title>
-              {{ subtopic.name }} ({{ getWordAndExpressionCount(galaxy.name, subtopic.name) }})
-            </title>
-            <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="8" fill="url(#planetGradient)">
-            </circle>
-          </g>
-        </svg>
-
+        </div>
       </div>
     </div>
   </div>
+
 
   <!-- Зумированная галактика -->
   <div class="zoomed-galaxy" *ngIf="zoomedGalaxy && !isZoomingToGalaxy">
