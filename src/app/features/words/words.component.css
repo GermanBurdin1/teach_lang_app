@@ -472,3 +472,51 @@ text {
   transform: scale(1.6) translateX(100px);
   z-index: 50;
 }
+
+
+.pulse {
+  animation: pulse-animation 3s infinite ease-in-out;
+}
+
+@keyframes pulse-animation {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px #ffd27f);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 4px #ffb347);
+  }
+}
+
+
+.postponed-list {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 20px;
+  color: white;
+}
+
+.zone-libre-card {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 5px;
+  margin-bottom: 6px;
+  cursor: grab;
+}
+
+.pending-word {
+  margin: 20px auto;
+  text-align: center;
+  background: rgba(255,255,255,0.7);
+  border-radius: 10px;
+  padding: 10px;
+  max-width: 300px;
+  color: #333;
+}
+
+.dragging-preview {
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}

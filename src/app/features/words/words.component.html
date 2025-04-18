@@ -35,7 +35,8 @@
         <div class="zone-libre-container">
           <h3>Слова без категории</h3>
           <div class="zone-libre-word-list">
-            <div class="zone-libre-card" *ngFor="let word of orphanWords">
+            <div class="zone-libre-card" *ngFor="let word of orphanWords" draggable="true"
+              (dragstart)="onDragStart($event, word)">
               <div><strong>{{ word.word }}</strong></div>
               <div>{{ word.translation }}</div>
               <div style="font-size: 12px; color: gray">{{ word.type }}</div>
@@ -47,7 +48,8 @@
 
     <div class="galaxies" *ngIf="!zoomedGalaxy">
       <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper" #galaxyWrapper>
-        <div class="galaxy" (click)="zoomIntoGalaxy(galaxy)">
+        <div class="galaxy" (click)="zoomIntoGalaxy(galaxy)" (drop)="onDropToGalaxy($event, galaxy.name)"
+          (dragover)="onDragOver($event)">
           <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg">
             <!-- Генерируем уникальный градиент -->
             <defs>
@@ -118,20 +120,23 @@
           </radialGradient>
         </defs>
 
+        <!-- Основной эллипс галактики -->
         <ellipse cx="300" cy="300" rx="270" ry="180" fill="url(#galaxyGradient-zoom)" />
 
-        <!-- Название темы в центре -->
+        <!-- Название темы -->
         <text x="300" y="310" fill="white" font-size="42px" font-weight="bold" font-family="Arial" text-anchor="middle">
           {{ zoomedGalaxy.name }}
         </text>
 
-        <!-- Подтемы (планеты) -->
+        <!-- Планеты-подтемы -->
         <g *ngFor="let subtopic of zoomedGalaxy.subtopics">
           <title>
             ({{ getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) }})
           </title>
-          <circle class="subtopic-planet" #subtopicElement [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3" r="60"
-            (mouseenter)="hoverSubtopic(subtopic)" (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)">
+          <circle class="subtopic-planet" [ngClass]="{ 'pulse': pendingSubtopicWords.length > 0 }"
+            [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3" r="60" fill="url(#planetGradient)"
+            (dragover)="onDragOver($event)" (drop)="onDropToSubtopic($event, zoomedGalaxy.name, subtopic.name)"
+            (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)">
           </circle>
 
           <foreignObject [attr.x]="subtopic.x * 3 - 50" [attr.y]="subtopic.y * 3 - 20" width="100" height="40">
@@ -141,10 +146,39 @@
           </foreignObject>
         </g>
 
-
       </svg>
+      <div class="zone-libre-wrapper" *ngIf="postponedWordsByGalaxy[zoomedGalaxy.name]?.length">
+        <div class="zone-libre-toggle" (click)="togglePostponedList(zoomedGalaxy.name)">
+          📥 {{ collapsedPostponedList[zoomedGalaxy.name] ? 'Показать отложенные слова' : 'Скрыть отложенные слова' }}
+        </div>
+
+        <div class="zone-libre-container" *ngIf="!collapsedPostponedList[zoomedGalaxy.name]">
+          <div class="zone-libre-word-list">
+            <div class="zone-libre-card" *ngFor="let word of postponedWordsByGalaxy[zoomedGalaxy.name]"
+                 draggable="true" (dragstart)="onDragStart($event, word)">
+              <strong>{{ word.word }}</strong> — {{ word.translation }}
+              <div style="font-size: 12px; color: gray">{{ word.type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pending-word" *ngIf="pendingSubtopicWords.length">
+        <div class="zone-libre-card dragging-preview" *ngIf="activePendingWord" draggable="true"
+          (dragstart)="onDragStart($event, activePendingWord)">
+          <strong>{{ activePendingWord.word }}</strong> — {{ activePendingWord.translation }}
+          <div style="font-size: 12px; color: gray">{{ activePendingWord.type }}</div>
+        </div>
+
+      </div>
+      <div class="subtopic-prompt" *ngIf="pendingSubtopicWords.length">
+        <h3 *ngIf="activePendingWord">🪐 К какой подтеме относится "{{ activePendingWord.word }}"?</h3>
+        <button class="postpone-btn" (click)="postponePendingWord()">Отложить</button>
+      </div>
     </div>
   </div>
+
+
 </div>
 
 
@@ -199,7 +233,7 @@
     <!-- Категория -->
     <select *ngIf="!isFromGalaxyShortcut" [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()"
       class="add-entry-modal__select">
-      <option value="" disabled selected>Выберите категорию</option>
+      <option value="">Без категории</option>
       <option *ngFor="let galaxy of galaxies" [value]="galaxy.name">{{ galaxy.name }}</option>
     </select>
 
@@ -221,8 +255,7 @@
 
     <!-- Кнопки -->
     <div class="add-entry-modal__actions">
-      <button (click)="saveGlobalWordOrExpression()" class="add-entry-modal__button"
-        [disabled]="!newGlobalWord.trim() || !selectedGalaxy || !selectedSubtopic">
+      <button (click)="saveGlobalWordOrExpression()" class="add-entry-modal__button" [disabled]="!newGlobalWord.trim()">
         Сохранить
       </button>
       <button class="add-entry-modal__button add-entry-modal__cancel" (click)="closeGlobalAddWordOrExpressionModal()">

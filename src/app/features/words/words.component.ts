@@ -84,6 +84,14 @@ export class WordsComponent {
   showZoneLibre: boolean = false;
   orphanWords: WordCard[] = [];
 
+  pendingSubtopic?: boolean;
+  pendingClassificationWords: WordCard[] = [];
+  pendingSubtopicWords: WordCard[] = [];
+  selectedGalaxyForSubtopic: string | null = null;
+  postponedWordsByGalaxy: { [galaxyName: string]: WordCard[] } = {};
+
+  activePendingWord?: WordCard;
+  collapsedPostponedList: { [galaxy: string]: boolean } = {};
 
 
   ngAfterViewInit(): void {
@@ -261,14 +269,14 @@ export class WordsComponent {
   }
 
   saveGlobalWordOrExpression(): void {
-    if (!this.newGlobalWord.trim() || !this.selectedGalaxy || !this.selectedSubtopic) return;
+    if (!this.newGlobalWord.trim()) return;
 
     const newCard: WordCard = {
       id: Date.now(),
       word: this.newGlobalWord.trim(),
       translation: this.newGlobalTranslation.trim() || '...',
-      galaxy: this.selectedGalaxy,
-      subtopic: this.selectedSubtopic,
+      galaxy: this.selectedGalaxy || '',            // пустое значение, если не выбрана категория
+      subtopic: this.selectedSubtopic || '',
       type: this.newGlobalType,
       createdAt: Date.now(),
       grammar: this.grammarData ?? undefined,
@@ -443,4 +451,131 @@ export class WordsComponent {
     const all: WordCard[] = raw ? JSON.parse(raw) : [];
     this.orphanWords = all.filter(w => !w.galaxy || !w.subtopic);
   }
+
+  onDropToGalaxy(event: DragEvent, galaxyName: string): void {
+    event.preventDefault();
+
+    const rawData = event.dataTransfer?.getData('text/plain');
+    if (!rawData) return;
+
+    const word: WordCard = JSON.parse(rawData);
+    word.galaxy = galaxyName;
+    word.subtopic = ''; // пока без подтемы
+
+    const raw = localStorage.getItem('vocabulary_cards');
+    const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
+
+    const index = allCards.findIndex(c => c.id === word.id);
+    if (index !== -1) {
+      allCards[index] = word;
+      localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
+
+      // ✅ ДОБАВЛЯЕМ в список ожидающих подтему
+      this.pendingSubtopicWords.push(word);
+      this.activePendingWord = word;
+      this.orphanWords = this.orphanWords.filter(w => w.id !== word.id);
+
+      this.selectedGalaxyForSubtopic = galaxyName;
+
+      alert(`✅ Добавлено в галактику "${galaxyName}"`);
+
+      // Обновим список слов без категории
+      this.getOrphanWords();
+
+      // Зумируемся в выбранную галактику
+      this.zoomIntoGalaxy(this.galaxies.find(g => g.name === galaxyName));
+    }
+  }
+
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault(); // Разрешаем drop
+  }
+
+  onDragStart(event: DragEvent, word: WordCard): void {
+    event.dataTransfer?.setData('text/plain', JSON.stringify(word));
+  }
+
+  assignSubtopicToPendingWord(subtopicName: string): void {
+    const word = this.pendingSubtopicWords.shift();
+    if (!word || !this.selectedGalaxyForSubtopic) return;
+
+    word.subtopic = subtopicName;
+
+    const raw = localStorage.getItem('vocabulary_cards');
+    const all: WordCard[] = raw ? JSON.parse(raw) : [];
+
+    all.unshift(word);
+    localStorage.setItem('vocabulary_cards', JSON.stringify(all));
+
+    this.addSuccessMessage = `✅ "${word.word}" добавлено в подтему "${subtopicName}"`;
+
+    setTimeout(() => {
+      this.addSuccessMessage = '';
+    }, 2000);
+
+    this.activePendingWord = undefined;
+
+  }
+
+  postponePendingWord(): void {
+    const word = this.pendingSubtopicWords.shift();
+    if (!word || !this.selectedGalaxyForSubtopic) return;
+
+    if (!this.postponedWordsByGalaxy[this.selectedGalaxyForSubtopic]) {
+      this.postponedWordsByGalaxy[this.selectedGalaxyForSubtopic] = [];
+    }
+
+    this.postponedWordsByGalaxy[this.selectedGalaxyForSubtopic].push(word);
+
+    // 💡 Слово должно остаться доступным для drag-and-drop — добавим обратно в localStorage
+    const raw = localStorage.getItem('vocabulary_cards');
+    const all: WordCard[] = raw ? JSON.parse(raw) : [];
+
+    const index = all.findIndex(c => c.id === word.id);
+    if (index !== -1) {
+      all[index] = word;
+    } else {
+      all.push(word); // если вдруг не найдено — добавим
+    }
+
+    localStorage.setItem('vocabulary_cards', JSON.stringify(all));
+
+    this.activePendingWord = undefined;
+
+  }
+
+  getSubtopicsForSelectedGalaxy(): string[] {
+    const galaxy = this.galaxies.find(g => g.name === this.selectedGalaxyForSubtopic);
+    return galaxy?.subtopics.map(s => s.name) || [];
+  }
+
+  onDropToSubtopic(event: DragEvent, galaxyName: string, subtopicName: string): void {
+    event.preventDefault();
+
+    const rawData = event.dataTransfer?.getData('text/plain');
+    if (!rawData) return;
+
+    const word: WordCard = JSON.parse(rawData);
+    word.galaxy = galaxyName;
+    word.subtopic = subtopicName;
+
+    const raw = localStorage.getItem('vocabulary_cards');
+    const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
+
+    const index = allCards.findIndex(c => c.id === word.id);
+    if (index !== -1) {
+      allCards[index] = word;
+      localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
+      alert(`✅ Добавлено в подтему "${subtopicName}"`);
+
+      this.pendingSubtopicWords = this.pendingSubtopicWords.filter(w => w.id !== word.id);
+    }
+  }
+
+  togglePostponedList(galaxy: string): void {
+    this.collapsedPostponedList[galaxy] = !this.collapsedPostponedList[galaxy];
+  }
+
+
 }
