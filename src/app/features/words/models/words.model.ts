@@ -4,4 +4,5 @@ export interface WordEntry {
   word: string;
   translation: string;
   grammar?: GrammarData;
+  type?: 'word' | 'expression';
 }

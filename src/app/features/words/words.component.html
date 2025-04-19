@@ -225,7 +225,22 @@
       <input [(ngModel)]="entry.word" placeholder="Слово/выражение" (ngModelChange)="onEntryChanged(i)"
         class="add-entry-modal__input" />
 
-      <input [(ngModel)]="entry.translation" placeholder="Перевод" class="add-entry-modal__input" />
+        <input
+        [(ngModel)]="entry.translation"
+        placeholder="Перевод"
+        class="add-entry-modal__input"
+        (ngModelChange)="onTranslationChanged(entry)"
+      />
+
+      <!-- Показывать кнопку перевода только если нет введённого перевода -->
+      <button
+        *ngIf="!entry.translation?.trim()"
+        (click)="autoTranslateWord(i)"
+        title="Автоматический перевод"
+        class="translate-btn"
+      >
+        🌍
+      </button>
 
       <app-grammar-fields *ngIf="newGlobalType === 'word'" [(grammar)]="entry.grammar"></app-grammar-fields>
 
@@ -270,13 +285,14 @@
 
     <!-- Кнопки -->
     <div class="add-entry-modal__actions">
-      <button (click)="saveAll()" class="add-entry-modal__button"
+      <button (click)="isMultiEntryMode ? saveAll() : saveGlobalWordOrExpression()" class="add-entry-modal__button"
         [disabled]="entries.length === 0 || !entries[0].word.trim()">
-        Сохранить всё
+        {{ isMultiEntryMode ? 'Сохранить всё' : 'Добавить слово' }}
       </button>
       <button class="add-entry-modal__button add-entry-modal__cancel" (click)="closeGlobalAddWordOrExpressionModal()">
         Отмена
       </button>
     </div>
+
   </div>
 </div>

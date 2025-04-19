@@ -5,6 +5,7 @@ import { TranslationService } from '../../services/translation.service';
 import { GrammarData } from '../vocabulary/models/grammar-data.model';
 import textFit from 'textfit';
 import { WordEntry } from './models/words.model';
+import { LexiconService } from '../../services/lexicon.service';
 
 interface WordCard {
   id?: number;
@@ -107,7 +108,7 @@ export class WordsComponent {
     this.fitSubtopicLabels(); // initial
   }
 
-  constructor(private router: Router, private gptService: VocabularyGptService, private translationService: TranslationService) { }
+  constructor(private router: Router, private gptService: VocabularyGptService, private translationService: TranslationService, private lexiconService: LexiconService) { }
 
   hoverGalaxy(galaxy: any) {
     // Можно добавить анимацию
@@ -123,7 +124,6 @@ export class WordsComponent {
     this.zoomStyle = {}; // сброс
   }
 
-
   resetZoom() {
     this.zoomedGalaxy = null;
     this.zoomStyle = {};
@@ -132,8 +132,6 @@ export class WordsComponent {
     const galaxyWrappers = document.querySelectorAll('.galaxy-wrapper');
     galaxyWrappers.forEach(el => el.classList.remove('focused'));
   }
-
-
 
   generateSubtopics(count: number, names: string[]) {
     let subtopics = [];
@@ -150,8 +148,6 @@ export class WordsComponent {
     }
     return subtopics;
   }
-
-
 
   onSubtopicClick(galaxyName: string, subtopicName: string) {
     this.router.navigate(['/student/wordsTeaching', galaxyName, subtopicName]); // <-- Редирект на страницу карточек
@@ -278,24 +274,49 @@ export class WordsComponent {
   }
 
   saveGlobalWordOrExpression(): void {
-    if (!this.newGlobalWord.trim()) return;
+    const firstEntry = this.entries[0];
 
+    if (!firstEntry.word.trim()) {
+      console.warn('🚫 Пустое слово!');
+      return;
+    }
+
+    console.log('💡 Слово:', firstEntry.word);
     const newCard: WordCard = {
       id: Date.now(),
-      word: this.newGlobalWord.trim(),
-      translation: this.newGlobalTranslation.trim() || '...',
-      galaxy: this.selectedGalaxy || '',            // пустое значение, если не выбрана категория
+      word: firstEntry.word.trim(),
+      translation: firstEntry.translation.trim() || '...',
+      galaxy: this.selectedGalaxy || '',
       subtopic: this.selectedSubtopic || '',
-      type: this.newGlobalType,
+      type: (this.newGlobalType ?? 'word') as 'word' | 'expression',
       createdAt: Date.now(),
       grammar: this.grammarData ?? undefined,
     };
 
-    const raw = localStorage.getItem('vocabulary_cards');
-    const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
 
-    allCards.unshift(newCard);
-    localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
+    // 👉 Сначала пытаемся отправить на backend
+    try {
+      this.lexiconService.addWord({
+        word: newCard.word,
+        galaxy: newCard.galaxy,
+        subtopic: newCard.subtopic,
+        type: newCard.type ?? 'word',
+        grammar: newCard.grammar
+      }).subscribe({
+        next: (res) => {
+          console.log('✅ Слово добавлено на backend:', res);
+        },
+        error: (err) => {
+          console.error('❌ Ошибка при добавлении слова:', err);
+        }
+      });
+    } catch (e) {
+      console.error('❌ Ошибка выполнения запроса:', e);
+    }
+
+    // ⛑ А пока сразу добавим и в localStorage для UI
+    this.saveLocally(newCard);
+  this.getOrphanWords();
 
     this.addSuccessMessage = '✅ Слово сохранено!';
 
@@ -305,22 +326,26 @@ export class WordsComponent {
     this.selectedGalaxy = '';
     this.selectedSubtopic = '';
     this.availableSubtopics = [];
+    this.grammarData = null;
 
-    // Закрытие модалки через небольшую паузу
     setTimeout(() => {
       this.addSuccessMessage = '';
       this.closeGlobalAddWordOrExpressionModal();
     }, 1000);
 
-    this.grammarData = null;
-
-    // Если слово без категории — обновляем список orphanWords немедленно
+    // Обновим orphanWords если нужно
     if (!newCard.galaxy && !newCard.subtopic) {
-      this.orphanWords.unshift(newCard); // добавим в начало списка
+      this.orphanWords.unshift(newCard);
     }
-
   }
 
+  private saveLocally(card: WordCard): void {
+    const raw = localStorage.getItem('vocabulary_cards');
+    const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
+
+    allCards.unshift(card);
+    localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
+  }
 
   toggleGlobalType(): void {
     this.newGlobalType = this.newGlobalType === 'word' ? 'expression' : 'word';
@@ -338,7 +363,8 @@ export class WordsComponent {
 
   // классификации слов
   generateWithGPT(): void {
-    if (!this.newGlobalWord.trim()) return;
+    const firstWord = this.entries[0].word.trim();
+    if (!firstWord) return;
 
     this.gptService.classifyWord(this.newGlobalWord, 'user123').subscribe({
       next: (res) => {
@@ -353,13 +379,17 @@ export class WordsComponent {
   }
 
   // перевод
-  autoTranslateWord(): void {
-    if (!this.newGlobalWord.trim()) return;
+  autoTranslateWord(index: number): void {
+    const entry = this.entries[index];
+    const word = entry.word.trim();
+    if (!word) return;
 
-    const detectedLang = this.detectLang(this.newGlobalWord);
+    const detectedLang = this.detectLang(word);
     if (detectedLang !== this.sourceLang) {
       const langNames: any = { ru: 'русский', fr: 'французский', en: 'английский' };
-      const confirmSwitch = confirm(`Введённое слово похоже на слово на языке "${langNames[detectedLang]}", а вы выбрали "${langNames[this.sourceLang]}". Переключиться?`);
+      const confirmSwitch = confirm(
+        `Введённое слово похоже на слово на языке "${langNames[detectedLang]}", а вы выбрали "${langNames[this.sourceLang]}". Переключиться?`
+      );
       if (confirmSwitch) {
         this.sourceLang = detectedLang;
       } else {
@@ -367,11 +397,14 @@ export class WordsComponent {
       }
     }
 
-    this.translationService.requestTranslation(this.newGlobalWord, this.sourceLang, this.targetLang).subscribe({
+    this.translationService.requestTranslation(word, this.sourceLang, this.targetLang).subscribe({
       next: (res) => {
         if (res.translations.length) {
-          this.newGlobalTranslation = res.translations[0];
-          this.showConfetti(); // 🎉
+          entry.translation = res.translations[0];
+          entry.grammar = {
+            partOfSpeech: 'noun'
+          };
+          this.showConfetti();
           alert(`✅ Перевод: ${res.translations[0]}`);
         } else {
           alert('⚠️ Перевод не найден.');
@@ -383,6 +416,7 @@ export class WordsComponent {
       }
     });
   }
+
 
   showConfetti(): void {
     const script = document.createElement('script');
@@ -618,7 +652,6 @@ export class WordsComponent {
     }
   }
 
-
   removeEntry(index: number): void {
     this.entries.splice(index, 1);
     if (this.entries.length <= 1) {
@@ -626,44 +659,78 @@ export class WordsComponent {
     }
   }
 
-
-
   saveAll(): void {
     const validEntries = this.entries.filter(e => e.word.trim() && e.translation.trim());
 
     if (!validEntries.length) return;
 
+    const now = Date.now();
+
+    const backendCards = validEntries.map(entry => ({
+      word: entry.word.trim(),
+      translations: [],
+      galaxy: '',
+      subtopic: '',
+      type: this.newGlobalType, // 🟢 используем актуальный тип
+      createdAt: Date.now(),
+      grammar: entry.grammar ?? undefined,
+    }));
+
+    try {
+      this.lexiconService.addMultipleWords(backendCards).subscribe({
+        next: (res) => {
+          console.log('✅ Все слова добавлены в БД:', res);
+          this.saveAllLocally(validEntries, backendCards, now);
+          this.resetEntryModal(true, validEntries.length);
+        },
+        error: (err) => {
+          console.error('❌ Ошибка при сохранении слов. Сохраняем локально:', err);
+          this.saveAllLocally(validEntries, backendCards, now);
+          this.resetEntryModal(false, validEntries.length);
+        }
+      });
+    } catch (e) {
+      console.error('❌ Ошибка до отправки на сервер:', e);
+      this.saveAllLocally(validEntries, backendCards, now);
+      this.resetEntryModal(false, validEntries.length);
+    }
+  }
+
+  private saveAllLocally(validEntries: WordEntry[], backendCards: any[], now: number) {
     const raw = localStorage.getItem('vocabulary_cards');
     const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
 
-    const now = Date.now();
-
-    for (let entry of validEntries) {
-      const newCard: WordCard = {
-        id: now + Math.floor(Math.random() * 10000),
-        word: entry.word.trim(),
-        translation: entry.translation.trim(),
-        galaxy: '', // по умолчанию без категории
+    backendCards.forEach((card, index) => {
+      const localCard: WordCard = {
+        id: now + index,
+        word: card.word,
+        translation: validEntries[index].translation.trim(),
+        galaxy: '',
         subtopic: '',
-        type: 'word',
-        createdAt: now,
-        grammar: entry.grammar ?? undefined
+        type: card.type,
+        createdAt: card.createdAt,
+        grammar: card.grammar
       };
 
-      allCards.unshift(newCard);
+      allCards.unshift(localCard);
 
-      // если нет категории — в orphanWords
-      if (!newCard.galaxy && !newCard.subtopic) {
-        this.orphanWords.unshift(newCard);
+      if (!localCard.galaxy && !localCard.subtopic) {
+        this.orphanWords.unshift(localCard);
       }
-    }
+    });
 
     localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
+  }
 
+  private resetEntryModal(success: boolean, count: number): void {
     this.entries = [{ word: '', translation: '', grammar: undefined }];
     this.showGlobalAddWordOrExpressionModal = false;
-    alert(`✅ Добавлено: ${validEntries.length} элементов`);
+    const message = success
+      ? `✅ Добавлено в БД: ${count} элементов`
+      : `⚠️ Слова не отправлены в БД. Сохранено локально: ${count}`;
+    alert(message);
   }
+
 
   onLangChangeAttempt(): void {
     if (this.isMultiEntryMode) {
@@ -676,6 +743,17 @@ export class WordsComponent {
     if (this.entries.length < this.maxEntries) {
       this.entries.push({ word: '', translation: '', grammar: undefined });
       this.isMultiEntryMode = true;
+    }
+  }
+
+  onTranslationChanged(entry: WordEntry): void {
+    if (entry.translation.trim() && this.newGlobalType === 'word' && !entry.grammar) {
+      entry.grammar = { partOfSpeech: 'noun' }; // или другой default
+    }
+
+    // если пользователь удалил перевод — можно обнулить грамматику
+    if (!entry.translation.trim()) {
+      entry.grammar = undefined;
     }
   }
 

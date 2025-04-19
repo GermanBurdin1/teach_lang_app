@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { GrammarData } from '../features/vocabulary/models/grammar-data.model';
 
 export interface BackendWordCard {
@@ -35,10 +35,6 @@ export class LexiconService {
 
   constructor(private http: HttpClient) {}
 
-  addWord(card: BackendWordCard): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, card);
-  }
-
   getWordsByGalaxyAndSubtopic(galaxy: string, subtopic: string): Observable<BackendWordCard[]> {
     return this.http.get<BackendWordCard[]>(`${this.apiUrl}?galaxy=${galaxy}&subtopic=${subtopic}`);
   }
@@ -49,6 +45,24 @@ export class LexiconService {
 
   revealWord(id: number): Observable<any> {
     return this.http.patch(`http://localhost:3000/lexicon/${id}/reveal`, {});
+  }
+
+  addWord(card: BackendWordCard): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, card).pipe(
+      catchError(err => {
+        console.error('❌ Ошибка при добавлении слова:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  addMultipleWords(cards: BackendWordCard[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/bulk`, cards).pipe(
+      catchError(err => {
+        console.error('❌ Ошибка при множественном добавлении слов:', err);
+        return throwError(() => err);
+      })
+    );
   }
 
 
