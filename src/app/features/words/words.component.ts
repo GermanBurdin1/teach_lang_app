@@ -603,12 +603,20 @@ export class WordsComponent {
   onEntryChanged(index: number): void {
     const entry = this.entries[index];
 
-    // Начал ввод в первом поле
-    if (index === 0 && (entry.word.trim() || entry.translation.trim())) {
-      this.hasStartedTypingFirstEntry = true;
+    if (index === 0) {
+      const isFilled = !!(entry.word.trim() || entry.translation.trim());
+
+      this.hasStartedTypingFirstEntry = isFilled;
+
+      // Если пользователь стёр всё — выйти из multiEntry режима
+      if (!isFilled) {
+        this.isMultiEntryMode = false;
+
+        // Удалить все кроме первого
+        this.entries = [this.entries[0]];
+      }
     }
   }
-
 
 
   removeEntry(index: number): void {
