@@ -304,6 +304,12 @@ export class WordsComponent {
     }, 1000);
 
     this.grammarData = null;
+
+    // Если слово без категории — обновляем список orphanWords немедленно
+if (!newCard.galaxy && !newCard.subtopic) {
+  this.orphanWords.unshift(newCard); // добавим в начало списка
+}
+
   }
 
 
@@ -449,8 +455,11 @@ export class WordsComponent {
   getOrphanWords() {
     const raw = localStorage.getItem('vocabulary_cards');
     const all: WordCard[] = raw ? JSON.parse(raw) : [];
-    this.orphanWords = all.filter(w => !w.galaxy || !w.subtopic);
+
+    // 🎯 Слово считается без категории, только если galaxy === '' И subtopic === ''
+    this.orphanWords = all.filter(w => (!w.galaxy || w.galaxy === '') && (!w.subtopic || w.subtopic === ''));
   }
+
 
   onDropToGalaxy(event: DragEvent, galaxyName: string): void {
     event.preventDefault();
@@ -460,7 +469,7 @@ export class WordsComponent {
 
     const word: WordCard = JSON.parse(rawData);
     word.galaxy = galaxyName;
-    word.subtopic = ''; // пока без подтемы
+    word.subtopic = '';
 
     const raw = localStorage.getItem('vocabulary_cards');
     const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
@@ -474,6 +483,11 @@ export class WordsComponent {
       this.pendingSubtopicWords.push(word);
       this.activePendingWord = word;
       this.orphanWords = this.orphanWords.filter(w => w.id !== word.id);
+
+      if (this.postponedWordsByGalaxy[galaxyName]) {
+        this.postponedWordsByGalaxy[galaxyName] = this.postponedWordsByGalaxy[galaxyName].filter(w => w.id !== word.id);
+      }
+
 
       this.selectedGalaxyForSubtopic = galaxyName;
 
