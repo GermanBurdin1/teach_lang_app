@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
 import { GrammarData } from '../vocabulary/models/grammar-data.model';
 import textFit from 'textfit';
+import { WordEntry } from './models/words.model';
 
 interface WordCard {
   id?: number;
@@ -93,6 +94,11 @@ export class WordsComponent {
   activePendingWord?: WordCard;
   collapsedPostponedList: { [galaxy: string]: boolean } = {};
 
+  //множественное добавление слов
+  entries: WordEntry[] = [{ word: '', translation: '', grammar: undefined }];
+  maxEntries = 10;
+  hasStartedTypingFirstEntry: boolean = false;
+  isMultiEntryMode: boolean = false;
 
   ngAfterViewInit(): void {
     this.labelElements.changes.subscribe(() => {
@@ -245,6 +251,9 @@ export class WordsComponent {
     this.selectedSubtopic = '';
     this.availableSubtopics = [];
     this.addSuccessMessage = '';
+    this.entries = [{ word: '', translation: '', grammar: undefined }];
+    this.isMultiEntryMode = false;
+    this.hasStartedTypingFirstEntry = false;
   }
 
   openAddWordOrExpressionForGalaxy(galaxyName: string): void {
@@ -306,9 +315,9 @@ export class WordsComponent {
     this.grammarData = null;
 
     // Если слово без категории — обновляем список orphanWords немедленно
-if (!newCard.galaxy && !newCard.subtopic) {
-  this.orphanWords.unshift(newCard); // добавим в начало списка
-}
+    if (!newCard.galaxy && !newCard.subtopic) {
+      this.orphanWords.unshift(newCard); // добавим в начало списка
+    }
 
   }
 
@@ -591,5 +600,75 @@ if (!newCard.galaxy && !newCard.subtopic) {
     this.collapsedPostponedList[galaxy] = !this.collapsedPostponedList[galaxy];
   }
 
+  onEntryChanged(index: number): void {
+    const entry = this.entries[index];
+
+    // Начал ввод в первом поле
+    if (index === 0 && (entry.word.trim() || entry.translation.trim())) {
+      this.hasStartedTypingFirstEntry = true;
+    }
+  }
+
+
+
+  removeEntry(index: number): void {
+    this.entries.splice(index, 1);
+    if (this.entries.length <= 1) {
+      this.isMultiEntryMode = false;
+    }
+  }
+
+
+
+  saveAll(): void {
+    const validEntries = this.entries.filter(e => e.word.trim() && e.translation.trim());
+
+    if (!validEntries.length) return;
+
+    const raw = localStorage.getItem('vocabulary_cards');
+    const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
+
+    const now = Date.now();
+
+    for (let entry of validEntries) {
+      const newCard: WordCard = {
+        id: now + Math.floor(Math.random() * 10000),
+        word: entry.word.trim(),
+        translation: entry.translation.trim(),
+        galaxy: '', // по умолчанию без категории
+        subtopic: '',
+        type: 'word',
+        createdAt: now,
+        grammar: entry.grammar ?? undefined
+      };
+
+      allCards.unshift(newCard);
+
+      // если нет категории — в orphanWords
+      if (!newCard.galaxy && !newCard.subtopic) {
+        this.orphanWords.unshift(newCard);
+      }
+    }
+
+    localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
+
+    this.entries = [{ word: '', translation: '', grammar: undefined }];
+    this.showGlobalAddWordOrExpressionModal = false;
+    alert(`✅ Добавлено: ${validEntries.length} элементов`);
+  }
+
+  onLangChangeAttempt(): void {
+    if (this.isMultiEntryMode) {
+      alert('⚠️ Нельзя менять язык при множественном добавлении слов.');
+    }
+  }
+
+
+  enableMultiEntry(): void {
+    if (this.entries.length < this.maxEntries) {
+      this.entries.push({ word: '', translation: '', grammar: undefined });
+      this.isMultiEntryMode = true;
+    }
+  }
 
 }

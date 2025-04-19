@@ -154,8 +154,8 @@
 
         <div class="zone-libre-container" *ngIf="!collapsedPostponedList[zoomedGalaxy.name]">
           <div class="zone-libre-word-list">
-            <div class="zone-libre-card" *ngFor="let word of postponedWordsByGalaxy[zoomedGalaxy.name]"
-                 draggable="true" (dragstart)="onDragStart($event, word)">
+            <div class="zone-libre-card" *ngFor="let word of postponedWordsByGalaxy[zoomedGalaxy.name]" draggable="true"
+              (dragstart)="onDragStart($event, word)">
               <strong>{{ word.word }}</strong> — {{ word.translation }}
               <div style="font-size: 12px; color: gray">{{ word.type }}</div>
             </div>
@@ -182,7 +182,7 @@
 </div>
 
 
-<!-- модалка для добавления слова или выражения не глобальном месте-->
+<!-- 🌌 Модалка добавления -->
 <div class="modal-overlay" *ngIf="showGlobalAddWordOrExpressionModal">
   <div class="add-entry-modal">
     <button class="add-entry-modal__close-btn" (click)="closeGlobalAddWordOrExpressionModal()" aria-label="Закрыть">
@@ -191,17 +191,18 @@
 
     <h2 class="add-entry-modal__title">Ajouter un mot ou expression</h2>
 
+    <!-- Тип карточки -->
     <div class="add-entry-modal__type-toggle">
-      <!-- Тип карточки: слово/выражение -->
       <button (click)="toggleGlobalType()" class="add-entry-modal__toggle-type"
         [attr.aria-label]="'Тип: ' + (newGlobalType === 'word' ? 'Слово' : 'Выражение')">
         {{ newGlobalType === 'word' ? '➤ Слово' : '➤ Выражение' }}
       </button>
-
     </div>
+
+    <!-- Языки -->
     <div class="lang-selectors">
       <label>С языка:
-        <select [(ngModel)]="sourceLang">
+        <select [(ngModel)]="sourceLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode">
           <option value="ru">русский</option>
           <option value="fr">французский</option>
           <option value="en">английский</option>
@@ -209,25 +210,38 @@
       </label>
 
       <label>На язык:
-        <select [(ngModel)]="targetLang">
+        <select [(ngModel)]="targetLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode">
           <option value="ru">русский</option>
           <option value="fr">французский</option>
           <option value="en">английский</option>
         </select>
       </label>
-    </div>
-    <input [(ngModel)]="newGlobalWord" [placeholder]="newGlobalType === 'word' ? 'Введите слово' : 'Введите выражение'"
-      class="add-entry-modal__input" />
-    <input [(ngModel)]="newGlobalTranslation" (input)="onGlobalTranslationInput()" placeholder="Перевод (необязательно)"
-      class="add-entry-modal__input" />
-    <app-grammar-fields *ngIf="grammarData && newGlobalType === 'word'" [grammar]="grammarData"
-      (grammarChange)="onGrammarChange($event)">
-    </app-grammar-fields>
 
-    <button *ngIf="!newGlobalTranslation.trim()" (click)="autoTranslateWord()" class="generate-button">
-      🌐 Найти перевод
+      <div *ngIf="isMultiEntryMode" class="entry-warning">⚠️ Языки нельзя менять при множественном добавлении</div>
+    </div>
+
+    <!-- 🔁 Множественные поля -->
+    <div *ngFor="let entry of entries; let i = index" class="entry-block">
+      <input [(ngModel)]="entry.word" placeholder="Слово/выражение" (ngModelChange)="onEntryChanged(i)"
+        class="add-entry-modal__input" />
+
+      <input [(ngModel)]="entry.translation" placeholder="Перевод" class="add-entry-modal__input" />
+
+      <app-grammar-fields *ngIf="newGlobalType === 'word'" [(grammar)]="entry.grammar"></app-grammar-fields>
+
+      <button *ngIf="entries.length > 1" (click)="removeEntry(i)">🗑</button>
+    </div>
+
+    <!-- ➕ Добавить ещё -->
+    <button *ngIf="hasStartedTypingFirstEntry && !isMultiEntryMode" (click)="enableMultiEntry()"
+      class="generate-button">
+      ➕ Добавить ещё
     </button>
 
+    <!-- Показываем счётчик ТОЛЬКО если включён multi-entry -->
+    <div *ngIf="isMultiEntryMode" class="limit-hint">
+      Осталось {{ maxEntries - entries.length }} из {{ maxEntries }}
+    </div>
 
 
     <!-- Категория -->
@@ -244,6 +258,7 @@
       <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
     </select>
 
+    <!-- GPT классификация -->
     <button *ngIf="!isFromGalaxyShortcut" class="generate-button" (click)="generateWithGPT()">
       🤖 Автоматическая классификация
     </button>
@@ -255,13 +270,13 @@
 
     <!-- Кнопки -->
     <div class="add-entry-modal__actions">
-      <button (click)="saveGlobalWordOrExpression()" class="add-entry-modal__button" [disabled]="!newGlobalWord.trim()">
-        Сохранить
+      <button (click)="saveAll()" class="add-entry-modal__button"
+        [disabled]="entries.length === 0 || !entries[0].word.trim()">
+        Сохранить всё
       </button>
       <button class="add-entry-modal__button add-entry-modal__cancel" (click)="closeGlobalAddWordOrExpressionModal()">
         Отмена
       </button>
     </div>
-
   </div>
 </div>
