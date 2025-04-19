@@ -242,7 +242,7 @@
         🌍
       </button>
 
-      <app-grammar-fields *ngIf="newGlobalType === 'word'" [(grammar)]="entry.grammar"></app-grammar-fields>
+      <app-grammar-fields *ngIf="newGlobalType === 'word' || newGlobalType === 'expression'" [(grammar)]="entry.grammar"></app-grammar-fields>
 
       <button *ngIf="entries.length > 1" (click)="removeEntry(i)">🗑</button>
     </div>

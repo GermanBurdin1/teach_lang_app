@@ -2,7 +2,7 @@ import { Component, ElementRef, QueryList, ViewChildren, AfterViewInit } from '@
 import { VocabularyGptService } from '../../services/vocabulary-gpt.service';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
-import { GrammarData } from '../vocabulary/models/grammar-data.model';
+import { ExpressionGrammar, GrammarData } from '../vocabulary/models/grammar-data.model';
 import textFit from 'textfit';
 import { WordEntry } from './models/words.model';
 import { LexiconService } from '../../services/lexicon.service';
@@ -468,14 +468,22 @@ export class WordsComponent {
 
   // ajouter l'info liée aux champs grammatiques
   onGlobalTranslationInput() {
-    if (this.newGlobalTranslation.trim() && this.newGlobalType === 'word') {
-      this.grammarData = {
-        partOfSpeech: 'noun'
-      };
+    if (this.newGlobalTranslation.trim()) {
+      if (this.newGlobalType === 'word') {
+        this.grammarData = {
+          partOfSpeech: 'noun'
+        };
+      } else if (this.newGlobalType === 'expression') {
+        this.grammarData = {
+          partOfSpeech: 'expression',
+          expressionType: 'other' // или по умолчанию 'выражение'
+        };
+      }
     } else {
       this.grammarData = null;
     }
   }
+
 
   onGrammarChange(updated: GrammarData) {
     this.grammarData = updated;
@@ -660,8 +668,7 @@ export class WordsComponent {
   }
 
   saveAll(): void {
-    const validEntries = this.entries.filter(e => e.word.trim() && e.translation.trim());
-
+    const validEntries = this.entries.filter(e => e.word.trim());
     if (!validEntries.length) return;
 
     const now = Date.now();
@@ -747,14 +754,21 @@ export class WordsComponent {
   }
 
   onTranslationChanged(entry: WordEntry): void {
-    if (entry.translation.trim() && this.newGlobalType === 'word' && !entry.grammar) {
-      entry.grammar = { partOfSpeech: 'noun' }; // или другой default
+    if (entry.translation.trim() && !entry.grammar) {
+      if (this.newGlobalType === 'word') {
+        entry.grammar = { partOfSpeech: 'noun' };
+      } else if (this.newGlobalType === 'expression') {
+        entry.grammar = {
+          partOfSpeech: 'expression',
+          expressionType: 'other'
+        };
+      }
     }
 
-    // если пользователь удалил перевод — можно обнулить грамматику
     if (!entry.translation.trim()) {
       entry.grammar = undefined;
     }
   }
+
 
 }
