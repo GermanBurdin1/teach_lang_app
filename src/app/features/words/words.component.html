@@ -310,3 +310,14 @@
 
   </div>
 </div>
+
+<!-- Модалка после добавления без подтемы -->
+<div class="modal-overlay" *ngIf="showPostAddModal">
+  <div class="confirmation-modal">
+    <p>{{ confirmationMessage }}</p>
+    <div class="confirmation-modal__actions">
+      <button class="confirmation-modal__button" (click)="stayOnGlobalPage()">Остаться здесь</button>
+      <button class="confirmation-modal__button" (click)="goToPostponedWords()">Открыть список без категории</button>
+    </div>
+  </div>
+</div>

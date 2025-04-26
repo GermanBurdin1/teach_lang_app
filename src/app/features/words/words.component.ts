@@ -18,6 +18,15 @@ interface WordCard {
   grammar?: GrammarData
 }
 
+interface Subtopic {
+  x: number;
+  y: number;
+  name: string;
+  wordCount?: number;
+  expressionCount?: number;
+}
+
+
 
 @Component({
   selector: 'app-words',
@@ -103,6 +112,11 @@ export class WordsComponent {
   hasStartedTypingFirstEntry: boolean = false;
   isMultiEntryMode: boolean = false;
 
+  confirmationMessage: string = '';
+  showPostAddModal: boolean = false;
+  targetGalaxyForPostponed?: any; // запоминаем, в какую галактику потом зумировать
+
+
   ngAfterViewInit(): void {
     this.labelElements.changes.subscribe(() => {
       this.fitSubtopicLabels();
@@ -136,7 +150,7 @@ export class WordsComponent {
   }
 
   generateSubtopics(count: number, names: string[]) {
-    let subtopics = [];
+    let subtopics: Subtopic[] = [];
     for (let i = 0; i < count; i++) {
       let angle = (i / count) * Math.PI * 2;
       let x = 100 + Math.cos(angle) * 90; // Используем радиус RX эллипса
@@ -288,6 +302,10 @@ export class WordsComponent {
     }
 
     console.log('💡 Слово:', firstEntry.word);
+
+    const previousSelectedGalaxy = this.selectedGalaxy; // 🛑 СОХРАНЯЕМ ПЕРЕД ОБНУЛЕНИЕМ
+    const previousSelectedSubtopic = this.selectedSubtopic; // 🛑 И подтему тоже
+
     const newCard: WordCard = {
       id: Date.now(),
       word: firstEntry.word.trim(),
@@ -301,7 +319,7 @@ export class WordsComponent {
 
     // 🛠 Создаём сразу перевод
     const translations = firstEntry.translation.trim()
-    ? [{
+      ? [{
         id: 0, // временно
         lexiconId: 0, // временно
         source: firstEntry.word.trim(),
@@ -311,7 +329,7 @@ export class WordsComponent {
         meaning: '',
         example: null,
       }]
-    : [];
+      : [];
 
 
     // 👉 Сначала пытаемся отправить на backend
@@ -337,9 +355,7 @@ export class WordsComponent {
 
     // ⛑ А пока сразу добавим и в localStorage для UI
     this.saveLocally(newCard);
-  this.getOrphanWords();
-
-    this.addSuccessMessage = '✅ Слово сохранено!';
+    this.getOrphanWords();
 
     // Сброс полей
     this.newGlobalWord = '';
@@ -349,10 +365,40 @@ export class WordsComponent {
     this.availableSubtopics = [];
     this.grammarData = null;
 
-    setTimeout(() => {
-      this.addSuccessMessage = '';
+    if ((this.isFromGalaxyShortcut || !previousSelectedGalaxy) && !previousSelectedSubtopic) {
+      const galaxy = this.galaxies.find(g => g.name === previousSelectedGalaxy);
+      if (galaxy) {
+        // ДОБАВЛЯЕМ ОТЛОЖЕННОЕ СЛОВО
+        if (!this.postponedWordsByGalaxy[previousSelectedGalaxy]) {
+          this.postponedWordsByGalaxy[previousSelectedGalaxy] = [];
+        }
+        this.postponedWordsByGalaxy[previousSelectedGalaxy].push(newCard);
+
+        this.targetGalaxyForPostponed = galaxy;
+        this.confirmationMessage = `✅ Слово перемещено в некатегоризированные слова галактики "${galaxy.name}", вы можете добавить его в нужную подтему как только этого захотите.`;
+
+        this.closeGlobalAddWordOrExpressionModal();
+
+        setTimeout(() => {
+          this.showPostAddModal = true;
+        }, 200);
+      }
+    } else if (this.isFromGalaxyShortcut && previousSelectedSubtopic) {
+      const card = {
+        galaxy: previousSelectedGalaxy,
+        subtopic: previousSelectedSubtopic,
+        word: firstEntry.word.trim(),
+      };
+      this.showNavigateToSubtopicModal(card as WordCard);
       this.closeGlobalAddWordOrExpressionModal();
-    }, 1000);
+    } else {
+      this.addSuccessMessage = '✅ Слово сохранено!';
+      setTimeout(() => {
+        this.addSuccessMessage = '';
+        this.closeGlobalAddWordOrExpressionModal();
+      }, 2000);
+    }
+
 
     // Обновим orphanWords если нужно
     if (!newCard.galaxy && !newCard.subtopic) {
@@ -809,6 +855,22 @@ export class WordsComponent {
     }
   }
 
+  stayOnGlobalPage() {
+    this.showPostAddModal = false;
+    this.targetGalaxyForPostponed = undefined;
+  }
 
+  goToPostponedWords() {
+    if (!this.targetGalaxyForPostponed) return;
+
+    this.showPostAddModal = false;
+
+    this.zoomIntoGalaxy(this.targetGalaxyForPostponed);
+
+    // Открываем список отложенных слов сразу
+    setTimeout(() => {
+      this.collapsedPostponedList[this.targetGalaxyForPostponed.name] = false;
+    }, 500);
+  }
 
 }
