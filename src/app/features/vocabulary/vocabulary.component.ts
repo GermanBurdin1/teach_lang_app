@@ -138,6 +138,37 @@ export class VocabularyComponent implements OnInit {
     });
   }
 
+  getNounGrammar(card: WordCard) {
+    return card.grammar?.partOfSpeech === 'noun' ? card.grammar as Grammar.NounGrammar : null;
+  }
+
+  getVerbGrammar(card: WordCard) {
+    return card.grammar?.partOfSpeech === 'verb' ? card.grammar as Grammar.VerbGrammar : null;
+  }
+
+  getAdjectiveGrammar(card: WordCard): Grammar.AdjectiveGrammar | null {
+    return card.grammar?.partOfSpeech === 'adjective' ? card.grammar as Grammar.AdjectiveGrammar : null;
+  }
+
+  getAdverbGrammar(card: WordCard): Grammar.AdverbGrammar | null {
+    return card.grammar?.partOfSpeech === 'adverb' ? card.grammar as Grammar.AdverbGrammar : null;
+  }
+
+  getPronounGrammar(card: WordCard): Grammar.PronounGrammar | null {
+    return card.grammar?.partOfSpeech === 'pronoun' ? card.grammar as Grammar.PronounGrammar : null;
+  }
+
+  getConjunctionGrammar(card: WordCard): Grammar.ConjunctionGrammar | null {
+    return card.grammar?.partOfSpeech === 'conjunction' ? card.grammar as Grammar.ConjunctionGrammar : null;
+  }
+
+  getInterjectionGrammar(card: WordCard): Grammar.InterjectionGrammar | null {
+    return card.grammar?.partOfSpeech === 'interjection' ? card.grammar as Grammar.InterjectionGrammar : null;
+  }
+
+  getExpressionGrammar(card: WordCard): Grammar.ExpressionGrammar | null {
+    return card.grammar?.partOfSpeech === 'expression' ? card.grammar as Grammar.ExpressionGrammar : null;
+  }
 
   // Загрузка карточек (пока что просто статичный массив)
   loadWords(): void {
@@ -246,12 +277,8 @@ export class VocabularyComponent implements OnInit {
       subtopic: this.currentSubtopic
     };
 
-    console.log('📤 Отправка на backend:', {
-      word: newCard.word,
-      galaxy: newCard.galaxy,
-      subtopic: newCard.subtopic,
-      type: newCard.type
-    });
+    console.log('📚 Грамматика, которую отправляем в БД (ручной ввод):', this.newGrammarData);
+
 
     // Пытаемся отправить на backend
     this.lexiconService.addWord({
@@ -284,6 +311,31 @@ export class VocabularyComponent implements OnInit {
 
     this.closeAddCardModal();
   }
+
+  updateGrammar(cardId: number, grammar: GrammarData): void {
+    this.lexiconService.updateGrammar(cardId, grammar).subscribe({
+      next: () => {
+        console.log(`✅ Грамматика обновлена в БД для id=${cardId}:`, grammar);
+        const all = [...this.words, ...this.expressions];
+        const target = all.find(card => card.id === cardId);
+        if (target) {
+          target.grammar = grammar;
+          this.saveToLocalStorage();
+        }
+
+        // ➡️ Закрываем увеличение карточки
+        this.enlargedCardId = null;
+
+        // ➡️ Закрываем все открытые модалки
+        this.resetModals();
+
+        // ➡️ Показываем фейерверк 🎉
+        this.showConfetti();
+      },
+      error: (err) => console.error(`❌ Ошибка при обновлении грамматики для id=${cardId}:`, err)
+    });
+  }
+
 
   // Удаление карточки
   deleteWord(id: number): void {
@@ -406,15 +458,15 @@ export class VocabularyComponent implements OnInit {
           : a.createdAt - b.createdAt
       );
 
-      if (this.sortByLang) {
-        this.words = this.words.sort((a, b) =>
-          a.word.localeCompare(b.word, this.sourceLang === 'fr' ? 'fr' : this.sourceLang === 'ru' ? 'ru' : 'en')
-        );
-        this.expressions = this.expressions.sort((a, b) =>
-          a.word.localeCompare(b.word, this.sourceLang === 'fr' ? 'fr' : this.sourceLang === 'ru' ? 'ru' : 'en')
-        );
-        return;
-      }
+    if (this.sortByLang) {
+      this.words = this.words.sort((a, b) =>
+        a.word.localeCompare(b.word, this.sourceLang === 'fr' ? 'fr' : this.sourceLang === 'ru' ? 'ru' : 'en')
+      );
+      this.expressions = this.expressions.sort((a, b) =>
+        a.word.localeCompare(b.word, this.sourceLang === 'fr' ? 'fr' : this.sourceLang === 'ru' ? 'ru' : 'en')
+      );
+      return;
+    }
   }
 
   toggleSortOrderWords(): void {
@@ -699,6 +751,9 @@ export class VocabularyComponent implements OnInit {
       next: (res) => {
         if (res.translations.length) {
           this.newTranslation = res.translations[0];
+          if (res.grammar) {
+            this.newGrammarData = res.grammar;
+          };
           this.isAutoTranslation = true;
           this.isManualTranslation = false;
 
@@ -908,8 +963,13 @@ export class VocabularyComponent implements OnInit {
     }
   }
 
-  onGrammarChange(updated: GrammarData) {
-    this.newGrammarData = updated;
+  onGrammarValidate(card: WordCard): void {
+    console.log("вызов метода")
+    if (card.grammar) {
+      this.updateGrammar(card.id, card.grammar);
+    } else {
+      console.warn('❗ Грамматика не указана. Нечего отправлять.');
+    }
   }
 
   ensureCardGrammar(card: WordCard): void {
@@ -956,6 +1016,5 @@ export class VocabularyComponent implements OnInit {
 
     return parts.join(' ');
   }
-
 
 }

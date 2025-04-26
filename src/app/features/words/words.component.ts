@@ -401,9 +401,7 @@ export class WordsComponent {
       next: (res) => {
         if (res.translations.length) {
           entry.translation = res.translations[0];
-          entry.grammar = {
-            partOfSpeech: 'noun'
-          };
+          entry.grammar = res.grammar ?? { partOfSpeech: 'noun' };
           this.showConfetti();
           alert(`✅ Перевод: ${res.translations[0]}`);
         } else {

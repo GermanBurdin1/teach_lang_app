@@ -9,7 +9,7 @@
     <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
     <input [(ngModel)]="newTranslation" placeholder="Введите перевод (необязательно)" />
     <app-grammar-fields *ngIf="newWordType === 'word' && isManualTranslation && newGrammarData"
-      [grammar]="newGrammarData" (grammarChange)="onGrammarChange($event)">
+      [grammar]="newGrammarData">
     </app-grammar-fields>
 
     <button (click)="addItem()">Добавить</button>
@@ -60,7 +60,8 @@
           title="Сначала {{ sortOrderWords === 'desc' ? 'новые' : 'старые' }}">
           <i class="fas" [ngClass]="sortOrderWords === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
-        <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang" title="Сортировать по языку">
+        <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
+          title="Сортировать по языку">
           <i class="fas fa-language"></i>
         </button>
       </div>
@@ -190,7 +191,7 @@
 
                 <!-- Грамматические поля (только если карточка зумирована и это слово, не выражение) -->
                 <app-grammar-fields *ngIf="card.type === 'word' && enlargedCardId === card.id" [grammar]="card.grammar"
-                  (grammarChange)="card.grammar = $event">
+                (grammarValidate)="onGrammarValidate(card)">
                 </app-grammar-fields>
 
                 <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
@@ -232,7 +233,8 @@
           title="Сначала {{ sortOrderExpressions === 'desc' ? 'новые' : 'старые' }}">
           <i class="fas" [ngClass]="sortOrderExpressions === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
-        <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang" title="Сортировать по языку">
+        <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
+          title="Сортировать по языку">
           <i class="fas fa-language"></i>
         </button>
       </div>
@@ -271,6 +273,71 @@
                 </button>
               </div>
               <div class="card-back">
+                <div class="card-show-translation" *ngIf="card.showTranslation">
+                  <div class="translation-entry" *ngFor="let t of card.translations; let i = index">
+                    <p>{{ t.target }}</p>
+                    <button class="translation-entry__more-button"
+                      (click)="ensureCardGrammar(card); toggleEnlargedCard(card, i); $event.stopPropagation()">
+                      {{ enlargedCardId === card.id ? '↩ обычный режим' : 'дополнительно' }}
+                    </button>
+                  </div>
+                </div>
+                <!-- ГРАММАТИЧЕСКИЕ ДАННЫЕ -->
+                <div class="grammar-details" *ngIf="card.grammar && card.showTranslation">
+                  <ng-container [ngSwitch]="card.grammar.partOfSpeech">
+
+                    <!-- Существительное -->
+                    <ng-container *ngIf="getNounGrammar(card) as noun">
+                      <p>Род: {{ noun.gender || 'не указан' }}</p>
+                      <p>Число: {{ noun.number || 'не указано' }}</p>
+                      <p>Имя собственное: {{ noun.isProper ? 'да' : 'нет' }}</p>
+                    </ng-container>
+
+                    <!-- Глагол -->
+                    <ng-container *ngIf="getVerbGrammar(card) as verb">
+                      <p>Переходность: {{ verb.transitivity || 'не указана' }}</p>
+                      <p>Возвратный: {{ verb.isPronominal ? 'да' : 'нет' }}</p>
+                      <p>Неправильный: {{ verb.isIrregular ? 'да' : 'нет' }}</p>
+                    </ng-container>
+
+                    <!-- Прилагательное -->
+                    <ng-container *ngIf="getAdjectiveGrammar(card) as adj">
+                      <p>Степень сравнения: {{ adj.comparison || 'не указана' }}</p>
+                      <p>Изменяемость: {{ adj.variable ? 'да' : 'нет' }}</p>
+                    </ng-container>
+
+                    <!-- Наречие -->
+                    <ng-container *ngIf="getAdverbGrammar(card) as adv">
+                      <p>Степень сравнения: {{ adv.comparison || 'не указана' }}</p>
+                    </ng-container>
+
+                    <!-- Местоимение -->
+                    <ng-container *ngIf="getPronounGrammar(card) as pron">
+                      <p>Лицо: {{ pron.person || 'не указано' }}</p>
+                      <p>Род: {{ pron.gender || 'не указан' }}</p>
+                      <p>Число: {{ pron.number || 'не указано' }}</p>
+                      <p>Тип: {{ pron.type || 'не указан' }}</p>
+                    </ng-container>
+
+                    <!-- Союз -->
+                    <ng-container *ngIf="getConjunctionGrammar(card) as conj">
+                      <p>Тип: {{ conj.type || 'не указан' }}</p>
+                    </ng-container>
+
+                    <!-- Междометие -->
+                    <ng-container *ngIf="getInterjectionGrammar(card) as interj">
+                      <p>Тип эмоции: {{ interj.emotionType || 'не указан' }}</p>
+                    </ng-container>
+
+                    <!-- Выражение -->
+                    <ng-container *ngIf="getExpressionGrammar(card) as expr">
+                      <p>Тип выражения: {{ expr.expressionType || 'не указан' }}</p>
+                      <p>Происхождение: {{ expr.origin || 'не указано' }}</p>
+                    </ng-container>
+
+                  </ng-container>
+                </div>
+
                 <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
                   <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translations.length - 1"
                     (click)="revealNextHint(card)">
@@ -349,7 +416,8 @@
 
         <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
         <app-grammar-fields *ngIf="newWordType === 'word' && isManualTranslation && newGrammarData"
-          [grammar]="newGrammarData" (grammarChange)="onGrammarChange($event)">
+          [grammar]="newGrammarData"
+          >
         </app-grammar-fields>
         <button *ngIf="!isManualTranslation" (click)="requestTranslation()" class="generate-button">
           🌐 Найти перевод

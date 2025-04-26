@@ -2,14 +2,17 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environment';
+import { GrammarData } from '../features/vocabulary/models/grammar-data.model';
 
 interface TranslationResponse {
   word: string;
   translations: string[];
   sourceLang: string;
   targetLang: string;
-  from: 'wiktionary' | 'api';
+  from: 'wiktionary' | 'api' | 'deepl';
+  grammar?: GrammarData; // <--- вот здесь добавляем!
 }
+
 
 @Injectable({
   providedIn: 'root'

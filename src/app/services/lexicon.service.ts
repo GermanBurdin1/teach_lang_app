@@ -65,5 +65,14 @@ export class LexiconService {
     );
   }
 
+  updateGrammar(id: number, grammar: GrammarData): Observable<any> {
+    return this.http.patch(`http://localhost:3000/grammar/${id}`, grammar).pipe(
+      catchError(err => {
+        console.error('❌ Ошибка при обновлении грамматики:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
 
 }
