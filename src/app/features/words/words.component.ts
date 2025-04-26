@@ -279,7 +279,7 @@ export class WordsComponent {
     this.grammarFieldsComponents.forEach(comp => {
       comp.validate();
     });
-    
+
     const firstEntry = this.entries[0];
 
     if (!firstEntry.word.trim()) {
@@ -299,11 +299,26 @@ export class WordsComponent {
       grammar: firstEntry.grammar ?? undefined,
     };
 
+    // 🛠 Создаём сразу перевод
+    const translations = firstEntry.translation.trim()
+    ? [{
+        id: 0, // временно
+        lexiconId: 0, // временно
+        source: firstEntry.word.trim(),
+        target: firstEntry.translation.trim(),
+        sourceLang: this.sourceLang,
+        targetLang: this.targetLang,
+        meaning: '',
+        example: null,
+      }]
+    : [];
+
 
     // 👉 Сначала пытаемся отправить на backend
     try {
       this.lexiconService.addWord({
         word: newCard.word,
+        translations,
         galaxy: newCard.galaxy,
         subtopic: newCard.subtopic,
         type: newCard.type ?? 'word',
