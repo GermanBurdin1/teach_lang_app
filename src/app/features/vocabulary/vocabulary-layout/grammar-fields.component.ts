@@ -15,6 +15,7 @@ export class GrammarFieldsComponent {
   @Input() onChange: (g: GrammarData) => void = () => {};
   @Output() grammarChange = new EventEmitter<GrammarData>();
   @Output() grammarValidate = new EventEmitter<GrammarData>(); // 👈 ДОБАВЬ ЭТО
+  @Input() showValidateButton = true;
 
 
   partOfSpeechOptions: PartOfSpeech[] = [

@@ -225,24 +225,20 @@
       <input [(ngModel)]="entry.word" placeholder="Слово/выражение" (ngModelChange)="onEntryChanged(i)"
         class="add-entry-modal__input" />
 
-        <input
-        [(ngModel)]="entry.translation"
-        placeholder="Перевод"
-        class="add-entry-modal__input"
-        (ngModelChange)="onTranslationChanged(entry)"
-      />
+      <input [(ngModel)]="entry.translation" placeholder="Перевод" class="add-entry-modal__input"
+        (ngModelChange)="onTranslationChanged(entry)" />
 
       <!-- Показывать кнопку перевода только если нет введённого перевода -->
-      <button
-        *ngIf="!entry.translation?.trim()"
-        (click)="autoTranslateWord(i)"
-        title="Автоматический перевод"
-        class="translate-btn"
-      >
+      <button *ngIf="!entry.translation?.trim()" (click)="autoTranslateWord(i)" title="Автоматический перевод"
+        class="translate-btn">
         🌍
       </button>
 
-      <app-grammar-fields *ngIf="newGlobalType === 'word' || newGlobalType === 'expression'" [(grammar)]="entry.grammar"></app-grammar-fields>
+      <app-grammar-fields #grammarFieldsRef *ngIf="newGlobalType === 'word' || newGlobalType === 'expression'"
+        [(grammar)]="entry.grammar" [showValidateButton]="false"> <!-- 🛑 скрываем кнопку здесь -->
+      </app-grammar-fields>
+
+
 
       <button *ngIf="entries.length > 1" (click)="removeEntry(i)">🗑</button>
     </div>

@@ -29,6 +29,8 @@ export class WordsComponent {
   @ViewChildren('galaxyElement') galaxyElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyWrapper') galaxyWrappers!: QueryList<ElementRef>;
   @ViewChildren('labelRef') labelElements!: QueryList<ElementRef>;
+  @ViewChildren('grammarFieldsRef') grammarFieldsComponents!: QueryList<any>;
+
 
   searchQuery: string = '';
   searchResults: any[] = [];
@@ -274,6 +276,10 @@ export class WordsComponent {
   }
 
   saveGlobalWordOrExpression(): void {
+    this.grammarFieldsComponents.forEach(comp => {
+      comp.validate();
+    });
+    
     const firstEntry = this.entries[0];
 
     if (!firstEntry.word.trim()) {
@@ -290,7 +296,7 @@ export class WordsComponent {
       subtopic: this.selectedSubtopic || '',
       type: (this.newGlobalType ?? 'word') as 'word' | 'expression',
       createdAt: Date.now(),
-      grammar: this.grammarData ?? undefined,
+      grammar: firstEntry.grammar ?? undefined,
     };
 
 
@@ -301,7 +307,7 @@ export class WordsComponent {
         galaxy: newCard.galaxy,
         subtopic: newCard.subtopic,
         type: newCard.type ?? 'word',
-        grammar: newCard.grammar
+        grammar: firstEntry.grammar
       }).subscribe({
         next: (res) => {
           console.log('✅ Слово добавлено на backend:', res);
@@ -766,6 +772,16 @@ export class WordsComponent {
     if (!entry.translation.trim()) {
       entry.grammar = undefined;
     }
+  }
+
+  onGrammarValidate(updatedGrammar: GrammarData, entry: WordEntry) {
+    console.log('✅ Grammar validated:', updatedGrammar);
+
+    // Обновляем грамматику для конкретной записи
+    entry.grammar = updatedGrammar;
+
+    // Здесь можно сразу отправить на сервер, если хочешь
+    // Например: this.saveGrammarImmediately(entry);
   }
 
 

@@ -2,8 +2,6 @@
   <h1>{{ currentSubtopic }}
   </h1>
 
-
-
   <!-- Поля ввода отображаются только после выбора -->
   <div *ngIf="showInputFields" class="input-fields">
     <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
@@ -14,7 +12,6 @@
 
     <button (click)="addItem()">Добавить</button>
   </div>
-
 
   <div class="view-sort-toggle">
     <label>Сортировать по:</label>
