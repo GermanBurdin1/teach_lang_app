@@ -799,5 +799,16 @@ export class WordsComponent {
     // Например: this.saveGrammarImmediately(entry);
   }
 
+  showNavigateToSubtopicModal(card: WordCard) {
+    const goToSubtopic = confirm(`✅ Слово "${card.word}" добавлено в подтему "${card.subtopic}".\nПерейти к подтеме?`);
+
+    if (goToSubtopic) {
+      this.router.navigate(['/student/wordsTeaching', card.galaxy, card.subtopic]);
+    } else {
+      // ничего не делаем, пользователь остаётся в галактиках
+    }
+  }
+
+
 
 }
