@@ -2,17 +2,6 @@
   <h1>{{ currentSubtopic }}
   </h1>
 
-  <!-- Поля ввода отображаются только после выбора -->
-  <div *ngIf="showInputFields" class="input-fields">
-    <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
-    <input [(ngModel)]="newTranslation" placeholder="Введите перевод (необязательно)" />
-    <app-grammar-fields *ngIf="newWordType === 'word' && isManualTranslation && newGrammarData"
-      [grammar]="newGrammarData">
-    </app-grammar-fields>
-
-    <button (click)="addItem()">Добавить</button>
-  </div>
-
   <div class="view-sort-toggle">
     <label>Сортировать по:</label>
     <select [(ngModel)]="sortBy" (change)="sortWords()">
@@ -109,7 +98,7 @@
                     </span>
                   </p>
                   <span *ngIf="card.hintVisible">
-                    <span *ngIf="card.translations[0].target === '...' || !card.translations[0]"
+                    <span *ngIf="card.translations?.[0]?.target === '...' || !card.translations[0]"
                       class="hint untranslated" (click)="openTranslationForm(card, true)">
                       Добавить перевод
                     </span>
@@ -414,6 +403,7 @@
         <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
         <app-grammar-fields *ngIf="newWordType === 'word' && isManualTranslation && newGrammarData"
           [grammar]="newGrammarData"
+          [showValidateButton]="false">
           >
         </app-grammar-fields>
         <button *ngIf="!isManualTranslation" (click)="requestTranslation()" class="generate-button">

@@ -73,6 +73,8 @@ export class VocabularyComponent implements OnInit {
   enlargedCardId: number | null = null;
   newGrammarData: Grammar.GrammarData | null = null;
   newTranslationGrammar: Grammar.GrammarData | null = null;
+  showTranslationInputForm: boolean = false;
+
 
   constructor(private route: ActivatedRoute, private lexiconService: LexiconService, private translationService: TranslationService) { }
 
@@ -259,30 +261,54 @@ export class VocabularyComponent implements OnInit {
   // Метод добавления слова или выражения
   addItem(): void {
     if (!this.newWord.trim()) return;
+    const hasManualTranslation = this.isManualTranslation && this.newTranslation.trim().length > 0;
+
+    const translations = this.newTranslation.trim()
+      ? [{
+        id: 0, // временный id для локальной работы
+        source: this.newWord.trim(),
+        target: this.newTranslation.trim(),
+        sourceLang: this.sourceLang,
+        targetLang: this.targetLang,
+        meaning: '',
+        example: null
+      }]
+      : [];
 
     const newCard: WordCard = {
-      id: Date.now(),
+      id: 0,
       createdAt: Date.now(),
       word: this.newWord.trim(),
-      translations: [{ target: this.newTranslation }],
+      translations: translations.length > 0 ? [{ target: this.newTranslation.trim() }] : [],
       userInput: '',
       flipped: false,
       hintVisible: true,
       isCorrect: null,
       hintIndex: 0,
-      showTranslation: false,
+      showTranslation: hasManualTranslation,
       status: null,
       type: this.newWordType,
       galaxy: this.currentGalaxy,
-      subtopic: this.currentSubtopic
+      subtopic: this.currentSubtopic,
+      grammar: this.newGrammarData ?? undefined,
     };
 
     console.log('📚 Грамматика, которую отправляем в БД (ручной ввод):', this.newGrammarData);
-
+    console.log('🧠 Перевод введён вручную:', hasManualTranslation);
 
     // Пытаемся отправить на backend
     this.lexiconService.addWord({
       word: newCard.word,
+      translations: newCard.translations.map(t => ({
+        id: 0, // временно 0
+        lexiconId: 0, // временно 0
+        source: newCard.word,
+        target: t.target,
+        sourceLang: this.sourceLang,
+        targetLang: this.targetLang,
+        meaning: '',
+        example: t.examples?.[0] || null
+      })),
       galaxy: newCard.galaxy!,
       subtopic: newCard.subtopic!,
       type: newCard.type,
@@ -290,6 +316,7 @@ export class VocabularyComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         console.log('✅ Слово добавлено в БД:', res);
+        newCard.id = res.id;
       },
       error: (err) => {
         console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err);
@@ -310,6 +337,8 @@ export class VocabularyComponent implements OnInit {
     this.newTranslation = '';
 
     this.closeAddCardModal();
+    this.newGrammarData = null;
+
   }
 
   updateGrammar(cardId: number, grammar: GrammarData): void {
@@ -683,7 +712,7 @@ export class VocabularyComponent implements OnInit {
   //для непереведенных
   openTranslationForm(card: WordCard, forceShow = false): void {
     this.editingCard = card;
-    this.manualTranslation = '';
+    this.manualTranslation = ' ';
   }
 
 
@@ -702,6 +731,9 @@ export class VocabularyComponent implements OnInit {
         next: (res) => {
           console.log('✅ Перевод сохранён в БД (ручной):', res);
           this.editingCard!.translations[0].target = translationText;
+          this.editingCard!.showTranslation = true; // <--- добавить!!
+          this.editingCard!.hintVisible = false;
+          this.editingCard!.status = null;
           this.saveToLocalStorage();
 
           this.editingCard = null;
@@ -1016,5 +1048,21 @@ export class VocabularyComponent implements OnInit {
 
     return parts.join(' ');
   }
+
+  onTranslationInputChange(): void {
+    if (this.newTranslation.trim()) {
+      if (this.newWordType === 'word') {
+        this.newGrammarData = { partOfSpeech: 'noun' };
+      } else if (this.newWordType === 'expression') {
+        this.newGrammarData = {
+          partOfSpeech: 'expression',
+          expressionType: 'other' // или 'выражение'
+        };
+      }
+    } else {
+      this.newGrammarData = null;
+    }
+  }
+
 
 }
