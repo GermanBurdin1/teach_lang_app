@@ -116,6 +116,21 @@ export class WordsComponent {
   showPostAddModal: boolean = false;
   targetGalaxyForPostponed?: any; // запоминаем, в какую галактику потом зумировать
 
+  private loadPostponedWords() {
+    const raw = localStorage.getItem('postponed_words');
+    if (raw) {
+      this.postponedWordsByGalaxy = JSON.parse(raw);
+    }
+  }
+
+  private savePostponedWords() {
+    localStorage.setItem('postponed_words', JSON.stringify(this.postponedWordsByGalaxy));
+  }
+
+
+  ngOnInit(): void {
+    this.loadPostponedWords();
+  }
 
   ngAfterViewInit(): void {
     this.labelElements.changes.subscribe(() => {
@@ -373,6 +388,7 @@ export class WordsComponent {
           this.postponedWordsByGalaxy[previousSelectedGalaxy] = [];
         }
         this.postponedWordsByGalaxy[previousSelectedGalaxy].push(newCard);
+        this.savePostponedWords();
 
         this.targetGalaxyForPostponed = galaxy;
         this.confirmationMessage = `✅ Слово перемещено в некатегоризированные слова галактики "${galaxy.name}", вы можете добавить его в нужную подтему как только этого захотите.`;
@@ -404,6 +420,7 @@ export class WordsComponent {
     if (!newCard.galaxy && !newCard.subtopic) {
       this.orphanWords.unshift(newCard);
     }
+
   }
 
   private saveLocally(card: WordCard): void {
@@ -572,8 +589,10 @@ export class WordsComponent {
     const raw = localStorage.getItem('vocabulary_cards');
     const all: WordCard[] = raw ? JSON.parse(raw) : [];
 
-    // 🎯 Слово считается без категории, только если galaxy === '' И subtopic === ''
-    this.orphanWords = all.filter(w => (!w.galaxy || w.galaxy === '') && (!w.subtopic || w.subtopic === ''));
+    this.orphanWords = all.filter(w =>
+      (!w.galaxy || w.galaxy.trim() === '') &&
+      (!w.subtopic || w.subtopic.trim() === '')
+    );
   }
 
 
@@ -603,7 +622,7 @@ export class WordsComponent {
       if (this.postponedWordsByGalaxy[galaxyName]) {
         this.postponedWordsByGalaxy[galaxyName] = this.postponedWordsByGalaxy[galaxyName].filter(w => w.id !== word.id);
       }
-
+      this.savePostponedWords();
 
       this.selectedGalaxyForSubtopic = galaxyName;
 
@@ -672,7 +691,7 @@ export class WordsComponent {
     localStorage.setItem('vocabulary_cards', JSON.stringify(all));
 
     this.activePendingWord = undefined;
-
+    this.savePostponedWords();
   }
 
   getSubtopicsForSelectedGalaxy(): string[] {

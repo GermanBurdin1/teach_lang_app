@@ -365,7 +365,6 @@ export class VocabularyComponent implements OnInit {
     });
   }
 
-
   // Удаление карточки
   deleteWord(id: number): void {
     this.words = this.words.filter(word => word.id !== id);
@@ -731,7 +730,7 @@ export class VocabularyComponent implements OnInit {
         next: (res) => {
           console.log('✅ Перевод сохранён в БД (ручной):', res);
           this.editingCard!.translations[0].target = translationText;
-          this.editingCard!.showTranslation = true; // <--- добавить!!
+          this.editingCard!.showTranslation = true;
           this.editingCard!.hintVisible = false;
           this.editingCard!.status = null;
           this.saveToLocalStorage();
