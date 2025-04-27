@@ -892,4 +892,12 @@ export class WordsComponent {
     }, 500);
   }
 
+  updatePostponedStatus(wordId: number, postponed: boolean): void {
+    this.lexiconService.updateWord(wordId, { postponed }).subscribe({
+      next: () => console.log(`✅ Статус postponed обновлён для слова id=${wordId}: ${postponed}`),
+      error: (err) => console.error('❌ Ошибка при обновлении postponed:', err)
+    });
+  }
+
+
 }

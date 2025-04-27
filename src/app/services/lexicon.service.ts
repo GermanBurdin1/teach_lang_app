@@ -23,6 +23,7 @@ export interface BackendWordCard {
   status?: 'learned' | 'repeat' | 'error' | null;
   revealed?: boolean;
   grammar?: GrammarData;
+  postponed?: boolean;
 }
 
 
@@ -74,4 +75,7 @@ export class LexiconService {
     );
   }
 
+  updateWord(id: number, updates: Partial<BackendWordCard>): Observable<BackendWordCard> {
+    return this.http.patch<BackendWordCard>(`${this.apiUrl}/${id}`, updates);
+  }
 }
