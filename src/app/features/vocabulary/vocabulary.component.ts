@@ -370,6 +370,24 @@ export class VocabularyComponent implements OnInit {
     this.words = this.words.filter(word => word.id !== id);
   }
 
+  deleteItem(id: number, type: 'word' | 'expression'): void {
+    this.lexiconService.deleteWord(id).subscribe({
+      next: () => {
+        if (type === 'word') {
+          this.words = this.words.filter(word => word.id !== id);
+        } else {
+          this.expressions = this.expressions.filter(expression => expression.id !== id);
+        }
+        this.saveToLocalStorage();
+        console.log(`✅ Карточка удалена и на сервере, и на фронте, id=${id}`);
+      },
+      error: (err) => {
+        console.error('❌ Ошибка при удалении карточки на сервере:', err);
+      }
+    });
+  }
+
+
   // Выбор типа карточки (слово/выражение) — сразу отображает поля ввода
   openAddCardModal(type: 'word' | 'expression'): void {
     this.newWordType = type;
@@ -390,15 +408,6 @@ export class VocabularyComponent implements OnInit {
     this.showAddCardModal = false;
   }
 
-  // Удаление карточки
-  deleteItem(id: number, type: 'word' | 'expression'): void {
-    if (type === 'word') {
-      this.words = this.words.filter(word => word.id !== id);
-    } else {
-      this.expressions = this.expressions.filter(expression => expression.id !== id);
-    }
-    this.saveToLocalStorage();
-  }
 
   // Переворот карточки
   flipCard(card: WordCard): void {

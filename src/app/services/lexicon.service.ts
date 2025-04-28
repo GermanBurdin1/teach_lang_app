@@ -78,4 +78,14 @@ export class LexiconService {
   updateWord(id: number, updates: Partial<BackendWordCard>): Observable<BackendWordCard> {
     return this.http.patch<BackendWordCard>(`${this.apiUrl}/${id}`, updates);
   }
+
+  deleteWord(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`).pipe(
+      catchError(err => {
+        console.error('❌ Ошибка при удалении слова:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
 }
