@@ -106,6 +106,7 @@ export class VocabularyComponent implements OnInit {
                 translations,
                 userInput: '',
                 flipped: false,
+                grammar: card.grammar ?? undefined, 
                 hintVisible: true,
                 isCorrect: null,
                 hintIndex: 0,
