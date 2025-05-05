@@ -8,14 +8,15 @@ import { MindmapNode } from './models/mindmap-node.model';
 })
 export class NodeComponent {
   @Input() node!: MindmapNode;
-  @Output() add = new EventEmitter<void>();
-  @Output() zoom = new EventEmitter<void>();
+  @Output() add = new EventEmitter<MindmapNode>();
+  @Output() zoom = new EventEmitter<MindmapNode>();
 
   onAddChild(): void {
-    this.add.emit();
+    console.log('🟡 onAddChild()', this.node);
+    this.add.emit(this.node); // 👈 Передаём текущий узел как аргумент
   }
 
   onZoom(): void {
-    this.zoom.emit();
+    this.zoom.emit(this.node); // 👈 Тоже передаём узел
   }
 }

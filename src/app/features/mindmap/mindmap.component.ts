@@ -37,6 +37,10 @@ export class MindmapComponent implements OnInit {
     };
     parent.children = parent.children || [];
     parent.children.push(newNode);
+    parent.expanded = true;
+
+    console.log('[MindmapComponent] New child added:', newNode);
+    console.log('[MindmapComponent] Updated parent:', parent);
   }
 
   toggleZoom(node: MindmapNode): void {

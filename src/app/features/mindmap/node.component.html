@@ -7,7 +7,11 @@
 
   <div class="children" *ngIf="node.expanded">
     <ng-container *ngFor="let child of node.children">
-      <app-node [node]="child" (add)="onAddChild()" (zoom)="onZoom()"></app-node>
+      <app-node
+        [node]="child"
+        (add)="add.emit($event)"
+        (zoom)="zoom.emit($event)">
+      </app-node>
     </ng-container>
   </div>
 </div>
