@@ -1,0 +1,13 @@
+<div class="node" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }">
+  <div class="node-title">{{ node.title }}</div>
+  <div class="node-controls">
+    <button (click)="onAddChild()">➕</button>
+    <button (click)="onZoom()">{{ node.expanded ? '–' : '🔍' }}</button>
+  </div>
+
+  <div class="children" *ngIf="node.expanded">
+    <ng-container *ngFor="let child of node.children">
+      <app-node [node]="child" (add)="onAddChild()" (zoom)="onZoom()"></app-node>
+    </ng-container>
+  </div>
+</div>

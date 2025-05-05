@@ -24,5 +24,8 @@ export const routes: Routes = [
   { path: 'landing', component: LandingComponent},
   { path: 'landing/preview', component: PreviewLandingComponent},
   { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule) },
+  {path: 'mindmap',
+    loadChildren: () => import('./features/mindmap/mindmap.module').then(m => m.MindmapModule)
+  },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

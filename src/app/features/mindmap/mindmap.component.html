@@ -1,0 +1,5 @@
+<div class="mindmap-canvas" [style.transform]="'scale(' + zoomLevel + ')'">
+  <ng-container *ngFor="let node of nodes; trackBy: trackById">
+    <app-node [node]="node" (add)="addChild(node)" (zoom)="toggleZoom(node)"></app-node>
+  </ng-container>
+</div>

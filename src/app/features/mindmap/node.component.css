@@ -1,0 +1,42 @@
+.node {
+  position: absolute;
+  background: #f2f8ff;
+  border: 2px solid #3399ff;
+  border-radius: 10px;
+  padding: 1rem;
+  min-width: 140px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.node-title {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.add-btn {
+  margin-top: 0.5rem;
+  background: #3399ff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 16px;
+  cursor: pointer;
+  position: relative;
+}
+
+.add-btn:hover::after {
+  content: ' Добавить дочернюю тему';
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 8px;
+  padding: 2px 6px;
+  color: #333;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  white-space: nowrap;
+}

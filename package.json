@@ -30,6 +30,7 @@
     "socket.io-client": "^4.8.1",
     "textfit": "^2.4.0",
     "tslib": "^2.3.0",
+    "uuid": "^11.1.0",
     "white-web-sdk": "^2.16.53",
     "zone.js": "~0.14.10"
   },
