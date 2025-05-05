@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
 import { MindmapNode } from './models/mindmap-node.model';
 
 @Component({
@@ -8,15 +8,23 @@ import { MindmapNode } from './models/mindmap-node.model';
 })
 export class NodeComponent {
   @Input() node!: MindmapNode;
-  @Output() add = new EventEmitter<MindmapNode>();
+  @Output() add = new EventEmitter<{ parent: MindmapNode }>();
   @Output() zoom = new EventEmitter<MindmapNode>();
+  @ViewChild('nodeElement') nodeElementRef!: ElementRef;
+  width: number = 0;
+  height: number = 0;
 
   onAddChild(): void {
-    console.log('🟡 onAddChild()', this.node);
-    this.add.emit(this.node); // 👈 Передаём текущий узел как аргумент
+    this.add.emit({ parent: this.node });
   }
 
   onZoom(): void {
-    this.zoom.emit(this.node); // 👈 Тоже передаём узел
+    this.zoom.emit(this.node);
+  }
+
+  resizeTextArea(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    target.style.height = 'auto';
+    target.style.height = target.scrollHeight + 'px';
   }
 }

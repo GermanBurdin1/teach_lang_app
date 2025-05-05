@@ -1,17 +1,19 @@
-<div class="node" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }">
-  <div class="node-title">{{ node.title }}</div>
+<div
+  class="node"
+  #nodeElement
+  [attr.id]="'node-' + node.id"
+  [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }"
+>
+  <textarea
+    class="node-title"
+    [(ngModel)]="node.title"
+    rows="1"
+    (input)="resizeTextArea($event)">
+  </textarea>
+
   <div class="node-controls">
-    <button (click)="onAddChild()">➕</button>
-    <button (click)="onZoom()">{{ node.expanded ? '–' : '🔍' }}</button>
+    <button (click)="onAddChild()" title="Добавить дочернюю тему">➕</button>
+    <button (click)="onZoom()" title="Свернуть/развернуть"> {{ node.expanded ? '–' : '🔍' }} </button>
   </div>
 
-  <div class="children" *ngIf="node.expanded">
-    <ng-container *ngFor="let child of node.children">
-      <app-node
-        [node]="child"
-        (add)="add.emit($event)"
-        (zoom)="zoom.emit($event)">
-      </app-node>
-    </ng-container>
-  </div>
 </div>

@@ -1,18 +1,35 @@
 .node {
   position: absolute;
+  display: block;
   background: #f2f8ff;
   border: 2px solid #3399ff;
   border-radius: 10px;
   padding: 1rem;
-  min-width: 140px;
   text-align: center;
+  min-width: 150px;
+  max-width: 250px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .node-title {
+  width: 100%;
+  resize: none;
+  overflow: hidden;
   font-weight: bold;
   font-size: 16px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  outline: none;
 }
+
+.node-controls {
+  margin-top: 8px;
+}
+
 
 .add-btn {
   margin-top: 0.5rem;
