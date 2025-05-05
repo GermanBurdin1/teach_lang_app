@@ -106,7 +106,7 @@ export class VocabularyComponent implements OnInit {
                 translations,
                 userInput: '',
                 flipped: false,
-                grammar: card.grammar ?? undefined, 
+                grammar: card.grammar ?? undefined,
                 hintVisible: true,
                 isCorrect: null,
                 hintIndex: 0,
@@ -1071,6 +1071,71 @@ export class VocabularyComponent implements OnInit {
     } else {
       this.newGrammarData = null;
     }
+  }
+
+  //добавление значений
+  showAddMeaningModal = false;
+  selectedCard: WordCard | null = null;
+
+  newMeaningWord = '';
+  newMeaningGalaxy = '';
+  newMeaningSubtopic = '';
+
+  availableGalaxies: string[] = []; // все галактики
+  availableSubtopics: string[] = []; // подтемы выбранной галактики
+
+
+  openAddMeaningModal(card: WordCard) {
+    this.selectedCard = card;
+    this.newMeaningWord = card.word; // ← текст слова оставляем тем же
+    this.showAddMeaningModal = true;
+  }
+
+  cancelAddMeaning() {
+    this.showAddMeaningModal = false;
+    this.selectedCard = null;
+    this.newMeaningWord = '';
+    this.newMeaningGalaxy = '';
+    this.newMeaningSubtopic = '';
+  }
+
+  onMeaningGalaxyChange() {
+    // при смене галактики — обновить список подтем
+    this.availableSubtopics = this.getSubtopicsForGalaxy(this.newMeaningGalaxy);
+  }
+
+  saveNewMeaning() {
+    if (!this.selectedCard || !this.newMeaningGalaxy || !this.newMeaningSubtopic) {
+      alert('Заполните все поля');
+      return;
+    }
+
+    this.lexiconService.addWord({
+      word: this.newMeaningWord,
+      galaxy: this.newMeaningGalaxy,
+      subtopic: this.newMeaningSubtopic,
+      type: this.selectedCard.type, // слово или выражение
+      grammar: this.selectedCard.grammar // можно также копировать грамматику
+    }).subscribe({
+      next: (res) => {
+        console.log('✅ Новое значение добавлено:', res);
+        this.showAddMeaningModal = false;
+        this.selectedCard = null;
+        this.newMeaningWord = '';
+        this.newMeaningGalaxy = '';
+        this.newMeaningSubtopic = '';
+      },
+      error: (err) => {
+        console.error('❌ Ошибка при добавлении значения:', err);
+      }
+    });
+  }
+
+  getSubtopicsForGalaxy(galaxy: string): string[] {
+    const allItems = [...this.words, ...this.expressions];
+    const matching = allItems.filter(item => item.galaxy === galaxy);
+    const uniqueSubtopics = [...new Set(matching.map(item => item.subtopic))];
+    return uniqueSubtopics;
   }
 
 

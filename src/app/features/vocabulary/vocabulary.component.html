@@ -102,7 +102,7 @@
                       class="hint untranslated" (click)="openTranslationForm(card, true)">
                       Добавить перевод
                     </span>
-                    <span *ngIf="card.translations[0] && card.translations[0].target !== '...'" class="hint">
+                    <span *ngIf="card.translations[0] && card.translations[0].target !== '...'" class="hint" (click)="flipCard(card); $event.stopPropagation()">
                       Кликни, чтобы увидеть перевод
                     </span>
                   </span>
@@ -146,11 +146,18 @@
                     </button>
 
 
+
                   </div>
 
                 </div>
 
                 <div *ngIf="enlargedCardId === card.id" class="card-actions-bottom">
+                  <div class="translation-modal__actions" *ngIf="editingCard">
+                    <button class="more-info-tooltip-btn" (click)="openAddMeaningModal(editingCard); $event.stopPropagation()">
+                      <i class="fas fa-plus-circle"></i>
+                      <span class="tooltip-text">Добавить значение</span>
+                    </button>
+                  </div>
                   <button class="more-info-tooltip-btn" (click)="openExampleModal(); $event.stopPropagation()"><i
                       class="fas fa-plus"></i>
                     <span class="tooltip-text">Пример</span></button>
@@ -471,4 +478,21 @@
   <ul *ngIf="selectedTranslation" class="translation-modal__examples">
     <li *ngFor="let e of selectedTranslation.examples || []">{{ e }}</li>
   </ul>
+</div>
+
+<div *ngIf="showAddMeaningModal" class="add-meaning-modal">
+  <h3 *ngIf="selectedCard">Добавить новое значение для "{{ selectedCard.word }}"</h3>
+
+  <input [(ngModel)]="newMeaningWord" placeholder="Новое значение слова">
+
+  <select [(ngModel)]="newMeaningGalaxy" (change)="onMeaningGalaxyChange()">
+    <option *ngFor="let galaxy of availableGalaxies" [value]="galaxy">{{ galaxy }}</option>
+  </select>
+
+  <select [(ngModel)]="newMeaningSubtopic">
+    <option *ngFor="let sub of availableSubtopics" [value]="sub">{{ sub }}</option>
+  </select>
+
+  <button (click)="saveNewMeaning()">Сохранить</button>
+  <button (click)="cancelAddMeaning()">Отмена</button>
 </div>
