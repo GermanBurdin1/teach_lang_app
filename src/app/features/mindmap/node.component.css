@@ -25,14 +25,14 @@
   z-index: 10;
 }
 
-.add-button.top {
-  top: -16px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 .add-button.bottom {
   bottom: -16px;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.add-button.right {
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%) translateX(8px);
 }

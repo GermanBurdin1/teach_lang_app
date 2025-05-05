@@ -9,4 +9,5 @@ export interface MindmapNode {
   x: number;
   y: number;
   expanded?: boolean;
+  side?: 'left' | 'right'; // <-- вот эта строка
 }

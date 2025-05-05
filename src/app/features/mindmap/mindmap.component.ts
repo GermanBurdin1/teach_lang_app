@@ -36,6 +36,18 @@ export class MindmapComponent implements OnInit {
     const GAP_X = 50;
     const GAP_Y = 30;
     const NODE_WIDTH = 200;
+    const siblings = this.nodes.filter(n => n.parentId === parent.id);
+    const index = siblings.length;
+
+    let side: 'left' | 'right';
+
+    if (index < 5) {
+      side = 'right';
+    } else if (index < 10) {
+      side = 'left';
+    } else {
+      side = (index % 2 === 0) ? 'right' : 'left';
+    }
 
     const newNode: MindmapNode = {
       id: uuidv4(),
@@ -47,6 +59,7 @@ export class MindmapComponent implements OnInit {
       children: [],
       width: NODE_WIDTH,
       height: 0,
+      side
     };
 
     if (!parent.children) {
@@ -77,17 +90,28 @@ export class MindmapComponent implements OnInit {
 
       const totalHeight = heights.reduce((a, b) => a + b, 0) + (siblings.length - 1) * GAP_Y;
       const startY = parent.y - totalHeight / 2;
-
       let currentY = startY;
 
-      siblings.forEach((child, i) => {
-        child.x = parent.x + parentWidth + GAP_X; // ✅ теперь учитывает реальную ширину
-        child.y = currentY;
-        currentY += child.height + GAP_Y;
-      });
-    }, 0);
+      const leftChildren = siblings.filter(c => c.side === 'left');
+      const rightChildren = siblings.filter(c => c.side === 'right');
 
+      const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
+        const totalHeight = children.reduce((sum, c) => sum + c.height, 0) + (children.length - 1) * GAP_Y;
+        let y = parent.y - totalHeight / 2;
+
+        children.forEach((child) => {
+          const offsetX = side === 'left' ? -(GAP_X + NODE_WIDTH) : (parent.width + GAP_X);
+          child.x = parent.x + offsetX;
+          child.y = y;
+          y += child.height + GAP_Y;
+        });
+      };
+
+      layoutSide(leftChildren, 'left');
+      layoutSide(rightChildren, 'right');
+    }, 0);
   }
+
 
 
 
@@ -100,19 +124,22 @@ export class MindmapComponent implements OnInit {
   }
 
   generatePath(parent: MindmapNode, child: MindmapNode): string {
-    console.log('Drawing path from:', parent, 'to:', child);
-    const startX = parent.x + parent.width;
+    const isLeft = child.side === 'left';
+
+    const startX = isLeft ? parent.x : parent.x + parent.width;
     const startY = parent.y + parent.height / 2;
-    const endX = child.x;
+
+    const endX = isLeft ? child.x + child.width : child.x;
     const endY = child.y + child.height / 2;
 
-    const dx = (endX - startX) * 0.5;
+    const dx = Math.abs(endX - startX) * 0.5;
 
     return `M ${startX},${startY}
-            C ${startX + dx},${startY}
-              ${endX - dx},${endY}
+            C ${startX + (isLeft ? -dx : dx)},${startY}
+              ${endX + (isLeft ? dx : -dx)},${endY}
               ${endX},${endY}`;
   }
+
 
   addSibling(data: { sibling: MindmapNode }) {
     const sibling = data.sibling;

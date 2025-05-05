@@ -16,6 +16,8 @@ export class NodeComponent {
   height: number = 0;
 
   selected: boolean = false;
+  side?: 'left' | 'right';
+
 
   onSelect(): void {
     this.selected = !this.selected;
