@@ -1,19 +1,34 @@
+<!-- Сам узел -->
 <div
-  class="node"
-  #nodeElement
-  [attr.id]="'node-' + node.id"
+  class="node-wrapper"
   [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }"
+  (click)="onSelect()"
 >
-  <textarea
-    class="node-title"
-    [(ngModel)]="node.title"
-    rows="1"
-    (input)="resizeTextArea($event)">
-  </textarea>
 
-  <div class="node-controls">
-    <button (click)="onAddChild()" title="Добавить дочернюю тему">➕</button>
-    <button (click)="onZoom()" title="Свернуть/развернуть"> {{ node.expanded ? '–' : '🔍' }} </button>
+  <!-- Кнопка сверху (дочерняя тема) -->
+  <div
+    class="add-button top"
+    *ngIf="selected"
+    (click)="onAddChild($event)"
+    title="добавить дочерний элемент"
+  >➕</div>
+
+  <!-- Кнопка снизу (родственная тема) -->
+  <div
+    class="add-button bottom"
+    *ngIf="selected"
+    (click)="onAddSibling($event)"
+    title="добавить родственную тему"
+  >➕</div>
+
+  <!-- Узел -->
+  <div class="node" [attr.id]="'node-' + node.id">
+    <textarea
+      class="node-title"
+      [(ngModel)]="node.title"
+      rows="1"
+      (click)="$event.stopPropagation()"
+      (input)="resizeTextArea($event)">
+    </textarea>
   </div>
-
 </div>

@@ -114,4 +114,13 @@ export class MindmapComponent implements OnInit {
               ${endX},${endY}`;
   }
 
+  addSibling(data: { sibling: MindmapNode }) {
+    const sibling = data.sibling;
+    const parent = this.nodes.find(n => n.id === sibling.parentId);
+    if (parent) {
+      this.addChild({ parent });
+    }
+  }
+
+
 }

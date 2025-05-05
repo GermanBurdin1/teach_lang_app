@@ -7,13 +7,8 @@
 
     <ng-template #renderLines let-parent="parent">
       <ng-container *ngFor="let child of parent.children">
-        <path
-          *ngIf="parent.width && parent.height && child.width && child.height"
-          [attr.d]="generatePath(parent, child)"
-          stroke="#aaa"
-          stroke-width="2"
-          fill="transparent"
-        />
+        <path *ngIf="parent.width && parent.height && child.width && child.height"
+          [attr.d]="generatePath(parent, child)" stroke="#aaa" stroke-width="2" fill="transparent" />
         <ng-container *ngTemplateOutlet="renderLines; context: { parent: child }"></ng-container>
       </ng-container>
     </ng-template>
@@ -23,6 +18,7 @@
 
   <!-- Компоненты узлов -->
   <ng-container *ngFor="let node of nodes; trackBy: trackById">
-    <app-node [node]="node" (add)="addChild($event)" (zoom)="toggleZoom($event)"></app-node>
+    <app-node [node]="node" (add)="addChild($event)" (addSibling)="addSibling($event)" (zoom)="toggleZoom($event)">
+    </app-node>
   </ng-container>
 </div>

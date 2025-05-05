@@ -10,12 +10,25 @@ export class NodeComponent {
   @Input() node!: MindmapNode;
   @Output() add = new EventEmitter<{ parent: MindmapNode }>();
   @Output() zoom = new EventEmitter<MindmapNode>();
+  @Output() addSibling = new EventEmitter<{ sibling: MindmapNode }>();
   @ViewChild('nodeElement') nodeElementRef!: ElementRef;
   width: number = 0;
   height: number = 0;
 
-  onAddChild(): void {
+  selected: boolean = false;
+
+  onSelect(): void {
+    this.selected = !this.selected;
+  }
+
+  onAddChild(event: MouseEvent): void {
+    event.stopPropagation(); // не сбрасывай selected
     this.add.emit({ parent: this.node });
+  }
+
+  onAddSibling(event: MouseEvent): void {
+    event.stopPropagation();
+    this.addSibling.emit({ sibling: this.node });
   }
 
   onZoom(): void {
