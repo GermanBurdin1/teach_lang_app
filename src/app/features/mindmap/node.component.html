@@ -1,31 +1,18 @@
-<div
-  class="node-wrapper"
-  [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }"
-  (click)="onSelect()"
->
-  <!-- Кнопка справа (дочерний элемент) -->
-  <div
-    class="add-button right"
-    *ngIf="selected"
-    (click)="onAddChild($event)"
-    title="добавить дочерний элемент"
-  >➕</div>
+<div class="node-wrapper" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }" (click)="onSelect()">
+  <!-- Кнопка справа: 🔍 или ➕ -->
+  <div class="add-button right" *ngIf="selected" (click)="zoomOrAddChild($event)"
+    [title]="isTopLevel ? 'нырнуть в узел' : 'добавить дочерний элемент'">
+    {{ isTopLevel ? '🔍' : '➕' }}
+  </div>
+
 
   <!-- Кнопка снизу (родственный элемент) — только если не корень -->
-  <div
-    class="add-button bottom"
-    *ngIf="selected && node.parentId"
-    (click)="onAddSibling($event)"
-    title="добавить родственную тему"
-  >➕</div>
+  <div class="add-button bottom" *ngIf="selected && node.parentId" (click)="onAddSibling($event)"
+    title="добавить родственную тему">➕</div>
 
   <!-- Сам узел -->
   <div class="node" [attr.id]="'node-' + node.id">
-    <textarea
-      class="node-title"
-      [(ngModel)]="node.title"
-      rows="1"
-      (click)="$event.stopPropagation()"
+    <textarea class="node-title" [(ngModel)]="node.title" rows="1" (click)="$event.stopPropagation()"
       (input)="resizeTextArea($event)">
     </textarea>
   </div>

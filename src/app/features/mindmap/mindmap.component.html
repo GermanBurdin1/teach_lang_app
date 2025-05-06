@@ -6,19 +6,30 @@
     </ng-container>
 
     <ng-template #renderLines let-parent="parent">
-      <ng-container *ngFor="let child of parent.children">
-        <path *ngIf="parent.width && parent.height && child.width && child.height"
-          [attr.d]="generatePath(parent, child)" stroke="#aaa" stroke-width="2" fill="transparent" />
-        <ng-container *ngTemplateOutlet="renderLines; context: { parent: child }"></ng-container>
+      <ng-container *ngIf="!zoomedNode || zoomedNode.id === parent.id">
+        <ng-container *ngFor="let child of parent.children">
+          <path *ngIf="parent.width && parent.height && child.width && child.height"
+            [attr.d]="generatePath(parent, child)" stroke="#aaa" stroke-width="2" fill="transparent" />
+          <ng-container *ngTemplateOutlet="renderLines; context: { parent: child }"></ng-container>
+        </ng-container>
       </ng-container>
     </ng-template>
-
   </svg>
 
-
   <!-- Компоненты узлов -->
-  <ng-container *ngFor="let node of nodes; trackBy: trackById">
-    <app-node [node]="node" (add)="addChild($event)" (addSibling)="addSibling($event)" (zoom)="toggleZoom($event)">
-    </app-node>
+  <ng-container *ngIf="!zoomedNode">
+    <ng-container *ngFor="let node of nodes; trackBy: trackById">
+      <app-node [node]="node" [zoomedNode]="zoomedNode"
+      [rootNodeId]="rootNodeId" (add)="addChild($event)" (addSibling)="addSibling($event)" (zoom)="toggleZoom($event)">
+      </app-node>
+    </ng-container>
+  </ng-container>
+
+  <!-- Зумированная матрёшка -->
+  <ng-container *ngIf="zoomedNode">
+    <app-node [node]="zoomedNode" (add)="addChild($event)" (zoom)="toggleZoom(null)"></app-node>
+    <ng-container *ngFor="let node of zoomedNode.children">
+      <app-node [node]="node" (add)="addChild($event)"></app-node>
+    </ng-container>
   </ng-container>
 </div>

@@ -11,6 +11,9 @@ export class MindmapComponent implements OnInit {
 
   nodes: MindmapNode[] = [];
   zoomLevel = 1;
+  zoomedNode: MindmapNode | null = null;
+  rootNodeId = '';
+  
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
@@ -27,26 +30,25 @@ export class MindmapComponent implements OnInit {
       width: 0,
       height: 0
     };
+    this.rootNodeId = rootNode.id;
     this.nodes.push(rootNode);
   }
 
   addChild(data: { parent: MindmapNode }): void {
     const { parent } = data;
-
+    const NODE_WIDTH = 200;
     const GAP_X = 50;
     const GAP_Y = 30;
-    const NODE_WIDTH = 200;
+
+    const isZoomed = this.zoomedNode?.id === parent.id;
     const siblings = this.nodes.filter(n => n.parentId === parent.id);
     const index = siblings.length;
 
-    let side: 'left' | 'right';
-
-    if (index < 5) {
-      side = 'right';
-    } else if (index < 10) {
-      side = 'left';
-    } else {
-      side = (index % 2 === 0) ? 'right' : 'left';
+    let side: 'left' | 'right' = 'right';
+    if (!isZoomed) {
+      if (index < 5) side = 'right';
+      else if (index < 10) side = 'left';
+      else side = (index % 2 === 0) ? 'right' : 'left';
     }
 
     const newNode: MindmapNode = {
@@ -68,56 +70,68 @@ export class MindmapComponent implements OnInit {
     parent.children.push(newNode);
     this.nodes.push(newNode);
 
-    // Дать Angular время на отрисовку
     setTimeout(() => {
       const parentEl = document.getElementById(`node-${parent.id}`);
-      const parentRect = parentEl?.getBoundingClientRect();
-      const parentWidth = parentRect?.width || NODE_WIDTH;
-
       if (parentEl) {
         parent.width = parentEl.offsetWidth;
         parent.height = parentEl.offsetHeight;
       }
 
-      const siblings = this.nodes.filter(n => n.parentId === parent.id);
+      if (isZoomed) {
+        // Только если зум активен — размещаем детей по кругу
+        const circularSiblings = parent.children || [];
+        const i = circularSiblings.length - 1;
+        const radius = 200;
+        const angle = (2 * Math.PI / circularSiblings.length) * i;
 
-      const heights: number[] = siblings.map(child => {
-        const el = document.getElementById(`node-${child.id}`);
-        const height = el?.getBoundingClientRect().height || 100;
-        child.height = height;
-        return height;
-      });
+        newNode.x = parent.x + radius * Math.cos(angle);
+        newNode.y = parent.y + radius * Math.sin(angle);
+      } else {
+        // 💡 ВНИМАНИЕ: ЭТА ЧАСТЬ НЕ ТРОНУТА
+        const siblings = this.nodes.filter(n => n.parentId === parent.id);
 
-      const totalHeight = heights.reduce((a, b) => a + b, 0) + (siblings.length - 1) * GAP_Y;
-      const startY = parent.y - totalHeight / 2;
-      let currentY = startY;
-
-      const leftChildren = siblings.filter(c => c.side === 'left');
-      const rightChildren = siblings.filter(c => c.side === 'right');
-
-      const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
-        const totalHeight = children.reduce((sum, c) => sum + c.height, 0) + (children.length - 1) * GAP_Y;
-        let y = parent.y - totalHeight / 2;
-
-        children.forEach((child) => {
-          const offsetX = side === 'left' ? -(GAP_X + NODE_WIDTH) : (parent.width + GAP_X);
-          child.x = parent.x + offsetX;
-          child.y = y;
-          y += child.height + GAP_Y;
+        const heights: number[] = siblings.map(child => {
+          const el = document.getElementById(`node-${child.id}`);
+          const height = el?.getBoundingClientRect().height || 100;
+          child.height = height;
+          return height;
         });
-      };
 
-      layoutSide(leftChildren, 'left');
-      layoutSide(rightChildren, 'right');
+        const totalHeight = heights.reduce((a, b) => a + b, 0) + (siblings.length - 1) * GAP_Y;
+        const startY = parent.y - totalHeight / 2;
+        let currentY = startY;
+
+        const leftChildren = siblings.filter(c => c.side === 'left');
+        const rightChildren = siblings.filter(c => c.side === 'right');
+
+        const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
+          const totalHeight = children.reduce((sum, c) => sum + c.height, 0) + (children.length - 1) * GAP_Y;
+          let y = parent.y - totalHeight / 2;
+
+          children.forEach((child) => {
+            const offsetX = side === 'left' ? -(GAP_X + NODE_WIDTH) : (parent.width + GAP_X);
+            child.x = parent.x + offsetX;
+            child.y = y;
+            y += child.height + GAP_Y;
+          });
+        };
+
+        layoutSide(leftChildren, 'left');
+        layoutSide(rightChildren, 'right');
+      }
     }, 0);
   }
 
-
-
-
-  toggleZoom(node: MindmapNode): void {
-    node.expanded = !node.expanded;
+  toggleZoom(node: MindmapNode | null): void {
+    if (node === null || this.zoomedNode?.id === node.id) {
+      this.zoomedNode = null;
+      this.zoomLevel = 1;
+    } else {
+      this.zoomedNode = node;
+      this.zoomLevel = 1.5; // или 2 по желанию
+    }
   }
+
 
   trackById(index: number, node: MindmapNode): string {
     return node.id;
