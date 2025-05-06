@@ -20,6 +20,9 @@ export class NodeComponent {
   selected: boolean = false;
   side?: 'left' | 'right';
 
+  ngOnInit() {
+    console.log('NODE DATA', this.node);
+  }
 
   onSelect(): void {
     this.selected = !this.selected;
@@ -53,5 +56,20 @@ export class NodeComponent {
   get isTopLevel(): boolean {
     return !this.zoomedNode && this.node.parentId === this.rootNodeId;
   }
+
+  getNodeStyle(): { [key: string]: string } {
+    if (this.node.id !== this.zoomedNode?.id) {
+      return {
+        left: this.node.x + 'px',
+        top: this.node.y + 'px',
+        position: 'absolute'
+      };
+    } else {
+      return {
+        position: 'relative'
+      };
+    }
+  }
+
 
 }

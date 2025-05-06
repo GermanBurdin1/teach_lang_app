@@ -1,4 +1,12 @@
-<div class="node-wrapper" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }" (click)="onSelect()">
+<div
+  [ngClass]="{
+    'node-wrapper': true,
+    'zoomed-wrapper': node.id === zoomedNode?.id
+  }"
+  [ngStyle]="getNodeStyle()"
+  (click)="node.id !== zoomedNode?.id && onSelect()">
+
+
   <!-- Кнопка справа: 🔍 или ➕ -->
   <div class="add-button right" *ngIf="selected" (click)="zoomOrAddChild($event)"
     [title]="isTopLevel ? 'нырнуть в узел' : 'добавить дочерний элемент'">

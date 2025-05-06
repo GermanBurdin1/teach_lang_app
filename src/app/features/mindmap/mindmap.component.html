@@ -28,13 +28,15 @@
   <!-- Зумированная матрёшка -->
 
   <ng-container *ngIf="zoomedNode">
-    <div class="zoomed-container" [style.transform]="'scale(' + zoomLevel + ')'">
-      <app-node [node]="zoomedNode" (add)="addChild($event)" (zoom)="toggleZoom(null)">
+    <div class="zoomed-container">
+      <app-node [node]="zoomedNode" [zoomedNode]="zoomedNode" (add)="addChild($event)" (zoom)="toggleZoom(null)">
       </app-node>
 
       <ng-container *ngFor="let node of zoomedNode.children">
-        <app-node [node]="node" (add)="addChild($event)"></app-node>
+        <app-node [node]="node" [zoomedNode]="zoomedNode" (add)="addChild($event)">
+        </app-node>
       </ng-container>
+
     </div>
   </ng-container>
 

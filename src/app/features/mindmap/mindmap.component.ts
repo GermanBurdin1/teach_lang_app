@@ -13,7 +13,7 @@ export class MindmapComponent implements OnInit {
   zoomLevel = 1;
   zoomedNode: MindmapNode | null = null;
   rootNodeId = '';
-  
+
 
 
   ngOnInit(): void {
@@ -129,7 +129,7 @@ export class MindmapComponent implements OnInit {
       this.zoomLevel = 1;
     } else {
       this.zoomedNode = node;
-      this.zoomLevel = 5; // или 2 по желанию
+      this.zoomLevel = 2;
     }
   }
 

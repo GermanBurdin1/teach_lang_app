@@ -16,3 +16,14 @@
   pointer-events: none;
   z-index: 0;
 }
+
+.zoomed-container {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  transform-origin: center center;
+}
