@@ -1,4 +1,4 @@
-<div class="mindmap-canvas" [style.transform]="'scale(' + zoomLevel + ')'">
+<div class="mindmap-canvas">
   <!-- SVG линии -->
   <svg class="mindmap-lines">
     <ng-container *ngFor="let node of nodes">
@@ -19,17 +19,23 @@
   <!-- Компоненты узлов -->
   <ng-container *ngIf="!zoomedNode">
     <ng-container *ngFor="let node of nodes; trackBy: trackById">
-      <app-node [node]="node" [zoomedNode]="zoomedNode"
-      [rootNodeId]="rootNodeId" (add)="addChild($event)" (addSibling)="addSibling($event)" (zoom)="toggleZoom($event)">
+      <app-node [node]="node" [zoomedNode]="zoomedNode" [rootNodeId]="rootNodeId" (add)="addChild($event)"
+        (addSibling)="addSibling($event)" (zoom)="toggleZoom($event)">
       </app-node>
     </ng-container>
   </ng-container>
 
   <!-- Зумированная матрёшка -->
+
   <ng-container *ngIf="zoomedNode">
-    <app-node [node]="zoomedNode" (add)="addChild($event)" (zoom)="toggleZoom(null)"></app-node>
-    <ng-container *ngFor="let node of zoomedNode.children">
-      <app-node [node]="node" (add)="addChild($event)"></app-node>
-    </ng-container>
+    <div class="zoomed-container" [style.transform]="'scale(' + zoomLevel + ')'">
+      <app-node [node]="zoomedNode" (add)="addChild($event)" (zoom)="toggleZoom(null)">
+      </app-node>
+
+      <ng-container *ngFor="let node of zoomedNode.children">
+        <app-node [node]="node" (add)="addChild($event)"></app-node>
+      </ng-container>
+    </div>
   </ng-container>
+
 </div>

@@ -15,6 +15,7 @@ export class MindmapComponent implements OnInit {
   rootNodeId = '';
   
 
+
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;
@@ -128,7 +129,7 @@ export class MindmapComponent implements OnInit {
       this.zoomLevel = 1;
     } else {
       this.zoomedNode = node;
-      this.zoomLevel = 1.5; // или 2 по желанию
+      this.zoomLevel = 5; // или 2 по желанию
     }
   }
 

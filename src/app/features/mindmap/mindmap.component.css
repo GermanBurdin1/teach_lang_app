@@ -1,9 +1,10 @@
 .mindmap-canvas {
-  width: 3000px;
-  height: 2000px;
   position: relative;
-  transform-origin: 0 0;
+  width: 100vw;
+  height: 100vh;
+  transition: transform 0.3s ease;
 }
+
 
 .mindmap-lines {
   position: absolute;
@@ -15,4 +16,3 @@
   pointer-events: none;
   z-index: 0;
 }
-
