@@ -46,6 +46,7 @@
             <app-node
               [node]="node"
               [zoomedNode]="zoomedNode!"
+              [insideZoomed]="true"
               [rootNodeId]="rootNodeId"
               (add)="addChild($event)"
               (zoom)="toggleZoom(node)">

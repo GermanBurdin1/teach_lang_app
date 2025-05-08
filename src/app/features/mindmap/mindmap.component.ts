@@ -16,6 +16,7 @@ export class MindmapComponent implements OnInit {
   focusedNodeId: string | null = null;
   selectedNodeId: string | null = null;
 
+
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;

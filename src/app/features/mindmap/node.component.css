@@ -60,3 +60,8 @@
   padding: 10px 20px;
   font-size: 16px;
 }
+
+.inside-zoomed {
+  position: static !important; /* 🔥 самое главное */
+  transform: none !important;
+}

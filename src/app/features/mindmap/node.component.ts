@@ -15,6 +15,7 @@ export class NodeComponent {
   @ViewChild('nodeElement') nodeElementRef!: ElementRef;
   @Input() zoomedNode: MindmapNode | null = null;
   @Input() rootNodeId: string = '';
+  @Input() insideZoomed = false;
   width: number = 0;
   height: number = 0;
 
@@ -62,18 +63,22 @@ export class NodeComponent {
   }
 
   getNodeStyle(): { [key: string]: string } {
-    if (this.node.id !== this.zoomedNode?.id) {
-      return {
-        left: this.node.x + 'px',
-        top: this.node.y + 'px',
-        position: 'absolute'
-      };
-    } else {
+    const isZoomed = this.node.id === this.zoomedNode?.id;
+
+    // Если внутри zoomed + флаг insideZoomed => отключаем top/left
+    if (isZoomed || this.insideZoomed) {
       return {
         position: 'relative'
       };
     }
+
+    return {
+      left: this.node.x + 'px',
+      top: this.node.y + 'px',
+      position: 'absolute'
+    };
   }
+
 
 
 

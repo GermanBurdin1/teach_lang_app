@@ -66,18 +66,21 @@
   position: absolute;
   top: 0;
   left: 0;
-  transform: translateY(-100%) scale(0.14);
+  /* Отодвинуть от верхнего края масштабированного контейнера */
+  transform: translateY(-48%) scale(0.14);
   transform-origin: bottom center;
 
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
 
-  min-width: 200px;   /* 👈 обязательно */
-  min-height: 100px;  /* 👈 обязательно */
+  width: 100%;
+  min-height: 100px;
 
-  background: rgba(255, 0, 0, 0.1); /* для отладки */
-  z-index: 99;
+  z-index: 100; /* Поверх зумированного узла */
   pointer-events: auto;
+
+  background: rgba(255, 0, 0, 0.05); /* убрать потом */
 }
+
