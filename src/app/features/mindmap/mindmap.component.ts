@@ -13,8 +13,8 @@ export class MindmapComponent implements OnInit {
   zoomLevel = 1;
   zoomedNode: MindmapNode | null = null;
   rootNodeId = '';
-
-
+  focusedNodeId: string | null = null;
+  selectedNodeId: string | null = null;
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
@@ -127,11 +127,14 @@ export class MindmapComponent implements OnInit {
     if (node === null || this.zoomedNode?.id === node.id) {
       this.zoomedNode = null;
       this.zoomLevel = 1;
+      this.focusedNodeId = null;
     } else {
+      this.focusedNodeId = this.zoomedNode?.id || null; // сохранить текущий как фон
       this.zoomedNode = node;
       this.zoomLevel = 2;
     }
   }
+
 
 
   trackById(index: number, node: MindmapNode): string {
@@ -164,5 +167,12 @@ export class MindmapComponent implements OnInit {
     }
   }
 
+  get focusedNode(): MindmapNode | null {
+    return this.nodes.find(n => n.id === this.focusedNodeId) || null;
+  }
+
+  onNodeSelect(node: MindmapNode): void {
+    this.selectedNodeId = node.id;
+  }
 
 }

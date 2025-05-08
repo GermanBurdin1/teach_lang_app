@@ -11,6 +11,7 @@ export class NodeComponent {
   @Output() add = new EventEmitter<{ parent: MindmapNode }>();
   @Output() zoom = new EventEmitter<MindmapNode>();
   @Output() addSibling = new EventEmitter<{ sibling: MindmapNode }>();
+  @Output() select = new EventEmitter<MindmapNode>();
   @ViewChild('nodeElement') nodeElementRef!: ElementRef;
   @Input() zoomedNode: MindmapNode | null = null;
   @Input() rootNodeId: string = '';
@@ -20,13 +21,16 @@ export class NodeComponent {
   selected: boolean = false;
   side?: 'left' | 'right';
 
+
   ngOnInit() {
     console.log('NODE DATA', this.node);
   }
 
   onSelect(): void {
     this.selected = !this.selected;
+    this.select.emit(this.node); // просто уведомляем, что узел выбран
   }
+
 
   zoomOrAddChild(event: MouseEvent): void {
     event.stopPropagation();
@@ -70,6 +74,8 @@ export class NodeComponent {
       };
     }
   }
+
+
 
 
 }

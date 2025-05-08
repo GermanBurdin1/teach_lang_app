@@ -1,17 +1,15 @@
-<div
-  [ngClass]="{
+<div [ngClass]="{
     'node-wrapper': true,
     'zoomed-wrapper': node.id === zoomedNode?.id
-  }"
-  [ngStyle]="getNodeStyle()"
-  (click)="node.id !== zoomedNode?.id && onSelect()">
+  }" [ngStyle]="getNodeStyle()" (click)="node.id !== zoomedNode?.id && onSelect()">
 
 
   <!-- Кнопка справа: 🔍 или ➕ -->
-  <div class="add-button right" *ngIf="selected" (click)="zoomOrAddChild($event)"
+  <div class="add-button right" *ngIf="node.id === zoomedNode?.id || selected" (click)="zoomOrAddChild($event)"
     [title]="isTopLevel ? 'нырнуть в узел' : 'добавить дочерний элемент'">
     {{ isTopLevel ? '🔍' : '➕' }}
   </div>
+
 
 
   <!-- Кнопка снизу (родственный элемент) — только если не корень -->
