@@ -74,54 +74,72 @@ export class MindmapComponent implements OnInit {
     this.nodes.push(newNode);
 
     // Дать Angular время на отрисовку
+    // setTimeout(() => {
+    //   const parentEl = document.getElementById(`node-${parent.id}`);
+    //   const parentRect = parentEl?.getBoundingClientRect();
+    //   const parentWidth = parentRect?.width || NODE_WIDTH;
+
+    //   if (parentEl) {
+    //     parent.width = parentEl.offsetWidth;
+    //     parent.height = parentEl.offsetHeight;
+    //   }
+
+    //   const siblings = this.nodes.filter(n => n.parentId === parent.id);
+
+    //   const heights: number[] = siblings.map(child => {
+    //     const el = document.getElementById(`node-${child.id}`);
+    //     const height = el?.getBoundingClientRect().height || 100;
+    //     child.height = height;
+    //     return height;
+    //   });
+
+    //   const totalHeight = heights.reduce((a, b) => a + b, 0) + (siblings.length - 1) * GAP_Y;
+    //   const startY = parent.y - totalHeight / 2;
+    //   let currentY = startY;
+
+    //   const leftChildren = siblings.filter(c => c.side === 'left');
+    //   const rightChildren = siblings.filter(c => c.side === 'right');
+
+    //   const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
+    //     const totalSubtreeHeight = children
+    //       .map(c => this.getSubtreeHeight(c))
+    //       .reduce((a, b) => a + b, 0) + (children.length - 1) * GAP_Y;
+
+    //     let y = parent.y - totalSubtreeHeight / 2;
+
+    //     for (let i = 0; i < children.length; i++) {
+    //       const child = children[i];
+
+    //       const offsetX = side === 'left'
+    //         ? -(GAP_X + NODE_WIDTH)
+    //         : (parent.width + GAP_X);
+    //       child.x = parent.x + offsetX;
+
+    //       child.y = y;
+
+    //       // Смещаем вниз на высоту поддерева + GAP_Y
+    //       y += this.getSubtreeHeight(child) + GAP_Y;
+    //     }
+    //   };
+
+
+
+
+
+    //   layoutSide(leftChildren, 'left');
+    //   layoutSide(rightChildren, 'right');
+    // }, 0);
     setTimeout(() => {
-      const parentEl = document.getElementById(`node-${parent.id}`);
-      const parentRect = parentEl?.getBoundingClientRect();
-      const parentWidth = parentRect?.width || NODE_WIDTH;
-
-      if (parentEl) {
-        parent.width = parentEl.offsetWidth;
-        parent.height = parentEl.offsetHeight;
-      }
-
-      const siblings = this.nodes.filter(n => n.parentId === parent.id);
-
-      const heights: number[] = siblings.map(child => {
-        const el = document.getElementById(`node-${child.id}`);
-        const height = el?.getBoundingClientRect().height || 100;
-        child.height = height;
-        return height;
-      });
-
-      const totalHeight = heights.reduce((a, b) => a + b, 0) + (siblings.length - 1) * GAP_Y;
-      const startY = parent.y - totalHeight / 2;
-      let currentY = startY;
-
-      const leftChildren = siblings.filter(c => c.side === 'left');
-      const rightChildren = siblings.filter(c => c.side === 'right');
-
-      const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
-        // считаем ВСЕ узлы (видимые), чтобы разместить их друг под другом с учётом внуков
-        const totalHeight = children.reduce((sum, child) => sum + this.getSubtreeHeight(child), 0)
-                            + (children.length - 1) * GAP_Y;
-
-        let y = parent.y - totalHeight / 2;
-
-        for (const child of children) {
-          const offsetX = side === 'left' ? -(GAP_X + NODE_WIDTH) : (parent.width + GAP_X);
-          child.x = parent.x + offsetX;
-          child.y = y;
-
-          // смещаем вниз на всю высоту поддерева, а не только текущего узла
-          y += this.getSubtreeHeight(child) + GAP_Y;
+      for (const node of this.nodes) {
+        const el = document.getElementById(`node-${node.id}`);
+        if (el) {
+          node.width = el.offsetWidth;
+          node.height = el.offsetHeight;
         }
-      };
-
-
-
-      layoutSide(leftChildren, 'left');
-      layoutSide(rightChildren, 'right');
+      }
+      this.updateLayout(); // ⬅️ Обязателен
     }, 0);
+
   }
 
 
@@ -129,7 +147,19 @@ export class MindmapComponent implements OnInit {
 
   toggleZoom(node: MindmapNode): void {
     node.expanded = !node.expanded;
+
+    setTimeout(() => {
+      for (const node of this.nodes) {
+        const el = document.getElementById(`node-${node.id}`);
+        if (el) {
+          node.width = el.offsetWidth;
+          node.height = el.offsetHeight;
+        }
+      }
+      this.updateLayout();
+    }, 0);
   }
+
 
   trackById(index: number, node: MindmapNode): string {
     return node.id;
@@ -175,9 +205,9 @@ export class MindmapComponent implements OnInit {
       .map(child => this.getSubtreeHeight(child))
       .reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * 30;
 
-    // Увеличим высоту поддерева для создания пространства
-    return Math.max(BASE_HEIGHT, subtreeHeight * 1.5);
+    return subtreeHeight; // ❌ без *1.5
   }
+
 
 
   private getVisibleChildren(node: MindmapNode): MindmapNode[] {
@@ -202,6 +232,51 @@ export class MindmapComponent implements OnInit {
 
     return visibleNodes;
   }
+
+  private updateLayout(): void {
+    const GAP_X = 50;
+    const GAP_Y = 30;
+    const NODE_WIDTH = 200;
+
+    const layoutSubtree = (parent: MindmapNode) => {
+      const siblings = this.nodes.filter(n => n.parentId === parent.id);
+
+      const leftChildren = siblings.filter(c => c.side === 'left');
+      const rightChildren = siblings.filter(c => c.side === 'right');
+
+      const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
+        const totalSubtreeHeight = children
+          .map(c => this.getSubtreeHeight(c))
+          .reduce((a, b) => a + b, 0) + (children.length - 1) * GAP_Y;
+
+        let y = parent.y - totalSubtreeHeight / 2;
+
+        for (let child of children) {
+          const offsetX = side === 'left'
+            ? -(GAP_X + NODE_WIDTH)
+            : (parent.width + GAP_X);
+          child.x = parent.x + offsetX;
+          child.y = y;
+
+          y += this.getSubtreeHeight(child) + GAP_Y;
+
+          // Рекурсивно вызывать layout для детей
+          if (child.children?.length && child.expanded !== false) {
+            layoutSubtree(child);
+          }
+        }
+      };
+
+      layoutSide(leftChildren, 'left');
+      layoutSide(rightChildren, 'right');
+    };
+
+    const rootNodes = this.nodes.filter(n => n.parentId === null);
+    for (const root of rootNodes) {
+      layoutSubtree(root);
+    }
+  }
+
 
 
 }
