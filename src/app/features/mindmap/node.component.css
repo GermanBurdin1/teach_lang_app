@@ -1,6 +1,5 @@
-:host {
-  display: block;
-  background: rgba(0, 255, 0, 0.1);
+.node-wrapper {
+  position: absolute;
 }
 
 .node {
@@ -36,32 +35,4 @@
   top: 50%;
   left: 100%;
   transform: translateY(-50%) translateX(8px);
-}
-/* node.component.css */
-
-.node-wrapper {
-  position: absolute;
-}
-
-/* 🔧 Только для zoomed */
-.zoomed-wrapper {
-  position: relative !important;
-  margin: 20px auto;
-  display: flex;
-  flex-direction: column; /* Или row, или даже grid */
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-}
-
-/* Можно кастомно стилизовать сами .node */
-.zoomed-wrapper .node {
-  min-width: 200px;
-  padding: 10px 20px;
-  font-size: 16px;
-}
-
-.inside-zoomed {
-  position: static !important; /* 🔥 самое главное */
-  transform: none !important;
 }

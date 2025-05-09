@@ -1,4 +1,4 @@
-<div class="mindmap-canvas">
+<div class="mindmap-canvas" [style.transform]="'scale(' + zoomLevel + ')'">
   <!-- SVG линии -->
   <svg class="mindmap-lines">
     <ng-container *ngFor="let node of nodes">
@@ -6,57 +6,20 @@
     </ng-container>
 
     <ng-template #renderLines let-parent="parent">
-      <ng-container *ngIf="!zoomedNode || zoomedNode.id === parent.id">
-        <ng-container *ngFor="let child of parent.children">
-          <path *ngIf="parent.width && parent.height && child.width && child.height"
-            [attr.d]="generatePath(parent, child)" stroke="#aaa" stroke-width="2" fill="transparent" />
-          <ng-container *ngTemplateOutlet="renderLines; context: { parent: child }"></ng-container>
-        </ng-container>
+      <ng-container *ngFor="let child of parent.children">
+        <path *ngIf="parent.width && parent.height && child.width && child.height"
+          [attr.d]="generatePath(parent, child)" stroke="#aaa" stroke-width="2" fill="transparent" />
+        <ng-container *ngTemplateOutlet="renderLines; context: { parent: child }"></ng-container>
       </ng-container>
     </ng-template>
+
   </svg>
 
-  <!-- НЕ ЗУМИРОВАННОЕ СОСТОЯНИЕ -->
-  <ng-container *ngIf="!zoomedNode">
-    <ng-container *ngFor="let node of nodes; trackBy: trackById">
-      <app-node [node]="node" [zoomedNode]="zoomedNode" [rootNodeId]="rootNodeId" (add)="addChild($event)"
-        (addSibling)="addSibling($event)" (zoom)="toggleZoom($event)">
-      </app-node>
-    </ng-container>
-  </ng-container>
 
-  <!-- ПРЕДЫДУЩИЙ УРОВЕНЬ НА ФОНЕ -->
-  <div class="zoomed-container behind" *ngIf="focusedNode">
-    <app-node [node]="focusedNode" [zoomedNode]="focusedNode" [rootNodeId]="rootNodeId" (add)="addChild($event)">
+  <!-- Компоненты узлов -->
+  <ng-container *ngFor="let node of nodes; trackBy: trackById">
+    <app-node [node]="node" (add)="addChild($event)" (addSibling)="addSibling($event)" (zoom)="toggleZoom($event)">
     </app-node>
-  </div>
-
-  <!-- ТЕКУЩИЙ УРОВЕНЬ -->
-  <div class="zoomed-wrapper" *ngIf="zoomedNode">
-    <div class="zoomed-scale-wrapper">
-      <div class="zoomed-node-container">
-        <!-- увеличенный узел -->
-        <app-node [node]="zoomedNode" [zoomedNode]="zoomedNode" [rootNodeId]="rootNodeId"
-          (select)="onNodeSelect($event)" (add)="addChild($event)" (zoom)="toggleZoom(null)">
-        </app-node>
-
-        <!-- дочерние узлы внутри увеличенного -->
-        <div class="children-inside-zoomed" *ngIf="zoomedNode?.children?.length">
-          <ng-container *ngFor="let node of zoomedNode.children">
-            <app-node
-              [node]="node"
-              [zoomedNode]="zoomedNode!"
-              [insideZoomed]="true"
-              [rootNodeId]="rootNodeId"
-              (add)="addChild($event)"
-              (zoom)="toggleZoom(node)">
-            </app-node>
-          </ng-container>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-
+  </ng-container>
 </div>
+

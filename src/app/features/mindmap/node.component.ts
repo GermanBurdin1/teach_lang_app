@@ -11,11 +11,7 @@ export class NodeComponent {
   @Output() add = new EventEmitter<{ parent: MindmapNode }>();
   @Output() zoom = new EventEmitter<MindmapNode>();
   @Output() addSibling = new EventEmitter<{ sibling: MindmapNode }>();
-  @Output() select = new EventEmitter<MindmapNode>();
   @ViewChild('nodeElement') nodeElementRef!: ElementRef;
-  @Input() zoomedNode: MindmapNode | null = null;
-  @Input() rootNodeId: string = '';
-  @Input() insideZoomed = false;
   width: number = 0;
   height: number = 0;
 
@@ -23,25 +19,14 @@ export class NodeComponent {
   side?: 'left' | 'right';
 
 
-  ngOnInit() {
-    console.log('NODE DATA', this.node);
-  }
-
   onSelect(): void {
     this.selected = !this.selected;
-    this.select.emit(this.node); // просто уведомляем, что узел выбран
   }
 
-
-  zoomOrAddChild(event: MouseEvent): void {
-    event.stopPropagation();
-    if (this.isTopLevel) {
-      this.zoom.emit(this.node); // ныряем
-    } else {
-      this.add.emit({ parent: this.node }); // добавляем внука
-    }
+  onAddChild(event: MouseEvent): void {
+    event.stopPropagation(); // не сбрасывай selected
+    this.add.emit({ parent: this.node });
   }
-
 
   onAddSibling(event: MouseEvent): void {
     event.stopPropagation();
@@ -57,30 +42,4 @@ export class NodeComponent {
     target.style.height = 'auto';
     target.style.height = target.scrollHeight + 'px';
   }
-
-  get isTopLevel(): boolean {
-    return !this.zoomedNode && this.node.parentId === this.rootNodeId;
-  }
-
-  getNodeStyle(): { [key: string]: string } {
-    const isZoomed = this.node.id === this.zoomedNode?.id;
-
-    // Если внутри zoomed + флаг insideZoomed => отключаем top/left
-    if (isZoomed || this.insideZoomed) {
-      return {
-        position: 'relative'
-      };
-    }
-
-    return {
-      left: this.node.x + 'px',
-      top: this.node.y + 'px',
-      position: 'absolute'
-    };
-  }
-
-
-
-
-
 }
