@@ -135,8 +135,17 @@ export class MindmapComponent implements OnInit {
     }
   }
 
+  /**
+   * Calculates the height of a subtree rooted at the given node.
+   * This takes into account the height of the node itself, as well as the
+   * heights of all visible children and their vertical spacing.
+   * @param node the root node of the subtree
+   * @returns the total height of the subtree
+   */
   private getSubtreeHeight(node: MindmapNode): number {
+    console.log(node)
     const BASE_HEIGHT = node.height || 100;
+
 
     if (!node.expanded || !node.children?.length) {
       return BASE_HEIGHT;
@@ -149,7 +158,7 @@ export class MindmapComponent implements OnInit {
       .map(child => this.getSubtreeHeight(child))
       .reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * 30;
 
-    return subtreeHeight; // ❌ без *1.5
+    return subtreeHeight;
   }
 
 
@@ -177,6 +186,13 @@ export class MindmapComponent implements OnInit {
     return visibleNodes;
   }
 
+  /**
+   * Updates the layout of the mindmap nodes.
+   *
+   * Iterates over all root nodes (i.e., nodes with `parentId === null`)
+   * and for each root node, it lays out its children in a centered manner
+   * on both the left and right sides of the root node.
+   */
   private updateLayout(): void {
     const GAP_X = 50;
     const GAP_Y = 30;
@@ -199,6 +215,12 @@ export class MindmapComponent implements OnInit {
   }
 
 
+    /**
+     * Располагает дочерние узлы (`children`) вдоль оси `y` относительно родительского узла (`parent`).
+     * @param children - массив дочерних узлов
+     * @param parent - родительский узел
+     * @param side - сторона, на которой расположены дочерние узлы (`left` или `right`)
+     */
   private layoutChildrenCentered(children: MindmapNode[], parent: MindmapNode, side: 'left' | 'right'): void {
     if (!children.length) return;
 
