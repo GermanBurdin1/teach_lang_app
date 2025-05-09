@@ -73,62 +73,6 @@ export class MindmapComponent implements OnInit {
 
     this.nodes.push(newNode);
 
-    // Дать Angular время на отрисовку
-    // setTimeout(() => {
-    //   const parentEl = document.getElementById(`node-${parent.id}`);
-    //   const parentRect = parentEl?.getBoundingClientRect();
-    //   const parentWidth = parentRect?.width || NODE_WIDTH;
-
-    //   if (parentEl) {
-    //     parent.width = parentEl.offsetWidth;
-    //     parent.height = parentEl.offsetHeight;
-    //   }
-
-    //   const siblings = this.nodes.filter(n => n.parentId === parent.id);
-
-    //   const heights: number[] = siblings.map(child => {
-    //     const el = document.getElementById(`node-${child.id}`);
-    //     const height = el?.getBoundingClientRect().height || 100;
-    //     child.height = height;
-    //     return height;
-    //   });
-
-    //   const totalHeight = heights.reduce((a, b) => a + b, 0) + (siblings.length - 1) * GAP_Y;
-    //   const startY = parent.y - totalHeight / 2;
-    //   let currentY = startY;
-
-    //   const leftChildren = siblings.filter(c => c.side === 'left');
-    //   const rightChildren = siblings.filter(c => c.side === 'right');
-
-    //   const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
-    //     const totalSubtreeHeight = children
-    //       .map(c => this.getSubtreeHeight(c))
-    //       .reduce((a, b) => a + b, 0) + (children.length - 1) * GAP_Y;
-
-    //     let y = parent.y - totalSubtreeHeight / 2;
-
-    //     for (let i = 0; i < children.length; i++) {
-    //       const child = children[i];
-
-    //       const offsetX = side === 'left'
-    //         ? -(GAP_X + NODE_WIDTH)
-    //         : (parent.width + GAP_X);
-    //       child.x = parent.x + offsetX;
-
-    //       child.y = y;
-
-    //       // Смещаем вниз на высоту поддерева + GAP_Y
-    //       y += this.getSubtreeHeight(child) + GAP_Y;
-    //     }
-    //   };
-
-
-
-
-
-    //   layoutSide(leftChildren, 'left');
-    //   layoutSide(rightChildren, 'right');
-    // }, 0);
     setTimeout(() => {
       for (const node of this.nodes) {
         const el = document.getElementById(`node-${node.id}`);
@@ -137,7 +81,7 @@ export class MindmapComponent implements OnInit {
           node.height = el.offsetHeight;
         }
       }
-      this.updateLayout(); // ⬅️ Обязателен
+      this.updateLayout();
     }, 0);
 
   }
@@ -254,20 +198,6 @@ export class MindmapComponent implements OnInit {
     }
   }
 
-  private getAllVisibleGrandchildrenHeight(children: MindmapNode[]): number {
-    const grandchildren = children.flatMap(child =>
-      child.expanded !== false ? this.getVisibleChildren(child) : []
-    );
-
-    const heights = grandchildren.map(g => g.height || 100);
-
-    // Расчёт полной высоты + отступ сверху и снизу
-    const total = heights.reduce((a, b) => a + b, 0) + (grandchildren.length - 1) * 30;
-
-    const padding = (heights[0] || 100) + 30; // отступ сверху и снизу = 1 элемент
-
-    return total + 2 * padding;
-  }
 
   private layoutChildrenCentered(children: MindmapNode[], parent: MindmapNode, side: 'left' | 'right'): void {
     if (!children.length) return;
