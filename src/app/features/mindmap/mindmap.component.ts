@@ -239,36 +239,14 @@ export class MindmapComponent implements OnInit {
     const NODE_WIDTH = 200;
 
     const layoutSubtree = (parent: MindmapNode) => {
-      const siblings = this.nodes.filter(n => n.parentId === parent.id);
+      const children = this.nodes.filter(n => n.parentId === parent.id);
+      const leftChildren = children.filter(c => c.side === 'left');
+      const rightChildren = children.filter(c => c.side === 'right');
 
-      const leftChildren = siblings.filter(c => c.side === 'left');
-      const rightChildren = siblings.filter(c => c.side === 'right');
-
-      const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
-        const totalGrandHeight = this.getAllVisibleGrandchildrenHeight(children);
-        let y = parent.y - totalGrandHeight / 2;
-
-        for (const child of children) {
-          const offsetX = side === 'left'
-            ? -(GAP_X + NODE_WIDTH)
-            : (parent.width + GAP_X);
-
-          child.x = parent.x + offsetX;
-          child.y = y;
-
-          const height = this.getSubtreeHeight(child);
-          y += height + GAP_Y;
-
-          if (child.children?.length && child.expanded !== false) {
-            layoutSubtree(child); // разложим внуков внутри
-          }
-        }
-      };
-
-
-      layoutSide(leftChildren, 'left');
-      layoutSide(rightChildren, 'right');
+      this.layoutChildrenCentered(leftChildren, parent, 'left');
+      this.layoutChildrenCentered(rightChildren, parent, 'right');
     };
+
 
     const rootNodes = this.nodes.filter(n => n.parentId === null);
     for (const root of rootNodes) {
@@ -291,7 +269,32 @@ export class MindmapComponent implements OnInit {
     return total + 2 * padding;
   }
 
-  
+  private layoutChildrenCentered(children: MindmapNode[], parent: MindmapNode, side: 'left' | 'right'): void {
+    if (!children.length) return;
+
+    const heights = children.map(c => this.getSubtreeHeight(c));
+    const totalHeight = heights.reduce((a, b) => a + b, 0) + (children.length - 1) * 30;
+
+    let y = parent.y - totalHeight / 2;
+
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      const offsetX = side === 'left'
+        ? -(parent.width + 50 + 200) // GAP_X + NODE_WIDTH
+        : parent.width + 50;
+
+      child.x = parent.x + offsetX;
+      child.y = y;
+
+      // Рекурсивно вызывать для детей
+      if (child.expanded !== false && child.children?.length) {
+        this.layoutChildrenCentered(this.getVisibleChildren(child), child, side);
+      }
+
+      y += heights[i] + 30; // GAP_Y
+    }
+  }
+
 
 
 }
