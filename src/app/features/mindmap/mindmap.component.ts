@@ -245,27 +245,26 @@ export class MindmapComponent implements OnInit {
       const rightChildren = siblings.filter(c => c.side === 'right');
 
       const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
-        const totalSubtreeHeight = children
-          .map(c => this.getSubtreeHeight(c))
-          .reduce((a, b) => a + b, 0) + (children.length - 1) * GAP_Y;
+        const totalGrandHeight = this.getAllVisibleGrandchildrenHeight(children);
+        let y = parent.y - totalGrandHeight / 2;
 
-        let y = parent.y - totalSubtreeHeight / 2;
-
-        for (let child of children) {
+        for (const child of children) {
           const offsetX = side === 'left'
             ? -(GAP_X + NODE_WIDTH)
             : (parent.width + GAP_X);
+
           child.x = parent.x + offsetX;
           child.y = y;
 
-          y += this.getSubtreeHeight(child) + GAP_Y;
+          const height = this.getSubtreeHeight(child);
+          y += height + GAP_Y;
 
-          // Рекурсивно вызывать layout для детей
           if (child.children?.length && child.expanded !== false) {
-            layoutSubtree(child);
+            layoutSubtree(child); // разложим внуков внутри
           }
         }
       };
+
 
       layoutSide(leftChildren, 'left');
       layoutSide(rightChildren, 'right');
@@ -277,6 +276,22 @@ export class MindmapComponent implements OnInit {
     }
   }
 
+  private getAllVisibleGrandchildrenHeight(children: MindmapNode[]): number {
+    const grandchildren = children.flatMap(child =>
+      child.expanded !== false ? this.getVisibleChildren(child) : []
+    );
+
+    const heights = grandchildren.map(g => g.height || 100);
+
+    // Расчёт полной высоты + отступ сверху и снизу
+    const total = heights.reduce((a, b) => a + b, 0) + (grandchildren.length - 1) * 30;
+
+    const padding = (heights[0] || 100) + 30; // отступ сверху и снизу = 1 элемент
+
+    return total + 2 * padding;
+  }
+
+  
 
 
 }
