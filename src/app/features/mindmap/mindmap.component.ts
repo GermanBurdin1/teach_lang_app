@@ -101,16 +101,22 @@ export class MindmapComponent implements OnInit {
       const rightChildren = siblings.filter(c => c.side === 'right');
 
       const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
-        const totalHeight = children.reduce((sum, c) => sum + this.getSubtreeHeight(c), 0) + (children.length - 1) * GAP_Y;
+        // считаем ВСЕ узлы (видимые), чтобы разместить их друг под другом с учётом внуков
+        const totalHeight = children.reduce((sum, child) => sum + this.getSubtreeHeight(child), 0)
+                            + (children.length - 1) * GAP_Y;
+
         let y = parent.y - totalHeight / 2;
 
-        children.forEach((child) => {
+        for (const child of children) {
           const offsetX = side === 'left' ? -(GAP_X + NODE_WIDTH) : (parent.width + GAP_X);
           child.x = parent.x + offsetX;
           child.y = y;
+
+          // смещаем вниз на всю высоту поддерева, а не только текущего узла
           y += this.getSubtreeHeight(child) + GAP_Y;
-        });
+        }
       };
+
 
 
       layoutSide(leftChildren, 'left');
@@ -156,14 +162,28 @@ export class MindmapComponent implements OnInit {
   }
 
   private getSubtreeHeight(node: MindmapNode): number {
+    const BASE_HEIGHT = node.height || 100;
+
     if (!node.expanded || !node.children?.length) {
-      return node.height || 100;
+      return BASE_HEIGHT;
     }
 
     const visibleChildren = node.children.filter(child => child.expanded !== false);
-    const childrenHeights = visibleChildren.map(child => this.getSubtreeHeight(child));
-    return childrenHeights.reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * 30;
+    if (!visibleChildren.length) return BASE_HEIGHT;
+
+    const subtreeHeight = visibleChildren
+      .map(child => this.getSubtreeHeight(child))
+      .reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * 30;
+
+    // Увеличим высоту поддерева для создания пространства
+    return Math.max(BASE_HEIGHT, subtreeHeight * 1.5);
   }
+
+
+  private getVisibleChildren(node: MindmapNode): MindmapNode[] {
+    return (node.children || []).filter(child => child.expanded !== false);
+  }
+
 
 
   getVisibleNodes(): MindmapNode[] {
