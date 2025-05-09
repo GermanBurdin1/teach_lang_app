@@ -66,6 +66,11 @@ export class MindmapComponent implements OnInit {
       parent.children = [];
     }
     parent.children.push(newNode);
+
+    if (parent.expanded === false) {
+      parent.expanded = true;
+    }
+
     this.nodes.push(newNode);
 
     // Дать Angular время на отрисовку
@@ -96,16 +101,17 @@ export class MindmapComponent implements OnInit {
       const rightChildren = siblings.filter(c => c.side === 'right');
 
       const layoutSide = (children: MindmapNode[], side: 'left' | 'right') => {
-        const totalHeight = children.reduce((sum, c) => sum + c.height, 0) + (children.length - 1) * GAP_Y;
+        const totalHeight = children.reduce((sum, c) => sum + this.getSubtreeHeight(c), 0) + (children.length - 1) * GAP_Y;
         let y = parent.y - totalHeight / 2;
 
         children.forEach((child) => {
           const offsetX = side === 'left' ? -(GAP_X + NODE_WIDTH) : (parent.width + GAP_X);
           child.x = parent.x + offsetX;
           child.y = y;
-          y += child.height + GAP_Y;
+          y += this.getSubtreeHeight(child) + GAP_Y;
         });
       };
+
 
       layoutSide(leftChildren, 'left');
       layoutSide(rightChildren, 'right');
@@ -147,6 +153,34 @@ export class MindmapComponent implements OnInit {
     if (parent) {
       this.addChild({ parent });
     }
+  }
+
+  private getSubtreeHeight(node: MindmapNode): number {
+    if (!node.expanded || !node.children?.length) {
+      return node.height || 100;
+    }
+
+    const visibleChildren = node.children.filter(child => child.expanded !== false);
+    const childrenHeights = visibleChildren.map(child => this.getSubtreeHeight(child));
+    return childrenHeights.reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * 30;
+  }
+
+
+  getVisibleNodes(): MindmapNode[] {
+    const visibleNodes: MindmapNode[] = [];
+
+    const collect = (node: MindmapNode) => {
+      visibleNodes.push(node);
+      if (node.expanded !== false && node.children?.length) {
+        node.children.forEach(child => collect(child));
+      }
+    };
+
+    // Начинаем с корней
+    const rootNodes = this.nodes.filter(n => n.parentId === null);
+    rootNodes.forEach(root => collect(root));
+
+    return visibleNodes;
   }
 
 

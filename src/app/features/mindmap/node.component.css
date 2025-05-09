@@ -36,3 +36,19 @@
   left: 100%;
   transform: translateY(-50%) translateX(8px);
 }
+
+.toggle-expand {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 20px;
+  cursor: pointer;
+  z-index: 10;
+}
