@@ -110,21 +110,26 @@ export class MindmapComponent implements OnInit {
   }
 
   generatePath(parent: MindmapNode, child: MindmapNode): string {
-    const isLeft = child.side === 'left';
+    const parentRight = parent.x + parent.width;
+    const childRight = child.x + child.width;
 
-    const startX = isLeft ? parent.x : parent.x + parent.width;
+    // Если родитель левее ребёнка — стрелка идёт слева направо
+    const isLeftToRight = parent.x < child.x;
+
+    const startX = isLeftToRight ? parentRight : parent.x;
     const startY = parent.y + parent.height / 2;
 
-    const endX = isLeft ? child.x + child.width : child.x;
+    const endX = isLeftToRight ? child.x : childRight;
     const endY = child.y + child.height / 2;
 
     const dx = Math.abs(endX - startX) * 0.5;
 
     return `M ${startX},${startY}
-            C ${startX + (isLeft ? -dx : dx)},${startY}
-              ${endX + (isLeft ? dx : -dx)},${endY}
+            C ${startX + (isLeftToRight ? dx : -dx)},${startY}
+              ${endX + (isLeftToRight ? -dx : dx)},${endY}
               ${endX},${endY}`;
   }
+
 
 
   addSibling(data: { sibling: MindmapNode }) {
@@ -280,12 +285,5 @@ export class MindmapComponent implements OnInit {
       y += subtreeHeights[i] + GAP_Y;
     }
   }
-
-
-
-
-
-
-
 
 }
