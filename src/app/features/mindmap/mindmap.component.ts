@@ -278,8 +278,9 @@ export class MindmapComponent implements OnInit {
     const child = visibleChildren[i];
 
     const offsetX = side === 'left'
-      ? -(parent.width + GAP_X + NODE_WIDTH)
-      : parent.width + GAP_X;
+  ? - (GAP_X + NODE_WIDTH)
+  : parent.width + GAP_X;
+
 
     child.x = parent.x + offsetX;
     child.y = y + subtreeHeights[i] / 2;
