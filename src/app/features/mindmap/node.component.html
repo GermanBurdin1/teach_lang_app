@@ -13,10 +13,10 @@
     </textarea>
   </div>
   <!-- Кнопка сворачивания/разворачивания -->
-  <div class="toggle-expand" *ngIf="node.children?.length" (click)="onZoom()"
-    [title]="node.expanded ? 'Свернуть дочерние элементы' : 'Развернуть дочерние элементы'">
-    {{ node.expanded ? '➖' : '➕' }}
-  </div>
+  <div class="toggle-expand" *ngIf="hasChildren(node)" (click)="onZoom()"
+  [title]="node.expanded ? 'Свернуть дочерние элементы' : 'Развернуть дочерние элементы'">
+  {{ node.expanded ? '➖' : '➕' }}
+</div>
 
 
 </div>

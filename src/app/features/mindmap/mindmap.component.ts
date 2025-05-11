@@ -11,9 +11,6 @@ export class MindmapComponent implements OnInit {
 
   nodes: MindmapNode[] = [];
   zoomLevel = 1;
-  public offsetX = 0;
-  public offsetY = 0;
-
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
@@ -26,7 +23,6 @@ export class MindmapComponent implements OnInit {
       x: canvasWidth / 2,
       y: canvasHeight / 2,
       expanded: false,
-      children: [],
       width: 0,
       height: 0
     };
@@ -59,16 +55,11 @@ export class MindmapComponent implements OnInit {
       x: 0,
       y: 0,
       expanded: true,
-      children: [],
       width: NODE_WIDTH,
       height: 0,
       side
     };
 
-    if (!parent.children) {
-      parent.children = [];
-    }
-    parent.children.push(newNode);
 
     if (parent.expanded === false) {
       parent.expanded = true;
@@ -153,46 +144,45 @@ export class MindmapComponent implements OnInit {
   private getSubtreeHeight(node: MindmapNode): number {
     const BASE_HEIGHT = node.height || 100;
 
+    if (!node.expanded) return BASE_HEIGHT;
 
-    if (!node.expanded || !node.children?.length) {
-      console.log("1");
-      return BASE_HEIGHT;
-    }
+    const allChildren = this.getAllChildren(node);
+    if (!allChildren.length) return BASE_HEIGHT;
 
-    const visibleChildren = node.children.filter(child => child.expanded !== false);
-    if (!visibleChildren.length) {console.log("2"); return BASE_HEIGHT;}
+    const visible = allChildren.filter(c => c.expanded !== false);
+    if (!visible.length) return BASE_HEIGHT;
 
-    const subtreeHeight = visibleChildren
+    const height = visible
       .map(child => this.getSubtreeHeight(child))
-      .reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * 30;
+      .reduce((a, b) => a + b, 0) + (visible.length - 1) * 30;
 
-    return subtreeHeight;
+    return height;
   }
+
 
 
 
   private getVisibleChildren(node: MindmapNode): MindmapNode[] {
-    return (node.children || []).filter(child => child.expanded !== false);
+    return this.getAllChildren(node).filter(child => child.expanded !== false);
   }
+
 
 
 
   getVisibleNodes(): MindmapNode[] {
-    const visibleNodes: MindmapNode[] = [];
+    const result: MindmapNode[] = [];
 
-    const collect = (node: MindmapNode) => {
-      visibleNodes.push(node);
-      if (node.expanded !== false && node.children?.length) {
-        node.children.forEach(child => collect(child));
+    const walk = (node: MindmapNode) => {
+      result.push(node);
+      if (node.expanded !== false) {
+        this.getAllChildren(node).forEach(child => walk(child));
       }
     };
 
-    // Начинаем с корней
-    const rootNodes = this.nodes.filter(n => n.parentId === null);
-    rootNodes.forEach(root => collect(root));
-
-    return visibleNodes;
+    this.nodes.filter(n => n.parentId === null).forEach(root => walk(root));
+    return result;
   }
+
 
   /**
    * Updates the layout of the mindmap nodes.
@@ -292,9 +282,10 @@ export class MindmapComponent implements OnInit {
         child.x = parent.x + offsetX;
         child.y = y + subtreeHeights[i] / 2;
 
-        if (child.expanded !== false && child.children?.length) {
+        if (child.expanded !== false && this.hasChildren(child)) {
           this.layoutChildrenCentered(this.getVisibleChildren(child), child, side);
         }
+
 
         y += subtreeHeights[i] + GAP_Y;
       }
@@ -318,12 +309,23 @@ export class MindmapComponent implements OnInit {
       child.x = parent.x + offsetX;
       child.y = y + subtreeHeights[i] / 2;
 
-      if (child.expanded !== false && child.children?.length) {
+      if (child.expanded !== false && this.hasChildren(child)) {
         this.layoutChildrenCentered(this.getVisibleChildren(child), child, side);
       }
+
 
       y += subtreeHeights[i] + GAP_Y;
     }
   }
+
+  hasChildren = (node: MindmapNode): boolean => {
+  return this.nodes.some(n => n.parentId === node.id);
+};
+
+
+  getAllChildren(node: MindmapNode): MindmapNode[] {
+    return this.nodes.filter(n => n.parentId === node.id);
+  }
+
 
 }

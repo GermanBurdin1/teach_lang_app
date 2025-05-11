@@ -11,6 +11,7 @@ export class NodeComponent {
   @Output() add = new EventEmitter<{ parent: MindmapNode }>();
   @Output() zoom = new EventEmitter<MindmapNode>();
   @Output() addSibling = new EventEmitter<{ sibling: MindmapNode }>();
+  @Input() hasChildren!: (node: MindmapNode) => boolean;
   @ViewChild('nodeElement') nodeElementRef!: ElementRef;
   width: number = 0;
   height: number = 0;
