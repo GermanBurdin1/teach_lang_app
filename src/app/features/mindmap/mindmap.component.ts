@@ -30,55 +30,60 @@ export class MindmapComponent implements OnInit {
   }
 
   addChild(data: { parent: MindmapNode }): void {
-    const { parent } = data;
+  const { parent } = data;
 
-    const GAP_X = 50;
-    const GAP_Y = 30;
-    const NODE_WIDTH = 200;
-    const siblings = this.nodes.filter(n => n.parentId === parent.id);
-    const index = siblings.length;
+  const GAP_X = 50;
+  const NODE_WIDTH = 200;
 
-    let side: 'left' | 'right';
+  const siblings = this.nodes.filter(n => n.parentId === parent.id);
+  const index = siblings.length;
 
+  let side: 'left' | 'right';
+
+  if (parent.parentId === null) {
+    // Первый уровень (дети корня) — старая логика
     if (index < 5) {
       side = 'right';
     } else if (index < 10) {
       side = 'left';
     } else {
-      side = (index % 2 === 0) ? 'right' : 'left';
+      side = index % 2 === 0 ? 'right' : 'left';
     }
-
-    const newNode: MindmapNode = {
-      id: uuidv4(),
-      parentId: parent.id,
-      title: 'Nouveau nœud',
-      x: 0,
-      y: 0,
-      expanded: true,
-      width: NODE_WIDTH,
-      height: 0,
-      side
-    };
-
-
-    if (parent.expanded === false) {
-      parent.expanded = true;
-    }
-
-    this.nodes.push(newNode);
-
-    setTimeout(() => {
-      for (const node of this.nodes) {
-        const el = document.getElementById(`node-${node.id}`);
-        if (el) {
-          node.width = el.offsetWidth;
-          node.height = el.offsetHeight;
-        }
-      }
-      this.updateLayout();
-    }, 0);
-
+  } else {
+    // Внуки и глубже — наследуем сторону от родителя
+    side = parent.side ?? 'right';
   }
+
+  const newNode: MindmapNode = {
+    id: uuidv4(),
+    parentId: parent.id,
+    title: 'Nouveau nœud',
+    x: 0,
+    y: 0,
+    expanded: true,
+    width: NODE_WIDTH,
+    height: 0,
+    side
+  };
+
+  if (parent.expanded === false) {
+    parent.expanded = true;
+  }
+
+  this.nodes.push(newNode);
+
+  setTimeout(() => {
+    for (const node of this.nodes) {
+      const el = document.getElementById(`node-${node.id}`);
+      if (el) {
+        node.width = el.offsetWidth;
+        node.height = el.offsetHeight;
+      }
+    }
+    this.updateLayout();
+  }, 0);
+}
+
 
 
 
