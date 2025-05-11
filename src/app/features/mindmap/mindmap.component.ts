@@ -257,66 +257,38 @@ export class MindmapComponent implements OnInit {
    * @param side - сторона, на которой расположены дочерние узлы (`left` или `right`)
    */
   private layoutChildrenCentered(children: MindmapNode[], parent: MindmapNode, side: 'left' | 'right'): void {
-    if (!children.length) return;
+  const visibleChildren = this.getAllChildren(parent).filter(c => c.side === side);
+  if (!visibleChildren.length) return;
 
-    const GAP_X = 50;
-    const GAP_Y = 20;
-    const NODE_WIDTH = 200;
+  const GAP_X = 50;
+  const GAP_Y = 20;
+  const NODE_WIDTH = 200;
 
-    const isRoot = parent.parentId === null;
+  const subtreeHeights = visibleChildren.map(c => this.getSubtreeHeight(c));
+  const totalHeight = subtreeHeights.reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * GAP_Y;
 
-    if (!isRoot) {
-      // === ВНУКИ ===
-      const subtreeHeights = children.map(c => this.getSubtreeHeight(c));
-      const totalHeight = subtreeHeights.reduce((a, b) => a + b, 0) + (children.length - 1) * GAP_Y;
+  let y = parent.y - totalHeight / 2;
 
-      let y = parent.y - totalHeight / 2;
+  for (let i = 0; i < visibleChildren.length; i++) {
+    const child = visibleChildren[i];
 
-      for (let i = 0; i < children.length; i++) {
-        const child = children[i];
+    const offsetX = side === 'left'
+      ? -(parent.width + GAP_X + NODE_WIDTH)
+      : parent.width + GAP_X;
 
-        const offsetX = side === 'left'
-          ? -(parent.width + GAP_X + NODE_WIDTH)
-          : parent.width + GAP_X;
+    child.x = parent.x + offsetX;
+    child.y = y + subtreeHeights[i] / 2;
 
-        child.x = parent.x + offsetX;
-        child.y = y + subtreeHeights[i] / 2;
-
-        if (child.expanded !== false && this.hasChildren(child)) {
-          this.layoutChildrenCentered(this.getVisibleChildren(child), child, side);
-        }
-
-
-        y += subtreeHeights[i] + GAP_Y;
-      }
-
-      return;
+    // layout запускается даже если свёрнут, чтобы зарезервировать пространство
+    if (this.hasChildren(child)) {
+      this.layoutChildrenCentered(this.getAllChildren(child), child, side);
     }
 
-    // === ДЕТИ КОРНЯ ===
-    const subtreeHeights = children.map(c => this.getSubtreeHeight(c));
-    const totalHeight = subtreeHeights.reduce((a, b) => a + b, 0) + (children.length - 1) * GAP_Y;
-
-    let y = parent.y - totalHeight / 2;
-
-    for (let i = 0; i < children.length; i++) {
-      const child = children[i];
-
-      const offsetX = side === 'left'
-        ? -(parent.width + GAP_X + NODE_WIDTH)
-        : parent.width + GAP_X;
-
-      child.x = parent.x + offsetX;
-      child.y = y + subtreeHeights[i] / 2;
-
-      if (child.expanded !== false && this.hasChildren(child)) {
-        this.layoutChildrenCentered(this.getVisibleChildren(child), child, side);
-      }
-
-
-      y += subtreeHeights[i] + GAP_Y;
-    }
+    y += subtreeHeights[i] + GAP_Y;
   }
+}
+
+
 
   hasChildren = (node: MindmapNode): boolean => {
   return this.nodes.some(n => n.parentId === node.id);
