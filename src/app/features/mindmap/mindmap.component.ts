@@ -11,6 +11,9 @@ export class MindmapComponent implements OnInit {
 
   nodes: MindmapNode[] = [];
   zoomLevel = 1;
+  public offsetX = 0;
+  public offsetY = 0;
+
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
@@ -217,6 +220,43 @@ export class MindmapComponent implements OnInit {
     for (const root of rootNodes) {
       layoutSubtree(root);
     }
+
+    setTimeout(() => {
+      const canvas = document.querySelector('.mindmap-canvas') as HTMLElement;
+      if (!canvas) return;
+
+      let minY = Infinity, maxY = -Infinity;
+      let minX = Infinity, maxX = -Infinity;
+
+      for (const node of this.getVisibleNodes()) {
+        minY = Math.min(minY, node.y);
+        maxY = Math.max(maxY, node.y + node.height);
+        minX = Math.min(minX, node.x);
+        maxX = Math.max(maxX, node.x + node.width);
+      }
+
+      const paddingTop = minY < 0 ? Math.abs(minY) + 100 : 0;
+      const paddingLeft = minX < 0 ? Math.abs(minX) + 100 : 0;
+
+      const requiredHeight = maxY + paddingTop + 100;
+      const requiredWidth = maxX + paddingLeft + 100;
+
+      canvas.style.minHeight = `${requiredHeight}px`;
+      canvas.style.minWidth = `${requiredWidth}px`;
+      if (minY < 0) {
+        const shift = Math.abs(minY) + 100;
+        canvas.style.transform = `translateY(${shift}px)`;
+        canvas.style.height = `${maxY + shift + 100}px`;
+      } else {
+        canvas.style.transform = `translateY(0)`;
+        canvas.style.height = `${maxY + 100}px`;
+      }
+
+      canvas.style.paddingLeft = `${paddingLeft}px`;
+
+    }, 0);
+
+
   }
 
 

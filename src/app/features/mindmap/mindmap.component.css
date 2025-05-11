@@ -1,8 +1,17 @@
-.mindmap-canvas {
-  position: relative;
+.mindmap-scroll-container {
   width: 100vw;
-  height: 100vh;
+    height: calc(95vh - 60px);
+    overflow: scroll;
+    position: relative;
+    background: #b5d1f0;
+}
+
+.mindmap-canvas {
+  position: relative; /* не absolute! */
+  min-width: 1000px;
+  min-height: 800px;
   transition: transform 0.3s ease;
+  padding: 0; /* будет добавляться динамически */
 }
 
 
@@ -27,3 +36,4 @@
   overflow: visible;
   transform-origin: center center;
 }
+
