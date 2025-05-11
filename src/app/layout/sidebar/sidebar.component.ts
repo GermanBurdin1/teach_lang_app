@@ -17,15 +17,12 @@ export class SidebarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('ngOnInit: SidebarComponent is initializing...');
 
     // Читаем сохраненное состояние из localStorage
     const storedState = localStorage.getItem('isSchoolDashboard');
-    console.log('Stored state from localStorage:', storedState);
 
     if (storedState !== null) {
       this.isSchoolDashboard = JSON.parse(storedState); // Устанавливаем сохраненное состояние
-      console.log('isSchoolDashboard after parsing localStorage:', this.isSchoolDashboard);
     } else {
       // Если в localStorage ничего нет, устанавливаем состояние по умолчанию
       this.isSchoolDashboard = true; // По умолчанию школьная панель
@@ -35,7 +32,6 @@ export class SidebarComponent implements OnInit {
 
     // Подписываемся на изменения состояния через сервис
     this.dashboardService.currentDashboard.subscribe((isSchoolDashboard) => {
-      console.log('DashboardService emitted new state:', isSchoolDashboard);
       this.isSchoolDashboard = isSchoolDashboard;
       localStorage.setItem('isSchoolDashboard', JSON.stringify(this.isSchoolDashboard)); // Сохраняем изменения
     });

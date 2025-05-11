@@ -151,16 +151,16 @@ export class MindmapComponent implements OnInit {
    * @returns the total height of the subtree
    */
   private getSubtreeHeight(node: MindmapNode): number {
-    console.log(node)
     const BASE_HEIGHT = node.height || 100;
 
 
     if (!node.expanded || !node.children?.length) {
+      console.log("1");
       return BASE_HEIGHT;
     }
 
     const visibleChildren = node.children.filter(child => child.expanded !== false);
-    if (!visibleChildren.length) return BASE_HEIGHT;
+    if (!visibleChildren.length) {console.log("2"); return BASE_HEIGHT;}
 
     const subtreeHeight = visibleChildren
       .map(child => this.getSubtreeHeight(child))

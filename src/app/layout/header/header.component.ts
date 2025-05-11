@@ -30,7 +30,6 @@ export class HeaderComponent {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        console.log('NavigationEnd triggered:', this.router.url);
         this.checkLessonMaterialRoute();
       });
 
@@ -68,8 +67,6 @@ export class HeaderComponent {
     const currentUrl = this.router.url; // Получаем текущий URL
     const lessonRegex = /^\/classroom\/\d+\/lesson$/; // Регулярное выражение для маршрута classroom/:id/lesson
     this.isLessonMaterialRoute = lessonRegex.test(currentUrl); // Проверяем соответствие
-    console.log('Current URL:', currentUrl);
-    console.log('Is Lesson Material Route:', this.isLessonMaterialRoute);
   }
 
   toggleExpandHeader(): void {
