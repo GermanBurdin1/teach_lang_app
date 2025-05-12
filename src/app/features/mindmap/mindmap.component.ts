@@ -1,6 +1,8 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { MindmapNode } from './models/mindmap-node.model';
 import { v4 as uuidv4 } from 'uuid';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 @Component({
   selector: 'app-mindmap',
@@ -8,10 +10,14 @@ import { v4 as uuidv4 } from 'uuid';
   styleUrls: ['./mindmap.component.css']
 })
 export class MindmapComponent implements OnInit {
+constructor(private cdr: ChangeDetectorRef) {}
 
   nodes: MindmapNode[] = [];
   zoomLevel = 1;
   selectedNodes: Set<string> = new Set();
+  private isDragging = false;
+  private lastMousePosition: { x: number; y: number } | null = null;
+  private isMoveMode = false; // активируется после двойного клика
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
@@ -344,6 +350,46 @@ private collectWithDescendants(id: string, set: Set<string>): void {
   for (const child of children) {
     this.collectWithDescendants(child.id, set);
   }
+}
+
+// перемещение карты
+offsetX = 0;
+offsetY = 0;
+
+activateMoveMode(event: MouseEvent): void {
+  // Только если клик был не по узлу (например, target — canvas)
+  if ((event.target as HTMLElement).classList.contains('mindmap-canvas')) {
+    this.isMoveMode = true;
+  }
+}
+
+onMouseDown(event: MouseEvent): void {
+  if (this.isMoveMode) {
+    this.isDragging = true;
+    this.lastMousePosition = { x: event.clientX, y: event.clientY };
+    event.preventDefault();
+  }
+}
+
+onMouseMove(event: MouseEvent): void {
+  if (this.isDragging && this.lastMousePosition) {
+    const dx = event.clientX - this.lastMousePosition.x;
+    const dy = event.clientY - this.lastMousePosition.y;
+
+    this.offsetX += dx;
+    this.offsetY += dy;
+
+    this.lastMousePosition = { x: event.clientX, y: event.clientY };
+
+    this.cdr.detectChanges(); // ✅ Вынуждает Angular обновить DOM
+  }
+}
+
+
+onMouseUp(event: MouseEvent): void {
+  this.isDragging = false;
+  this.isMoveMode = false;
+  this.lastMousePosition = null;
 }
 
 

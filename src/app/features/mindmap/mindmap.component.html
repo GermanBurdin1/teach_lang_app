@@ -1,5 +1,8 @@
-<div class="mindmap-scroll-container">
-<div class="mindmap-canvas" [style.transform]="'scale(' + zoomLevel + ')'">
+<div class="mindmap-scroll-container" (dblclick)="activateMoveMode($event)"
+     (mousedown)="onMouseDown($event)"
+     (mouseup)="onMouseUp($event)"
+     (mousemove)="onMouseMove($event)">
+<div class="mindmap-canvas" [style.transform]="'translate(' + offsetX + 'px,' + offsetY + 'px) scale(' + zoomLevel + ')'">
   <!-- SVG линии -->
   <svg class="mindmap-lines">
     <ng-container *ngFor="let node of nodes">
