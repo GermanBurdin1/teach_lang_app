@@ -52,3 +52,8 @@
   cursor: pointer;
   z-index: 10;
 }
+
+.node-wrapper.selected {
+  outline: 2px solid #6db5ff;
+  border-radius: 8px;
+}

@@ -1,9 +1,9 @@
-<div class="node-wrapper" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }" (click)="onSelect()">
+<div class="node-wrapper" [class.selected]="isSelected" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }" (click)="onClick($event)">
   <!-- Кнопка справа (дочерний элемент) -->
-  <div class="add-button right" *ngIf="selected" (click)="onAddChild($event)" title="добавить дочерний элемент">➕</div>
+  <div class="add-button right" *ngIf="isSelected" (click)="onAddChild($event)" title="добавить дочерний элемент">➕</div>
 
   <!-- Кнопка снизу (родственный элемент) — только если не корень -->
-  <div class="add-button bottom" *ngIf="selected && node.parentId" (click)="onAddSibling($event)"
+  <div class="add-button bottom" *ngIf="isSelected && node.parentId" (click)="onAddSibling($event)"
     title="добавить родственную тему">➕</div>
 
   <!-- Сам узел -->

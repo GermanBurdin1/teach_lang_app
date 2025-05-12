@@ -13,15 +13,18 @@ export class NodeComponent {
   @Output() addSibling = new EventEmitter<{ sibling: MindmapNode }>();
   @Input() hasChildren!: (node: MindmapNode) => boolean;
   @ViewChild('nodeElement') nodeElementRef!: ElementRef;
+  @Input() isSelected = false;
+  @Output() toggleSelect = new EventEmitter<{ node: MindmapNode; additive: boolean }>();
+
+
   width: number = 0;
   height: number = 0;
 
-  selected: boolean = false;
   side?: 'left' | 'right';
 
 
   onSelect(): void {
-    this.selected = !this.selected;
+    this.isSelected = !this.isSelected;
   }
 
   onAddChild(event: MouseEvent): void {
@@ -43,4 +46,11 @@ export class NodeComponent {
     target.style.height = 'auto';
     target.style.height = target.scrollHeight + 'px';
   }
+
+  onClick(event: MouseEvent): void {
+  this.toggleSelect.emit({ node: this.node, additive: event.shiftKey });
+  event.stopPropagation();
+}
+
+
 }

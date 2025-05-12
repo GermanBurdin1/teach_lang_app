@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { MindmapNode } from './models/mindmap-node.model';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,6 +11,7 @@ export class MindmapComponent implements OnInit {
 
   nodes: MindmapNode[] = [];
   zoomLevel = 1;
+  selectedNodes: Set<string> = new Set();
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
@@ -304,6 +305,45 @@ export class MindmapComponent implements OnInit {
   getAllChildren(node: MindmapNode): MindmapNode[] {
     return this.nodes.filter(n => n.parentId === node.id);
   }
+
+  toggleNodeSelection(data: { node: MindmapNode, additive: boolean }): void {
+  const { node, additive } = data;
+
+  if (!additive) this.selectedNodes.clear(); // обычный клик — сбросить всё
+
+  if (this.selectedNodes.has(node.id)) {
+    this.selectedNodes.delete(node.id);
+  } else {
+    this.selectedNodes.add(node.id);
+  }
+}
+
+@HostListener('window:keydown', ['$event'])
+handleKeyDown(event: KeyboardEvent): void {
+  if (event.key === 'Backspace') {
+    this.deleteSelectedNodes();
+    event.preventDefault();
+  }
+}
+
+deleteSelectedNodes(): void {
+  const toDelete = new Set<string>();
+  for (const id of this.selectedNodes) {
+    this.collectWithDescendants(id, toDelete);
+  }
+  this.nodes = this.nodes.filter(n => !toDelete.has(n.id));
+  this.selectedNodes.clear();
+  this.updateLayout();
+}
+
+private collectWithDescendants(id: string, set: Set<string>): void {
+  set.add(id);
+  const children = this.nodes.filter(n => n.parentId === id);
+  for (const child of children) {
+    this.collectWithDescendants(child.id, set);
+  }
+}
+
 
 
 }
