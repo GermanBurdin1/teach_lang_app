@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { MindmapNode } from './models/mindmap-node.model';
 
 @Component({
@@ -6,20 +6,28 @@ import { MindmapNode } from './models/mindmap-node.model';
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.css']
 })
-export class NodeComponent {
+export class NodeComponent implements AfterViewInit {
+  ngAfterViewInit(): void {
+    if (this.isSelected && this.textAreaRef) {
+      setTimeout(() => {
+        this.textAreaRef.nativeElement.focus();
+      });
+    }
+  }
   @Input() node!: MindmapNode;
   @Output() add = new EventEmitter<{ parent: MindmapNode }>();
   @Output() zoom = new EventEmitter<MindmapNode>();
   @Output() addSibling = new EventEmitter<{ sibling: MindmapNode }>();
-  @Input() hasChildren!: (node: MindmapNode) => boolean;
-  @ViewChild('nodeElement') nodeElementRef!: ElementRef;
-  @Input() isSelected = false;
   @Output() toggleSelect = new EventEmitter<{ node: MindmapNode; additive: boolean }>();
-
+  @Output() shortcutAddSibling = new EventEmitter<MindmapNode>();
+  @Output() shortcutAddChild = new EventEmitter<MindmapNode>();
+  @ViewChild('nodeElement') nodeElementRef!: ElementRef;
+  @ViewChild('textAreaRef') textAreaRef!: ElementRef<HTMLTextAreaElement>;
+  @Input() hasChildren!: (node: MindmapNode) => boolean;
+  @Input() isSelected = false;
 
   width: number = 0;
   height: number = 0;
-
   side?: 'left' | 'right';
 
 
@@ -50,6 +58,21 @@ export class NodeComponent {
   onClick(event: MouseEvent): void {
   this.toggleSelect.emit({ node: this.node, additive: event.shiftKey });
   event.stopPropagation();
+}
+
+@HostListener('document:keydown', ['$event'])
+handleKeyDown(event: KeyboardEvent): void {
+  if (!this.isSelected) return;
+
+  if (event.key === 'Tab') {
+    this.shortcutAddChild.emit(this.node);
+    event.preventDefault();
+  }
+
+  if (event.key === 'Enter') {
+    this.shortcutAddSibling.emit(this.node);
+    event.preventDefault();
+  }
 }
 
 

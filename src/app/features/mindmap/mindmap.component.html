@@ -28,7 +28,10 @@
   (add)="addChild($event)"
   (addSibling)="addSibling($event)"
   (toggleSelect)="toggleNodeSelection($event)"
-  (zoom)="toggleZoom($event)">
+  (zoom)="toggleZoom($event)"
+  (shortcutAddChild)="addChild({ parent: $event })"
+  (shortcutAddSibling)="addSibling({ sibling: $event })"
+  >
 </app-node>
 
   </ng-container>

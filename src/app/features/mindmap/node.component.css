@@ -57,3 +57,14 @@
   outline: 2px solid #6db5ff;
   border-radius: 8px;
 }
+
+textarea.node-title {
+  caret-color: #007bff;
+  font-size: 16px;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+}

@@ -72,6 +72,8 @@ export class MindmapComponent implements OnInit {
   }
 
   this.nodes.push(newNode);
+  this.selectedNodes.clear();
+  this.selectedNodes.add(newNode.id);
 
   setTimeout(() => {
     for (const node of this.nodes) {
