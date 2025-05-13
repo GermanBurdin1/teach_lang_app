@@ -1,7 +1,6 @@
 import { Component, HostListener, OnInit, NgZone } from '@angular/core';
 import { MindmapNode } from './models/mindmap-node.model';
 import { v4 as uuidv4 } from 'uuid';
-import { ChangeDetectorRef } from '@angular/core';
 
 
 @Component({
@@ -10,7 +9,7 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./mindmap.component.css']
 })
 export class MindmapComponent implements OnInit {
-constructor(private zone: NgZone) {}
+  constructor(private zone: NgZone) { }
 
   nodes: MindmapNode[] = [];
   zoomLevel = 1;
@@ -44,61 +43,61 @@ constructor(private zone: NgZone) {}
   }
 
   addChild(data: { parent: MindmapNode }): void {
-  const { parent } = data;
+    const { parent } = data;
 
-  const GAP_X = 50;
-  const NODE_WIDTH = 200;
+    const GAP_X = 50;
+    const NODE_WIDTH = 200;
 
-  const siblings = this.nodes.filter(n => n.parentId === parent.id);
-  const index = siblings.length;
+    const siblings = this.nodes.filter(n => n.parentId === parent.id);
+    const index = siblings.length;
 
-  let side: 'left' | 'right';
+    let side: 'left' | 'right';
 
-  if (parent.parentId === null) {
-    // Первый уровень (дети корня) — старая логика
-    if (index < 5) {
-      side = 'right';
-    } else if (index < 10) {
-      side = 'left';
-    } else {
-      side = index % 2 === 0 ? 'right' : 'left';
-    }
-  } else {
-    // Внуки и глубже — наследуем сторону от родителя
-    side = parent.side ?? 'right';
-  }
-
-  const newNode: MindmapNode = {
-    id: uuidv4(),
-    parentId: parent.id,
-    title: 'Nouveau nœud',
-    x: 0,
-    y: 0,
-    expanded: true,
-    width: NODE_WIDTH,
-    height: 0,
-    side
-  };
-
-  if (parent.expanded === false) {
-    parent.expanded = true;
-  }
-
-  this.nodes.push(newNode);
-  this.selectedNodes.clear();
-  this.selectedNodes.add(newNode.id);
-
-  setTimeout(() => {
-    for (const node of this.nodes) {
-      const el = document.getElementById(`node-${node.id}`);
-      if (el) {
-        node.width = el.offsetWidth;
-        node.height = el.offsetHeight;
+    if (parent.parentId === null) {
+      // Первый уровень (дети корня) — старая логика
+      if (index < 5) {
+        side = 'right';
+      } else if (index < 10) {
+        side = 'left';
+      } else {
+        side = index % 2 === 0 ? 'right' : 'left';
       }
+    } else {
+      // Внуки и глубже — наследуем сторону от родителя
+      side = parent.side ?? 'right';
     }
-    this.updateLayout();
-  }, 0);
-}
+
+    const newNode: MindmapNode = {
+      id: uuidv4(),
+      parentId: parent.id,
+      title: 'Nouveau nœud',
+      x: 0,
+      y: 0,
+      expanded: true,
+      width: NODE_WIDTH,
+      height: 0,
+      side
+    };
+
+    if (parent.expanded === false) {
+      parent.expanded = true;
+    }
+
+    this.nodes.push(newNode);
+    this.selectedNodes.clear();
+    this.selectedNodes.add(newNode.id);
+
+    setTimeout(() => {
+      for (const node of this.nodes) {
+        const el = document.getElementById(`node-${node.id}`);
+        if (el) {
+          node.width = el.offsetWidth;
+          node.height = el.offsetHeight;
+        }
+      }
+      this.updateLayout();
+    }, 0);
+  }
 
 
 
@@ -278,43 +277,43 @@ constructor(private zone: NgZone) {}
    * @param side - сторона, на которой расположены дочерние узлы (`left` или `right`)
    */
   private layoutChildrenCentered(children: MindmapNode[], parent: MindmapNode, side: 'left' | 'right'): void {
-  const visibleChildren = this.getAllChildren(parent).filter(c => c.side === side);
-  if (!visibleChildren.length) return;
+    const visibleChildren = this.getAllChildren(parent).filter(c => c.side === side);
+    if (!visibleChildren.length) return;
 
-  const GAP_X = 50;
-  const GAP_Y = 20;
-  const NODE_WIDTH = 200;
+    const GAP_X = 50;
+    const GAP_Y = 20;
+    const NODE_WIDTH = 200;
 
-  const subtreeHeights = visibleChildren.map(c => this.getSubtreeHeight(c));
-  const totalHeight = subtreeHeights.reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * GAP_Y;
+    const subtreeHeights = visibleChildren.map(c => this.getSubtreeHeight(c));
+    const totalHeight = subtreeHeights.reduce((a, b) => a + b, 0) + (visibleChildren.length - 1) * GAP_Y;
 
-  let y = parent.y - totalHeight / 2;
+    let y = parent.y - totalHeight / 2;
 
-  for (let i = 0; i < visibleChildren.length; i++) {
-    const child = visibleChildren[i];
+    for (let i = 0; i < visibleChildren.length; i++) {
+      const child = visibleChildren[i];
 
-    const offsetX = side === 'left'
-  ? - (GAP_X + NODE_WIDTH)
-  : parent.width + GAP_X;
+      const offsetX = side === 'left'
+        ? - (GAP_X + NODE_WIDTH)
+        : parent.width + GAP_X;
 
 
-    child.x = parent.x + offsetX;
-    child.y = y + subtreeHeights[i] / 2;
+      child.x = parent.x + offsetX;
+      child.y = y + subtreeHeights[i] / 2;
 
-    // layout запускается даже если свёрнут, чтобы зарезервировать пространство
-    if (this.hasChildren(child)) {
-      this.layoutChildrenCentered(this.getAllChildren(child), child, side);
+      // layout запускается даже если свёрнут, чтобы зарезервировать пространство
+      if (this.hasChildren(child)) {
+        this.layoutChildrenCentered(this.getAllChildren(child), child, side);
+      }
+
+      y += subtreeHeights[i] + GAP_Y;
     }
-
-    y += subtreeHeights[i] + GAP_Y;
   }
-}
 
 
 
   hasChildren = (node: MindmapNode): boolean => {
-  return this.nodes.some(n => n.parentId === node.id);
-};
+    return this.nodes.some(n => n.parentId === node.id);
+  };
 
 
   getAllChildren(node: MindmapNode): MindmapNode[] {
@@ -322,160 +321,181 @@ constructor(private zone: NgZone) {}
   }
 
   toggleNodeSelection(data: { node: MindmapNode, additive: boolean }): void {
-  const { node, additive } = data;
+    const { node, additive } = data;
 
-  if (!additive) this.selectedNodes.clear(); // обычный клик — сбросить всё
+    if (!additive) this.selectedNodes.clear(); // обычный клик — сбросить всё
 
-  if (this.selectedNodes.has(node.id)) {
-    this.selectedNodes.delete(node.id);
-  } else {
-    this.selectedNodes.add(node.id);
-  }
-}
-
-@HostListener('window:keydown', ['$event'])
-handleKeyDown(event: KeyboardEvent): void {
-  if (event.key === 'Backspace') {
-    this.deleteSelectedNodes();
-    event.preventDefault();
-  }
-}
-
-deleteSelectedNodes(): void {
-  const toDelete = new Set<string>();
-  for (const id of this.selectedNodes) {
-    this.collectWithDescendants(id, toDelete);
-  }
-  this.nodes = this.nodes.filter(n => !toDelete.has(n.id));
-  this.selectedNodes.clear();
-  this.updateLayout();
-}
-
-private collectWithDescendants(id: string, set: Set<string>): void {
-  set.add(id);
-  const children = this.nodes.filter(n => n.parentId === id);
-  for (const child of children) {
-    this.collectWithDescendants(child.id, set);
-  }
-}
-
-// перемещение карты
-public offsetX = 0;
-public offsetY = 0;
-
-
-activateMoveMode(event: MouseEvent): void {
-  // Только если клик был не по узлу (например, target — canvas)
-  if ((event.target as HTMLElement).classList.contains('mindmap-canvas')) {
-    this.isMoveMode = true;
-  }
-}
-
-onMouseDown(event: MouseEvent): void {
-  if (this.isMoveMode) {
-    this.isDragging = true;
-    this.lastMousePosition = { x: event.clientX, y: event.clientY };
-    event.preventDefault();
-  }
-}
-
-onMouseMove(event: MouseEvent): void {
-  if (this.isDragging && this.lastMousePosition) {
-    const dx = event.clientX - this.lastMousePosition.x;
-    const dy = event.clientY - this.lastMousePosition.y;
-
-    this.zone.run(() => {
-      this.offsetX += dx;
-      this.offsetY += dy;
-    });
-
-    this.lastMousePosition = { x: event.clientX, y: event.clientY };
-  }
-}
-
-
-
-onMouseUp(event: MouseEvent): void {
-  this.isDragging = false;
-  this.isMoveMode = false;
-  this.lastMousePosition = null;
-}
-
-onDragStart(node: MindmapNode): void {
-  this.draggedNode = node;
-}
-
-onDragEnd(): void {
-  this.draggedNode = null;
-  this.potentialDropTarget = null;
-}
-
-onDropOnNode(targetNode: MindmapNode): void {
-  if (!this.draggedNode || this.draggedNode.id === targetNode.id) return;
-
-  // Запрещаем дроп в потомка самого себя
-  if (this.isDescendant(this.draggedNode, targetNode)) return;
-
-  this.draggedNode.parentId = targetNode.id;
-  this.draggedNode.side = targetNode.side ?? 'right';
-  this.draggedNode.expanded = true;
-
-  this.updateLayout();
-  this.draggedNode = null;
-}
-
-private isDescendant(parent: MindmapNode, target: MindmapNode): boolean {
-  const children = this.getAllChildren(parent);
-  for (const child of children) {
-    if (child.id === target.id || this.isDescendant(child, target)) {
-      return true;
+    if (this.selectedNodes.has(node.id)) {
+      this.selectedNodes.delete(node.id);
+    } else {
+      this.selectedNodes.add(node.id);
     }
   }
-  return false;
-}
 
-
-
-zoomIn(): void {
-  this.zoomLevel = Math.min(this.zoomLevel + this.zoomStep, this.maxZoom);
-}
-
-zoomOut(): void {
-  this.zoomLevel = Math.max(this.zoomLevel - this.zoomStep, this.minZoom);
-}
-
-@HostListener('wheel', ['$event'])
-onWheel(event: WheelEvent) {
-  if (event.ctrlKey) {
-    event.preventDefault();
-    const delta = event.deltaY < 0 ? 1 : -1;
-    const factor = delta > 0 ? 1.02 : 0.98;
-    this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel * factor));
-  }
-}
-
-@HostListener('touchmove', ['$event'])
-onTouchMove(event: TouchEvent) {
-  if (event.touches.length === 2) {
-    event.preventDefault();
-
-    const dx = event.touches[0].clientX - event.touches[1].clientX;
-    const dy = event.touches[0].clientY - event.touches[1].clientY;
-    const currentDistance = Math.sqrt(dx * dx + dy * dy);
-
-    if (this.lastTouchDistance != null) {
-      const delta = currentDistance - this.lastTouchDistance;
-      const scaleChange = delta > 0 ? 1.01 : 0.99;
-      this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel * scaleChange));
+  @HostListener('window:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Backspace') {
+      this.deleteSelectedNodes();
+      event.preventDefault();
+    }
+    if (event.key === 'F6' || event.key === '1') {
+      this.centerMindmap();
+      event.preventDefault();
     }
 
-    this.lastTouchDistance = currentDistance;
   }
-}
 
-@HostListener('touchend')
-resetTouchDistance() {
-  this.lastTouchDistance = null;
-}
+  deleteSelectedNodes(): void {
+    const toDelete = new Set<string>();
+    for (const id of this.selectedNodes) {
+      this.collectWithDescendants(id, toDelete);
+    }
+    this.nodes = this.nodes.filter(n => !toDelete.has(n.id));
+    this.selectedNodes.clear();
+    this.updateLayout();
+  }
+
+  private collectWithDescendants(id: string, set: Set<string>): void {
+    set.add(id);
+    const children = this.nodes.filter(n => n.parentId === id);
+    for (const child of children) {
+      this.collectWithDescendants(child.id, set);
+    }
+  }
+
+  // перемещение карты
+  public offsetX = 0;
+  public offsetY = 0;
+
+
+  activateMoveMode(event: MouseEvent): void {
+    // Только если клик был не по узлу (например, target — canvas)
+    if ((event.target as HTMLElement).classList.contains('mindmap-canvas')) {
+      this.isMoveMode = true;
+    }
+  }
+
+  onMouseDown(event: MouseEvent): void {
+    if (this.isMoveMode) {
+      this.isDragging = true;
+      this.lastMousePosition = { x: event.clientX, y: event.clientY };
+      event.preventDefault();
+    }
+  }
+
+  onMouseMove(event: MouseEvent): void {
+    if (this.isDragging && this.lastMousePosition) {
+      const dx = event.clientX - this.lastMousePosition.x;
+      const dy = event.clientY - this.lastMousePosition.y;
+
+      this.zone.run(() => {
+        this.offsetX += dx;
+        this.offsetY += dy;
+      });
+
+      this.lastMousePosition = { x: event.clientX, y: event.clientY };
+    }
+  }
+
+
+
+  onMouseUp(event: MouseEvent): void {
+    this.isDragging = false;
+    this.isMoveMode = false;
+    this.lastMousePosition = null;
+  }
+
+  onDragStart(node: MindmapNode): void {
+    this.draggedNode = node;
+  }
+
+  onDragEnd(): void {
+    this.draggedNode = null;
+    this.potentialDropTarget = null;
+  }
+
+  onDropOnNode(targetNode: MindmapNode): void {
+    if (!this.draggedNode || this.draggedNode.id === targetNode.id) return;
+
+    // Запрещаем дроп в потомка самого себя
+    if (this.isDescendant(this.draggedNode, targetNode)) return;
+
+    this.draggedNode.parentId = targetNode.id;
+    this.draggedNode.side = targetNode.side ?? 'right';
+    this.draggedNode.expanded = true;
+
+    this.updateLayout();
+    this.draggedNode = null;
+  }
+
+  private isDescendant(parent: MindmapNode, target: MindmapNode): boolean {
+    const children = this.getAllChildren(parent);
+    for (const child of children) {
+      if (child.id === target.id || this.isDescendant(child, target)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+
+  zoomIn(): void {
+    this.zoomLevel = Math.min(this.zoomLevel + this.zoomStep, this.maxZoom);
+  }
+
+  zoomOut(): void {
+    this.zoomLevel = Math.max(this.zoomLevel - this.zoomStep, this.minZoom);
+  }
+
+  @HostListener('wheel', ['$event'])
+  onWheel(event: WheelEvent) {
+    if (event.ctrlKey) {
+      event.preventDefault();
+      const delta = event.deltaY < 0 ? 1 : -1;
+      const factor = delta > 0 ? 1.02 : 0.98;
+      this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel * factor));
+    }
+  }
+
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
+    if (event.touches.length === 2) {
+      event.preventDefault();
+
+      const dx = event.touches[0].clientX - event.touches[1].clientX;
+      const dy = event.touches[0].clientY - event.touches[1].clientY;
+      const currentDistance = Math.sqrt(dx * dx + dy * dy);
+
+      if (this.lastTouchDistance != null) {
+        const delta = currentDistance - this.lastTouchDistance;
+        const scaleChange = delta > 0 ? 1.01 : 0.99;
+        this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel * scaleChange));
+      }
+
+      this.lastTouchDistance = currentDistance;
+    }
+  }
+
+  @HostListener('touchend')
+  resetTouchDistance() {
+    this.lastTouchDistance = null;
+  }
+
+  centerMindmap(): void {
+    const container = document.querySelector('.mindmap-scroll-container') as HTMLElement;
+    const canvas = document.querySelector('.mindmap-canvas') as HTMLElement;
+    if (!container || !canvas) return;
+
+    const canvasBounds = canvas.getBoundingClientRect();
+    const containerBounds = container.getBoundingClientRect();
+
+    const centerX = (containerBounds.width - canvasBounds.width * this.zoomLevel) / 2;
+    const centerY = (containerBounds.height - canvasBounds.height * this.zoomLevel) / 2;
+
+    this.offsetX = centerX;
+    this.offsetY = centerY;
+  }
+
 
 }
