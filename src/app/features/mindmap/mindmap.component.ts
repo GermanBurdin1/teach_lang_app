@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, NgZone } from '@angular/core';
 import { MindmapNode } from './models/mindmap-node.model';
 import { v4 as uuidv4 } from 'uuid';
 import { ChangeDetectorRef } from '@angular/core';
@@ -10,7 +10,7 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./mindmap.component.css']
 })
 export class MindmapComponent implements OnInit {
-constructor(private cdr: ChangeDetectorRef) {}
+constructor(private zone: NgZone) {}
 
   nodes: MindmapNode[] = [];
   zoomLevel = 1;
@@ -353,8 +353,9 @@ private collectWithDescendants(id: string, set: Set<string>): void {
 }
 
 // перемещение карты
-offsetX = 0;
-offsetY = 0;
+public offsetX = 0;
+public offsetY = 0;
+
 
 activateMoveMode(event: MouseEvent): void {
   // Только если клик был не по узлу (например, target — canvas)
@@ -376,14 +377,15 @@ onMouseMove(event: MouseEvent): void {
     const dx = event.clientX - this.lastMousePosition.x;
     const dy = event.clientY - this.lastMousePosition.y;
 
-    this.offsetX += dx;
-    this.offsetY += dy;
+    this.zone.run(() => {
+      this.offsetX += dx;
+      this.offsetY += dy;
+    });
 
     this.lastMousePosition = { x: event.clientX, y: event.clientY };
-
-    this.cdr.detectChanges(); // ✅ Вынуждает Angular обновить DOM
   }
 }
+
 
 
 onMouseUp(event: MouseEvent): void {
