@@ -20,6 +20,10 @@ constructor(private zone: NgZone) {}
   private isMoveMode = false; // активируется после двойного клика
   draggedNode: MindmapNode | null = null;
   potentialDropTarget: MindmapNode | null = null;
+  zoomStep = 0.05;
+  minZoom = 0.2;
+  maxZoom = 2;
+  private lastTouchDistance: number | null = null;
 
 
   ngOnInit(): void {
@@ -431,5 +435,47 @@ private isDescendant(parent: MindmapNode, target: MindmapNode): boolean {
 }
 
 
+
+zoomIn(): void {
+  this.zoomLevel = Math.min(this.zoomLevel + this.zoomStep, this.maxZoom);
+}
+
+zoomOut(): void {
+  this.zoomLevel = Math.max(this.zoomLevel - this.zoomStep, this.minZoom);
+}
+
+@HostListener('wheel', ['$event'])
+onWheel(event: WheelEvent) {
+  if (event.ctrlKey) {
+    event.preventDefault();
+    const delta = event.deltaY < 0 ? 1 : -1;
+    const factor = delta > 0 ? 1.02 : 0.98;
+    this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel * factor));
+  }
+}
+
+@HostListener('touchmove', ['$event'])
+onTouchMove(event: TouchEvent) {
+  if (event.touches.length === 2) {
+    event.preventDefault();
+
+    const dx = event.touches[0].clientX - event.touches[1].clientX;
+    const dy = event.touches[0].clientY - event.touches[1].clientY;
+    const currentDistance = Math.sqrt(dx * dx + dy * dy);
+
+    if (this.lastTouchDistance != null) {
+      const delta = currentDistance - this.lastTouchDistance;
+      const scaleChange = delta > 0 ? 1.01 : 0.99;
+      this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel * scaleChange));
+    }
+
+    this.lastTouchDistance = currentDistance;
+  }
+}
+
+@HostListener('touchend')
+resetTouchDistance() {
+  this.lastTouchDistance = null;
+}
 
 }
