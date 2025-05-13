@@ -25,6 +25,9 @@ export class NodeComponent implements AfterViewInit {
   @ViewChild('textAreaRef') textAreaRef!: ElementRef<HTMLTextAreaElement>;
   @Input() hasChildren!: (node: MindmapNode) => boolean;
   @Input() isSelected = false;
+  @Output() dragStarted = new EventEmitter<MindmapNode>();
+@Output() dragEnded = new EventEmitter<void>();
+@Output() droppedOn = new EventEmitter<MindmapNode>();
 
   width: number = 0;
   height: number = 0;
@@ -75,5 +78,23 @@ handleKeyDown(event: KeyboardEvent): void {
   }
 }
 
+onDragStart(event: DragEvent): void {
+  this.dragStarted.emit(this.node);
+  event.stopPropagation();
+}
+
+onDragOver(event: DragEvent): void {
+  event.preventDefault(); // важно для drop-события
+}
+
+onDrop(event: DragEvent): void {
+  this.droppedOn.emit(this.node);
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+onDragEnd(): void {
+  this.dragEnded.emit();
+}
 
 }

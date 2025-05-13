@@ -34,6 +34,9 @@
   (zoom)="toggleZoom($event)"
   (shortcutAddChild)="addChild({ parent: $event })"
   (shortcutAddSibling)="addSibling({ sibling: $event })"
+  (dragStarted)="onDragStart($event)"
+  (dragEnded)="onDragEnd()"
+  (droppedOn)="onDropOnNode($event)">
   >
 </app-node>
 

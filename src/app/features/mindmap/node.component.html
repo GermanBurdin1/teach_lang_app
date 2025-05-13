@@ -1,4 +1,8 @@
-<div class="node-wrapper" [class.selected]="isSelected" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }" (click)="onClick($event)">
+<div class="node-wrapper" [class.selected]="isSelected" draggable="true"
+     (dragstart)="onDragStart($event)"
+     (dragover)="onDragOver($event)"
+     (drop)="onDrop($event)"
+     (dragend)="onDragEnd()" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }" (click)="onClick($event)">
   <!-- Кнопка справа (дочерний элемент) -->
   <div class="add-button right" *ngIf="isSelected" (click)="onAddChild($event)" title="добавить дочерний элемент">➕</div>
 

@@ -18,6 +18,9 @@ constructor(private zone: NgZone) {}
   private isDragging = false;
   private lastMousePosition: { x: number; y: number } | null = null;
   private isMoveMode = false; // активируется после двойного клика
+  draggedNode: MindmapNode | null = null;
+  potentialDropTarget: MindmapNode | null = null;
+
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
@@ -392,6 +395,39 @@ onMouseUp(event: MouseEvent): void {
   this.isDragging = false;
   this.isMoveMode = false;
   this.lastMousePosition = null;
+}
+
+onDragStart(node: MindmapNode): void {
+  this.draggedNode = node;
+}
+
+onDragEnd(): void {
+  this.draggedNode = null;
+  this.potentialDropTarget = null;
+}
+
+onDropOnNode(targetNode: MindmapNode): void {
+  if (!this.draggedNode || this.draggedNode.id === targetNode.id) return;
+
+  // Запрещаем дроп в потомка самого себя
+  if (this.isDescendant(this.draggedNode, targetNode)) return;
+
+  this.draggedNode.parentId = targetNode.id;
+  this.draggedNode.side = targetNode.side ?? 'right';
+  this.draggedNode.expanded = true;
+
+  this.updateLayout();
+  this.draggedNode = null;
+}
+
+private isDescendant(parent: MindmapNode, target: MindmapNode): boolean {
+  const children = this.getAllChildren(parent);
+  for (const child of children) {
+    if (child.id === target.id || this.isDescendant(child, target)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 
