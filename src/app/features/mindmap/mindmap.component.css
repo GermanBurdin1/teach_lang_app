@@ -1,9 +1,9 @@
 .mindmap-scroll-container {
   width: 100vw;
-    height: calc(95vh - 60px);
-    overflow: scroll;
-    position: relative;
-    background: #b5d1f0;
+  height: calc(95vh - 60px);
+  overflow: scroll;
+  position: relative;
+  background: #b5d1f0;
 }
 
 .mindmap-canvas {
@@ -15,7 +15,6 @@
   transform-origin: 0 0;
   z-index: 0;
 }
-
 
 .mindmap-lines {
   position: absolute;
@@ -78,20 +77,16 @@
 
 .modal {
   /* position: absolute; */
-  min-width: 120px;
+  width: 24vw;
+  min-height: 10vh;
+  height: auto;
   padding: 6px 10px;
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  background: red; /* временно для теста */
-  z-index: 9999 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   display: block !important;
-  position: fixed;
-  top: 0;
-  left: 0;
-
 }
 
 .modal.rule {
@@ -128,6 +123,7 @@
   z-index: 999; /* под модалками */
 }
 
-.modal, .modal-overlay {
+.modal,
+.modal-overlay {
   pointer-events: auto;
 }

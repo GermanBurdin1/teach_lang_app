@@ -92,30 +92,6 @@ textarea.node-title {
   z-index: 1000;
 }
 
-.modal.rule {
-  top: 100%;
-  left: 50%;
-  transform: translate(-50%, 10px);
-}
-
-.modal.exception {
-  top: -50px;
-  left: 50%;
-  transform: translate(-50%, -100%);
-}
-
-.modal.example {
-  top: 50%;
-  left: 100%;
-  transform: translate(10px, -50%);
-}
-
-.modal.exercise {
-  top: 50%;
-  left: -10px;
-  transform: translate(-100%, -50%);
-}
-
 .modal-overlay {
   position: fixed;
   top: 0;
