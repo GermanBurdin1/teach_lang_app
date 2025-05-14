@@ -1,4 +1,4 @@
-<div class="mindmap-scroll-container" (dblclick)="activateMoveMode($event)" (mousedown)="onMouseDown($event)"
+<div class="mindmap-container" (dblclick)="activateMoveMode($event)" (mousedown)="onMouseDown($event)"
   (mouseup)="onMouseUp($event)" (mousemove)="onMouseMove($event)">
   <div class="mindmap-canvas"
     [style.transform]="'translate(' + offsetX + 'px,' + offsetY + 'px) scale(' + zoomLevel + ')'">
@@ -32,7 +32,7 @@
       </app-node>
     </ng-container>
   </div>
-  
+
   <div class="zoom-controls">
     <button (click)="zoomOut()">−</button>
     <span>{{ (zoomLevel * 100) | number:'1.0-0' }}%</span>

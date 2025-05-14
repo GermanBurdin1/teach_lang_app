@@ -489,7 +489,7 @@ export class MindmapComponent implements OnInit {
   }
 
   centerMindmap(): void {
-    const container = document.querySelector('.mindmap-scroll-container') as HTMLElement;
+    const container = document.querySelector('.mindmap-container') as HTMLElement;
     const canvas = document.querySelector('.mindmap-canvas') as HTMLElement;
     if (!container || !canvas) return;
 

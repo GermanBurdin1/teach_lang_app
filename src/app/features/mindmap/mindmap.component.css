@@ -1,7 +1,7 @@
-.mindmap-scroll-container {
+.mindmap-container {
   width: 100vw;
   height: calc(95vh - 60px);
-  overflow: scroll;
+  overflow: hidden;
   position: relative;
   background: #b5d1f0;
 }
