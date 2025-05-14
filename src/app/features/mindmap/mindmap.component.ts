@@ -23,6 +23,8 @@ export class MindmapComponent implements OnInit {
   minZoom = 0.2;
   maxZoom = 2;
   private lastTouchDistance: number | null = null;
+  activeModalNode: MindmapNode | null = null;
+  activeModalType: 'rule' | 'exception' | 'example' | 'exercise' | null = null;
 
 
   ngOnInit(): void {
@@ -76,7 +78,11 @@ export class MindmapComponent implements OnInit {
       expanded: true,
       width: NODE_WIDTH,
       height: 0,
-      side
+      side,
+      rule: 'Напиши правило...',
+      exception: 'Укажи исключение...',
+      example: 'Добавь пример...',
+      exercise: 'Придумай упражнение...'
     };
 
     if (parent.expanded === false) {
@@ -496,6 +502,62 @@ export class MindmapComponent implements OnInit {
     this.offsetX = centerX;
     this.offsetY = centerY;
   }
+
+  onOpenModal(event: { node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' }) {
+    console.log('[openModal]', event);
+    this.activeModalNode = event.node;
+    this.activeModalType = event.type;
+  }
+
+  closeModal() {
+    this.activeModalNode = null;
+    this.activeModalType = null;
+  }
+
+  getModalLocalPosition(node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' | null) {
+  if (!node || !type) return {};
+
+  const canvas = document.querySelector('.mindmap-canvas') as HTMLElement;
+  if (!canvas) return {};
+
+  const canvasRect = canvas.getBoundingClientRect();
+  const offset = 10;
+  const style: any = {};
+
+  // Реальные координаты с учётом масштабирования
+  const scaledX = node.x * this.zoomLevel + canvasRect.left;
+  const scaledY = node.y * this.zoomLevel + canvasRect.top;
+  const width = node.width * this.zoomLevel;
+  const height = node.height * this.zoomLevel;
+
+  switch (type) {
+    case 'rule':
+      style.left = `${scaledX + width / 2}px`;
+      style.top = `${scaledY + height + offset}px`;
+      style.transform = 'translateX(-50%)';
+      break;
+    case 'exception':
+      style.left = `${scaledX + width / 2}px`;
+      style.top = `${scaledY - offset}px`;
+      style.transform = 'translate(-50%, -100%)';
+      break;
+    case 'example':
+      style.left = `${scaledX + width + offset}px`;
+      style.top = `${scaledY + height / 2}px`;
+      style.transform = 'translateY(-50%)';
+      break;
+    case 'exercise':
+      style.left = `${scaledX - offset}px`;
+      style.top = `${scaledY + height / 2}px`;
+      style.transform = 'translateX(-100%) translateY(-50%)';
+      break;
+  }
+
+  return style;
+}
+
+
+
 
 
 }

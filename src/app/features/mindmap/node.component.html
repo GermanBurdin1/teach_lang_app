@@ -1,10 +1,10 @@
-<div class="node-wrapper" [class.selected]="isSelected" draggable="true"
-     (dragstart)="onDragStart($event)"
-     (dragover)="onDragOver($event)"
-     (drop)="onDrop($event)"
-     (dragend)="onDragEnd()" [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }" (click)="onClick($event)">
+<div class="node-wrapper" [class.selected]="isSelected" draggable="true" (dragstart)="onDragStart($event)"
+  (dragover)="onDragOver($event)" (drop)="onDrop($event)" (dragend)="onDragEnd()"
+  [ngStyle]="{ left: node.x + 'px', top: node.y + 'px' }" (click)="onClick($event)"
+  [class.dimmed]="!isActiveModalNode && isAnyModalOpen" [class.foreground]="isActiveModalNode">
   <!-- Кнопка справа (дочерний элемент) -->
-  <div class="add-button right" *ngIf="isSelected" (click)="onAddChild($event)" title="добавить дочерний элемент">➕</div>
+  <div class="add-button right" *ngIf="isSelected" (click)="onAddChild($event)" title="добавить дочерний элемент">➕
+  </div>
 
   <!-- Кнопка снизу (родственный элемент) — только если не корень -->
   <div class="add-button bottom" *ngIf="isSelected && node.parentId" (click)="onAddSibling($event)"
@@ -12,15 +12,21 @@
 
   <!-- Сам узел -->
   <div class="node" [attr.id]="'node-' + node.id">
-    <textarea #textAreaRef class="node-title" [(ngModel)]="node.title" rows="1" (click)="$event.stopPropagation()"
-      (input)="resizeTextArea($event)">
+    <textarea #textAreaRef class="node-title" [(ngModel)]="node.title" rows="1"
+      placeholder="Entrez un titre en français" (click)="$event.stopPropagation()" (input)="resizeTextArea($event)">
     </textarea>
+    <div class="icon-row">
+      <span class="icon-btn" (click)="toggleModal('rule', $event)" title="Правило">📘</span>
+      <span class="icon-btn" (click)="toggleModal('exception', $event)" title="Исключение">⚠️</span>
+      <span class="icon-btn" (click)="toggleModal('example', $event)" title="Пример">💡</span>
+      <span class="icon-btn" (click)="toggleModal('exercise', $event)" title="Упражнение">📝</span>
   </div>
-  <!-- Кнопка сворачивания/разворачивания -->
-  <div class="toggle-expand" *ngIf="hasChildren(node)" (click)="onZoom()"
+
+</div>
+<!-- Кнопка сворачивания/разворачивания -->
+<div class="toggle-expand" *ngIf="hasChildren(node)" (click)="onZoom()"
   [title]="node.expanded ? 'Свернуть дочерние элементы' : 'Развернуть дочерние элементы'">
   {{ node.expanded ? '➖' : '➕' }}
 </div>
-
 
 </div>

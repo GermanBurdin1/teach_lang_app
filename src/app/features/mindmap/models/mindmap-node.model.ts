@@ -9,5 +9,9 @@ export interface MindmapNode {
   width: number;
   height: number;
   side?: 'left' | 'right';
+  rule?: string;
+  exception?: string;
+  example?: string;
+  exercise?: string;
 }
 

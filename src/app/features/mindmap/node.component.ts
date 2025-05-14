@@ -26,12 +26,21 @@ export class NodeComponent implements AfterViewInit {
   @Input() hasChildren!: (node: MindmapNode) => boolean;
   @Input() isSelected = false;
   @Output() dragStarted = new EventEmitter<MindmapNode>();
-@Output() dragEnded = new EventEmitter<void>();
-@Output() droppedOn = new EventEmitter<MindmapNode>();
+  @Output() dragEnded = new EventEmitter<void>();
+  @Output() droppedOn = new EventEmitter<MindmapNode>();
+  @Output() openModal = new EventEmitter<{ node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' }>();
+  @Input() isActiveModalNode = false;
+  @Input() isAnyModalOpen = false;
+
 
   width: number = 0;
   height: number = 0;
   side?: 'left' | 'right';
+
+  toggleModal(type: 'rule' | 'exception' | 'example' | 'exercise', event: MouseEvent) {
+  event.stopPropagation(); // чтобы не вызвать onClick и не сбросить выбор
+  this.openModal.emit({ node: this.node, type });
+}
 
 
   onSelect(): void {
@@ -59,42 +68,42 @@ export class NodeComponent implements AfterViewInit {
   }
 
   onClick(event: MouseEvent): void {
-  this.toggleSelect.emit({ node: this.node, additive: event.shiftKey });
-  event.stopPropagation();
-}
-
-@HostListener('document:keydown', ['$event'])
-handleKeyDown(event: KeyboardEvent): void {
-  if (!this.isSelected) return;
-
-  if (event.key === 'Tab') {
-    this.shortcutAddChild.emit(this.node);
-    event.preventDefault();
+    this.toggleSelect.emit({ node: this.node, additive: event.shiftKey });
+    event.stopPropagation();
   }
 
-  if (event.key === 'Enter') {
-    this.shortcutAddSibling.emit(this.node);
-    event.preventDefault();
+  @HostListener('document:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent): void {
+    if (!this.isSelected) return;
+
+    if (event.key === 'Tab') {
+      this.shortcutAddChild.emit(this.node);
+      event.preventDefault();
+    }
+
+    if (event.key === 'Enter') {
+      this.shortcutAddSibling.emit(this.node);
+      event.preventDefault();
+    }
   }
-}
 
-onDragStart(event: DragEvent): void {
-  this.dragStarted.emit(this.node);
-  event.stopPropagation();
-}
+  onDragStart(event: DragEvent): void {
+    this.dragStarted.emit(this.node);
+    event.stopPropagation();
+  }
 
-onDragOver(event: DragEvent): void {
-  event.preventDefault(); // важно для drop-события
-}
+  onDragOver(event: DragEvent): void {
+    event.preventDefault(); // важно для drop-события
+  }
 
-onDrop(event: DragEvent): void {
-  this.droppedOn.emit(this.node);
-  event.preventDefault();
-  event.stopPropagation();
-}
+  onDrop(event: DragEvent): void {
+    this.droppedOn.emit(this.node);
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
-onDragEnd(): void {
-  this.dragEnded.emit();
-}
+  onDragEnd(): void {
+    this.dragEnded.emit();
+  }
 
 }

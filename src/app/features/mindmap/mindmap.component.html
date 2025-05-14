@@ -1,53 +1,55 @@
-<div class="mindmap-scroll-container" (dblclick)="activateMoveMode($event)"
-     (mousedown)="onMouseDown($event)"
-     (mouseup)="onMouseUp($event)"
-     (mousemove)="onMouseMove($event)">
-<div class="mindmap-canvas" [style.transform]="'translate(' + offsetX + 'px,' + offsetY + 'px) scale(' + zoomLevel + ')'">
-  <!-- SVG линии -->
-  <svg class="mindmap-lines">
-    <ng-container *ngFor="let node of nodes">
-      <ng-container *ngTemplateOutlet="renderLines; context: { parent: node }"></ng-container>
-    </ng-container>
-
-    <ng-template #renderLines let-parent="parent">
-      <ng-container *ngIf="parent.expanded !== false">
-        <ng-container *ngFor="let child of getAllChildren(parent)">
-          <path *ngIf="parent.width && parent.height && child.width && child.height"
-                [attr.d]="generatePath(parent, child)" stroke="#aaa" stroke-width="2" fill="transparent" />
-          <ng-container *ngTemplateOutlet="renderLines; context: { parent: child }"></ng-container>
-        </ng-container>
+<div class="mindmap-scroll-container" (dblclick)="activateMoveMode($event)" (mousedown)="onMouseDown($event)"
+  (mouseup)="onMouseUp($event)" (mousemove)="onMouseMove($event)">
+  <div class="mindmap-canvas"
+    [style.transform]="'translate(' + offsetX + 'px,' + offsetY + 'px) scale(' + zoomLevel + ')'">
+    <!-- SVG линии -->
+    <svg class="mindmap-lines">
+      <ng-container *ngFor="let node of nodes">
+        <ng-container *ngTemplateOutlet="renderLines; context: { parent: node }"></ng-container>
       </ng-container>
-    </ng-template>
 
-  </svg>
+      <ng-template #renderLines let-parent="parent">
+        <ng-container *ngIf="parent.expanded !== false">
+          <ng-container *ngFor="let child of getAllChildren(parent)">
+            <path *ngIf="parent.width && parent.height && child.width && child.height"
+              [attr.d]="generatePath(parent, child)" stroke="#aaa" stroke-width="2" fill="transparent" />
+            <ng-container *ngTemplateOutlet="renderLines; context: { parent: child }"></ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-template>
+
+    </svg>
 
 
-  <!-- Компоненты узлов -->
-  <ng-container *ngFor="let node of getVisibleNodes(); trackBy: trackById">
-    <app-node
-  [node]="node"
-  [hasChildren]="hasChildren"
-  [isSelected]="selectedNodes.has(node.id)"
-  (add)="addChild($event)"
-  (addSibling)="addSibling($event)"
-  (toggleSelect)="toggleNodeSelection($event)"
-  (zoom)="toggleZoom($event)"
-  (shortcutAddChild)="addChild({ parent: $event })"
-  (shortcutAddSibling)="addSibling({ sibling: $event })"
-  (dragStarted)="onDragStart($event)"
-  (dragEnded)="onDragEnd()"
-  (droppedOn)="onDropOnNode($event)">
-  >
-</app-node>
+    <!-- Компоненты узлов -->
+    <ng-container *ngFor="let node of getVisibleNodes(); trackBy: trackById">
+      <app-node [node]="node" [hasChildren]="hasChildren" [isSelected]="selectedNodes.has(node.id)"
+        [isActiveModalNode]="activeModalNode?.id === node.id" [isAnyModalOpen]="!!activeModalNode"
+        (add)="addChild($event)" (addSibling)="addSibling($event)" (toggleSelect)="toggleNodeSelection($event)"
+        (zoom)="toggleZoom($event)" (shortcutAddChild)="addChild({ parent: $event })"
+        (shortcutAddSibling)="addSibling({ sibling: $event })" (dragStarted)="onDragStart($event)"
+        (dragEnded)="onDragEnd()" (droppedOn)="onDropOnNode($event)" (openModal)="onOpenModal($event)">
+      </app-node>
+    </ng-container>
+  </div>
+  
+  <div class="zoom-controls">
+    <button (click)="zoomOut()">−</button>
+    <span>{{ (zoomLevel * 100) | number:'1.0-0' }}%</span>
+    <button (click)="zoomIn()">+</button>
+    <button (click)="centerMindmap()" title="Центрировать карту F6 или 1">🎯</button>
+  </div>
 
-  </ng-container>
+
+
+
 </div>
-<div class="zoom-controls">
-  <button (click)="zoomOut()">−</button>
-  <span>{{ (zoomLevel * 100) | number:'1.0-0' }}%</span>
-  <button (click)="zoomIn()">+</button>
-  <button (click)="centerMindmap()" title="Центрировать карту F6 или 1">🎯</button>
-</div>
 
+<!-- Вуаль -->
+<div class="modal-overlay" *ngIf="activeModalNode" (click)="closeModal()"></div>
 
+<!-- Глобальная модалка -->
+<div *ngIf="activeModalNode" class="modal" [ngClass]="activeModalType"
+     [ngStyle]="getModalLocalPosition(activeModalNode, activeModalType)">
+  {{ activeModalNode[activeModalType!] || 'Нет содержимого' }}
 </div>

@@ -68,3 +68,65 @@ textarea.node-title {
   resize: none;
   overflow: hidden;
 }
+
+.icon-row {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 6px;
+}
+
+.icon-btn {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.modal {
+  position: absolute;
+  min-width: 120px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.modal.rule {
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 10px);
+}
+
+.modal.exception {
+  top: -50px;
+  left: 50%;
+  transform: translate(-50%, -100%);
+}
+
+.modal.example {
+  top: 50%;
+  left: 100%;
+  transform: translate(10px, -50%);
+}
+
+.modal.exercise {
+  top: 50%;
+  left: -10px;
+  transform: translate(-100%, -50%);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 999; /* под модалками */
+}
+
+.node-wrapper.dimmed {
+  opacity: 0.3;
+  pointer-events: none;
+}
