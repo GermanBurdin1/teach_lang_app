@@ -339,17 +339,37 @@ export class MindmapComponent implements OnInit {
   }
 
   @HostListener('window:keydown', ['$event'])
-  handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Backspace') {
+handleKeyDown(event: KeyboardEvent): void {
+  const step = 30; // шаг перемещения карты
+
+  switch (event.key) {
+    case 'ArrowUp':
+      this.offsetY += step;
+      event.preventDefault();
+      break;
+    case 'ArrowDown':
+      this.offsetY -= step;
+      event.preventDefault();
+      break;
+    case 'ArrowLeft':
+      this.offsetX += step;
+      event.preventDefault();
+      break;
+    case 'ArrowRight':
+      this.offsetX -= step;
+      event.preventDefault();
+      break;
+    case 'Backspace':
       this.deleteSelectedNodes();
       event.preventDefault();
-    }
-    if (event.key === 'F6' || event.key === '1') {
+      break;
+    case '1':
       this.centerMindmap();
       event.preventDefault();
-    }
-
+      break;
   }
+}
+
 
   deleteSelectedNodes(): void {
     const toDelete = new Set<string>();
@@ -531,6 +551,8 @@ export class MindmapComponent implements OnInit {
     console.log('[openModal]', event);
     this.activeModalNode = event.node;
     this.activeModalType = event.type;
+
+    this.focusNode(event.node);
   }
 
   closeModal() {
@@ -579,6 +601,32 @@ export class MindmapComponent implements OnInit {
 
     return style;
   }
+
+
+  focusNode(node: MindmapNode): void {
+  const container = document.querySelector('.mindmap-container') as HTMLElement;
+  if (!container || !node.width || !node.height) return;
+
+  const containerCenterX = container.clientWidth / 2;
+  const containerCenterY = container.clientHeight / 2;
+
+  const targetOffsetX = containerCenterX - (node.x + node.width / 2) * this.zoomLevel;
+  const targetOffsetY = containerCenterY - (node.y + node.height / 2) * this.zoomLevel;
+
+  // Плавное приближение (пример с 10 шагами)
+  const steps = 10;
+  let step = 0;
+  const startX = this.offsetX;
+  const startY = this.offsetY;
+
+  const interval = setInterval(() => {
+    step++;
+    const t = step / steps;
+    this.offsetX = startX + (targetOffsetX - startX) * t;
+    this.offsetY = startY + (targetOffsetY - startY) * t;
+    if (step === steps) clearInterval(interval);
+  }, 16);
+}
 
 
 

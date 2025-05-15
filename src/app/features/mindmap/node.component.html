@@ -15,7 +15,7 @@
     <textarea #textAreaRef class="node-title" [(ngModel)]="node.title" rows="1"
       placeholder="Entrez un titre en français" (click)="$event.stopPropagation()" (input)="resizeTextArea($event)">
     </textarea>
-    <div class="icon-row">
+    <div class="icon-row" *ngIf="node.parentId !== null">
       <span class="icon-btn" (click)="toggleModal('rule', $event)" title="Правило">📘</span>
       <span class="icon-btn" (click)="toggleModal('exception', $event)" title="Исключение">⚠️</span>
       <span class="icon-btn" (click)="toggleModal('example', $event)" title="Пример">💡</span>
