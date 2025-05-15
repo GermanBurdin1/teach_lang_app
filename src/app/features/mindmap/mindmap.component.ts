@@ -548,12 +548,11 @@ handleKeyDown(event: KeyboardEvent): void {
 
 
   onOpenModal(event: { node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' }) {
-    console.log('[openModal]', event);
-    this.activeModalNode = event.node;
-    this.activeModalType = event.type;
+  this.focusNode(event.node); // 🧭 моментально сдвигаем карту
+  this.activeModalNode = event.node; // 🧊 сразу отображаем модалку
+  this.activeModalType = event.type;
+}
 
-    this.focusNode(event.node);
-  }
 
   closeModal() {
     this.activeModalNode = null;
@@ -610,23 +609,10 @@ handleKeyDown(event: KeyboardEvent): void {
   const containerCenterX = container.clientWidth / 2;
   const containerCenterY = container.clientHeight / 2;
 
-  const targetOffsetX = containerCenterX - (node.x + node.width / 2) * this.zoomLevel;
-  const targetOffsetY = containerCenterY - (node.y + node.height / 2) * this.zoomLevel;
-
-  // Плавное приближение (пример с 10 шагами)
-  const steps = 10;
-  let step = 0;
-  const startX = this.offsetX;
-  const startY = this.offsetY;
-
-  const interval = setInterval(() => {
-    step++;
-    const t = step / steps;
-    this.offsetX = startX + (targetOffsetX - startX) * t;
-    this.offsetY = startY + (targetOffsetY - startY) * t;
-    if (step === steps) clearInterval(interval);
-  }, 16);
+  this.offsetX = containerCenterX - (node.x + node.width / 2) * this.zoomLevel;
+  this.offsetY = containerCenterY - (node.y + node.height / 2) * this.zoomLevel;
 }
+
 
 
 
