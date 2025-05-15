@@ -489,19 +489,43 @@ export class MindmapComponent implements OnInit {
   }
 
   centerMindmap(): void {
-    const container = document.querySelector('.mindmap-container') as HTMLElement;
-    const canvas = document.querySelector('.mindmap-canvas') as HTMLElement;
-    if (!container || !canvas) return;
+  const container = document.querySelector('.mindmap-container') as HTMLElement;
+  if (!container) return;
 
-    const canvasBounds = canvas.getBoundingClientRect();
-    const containerBounds = container.getBoundingClientRect();
+  const rootNode = this.nodes.find(n => n.parentId === null && n.title.toLowerCase().includes('grammaire'));
+  if (!rootNode || !rootNode.width || !rootNode.height) return;
 
-    const centerX = (containerBounds.width - canvasBounds.width * this.zoomLevel) / 2;
-    const centerY = (containerBounds.height - canvasBounds.height * this.zoomLevel) / 2;
+  const containerCenterX = container.clientWidth / 2;
+  const containerCenterY = container.clientHeight / 2;
 
-    this.offsetX = centerX;
-    this.offsetY = centerY;
-  }
+  // 1. Самый дальний видимый узел (внук, правнук и т.д.)
+  const allVisibleNodes = this.getVisibleNodes();
+  const maxXNode = allVisibleNodes.reduce((max, node) => node.x > max.x ? node : max, allVisibleNodes[0]);
+  const maxYNode = allVisibleNodes.reduce((max, node) => node.y > max.y ? node : max, allVisibleNodes[0]);
+
+  // 2. Разница между корнем и крайним узлом
+  const deltaX = maxXNode.x - rootNode.x;
+  const deltaY = maxYNode.y - rootNode.y;
+
+  // 3. Центр Grammaire
+  const nodeCenterX = (rootNode.x + rootNode.width / 2) * this.zoomLevel;
+  const nodeCenterY = (rootNode.y + rootNode.height / 2) * this.zoomLevel;
+
+  // 4. Финальные оффсеты
+  this.offsetX = containerCenterX - nodeCenterX + deltaX * this.zoomLevel;
+  this.offsetY = containerCenterY - nodeCenterY + deltaY * this.zoomLevel;
+
+  console.log("🧭 Центрируем по Grammaire", {
+    rootNode,
+    maxXNode,
+    maxYNode,
+    deltaX,
+    deltaY,
+    offsetX: this.offsetX,
+    offsetY: this.offsetY
+  });
+}
+
 
   onOpenModal(event: { node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' }) {
     console.log('[openModal]', event);
