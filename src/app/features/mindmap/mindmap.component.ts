@@ -188,7 +188,7 @@ export class MindmapComponent implements OnInit {
 
 
 
-  private getVisibleChildren(node: MindmapNode): MindmapNode[] {
+  getVisibleChildren(node: MindmapNode): MindmapNode[] {
     return this.getAllChildren(node).filter(child => child.expanded !== false);
   }
 
@@ -375,20 +375,27 @@ export class MindmapComponent implements OnInit {
 
 
   activateMoveMode(event: MouseEvent): void {
-    // Только если клик был не по узлу (например, target — canvas)
-    if ((event.target as HTMLElement).classList.contains('mindmap-canvas')) {
-      this.isMoveMode = true;
-    }
+    this.isMoveMode = true; // удаляем проверку classList
+    console.log('🟢 Двойной клик: включён режим перемещения карты');
   }
 
   onMouseDown(event: MouseEvent): void {
     if (this.isMoveMode) {
       this.isDragging = true;
       this.lastMousePosition = { x: event.clientX, y: event.clientY };
+      console.log('🟡 Начало перемещения', this.lastMousePosition);
       event.preventDefault();
     }
   }
 
+  @HostListener('document:mouseup', ['$event'])
+  onMouseUp(event: MouseEvent): void {
+    this.isDragging = false;
+    this.isMoveMode = false;
+    this.lastMousePosition = null;
+  }
+
+  @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     if (this.isDragging && this.lastMousePosition) {
       const dx = event.clientX - this.lastMousePosition.x;
@@ -403,13 +410,6 @@ export class MindmapComponent implements OnInit {
     }
   }
 
-
-
-  onMouseUp(event: MouseEvent): void {
-    this.isDragging = false;
-    this.isMoveMode = false;
-    this.lastMousePosition = null;
-  }
 
   onDragStart(node: MindmapNode): void {
     this.draggedNode = node;
@@ -489,42 +489,42 @@ export class MindmapComponent implements OnInit {
   }
 
   centerMindmap(): void {
-  const container = document.querySelector('.mindmap-container') as HTMLElement;
-  if (!container) return;
+    const container = document.querySelector('.mindmap-container') as HTMLElement;
+    if (!container) return;
 
-  const rootNode = this.nodes.find(n => n.parentId === null && n.title.toLowerCase().includes('grammaire'));
-  if (!rootNode || !rootNode.width || !rootNode.height) return;
+    const rootNode = this.nodes.find(n => n.parentId === null && n.title.toLowerCase().includes('grammaire'));
+    if (!rootNode || !rootNode.width || !rootNode.height) return;
 
-  const containerCenterX = container.clientWidth / 2;
-  const containerCenterY = container.clientHeight / 2;
+    const containerCenterX = container.clientWidth / 2;
+    const containerCenterY = container.clientHeight / 2;
 
-  // 1. Самый дальний видимый узел (внук, правнук и т.д.)
-  const allVisibleNodes = this.getVisibleNodes();
-  const maxXNode = allVisibleNodes.reduce((max, node) => node.x > max.x ? node : max, allVisibleNodes[0]);
-  const maxYNode = allVisibleNodes.reduce((max, node) => node.y > max.y ? node : max, allVisibleNodes[0]);
+    // 1. Самый дальний видимый узел (внук, правнук и т.д.)
+    const allVisibleNodes = this.getVisibleNodes();
+    const maxXNode = allVisibleNodes.reduce((max, node) => node.x > max.x ? node : max, allVisibleNodes[0]);
+    const maxYNode = allVisibleNodes.reduce((max, node) => node.y > max.y ? node : max, allVisibleNodes[0]);
 
-  // 2. Разница между корнем и крайним узлом
-  const deltaX = maxXNode.x - rootNode.x;
-  const deltaY = maxYNode.y - rootNode.y;
+    // 2. Разница между корнем и крайним узлом
+    const deltaX = maxXNode.x - rootNode.x;
+    const deltaY = maxYNode.y - rootNode.y;
 
-  // 3. Центр Grammaire
-  const nodeCenterX = (rootNode.x + rootNode.width / 2) * this.zoomLevel;
-  const nodeCenterY = (rootNode.y + rootNode.height / 2) * this.zoomLevel;
+    // 3. Центр Grammaire
+    const nodeCenterX = (rootNode.x + rootNode.width / 2) * this.zoomLevel;
+    const nodeCenterY = (rootNode.y + rootNode.height / 2) * this.zoomLevel;
 
-  // 4. Финальные оффсеты
-  this.offsetX = containerCenterX - nodeCenterX + deltaX * this.zoomLevel;
-  this.offsetY = containerCenterY - nodeCenterY + deltaY * this.zoomLevel;
+    // 4. Финальные оффсеты
+    this.offsetX = containerCenterX - nodeCenterX + deltaX * this.zoomLevel;
+    this.offsetY = containerCenterY - nodeCenterY + deltaY * this.zoomLevel;
 
-  console.log("🧭 Центрируем по Grammaire", {
-    rootNode,
-    maxXNode,
-    maxYNode,
-    deltaX,
-    deltaY,
-    offsetX: this.offsetX,
-    offsetY: this.offsetY
-  });
-}
+    console.log("🧭 Центрируем по Grammaire", {
+      rootNode,
+      maxXNode,
+      maxYNode,
+      deltaX,
+      deltaY,
+      offsetX: this.offsetX,
+      offsetY: this.offsetY
+    });
+  }
 
 
   onOpenModal(event: { node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' }) {
@@ -539,46 +539,46 @@ export class MindmapComponent implements OnInit {
   }
 
   getModalLocalPosition(node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' | null) {
-  if (!node || !type) return {};
+    if (!node || !type) return {};
 
-  const canvas = document.querySelector('.mindmap-canvas') as HTMLElement;
-  if (!canvas) return {};
+    const canvas = document.querySelector('.mindmap-canvas') as HTMLElement;
+    if (!canvas) return {};
 
-  const canvasRect = canvas.getBoundingClientRect();
-  const offset = 10;
-  const style: any = {};
+    const canvasRect = canvas.getBoundingClientRect();
+    const offset = 10;
+    const style: any = {};
 
-  // Реальные координаты с учётом масштабирования
-  const scaledX = node.x * this.zoomLevel + canvasRect.left;
-  const scaledY = node.y * this.zoomLevel + canvasRect.top;
-  const width = node.width * this.zoomLevel;
-  const height = node.height * this.zoomLevel;
+    // Реальные координаты с учётом масштабирования
+    const scaledX = node.x * this.zoomLevel + canvasRect.left;
+    const scaledY = node.y * this.zoomLevel + canvasRect.top;
+    const width = node.width * this.zoomLevel;
+    const height = node.height * this.zoomLevel;
 
-  switch (type) {
-    case 'rule':
-      style.left = `${scaledX + width / 2}px`;
-      style.top = `${scaledY + height + offset}px`;
-      style.transform = 'translateX(-50%)';
-      break;
-    case 'exception':
-      style.left = `${scaledX + width / 2}px`;
-      style.top = `${scaledY - offset}px`;
-      style.transform = 'translate(-50%, -100%)';
-      break;
-    case 'example':
-      style.left = `${scaledX + width + offset}px`;
-      style.top = `${scaledY + height / 2}px`;
-      style.transform = 'translateY(-50%)';
-      break;
-    case 'exercise':
-      style.left = `${scaledX - offset}px`;
-      style.top = `${scaledY + height / 2}px`;
-      style.transform = 'translateX(-100%) translateY(-50%)';
-      break;
+    switch (type) {
+      case 'rule':
+        style.left = `${scaledX + width / 2}px`;
+        style.top = `${scaledY + height + offset}px`;
+        style.transform = 'translateX(-50%)';
+        break;
+      case 'exception':
+        style.left = `${scaledX + width / 2}px`;
+        style.top = `${scaledY - offset}px`;
+        style.transform = 'translate(-50%, -100%)';
+        break;
+      case 'example':
+        style.left = `${scaledX + width + offset}px`;
+        style.top = `${scaledY + height / 2}px`;
+        style.transform = 'translateY(-50%)';
+        break;
+      case 'exercise':
+        style.left = `${scaledX - offset}px`;
+        style.top = `${scaledY + height / 2}px`;
+        style.transform = 'translateX(-100%) translateY(-50%)';
+        break;
+    }
+
+    return style;
   }
-
-  return style;
-}
 
 
 
