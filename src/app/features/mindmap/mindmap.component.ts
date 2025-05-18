@@ -68,19 +68,36 @@ export class MindmapComponent implements OnInit {
           this.api.createNode(rootNode).subscribe({
             next: created => {
               this.nodes = [created];
-              setTimeout(() => this.updateLayout(), 0);
+              this.deferLayoutUpdate();
             },
             error: err => console.error('❌ Ошибка при создании узла Grammaire', err)
           });
 
         } else {
           this.nodes = nodes;
-          setTimeout(() => this.updateLayout(), 0);
+          this.deferLayoutUpdate();
         }
       },
       error: err => console.error('Ошибка загрузки узлов', err)
     });
+
   }
+
+  private deferLayoutUpdate(): void {
+    // Подождать, пока Angular нарисует DOM
+    setTimeout(() => {
+      for (const node of this.nodes) {
+        const el = document.getElementById(`node-${node.id}`);
+        if (el) {
+          node.width = el.offsetWidth;
+          node.height = el.offsetHeight;
+        }
+      }
+
+      this.updateLayout(); // теперь размеры есть — отрисуются и линии
+    }, 0);
+  }
+
 
   addChild(data: { parent: MindmapNode }): void {
     const { parent } = data;
