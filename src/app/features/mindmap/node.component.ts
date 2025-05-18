@@ -31,16 +31,16 @@ export class NodeComponent implements AfterViewInit {
   @Output() openModal = new EventEmitter<{ node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' }>();
   @Input() isActiveModalNode = false;
   @Input() isAnyModalOpen = false;
-
+  @Output() titleChanged = new EventEmitter<{ nodeId: string, newTitle: string }>();
 
   width: number = 0;
   height: number = 0;
   side?: 'left' | 'right';
 
   toggleModal(type: 'rule' | 'exception' | 'example' | 'exercise', event: MouseEvent) {
-  event.stopPropagation(); // чтобы не вызвать onClick и не сбросить выбор
-  this.openModal.emit({ node: this.node, type });
-}
+    event.stopPropagation(); // чтобы не вызвать onClick и не сбросить выбор
+    this.openModal.emit({ node: this.node, type });
+  }
 
 
   onSelect(): void {
@@ -104,6 +104,10 @@ export class NodeComponent implements AfterViewInit {
 
   onDragEnd(): void {
     this.dragEnded.emit();
+  }
+
+  onTitleInput(event: Event) {
+    this.titleChanged.emit({ nodeId: this.node.id, newTitle: this.node.title });
   }
 
 }

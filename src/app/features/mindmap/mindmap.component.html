@@ -28,7 +28,7 @@
         (add)="addChild($event)" (addSibling)="addSibling($event)" (toggleSelect)="toggleNodeSelection($event)"
         (zoom)="toggleZoom($event)" (shortcutAddChild)="addChild({ parent: $event })"
         (shortcutAddSibling)="addSibling({ sibling: $event })" (dragStarted)="onDragStart($event)"
-        (dragEnded)="onDragEnd()" (droppedOn)="onDropOnNode($event)" (openModal)="onOpenModal($event)">
+        (dragEnded)="onDragEnd()" (droppedOn)="onDropOnNode($event)" (openModal)="onOpenModal($event)" (titleChanged)="onTitleChange($event)">
       </app-node>
     </ng-container>
   </div>
@@ -51,5 +51,17 @@
 <!-- Глобальная модалка -->
 <div *ngIf="activeModalNode" class="modal" [ngClass]="activeModalType"
      [ngStyle]="getModalLocalPosition(activeModalNode, activeModalType)">
-  {{ activeModalNode[activeModalType!] || 'Нет содержимого' }}
+  <textarea
+    [(ngModel)]="activeModalNode[activeModalType!]"
+    (input)="onModalInput()"
+    rows="4"
+    class="modal-textarea"
+    placeholder="Введите текст..."
+  ></textarea>
+
+  <div *ngIf="activeModalType === 'rule' || activeModalType === 'exception'" class="shortcuts">
+    <button *ngFor="let shortcut of grammarShortcuts" (click)="insertShortcut(shortcut.insert)">
+      {{ shortcut.label }}
+    </button>
+  </div>
 </div>

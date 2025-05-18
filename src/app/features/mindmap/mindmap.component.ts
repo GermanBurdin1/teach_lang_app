@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit, NgZone } from '@angular/core';
 import { MindmapNode } from './models/mindmap-node.model';
 import { v4 as uuidv4 } from 'uuid';
+import { MindmapService } from './mindmap.service';
 
 
 @Component({
@@ -9,7 +10,11 @@ import { v4 as uuidv4 } from 'uuid';
   styleUrls: ['./mindmap.component.css']
 })
 export class MindmapComponent implements OnInit {
-  constructor(private zone: NgZone) { }
+  constructor(
+    private zone: NgZone,
+    private api: MindmapService
+  ) { }
+
 
   nodes: MindmapNode[] = [];
   zoomLevel = 1;
@@ -25,23 +30,56 @@ export class MindmapComponent implements OnInit {
   private lastTouchDistance: number | null = null;
   activeModalNode: MindmapNode | null = null;
   activeModalType: 'rule' | 'exception' | 'example' | 'exercise' | null = null;
-
+  grammarShortcuts = [
+    { label: 'adj.', insert: 'adj.' },       // прилагательное
+    { label: 'v.', insert: 'v.' },           // глагол
+    { label: 'n.', insert: 'n.' },           // существительное
+    { label: 'pl.', insert: 'pl.' },         // множественное число
+    { label: 'm.', insert: 'm.' },           // мужской род
+    { label: 'f.', insert: 'f.' },           // женский род
+    { label: '≠', insert: '≠' },             // не равно
+    { label: '→', insert: '→' },             // указывает на результат
+    { label: '!', insert: '!' },             // важное
+  ];
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;
 
-    const rootNode: MindmapNode = {
-      id: uuidv4(),
-      parentId: null,
-      title: 'Grammaire',
-      x: canvasWidth / 2,
-      y: canvasHeight / 2,
-      expanded: false,
-      width: 0,
-      height: 0
-    };
-    this.nodes.push(rootNode);
+    this.api.getAll().subscribe({
+      next: nodes => {
+        if (nodes.length === 0) {
+          const rootNode: MindmapNode = {
+            id: uuidv4(),
+            parentId: null,
+            title: 'Grammaire',
+            x: canvasWidth / 2,
+            y: canvasHeight / 2,
+            expanded: true,
+            width: 200,
+            height: 0,
+            rule: '',
+            exception: '',
+            example: '',
+            exercise: '',
+            side: 'right'
+          };
+
+          this.api.createNode(rootNode).subscribe({
+            next: created => {
+              this.nodes = [created];
+              setTimeout(() => this.updateLayout(), 0);
+            },
+            error: err => console.error('❌ Ошибка при создании узла Grammaire', err)
+          });
+
+        } else {
+          this.nodes = nodes;
+          setTimeout(() => this.updateLayout(), 0);
+        }
+      },
+      error: err => console.error('Ошибка загрузки узлов', err)
+    });
   }
 
   addChild(data: { parent: MindmapNode }): void {
@@ -79,38 +117,44 @@ export class MindmapComponent implements OnInit {
       width: NODE_WIDTH,
       height: 0,
       side,
-      rule: 'Напиши правило...',
-      exception: 'Укажи исключение...',
-      example: 'Добавь пример...',
-      exercise: 'Придумай упражнение...'
+      rule: '',
+      exception: '',
+      example: '',
+      exercise: ''
     };
 
     if (parent.expanded === false) {
       parent.expanded = true;
     }
 
-    this.nodes.push(newNode);
-    this.selectedNodes.clear();
-    this.selectedNodes.add(newNode.id);
+    this.api.createNode(newNode).subscribe({
+      next: created => {
+        this.nodes.push(created);
+        this.selectedNodes.clear();
+        this.selectedNodes.add(created.id);
 
-    setTimeout(() => {
-      for (const node of this.nodes) {
-        const el = document.getElementById(`node-${node.id}`);
-        if (el) {
-          node.width = el.offsetWidth;
-          node.height = el.offsetHeight;
-        }
-      }
-      this.updateLayout();
-    }, 0);
+        setTimeout(() => {
+          for (const node of this.nodes) {
+            const el = document.getElementById(`node-${node.id}`);
+            if (el) {
+              node.width = el.offsetWidth;
+              node.height = el.offsetHeight;
+            }
+          }
+          this.updateLayout();
+        }, 0);
+      },
+      error: err => console.error('Ошибка при создании узла', err)
+    });
   }
-
-
-
-
 
   toggleZoom(node: MindmapNode): void {
     node.expanded = !node.expanded;
+    this.api.updateExpanded(node.id, node.expanded).subscribe({
+      next: () => console.log('✅ Статус раскрытия сохранён'),
+      error: err => console.error('❌ Ошибка при сохранении раскрытия', err)
+    });
+
 
     setTimeout(() => {
       for (const node of this.nodes) {
@@ -123,7 +167,6 @@ export class MindmapComponent implements OnInit {
       this.updateLayout();
     }, 0);
   }
-
 
   trackById(index: number, node: MindmapNode): string {
     return node.id;
@@ -149,7 +192,6 @@ export class MindmapComponent implements OnInit {
               ${endX + (isLeftToRight ? -dx : dx)},${endY}
               ${endX},${endY}`;
   }
-
 
 
   addSibling(data: { sibling: MindmapNode }) {
@@ -272,6 +314,12 @@ export class MindmapComponent implements OnInit {
 
     }, 0);
 
+    const positionsToSave = this.nodes.map(n => ({ id: n.id, x: n.x, y: n.y }));
+    this.api.saveAllPositions(positionsToSave).subscribe({
+      next: () => console.log('✅ Позиции сохранены'),
+      error: err => console.error('❌ Ошибка сохранения позиций', err)
+    });
+
 
   }
 
@@ -339,36 +387,46 @@ export class MindmapComponent implements OnInit {
   }
 
   @HostListener('window:keydown', ['$event'])
-handleKeyDown(event: KeyboardEvent): void {
-  const step = 30; // шаг перемещения карты
+  handleKeyDown(event: KeyboardEvent): void {
+    const step = 30; // шаг перемещения карты
 
-  switch (event.key) {
-    case 'ArrowUp':
-      this.offsetY += step;
-      event.preventDefault();
-      break;
-    case 'ArrowDown':
-      this.offsetY -= step;
-      event.preventDefault();
-      break;
-    case 'ArrowLeft':
-      this.offsetX += step;
-      event.preventDefault();
-      break;
-    case 'ArrowRight':
-      this.offsetX -= step;
-      event.preventDefault();
-      break;
-    case 'Backspace':
-      this.deleteSelectedNodes();
-      event.preventDefault();
-      break;
-    case '1':
-      this.centerMindmap();
-      event.preventDefault();
-      break;
+    switch (event.key) {
+      case 'ArrowUp':
+        this.offsetY += step;
+        event.preventDefault();
+        break;
+      case 'ArrowDown':
+        this.offsetY -= step;
+        event.preventDefault();
+        break;
+      case 'ArrowLeft':
+        this.offsetX += step;
+        event.preventDefault();
+        break;
+      case 'ArrowRight':
+        this.offsetX -= step;
+        event.preventDefault();
+        break;
+      case 'Backspace':
+        // Не удалять узел, если пользователь в модалке
+        const active = document.activeElement;
+        if (
+          active &&
+          (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT' || active.getAttribute('contenteditable') === 'true')
+        ) {
+          return;
+        }
+
+        this.deleteSelectedNodes();
+        event.preventDefault();
+        break;
+
+      case '1':
+        this.centerMindmap();
+        event.preventDefault();
+        break;
+    }
   }
-}
 
 
   deleteSelectedNodes(): void {
@@ -376,6 +434,15 @@ handleKeyDown(event: KeyboardEvent): void {
     for (const id of this.selectedNodes) {
       this.collectWithDescendants(id, toDelete);
     }
+
+    // параллельное удаление всех узлов
+    for (const id of toDelete) {
+      this.api.deleteNode(id).subscribe({
+        next: () => console.log('Удалён узел', id),
+        error: err => console.error('Ошибка при удалении', err)
+      });
+    }
+
     this.nodes = this.nodes.filter(n => !toDelete.has(n.id));
     this.selectedNodes.clear();
     this.updateLayout();
@@ -445,6 +512,7 @@ handleKeyDown(event: KeyboardEvent): void {
 
     // Запрещаем дроп в потомка самого себя
     if (this.isDescendant(this.draggedNode, targetNode)) return;
+    const nodeToUpdate = this.draggedNode;
 
     this.draggedNode.parentId = targetNode.id;
     this.draggedNode.side = targetNode.side ?? 'right';
@@ -452,6 +520,18 @@ handleKeyDown(event: KeyboardEvent): void {
 
     this.updateLayout();
     this.draggedNode = null;
+
+    this.api.updateNodePosition(nodeToUpdate.id, {
+      parentId: targetNode.id,
+      side: nodeToUpdate.side!,
+      x: nodeToUpdate.x,
+      y: nodeToUpdate.y,
+      expanded: nodeToUpdate.expanded ?? true
+    }).subscribe({
+      next: () => console.log('✅ Позиция узла обновлена'),
+      error: err => console.error('❌ Ошибка при сохранении позиции', err)
+    });
+
   }
 
   private isDescendant(parent: MindmapNode, target: MindmapNode): boolean {
@@ -548,10 +628,10 @@ handleKeyDown(event: KeyboardEvent): void {
 
 
   onOpenModal(event: { node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' }) {
-  this.focusNode(event.node); // 🧭 моментально сдвигаем карту
-  this.activeModalNode = event.node; // 🧊 сразу отображаем модалку
-  this.activeModalType = event.type;
-}
+    this.focusNode(event.node); // 🧭 моментально сдвигаем карту
+    this.activeModalNode = event.node; // 🧊 сразу отображаем модалку
+    this.activeModalType = event.type;
+  }
 
 
   closeModal() {
@@ -603,18 +683,50 @@ handleKeyDown(event: KeyboardEvent): void {
 
 
   focusNode(node: MindmapNode): void {
-  const container = document.querySelector('.mindmap-container') as HTMLElement;
-  if (!container || !node.width || !node.height) return;
+    const container = document.querySelector('.mindmap-container') as HTMLElement;
+    if (!container || !node.width || !node.height) return;
 
-  const containerCenterX = container.clientWidth / 2;
-  const containerCenterY = container.clientHeight / 2;
+    const containerCenterX = container.clientWidth / 2;
+    const containerCenterY = container.clientHeight / 2;
 
-  this.offsetX = containerCenterX - (node.x + node.width / 2) * this.zoomLevel;
-  this.offsetY = containerCenterY - (node.y + node.height / 2) * this.zoomLevel;
-}
+    this.offsetX = containerCenterX - (node.x + node.width / 2) * this.zoomLevel;
+    this.offsetY = containerCenterY - (node.y + node.height / 2) * this.zoomLevel;
+  }
 
 
 
+  onModalInput(): void {
+    const nodeId = this.activeModalNode?.id;
+    const field = this.activeModalType;
+    const content = this.activeModalNode?.[field!];
+
+    if (!nodeId || !field) return;
+
+    this.api.updateNodeText(nodeId, field, content!).subscribe({
+      next: () => console.log('✅ Сохранено:', { nodeId, field }),
+      error: err => console.error('❌ Ошибка при сохранении:', err)
+    });
+  }
+
+  insertShortcut(text: string): void {
+    const current = this.activeModalNode?.[this.activeModalType!] || '';
+    this.activeModalNode![this.activeModalType!] = current + ' ' + text;
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent) {
+    this.api.bulkSave(this.nodes).subscribe({
+      next: () => console.log('✅ Все узлы сохранены перед закрытием'),
+      error: err => console.error('❌ Ошибка bulk save перед закрытием', err)
+    });
+  }
+
+  onTitleChange(event: { nodeId: string, newTitle: string }) {
+    this.api.updateTitle(event.nodeId, event.newTitle).subscribe({
+      next: () => console.log('✅ Заголовок сохранён'),
+      error: err => console.error('❌ Ошибка при сохранении заголовка', err)
+    });
+  }
 
 
 

@@ -13,7 +13,7 @@
   <!-- Сам узел -->
   <div class="node" [attr.id]="'node-' + node.id">
     <textarea #textAreaRef class="node-title" [(ngModel)]="node.title" rows="1"
-      placeholder="Entrez un titre en français" (click)="$event.stopPropagation()" (input)="resizeTextArea($event)">
+      placeholder="Entrez un titre en français" (click)="$event.stopPropagation()" (input)="resizeTextArea($event)" (input)="onTitleInput($event)">
     </textarea>
     <div class="icon-row" *ngIf="node.parentId !== null">
       <span class="icon-btn" (click)="toggleModal('rule', $event)" title="Правило">📘</span>

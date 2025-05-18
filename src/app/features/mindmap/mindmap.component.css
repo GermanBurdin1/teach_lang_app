@@ -127,3 +127,30 @@
 .modal-overlay {
   pointer-events: auto;
 }
+
+.modal-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 6px 10px;
+  font-size: 14px;
+  resize: vertical;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.shortcuts {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.shortcuts button {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #999;
+  background-color: #f0f0f0;
+  font-size: 12px;
+  cursor: pointer;
+}
