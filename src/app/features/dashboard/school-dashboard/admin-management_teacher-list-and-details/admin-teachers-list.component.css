@@ -44,3 +44,15 @@ button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+.details-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.details-link:hover {
+  text-decoration: none;
+}

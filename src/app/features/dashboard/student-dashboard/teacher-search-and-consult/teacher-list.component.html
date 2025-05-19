@@ -15,7 +15,7 @@
       <h3>{{ teacher.name }}</h3>
       <p class="specializations">{{ teacher.specializations.join(', ') }}</p>
       <p class="price">{{ teacher.price }} €/час</p>
-      <a [routerLink]="['/teachers', teacher.id]" class="details-button">Подробнее</a>
+      <a [routerLink]="[teacher.id]">Подробнее</a>
     </div>
   </div>
 

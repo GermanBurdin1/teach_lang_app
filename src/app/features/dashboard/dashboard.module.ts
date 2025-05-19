@@ -5,8 +5,8 @@ import { UsersComponent } from '../users/users.component';
 import { MaterialsComponent } from '../marathons/materials/materials.component';
 import { MarathonsComponent } from '../marathons/marathons.component';
 import { SchoolDashboardComponent } from './school-dashboard/school-dashboard.component';
-import { TeacherProfileComponent } from './school-dashboard/teacher-profile/teacher-profile.component';
-import { StudentProfileComponent } from './school-dashboard/student-profile/student-profile.component';
+import { AdminTeacherProfileComponent } from './school-dashboard/teacher-management/admin-teacher-profile.component';
+import { StudentProfileComponent } from './student-dashboard/student-profile.component';
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
@@ -18,8 +18,12 @@ import { WordsComponent } from '../words/words.component';
 import { SharedModule } from '../../shared/shared.module';
 import { TrainerComponent } from '../trainer/trainer.component';
 import { GrammarFieldsComponent } from "../vocabulary/vocabulary-layout/grammar-fields.component";
-import { TeacherListComponent } from './school-dashboard/student-profile/teacher-search/teacher-list.component';
-import { AdminTeachersListComponent } from './admin-dashboard/teachers/admin-teachers-list.component';
+import { TeacherListComponent } from './student-dashboard/teacher-search-and-consult/teacher-list.component';
+import { AdminTeachersListComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teachers-list.component';
+import { TeacherDetailsComponent } from './student-dashboard/teacher-search-and-consult/teacher-details.component';
+import { AdminTeacherDetailsComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teacher-details.component';
+import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
+import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
 
 
 @NgModule({
@@ -28,14 +32,18 @@ import { AdminTeachersListComponent } from './admin-dashboard/teachers/admin-tea
     MaterialsComponent,
     MarathonsComponent,
     SchoolDashboardComponent,
-    TeacherProfileComponent,
+    AdminTeacherProfileComponent,
     StudentProfileComponent,
     OnlineLessonsComponent,
     // StatiscticsComponent,
     WordsComponent,
     TrainerComponent,
     TeacherListComponent,
-    AdminTeachersListComponent
+    AdminTeachersListComponent,
+    TeacherDetailsComponent,
+    AdminTeacherDetailsComponent,
+    TeacherProfileComponent,
+    TeacherDashboardOverviewComponent
   ],
   imports: [
     LayoutModule,

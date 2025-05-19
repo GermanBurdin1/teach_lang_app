@@ -91,6 +91,16 @@ export class HeaderComponent {
     });
   }
 
+  switchToTeacher(): void {
+    this.isHeaderExpanded = false;
+    localStorage.setItem('isTeacherDashboard', JSON.stringify(true));
+    localStorage.setItem('isSchoolDashboard', JSON.stringify(false));
+    this.router.navigate(['teacher/wordsTeaching']).then(() => {
+      this.dashboardService.switchToTeacherDashboard();
+    });
+  }
+
+
 
   // ajouter de l'argent
   showBalanceModal = false;

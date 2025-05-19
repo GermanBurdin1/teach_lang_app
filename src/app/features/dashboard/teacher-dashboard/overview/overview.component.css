@@ -1,0 +1,51 @@
+.teacher-overview-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.profile-header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.profile-photo {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-info h2 {
+  margin: 0;
+}
+
+.profile-tags {
+  margin: 10px 0;
+}
+
+.tag {
+  background-color: #f0f0f0;
+  padding: 5px 10px;
+  margin: 2px;
+  display: inline-block;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.details {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.certificates,
+.contact {
+  margin-top: 20px;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 1.2rem;
+}

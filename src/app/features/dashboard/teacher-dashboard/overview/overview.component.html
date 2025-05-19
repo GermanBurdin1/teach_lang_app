@@ -1,0 +1,38 @@
+<div *ngIf="profile" class="teacher-overview-container">
+  <div class="profile-header">
+    <img [src]="profile.photoUrl" alt="Photo de {{ profile.name }}" class="profile-photo" />
+
+    <div class="profile-info">
+      <h2>{{ profile.name }}</h2>
+      <p class="bio">{{ profile.bio }}</p>
+
+      <div class="profile-tags">
+        <span *ngFor="let subject of profile.specializations" class="tag">
+          {{ subject }}
+        </span>
+      </div>
+
+      <p class="details">
+        Опыт: {{ profile.experienceYears }} лет<br />
+        Рейтинг: ★ {{ profile.rating }}<br />
+        Стоимость: {{ profile.price }} €/час
+      </p>
+    </div>
+  </div>
+
+  <div class="certificates">
+    <h4>Сертификаты:</h4>
+    <ul>
+      <li *ngFor="let cert of profile.certificates">{{ cert }}</li>
+    </ul>
+  </div>
+
+  <div class="contact">
+    <h4>Контакт:</h4>
+    <p>{{ profile.email }}</p>
+  </div>
+</div>
+
+<div *ngIf="!profile" class="loading">
+  Загрузка профиля преподавателя...
+</div>

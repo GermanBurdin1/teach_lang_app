@@ -1,0 +1,27 @@
+<div *ngIf="teacher" class="admin-teacher-details">
+  <img [src]="teacher.photoUrl" alt="{{ teacher.name }}" class="avatar" />
+  <h2>{{ teacher.name }}</h2>
+  <p><strong>Специализации:</strong> {{ teacher.specializations.join(', ') }}</p>
+  <p><strong>Цена:</strong> {{ teacher.price }} €/ч</p>
+  <p><strong>Рейтинг:</strong> ★ {{ teacher.rating }}</p>
+
+  <p>
+    <strong>Активность:</strong>
+    <span [class.active]="teacher.isActive" [class.inactive]="!teacher.isActive">
+      {{ teacher.isActive ? 'Активен' : 'Неактивен' }}
+    </span>
+  </p>
+
+  <p><strong>Дата регистрации:</strong> {{ getFormattedDate(teacher.registrationDate) }}</p>
+
+  <p>
+    <strong>Модерация:</strong>
+    <span [class.moderated]="teacher.moderated" [class.not-moderated]="!teacher.moderated">
+      {{ teacher.moderated ? 'Пройдена' : 'Не пройдена' }}
+    </span>
+  </p>
+</div>
+
+<div *ngIf="!teacher" class="not-found">
+  Преподаватель не найден.
+</div>

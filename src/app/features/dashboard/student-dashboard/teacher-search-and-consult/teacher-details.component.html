@@ -1,0 +1,19 @@
+<div *ngIf="teacher" class="teacher-profile">
+  <img [src]="teacher.photoUrl" alt="{{ teacher.name }}" class="avatar" />
+  <h2>{{ teacher.name }}</h2>
+  <p>★ {{ teacher.rating }} — {{ teacher.specializations.join(', ') }}</p>
+  <p><strong>Цена:</strong> {{ teacher.price }} €/час</p>
+  <p><strong>Опыт:</strong> {{ teacher.experienceYears }} лет</p>
+  <p><strong>Сертификаты:</strong> {{ teacher.certificates.join(', ') }}</p>
+  <p class="bio">{{ teacher.bio }}</p>
+
+
+  <div class="actions">
+    <button disabled>Написать</button>
+    <button disabled>Забронировать занятие</button>
+  </div>
+</div>
+
+<div *ngIf="!teacher" class="not-found">
+  Преподаватель не найден.
+</div>

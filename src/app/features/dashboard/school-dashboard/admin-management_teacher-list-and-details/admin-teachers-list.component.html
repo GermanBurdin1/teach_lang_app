@@ -27,6 +27,7 @@
           {{ teacher.moderated ? 'Пройдена' : 'Не пройдена' }}
         </span>
       </p>
+      <a [routerLink]="[teacher.id]" class="details-link">Подробнее</a>
     </div>
   </div>
 

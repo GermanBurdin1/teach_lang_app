@@ -1,0 +1,18 @@
+/* Обёртка для основного контейнера */
+.dashboard-layout {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+app-sidebar {
+  width: 64px;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.dashboard-content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+}

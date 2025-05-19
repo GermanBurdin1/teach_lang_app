@@ -2,6 +2,7 @@
   <!-- Profile Header -->
   <div class="mb-4">
     <!-- Back Button -->
+    <div *ngIf="teacherData as teacher" class="teacher-profile" style="max-width: 800px; margin: 0 auto;">
     <div class="d-flex align-items-center">
       <button class="btn btn-light me-3" (click)="navigateBack()">
         <i class="bi bi-arrow-left"></i>
@@ -10,18 +11,18 @@
       <!-- Avatar -->
       <div class="avatar-circle bg-light text-center d-flex justify-content-center align-items-center me-3"
         style="width: 60px; height: 60px; border-radius: 50%;">
-        <span class="text-uppercase">{{ teacherData?.name[0] }}</span>
+        <span class="text-uppercase">{{ teacherData.name[0] }}</span>
       </div>
 
       <!-- Profile Information -->
       <div>
-        <h2 class="mb-1">{{ teacherData?.name }}</h2>
+        <h2 class="mb-1">{{ teacherData.name }}</h2>
         <div class="d-flex align-items-center">
           <span class="me-3">
-            <i class="bi bi-person-badge-fill me-1"></i> {{ teacherData?.id }}
+            <i class="bi bi-person-badge-fill me-1"></i> {{ teacherData.id }}
           </span>
           <span>
-            <i class="bi bi-envelope-fill me-1"></i> {{ teacherData?.email }}
+            <i class="bi bi-envelope-fill me-1"></i> {{ teacherData.email }}
           </span>
         </div>
 
@@ -44,6 +45,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 
@@ -70,6 +72,30 @@
     <!-- Содержимое подвкладки "Учитель" -->
     <div *ngIf="activeSubTab === 'Учитель'">
       <!-- Контейнер для статуса учителя и кнопки деактивации -->
+      <!-- Блок с информацией о преподавателе -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">О преподавателе</h5>
+          <p><strong>Биография:</strong> {{ teacherData?.bio || 'Не указана' }}</p>
+          <p><strong>Опыт:</strong> {{ teacherData?.experienceYears || 0 }} лет</p>
+          <p><strong>Сертификаты:</strong>
+            {{ teacherData?.certificates?.length ? teacherData?.certificates?.join(', ') : 'Не указаны' }}
+          </p>
+          <p>
+            <strong>Статус:</strong>
+            <span [ngClass]="teacherData?.isActive ? 'text-success' : 'text-danger'">
+              {{ teacherData?.isActive ? 'Активен' : 'Неактивен' }}
+            </span>
+          </p>
+          <p>
+            <strong>Модерация:</strong>
+            <span [ngClass]="teacherData?.moderated ? 'text-success' : 'text-warning'">
+              {{ teacherData?.moderated ? 'Пройдена' : 'Не пройдена' }}
+            </span>
+          </p>
+        </div>
+      </div>
+
       <div class="d-flex justify-content-between align-items-center mb-3">
         <!-- Статус и подсказка -->
         <div class="d-flex align-items-center">
@@ -292,7 +318,8 @@
           <div class="product-item mb-3 d-flex justify-content-between align-items-center">
             <div>Онлайн-уроки</div>
             <button class="btn btn-link" (click)="openTariffModal()">Добавить</button>
-            <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal" (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
+            <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal"
+              (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
           </div>
           <div class="product-item d-flex justify-content-between align-items-center">
             <div>Марафоны</div>

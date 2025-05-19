@@ -1,5 +1,16 @@
 <div class="sidebar">
-  <div *ngIf="isSchoolDashboard; else studentDashboard">
+  <!-- Приоритет: преподаватель > школа > ученик -->
+  <ng-container *ngIf="isTeacherDashboard; else checkSchool">
+    <ng-container *ngTemplateOutlet="teacherDashboard"></ng-container>
+  </ng-container>
+
+  <ng-template #checkSchool>
+    <ng-container *ngIf="isSchoolDashboard; else studentDashboard">
+      <ng-container *ngTemplateOutlet="schoolDashboard"></ng-container>
+    </ng-container>
+  </ng-template>
+
+  <ng-template #schoolDashboard>
     <!-- Вкладки для административного кабинета -->
     <div class="uc-menu-item">
       <a routerLink="admin/teachers" class="icon-container">
@@ -31,7 +42,7 @@
         <i class="fas fa-dollar-sign uc-menu-icon"></i>
       </a>
     </div>
-  </div>
+  </ng-template>
 
   <ng-template #studentDashboard>
     <!-- Вкладки для ученического кабинета -->
@@ -40,7 +51,6 @@
         <i class="fas fa-chalkboard uc-menu-icon" style="color:#4e73df;"></i>
       </a>
     </div>
-
     <div class="uc-menu-item">
       <a routerLink="student/wordsTeaching" class="icon-container">
         <i class="fas fa-graduation-cap uc-menu-icon"></i>
@@ -64,6 +74,40 @@
     <div class="uc-menu-item">
       <a routerLink="student/trainer" class="icon-container">
         <i class="fas fa-headphones uc-menu-icon"></i>
+      </a>
+    </div>
+  </ng-template>
+
+  <ng-template #teacherDashboard>
+    <!-- Вкладки для преподавателя -->
+    <div class="uc-menu-item">
+      <a routerLink="teacher/profile" class="icon-container">
+        <i class="fas fa-user-circle uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="teacher/wordsTeaching" class="icon-container">
+        <i class="fas fa-graduation-cap uc-menu-icon" style="color:#4e73df;"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="/mindmap" class="icon-container">
+        <i class="fas fa-project-diagram uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="teacher/settings" class="icon-container">
+        <i class="fas fa-cog uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="teacher/trainer" class="icon-container">
+        <i class="fas fa-headphones uc-menu-icon"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
+      <a routerLink="teacher/profile" class="icon-container">
+        <i class="fas fa-user uc-menu-icon"></i>
       </a>
     </div>
   </ng-template>

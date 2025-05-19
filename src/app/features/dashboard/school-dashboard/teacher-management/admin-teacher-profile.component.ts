@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { TawkService } from '../../../../services/support-chat.service';
+import { MOCK_TEACHER_PROFILE } from './mock-teacher-profile';
+import { TeacherProfile } from './teacher-profile.model';
 
 interface Lesson {
   day: string;
@@ -10,13 +12,13 @@ interface Lesson {
 }
 
 @Component({
-  selector: 'app-teacher-profile',
-  templateUrl: './teacher-profile.component.html',
-  styleUrls: ['./teacher-profile.component.css']
+  selector: 'app-admin-teacher-profile',
+  templateUrl: './admin-teacher-profile.component.html',
+  styleUrls: ['./admin-teacher-profile.component.css']
 })
-export class TeacherProfileComponent implements OnInit {
+export class AdminTeacherProfileComponent implements OnInit {
   teacherId: number | null = null;
-  teacherData: any;
+  teacherData: TeacherProfile | null = null;
   tabs = ['Онлайн-уроки', 'Марафоны', 'Администратор'];
   subTabs = ['Учитель', 'Классы', 'Личные материалы'];
   activeTab: string = this.tabs[0];
@@ -57,11 +59,7 @@ export class TeacherProfileComponent implements OnInit {
   }
 
   loadTeacherData(): void {
-    const savedTeachers = localStorage.getItem('teachers');
-    if (savedTeachers) {
-      const teachers = JSON.parse(savedTeachers);
-      this.teacherData = teachers.find((teacher: any) => teacher.id === this.teacherId);
-    }
+    this.teacherData = MOCK_TEACHER_PROFILE;
   }
 
   switchTab(tab: string): void {

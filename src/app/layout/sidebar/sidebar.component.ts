@@ -8,7 +8,8 @@ import { DashboardService } from '../../services/dashboard.service';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  isSchoolDashboard = true; // По умолчанию администратор
+  isSchoolDashboard = true;
+  isTeacherDashboard = false;
 
   constructor(
     private router: Router,
@@ -17,28 +18,27 @@ export class SidebarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const storedSchool = localStorage.getItem('isSchoolDashboard');
+    const storedTeacher = localStorage.getItem('isTeacherDashboard');
 
-    // Читаем сохраненное состояние из localStorage
-    const storedState = localStorage.getItem('isSchoolDashboard');
-
-    if (storedState !== null) {
-      this.isSchoolDashboard = JSON.parse(storedState); // Устанавливаем сохраненное состояние
-    } else {
-      // Если в localStorage ничего нет, устанавливаем состояние по умолчанию
-      this.isSchoolDashboard = true; // По умолчанию школьная панель
-      console.log('No stored state found. Setting default isSchoolDashboard to true (SchoolDashboard)');
-      localStorage.setItem('isSchoolDashboard', JSON.stringify(this.isSchoolDashboard));
+    if (storedSchool !== null) {
+      this.isSchoolDashboard = JSON.parse(storedSchool);
     }
 
-    // Подписываемся на изменения состояния через сервис
-    this.dashboardService.currentDashboard.subscribe((isSchoolDashboard) => {
-      this.isSchoolDashboard = isSchoolDashboard;
-      localStorage.setItem('isSchoolDashboard', JSON.stringify(this.isSchoolDashboard)); // Сохраняем изменения
+    if (storedTeacher !== null) {
+      this.isTeacherDashboard = JSON.parse(storedTeacher);
+    }
+
+    this.dashboardService.currentDashboard.subscribe(isSchool => {
+      this.isSchoolDashboard = isSchool;
+    });
+
+    this.dashboardService.currentTeacherDashboard.subscribe(isTeacher => {
+      this.isTeacherDashboard = isTeacher;
     });
   }
 
   navigateTo(route: string): void {
-    console.log('Navigating to route:', route);
     this.router.navigate([route], { relativeTo: this.route });
   }
 }
