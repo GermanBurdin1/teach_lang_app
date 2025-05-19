@@ -18,6 +18,8 @@ import { WordsComponent } from '../words/words.component';
 import { SharedModule } from '../../shared/shared.module';
 import { TrainerComponent } from '../trainer/trainer.component';
 import { GrammarFieldsComponent } from "../vocabulary/vocabulary-layout/grammar-fields.component";
+import { TeacherListComponent } from './school-dashboard/student-profile/teacher-search/teacher-list.component';
+import { AdminTeachersListComponent } from './admin-dashboard/teachers/admin-teachers-list.component';
 
 
 @NgModule({
@@ -31,7 +33,9 @@ import { GrammarFieldsComponent } from "../vocabulary/vocabulary-layout/grammar-
     OnlineLessonsComponent,
     // StatiscticsComponent,
     WordsComponent,
-    TrainerComponent
+    TrainerComponent,
+    TeacherListComponent,
+    AdminTeachersListComponent
   ],
   imports: [
     LayoutModule,

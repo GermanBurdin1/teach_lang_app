@@ -2,6 +2,11 @@
   <div *ngIf="isSchoolDashboard; else studentDashboard">
     <!-- Вкладки для административного кабинета -->
     <div class="uc-menu-item">
+      <a routerLink="admin/teachers" class="icon-container">
+        <i class="fas fa-users-cog uc-menu-icon" style="color: #6f42c1;"></i>
+      </a>
+    </div>
+    <div class="uc-menu-item">
       <a routerLink="school/users" class="icon-container">
         <i class="fas fa-users uc-menu-icon"></i>
       </a>
@@ -30,6 +35,12 @@
 
   <ng-template #studentDashboard>
     <!-- Вкладки для ученического кабинета -->
+    <div class="uc-menu-item">
+      <a routerLink="student/teachers" class="icon-container">
+        <i class="fas fa-chalkboard uc-menu-icon" style="color:#4e73df;"></i>
+      </a>
+    </div>
+
     <div class="uc-menu-item">
       <a routerLink="student/wordsTeaching" class="icon-container">
         <i class="fas fa-graduation-cap uc-menu-icon"></i>

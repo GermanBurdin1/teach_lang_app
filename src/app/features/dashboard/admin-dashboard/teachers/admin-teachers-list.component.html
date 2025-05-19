@@ -1,0 +1,39 @@
+<div class="admin-teacher-list">
+  <h2>Преподаватели платформы</h2>
+
+  <div *ngIf="isLoading" class="spinner">Загрузка...</div>
+
+  <div *ngIf="!isLoading && teachers.length === 0">
+    Нет преподавателей
+  </div>
+
+  <div *ngFor="let teacher of teachers" class="admin-teacher-card">
+    <img [src]="teacher.photoUrl" alt="{{ teacher.name }}" class="avatar" />
+    <div class="info">
+      <h3>{{ teacher.name }}</h3>
+      <p>Специализации: {{ teacher.specializations.join(', ') }}</p>
+      <p>Цена: {{ teacher.price }} €/ч</p>
+      <p>Рейтинг: ★ {{ teacher.rating }}</p>
+      <p>
+        Статус:
+        <span [ngClass]="teacher.isActive ? 'status-active' : 'status-inactive'">
+          {{ teacher.isActive ? 'Активен' : 'Неактивен' }}
+        </span>
+      </p>
+      <p>Дата регистрации: {{ teacher.registrationDate | date:'longDate' }}</p>
+      <p>
+        Модерация:
+        <span [ngClass]="teacher.moderated ? 'moderated-yes' : 'moderated-no'">
+          {{ teacher.moderated ? 'Пройдена' : 'Не пройдена' }}
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="total > limit">
+    <button (click)="prevPage()" [disabled]="page === 1">Назад</button>
+    <span>Страница {{ page }} из {{ maxPage }}</span>
+    <button (click)="nextPage()" [disabled]="page >= maxPage">Вперёд</button>
+  </div>
+</div>
+

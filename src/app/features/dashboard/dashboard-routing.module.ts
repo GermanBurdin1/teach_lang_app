@@ -14,6 +14,8 @@ import { WordsComponent } from '../words/words.component';
 import { VocabularyComponent } from '../vocabulary/vocabulary.component';
 import { MaterialsComponent } from '../marathons/materials/materials.component';
 import { TrainerComponent } from '../trainer/trainer.component';
+import { TeacherListComponent } from './school-dashboard/student-profile/teacher-search/teacher-list.component';
+import { AdminTeachersListComponent } from './admin-dashboard/teachers/admin-teachers-list.component';
 
 const routes: Routes = [
   {
@@ -32,7 +34,9 @@ const routes: Routes = [
       { path: 'student/wordsTeaching', component: WordsComponent },
       { path: 'student/wordsTeaching/:galaxy/:subtopic', component: VocabularyComponent },
       { path: 'student/trainer', component: TrainerComponent },
-      {path: 'school/course/:id', component: MaterialsComponent}
+      { path: 'school/course/:id', component: MaterialsComponent},
+      { path: 'student/teachers', component: TeacherListComponent },
+      { path: 'admin/teachers', component: AdminTeachersListComponent },
     ]
   }
 ];

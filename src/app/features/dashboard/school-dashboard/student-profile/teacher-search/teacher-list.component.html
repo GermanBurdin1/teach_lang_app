@@ -1,0 +1,28 @@
+<div class="teacher-list-container">
+  <div *ngIf="isLoading" class="spinner">Загрузка...</div>
+
+  <div *ngIf="!isLoading && total > 0" class="total-count">
+    Найдено {{ total }} преподавателей
+  </div>
+
+  <div *ngIf="!isLoading && teachers.length === 0" class="empty-state">
+    Преподаватели не найдены.
+  </div>
+
+  <div *ngFor="let teacher of teachers" class="teacher-card">
+    <img [src]="teacher.photoUrl" alt="Фото {{ teacher.name }}" class="teacher-photo" />
+    <div class="teacher-info">
+      <h3>{{ teacher.name }}</h3>
+      <p class="specializations">{{ teacher.specializations.join(', ') }}</p>
+      <p class="price">{{ teacher.price }} €/час</p>
+      <a [routerLink]="['/teachers', teacher.id]" class="details-button">Подробнее</a>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && total > limit" class="pagination">
+    <button (click)="prevPage()" [disabled]="page === 1">Назад</button>
+    <span>Страница {{ page }} из {{ maxPage }}</span>
+    <button (click)="nextPage()" [disabled]="page >= maxPage">Вперёд</button>
+  </div>
+</div>
+
