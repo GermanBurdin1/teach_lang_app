@@ -5,4 +5,6 @@ export interface Teacher {
   specializations: string[];
   price: number;
   rating: number;
+  experienceYears: number;
+  teachingLanguages?: string[];
 }

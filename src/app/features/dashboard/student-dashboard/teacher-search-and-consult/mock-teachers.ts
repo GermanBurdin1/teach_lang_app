@@ -10,7 +10,9 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
     specializations: ['DELF B2', 'Grammaire'],
     price: 25,
-    rating: 4.8
+    rating: 4.8,
+    experienceYears: 3,
+    teachingLanguages: ['français', 'anglais']
   },
   {
     id: '2',
@@ -18,7 +20,9 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/men/46.jpg',
     specializations: ['DALF C1', 'Expression orale'],
     price: 30,
-    rating: 4.6
+    rating: 4.6,
+    experienceYears: 2,
+    teachingLanguages: ['français', 'anglais']
   },
   {
     id: '3',
@@ -26,7 +30,9 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/women/55.jpg',
     specializations: ['DELF B1', 'Compréhension écrite'],
     price: 20,
-    rating: 4.9
+    rating: 4.9,
+    experienceYears: 4,
+    teachingLanguages: ['français', 'anglais']
   },
   {
     id: '4',
@@ -34,7 +40,9 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/men/33.jpg',
     specializations: ['Grammaire', 'Phonétique'],
     price: 22,
-    rating: 4.7
+    rating: 4.7,
+    experienceYears: 1,
+    teachingLanguages: ['français', 'anglais']
   },
   {
     id: '5',
@@ -42,7 +50,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/women/60.jpg',
     specializations: ['DALF', 'Culture française'],
     price: 28,
-    rating: 4.9
+    rating: 4.9,
+    experienceYears: 5
   },
   {
     id: '6',
@@ -50,7 +59,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/men/38.jpg',
     specializations: ['DELF A2', 'Compréhension orale'],
     price: 18,
-    rating: 4.5
+    rating: 4.5,
+    experienceYears: 3
   },
   {
     id: '7',
@@ -58,7 +68,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/women/70.jpg',
     specializations: ['Grammaire', 'Conversation'],
     price: 26,
-    rating: 4.6
+    rating: 4.6,
+    experienceYears: 2
   },
   {
     id: '8',
@@ -66,7 +77,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/men/71.jpg',
     specializations: ['Prononciation', 'Phonétique'],
     price: 24,
-    rating: 4.4
+    rating: 4.4,
+    experienceYears: 4
   },
   {
     id: '9',
@@ -74,7 +86,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/women/29.jpg',
     specializations: ['DELF B2', 'DALF C1'],
     price: 27,
-    rating: 4.7
+    rating: 4.7,
+    experienceYears: 3
   },
   {
     id: '10',
@@ -82,7 +95,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/men/19.jpg',
     specializations: ['Grammaire', 'Culture'],
     price: 23,
-    rating: 4.3
+    rating: 4.3,
+    experienceYears: 2
   },
   {
     id: '11',
@@ -90,7 +104,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/women/80.jpg',
     specializations: ['Orthographe', 'Expression écrite'],
     price: 25,
-    rating: 4.9
+    rating: 4.9,
+    experienceYears: 4
   },
   {
     id: '12',
@@ -98,7 +113,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     photoUrl: 'https://randomuser.me/api/portraits/men/87.jpg',
     specializations: ['DALF C2', 'Analyse de texte'],
     price: 35,
-    rating: 5.0
+    rating: 5.0,
+    experienceYears: 5
   }
 ];
 
