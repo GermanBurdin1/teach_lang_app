@@ -1,0 +1,47 @@
+.form-container {
+  width: 100%;
+  max-width: 800px; /* ✅ ширина ограничена, но не фиксирована */
+  margin: 48px auto;
+  padding: 32px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* ✅ добавлено */
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+button {
+  align-self: flex-start; /* или center — если нужно по центру */
+}
+
+.form-wrapper {
+  display: flex;
+  justify-content: center;   /* по горизонтали */
+  align-items: center;       /* по вертикали */
+  height: 100vh;             /* занимает весь экран */
+  background-color: #f5f5f5; /* (опционально, светлый фон) */
+}
+
+.auth-link {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.auth-link a {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}

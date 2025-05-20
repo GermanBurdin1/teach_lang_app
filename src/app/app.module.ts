@@ -22,7 +22,10 @@ import { ClassroomModule } from './classroom/classroom.module';
 import { provideHttpClient } from '@angular/common/http';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
-
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 
 @NgModule({
@@ -50,6 +53,9 @@ import { TimepickerModule } from 'ngx-bootstrap/timepicker';
     ClassroomModule,
     BsDatepickerModule.forRoot(),
     TimepickerModule.forRoot(),
+    MatInputModule,
+    MatButtonModule,
+    MatFormFieldModule
 ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent]

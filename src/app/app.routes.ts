@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { VocabularyComponent } from './features/vocabulary/vocabulary.component';
 import { AboutComponent } from './features/about/about.component';
-import { LoginComponent } from './features/auth/login/login.component';
-import { RegisterComponent } from './features/auth/register/register.component';
+import { LoginComponent } from './features/auth/components/login/login.component';
+import { RegisterComponent } from './features/auth/components/register/register.component';
 import { LessonPageComponent } from './features/lessons/lesson-page/lesson-page.component';
 import { VideoCallComponent } from './features/lessons/video-call/video-call.component';
 import { LandingComponent } from './features/landing/landing.component';

@@ -1,0 +1,36 @@
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* центрирование по вертикали */
+  background-color: #f8f9fa;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 32px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.auth-link {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.auth-link a {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
