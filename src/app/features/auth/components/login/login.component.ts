@@ -15,7 +15,7 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -26,20 +26,24 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      const mockUser = {
-        id: '123',
-        email: this.loginForm.value.email,
-        roles: ['student', 'teacher'], // имитируем пользователя с двумя ролями
-      };
+      const { email, password } = this.loginForm.value;
 
-      this.authService.setUser(mockUser);
+      this.authService.login(email, password).subscribe({
+        next: (user) => {
+          this.authService.setUser(user);
 
-      if (mockUser.roles.length === 1) {
-        this.authService.setActiveRole(mockUser.roles[0]);
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.router.navigate(['/select-role']);
-      }
+          if (user.roles.length === 1) {
+            this.authService.setActiveRole(user.roles[0]);
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.router.navigate(['/select-role']);
+          }
+        },
+        error: () => {
+          alert('Identifiants incorrects');
+        }
+      });
     }
   }
+
 }

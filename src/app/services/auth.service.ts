@@ -1,32 +1,34 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { User } from '../features/auth/models/user.model';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private userSubject = new BehaviorSubject<User | null>(null);
-  public user$ = this.userSubject.asObservable();
+  private _user: User | null = null;
+
+  constructor(private http: HttpClient) {}
+
+  login(email: string, password: string) {
+    return this.http.post<User>('http://localhost:3002/auth/login', { email, password });
+  }
+
+  setUser(user: User) {
+    this._user = user;
+  }
 
   get user(): User | null {
-    return this.userSubject.value;
+    return this._user;
   }
 
-  get currentRole(): string | null {
-    return this.user?.currentRole || null;
-  }
-
-  setUser(user: User): void {
-    this.userSubject.next(user);
-  }
-
-  setActiveRole(role: string): void {
-    const user = this.user;
-    if (user && user.roles.includes(role)) {
-      user.currentRole = role;
-      this.userSubject.next({ ...user });
+  setActiveRole(role: string) {
+    if (this._user?.roles.includes(role)) {
+      this._user.currentRole = role;
     }
   }
 
+  get currentRole(): string | null {
+    return this._user?.currentRole || null;
+  }
 }
