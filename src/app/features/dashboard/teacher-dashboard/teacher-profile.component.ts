@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./teacher-profile.component.css']
 })
 export class TeacherProfileComponent {
-  // Здесь будут поля и методы профиля
+
 }

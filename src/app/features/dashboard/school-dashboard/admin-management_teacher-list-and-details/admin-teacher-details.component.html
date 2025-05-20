@@ -4,6 +4,21 @@
   <p><strong>Специализации:</strong> {{ teacher.specializations.join(', ') }}</p>
   <p><strong>Цена:</strong> {{ teacher.price }} €/ч</p>
   <p><strong>Рейтинг:</strong> ★ {{ teacher.rating }}</p>
+  <h4 class="mt-5">Отзывы студентов</h4>
+  <div *ngIf="reviews.length === 0">Пока нет отзывов.</div>
+
+  <div *ngFor="let review of reviews" class="review-item mb-3">
+    <strong>{{ review.studentName }}</strong>
+    <span class="text-muted small ms-2">{{ review.date | date:'longDate' }}</span>
+    <div class="text-warning">
+      <i class="fas fa-star" *ngFor="let i of [1,2,3,4,5]; let idx = index"
+        [class.text-muted]="idx >= review.rating"></i>
+    </div>
+    <p class="mt-1 mb-1">{{ review.comment }}</p>
+
+    <button class="btn btn-sm btn-outline-danger" (click)="removeReview(review.id)">Удалить</button>
+  </div>
+
 
   <p>
     <strong>Активность:</strong>

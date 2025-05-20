@@ -24,6 +24,8 @@ import { TeacherDetailsComponent } from './student-dashboard/teacher-search-and-
 import { AdminTeacherDetailsComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teacher-details.component';
 import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
 import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
+import { TimepickerModule } from 'ngx-bootstrap/timepicker';
+import { ReviewListComponent } from './shared/components/review-list/review-list.component';
 
 
 @NgModule({
@@ -43,11 +45,13 @@ import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/
     TeacherDetailsComponent,
     AdminTeacherDetailsComponent,
     TeacherProfileComponent,
-    TeacherDashboardOverviewComponent
+    TeacherDashboardOverviewComponent,
+    ReviewListComponent,
   ],
   imports: [
     LayoutModule,
     CommonModule,
+    TimepickerModule,
     RouterModule.forChild([]),
     DashboardRoutingModule,
     FormsModule,
@@ -55,6 +59,7 @@ import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/
     TariffsModule,
     SharedModule,
     GrammarFieldsComponent
-]
+  ],
+  exports: [ReviewListComponent]
 })
 export class DashboardModule { }

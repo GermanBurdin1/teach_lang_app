@@ -6,14 +6,55 @@
   <p><strong>Опыт:</strong> {{ teacher.experienceYears }} лет</p>
   <p><strong>Сертификаты:</strong> {{ teacher.certificates.join(', ') }}</p>
   <p class="bio">{{ teacher.bio }}</p>
+  <h4 class="mt-5">Отзывы студентов</h4>
+  <app-review-list [reviews]="reviews"></app-review-list>
+
 
 
   <div class="actions">
-    <button disabled>Написать</button>
-    <button disabled>Забронировать занятие</button>
+    <button class="btn btn-outline-primary" (click)="openMessageModal()">Написать</button>
+    <button class="btn btn-success ms-2" (click)="openBookingModal()">Забронировать занятие</button>
+
   </div>
 </div>
 
 <div *ngIf="!teacher" class="not-found">
   Преподаватель не найден.
 </div>
+
+<ng-container *ngIf="showMessageModal">
+  <div class="modal-overlay d-flex align-items-center justify-content-center">
+    <div class="bg-white p-4 rounded shadow modal-content-custom">
+      <h5 class="mb-3">Сообщение преподавателю</h5>
+      <textarea [(ngModel)]="messageText" class="form-control mb-3" rows="4"
+        placeholder="Введите сообщение..."></textarea>
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-secondary" (click)="closeMessageModal()">Отмена</button>
+        <button class="btn btn-primary" (click)="sendMessage(messageText)">Отправить</button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="showBookingModal">
+  <div class="modal-overlay d-flex align-items-center justify-content-center">
+    <div class="bg-white p-4 rounded shadow modal-content-custom">
+      <h5 class="mb-3">Забронировать занятие</h5>
+
+      <div class="mb-3">
+        <label for="date" class="form-label">Дата</label>
+        <input type="text" bsDatepicker [(ngModel)]="selectedDate" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label for="time" class="form-label">Время</label>
+        <timepicker [(ngModel)]="selectedTime" [showMeridian]="false"></timepicker>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-secondary" (click)="closeBookingModal()">Отмена</button>
+        <button class="btn btn-success" (click)="confirmBooking()">Забронировать</button>
+      </div>
+    </div>
+  </div>
+</ng-container>

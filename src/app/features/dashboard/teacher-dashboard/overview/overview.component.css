@@ -49,3 +49,12 @@
   margin-top: 40px;
   font-size: 1.2rem;
 }
+
+.reviews {
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.reviews h4 {
+  margin-bottom: 15px;
+}

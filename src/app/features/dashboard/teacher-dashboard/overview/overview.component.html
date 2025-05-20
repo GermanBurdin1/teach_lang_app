@@ -31,6 +31,12 @@
     <h4>Контакт:</h4>
     <p>{{ profile.email }}</p>
   </div>
+
+  <div class="reviews mt-5">
+    <h4>Отзывы студентов</h4>
+    <app-review-list [reviews]="reviews"></app-review-list>
+  </div>
+
 </div>
 
 <div *ngIf="!profile" class="loading">

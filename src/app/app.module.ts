@@ -20,6 +20,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ClassroomModule } from './classroom/classroom.module';
 import { provideHttpClient } from '@angular/common/http';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { TimepickerModule } from 'ngx-bootstrap/timepicker';
+
 
 
 @NgModule({
@@ -45,6 +48,8 @@ import { provideHttpClient } from '@angular/common/http';
     BrowserAnimationsModule,
     BsDropdownModule.forRoot(),
     ClassroomModule,
+    BsDatepickerModule.forRoot(),
+    TimepickerModule.forRoot(),
 ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent]
