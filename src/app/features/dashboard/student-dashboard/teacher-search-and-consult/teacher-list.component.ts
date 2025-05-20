@@ -19,8 +19,7 @@ export class TeacherListComponent implements OnInit {
   priceMax: number | null = null;
   selectedLanguage: string = '';
   availableLanguages: string[] = [];
-
-
+  reviewMin: number | null = null;
   // Фильтры
   searchQuery = '';
   selectedSpecialization = '';
@@ -60,6 +59,7 @@ export class TeacherListComponent implements OnInit {
       this.experienceMin = params['experienceMin'] ? +params['experienceMin'] : null;
       this.experienceMax = params['experienceMax'] ? +params['experienceMax'] : null;
       this.selectedLanguage = params['language'] || '';
+      this.reviewMin = params['reviewMin'] ? +params['reviewMin'] : null;
       this.applyFilters(false); // false => не обновлять URL при начальной загрузке
 
     });
@@ -122,6 +122,10 @@ export class TeacherListComponent implements OnInit {
       break;
   }
 
+  if (this.reviewMin !== null) {
+  result = result.filter(t => (t.reviewCount ?? 0) >= this.reviewMin!);
+  }
+
   // Только теперь сохраняем отфильтрованный результат
   this.filteredTeachers = result;
   this.total = result.length;
@@ -140,7 +144,8 @@ export class TeacherListComponent implements OnInit {
         priceMax: this.priceMax ?? null,
         experienceMin: this.experienceMin ?? null,
         experienceMax: this.experienceMax ?? null,
-        language: this.selectedLanguage || null
+        language: this.selectedLanguage || null,
+        reviewMin: this.reviewMin ?? null,
       },
       queryParamsHandling: 'merge'
     });

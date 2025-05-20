@@ -7,4 +7,5 @@ export interface Teacher {
   rating: number;
   experienceYears: number;
   teachingLanguages?: string[];
+  reviewCount?: number;
 }

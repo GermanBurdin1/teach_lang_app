@@ -12,7 +12,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     price: 25,
     rating: 4.8,
     experienceYears: 3,
-    teachingLanguages: ['français', 'anglais']
+    teachingLanguages: ['français', 'anglais'],
+    reviewCount: 5
   },
   {
     id: '2',
@@ -42,7 +43,8 @@ export const MOCK_TEACHERS: Teacher[] = [
     price: 22,
     rating: 4.7,
     experienceYears: 1,
-    teachingLanguages: ['français', 'anglais']
+    teachingLanguages: ['français', 'anglais'],
+    reviewCount: 3
   },
   {
     id: '5',
@@ -105,7 +107,9 @@ export const MOCK_TEACHERS: Teacher[] = [
     specializations: ['Orthographe', 'Expression écrite'],
     price: 25,
     rating: 4.9,
-    experienceYears: 4
+    experienceYears: 4,
+    teachingLanguages: ['français', 'anglais'],
+    reviewCount: 2
   },
   {
     id: '12',

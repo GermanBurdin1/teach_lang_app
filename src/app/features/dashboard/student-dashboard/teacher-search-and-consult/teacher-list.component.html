@@ -50,6 +50,11 @@
         <input type="number" class="form-control mt-1" [(ngModel)]="priceMax" (change)="applyFilters()"
           placeholder="Макс" />
       </div>
+      <div>
+        <label>Минимум отзывов:</label>
+        <input type="number" class="form-control" [(ngModel)]="reviewMin" (change)="applyFilters()" placeholder="0" />
+      </div>
+
     </div>
 
   </div>
