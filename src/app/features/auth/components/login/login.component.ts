@@ -28,8 +28,11 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
 
+      console.log('[LoginComponent] Attempting login with', email);
+
       this.authService.login(email, password).subscribe({
         next: (user) => {
+          console.log('[LoginComponent] Login successful:', user);
           this.authService.setUser(user);
 
           if (user.roles.length === 1) {
@@ -39,11 +42,13 @@ export class LoginComponent implements OnInit {
             this.router.navigate(['/select-role']);
           }
         },
-        error: () => {
-          alert('Identifiants incorrects');
+        error: (err) => {
+          console.error('[LoginComponent] Login failed:', err);
+          alert(err.error?.message || 'Identifiants incorrects');
         }
       });
     }
   }
+
 
 }
