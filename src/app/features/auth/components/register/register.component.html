@@ -37,6 +37,20 @@
         Les mots de passe ne correspondent pas
       </mat-error>
 
+      <!-- Роли -->
+      <mat-checkbox formControlName="isStudent" class="full-width">
+        Je suis étudiant(e)
+      </mat-checkbox>
+
+      <mat-checkbox formControlName="isTeacher" class="full-width">
+        Je suis enseignant(e)
+      </mat-checkbox>
+
+      <!-- Сообщение, если выбраны обе роли или ни одной -->
+      <mat-error *ngIf="registerForm.hasError('roleSelectionInvalid') && registerForm.touched">
+        Vous devez choisir exactement un rôle.
+      </mat-error>
+
       <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid">
         S'inscrire
       </button>

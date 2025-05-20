@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthRoutingModule } from './auth-routing.module';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { AuthRoutingModule } from './auth-routing.module';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    AuthRoutingModule
+    AuthRoutingModule,
+    MatCheckboxModule
   ]
 })
 export class AuthModule {}

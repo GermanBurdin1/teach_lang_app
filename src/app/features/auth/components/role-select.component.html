@@ -1,0 +1,11 @@
+<div class="form-wrapper">
+  <div class="form-container">
+    <h2>Choisissez votre rôle</h2>
+    <p *ngIf="user?.roles?.length > 1">Vous avez plusieurs rôles :</p>
+    <div *ngFor="let role of user?.roles">
+      <button mat-raised-button color="primary" class="full-width" (click)="choose(role)">
+        {{ role === 'student' ? 'Étudiant' : role === 'teacher' ? 'Enseignant' : 'Administrateur' }}
+      </button>
+    </div>
+  </div>
+</div>
