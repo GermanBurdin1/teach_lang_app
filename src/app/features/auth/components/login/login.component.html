@@ -1,26 +1,43 @@
 <div class="form-wrapper">
   <div class="form-container">
     <h2>Connexion</h2>
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Email -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" required />
+        <input matInput formControlName="email" type="email" required (blur)="onEmailBlur()" />
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
+      <!-- Выбор роли, если доступно больше одной -->
+      <div *ngIf="emailChecked && availableRoles.length > 1" class="role-selection mt-3">
+        <p class="mb-2">Choisissez un rôle :</p>
+        <mat-button-toggle-group formControlName="selectedRole" class="w-100" appearance="legacy">
+
+          <mat-button-toggle *ngFor="let role of availableRoles" [value]="role">
+            {{ role === 'student' ? 'Étudiant(e)' : role === 'teacher' ? 'Enseignant(e)' : role }}
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <!-- Password -->
+      <mat-form-field appearance="outline" class="full-width mt-3">
         <mat-label>Mot de passe</mat-label>
         <input matInput formControlName="password" type="password" required />
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">
-        Se connecter
-      </button>
+      <!-- Submit -->
+      <div class="mt-3">
+        <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">
+          Se connecter
+        </button>
+      </div>
 
-      <p class="auth-link">
+      <!-- Link to register -->
+      <p class="auth-link mt-3">
         Pas encore de compte ?
         <a routerLink="/register">Inscrivez-vous</a>
       </p>
-
     </form>
   </div>
 </div>

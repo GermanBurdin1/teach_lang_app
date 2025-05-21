@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
+  existingRoles: string[] = [];
+  emailChecked: boolean = false;
 
   constructor(private fb: FormBuilder,
     private authService: AuthService,
@@ -77,6 +79,35 @@ export class RegisterComponent implements OnInit {
     console.warn('[RegisterComponent] Form is invalid:', this.registerForm.errors);
   }
 }
+
+onEmailBlur(): void {
+    const email = this.registerForm.get('email')?.value;
+    if (!email || !this.registerForm.get('email')?.valid) return;
+
+    this.authService.checkEmailExists(email).subscribe({
+      next: (res) => {
+        this.emailChecked = true;
+        this.existingRoles = res.roles || [];
+
+        // Отключаем выбор уже существующей роли
+        if (this.existingRoles.includes('student')) {
+          this.registerForm.get('isStudent')?.disable();
+          this.registerForm.get('isTeacher')?.enable();
+        } else if (this.existingRoles.includes('teacher')) {
+          this.registerForm.get('isTeacher')?.disable();
+          this.registerForm.get('isStudent')?.enable();
+        } else {
+          this.registerForm.get('isStudent')?.enable();
+          this.registerForm.get('isTeacher')?.enable();
+        }
+      },
+      error: (err) => {
+        console.warn('[RegisterComponent] Email check failed', err);
+        this.existingRoles = [];
+      }
+    });
+  }
+
 
 
 

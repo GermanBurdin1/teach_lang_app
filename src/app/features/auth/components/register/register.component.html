@@ -2,10 +2,17 @@
   <div class="form-container">
     <h2>Inscription</h2>
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
       <!-- Email -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" required />
+        <input matInput formControlName="email" type="email" required (blur)="onEmailBlur()" />
+
+        <mat-hint *ngIf="existingRoles.length === 1" align="start" class="existing-role-hint">
+          Vous avez déjà un compte en tant que <strong>{{ existingRoles[0] }}</strong>. Vous pouvez ajouter un second
+          rôle.
+        </mat-hint>
+
         <mat-error *ngIf="registerForm.get('email')?.hasError('required')">
           L'email est requis
         </mat-error>

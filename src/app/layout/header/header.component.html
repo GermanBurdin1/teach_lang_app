@@ -12,29 +12,32 @@
     style="width: 100%; position: absolute; top: 100%; left: 0; z-index: 1040;">
     <div class="container p-4">
       <div class="d-flex justify-content-center">
-        <!-- Карточка Администратора -->
-        <div class="card text-center p-3 mx-2" style="width: 200px; cursor: pointer;" (click)="switchToAdmin()">
+        <!-- Только если доступна роль "admin" -->
+        <div *ngIf="shouldShowSwitchTo('admin')" class="card text-center p-3 mx-2"
+          style="width: 200px; cursor: pointer;" (click)="switchToAdmin()">
           <img src="assets/icons/admin-icon.png" alt="Администратор" class="mb-2" style="width: 40px;">
           <h6 class="mb-1">Администратор</h6>
-          <span class="badge bg-success mb-2">Активен</span>
+          <span class="badge bg-secondary mb-2">Переключиться</span>
           <p class="small text-muted">Административный кабинет школы</p>
         </div>
 
-        <!-- Карточка Ученик -->
-        <div class="card text-center p-3 mx-2" style="width: 200px; cursor: pointer;" (click)="switchToStudent()">
+        <!-- Только если доступна роль "student" -->
+        <div *ngIf="shouldShowSwitchTo('student')" class="card text-center p-3 mx-2"
+          style="width: 200px; cursor: pointer;" (click)="switchToStudent()">
           <img src="assets/icons/student-icon.png" alt="Кабинет ученика" class="mb-2" style="width: 40px;">
           <h6 class="mb-1">Кабинет ученика</h6>
-          <span class="badge bg-success mb-2">Активен</span>
+          <span class="badge bg-secondary mb-2">Переключиться</span>
           <p class="small text-muted">Получайте знания в интерактивном формате</p>
         </div>
-        <!-- Карточка Преподавателя -->
-        <div class="card text-center p-3 mx-2" style="width: 200px; cursor: pointer;" (click)="switchToTeacher()">
+
+        <!-- Только если доступна роль "teacher" -->
+        <div *ngIf="shouldShowSwitchTo('teacher')" class="card text-center p-3 mx-2"
+          style="width: 200px; cursor: pointer;" (click)="switchToTeacher()">
           <img src="assets/icons/teacher-icon.png" alt="Преподаватель" class="mb-2" style="width: 40px;">
           <h6 class="mb-1">Преподаватель</h6>
-          <span class="badge bg-success mb-2">Активен</span>
+          <span class="badge bg-secondary mb-2">Переключиться</span>
           <p class="small text-muted">Ваши уроки и материалы</p>
         </div>
-
       </div>
     </div>
   </div>

@@ -45,3 +45,19 @@ button {
 .auth-link a:hover {
   text-decoration: underline;
 }
+
+::ng-deep .existing-role-hint {
+  display: block;
+  color: #333;
+  background-color: #f6f8fa;
+  border-left: 4px solid #1976d2;
+  padding: 8px 12px;
+  margin-top: 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+::ng-deep mat-form-field.full-width + mat-form-field.full-width {
+  margin-top: 24px; /* чуть больше пространства между полями */
+}
+

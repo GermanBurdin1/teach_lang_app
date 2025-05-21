@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
+  availableRoles: string[] = [];
+  emailChecked = false;
 
   constructor(
     private fb: FormBuilder,
@@ -20,35 +22,48 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      selectedRole: [null, Validators.required] // 💥 Вот эта строка обязательно!
     });
   }
 
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
+  onEmailBlur(): void {
+    const email = this.loginForm.get('email')?.value;
+    if (email) {
+      this.authService.checkEmailExists(email).subscribe({
+        next: (res) => {
+          this.emailChecked = true;
+          this.availableRoles = res.roles || [];
 
-      console.log('[LoginComponent] Attempting login with', email);
-
-      this.authService.login(email, password).subscribe({
-        next: (user) => {
-          console.log('[LoginComponent] Login successful:', user);
-          this.authService.setUser(user);
-
-          if (user.roles.length === 1) {
-            this.authService.setActiveRole(user.roles[0]);
-            this.router.navigate(['/dashboard']);
+          if (this.availableRoles.length === 1) {
+            this.loginForm.get('selectedRole')?.setValue(this.availableRoles[0]); // 💥 Автоустановка
           } else {
-            this.router.navigate(['/select-role']);
+            this.loginForm.get('selectedRole')?.reset(); // сбросить, чтобы не блокировать кнопку
           }
         },
         error: (err) => {
-          console.error('[LoginComponent] Login failed:', err);
-          alert(err.error?.message || 'Identifiants incorrects');
+          console.error('Erreur lors de la vérification de l\'email', err);
         }
       });
     }
   }
 
+
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      const { email, password, selectedRole } = this.loginForm.value;
+
+      this.authService.login(email, password).subscribe({
+        next: (user) => {
+          this.authService.setUser(user);
+          this.authService.setActiveRole(selectedRole);
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          alert(err.error?.message || 'Identifiants incorrects');
+        }
+      });
+    }
+  }
 
 }
