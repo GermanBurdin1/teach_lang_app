@@ -13,16 +13,15 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   profile: TeacherProfile | null = null;
   reviews: Review[] = [];
 
-  constructor(private profileService: TeacherProfileService) {}
+  constructor(private profileService: TeacherProfileService) { }
 
   ngOnInit(): void {
     this.profileService.getTeacherProfile().subscribe((data) => {
       this.profile = data;
     });
 
-    // Загрузить отзывы из localStorage или из MOCK_REVIEWS
     const stored = localStorage.getItem('teacher_reviews');
     this.reviews = stored ? JSON.parse(stored) : MOCK_REVIEWS;
-
   }
+
 }

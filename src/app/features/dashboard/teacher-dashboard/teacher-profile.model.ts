@@ -1,7 +1,7 @@
 export interface TeacherProfile {
-  id: string;
-  name: string;
-  photoUrl: string;
+  user_id: string;
+  full_name: string;
+  photo_url: string;
   specializations: string[];
   price: number;
   rating: number;

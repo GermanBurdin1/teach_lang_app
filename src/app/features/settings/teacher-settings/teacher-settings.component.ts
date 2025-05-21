@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TeacherProfileService } from '../../dashboard/teacher-dashboard/teacher-profile.service';
 import { TeacherProfile } from '../../dashboard/teacher-dashboard/teacher-profile.model';
+import { ProfilesApiService } from '../../../services/profiles-api.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-teacher-settings',
@@ -10,16 +11,16 @@ import { TeacherProfile } from '../../dashboard/teacher-dashboard/teacher-profil
 })
 export class TeacherSettingsComponent implements OnInit {
   teacherForm!: FormGroup;
+  photoMode: 'url' | 'file' = 'url';
+  selectedPhotoFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private teacherService: TeacherProfileService
+    private profilesApi: ProfilesApiService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('teacher_profile');
-    const initialData = saved ? JSON.parse(saved) : {};
-
     this.teacherForm = this.fb.group({
       name: ['', Validators.required],
       photoUrl: [''],
@@ -29,48 +30,54 @@ export class TeacherSettingsComponent implements OnInit {
       specializations: [''],
       certificates: [''],
       email: ['', [Validators.required, Validators.email]],
-
-      // Только эти два поля оставляем
       language: ['fr'],
       theme: ['dark']
     });
-
   }
 
   onSubmit(): void {
     if (this.teacherForm.valid) {
       const value = this.teacherForm.value;
+      const userId = this.authService.getCurrentUser()?.id;
+
+      if (!userId) {
+        console.error('[TeacherSettings] Aucun user_id trouvé.');
+        return;
+      }
 
       const profile: TeacherProfile = {
-        id: 'me',
-        name: value.name,
-        photoUrl: value.photoUrl,
+        user_id: userId,
+        full_name: value.name,
+        photo_url: value.photoUrl,
         bio: value.bio,
         experienceYears: value.experienceYears,
         price: value.price,
         specializations: value.specializations.split(',').map((s: string) => s.trim()),
         certificates: value.certificates.split(',').map((c: string) => c.trim()),
         email: value.email,
-        rating: 4.9, 
+        rating: 4.9,
         isActive: true,
         moderated: true,
         preferences: {
           language: value.language,
-          theme: value.theme,
+          theme: value.theme
         }
       };
 
-      this.teacherService.setProfile(profile);
+      // Создать профиль
+      this.profilesApi.createProfile(profile).subscribe({
+        next: () => console.log('[TeacherSettings] Profil créé avec succès'),
+        error: err => console.error('[TeacherSettings] Erreur de création', err)
+      });
     }
   }
-  photoMode: 'url' | 'file' = 'url'; // начальный режим
-  selectedPhotoFile: File | null = null;
+
 
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedPhotoFile = input.files[0];
-      this.teacherForm.get('photoUrl')?.setValue(''); // сбрасываем URL если выбрали файл
+      this.teacherForm.get('photoUrl')?.setValue('');
     }
   }
 
@@ -86,7 +93,8 @@ export class TeacherSettingsComponent implements OnInit {
     const randomSpecs = ['DELF B2', 'Grammaire', 'Compréhension orale', 'Production écrite'];
 
     const random = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
-    const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const randomInt = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
 
     this.teacherForm.setValue({
       name: random(randomNames),
@@ -96,12 +104,11 @@ export class TeacherSettingsComponent implements OnInit {
       price: randomInt(10, 50),
       specializations: `${random(randomSpecs)}, ${random(randomSpecs)}`,
       certificates: `${random(randomCerts)}, ${random(randomCerts)}`,
-      email: `dev${randomInt(100, 999)}@test.dev`
+      email: `dev${randomInt(100, 999)}@test.dev`,
+      language: 'fr',
+      theme: 'dark'
     });
 
-    // После заполнения — вызвать сохранение
     this.onSubmit();
   }
-
-
 }

@@ -9,7 +9,7 @@
     <div class="form-photo-section">
       <label class="photo-label">Photo de profil</label>
 
-      <mat-button-toggle-group [(ngModel)]="photoMode" name="photoMode" class="mb-3" appearance="legacy">
+      <mat-button-toggle-group [value]="photoMode" (change)="photoMode = $event.value" class="mb-3" appearance="legacy">
         <mat-button-toggle value="url">Utiliser une URL</mat-button-toggle>
         <mat-button-toggle value="file">Télécharger un fichier</mat-button-toggle>
       </mat-button-toggle-group>
