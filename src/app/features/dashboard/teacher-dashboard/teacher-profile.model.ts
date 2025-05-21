@@ -11,4 +11,5 @@ export interface TeacherProfile {
   isActive: boolean;
   moderated: boolean;
   email: string;
+  preferences: { language: string; theme: string };
 }

@@ -20,6 +20,7 @@ import {TeacherDetailsComponent} from "./student-dashboard/teacher-search-and-co
 import {AdminTeacherDetailsComponent} from "./school-dashboard/admin-management_teacher-list-and-details/admin-teacher-details.component";
 import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
 import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
+import { TeacherSettingsComponent } from '../settings/teacher-settings/teacher-settings.component';
 
 const routes: Routes = [
   {
@@ -56,7 +57,7 @@ const routes: Routes = [
       { path: 'wordsTeaching/:galaxy/:subtopic', component: VocabularyComponent },
       { path: 'mindmap', component: VocabularyComponent },
       { path: 'trainer', component: TrainerComponent },
-      { path: 'settings', component: SettingsComponent }
+      { path: 'settings', component: TeacherSettingsComponent }
     ]
   }
 ];

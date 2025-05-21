@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-
 import { SettingsComponent } from './settings.component';
 
 // Важные компоненты для вкладок школы
@@ -12,7 +11,6 @@ import { ContactsComponent } from './school/contacts.component';
 import { AdminsComponent } from './school/admins.component';
 import { PaymentsComponent } from './school/payments.component';
 import { AccessControlComponent } from './school/access-control.component';
-import { StudentsComponent } from './school/students.component';
 import { ReportsComponent } from './school/reports.component';
 
 // Важные компоненты для вкладок онлайн-уроков
@@ -38,7 +36,6 @@ const routes: Routes = [
     AdminsComponent,
     PaymentsComponent,
     AccessControlComponent,
-    StudentsComponent,
     ReportsComponent,
 
     // Вкладки онлайн-уроков
@@ -48,31 +45,28 @@ const routes: Routes = [
     TeachersComponent,
     StudentsOnlineComponent,
     BalanceSystemComponent,
-    ReportsOnlineComponent
+    ReportsOnlineComponent,
   ],
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
   ],
   exports: [
     SettingsComponent,
-
-    // Экспортируем компоненты для использования в других модулях
     GeneralSettingsComponent,
     ContactsComponent,
     AdminsComponent,
     PaymentsComponent,
     AccessControlComponent,
-    StudentsComponent,
     ReportsComponent,
-
     OnlineCoursesComponent,
     GeneralSettingsOnlineComponent,
     TeachersComponent,
     StudentsOnlineComponent,
     BalanceSystemComponent,
-    ReportsOnlineComponent
+    ReportsOnlineComponent,
+    ReactiveFormsModule,
   ]
 })
 export class SettingsModule { }

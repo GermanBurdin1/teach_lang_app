@@ -25,8 +25,7 @@ import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-
+import { TeacherSettingsModule } from './features/settings/teacher-settings.module';
 
 @NgModule({
   declarations: [
@@ -55,7 +54,8 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
     TimepickerModule.forRoot(),
     MatInputModule,
     MatButtonModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    TeacherSettingsModule
 ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent]
