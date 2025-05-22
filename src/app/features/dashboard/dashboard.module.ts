@@ -38,7 +38,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
 
-
 @NgModule({
   declarations: [
     UsersComponent,
@@ -80,7 +79,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatProgressSpinnerModule,
     ReactiveFormsModule,
     MatButtonToggleModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   exports: [ReviewListComponent]
 })

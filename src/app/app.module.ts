@@ -57,7 +57,7 @@ import { TeacherSettingsModule } from './features/settings/teacher-settings.modu
     MatButtonModule,
     MatFormFieldModule,
     TeacherSettingsModule,
-    MatChipsModule
+    MatChipsModule,
 ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent]
