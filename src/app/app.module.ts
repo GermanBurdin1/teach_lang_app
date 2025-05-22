@@ -27,6 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { TeacherSettingsModule } from './features/settings/teacher-settings.module';
+import { LOCALE_ID } from '@angular/core';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,7 @@ import { TeacherSettingsModule } from './features/settings/teacher-settings.modu
     TeacherSettingsModule,
     MatChipsModule,
 ],
-  providers: [provideHttpClient()],
+  providers: [provideHttpClient(),{ provide: LOCALE_ID, useValue: 'fr' }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

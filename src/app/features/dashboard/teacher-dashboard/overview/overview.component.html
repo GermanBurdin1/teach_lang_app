@@ -46,7 +46,9 @@
     <h3>Mes statistiques</h3>
 
     <p>👥 Nouveaux élèves ce mois: {{ stats.newStudents }}</p>
-    <p>📅 Cours à venir: {{ stats.upcomingLessons }}</p>
+    <div class="calendar-preview-wrapper">
+      <app-calendar-preview [events]="calendarEvents"></app-calendar-preview>
+    </div>
 
     <button mat-stroked-button color="primary" (click)="openPublicProfileModal()">
       <mat-icon>visibility</mat-icon> Voir ma fiche publique

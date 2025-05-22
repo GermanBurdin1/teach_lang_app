@@ -203,3 +203,11 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+.calendar-preview-wrapper {
+  max-height: 300px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin: 16px 0;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}

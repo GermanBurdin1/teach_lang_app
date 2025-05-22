@@ -6,6 +6,7 @@ import { MOCK_REVIEWS } from '../mock-reviews';
 import { AuthService } from '../../../../services/auth.service';
 import { ProfilesApiService } from '../../../../services/profiles-api.service';
 import { MatDialog } from '@angular/material/dialog';
+import { CalendarEvent } from 'angular-calendar';
 
 
 @Component({
@@ -65,6 +66,17 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   studentsPerPage = 5;
   currentPage = 1;
   itemsPerPage = 5;
+
+  calendarEvents: CalendarEvent[] = [
+    {
+      start: new Date(), // пример — сегодня
+      title: 'Cours avec Alice Dupont'
+    },
+    {
+      start: new Date(new Date().setDate(new Date().getDate() + 2)), // через 2 дня
+      title: 'Cours avec Thomas Moreau'
+    }
+  ];
 
   ngOnInit(): void {
     this.profileService.getTeacherProfile().subscribe((data) => {
