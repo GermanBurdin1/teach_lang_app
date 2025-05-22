@@ -21,6 +21,8 @@ import {AdminTeacherDetailsComponent} from "./school-dashboard/admin-management_
 import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
 import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
 import { TeacherSettingsComponent } from '../settings/teacher-settings/teacher-settings.component';
+import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
+import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 
 const routes: Routes = [
   {
@@ -36,6 +38,7 @@ const routes: Routes = [
       { path: 'school/settings', component: SettingsComponent },
       { path: 'school/tariffs', component: TariffsComponent },
       // { path: 'school/statistics', component: StatiscticsComponent },
+      { path: 'student/home', component: StudentHomeComponent },
       { path: 'student/wordsTeaching', component: WordsComponent },
       { path: 'student/wordsTeaching/:galaxy/:subtopic', component: VocabularyComponent },
       { path: 'student/trainer', component: TrainerComponent },
@@ -53,6 +56,7 @@ const routes: Routes = [
     component: TeacherProfileComponent,
     children: [
       { path: 'profile', component: TeacherDashboardOverviewComponent },
+      { path: 'home', component: TeacherHomeComponent },
       { path: 'wordsTeaching', component: WordsComponent },
       { path: 'wordsTeaching/:galaxy/:subtopic', component: VocabularyComponent },
       { path: 'mindmap', component: VocabularyComponent },

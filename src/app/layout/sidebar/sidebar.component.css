@@ -42,3 +42,63 @@
   color: red;
   font-size: 12px;
 }
+
+.teacher-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+  background-color: #f5f7fa;
+  border-radius: 12px;
+}
+
+.teacher-tab {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  color: #3f51b5; /* Indigo */
+  font-weight: 500;
+  border-radius: 8px;
+  text-transform: none;
+  padding: 8px 12px;
+  transition: background-color 0.2s ease;
+}
+
+.teacher-tab:hover {
+  background-color: rgba(63, 81, 181, 0.1); /* Light indigo hover */
+}
+
+.teacher-tab mat-icon {
+  color: #3f51b5;
+}
+
+.student-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+  background-color: #f5f7fa;
+  border-radius: 12px;
+}
+
+.student-tab {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  color: #3f51b5; /* Indigo */
+  font-weight: 500;
+  border-radius: 8px;
+  text-transform: none;
+  padding: 8px 12px;
+  transition: background-color 0.2s ease;
+}
+
+.student-tab:hover {
+  background-color: rgba(63, 81, 181, 0.1);
+}
+
+.student-tab mat-icon {
+  color: #3f51b5;
+}

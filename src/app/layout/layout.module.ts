@@ -5,6 +5,9 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { HeaderComponent } from './header/header.component';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -15,7 +18,10 @@ import { SharedModule } from '../shared/shared.module';
     CommonModule,
     RouterModule,
     FormsModule,
-    SharedModule
+    SharedModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule
   ],
   exports: [
     SidebarComponent,

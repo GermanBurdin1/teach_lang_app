@@ -1,0 +1,56 @@
+.student-home {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px;
+}
+
+.top-section {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.goal-block, .stats-block {
+  flex: 1 1 45%;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+
+.stats-block ul {
+  padding: 0;
+  list-style: none;
+}
+
+.stats-block li {
+  padding: 4px 0;
+}
+
+.bottom-section {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.calendar-zone, .homework-zone {
+  flex: 1 1 45%;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.homework-zone ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+.homework-zone li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}

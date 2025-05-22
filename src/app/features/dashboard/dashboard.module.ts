@@ -37,6 +37,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
+import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
+import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +59,8 @@ import { MatButtonModule } from '@angular/material/button';
     TeacherProfileComponent,
     TeacherDashboardOverviewComponent,
     ReviewListComponent,
+    TeacherHomeComponent,
+    StudentHomeComponent
   ],
   imports: [
     LayoutModule,

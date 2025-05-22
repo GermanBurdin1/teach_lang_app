@@ -1,0 +1,41 @@
+<div class="teacher-home">
+
+  <!-- 🔼 ВЕРХНЯЯ ЧАСТЬ -->
+  <div class="top-section">
+
+    <!-- Левая колонка -->
+    <div class="column left-column">
+      <h3>🔔 Notifications</h3>
+      <ul>
+        <li *ngFor="let note of notifications">{{ note }}</li>
+      </ul>
+
+      <h3>📨 Nouvelles demandes</h3>
+      <ul>
+        <li *ngFor="let req of newRequests">
+          {{ req.name }} — {{ req.date }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Правая колонка -->
+    <div class="column right-column">
+      <h3>📋 Devoirs à corriger</h3>
+      <ul>
+        <li *ngFor="let hw of homeworksToReview">
+          {{ hw.title }} — {{ hw.student }} (pour le {{ hw.dueDate }})
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- 🔽 НИЖНЯЯ ЧАСТЬ -->
+  <div class="bottom-section">
+    <h3>🗓️ Prochains cours</h3>
+    <div class="calendar-wrapper">
+      <app-calendar-preview [events]="upcomingLessons"></app-calendar-preview>
+    </div>
+  </div>
+
+</div>

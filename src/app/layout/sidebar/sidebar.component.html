@@ -45,70 +45,76 @@
   </ng-template>
 
   <ng-template #studentDashboard>
-    <!-- Вкладки для ученического кабинета -->
-    <div class="uc-menu-item">
-      <a routerLink="student/teachers" class="icon-container">
-        <i class="fas fa-chalkboard uc-menu-icon" style="color:#4e73df;"></i>
+    <nav class="student-menu">
+      <a mat-button routerLink="student/home" class="student-tab" matTooltip="Mon profil">
+        <mat-icon>home</mat-icon>
+        <span>Accueil</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="student/wordsTeaching" class="icon-container">
-        <i class="fas fa-graduation-cap uc-menu-icon"></i>
+
+      <a mat-button routerLink="student/teachers" class="student-tab" matTooltip="Choisir un professeur">
+        <mat-icon>school</mat-icon>
+        <span>Professeurs</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="student/profile" class="icon-container">
-        <i class="fas fa-user uc-menu-icon"></i>
+
+      <a mat-button routerLink="student/wordsTeaching" class="student-tab" matTooltip="Vocabulaire et expressions">
+        <mat-icon>menu_book</mat-icon>
+        <span>Lexique</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="/mindmap" class="icon-container">
-        <i class="fas fa-project-diagram uc-menu-icon"></i>
+
+      <a mat-button routerLink="/mindmap" class="student-tab" matTooltip="Carte mentale">
+        <mat-icon>device_hub</mat-icon>
+        <span>Carte mentale</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="school/settings" class="icon-container">
-        <i class="fas fa-cog uc-menu-icon"></i>
+
+      <a mat-button routerLink="school/settings" class="student-tab" matTooltip="Paramètres de l’école">
+        <mat-icon>settings</mat-icon>
+        <span>Paramètres</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="student/trainer" class="icon-container">
-        <i class="fas fa-headphones uc-menu-icon"></i>
+
+      <a mat-button routerLink="student/trainer" class="student-tab" matTooltip="S'entraîner aux examens">
+        <mat-icon>headset</mat-icon>
+        <span>Entraînement</span>
       </a>
-    </div>
+
+    </nav>
   </ng-template>
 
+
   <ng-template #teacherDashboard>
-    <!-- Вкладки для преподавателя -->
-    <div class="uc-menu-item">
-      <a routerLink="teacher/profile" class="icon-container">
-        <i class="fas fa-user-circle uc-menu-icon"></i>
+    <nav class="teacher-menu">
+
+      <a mat-button routerLink="teacher/home" class="teacher-tab" matTooltip="Page d’accueil">
+        <mat-icon>home</mat-icon>
+        <span>Accueil</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="teacher/wordsTeaching" class="icon-container">
-        <i class="fas fa-graduation-cap uc-menu-icon" style="color:#4e73df;"></i>
+
+      <a mat-button routerLink="teacher/profile" class="teacher-tab" matTooltip="Gestion des étudiants">
+        <mat-icon>group</mat-icon>
+        <span>Étudiants</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="/mindmap" class="icon-container">
-        <i class="fas fa-project-diagram uc-menu-icon"></i>
+
+      <a mat-button routerLink="teacher/wordsTeaching" class="teacher-tab" matTooltip="Vocabulaire et expressions">
+        <mat-icon>school</mat-icon>
+        <span>Lexique</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="teacher/settings" class="icon-container">
-        <i class="fas fa-cog uc-menu-icon"></i>
+
+      <a mat-button routerLink="/mindmap" class="teacher-tab" matTooltip="Carte mentale">
+        <mat-icon>device_hub</mat-icon>
+        <span>Carte mentale</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="teacher/trainer" class="icon-container">
-        <i class="fas fa-headphones uc-menu-icon"></i>
+
+      <a mat-button routerLink="teacher/settings" class="teacher-tab" matTooltip="Paramètres du compte">
+        <mat-icon>settings</mat-icon>
+        <span>Paramètres</span>
       </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="teacher/profile" class="icon-container">
-        <i class="fas fa-user uc-menu-icon"></i>
+
+      <a mat-button routerLink="teacher/trainer" class="teacher-tab" matTooltip="Exercices d'entraînement">
+        <mat-icon>headset</mat-icon>
+        <span>Entraînement</span>
       </a>
-    </div>
+
+    </nav>
   </ng-template>
+
+
 </div>

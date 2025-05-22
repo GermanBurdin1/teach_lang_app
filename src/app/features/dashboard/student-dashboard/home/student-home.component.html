@@ -1,0 +1,45 @@
+<div class="student-home">
+
+  <!-- 🔼 Верхняя часть -->
+  <div class="top-section">
+    <div class="goal-block">
+      <h3>🎯 Objectif</h3>
+      <p>{{ goal }}</p>
+    </div>
+
+    <div class="stats-block">
+      <h3>📊 Statistiques</h3>
+      <ul>
+        <li>Jours actifs: {{ stats.daysActive }}</li>
+        <li>Leçons terminées: {{ stats.lessonsCompleted }}</li>
+        <li>Mots appris: {{ stats.wordsLearned }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 🔽 Нижняя часть -->
+  <div class="bottom-section">
+
+    <div class="calendar-zone">
+      <h3>🗓️ Prochains cours</h3>
+      <app-calendar-preview [events]="upcomingLessons"></app-calendar-preview>
+    </div>
+
+    <div class="homework-zone">
+      <h3>📚 Devoirs à faire</h3>
+
+      <ng-container *ngIf="pendingHomework.length > 0; else noHomework">
+        <ul>
+          <li *ngFor="let hw of pendingHomework">
+            {{ hw.title }} — pour le {{ hw.dueDate }}
+          </li>
+        </ul>
+      </ng-container>
+
+      <ng-template #noHomework>
+        <p>✅ Aucun devoir en attente</p>
+      </ng-template>
+    </div>
+
+  </div>
+</div>

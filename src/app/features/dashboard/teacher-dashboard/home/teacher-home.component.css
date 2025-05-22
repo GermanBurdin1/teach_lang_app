@@ -1,0 +1,50 @@
+.teacher-home {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px;
+}
+
+/* ВЕРХНЯЯ СЕКЦИЯ */
+.top-section {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.column {
+  flex: 1 1 45%;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.column h3 {
+  margin-top: 0;
+}
+
+.column ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.column li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* НИЖНЯЯ СЕКЦИЯ */
+.bottom-section {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-wrapper {
+  max-height: 300px;
+  overflow: hidden;
+  margin-top: 12px;
+}
