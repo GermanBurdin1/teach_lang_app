@@ -12,4 +12,5 @@ export interface TeacherProfile {
   moderated: boolean;
   email: string;
   preferences: { language: string; theme: string };
+  availability: { day: string; from: string; to: string }[];
 }

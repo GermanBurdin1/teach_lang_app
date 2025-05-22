@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
 
 const routes: Routes = [
   { path: '', component: TeacherSettingsComponent }
@@ -30,7 +31,8 @@ const routes: Routes = [
     MatButtonModule,
     MatIconModule,
     MatButtonToggleModule,
-    MatSelectModule
+    MatSelectModule,
+    MatChipsModule
   ]
 })
 export class TeacherSettingsModule {}

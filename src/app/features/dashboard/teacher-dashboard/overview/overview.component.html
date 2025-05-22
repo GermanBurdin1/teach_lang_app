@@ -1,44 +1,204 @@
-<div *ngIf="profile" class="teacher-overview-container">
-  <div class="profile-header">
-    <img [src]="profile.photo_url" alt="Photo de {{ profile.full_name }}" class="profile-photo" />
+<div class="overview-layout" *ngIf="profile">
+  <!-- ЛЕВАЯ ЧАСТЬ — СТУДЕНТЫ -->
+  <div class="students-panel">
+    <h3>Mes élèves</h3>
 
-    <div class="profile-info">
-      <h2>{{ profile.full_name }}</h2>
-      <p class="bio">{{ profile.bio }}</p>
+    <!-- Фильтр -->
+    <mat-button-toggle-group [(ngModel)]="studentViewFilter" aria-label="Filtrer">
+      <mat-button-toggle value="all">Tous</mat-button-toggle>
+      <mat-button-toggle value="students">Élèves</mat-button-toggle>
+      <mat-button-toggle value="pending">Demandes</mat-button-toggle>
+    </mat-button-toggle-group>
 
-      <div class="profile-tags">
-        <span *ngFor="let subject of profile.specializations" class="tag">
-          {{ subject }}
-        </span>
-      </div>
+    <!-- Список -->
+    <div class="student-cards">
+      <mat-card class="student-card" *ngFor="let student of paginatedStudents">
+        <img *ngIf="student.photoUrl" [src]="student.photoUrl" class="student-photo" />
+        <div class="student-info">
+          <h4>{{ student.name }}</h4>
+          <p *ngIf="student.isStudent">Prochain cours: {{ student.nextLessonDate }}</p>
+          <p *ngIf="!student.isStudent">Demande reçue le {{ student.requestDate }}</p>
+        </div>
+        <button mat-icon-button (click)="openStudentModal(student)" aria-label="Voir les détails" matTooltip="Détails">
+          <mat-icon>open_in_new</mat-icon>
+        </button>
+      </mat-card>
+    </div>
+    <div class="pagination-controls">
+      <button mat-icon-button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
 
-      <p class="details">
-        Опыт: {{ profile.experienceYears }} лет<br />
-        Рейтинг: ★ {{ profile.rating }}<br />
-        Стоимость: {{ profile.price }} €/час
-      </p>
+      <button mat-stroked-button *ngFor="let page of totalPagesArray(); let i = index"
+        [color]="currentPage === i + 1 ? 'primary' : ''" (click)="goToPage(i + 1)">
+        {{ i + 1 }}
+      </button>
+
+      <button mat-icon-button [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
     </div>
   </div>
 
-  <div class="certificates">
-    <h4>Сертификаты:</h4>
-    <ul>
-      <li *ngFor="let cert of profile.certificates">{{ cert }}</li>
-    </ul>
-  </div>
 
-  <div class="contact">
-    <h4>Контакт:</h4>
-    <p>{{ profile.email }}</p>
-  </div>
+  <!-- ПРАВАЯ ЧАСТЬ — СТАТИСТИКА -->
+  <div class="stats-panel">
+    <h3>Mes statistiques</h3>
 
-  <div class="reviews mt-5">
-    <h4>Отзывы студентов</h4>
-    <app-review-list [reviews]="reviews"></app-review-list>
-  </div>
+    <p>👥 Nouveaux élèves ce mois: {{ stats.newStudents }}</p>
+    <p>📅 Cours à venir: {{ stats.upcomingLessons }}</p>
 
+    <button mat-stroked-button color="primary" (click)="openPublicProfileModal()">
+      <mat-icon>visibility</mat-icon> Voir ma fiche publique
+    </button>
+    <p class="preview-caption">Comment les étudiants me voient</p>
+  </div>
 </div>
 
-<div *ngIf="!profile" class="loading">
-  Загрузка профиля преподавателя...
-</div>
+<ng-template #publicProfile let-data>
+  <div class="dialog-scrollable-content">
+    <div *ngIf="profile" class="teacher-overview-container">
+      <mat-card>
+        <div class="profile-header">
+          <img [src]="profile.photo_url" alt="Photo de {{ profile.full_name }}" class="profile-photo" />
+
+          <div class="profile-info">
+            <h2>{{ profile.full_name }}</h2>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Biographie</mat-label>
+              <textarea matInput [(ngModel)]="profile.bio" (ngModelChange)="updateProfileField()"></textarea>
+            </mat-form-field>
+
+            <div class="profile-tags">
+              <div class="chip-list">
+                <div class="chip" *ngFor="let subject of profile.specializations">
+                  {{ subject }}
+                  <button type="button" class="remove-btn" (click)="removeSpecialization(subject)">×</button>
+                </div>
+              </div>
+
+
+
+              <mat-form-field class="full-width">
+                <mat-label>Ajouter une spécialisation</mat-label>
+                <input matInput (keyup.enter)="onEnterSpecialization($event)" />
+
+              </mat-form-field>
+            </div>
+
+            <div class="details">
+              <mat-form-field appearance="fill">
+                <mat-label>Expérience (années)</mat-label>
+                <input matInput type="number" [(ngModel)]="profile.experienceYears"
+                  (ngModelChange)="updateProfileField()" />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Tarif (€)</mat-label>
+                <input matInput type="number" [(ngModel)]="profile.price" (ngModelChange)="updateProfileField()" />
+              </mat-form-field>
+
+              <p>⭐ Рейтинг: {{ profile.rating }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="certificates mt-4">
+          <h4>Certificats</h4>
+          <div class="chip-list">
+            <div class="chip" *ngFor="let cert of profile.certificates">
+              {{ cert }}
+              <button type="button" class="remove-btn" (click)="removeCertificate(cert)">×</button>
+            </div>
+          </div>
+
+          <mat-form-field class="full-width">
+            <mat-label>Ajouter un certificat</mat-label>
+            <input matInput [(ngModel)]="profile.email" (ngModelChange)="updateProfileField()" />
+          </mat-form-field>
+        </div>
+
+        <div class="contact mt-4">
+          <h4>Email</h4>
+          <mat-form-field class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput [(ngModel)]="profile.email" (ngModelChange)="updateProfileField()" />
+          </mat-form-field>
+        </div>
+
+        <div class="availability mt-4">
+          <h4>Disponibilité</h4>
+          <div class="availability-grid">
+            <div class="availability-day" [ngClass]="{ 'available': !!day.hours, 'unavailable': !day.hours }"
+              *ngFor="let day of days">
+              <div class="day-name">{{ day.name }}</div>
+              <div class="day-time">
+                <ng-container *ngIf="day.hours; else unavailable">
+                  {{ day.hours.start }} — {{ day.hours.end }}
+                </ng-container>
+                <ng-template #unavailable>Indisponible</ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <mat-accordion class="reviews mt-5">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title> Avis des étudiants </mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-review-list [reviews]="reviews"></app-review-list>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </mat-card>
+    </div>
+
+    <div *ngIf="!profile" class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Chargement du profil enseignant...</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #studentDetailDialog>
+  <div style="padding: 24px; max-width: 600px;">
+    <h2>{{ selectedStudent?.name }}</h2>
+
+    <p *ngIf="selectedStudent?.isStudent">
+      📅 Prochain cours: {{ selectedStudent.nextLessonDate }}
+    </p>
+
+    <p *ngIf="!selectedStudent?.isStudent">
+      📨 Demande reçue le {{ selectedStudent.requestDate }}
+    </p>
+
+    <p *ngIf="selectedStudent?.message">💬 Message: {{ selectedStudent.message }}</p>
+
+    <div class="student-section">
+      <h4>🎯 Objectifs</h4>
+      <ul>
+        <li *ngFor="let goal of selectedStudent.goals">{{ goal }}</li>
+      </ul>
+    </div>
+
+    <div class="student-section">
+      <h4>📚 Devoirs à corriger</h4>
+      <ul>
+        <li *ngFor="let homework of selectedStudent.homework">
+          {{ homework.title }} — <span class="status">{{ homework.status }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="student-section">
+      <h4>🕓 Historique des cours</h4>
+      <ul>
+        <li *ngFor="let lesson of selectedStudent.history">
+          {{ lesson.date }} — {{ lesson.topic }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</ng-template>

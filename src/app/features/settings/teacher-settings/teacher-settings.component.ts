@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TeacherProfile } from '../../dashboard/teacher-dashboard/teacher-profile.model';
 import { ProfilesApiService } from '../../../services/profiles-api.service';
 import { AuthService } from '../../../services/auth.service';
@@ -31,7 +31,16 @@ export class TeacherSettingsComponent implements OnInit {
       certificates: [''],
       email: ['', [Validators.required, Validators.email]],
       language: ['fr'],
-      theme: ['dark']
+      theme: ['dark'],
+      availability: this.fb.array([
+        this.fb.group({ day: 'Lundi', from: '', to: '' }),
+        this.fb.group({ day: 'Mardi', from: '', to: '' }),
+        this.fb.group({ day: 'Mercredi', from: '', to: '' }),
+        this.fb.group({ day: 'Jeudi', from: '', to: '' }),
+        this.fb.group({ day: 'Vendredi', from: '', to: '' }),
+        this.fb.group({ day: 'Samedi', from: '', to: '' }),
+        this.fb.group({ day: 'Dimanche', from: '', to: '' }),
+      ])
     });
   }
 
@@ -61,7 +70,8 @@ export class TeacherSettingsComponent implements OnInit {
         preferences: {
           language: value.language,
           theme: value.theme
-        }
+        },
+        availability: value.availability.map((a: any) => ({ day: a.day, from: a.from, to: a.to }))
       };
 
       // Создать профиль
@@ -111,4 +121,9 @@ export class TeacherSettingsComponent implements OnInit {
 
     this.onSubmit();
   }
+
+  get availabilityArray(): FormGroup[] {
+  return (this.teacherForm.get('availability') as FormArray).controls as FormGroup[];
+}
+
 }

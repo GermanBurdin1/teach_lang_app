@@ -61,6 +61,23 @@
       <input matInput formControlName="email" />
     </mat-form-field>
 
+    <h3 class="section-title">Horaires disponibles</h3>
+    <div formArrayName="availability">
+      <div *ngFor="let group of availabilityArray; let i = index" [formGroupName]="i" class="availability-row">
+        <strong>{{ group.get('day')?.value }}</strong> :
+        <mat-form-field appearance="outline">
+          <mat-label>De</mat-label>
+          <input matInput type="time" formControlName="from" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>À</mat-label>
+          <input matInput type="time" formControlName="to" />
+        </mat-form-field>
+      </div>
+
+    </div>
+
+
     <!-- Préférences -->
     <h3 class="section-title">Préférences</h3>
 

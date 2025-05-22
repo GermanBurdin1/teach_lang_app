@@ -26,6 +26,17 @@ import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.com
 import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { ReviewListComponent } from './shared/components/review-list/review-list.component';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonModule } from '@angular/material/button';
 
 
 @NgModule({
@@ -58,7 +69,18 @@ import { ReviewListComponent } from './shared/components/review-list/review-list
     NgSelectModule,
     TariffsModule,
     SharedModule,
-    GrammarFieldsComponent
+    GrammarFieldsComponent,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatChipsModule,
+    MatIconModule,
+    MatExpansionModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    ReactiveFormsModule,
+    MatButtonToggleModule,
+    MatButtonModule
   ],
   exports: [ReviewListComponent]
 })
