@@ -12,13 +12,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
+import { StudentSettingsComponent } from './student-settings/student-settings.component';
 
 const routes: Routes = [
   { path: '', component: TeacherSettingsComponent }
 ];
 
 @NgModule({
-  declarations: [TeacherSettingsComponent],
+  declarations: [TeacherSettingsComponent, StudentSettingsComponent],
   imports: [
     CommonModule,
     FormsModule,

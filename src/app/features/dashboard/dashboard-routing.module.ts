@@ -21,6 +21,7 @@ import {AdminTeacherDetailsComponent} from "./school-dashboard/admin-management_
 import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
 import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
 import { TeacherSettingsComponent } from '../settings/teacher-settings/teacher-settings.component';
+import { StudentSettingsComponent } from '../settings/student-settings/student-settings.component';
 import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
@@ -46,6 +47,7 @@ const routes: Routes = [
       { path: 'school/course/:id', component: MaterialsComponent},
       { path: 'student/teachers', component: TeacherListComponent },
       { path: 'student/teachers/:id', component: TeacherDetailsComponent },
+      { path: 'student/settings', component: StudentSettingsComponent },
       { path: 'admin/teachers', component: AdminTeachersListComponent },
       { path: 'admin/teachers/:id', component: AdminTeacherDetailsComponent },
       { path: 'admin/home', component: AdminHomeComponent }

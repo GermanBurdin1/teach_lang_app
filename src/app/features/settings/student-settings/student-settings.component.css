@@ -1,0 +1,41 @@
+.form-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+}
+
+mat-form-field.full-width {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+button[type="submit"] {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 30px;
+}
+
+.form-photo-section {
+  margin-bottom: 20px;
+}
+.preview {
+  font-size: 14px;
+  color: #555;
+}
+
+.photo-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 14px;
+}

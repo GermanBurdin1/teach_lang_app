@@ -1,0 +1,74 @@
+<div class="form-container">
+  <h2>Mon profil</h2>
+  <form [formGroup]="studentForm" (ngSubmit)="onSubmit()">
+    <mat-form-field class="full-width">
+      <mat-label>Nom</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <div class="form-photo-section">
+      <label class="photo-label">Photo de profil</label>
+
+      <mat-button-toggle-group [value]="photoMode" (change)="photoMode = $event.value" class="mb-3" appearance="legacy">
+        <mat-button-toggle value="url">Utiliser une URL</mat-button-toggle>
+        <mat-button-toggle value="file">Télécharger un fichier</mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <div *ngIf="photoMode === 'url'">
+        <mat-form-field class="full-width">
+          <mat-label>Lien vers la photo</mat-label>
+          <input matInput formControlName="photoUrl" />
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="photoMode === 'file'">
+        <input type="file" (change)="onPhotoSelected($event)" />
+        <div *ngIf="selectedPhotoFile" class="preview mt-2">
+          <p>Fichier sélectionné : {{ selectedPhotoFile.name }}</p>
+        </div>
+      </div>
+    </div>
+
+
+
+    <mat-form-field class="full-width">
+      <mat-label>Biographie</mat-label>
+      <textarea matInput formControlName="bio" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" />
+    </mat-form-field>
+
+
+    <!-- Préférences -->
+    <h3 class="section-title">Préférences</h3>
+
+    <mat-form-field class="full-width">
+      <mat-label>Langue de préférence</mat-label>
+      <mat-select formControlName="language">
+        <mat-option value="fr">Français</mat-option>
+        <mat-option value="en">Anglais</mat-option>
+        <mat-option value="ru">Russe</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Thème</mat-label>
+      <mat-select formControlName="theme">
+        <mat-option value="light">Clair</mat-option>
+        <mat-option value="dark">Sombre</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="studentForm.invalid">
+      Enregistrer
+    </button>
+
+    <button mat-stroked-button color="accent" type="button" (click)="autoFillAndSubmit()">
+      Remplir automatiquement
+    </button>
+  </form>
+</div>
