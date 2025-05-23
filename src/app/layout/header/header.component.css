@@ -130,3 +130,37 @@ tr.selected {
   border: 3px solid #007bff;
   border-radius: 5px;
 }
+
+.role-switch-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 24px;
+}
+
+.switch-card {
+  width: 240px;
+  height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.switch-card:hover {
+  transform: translateY(-4px);
+}
+
+mat-card-header {
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+mat-icon {
+  font-size: 48px !important;
+  height: 48px;
+  width: 48px;
+}

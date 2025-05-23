@@ -8,40 +8,48 @@
   </div>
 
   <!-- Панель, которая раскрывает весь header -->
-  <div class="expanded-header bg-white shadow-lg" *ngIf="isHeaderExpanded"
-    style="width: 100%; position: absolute; top: 100%; left: 0; z-index: 1040;">
-    <div class="container p-4">
-      <div class="d-flex justify-content-center">
-        <!-- Только если доступна роль "admin" -->
-        <div *ngIf="shouldShowSwitchTo('admin')" class="card text-center p-3 mx-2"
-          style="width: 200px; cursor: pointer;" (click)="switchToAdmin()">
-          <img src="assets/icons/admin-icon.png" alt="Администратор" class="mb-2" style="width: 40px;">
-          <h6 class="mb-1">Администратор</h6>
-          <span class="badge bg-secondary mb-2">Переключиться</span>
-          <p class="small text-muted">Административный кабинет школы</p>
-        </div>
+  <div class="expanded-header mat-elevation-z8" *ngIf="isHeaderExpanded"
+    style="width: 100%; position: absolute; top: 100%; left: 0; z-index: 1040; background-color: white;">
+    <div class="role-switch-container">
 
-        <!-- Только если доступна роль "student" -->
-        <div *ngIf="shouldShowSwitchTo('student')" class="card text-center p-3 mx-2"
-          style="width: 200px; cursor: pointer;" (click)="switchToStudent()">
-          <img src="assets/icons/student-icon.png" alt="Кабинет ученика" class="mb-2" style="width: 40px;">
-          <h6 class="mb-1">Кабинет ученика</h6>
-          <span class="badge bg-secondary mb-2">Переключиться</span>
-          <p class="small text-muted">Получайте знания в интерактивном формате</p>
-        </div>
+      <!-- Administrateur -->
+      <mat-card *ngIf="shouldShowSwitchTo('admin')" class="switch-card" (click)="switchToAdmin()">
+        <mat-card-header class="justify-center">
+          <mat-icon color="primary" style="font-size: 40px;">admin_panel_settings</mat-icon>
+        </mat-card-header>
+        <mat-card-title class="text-center">Administrateur</mat-card-title>
+        <mat-card-subtitle class="text-center text-indigo-700">Changer</mat-card-subtitle>
+        <mat-card-content class="text-center">
+          <p class="text-sm text-muted">Tableau de bord administratif de l’école</p>
+        </mat-card-content>
+      </mat-card>
 
-        <!-- Только если доступна роль "teacher" -->
-        <div *ngIf="shouldShowSwitchTo('teacher')" class="card text-center p-3 mx-2"
-          style="width: 200px; cursor: pointer;" (click)="switchToTeacher()">
-          <img src="assets/icons/teacher-icon.png" alt="Преподаватель" class="mb-2" style="width: 40px;">
-          <h6 class="mb-1">Преподаватель</h6>
-          <span class="badge bg-secondary mb-2">Переключиться</span>
-          <p class="small text-muted">Ваши уроки и материалы</p>
-        </div>
-      </div>
+      <!-- Élève -->
+      <mat-card *ngIf="shouldShowSwitchTo('student')" class="switch-card" (click)="switchToStudent()">
+        <mat-card-header class="justify-center">
+          <mat-icon color="primary" style="font-size: 40px;">school</mat-icon>
+        </mat-card-header>
+        <mat-card-title class="text-center">Espace Élève</mat-card-title>
+        <mat-card-subtitle class="text-center text-indigo-700">Changer</mat-card-subtitle>
+        <mat-card-content class="text-center">
+          <p class="text-sm text-muted">Apprenez dans un format interactif</p>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Enseignant -->
+      <mat-card *ngIf="shouldShowSwitchTo('teacher')" class="switch-card" (click)="switchToTeacher()">
+        <mat-card-header class="justify-center">
+          <mat-icon color="primary" style="font-size: 40px;">person</mat-icon>
+        </mat-card-header>
+        <mat-card-title class="text-center">Enseignant</mat-card-title>
+        <mat-card-subtitle class="text-center text-indigo-700">Changer</mat-card-subtitle>
+        <mat-card-content class="text-center">
+          <p class="text-sm text-muted">Vos cours et vos ressources</p>
+        </mat-card-content>
+      </mat-card>
+
     </div>
   </div>
-
 
 
   <div class="container-fluid d-flex justify-content-end align-items-center">

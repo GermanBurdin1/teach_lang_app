@@ -11,46 +11,28 @@
   </ng-template>
 
   <ng-template #schoolDashboard>
-  <nav class="school-menu">
+    <nav class="school-menu">
 
-    <!-- 🆕 Главная вкладка -->
-    <a mat-button routerLink="admin/home" class="school-tab" matTooltip="Tableau de bord">
-      <mat-icon>dashboard</mat-icon>
-      <span>Accueil</span>
-    </a>
+      <!-- 🆕 Главная вкладка -->
+      <a mat-button routerLink="admin/home" class="school-tab" matTooltip="Tableau de bord">
+        <mat-icon>dashboard</mat-icon>
+        <span>Accueil</span>
+      </a>
 
-    <a mat-button routerLink="admin/teachers" class="school-tab" matTooltip="Gestion des professeurs">
-      <mat-icon>supervisor_account</mat-icon>
-      <span>Professeurs</span>
-    </a>
+      <a mat-button routerLink="school/users" class="school-tab" matTooltip="Tous les utilisateurs">
+        <mat-icon>groups</mat-icon>
+        <span>Utilisateurs</span>
+      </a>
 
-    <a mat-button routerLink="school/users" class="school-tab" matTooltip="Tous les utilisateurs">
-      <mat-icon>groups</mat-icon>
-      <span>Utilisateurs</span>
-    </a>
+      <a mat-button routerLink="school/settings" class="school-tab" matTooltip="Paramètres du système">
+        <mat-icon>settings</mat-icon>
+        <span>Paramètres</span>
+      </a>
 
-    <a mat-button routerLink="school/online-lessons" class="school-tab" matTooltip="Suivi des cours en ligne">
-      <mat-icon>video_call</mat-icon>
-      <span>Cours</span>
-    </a>
 
-    <a mat-button routerLink="school/marathons" class="school-tab" matTooltip="Organisation des marathons">
-      <mat-icon>directions_run</mat-icon>
-      <span>Marathons</span>
-    </a>
 
-    <a mat-button routerLink="school/settings" class="school-tab" matTooltip="Paramètres du système">
-      <mat-icon>settings</mat-icon>
-      <span>Paramètres</span>
-    </a>
-
-    <a mat-button routerLink="school/tariffs" class="school-tab" matTooltip="Tarification et abonnements">
-      <mat-icon>attach_money</mat-icon>
-      <span>Tarifs</span>
-    </a>
-
-  </nav>
-</ng-template>
+    </nav>
+  </ng-template>
 
 
   <ng-template #studentDashboard>
@@ -58,6 +40,11 @@
       <a mat-button routerLink="student/home" class="student-tab" matTooltip="Mon profil">
         <mat-icon>home</mat-icon>
         <span>Accueil</span>
+      </a>
+
+      <a mat-button routerLink="school/online-lessons" class="school-tab" matTooltip="Suivi des cours en ligne">
+        <mat-icon>video_call</mat-icon>
+        <span>Cours</span>
       </a>
 
       <a mat-button routerLink="student/teachers" class="student-tab" matTooltip="Choisir un professeur">
@@ -97,6 +84,11 @@
         <span>Accueil</span>
       </a>
 
+      <a mat-button routerLink="school/online-lessons" class="school-tab" matTooltip="Suivi des cours en ligne">
+        <mat-icon>video_call</mat-icon>
+        <span>Cours</span>
+      </a>
+
       <a mat-button routerLink="teacher/profile" class="teacher-tab" matTooltip="Gestion des étudiants">
         <mat-icon>group</mat-icon>
         <span>Étudiants</span>
@@ -127,3 +119,15 @@
 
 
 </div>
+
+<!-- pour écoles en ligne
+    <a mat-button routerLink="school/tariffs" class="school-tab" matTooltip="Tarification et abonnements">
+      <mat-icon>attach_money</mat-icon>
+      <span>Tarifs</span>
+    </a> -->
+
+<!-- pour écoles en ligne
+    <a mat-button routerLink="school/marathons" class="school-tab" matTooltip="Organisation des marathons">
+      <mat-icon>directions_run</mat-icon>
+      <span>Marathons</span>
+    </a> -->
