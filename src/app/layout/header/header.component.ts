@@ -682,20 +682,21 @@ export class HeaderComponent {
   }
 
   shouldShowSwitchTo(role: 'student' | 'teacher' | 'admin'): boolean {
-    const user = this.authService.user;
+  const user = this.authService.user;
 
-    if (!user) return false;
+  if (!user) return false;
 
-    // Если он уже вошёл под этой ролью — не предлагать её снова
-    if (user.currentRole === role) return false;
+  const { currentRole, roles } = user;
 
-    // Админ всегда может переключиться на student/teacher
-    if (user.roles.includes('admin')) {
-      return role === 'student' || role === 'teacher';
-    }
+  // Никогда не показываем текущую роль
+  if (role === currentRole) return false;
 
-    // В остальных случаях показываем только доступные альтернативные роли
-    return user.roles.includes(role);
-  }
+  // 🔁 Если у пользователя есть роль "admin" в списке, значит он зашёл как админ — показываем все 3 роли, кроме текущей
+  if (roles.includes('admin')) return true;
+
+  // ⚠️ В остальных случаях (вошёл не как админ) — показываем только те роли, которые реально доступны
+  return roles.includes(role);
+}
+
 
 }
