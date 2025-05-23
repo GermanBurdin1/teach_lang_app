@@ -1,0 +1,46 @@
+.admin-home {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px;
+}
+
+.top-section {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.block {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  flex: 1 1 45%;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.block h3 {
+  margin-top: 0;
+}
+
+.block ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+.block li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.bottom-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.stats-block {
+  flex: 1 1 100%;
+}

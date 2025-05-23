@@ -1,0 +1,38 @@
+<div class="admin-home">
+
+  <!-- 🔼 Верхняя часть -->
+  <div class="top-section">
+
+    <!-- Оплаты -->
+    <div class="block payments-block">
+      <h3>💳 Derniers paiements</h3>
+      <ul>
+        <li *ngFor="let p of payments">
+          {{ p.user }} — {{ p.amount }} € le {{ p.date }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Уведомления -->
+    <div class="block alerts-block">
+      <h3>📬 Notifications importantes</h3>
+      <ul>
+        <li *ngFor="let alert of alerts">{{ alert }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- 🔽 Нижняя часть -->
+  <div class="bottom-section">
+    <div class="block stats-block">
+      <h3>📊 Statistiques mensuelles</h3>
+      <ul>
+        <li>👨‍🎓 Nouveaux étudiants: {{ platformStats.newStudents }}</li>
+        <li>👩‍🏫 Nouveaux professeurs: {{ platformStats.newTeachers }}</li>
+        <li>📚 Leçons dispensées: {{ platformStats.lessonsHeld }}</li>
+      </ul>
+    </div>
+  </div>
+
+</div>

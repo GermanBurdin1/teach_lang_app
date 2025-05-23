@@ -23,6 +23,7 @@ import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/
 import { TeacherSettingsComponent } from '../settings/teacher-settings/teacher-settings.component';
 import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
+import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
 
 const routes: Routes = [
   {
@@ -47,6 +48,7 @@ const routes: Routes = [
       { path: 'student/teachers/:id', component: TeacherDetailsComponent },
       { path: 'admin/teachers', component: AdminTeachersListComponent },
       { path: 'admin/teachers/:id', component: AdminTeacherDetailsComponent },
+      { path: 'admin/home', component: AdminHomeComponent }
     ]
   },
 

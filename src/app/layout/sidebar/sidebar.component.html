@@ -11,38 +11,47 @@
   </ng-template>
 
   <ng-template #schoolDashboard>
-    <!-- Вкладки для административного кабинета -->
-    <div class="uc-menu-item">
-      <a routerLink="admin/teachers" class="icon-container">
-        <i class="fas fa-users-cog uc-menu-icon" style="color: #6f42c1;"></i>
-      </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="school/users" class="icon-container">
-        <i class="fas fa-users uc-menu-icon"></i>
-      </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="school/online-lessons" class="icon-container">
-        <i class="fas fa-chalkboard-teacher uc-menu-icon"></i>
-      </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="school/marathons" class="icon-container">
-        <i class="fas fa-running uc-menu-icon"></i>
-      </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="school/settings" class="icon-container">
-        <i class="fas fa-cog uc-menu-icon"></i>
-      </a>
-    </div>
-    <div class="uc-menu-item">
-      <a routerLink="school/tariffs" class="icon-container">
-        <i class="fas fa-dollar-sign uc-menu-icon"></i>
-      </a>
-    </div>
-  </ng-template>
+  <nav class="school-menu">
+
+    <!-- 🆕 Главная вкладка -->
+    <a mat-button routerLink="admin/home" class="school-tab" matTooltip="Tableau de bord">
+      <mat-icon>dashboard</mat-icon>
+      <span>Accueil</span>
+    </a>
+
+    <a mat-button routerLink="admin/teachers" class="school-tab" matTooltip="Gestion des professeurs">
+      <mat-icon>supervisor_account</mat-icon>
+      <span>Professeurs</span>
+    </a>
+
+    <a mat-button routerLink="school/users" class="school-tab" matTooltip="Tous les utilisateurs">
+      <mat-icon>groups</mat-icon>
+      <span>Utilisateurs</span>
+    </a>
+
+    <a mat-button routerLink="school/online-lessons" class="school-tab" matTooltip="Suivi des cours en ligne">
+      <mat-icon>video_call</mat-icon>
+      <span>Cours</span>
+    </a>
+
+    <a mat-button routerLink="school/marathons" class="school-tab" matTooltip="Organisation des marathons">
+      <mat-icon>directions_run</mat-icon>
+      <span>Marathons</span>
+    </a>
+
+    <a mat-button routerLink="school/settings" class="school-tab" matTooltip="Paramètres du système">
+      <mat-icon>settings</mat-icon>
+      <span>Paramètres</span>
+    </a>
+
+    <a mat-button routerLink="school/tariffs" class="school-tab" matTooltip="Tarification et abonnements">
+      <mat-icon>attach_money</mat-icon>
+      <span>Tarifs</span>
+    </a>
+
+  </nav>
+</ng-template>
+
 
   <ng-template #studentDashboard>
     <nav class="student-menu">

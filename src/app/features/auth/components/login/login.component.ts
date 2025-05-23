@@ -23,7 +23,20 @@ export class LoginComponent implements OnInit {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
-      selectedRole: [null, Validators.required] // 💥 Вот эта строка обязательно!
+      selectedRole: [null, Validators.required]
+    });
+
+    // 👉 Если админ вводит логин, сразу задаём роль и снимаем валидацию
+    this.loginForm.get('email')?.valueChanges.subscribe(email => {
+      if (email === 'admin@admin.net') {
+        this.loginForm.get('selectedRole')?.setValidators([]); // убираем required
+        this.loginForm.get('selectedRole')?.setValue('admin');
+        this.loginForm.get('selectedRole')?.updateValueAndValidity();
+      } else {
+        this.loginForm.get('selectedRole')?.setValidators([Validators.required]); // восстанавливаем
+        this.loginForm.get('selectedRole')?.setValue(null);
+        this.loginForm.get('selectedRole')?.updateValueAndValidity();
+      }
     });
   }
 
@@ -52,7 +65,7 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password, selectedRole } = this.loginForm.value;
-
+      console.log('Trying login with', this.loginForm.value);
       this.authService.login(email, password).subscribe({
         next: (user) => {
           this.authService.setUser(user);

@@ -39,6 +39,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
+import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +61,8 @@ import { StudentHomeComponent } from './student-dashboard/home/student-home.comp
     TeacherDashboardOverviewComponent,
     ReviewListComponent,
     TeacherHomeComponent,
-    StudentHomeComponent
+    StudentHomeComponent,
+    AdminHomeComponent
   ],
   imports: [
     LayoutModule,

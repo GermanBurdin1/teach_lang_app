@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { DashboardService } from '../../services/dashboard.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -8,34 +8,22 @@ import { DashboardService } from '../../services/dashboard.service';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  isSchoolDashboard = true;
+  isSchoolDashboard = false;
   isTeacherDashboard = false;
+  isStudentDashboard = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private dashboardService: DashboardService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    const storedSchool = localStorage.getItem('isSchoolDashboard');
-    const storedTeacher = localStorage.getItem('isTeacherDashboard');
+    const role = this.authService.currentRole;
 
-    if (storedSchool !== null) {
-      this.isSchoolDashboard = JSON.parse(storedSchool);
-    }
-
-    if (storedTeacher !== null) {
-      this.isTeacherDashboard = JSON.parse(storedTeacher);
-    }
-
-    this.dashboardService.currentDashboard.subscribe(isSchool => {
-      this.isSchoolDashboard = isSchool;
-    });
-
-    this.dashboardService.currentTeacherDashboard.subscribe(isTeacher => {
-      this.isTeacherDashboard = isTeacher;
-    });
+    this.isTeacherDashboard = role === 'teacher';
+    this.isSchoolDashboard = role === 'admin';
+    this.isStudentDashboard = role === 'student' || !role; // fallback
   }
 
   navigateTo(route: string): void {

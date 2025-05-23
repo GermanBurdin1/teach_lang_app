@@ -102,3 +102,33 @@
 .student-tab mat-icon {
   color: #3f51b5;
 }
+
+.school-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+  background-color: #f4f6f9;
+  border-radius: 12px;
+}
+
+.school-tab {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  color: #3f51b5; /* Indigo */
+  font-weight: 500;
+  border-radius: 8px;
+  text-transform: none;
+  padding: 8px 12px;
+  transition: background-color 0.2s ease;
+}
+
+.school-tab:hover {
+  background-color: rgba(63, 81, 181, 0.1);
+}
+
+.school-tab mat-icon {
+  color: #3f51b5;
+}
