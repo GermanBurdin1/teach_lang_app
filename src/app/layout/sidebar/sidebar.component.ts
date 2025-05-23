@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,19 +12,28 @@ export class SidebarComponent implements OnInit {
   isSchoolDashboard = false;
   isTeacherDashboard = false;
   isStudentDashboard = false;
+  private roleSub!: Subscription;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    const role = this.authService.currentRole;
+    this.roleSub = this.authService.currentRole$.subscribe(role => {
+      console.log(`[Sidebar] Role changed to: ${role}`);
 
-    this.isTeacherDashboard = role === 'teacher';
-    this.isSchoolDashboard = role === 'admin';
-    this.isStudentDashboard = role === 'student' || !role; // fallback
+      this.isTeacherDashboard = role === 'teacher';
+      this.isSchoolDashboard = role === 'admin';
+      this.isStudentDashboard = role === 'student' || !role;
+
+      console.log(`[Sidebar] Flags — isTeacher: ${this.isTeacherDashboard}, isSchool: ${this.isSchoolDashboard}, isStudent: ${this.isStudentDashboard}`);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.roleSub.unsubscribe();
   }
 
   navigateTo(route: string): void {

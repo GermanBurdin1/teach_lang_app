@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { User } from '../features/auth/models/user.model';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +9,8 @@ import { Observable } from 'rxjs';
 export class AuthService {
   private _user: User | null = null;
   private baseRegisterUrl = 'http://localhost:3002/auth';
+  private currentRoleSubject = new BehaviorSubject<string | null>(null);
+  currentRole$ = this.currentRoleSubject.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -24,19 +26,30 @@ export class AuthService {
   setUser(user: User) {
     this._user = user;
     if (!this._user.currentRole && this._user.roles.length > 0) {
-      this._user.currentRole = this._user.roles[0]; // первая роль по умолчанию
+      this._user.currentRole = this._user.roles[0];
     }
+
+    console.log('[AuthService] User set:', this._user);
+    this.currentRoleSubject.next(this._user.currentRole ?? null);
+    // 💥 добавь это!
   }
-  
+
+
+
   get user(): User | null {
     return this._user;
   }
 
   setActiveRole(role: string) {
     if (this._user?.roles.includes(role)) {
+      console.log(`[AuthService] Setting active role: ${role}`);
       this._user.currentRole = role;
+      this.currentRoleSubject.next(role); // 💥 уведомляем подписчиков
+    } else {
+      console.warn(`[AuthService] Attempted to set unknown role: ${role}`);
     }
   }
+
 
   get currentRole(): string | null {
     return this._user?.currentRole || null;

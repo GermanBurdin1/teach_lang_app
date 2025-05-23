@@ -74,37 +74,47 @@ export class HeaderComponent {
     this.isHeaderExpanded = !this.isHeaderExpanded;
   }
 
-
-  switchToAdmin(): void { // Проверяем, чтобы не редиректить с classroom
-    this.isHeaderExpanded = false;
-    localStorage.setItem('isSchoolDashboard', JSON.stringify(true));
-    this.authService.setActiveRole('admin');
-    this.router.navigate(['school/statistics']).then(() => {
-      this.dashboardService.switchToSchoolDashboard();
-    });
-  }
-
   switchToStudent(): void {
-    this.isHeaderExpanded = false; // Закрываем выпадающую область
-    localStorage.setItem('isSchoolDashboard', JSON.stringify(false)); // Сохраняем выбор в localStorage
-    this.authService.setActiveRole('student');
+    this.isHeaderExpanded = false;
+
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      user.currentRole = 'student';
+      this.authService.setUser(user);
+    }
+
     this.router.navigate(['student/wordsTeaching']).then(() => {
-      console.log('Redirected to /school/statistics from switchToStudent');
-      this.dashboardService.switchToStudentDashboard(); // Обновляем состояние через сервис
+      this.dashboardService.switchToStudentDashboard();
     });
   }
 
   switchToTeacher(): void {
-  this.isHeaderExpanded = false;
-  localStorage.setItem('isTeacherDashboard', JSON.stringify(true));
-  localStorage.setItem('isSchoolDashboard', JSON.stringify(false));
-  this.authService.setActiveRole('teacher'); // ✅ Обновляем роль
-  this.router.navigate(['teacher/wordsTeaching']).then(() => {
-    this.dashboardService.switchToTeacherDashboard();
-  });
-}
+    this.isHeaderExpanded = false;
 
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      user.currentRole = 'teacher';
+      this.authService.setUser(user);
+    }
 
+    this.router.navigate(['teacher/wordsTeaching']).then(() => {
+      this.dashboardService.switchToTeacherDashboard();
+    });
+  }
+
+  switchToAdmin(): void {
+    this.isHeaderExpanded = false;
+
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      user.currentRole = 'admin';
+      this.authService.setUser(user);
+    }
+
+    this.router.navigate(['admin/home']).then(() => {
+      this.dashboardService.switchToSchoolDashboard();
+    });
+  }
 
 
   // ajouter de l'argent
@@ -672,20 +682,20 @@ export class HeaderComponent {
   }
 
   shouldShowSwitchTo(role: 'student' | 'teacher' | 'admin'): boolean {
-  const user = this.authService.user;
+    const user = this.authService.user;
 
-  if (!user) return false;
+    if (!user) return false;
 
-  // Если он уже вошёл под этой ролью — не предлагать её снова
-  if (user.currentRole === role) return false;
+    // Если он уже вошёл под этой ролью — не предлагать её снова
+    if (user.currentRole === role) return false;
 
-  // Админ всегда может переключиться на student/teacher
-  if (user.roles.includes('admin')) {
-    return role === 'student' || role === 'teacher';
+    // Админ всегда может переключиться на student/teacher
+    if (user.roles.includes('admin')) {
+      return role === 'student' || role === 'teacher';
+    }
+
+    // В остальных случаях показываем только доступные альтернативные роли
+    return user.roles.includes(role);
   }
-
-  // В остальных случаях показываем только доступные альтернативные роли
-  return user.roles.includes(role);
-}
 
 }
