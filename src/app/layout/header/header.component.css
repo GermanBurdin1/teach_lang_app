@@ -164,3 +164,33 @@ mat-icon {
   height: 48px;
   width: 48px;
 }
+
+.menu-icon {
+  font-size: 18px !important;
+    width: 20px !important;
+    color: indigo !important;
+    margin-right: 10px !important;
+}
+
+.menu-label {
+  font-size: 13px;        /* Чуть меньше размер шрифта */
+  color: indigo;
+}
+
+.user-button {
+  padding: 0;
+  min-width: unset;
+}
+
+.user-header-icon {
+  background-color: indigo;
+  color: white;
+  width: 34px;            /* Уменьшил чтобы поместилось */
+  height: 34px;
+  font-size: 14px;        /* Явно указал размер текста */
+  font-weight: 600;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

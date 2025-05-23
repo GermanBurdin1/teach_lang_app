@@ -20,8 +20,10 @@ export class HeaderComponent {
   showLessonDescription = false;
   lessonDescription$!: Observable<{ lesson: string; course: string } | null>;
   isLessonStarted$!: Observable<boolean>;
+  settingsLink: string = '';
 
-  constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService, private authService: AuthService) { }
+
+  constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService, public authService: AuthService) { }
 
   ngOnInit(): void {
 
@@ -58,6 +60,11 @@ export class HeaderComponent {
       this.activeLessonTab = tab;
     });
 
+    this.authService.currentRole$.subscribe(role => {
+      this.setSettingsLink();
+      console.log('[HeaderComponent] Role changed. settingsLink =', this.settingsLink);
+    });
+
   }
 
   setActiveTab(tab: 'cards' | 'lesson' | 'homework'): void {
@@ -81,6 +88,7 @@ export class HeaderComponent {
     if (user) {
       user.currentRole = 'student';
       this.authService.setUser(user);
+      this.setSettingsLink();
     }
 
     this.router.navigate(['student/wordsTeaching']).then(() => {
@@ -95,6 +103,7 @@ export class HeaderComponent {
     if (user) {
       user.currentRole = 'teacher';
       this.authService.setUser(user);
+      this.setSettingsLink();
     }
 
     this.router.navigate(['teacher/wordsTeaching']).then(() => {
@@ -109,6 +118,7 @@ export class HeaderComponent {
     if (user) {
       user.currentRole = 'admin';
       this.authService.setUser(user);
+      this.setSettingsLink();
     }
 
     this.router.navigate(['admin/home']).then(() => {
@@ -682,21 +692,40 @@ export class HeaderComponent {
   }
 
   shouldShowSwitchTo(role: 'student' | 'teacher' | 'admin'): boolean {
-  const user = this.authService.user;
+    const user = this.authService.user;
 
-  if (!user) return false;
+    if (!user) return false;
 
-  const { currentRole, roles } = user;
+    const { currentRole, roles } = user;
 
-  // Никогда не показываем текущую роль
-  if (role === currentRole) return false;
+    // Никогда не показываем текущую роль
+    if (role === currentRole) return false;
 
-  // 🔁 Если у пользователя есть роль "admin" в списке, значит он зашёл как админ — показываем все 3 роли, кроме текущей
-  if (roles.includes('admin')) return true;
+    // 🔁 Если у пользователя есть роль "admin" в списке, значит он зашёл как админ — показываем все 3 роли, кроме текущей
+    if (roles.includes('admin')) return true;
 
-  // ⚠️ В остальных случаях (вошёл не как админ) — показываем только те роли, которые реально доступны
-  return roles.includes(role);
-}
+    // ⚠️ В остальных случаях (вошёл не как админ) — показываем только те роли, которые реально доступны
+    return roles.includes(role);
+  }
+
+  private setSettingsLink(): void {
+    const user = this.authService.getCurrentUser();
+    const role = user?.currentRole;
+
+    switch (role) {
+      case 'admin':
+        this.settingsLink = '/admin/settings';
+        break;
+      case 'teacher':
+        this.settingsLink = '/teacher/settings';
+        break;
+      case 'student':
+        this.settingsLink = '/student/settings';
+        break;
+      default:
+        this.settingsLink = '/settings';
+    }
+  }
 
 
 }

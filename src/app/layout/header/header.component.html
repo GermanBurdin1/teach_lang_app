@@ -212,23 +212,33 @@
 
 
     <!-- Иконка пользователя -->
-    <div class="dropdown mx-2">
-      <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown"
-        data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="user-icon rounded-circle d-flex align-items-center justify-content-center me-2">
-          G
-        </span>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item [routerLink]="settingsLink">
+        <mat-icon class="menu-icon">settings</mat-icon>
+        <span class="menu-label">Paramètres du profil</span>
       </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-        <li><a class="dropdown-item" href="/profile-settings"><i class="fas fa-cog me-2"></i> Настройки профиля</a></li>
-        <li><a class="dropdown-item" href="/tariffs"><i class="fas fa-star me-2"></i> Тарифы</a></li>
-        <li>
-          <hr class="dropdown-divider">
-        </li>
-        <li><a class="dropdown-item" href="/dark-mode"><i class="fas fa-moon me-2"></i> Темная тема</a></li>
-        <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Выход</a></li>
-      </ul>
-    </div>
+      <button mat-menu-item routerLink="/tariffs">
+        <mat-icon class="menu-icon">star</mat-icon>
+        <span class="menu-label">Tarifs</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item routerLink="/dark-mode">
+        <mat-icon class="menu-icon">dark_mode</mat-icon>
+        <span class="menu-label">Thème sombre</span>
+      </button>
+      <button mat-menu-item routerLink="/logout">
+        <mat-icon class="menu-icon">logout</mat-icon>
+        <span class="menu-label">Déconnexion</span>
+      </button>
+    </mat-menu>
+
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+      <div class="user-header-icon">
+        {{ authService.getUserInitial() }}
+      </div>
+    </button>
+
+
   </div>
 </nav>
 

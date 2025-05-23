@@ -63,5 +63,12 @@ export class AuthService {
     return this.http.get<{ exists: boolean; roles?: string[] }>(`http://localhost:3002/auth/check-email?email=${email}`);
   }
 
+  getUserInitial(): string {
+  const email = this._user?.email || '';
+  const namePart = email.split('@')[0]; // до собаки
+  return namePart.charAt(0).toUpperCase(); // первая буква заглавная
+}
+
+
 
 }
