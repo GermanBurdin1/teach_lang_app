@@ -1,16 +1,25 @@
-import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
-import { CalendarView, CalendarEvent } from 'angular-calendar';
+import { Component, EventEmitter, Input, Output, TemplateRef} from '@angular/core';
+import { CalendarView, CalendarEvent, CalendarDateFormatter} from 'angular-calendar';
 import { Subject } from 'rxjs';
+import { CustomDateFormatter } from './custom-date-formatter';
 
 @Component({
   selector: 'app-calendar-preview',
   templateUrl: './calendar-preview.component.html',
-  styleUrls: ['./calendar-preview.component.css']
+  styleUrls: ['./calendar-preview.component.css'],
+  providers: [
+    {
+      provide: CalendarDateFormatter,
+      useClass: CustomDateFormatter 
+    }
+  ]
 })
+
 export class CalendarPreviewComponent {
   @Input() events: CalendarEvent[] = [];
-@Output() eventClicked = new EventEmitter<CalendarEvent>();
-@Input() eventTitleTemplate!: TemplateRef<any>;
+  @Output() eventClicked = new EventEmitter<CalendarEvent>();
+  @Input() eventTitleTemplate!: TemplateRef<any>;
+
 
   viewDate: Date = new Date();
   view: CalendarView = CalendarView.Week;
@@ -32,17 +41,17 @@ export class CalendarPreviewComponent {
   }
 
   goToNextWeek(): void {
-  const nextWeek = new Date(this.viewDate);
-  nextWeek.setDate(this.viewDate.getDate() + 7);
-  this.viewDate = nextWeek;
-  this.refresh.next();
-}
+    const nextWeek = new Date(this.viewDate);
+    nextWeek.setDate(this.viewDate.getDate() + 7);
+    this.viewDate = nextWeek;
+    this.refresh.next();
+  }
 
-goToPreviousWeek(): void {
-  const prevWeek = new Date(this.viewDate);
-  prevWeek.setDate(this.viewDate.getDate() - 7);
-  this.viewDate = prevWeek;
-  this.refresh.next();
-}
+  goToPreviousWeek(): void {
+    const prevWeek = new Date(this.viewDate);
+    prevWeek.setDate(this.viewDate.getDate() - 7);
+    this.viewDate = prevWeek;
+    this.refresh.next();
+  }
 
 }

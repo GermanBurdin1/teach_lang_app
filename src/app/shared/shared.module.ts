@@ -5,7 +5,8 @@ import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 import { CalendarPreviewComponent } from './components/calendar/calendar-preview.component';
-
+import { MatButtonModule } from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 
 
 @NgModule({
@@ -15,7 +16,9 @@ import { CalendarPreviewComponent } from './components/calendar/calendar-preview
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory
-    })
+    }),
+    MatButtonModule,
+    MatIconModule
   ],
   exports: [ScheduleComponent,CalendarPreviewComponent]
 })

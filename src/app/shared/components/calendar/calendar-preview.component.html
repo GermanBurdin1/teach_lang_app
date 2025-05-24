@@ -1,12 +1,20 @@
 <div class="calendar-controls">
-  <button (click)="goToPreviousWeek()">←</button>
-  <span>{{ viewDate | date: 'fullDate' }}</span>
-  <button (click)="goToNextWeek()">→</button>
+  <button mat-icon-button (click)="goToPreviousWeek()" aria-label="Semaine précédente">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+
+  <span class="calendar-date">{{ viewDate | date: 'fullDate':'':'fr' }}</span>
+
+  <button mat-icon-button (click)="goToNextWeek()" aria-label="Semaine suivante">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
 </div>
+
 
 <div style="height: 500px;">
   <mwl-calendar-week-view
   [viewDate]="viewDate"
+  [weekStartsOn]="1"
   [events]="events"
   [hourSegments]="2"
   [refresh]="refresh"
