@@ -26,7 +26,7 @@ export class StudentHomeComponent implements OnInit {
   selectedNewDate: Date | null = null;
   showRescheduleModal = false;
   rescheduleConfirmed = false;
-
+  now = new Date();
 
   ngOnInit(): void {
     const tomorrow = new Date();
@@ -56,6 +56,7 @@ export class StudentHomeComponent implements OnInit {
 
   onLessonClick(event: CalendarEvent): void {
     this.selectedLesson = event;
+    this.now = new Date(); // обновляем текущий момент
     this.showModal = true;
   }
 
@@ -82,6 +83,10 @@ export class StudentHomeComponent implements OnInit {
       this.selectedNewDate = null;
       this.rescheduleConfirmed = true;
     }
+  }
+
+  canReschedule(): boolean {
+    return !!this.selectedLesson?.end && this.selectedLesson.end >= this.now;
   }
 
 }

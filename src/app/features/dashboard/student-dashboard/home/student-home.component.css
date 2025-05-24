@@ -103,3 +103,29 @@ mat-dialog-actions {
   gap: 10px;
   margin-top: 20px;
 }
+
+.custom-event {
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  border-left: 4px solid;
+  margin-bottom: 4px;
+  transition: background 0.3s;
+}
+
+/* 🟢 Будущие события */
+.upcoming-event {
+  background-color: #e8f5e9; /* light green */
+  border-color: #388e3c;     /* dark green */
+  color: #1b5e20;
+}
+
+/* ⚪ Прошедшие события */
+.past-event {
+  background-color: #eeeeee; /* light gray */
+  border-color: #9e9e9e;
+  color: #757575;
+  text-decoration: line-through;
+  cursor: default;
+}

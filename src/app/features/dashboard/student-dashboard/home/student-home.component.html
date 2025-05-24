@@ -24,18 +24,20 @@
       <h3>🗓️ Prochains cours</h3>
 
       <!-- 🧩 Шаблон события -->
-     <app-calendar-preview
-  [events]="upcomingLessons"
-  [eventTitleTemplate]="customEventTemplate"
-  (eventClicked)="onLessonClick($event)">
-</app-calendar-preview>
+      <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate"
+        (eventClicked)="onLessonClick($event)">
+      </app-calendar-preview>
 
-<ng-template #customEventTemplate let-event="event">
-  <div class="custom-event" (click)="onLessonClick(event)">
-    <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
-    {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
-  </div>
-</ng-template>
+      <ng-template #customEventTemplate let-event="event">
+        <div class="custom-event" [ngClass]="{
+      'past-event': event?.end && event.end < now,
+      'upcoming-event': event?.end && event.end >= now
+    }" (click)="onLessonClick(event)">
+          <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
+          {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
+        </div>
+      </ng-template>
+
     </div>
 
     <div class="homework-zone">
@@ -67,11 +69,18 @@
       <p><strong>Fin :</strong> {{ selectedLesson?.end | date: 'full' }}</p>
     </div>
     <div mat-dialog-actions>
-      <button mat-raised-button color="accent" (click)="openRescheduleModal()">Demander un report</button>
+      <button
+        *ngIf="canReschedule()"
+        mat-raised-button
+        color="accent"
+        (click)="openRescheduleModal()">
+        Demander un report
+      </button>
       <button mat-stroked-button color="primary" (click)="closeModal()">Fermer</button>
     </div>
   </div>
 </ng-template>
+
 
 <ng-template [ngIf]="showRescheduleModal">
   <div class="modal-overlay" (click)="closeRescheduleModal()"></div>
@@ -84,8 +93,10 @@
       </mat-form-field>
     </div>
     <div mat-dialog-actions>
-      <button mat-raised-button color="primary" (click)="confirmReschedule()">Confirmer</button>
-      <button mat-stroked-button color="accent" (click)="closeRescheduleModal()">Annuler</button>
+      <button mat-raised-button color="accent" (click)="openRescheduleModal()">
+        Reporter à cette date
+      </button>
+      <button mat-stroked-button color="primary" (click)="closeModal()">Fermer</button>
     </div>
   </div>
 </ng-template>
@@ -97,5 +108,3 @@
     <button mat-flat-button color="accent" (click)="rescheduleConfirmed = false">Fermer</button>
   </div>
 </ng-template>
-
-
