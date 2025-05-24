@@ -69,12 +69,8 @@
       <p><strong>Fin :</strong> {{ selectedLesson?.end | date: 'full' }}</p>
     </div>
     <div mat-dialog-actions>
-      <button
-        *ngIf="canReschedule()"
-        mat-raised-button
-        color="accent"
-        (click)="openRescheduleModal()">
-        Demander un report
+      <button *ngIf="canReschedule()" mat-raised-button color="accent" (click)="openModifyModal()">
+        Modifier un cours
       </button>
       <button mat-stroked-button color="primary" (click)="closeModal()">Fermer</button>
     </div>
@@ -82,21 +78,52 @@
 </ng-template>
 
 
-<ng-template [ngIf]="showRescheduleModal">
-  <div class="modal-overlay" (click)="closeRescheduleModal()"></div>
+<ng-template [ngIf]="showModifyModal">
+  <div class="modal-overlay" (click)="closeModifyModal()"></div>
   <div class="mat-modal-content" (click)="$event.stopPropagation()">
-    <h2 mat-dialog-title>Nouvelle date souhaitée</h2>
+    <h2 mat-dialog-title>Modifier le cours</h2>
+
     <div mat-dialog-content>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Choisissez la nouvelle date</mat-label>
-        <input matInput type="datetime-local" [(ngModel)]="selectedNewDate" />
-      </mat-form-field>
+      <!-- Choix initial -->
+      <div *ngIf="!actionType" class="modify-choice">
+        <p class="mb-2">Que souhaitez-vous faire ?</p>
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" (click)="actionType = 'reschedule'">📆 Reporter</button>
+          <button mat-stroked-button color="warn" (click)="actionType = 'cancel'">❌ Annuler</button>
+        </div>
+      </div>
+
+      <!-- Reporter -->
+      <div *ngIf="actionType === 'reschedule'" class="mt-3">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nouvelle date souhaitée</mat-label>
+          <input matInput type="datetime-local" [(ngModel)]="selectedNewDate" />
+        </mat-form-field>
+      </div>
+
+      <!-- Annuler -->
+      <div *ngIf="actionType === 'cancel'" class="mt-3">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Motif d’annulation</mat-label>
+          <mat-select [(ngModel)]="cancelReason">
+            <mat-option value="malade">Je suis malade</mat-option>
+            <mat-option value="urgence">Urgence personnelle</mat-option>
+            <mat-option value="emploi_du_temps">Changement d’emploi du temps</mat-option>
+            <mat-option value="autre">Autre raison</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="cancelReason === 'autre'" appearance="outline" class="full-width">
+          <mat-label>Veuillez préciser</mat-label>
+          <input matInput [(ngModel)]="customCancelReason" placeholder="Écrivez ici la raison" />
+        </mat-form-field>
+      </div>
     </div>
-    <div mat-dialog-actions>
-      <button mat-raised-button color="accent" (click)="openRescheduleModal()">
-        Reporter à cette date
-      </button>
-      <button mat-stroked-button color="primary" (click)="closeModal()">Fermer</button>
+
+    <!-- Boutons finaux -->
+    <div mat-dialog-actions align="end" class="mt-3">
+      <button mat-flat-button color="accent" (click)="submitModification()">Soumettre</button>
+      <button mat-stroked-button color="primary" (click)="closeModifyModal()">Fermer</button>
     </div>
   </div>
 </ng-template>

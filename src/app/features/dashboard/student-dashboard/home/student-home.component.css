@@ -129,3 +129,59 @@ mat-dialog-actions {
   text-decoration: line-through;
   cursor: default;
 }
+
+.modal {
+  background: #fffff7;
+  padding: 1.5rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.modal__title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.modal__back,
+.modal__close {
+  flex-shrink: 0;
+}
+
+.modal__body {
+  margin-bottom: 1rem;
+}
+
+.modal__section + .modal__section {
+  margin-top: 1rem;
+}
+
+.modal__question {
+  margin-bottom: 1rem;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.modal__field {
+  width: 100%;
+}
+
+.modal__footer {
+  text-align: right;
+}
+
