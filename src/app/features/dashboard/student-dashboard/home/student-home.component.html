@@ -58,12 +58,44 @@
 </div>
 
 <ng-template [ngIf]="showModal">
-  <div class="modal-overlay" (click)="showModal = false"></div>
-  <div class="modal-content">
-    <h3>Détails du cours</h3>
-    <p><strong>Titre :</strong> {{ selectedLesson?.title }}</p>
-    <p><strong>Début :</strong> {{ selectedLesson?.start | date: 'full' }}</p>
-    <p><strong>Fin :</strong> {{ selectedLesson?.end | date: 'full' }}</p>
-    <button (click)="showModal = false">Fermer</button>
+  <div class="modal-overlay" (click)="closeModal()"></div>
+  <div class="mat-modal-content" (click)="$event.stopPropagation()">
+    <h2 mat-dialog-title>Détails du cours</h2>
+    <div mat-dialog-content>
+      <p><strong>Titre :</strong> {{ selectedLesson?.title }}</p>
+      <p><strong>Début :</strong> {{ selectedLesson?.start | date: 'full' }}</p>
+      <p><strong>Fin :</strong> {{ selectedLesson?.end | date: 'full' }}</p>
+    </div>
+    <div mat-dialog-actions>
+      <button mat-raised-button color="accent" (click)="openRescheduleModal()">Demander un report</button>
+      <button mat-stroked-button color="primary" (click)="closeModal()">Fermer</button>
+    </div>
   </div>
 </ng-template>
+
+<ng-template [ngIf]="showRescheduleModal">
+  <div class="modal-overlay" (click)="closeRescheduleModal()"></div>
+  <div class="mat-modal-content" (click)="$event.stopPropagation()">
+    <h2 mat-dialog-title>Nouvelle date souhaitée</h2>
+    <div mat-dialog-content>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Choisissez la nouvelle date</mat-label>
+        <input matInput type="datetime-local" [(ngModel)]="selectedNewDate" />
+      </mat-form-field>
+    </div>
+    <div mat-dialog-actions>
+      <button mat-raised-button color="primary" (click)="confirmReschedule()">Confirmer</button>
+      <button mat-stroked-button color="accent" (click)="closeRescheduleModal()">Annuler</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template [ngIf]="rescheduleConfirmed">
+  <div class="modal-overlay" (click)="rescheduleConfirmed = false"></div>
+  <div class="mat-modal-content" (click)="$event.stopPropagation()">
+    <p>📬 Votre demande de report a été envoyée à l’enseignant.</p>
+    <button mat-flat-button color="accent" (click)="rescheduleConfirmed = false">Fermer</button>
+  </div>
+</ng-template>
+
+

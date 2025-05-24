@@ -70,19 +70,36 @@
 
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.3);
-  z-index: 1000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
 }
 
-.modal-content {
+.mat-modal-content {
   position: fixed;
-  top: 20%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-  z-index: 1001;
+  width: 360px;
+  max-width: 90vw;
+  background: #f9fbe7; /* светло-салатовый */
+  border: 2px solid #3f51b5; /* индиго */
+  border-radius: 12px;
+  padding: 20px;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
 }
