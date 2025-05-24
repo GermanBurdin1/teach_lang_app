@@ -61,35 +61,56 @@
 
 <ng-template [ngIf]="showModal">
   <div class="modal-overlay" (click)="closeModal()"></div>
-  <div class="mat-modal-content" (click)="$event.stopPropagation()">
-    <h2 mat-dialog-title>Détails du cours</h2>
-    <div mat-dialog-content>
+  <div class="mat-modal-content details-modal" (click)="$event.stopPropagation()">
+
+    <!-- Заголовок с кнопкой закрытия справа -->
+    <div class="details-modal__header">
+      <h2 class="details-modal__title">Détails du cours</h2>
+      <button mat-icon-button (click)="closeModal()" aria-label="Fermer" class="details-modal__close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Контент -->
+    <div mat-dialog-content class="details-modal__content">
       <p><strong>Titre :</strong> {{ selectedLesson?.title }}</p>
       <p><strong>Début :</strong> {{ selectedLesson?.start | date: 'full' }}</p>
       <p><strong>Fin :</strong> {{ selectedLesson?.end | date: 'full' }}</p>
     </div>
-    <div mat-dialog-actions>
-      <button *ngIf="canReschedule()" mat-raised-button color="accent" (click)="openModifyModal()">
-        Modifier un cours
-      </button>
-      <button mat-stroked-button color="primary" (click)="closeModal()">Fermer</button>
+
+    <!-- Центрированная кнопка -->
+    <div class="details-modal__actions" *ngIf="canReschedule()">
+      <button mat-raised-button color="primary" (click)="openModifyModal()">Modifier la date</button>
     </div>
   </div>
 </ng-template>
 
 
+
+
 <ng-template [ngIf]="showModifyModal">
   <div class="modal-overlay" (click)="closeModifyModal()"></div>
-  <div class="mat-modal-content" (click)="$event.stopPropagation()">
-    <h2 mat-dialog-title>Modifier le cours</h2>
+  <div class="mat-modal-content modify-modal" (click)="$event.stopPropagation()">
 
-    <div mat-dialog-content>
-      <!-- Choix initial -->
+    <!-- Верхняя панель управления -->
+    <div class="modify-modal__header">
+      <button mat-icon-button (click)="onBackFromModify()" aria-label="Retour">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2 class="modify-modal__title">Modifier le cours</h2>
+      <button mat-icon-button (click)="closeModifyModal()" aria-label="Fermer">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div mat-dialog-content class="modify-modal__content">
+
+      <!-- Écran выбора действия -->
       <div *ngIf="!actionType" class="modify-choice">
         <p class="mb-2">Que souhaitez-vous faire ?</p>
         <div class="action-buttons">
           <button mat-raised-button color="primary" (click)="actionType = 'reschedule'">📆 Reporter</button>
-          <button mat-stroked-button color="warn" (click)="actionType = 'cancel'">❌ Annuler</button>
+          <button mat-stroked-button color="warn" (click)="actionType = 'cancel'">❌ Annuler le cours</button>
         </div>
       </div>
 
@@ -118,15 +139,16 @@
           <input matInput [(ngModel)]="customCancelReason" placeholder="Écrivez ici la raison" />
         </mat-form-field>
       </div>
+
     </div>
 
-    <!-- Boutons finaux -->
-    <div mat-dialog-actions align="end" class="mt-3">
+    <!-- Boutоны -->
+    <div mat-dialog-actions align="end" class="mt-3" *ngIf="actionType">
       <button mat-flat-button color="accent" (click)="submitModification()">Soumettre</button>
-      <button mat-stroked-button color="primary" (click)="closeModifyModal()">Fermer</button>
     </div>
   </div>
 </ng-template>
+
 
 <ng-template [ngIf]="rescheduleConfirmed">
   <div class="modal-overlay" (click)="rescheduleConfirmed = false"></div>

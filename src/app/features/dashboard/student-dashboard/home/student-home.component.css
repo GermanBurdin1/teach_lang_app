@@ -185,3 +185,43 @@ mat-dialog-actions {
   text-align: right;
 }
 
+
+.modify-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modify-modal__title {
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
+}
+
+.details-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.details-modal__title {
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.details-modal__close {
+  margin-left: auto;
+}
+
+.details-modal__content {
+  margin-top: 1rem;
+}
+
+.details-modal__actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}

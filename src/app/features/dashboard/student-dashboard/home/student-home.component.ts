@@ -128,6 +128,10 @@ export class StudentHomeComponent implements OnInit {
     this.rescheduleConfirmed = true;
   }
 
+  onBackFromModify(): void {
+  this.closeModifyModal();
+  this.showModal = true;
+}
 
 
 }
