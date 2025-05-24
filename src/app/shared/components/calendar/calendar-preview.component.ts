@@ -9,8 +9,8 @@ import { Subject } from 'rxjs';
 })
 export class CalendarPreviewComponent {
   @Input() events: CalendarEvent[] = [];
-  @Output() eventClicked = new EventEmitter<CalendarEvent>();
-  @Input() eventTemplate!: TemplateRef<any>;
+@Output() eventClicked = new EventEmitter<CalendarEvent>();
+@Input() eventTitleTemplate!: TemplateRef<any>;
 
   viewDate: Date = new Date();
   view: CalendarView = CalendarView.Week;

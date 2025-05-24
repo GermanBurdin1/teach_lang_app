@@ -5,8 +5,16 @@
 </div>
 
 <div style="height: 500px;">
-  <mwl-calendar-week-view [viewDate]="viewDate" [events]="events" [hourSegments]="2" [refresh]="refresh"
-    [hourSegmentHeight]="60" [dayStartHour]="8" [dayEndHour]="20" locale="fr" [eventTemplate]="eventTemplate"
-    (eventClicked)="onEventClick($event.event)">
-  </mwl-calendar-week-view>
+  <mwl-calendar-week-view
+  [viewDate]="viewDate"
+  [events]="events"
+  [hourSegments]="2"
+  [refresh]="refresh"
+  [hourSegmentHeight]="60"
+  [dayStartHour]="8"
+  [dayEndHour]="20"
+  locale="fr"
+  [eventTitleTemplate]="eventTitleTemplate"
+  (eventClicked)="onEventClick($event.event)">
+</mwl-calendar-week-view>
 </div>

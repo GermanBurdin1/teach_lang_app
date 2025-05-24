@@ -20,27 +20,22 @@
   <!-- 🔽 Нижняя часть -->
   <div class="bottom-section">
 
-  <div class="calendar-zone">
+    <div class="calendar-zone">
       <h3>🗓️ Prochains cours</h3>
 
       <!-- 🧩 Шаблон события -->
-      <ng-template #customEventTemplate let-event="event">
-        <div
-          class="custom-event"
-          (click)="onLessonClick(event)"
-          style="background: #e8eaf6; border-left: 4px solid #3f51b5; padding: 6px 8px; border-radius: 4px; font-size: 14px; cursor: pointer;"
-        >
-          <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
-          {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
-        </div>
-      </ng-template>
+     <app-calendar-preview
+  [events]="upcomingLessons"
+  [eventTitleTemplate]="customEventTemplate"
+  (eventClicked)="onLessonClick($event)">
+</app-calendar-preview>
 
-      <!-- 📅 Компонент просмотра -->
-      <app-calendar-preview
-        [events]="upcomingLessons"
-        (eventClicked)="onLessonClick($event)"
-        [eventTemplate]="customEventTemplate">
-      </app-calendar-preview>
+<ng-template #customEventTemplate let-event="event">
+  <div class="custom-event" (click)="onLessonClick(event)">
+    <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
+    {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
+  </div>
+</ng-template>
     </div>
 
     <div class="homework-zone">
