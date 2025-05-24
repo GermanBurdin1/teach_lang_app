@@ -20,16 +20,27 @@
   <!-- 🔽 Нижняя часть -->
   <div class="bottom-section">
 
-    <div class="calendar-zone">
+  <div class="calendar-zone">
       <h3>🗓️ Prochains cours</h3>
-      
 
+      <!-- 🧩 Шаблон события -->
+      <ng-template #customEventTemplate let-event="event">
+        <div
+          class="custom-event"
+          (click)="onLessonClick(event)"
+          style="background: #e8eaf6; border-left: 4px solid #3f51b5; padding: 6px 8px; border-radius: 4px; font-size: 14px; cursor: pointer;"
+        >
+          <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
+          {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
+        </div>
+      </ng-template>
+
+      <!-- 📅 Компонент просмотра -->
       <app-calendar-preview
-  [events]="upcomingLessons"
-  (eventClicked)="onLessonClick($event)">
-</app-calendar-preview>
-
-
+        [events]="upcomingLessons"
+        (eventClicked)="onLessonClick($event)"
+        [eventTemplate]="customEventTemplate">
+      </app-calendar-preview>
     </div>
 
     <div class="homework-zone">
@@ -50,3 +61,14 @@
 
   </div>
 </div>
+
+<ng-template [ngIf]="showModal">
+  <div class="modal-overlay" (click)="showModal = false"></div>
+  <div class="modal-content">
+    <h3>Détails du cours</h3>
+    <p><strong>Titre :</strong> {{ selectedLesson?.title }}</p>
+    <p><strong>Début :</strong> {{ selectedLesson?.start | date: 'full' }}</p>
+    <p><strong>Fin :</strong> {{ selectedLesson?.end | date: 'full' }}</p>
+    <button (click)="showModal = false">Fermer</button>
+  </div>
+</ng-template>

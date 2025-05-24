@@ -21,36 +21,43 @@ export class StudentHomeComponent implements OnInit {
   ];
 
   selectedLesson: CalendarEvent | null = null;
+  showModal = false;
+
   upcomingLessons: CalendarEvent[] = [];
 
   ngOnInit(): void {
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(11, 0, 0, 0);
 
     const inThreeDays = new Date();
     inThreeDays.setDate(inThreeDays.getDate() + 3);
+    inThreeDays.setHours(12, 0, 0, 0);
 
     this.upcomingLessons = [
       {
         start: tomorrow,
         end: new Date(tomorrow.getTime() + 60 * 60 * 1000),
         title: 'Cours avec Mme Dupont',
+        color: { primary: '#3f51b5', secondary: '#e8eaf6' },
         allDay: false
       },
       {
         start: inThreeDays,
         end: new Date(inThreeDays.getTime() + 60 * 60 * 1000),
         title: 'Cours avec M. Moreau',
+        color: { primary: '#3f51b5', secondary: '#e8eaf6' },
         allDay: false
       }
     ];
-
-    console.log('[StudentHomeComponent] upcomingLessons:', this.upcomingLessons);
-    this.pendingHomework.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
   }
 
   onLessonClick(event: CalendarEvent): void {
-    console.log('[StudentHomeComponent] clicked lesson:', event);
     this.selectedLesson = event;
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.selectedLesson = null;
   }
 }
