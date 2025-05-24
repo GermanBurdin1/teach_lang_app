@@ -37,9 +37,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
+import { AdminSettingsComponent } from '../settings/admin-settings/admin-settings.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +64,8 @@ import { AdminHomeComponent } from './school-dashboard/home/admin-home.component
     ReviewListComponent,
     TeacherHomeComponent,
     StudentHomeComponent,
-    AdminHomeComponent
+    AdminHomeComponent,
+    AdminSettingsComponent
   ],
   imports: [
     LayoutModule,
@@ -86,6 +89,7 @@ import { AdminHomeComponent } from './school-dashboard/home/admin-home.component
     ReactiveFormsModule,
     MatButtonToggleModule,
     MatButtonModule,
+    MatDividerModule
   ],
   exports: [ReviewListComponent]
 })

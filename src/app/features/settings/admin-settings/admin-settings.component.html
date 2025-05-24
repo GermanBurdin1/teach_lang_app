@@ -1,0 +1,132 @@
+<form [formGroup]="adminForm" (ngSubmit)="onSubmit()" class="admin-form">
+
+  <!-- Section: Informations -->
+  <h2><mat-icon class="section-icon">admin_panel_settings</mat-icon> Informations de la plateforme</h2>
+  <mat-form-field class="full-width">
+    <mat-label>Nom de la plateforme</mat-label>
+    <input matInput formControlName="platformName" />
+  </mat-form-field>
+
+  <mat-form-field class="full-width">
+    <mat-label>Lien vers le logo</mat-label>
+    <input matInput formControlName="logoUrl" />
+  </mat-form-field>
+
+  <img *ngIf="adminForm.get('logoUrl')?.value"
+       [src]="adminForm.get('logoUrl')?.value"
+       alt="Logo preview"
+       width="100"
+       class="logo-preview">
+
+  <mat-form-field class="full-width">
+    <mat-label>Langue par défaut</mat-label>
+    <mat-select formControlName="defaultLanguage">
+      <mat-option value="fr">Français</mat-option>
+      <mat-option value="en">Anglais</mat-option>
+      <mat-option value="ru">Russe</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="full-width">
+    <mat-label>Fuseau horaire</mat-label>
+    <input matInput formControlName="timezone" />
+  </mat-form-field>
+
+  <mat-form-field class="full-width">
+    <mat-label>Email de support</mat-label>
+    <input matInput formControlName="supportEmail" />
+  </mat-form-field>
+
+  <mat-divider></mat-divider>
+
+  <!-- Section: Paiements -->
+  <h3><mat-icon class="section-icon">payments</mat-icon> Gestion des paiements</h3>
+  <div formGroupName="payments">
+    <mat-form-field class="full-width">
+      <mat-label>Devise</mat-label>
+      <input matInput formControlName="currency" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Commission (%)</mat-label>
+      <input matInput type="number" formControlName="commissionPercent" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Méthode de paiement</mat-label>
+      <mat-select formControlName="payoutMethod">
+        <mat-option value="manual">Manuel</mat-option>
+        <mat-option value="automatic">Automatique</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Politique de remboursement</mat-label>
+      <textarea matInput formControlName="refundPolicy"></textarea>
+    </mat-form-field>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Section: Modération -->
+  <h3><mat-icon class="section-icon">gavel</mat-icon> Modération</h3>
+  <div formGroupName="moderation">
+    <mat-slide-toggle formControlName="enableReports">Activer les signalements</mat-slide-toggle>
+
+    <mat-form-field class="full-width">
+      <mat-label>Seuil de suppression automatique</mat-label>
+      <input matInput type="number" formControlName="autoRemoveThreshold" />
+    </mat-form-field>
+
+    <mat-slide-toggle formControlName="notifyOnReports">Notifier l’administrateur</mat-slide-toggle>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Section: Notifications -->
+  <h3><mat-icon class="section-icon">notifications</mat-icon> Notifications</h3>
+  <div formGroupName="notifications">
+    <mat-slide-toggle formControlName="emailEnabled">Emails activés</mat-slide-toggle>
+    <mat-slide-toggle formControlName="pushEnabled">Push activés</mat-slide-toggle>
+
+    <mat-form-field class="full-width">
+      <mat-label>Message de bienvenue</mat-label>
+      <textarea matInput formControlName="templateWelcome"></textarea>
+    </mat-form-field>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Section: Intégrations -->
+  <h3><mat-icon class="section-icon">hub</mat-icon> Intégrations</h3>
+  <div formGroupName="integrations">
+    <mat-form-field class="full-width">
+      <mat-label>Clé Stripe</mat-label>
+      <input matInput formControlName="stripeKey" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Webhook URL</mat-label>
+      <input matInput formControlName="webhookUrl" />
+    </mat-form-field>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Section: Préférences -->
+  <h3><mat-icon class="section-icon">palette</mat-icon> Préférences</h3>
+  <div formGroupName="preferences">
+    <mat-form-field class="full-width">
+      <mat-label>Thème</mat-label>
+      <mat-select formControlName="theme">
+        <mat-option value="light">Clair</mat-option>
+        <mat-option value="dark">Sombre</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="form-buttons">
+    <button mat-raised-button color="primary" type="submit">Enregistrer</button>
+    <button mat-stroked-button color="accent" type="button" (click)="autoFillAndSubmit()">Remplir automatiquement</button>
+  </div>
+</form>

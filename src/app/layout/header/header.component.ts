@@ -727,5 +727,10 @@ export class HeaderComponent {
     }
   }
 
+  get loggedInAsAdminAccount(): boolean {
+  const user = this.authService.user;
+  return !!user && Array.isArray(user.roles) && user.roles.includes('admin');
+}
+
 
 }

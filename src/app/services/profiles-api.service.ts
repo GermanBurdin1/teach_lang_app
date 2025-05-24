@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { TeacherProfile } from '../features/dashboard/teacher-dashboard/teacher-profile.model';
 import { StudentProfile } from '../features/dashboard/student-dashboard/student-profile.model';
 import { Observable } from 'rxjs';
+import { AdminProfile } from '../features/dashboard/school-dashboard/admin-profile.model';
 
-type TeacherOrStudentProfile = TeacherProfile | StudentProfile;
+type TeacherOrStudentProfile = TeacherProfile | StudentProfile | AdminProfile;
 
 @Injectable({
   providedIn: 'root'

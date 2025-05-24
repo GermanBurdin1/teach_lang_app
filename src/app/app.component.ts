@@ -27,4 +27,9 @@ export class AppComponent implements OnInit {
   isDashboardRoute(): boolean {
     return this.router.url === '/student-dashboard';
   }
+
+  shouldShowHeader(): boolean {
+    const hiddenRoutes = ['/login', '/register'];
+    return !hiddenRoutes.includes(this.router.url);
+  }
 }

@@ -25,6 +25,7 @@ import { StudentSettingsComponent } from '../settings/student-settings/student-s
 import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
+import { AdminSettingsComponent } from '../settings/admin-settings/admin-settings.component';
 
 const routes: Routes = [
   {
@@ -50,7 +51,8 @@ const routes: Routes = [
       { path: 'student/settings', component: StudentSettingsComponent },
       { path: 'admin/teachers', component: AdminTeachersListComponent },
       { path: 'admin/teachers/:id', component: AdminTeacherDetailsComponent },
-      { path: 'admin/home', component: AdminHomeComponent }
+      { path: 'admin/home', component: AdminHomeComponent },
+      { path: 'admin/settings', component: AdminSettingsComponent }
     ]
   },
 
