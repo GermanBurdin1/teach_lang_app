@@ -22,7 +22,14 @@
 
     <div class="calendar-zone">
       <h3>🗓️ Prochains cours</h3>
-      <app-calendar-preview [events]="upcomingLessons"></app-calendar-preview>
+      
+
+      <app-calendar-preview
+  [events]="upcomingLessons"
+  (eventClicked)="onLessonClick($event)">
+</app-calendar-preview>
+
+
     </div>
 
     <div class="homework-zone">

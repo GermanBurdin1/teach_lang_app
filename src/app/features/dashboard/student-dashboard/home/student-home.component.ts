@@ -15,23 +15,42 @@ export class StudentHomeComponent implements OnInit {
     wordsLearned: 87
   };
 
-  upcomingLessons: CalendarEvent[] = [
-    {
-      start: new Date(new Date().setDate(new Date().getDate() + 1)),
-      title: 'Cours avec Mme Dupont'
-    },
-    {
-      start: new Date(new Date().setDate(new Date().getDate() + 3)),
-      title: 'Cours avec M. Moreau'
-    }
-  ];
-
   pendingHomework = [
     { title: 'Production écrite #2', dueDate: '2025-05-24' },
     { title: 'Exercice de grammaire B2', dueDate: '2025-05-26' }
   ];
 
+  selectedLesson: CalendarEvent | null = null;
+  upcomingLessons: CalendarEvent[] = [];
+
   ngOnInit(): void {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const inThreeDays = new Date();
+    inThreeDays.setDate(inThreeDays.getDate() + 3);
+
+    this.upcomingLessons = [
+      {
+        start: tomorrow,
+        end: new Date(tomorrow.getTime() + 60 * 60 * 1000),
+        title: 'Cours avec Mme Dupont',
+        allDay: false
+      },
+      {
+        start: inThreeDays,
+        end: new Date(inThreeDays.getTime() + 60 * 60 * 1000),
+        title: 'Cours avec M. Moreau',
+        allDay: false
+      }
+    ];
+
+    console.log('[StudentHomeComponent] upcomingLessons:', this.upcomingLessons);
     this.pendingHomework.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  }
+
+  onLessonClick(event: CalendarEvent): void {
+    console.log('[StudentHomeComponent] clicked lesson:', event);
+    this.selectedLesson = event;
   }
 }

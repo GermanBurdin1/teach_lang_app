@@ -1,11 +1,19 @@
-<mwl-calendar-week-view
-  [viewDate]="viewDate"
-  [events]="events"
-  [eventTemplate]="eventTemplate"
-  [hourSegments]="2"
-  [refresh]="refresh"
-  [hourSegmentHeight]="40"
-  [dayStartHour]="8"
-  [dayEndHour]="20"
-  locale="fr">
-</mwl-calendar-week-view>
+<div class="calendar-controls">
+  <button (click)="goToPreviousWeek()">←</button>
+  <span>{{ viewDate | date: 'fullDate' }}</span>
+  <button (click)="goToNextWeek()">→</button>
+</div>
+
+<div style="height: 500px;">
+  <mwl-calendar-week-view
+    [viewDate]="viewDate"
+    [events]="events"
+    [hourSegments]="2"
+    [refresh]="refresh"
+    [hourSegmentHeight]="60"
+    [dayStartHour]="8"
+    [dayEndHour]="20"
+    locale="fr"
+    (eventClicked)="onEventClick($event.event)">
+  </mwl-calendar-week-view>
+</div>

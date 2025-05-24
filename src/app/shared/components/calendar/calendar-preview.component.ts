@@ -1,4 +1,4 @@
-import { Component, Input, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
 import { CalendarView, CalendarEvent } from 'angular-calendar';
 import { Subject } from 'rxjs';
 
@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 })
 export class CalendarPreviewComponent {
   @Input() events: CalendarEvent[] = [];
+  @Output() eventClicked = new EventEmitter<CalendarEvent>();
   @Input() eventTemplate!: TemplateRef<any>;
 
   viewDate: Date = new Date();
@@ -16,8 +17,32 @@ export class CalendarPreviewComponent {
   refresh: Subject<void> = new Subject();
 
   ngOnInit(): void {
+    const today = new Date();
+    today.setHours(12, 0, 0, 0); // Сброс времени — обязательно!
+    this.viewDate = today;
+    console.log('[CalendarPreviewComponent] events received:', this.events);
     setTimeout(() => {
-      this.refresh.next(); // или this.viewDate = ... если нужно переинициализировать
+      this.refresh.next();
     });
   }
+
+  onEventClick(event: CalendarEvent): void {
+    console.log('[CalendarPreviewComponent] event clicked:', event);
+    this.eventClicked.emit(event);
+  }
+
+  goToNextWeek(): void {
+  const nextWeek = new Date(this.viewDate);
+  nextWeek.setDate(this.viewDate.getDate() + 7);
+  this.viewDate = nextWeek;
+  this.refresh.next();
+}
+
+goToPreviousWeek(): void {
+  const prevWeek = new Date(this.viewDate);
+  prevWeek.setDate(this.viewDate.getDate() - 7);
+  this.viewDate = prevWeek;
+  this.refresh.next();
+}
+
 }
