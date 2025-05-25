@@ -15,30 +15,6 @@
         <li>Mots appris: {{ stats.wordsLearned }}</li>
       </ul>
     </div>
-  </div>
-
-  <!-- 🔽 Нижняя часть -->
-  <div class="bottom-section">
-
-    <div class="calendar-zone">
-      <h3>🗓️ Prochains cours</h3>
-
-      <!-- 🧩 Шаблон события -->
-      <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate"
-        (eventClicked)="onLessonClick($event)">
-      </app-calendar-preview>
-
-      <ng-template #customEventTemplate let-event="event">
-        <div class="custom-event" [ngClass]="{
-      'past-event': event?.end && event.end < now,
-      'upcoming-event': event?.end && event.end >= now
-    }" (click)="onLessonClick(event)">
-          <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
-          {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
-        </div>
-      </ng-template>
-
-    </div>
 
     <div class="homework-zone">
       <h3>📚 Devoirs à faire</h3>
@@ -55,9 +31,31 @@
         <p>✅ Aucun devoir en attente</p>
       </ng-template>
     </div>
+  </div>
 
+  <!-- 🔽 Нижняя часть -->
+  <div class="calendar-wrapper">
+    <div class="calendar-zone">
+      <h3>🗓️ Prochains cours</h3>
+
+      <!-- 🧩 Шаблон события -->
+      <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate"
+        (eventClicked)="onLessonClick($event)">
+      </app-calendar-preview>
+
+      <ng-template #customEventTemplate let-event="event">
+        <div class="custom-event" [ngClass]="{
+          'past-event': event?.end && event.end < now,
+          'upcoming-event': event?.end && event.end >= now
+        }" (click)="onLessonClick(event)">
+          <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
+          {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
+        </div>
+      </ng-template>
+    </div>
   </div>
 </div>
+
 
 <ng-template [ngIf]="showModal">
   <div class="modal-overlay" (click)="closeModal()"></div>
