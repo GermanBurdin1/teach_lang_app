@@ -1,0 +1,34 @@
+.lesson-management {
+  padding: 1rem;
+}
+
+.lesson-management .filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.lesson-management .filters button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #eee;
+  cursor: pointer;
+}
+
+.lesson-management .filters button.active {
+  background: #6c63ff;
+  color: white;
+}
+
+.lesson-management .filters select {
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.lesson-management .lesson-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1rem;
+}

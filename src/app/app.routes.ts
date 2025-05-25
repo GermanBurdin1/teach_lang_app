@@ -7,6 +7,9 @@ import { LessonPageComponent } from './features/lessons/lesson-page/lesson-page.
 import { VideoCallComponent } from './features/lessons/video-call/video-call.component';
 import { LandingComponent } from './features/landing/landing.component';
 import { PreviewLandingComponent } from './features/landing/preview-landing/preview-landing.component';
+import { RoleGuard } from './core/guards/role.guard';
+
+
 
 export const routes: Routes = [
   { path: '', component: VocabularyComponent },
@@ -22,11 +25,18 @@ export const routes: Routes = [
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
   },
   { path: 'lesson-page', component: LessonPageComponent },
+  {
+    path: 'lessons',
+    loadChildren: () => import('./features/lessons/lessons.module').then(m => m.LessonsModule),
+    canActivate: [RoleGuard],
+    data: { roles: ['student', 'teacher'] }
+  },
   { path: 'video-call', component: VideoCallComponent },
-  { path: 'landing', component: LandingComponent},
-  { path: 'landing/preview', component: PreviewLandingComponent},
+  { path: 'landing', component: LandingComponent },
+  { path: 'landing/preview', component: PreviewLandingComponent },
   { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule) },
-  {path: 'mindmap',
+  {
+    path: 'mindmap',
     loadChildren: () => import('./features/mindmap/mindmap.module').then(m => m.MindmapModule)
   },
   { path: '**', redirectTo: '', pathMatch: 'full' }

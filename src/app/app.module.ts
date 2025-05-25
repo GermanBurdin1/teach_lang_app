@@ -28,6 +28,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { TeacherSettingsModule } from './features/settings/teacher-settings.module';
 import { LOCALE_ID } from '@angular/core';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { LOCALE_ID } from '@angular/core';
     MatFormFieldModule,
     TeacherSettingsModule,
     MatChipsModule,
+    DragDropModule
 ],
   providers: [provideHttpClient(),{ provide: LOCALE_ID, useValue: 'fr' }],
   bootstrap: [AppComponent]
