@@ -1,5 +1,5 @@
 import { CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-lesson-card',
@@ -8,6 +8,7 @@ import { Component, Input } from '@angular/core';
 })
 export class LessonCardComponent {
   @Input() lesson: any;
+  @Output() itemDropped = new EventEmitter<{ from: number, to: number, item: string, type: 'task' | 'question' }>();
 
   unresolved: string[] = [];
   resolved: string[] = [];
@@ -19,7 +20,7 @@ export class LessonCardComponent {
 
   ngOnInit(): void {
     // Допустим, lesson.materials делится на все задачи/вопросы
-    const items = this.lesson?.materials || ['Грамматика: Subjonctif', 'Фонетика: Liaison'];
+    const items = this.lesson?.materials || ['Grammaire: Subjonctif', 'Phonétique: Liaison'];
     this.unresolved = [...items];
   }
 
@@ -31,8 +32,22 @@ export class LessonCardComponent {
     }
   }
 
-  drop(event: CdkDragDrop<string[]>): void {
+  dropItem(event: CdkDragDrop<string[]>, type: 'task' | 'question') {
     if (event.previousContainer === event.container) return;
-    transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+
+    const item = event.previousContainer.data[event.previousIndex];
+    this.itemDropped.emit({
+      from: this.lesson.id,
+      to: +event.container.id.split('-')[1], // container ID format: "tasks-2"
+      item,
+      type
+    });
+
+    transferArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
   }
 }

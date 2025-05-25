@@ -1,20 +1,22 @@
 <div class="lesson-management">
 
-  <!-- 🔍 Фильтры -->
+  <!-- 🔍 Filtres -->
   <div class="filters">
-    <button (click)="filter = 'future'" [class.active]="filter === 'future'">📅 Будущие</button>
-    <button (click)="filter = 'past'" [class.active]="filter === 'past'">🕓 Прошедшие</button>
-    <button (click)="filter = 'requested'" [class.active]="filter === 'requested'">📝 Запрошенные</button>
+    <button (click)="filter = 'future'" [class.active]="filter === 'future'">📅 À venir</button>
+    <button (click)="filter = 'past'" [class.active]="filter === 'past'">🕓 Passés</button>
+    <button (click)="filter = 'requested'" [class.active]="filter === 'requested'">📝 Demandés</button>
 
     <select [(ngModel)]="selectedTeacher">
-      <option value="">👩‍🏫 Все преподаватели</option>
+      <option value="">👩‍🏫 Tous les enseignants</option>
       <option *ngFor="let t of ['Marie', 'Paul', 'Claire']" [value]="t">{{ t }}</option>
     </select>
   </div>
 
-  <!-- 📦 Список занятий -->
+  <!-- 📦 Liste des cours -->
   <div class="lesson-list">
-    <app-lesson-card *ngFor="let lesson of [1,2,3,4]" [lesson]="lesson"></app-lesson-card>
+    <app-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" (itemDropped)="onItemDropped($event)">
+    </app-lesson-card>
+
   </div>
 
 </div>

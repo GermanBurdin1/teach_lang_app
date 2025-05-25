@@ -1,55 +1,46 @@
 <div class="lesson-card">
 
-  <!-- 🧑‍🏫 Header преподавателя и кнопка -->
+  <!-- 🧑‍🏫 En-tête de l’enseignant et bouton -->
   <div class="lesson-header">
     <div class="teacher-info">
       <img class="avatar" src="https://via.placeholder.com/40" alt="avatar" />
       <span class="name">👩‍🏫 {{ lesson.teacher || 'Marie Curie' }}</span>
+      <div class="date">📅 {{ lesson.date | date: 'dd/MM/yyyy' }}</div>
     </div>
-    <button class="join-btn" (click)="enterVirtualClass()">🔗 Войти в класс</button>
+    <button class="join-btn" (click)="enterVirtualClass()">🔗 Rejoindre la classe</button>
   </div>
 
-  <!-- 📂 Основное тело -->
+  <!-- 📂 Corps principal -->
   <div class="lesson-body">
 
-    <!-- 📚 Статичные материалы -->
-    <div class="materials">
-      <h4>📚 Материалы</h4>
-      <ul>
-        <li *ngFor="let m of lesson.materials || ['Грамматика: Subjonctif', 'Фонетика: Liaison']">
-          ✅ {{ m }}
-        </li>
-      </ul>
-    </div>
-
-    <!-- 📈 Статистика -->
+    <!-- 📈 Statistiques -->
     <div class="stats">
-      <h4>📈 Статистика</h4>
-      <p>Решено задач: {{ lesson.tasksDone || 5 }}</p>
-      <p>Решено вопросов: {{ lesson.questionsDone || 3 }}</p>
+      <h4>📈 Statistiques</h4>
+      <p>Tâches résolues : {{ lesson.tasksDone || 5 }}</p>
+      <p>Questions résolues : {{ lesson.questionsDone || 3 }}</p>
     </div>
   </div>
 
-  <!-- 🧲 DnD блоки -->
+  <!-- 🧲 Zones de glisser-déposer -->
   <div class="lesson-dnd">
-    <div class="drop-zone">
-      <h4>❗ Нерешённые</h4>
-      <div cdkDropList [cdkDropListData]="unresolved" (cdkDropListDropped)="drop($event)">
-        <div *ngFor="let item of unresolved" cdkDrag class="drag-item">
-          {{ item }}
-          <button class="resolve-btn" (click)="markAsResolved(item)">✅</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="drop-zone">
-      <h4>✔️ Решённые</h4>
-      <div cdkDropList [cdkDropListData]="resolved" (cdkDropListDropped)="drop($event)">
-        <div *ngFor="let item of resolved" cdkDrag class="drag-item done">
-          {{ item }}
-        </div>
+  <div class="drop-zone">
+    <h4>📌 Tâches</h4>
+    <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks" (cdkDropListDropped)="dropItem($event, 'task')">
+      <div *ngFor="let task of lesson.tasks" cdkDrag class="drag-item">
+        🛠 {{ task }}
       </div>
     </div>
   </div>
+
+  <div class="drop-zone">
+    <h4>❓ Questions</h4>
+    <div cdkDropList [id]="'questions-' + lesson.id" [cdkDropListData]="lesson.questions" (cdkDropListDropped)="dropItem($event, 'question')">
+      <div *ngFor="let q of lesson.questions" cdkDrag class="drag-item">
+        💬 {{ q }}
+      </div>
+    </div>
+  </div>
+</div>
+
 
 </div>
