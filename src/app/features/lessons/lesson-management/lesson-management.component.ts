@@ -8,15 +8,23 @@ import { Component, OnInit } from '@angular/core';
 export class LessonManagementComponent implements OnInit {
   filter: 'future' | 'past' | 'requested' = 'future';
   selectedTeacher: string | null = null;
-
   allLessons = [
     {
       id: 1,
       teacher: 'Marie',
       date: new Date('2025-06-01'),
       status: 'future',
-      tasks: ['Analyser la chanson de Charles Aznavour'],
-      questions: ['Le passé simple est-il utilisé uniquement pour l’ironie ?'],
+      tasks: [
+        'Analyser la chanson de Charles Aznavour',
+        'Compléter la fiche de vocabulaire',
+        'Faire une synthèse sur le présent du subjonctif',
+        'Corriger les erreurs d’un camarade'
+      ],
+      questions: [
+        'Le passé simple est-il utilisé uniquement pour l’ironie ?',
+        'Quand utilise-t-on “depuis” vs “il y a” ?',
+        'Quelle est la structure du discours indirect ?'
+      ],
       tasksDone: 1,
       questionsDone: 0
     },
@@ -81,7 +89,7 @@ export class LessonManagementComponent implements OnInit {
       questionsDone: 0
     }
   ];
-
+  highlightedLessonId: number | null = null;
 
 
   get filteredLessons() {
@@ -108,5 +116,37 @@ export class LessonManagementComponent implements OnInit {
       targetArray.push(event.item);
     }
   }
+
+  onMoveToFuture(event: { item: string, type: 'task' | 'question' }) {
+  // Переключаемся на вкладку À venir
+  this.filter = 'future';
+
+  // Ищем ближайший future-урок, в который еще не добавлен этот элемент
+  const futureLesson = this.allLessons.find(l =>
+    l.status === 'future' &&
+    !l[event.type === 'task' ? 'tasks' : 'questions'].includes(event.item)
+  );
+  if (!futureLesson) return;
+
+  // Добавляем в нужный список
+  const list = futureLesson[event.type === 'task' ? 'tasks' : 'questions'];
+  list.push(event.item);
+
+  // Удаляем из всех passés этот элемент, чтобы нельзя было повторно кликнуть
+  this.allLessons.forEach(lesson => {
+    if (lesson.status !== 'past') return;
+    const arr = lesson[event.type === 'task' ? 'tasks' : 'questions'];
+    const index = arr.indexOf(event.item);
+    if (index > -1) arr.splice(index, 1);
+  });
+
+  // Визуальное выделение карточки
+  this.highlightedLessonId = futureLesson.id;
+
+  setTimeout(() => {
+    this.highlightedLessonId = null;
+  }, 3000);
+}
+
 
 }

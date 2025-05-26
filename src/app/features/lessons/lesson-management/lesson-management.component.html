@@ -14,8 +14,14 @@
 
   <!-- 📦 Liste des cours -->
   <div class="lesson-list">
-    <app-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" (itemDropped)="onItemDropped($event)">
-    </app-lesson-card>
+    <app-lesson-card
+  *ngFor="let lesson of filteredLessons"
+  [lesson]="lesson"
+  [class.highlighted]="lesson.id === highlightedLessonId"
+  (moveToFuture)="onMoveToFuture($event)"
+  (itemDropped)="onItemDropped($event)">
+</app-lesson-card>
+
 
   </div>
 

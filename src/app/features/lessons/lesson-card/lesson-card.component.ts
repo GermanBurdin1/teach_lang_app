@@ -9,6 +9,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class LessonCardComponent {
   @Input() lesson: any;
   @Output() itemDropped = new EventEmitter<{ from: number, to: number, item: string, type: 'task' | 'question' }>();
+  @Output() moveToFuture = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
 
   unresolved: string[] = [];
   resolved: string[] = [];
@@ -33,35 +34,41 @@ export class LessonCardComponent {
   }
 
   dropItem(event: CdkDragDrop<string[]>, type: 'task' | 'question') {
-    if (event.previousContainer === event.container) return;
+    // 🔒 Только future-занятия могут изменяться
+    if (this.lesson.status !== 'future') return;
 
-    const item = event.previousContainer.data[event.previousIndex];
-    this.itemDropped.emit({
-      from: this.lesson.id,
-      to: +event.container.id.split('-')[1], // container ID format: "tasks-2"
-      item,
-      type
-    });
+    const containerId = event.container.id;
+    const previousId = event.previousContainer.id;
 
-    transferArrayItem(
-      event.previousContainer.data,
-      event.container.data,
-      event.previousIndex,
-      event.currentIndex
-    );
+    // 🟢 Перемещение внутри одного списка (reordering)
+    if (containerId === previousId) {
+      const list = event.container.data;
+      const [moved] = list.splice(event.previousIndex, 1);
+      list.splice(event.currentIndex, 0, moved);
+      return;
+    }
+
+    // 🚫 Запрещаем перенос между карточками
+    return;
   }
 
+
   isPast(): boolean {
-  return this.lesson.status === 'past';
-}
+    return this.lesson.status === 'past';
+  }
 
-showJoinButton(): boolean {
-  const now = new Date();
-  const lessonTime = new Date(this.lesson.date);
-  const diffInMs = lessonTime.getTime() - now.getTime();
-  const diffInMin = diffInMs / 60000;
+  showJoinButton(): boolean {
+    const now = new Date();
+    const lessonTime = new Date(this.lesson.date);
+    const diffInMs = lessonTime.getTime() - now.getTime();
+    const diffInMin = diffInMs / 60000;
 
-  return this.lesson.status === 'future' && diffInMin <= 10 && diffInMin >= -60;
+    return this.lesson.status === 'future' && diffInMin <= 10 && diffInMin >= -60;
+  }
+
+  onPastItemClick(item: string, type: 'task' | 'question') {
+  if (!this.isPast()) return;
+  this.moveToFuture.emit({ item, type });
 }
 
 }
