@@ -50,4 +50,18 @@ export class LessonCardComponent {
       event.currentIndex
     );
   }
+
+  isPast(): boolean {
+  return this.lesson.status === 'past';
+}
+
+showJoinButton(): boolean {
+  const now = new Date();
+  const lessonTime = new Date(this.lesson.date);
+  const diffInMs = lessonTime.getTime() - now.getTime();
+  const diffInMin = diffInMs / 60000;
+
+  return this.lesson.status === 'future' && diffInMin <= 10 && diffInMin >= -60;
+}
+
 }
