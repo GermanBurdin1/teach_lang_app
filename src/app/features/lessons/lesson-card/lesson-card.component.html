@@ -31,7 +31,7 @@
   <div class="lesson-dnd">
   <div class="drop-zone">
     <h4>📌 Tâches</h4>
-    <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks"
+    <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks" [cdkDropListConnectedTo]="taskDropIds"
       (cdkDropListDropped)="dropItem($event, 'task')">
       <div *ngFor="let task of lesson.tasks; let i = index"
            cdkDrag class="drag-item"
@@ -44,7 +44,7 @@
 
   <div class="drop-zone">
     <h4>❓ Questions</h4>
-    <div cdkDropList [id]="'questions-' + lesson.id" [cdkDropListData]="lesson.questions"
+    <div cdkDropList [id]="'questions-' + lesson.id" [cdkDropListData]="lesson.questions" [cdkDropListConnectedTo]="questionDropIds"
       (cdkDropListDropped)="dropItem($event, 'question')">
       <div *ngFor="let q of lesson.questions; let i = index"
            cdkDrag class="drag-item"

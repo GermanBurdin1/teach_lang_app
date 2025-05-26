@@ -10,6 +10,9 @@ export class LessonCardComponent {
   @Input() lesson: any;
   @Output() itemDropped = new EventEmitter<{ from: number, to: number, item: string, type: 'task' | 'question' }>();
   @Output() moveToFuture = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
+  @Input() lessonId!: number;
+  @Input() taskDropIds: string[] = [];
+@Input() questionDropIds: string[] = [];
 
   unresolved: string[] = [];
   resolved: string[] = [];
@@ -34,23 +37,33 @@ export class LessonCardComponent {
   }
 
   dropItem(event: CdkDragDrop<string[]>, type: 'task' | 'question') {
-    // 🔒 Только future-занятия могут изменяться
+  const containerId = event.container.id;
+  const previousId = event.previousContainer.id;
+
+  const targetId = this.extractLessonIdFromDropListId(containerId);
+  const sourceId = this.extractLessonIdFromDropListId(previousId);
+
+  const isSameList = containerId === previousId;
+
+  if (isSameList) {
     if (this.lesson.status !== 'future') return;
 
-    const containerId = event.container.id;
-    const previousId = event.previousContainer.id;
-
-    // 🟢 Перемещение внутри одного списка (reordering)
-    if (containerId === previousId) {
-      const list = event.container.data;
-      const [moved] = list.splice(event.previousIndex, 1);
-      list.splice(event.currentIndex, 0, moved);
-      return;
-    }
-
-    // 🚫 Запрещаем перенос между карточками
+    const list = event.container.data;
+    const [moved] = list.splice(event.previousIndex, 1);
+    list.splice(event.currentIndex, 0, moved);
     return;
   }
+
+  // ✅ Только эмитим и родитель сам добавит
+  this.itemDropped.emit({
+    from: sourceId,
+    to: targetId,
+    item: event.previousContainer.data[event.previousIndex],
+    type
+  });
+}
+
+
 
 
   isPast(): boolean {
@@ -70,5 +83,12 @@ export class LessonCardComponent {
   if (!this.isPast()) return;
   this.moveToFuture.emit({ item, type });
 }
+
+private extractLessonIdFromDropListId(dropListId: string): number {
+  // dropListId в формате 'tasks-1' или 'questions-6'
+  const parts = dropListId.split('-');
+  return +parts[1];
+}
+
 
 }

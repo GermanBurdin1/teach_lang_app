@@ -149,4 +149,13 @@ export class LessonManagementComponent implements OnInit {
 }
 
 
+get taskDropListIds(): string[] {
+  return this.filteredLessons.map(l => `tasks-${l.id}`);
+}
+
+get questionDropListIds(): string[] {
+  return this.filteredLessons.map(l => `questions-${l.id}`);
+}
+
+
 }

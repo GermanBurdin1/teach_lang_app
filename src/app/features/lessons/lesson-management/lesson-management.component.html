@@ -17,10 +17,13 @@
     <app-lesson-card
   *ngFor="let lesson of filteredLessons"
   [lesson]="lesson"
-  [class.highlighted]="lesson.id === highlightedLessonId"
-  (moveToFuture)="onMoveToFuture($event)"
-  (itemDropped)="onItemDropped($event)">
+  [lessonId]="lesson.id"
+  [taskDropIds]="taskDropListIds"
+  [questionDropIds]="questionDropListIds"
+  (itemDropped)="onItemDropped($event)"
+  (moveToFuture)="onMoveToFuture($event)">
 </app-lesson-card>
+
 
 
   </div>
