@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./lesson-management.component.css']
 })
 export class LessonManagementComponent implements OnInit {
-  filter: 'future' | 'past' | 'requested' = 'future';
+  filter: 'future' | 'past' = 'future';
   selectedTeacher: string | null = null;
   allLessons = [
     {
@@ -42,7 +42,7 @@ export class LessonManagementComponent implements OnInit {
       id: 3,
       teacher: 'Claire',
       date: new Date('2025-05-20'),
-      status: 'requested',
+      status: 'future',
       tasks: ['Préparer un exposé sur la pollution sonore'],
       questions: ['Faut-il accorder les participes passés avec avoir ?'],
       tasksDone: 0,
@@ -82,7 +82,7 @@ export class LessonManagementComponent implements OnInit {
       id: 7,
       teacher: 'Marie',
       date: new Date('2025-06-03'),
-      status: 'requested',
+      status: 'past',
       tasks: ['Préparer un débat sur l’intelligence artificielle'],
       questions: ['Peut-on utiliser “on” dans une rédaction formelle ?'],
       tasksDone: 0,

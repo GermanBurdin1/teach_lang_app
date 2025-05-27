@@ -13,7 +13,7 @@
 .gabarit {
   background: #fff;
   width: 50vw;
-  height: 50vh;
+  max-height: 90vh;   
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,9 @@
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.125);
   position: relative;
+  overflow-y: auto;
 }
+
 
 .gabarit-title {
   text-align: center;

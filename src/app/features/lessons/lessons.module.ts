@@ -8,6 +8,9 @@ import { TeacherLessonCardComponent } from './lesson-management/teacher-lesson-c
 import { FormsModule } from '@angular/forms';
 import { LessonsRoutingModule } from './lessons-routing.module';
 import { GabaritComponent } from './lesson-management/gabarit/gabarit-component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [LessonCardComponent, LessonManagementComponent, TeacherLessonManagementComponent, TeacherLessonCardComponent, GabaritComponent],
@@ -15,7 +18,10 @@ import { GabaritComponent } from './lesson-management/gabarit/gabarit-component'
     CommonModule,
     DragDropModule,
     FormsModule,
-    LessonsRoutingModule
+    LessonsRoutingModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule
   ]
 })
 export class LessonsModule { }

@@ -1,19 +1,28 @@
 <div class="lesson-management">
+  <mat-form-field appearance="fill" class="student-select">
+    <mat-label>👩‍🎓 Étudiant</mat-label>
+    <mat-select [(ngModel)]="selectedStudent">
+      <mat-option value="">Tous les étudiants</mat-option>
+      <mat-option *ngFor="let s of uniqueStudents" [value]="s">
+        {{ s }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+
+  <!-- 🔍 Filtres -->
+  <div class="filters">
+    <button (click)="filter = 'future'" [class.active]="filter === 'future'">📅 À venir</button>
+    <button (click)="filter = 'past'" [class.active]="filter === 'past'">🕓 Passés</button>
+    <button (click)="filter = 'requested'" [class.active]="filter === 'requested'">📝 Demandés</button>
+  </div>
+
   <div class="lesson-list">
-    <app-teacher-lesson-card
-      *ngFor="let lesson of lessons"
-      [lesson]="lesson"
-      [lessonId]="lesson.id"
-      [taskDropIds]="taskDropIds"
-      (itemDropped)="onItemDropped($event)"
-      (openGabarit)="openGabarit(lesson)">
+    <app-teacher-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" [lessonId]="lesson.id"
+      [taskDropIds]="taskDropIds" (itemDropped)="onItemDropped($event)" (openGabarit)="openGabarit(lesson)">
     </app-teacher-lesson-card>
   </div>
 
-  <app-gabarit
-    *ngIf="activeLesson"
-    [lesson]="activeLesson"
-    [visible]="true"
-    [close]="closeGabarit.bind(this)">
+  <app-gabarit *ngIf="activeLesson" [lesson]="activeLesson" [visible]="true" [close]="closeGabarit.bind(this)">
   </app-gabarit>
 </div>

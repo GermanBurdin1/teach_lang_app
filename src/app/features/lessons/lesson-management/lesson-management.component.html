@@ -4,7 +4,7 @@
   <div class="filters">
     <button (click)="filter = 'future'" [class.active]="filter === 'future'">📅 À venir</button>
     <button (click)="filter = 'past'" [class.active]="filter === 'past'">🕓 Passés</button>
-    <button (click)="filter = 'requested'" [class.active]="filter === 'requested'">📝 Demandés</button>
+
 
     <select [(ngModel)]="selectedTeacher">
       <option value="">👩‍🏫 Tous les enseignants</option>

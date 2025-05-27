@@ -16,9 +16,24 @@ export class GabaritComponent {
   get videos() { return this.lesson?.videos || []; }
 
   add(type: 'text' | 'audio' | 'video') {
-    const label = prompt(`Ajouter un(e) ${type} :`);
-    if (!label) return;
-    this.lesson[type + 's'].push(label);
+    const input = document.createElement('input');
+    input.type = 'file';
+
+    if (type === 'audio') input.accept = 'audio/*';
+    if (type === 'video') input.accept = 'video/*';
+    if (type === 'text') input.accept = '.txt,.pdf,.doc,.docx';
+
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (file && this.lesson) {
+        const label = `${file.name} (${Math.round(file.size / 1024)} Ko)`;
+        if (type === 'text') this.lesson.texts.push(label);
+        if (type === 'audio') this.lesson.audios.push(label);
+        if (type === 'video') this.lesson.videos.push(label);
+      }
+    };
+
+    input.click();
   }
 
   onDrop(event: CdkDragDrop<string[]>, type: 'texts' | 'audios' | 'videos') {

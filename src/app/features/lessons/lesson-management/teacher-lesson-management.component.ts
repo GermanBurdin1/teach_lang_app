@@ -7,29 +7,82 @@ import { Component } from '@angular/core';
 })
 export class TeacherLessonManagementComponent {
   activeLesson: any = null;
+  filter: 'future' | 'past' | 'requested' = 'future';
 
   lessons = [
     {
       id: 1,
-      teacher: 'Marie',
       date: new Date('2025-06-01'),
       status: 'future',
-      tasks: ['Corriger une rédaction'],
-      texts: ['Introduction à Baudelaire'],
-      audios: [],
-      videos: []
+      student: 'Alice',
+      tasks: [
+        'Corriger une rédaction',
+        'Faire un résumé',
+        'Analyser un poème'
+      ],
+      texts: [
+        'Introduction à Baudelaire',
+        'Fiche explicative du subjonctif',
+        'Texte de Victor Hugo'
+      ],
+      audios: [
+        'Lecture d’un extrait',
+        'Podcast: La grammaire au quotidien'
+      ],
+      videos: [
+        'Lien vers documentaire sur Molière',
+        'Analyse de scène théâtrale'
+      ]
     },
     {
       id: 2,
-      teacher: 'Paul',
       date: new Date('2025-06-05'),
       status: 'future',
-      tasks: ['Analyser une chanson'],
-      texts: [],
-      audios: ['Lien vers podcast'],
-      videos: []
+      student: 'Max',
+      tasks: [
+        'Analyser une chanson',
+        'Corriger les erreurs d’un élève'
+      ],
+      texts: [
+        'Texte chanson française',
+        'Analyse stylistique'
+      ],
+      audios: [
+        'Lien vers podcast chanson',
+        'Enregistrement oral'
+      ],
+      videos: [
+        'Vidéo explicative subjonctif',
+        'Entretien avec un linguiste'
+      ]
+    },
+    {
+      id: 3,
+      date: new Date('2025-06-10'),
+      status: 'future',
+      student: "Robert",
+      tasks: [
+        'Préparer un exposé oral',
+        'Corriger un dialogue'
+      ],
+      texts: [
+        'Dialogue exemple',
+        'Note explicative'
+      ],
+      audios: [],
+      videos: [
+        'Présentation orale exemple'
+      ]
     }
   ];
+
+selectedStudent: string | null = null;
+
+ngOnInit() {
+    this.updateUniqueStudents();
+  }
+
+  uniqueStudents: string[] = [];
 
   openGabarit(lesson: any) {
     this.activeLesson = lesson;
@@ -54,4 +107,19 @@ export class TeacherLessonManagementComponent {
   get taskDropIds(): string[] {
     return this.lessons.map(l => `tasks-${l.id}`);
   }
+
+
+
+  get filteredLessons() {
+  return this.lessons
+    .filter(lesson => lesson.status === this.filter)
+    .filter(lesson => !this.selectedStudent || lesson.student === this.selectedStudent)
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+}
+
+ updateUniqueStudents() {
+    const students = this.lessons.map(l => l.student);
+    this.uniqueStudents = students.filter((v, i, a) => a.indexOf(v) === i);
+  }
+
 }
