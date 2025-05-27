@@ -1,0 +1,9 @@
+.lesson-management {
+  padding: 20px;
+}
+
+.lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

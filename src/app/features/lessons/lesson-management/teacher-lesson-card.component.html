@@ -1,0 +1,25 @@
+<div class="lesson-card">
+  <div class="lesson-header">
+    <div class="info">
+      👩‍🏫 {{ lesson.teacher }} — {{ lesson.date | date: 'dd/MM/yyyy' }}
+    </div>
+    <button (click)="openGabarit.emit()">➕ Ajouter du matériel</button>
+  </div>
+
+  <div class="drop-zone">
+    <h4>📌 Tâches</h4>
+    <div
+      cdkDropList
+      [id]="'tasks-' + lesson.id"
+      [cdkDropListData]="lesson.tasks"
+      [cdkDropListConnectedTo]="taskDropIds"
+      (cdkDropListDropped)="dropItem($event)">
+      <div
+        *ngFor="let task of lesson.tasks; let i = index"
+        cdkDrag
+        class="drag-item">
+        {{ i + 1 }}. {{ task }}
+      </div>
+    </div>
+  </div>
+</div>

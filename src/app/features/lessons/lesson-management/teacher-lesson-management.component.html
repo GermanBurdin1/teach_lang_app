@@ -1,0 +1,19 @@
+<div class="lesson-management">
+  <div class="lesson-list">
+    <app-teacher-lesson-card
+      *ngFor="let lesson of lessons"
+      [lesson]="lesson"
+      [lessonId]="lesson.id"
+      [taskDropIds]="taskDropIds"
+      (itemDropped)="onItemDropped($event)"
+      (openGabarit)="openGabarit(lesson)">
+    </app-teacher-lesson-card>
+  </div>
+
+  <app-gabarit
+    *ngIf="activeLesson"
+    [lesson]="activeLesson"
+    [visible]="true"
+    [close]="closeGabarit.bind(this)">
+  </app-gabarit>
+</div>

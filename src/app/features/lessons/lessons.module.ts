@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { LessonCardComponent } from './lesson-card/lesson-card.component';
 import { LessonManagementComponent } from './lesson-management/lesson-management.component';
+import { TeacherLessonManagementComponent } from './lesson-management/teacher-lesson-management.component';
+import { TeacherLessonCardComponent } from './lesson-management/teacher-lesson-card.component';
 import { FormsModule } from '@angular/forms';
 import { LessonsRoutingModule } from './lessons-routing.module';
+import { GabaritComponent } from './lesson-management/gabarit/gabarit-component';
 
 @NgModule({
-  declarations: [LessonCardComponent, LessonManagementComponent],
+  declarations: [LessonCardComponent, LessonManagementComponent, TeacherLessonManagementComponent, TeacherLessonCardComponent, GabaritComponent],
   imports: [
     CommonModule,
     DragDropModule,
