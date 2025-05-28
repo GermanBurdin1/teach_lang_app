@@ -4,22 +4,20 @@
       👩‍🏫 {{ lesson.teacher }} — {{ lesson.date | date: 'dd/MM/yyyy' }}
     </div>
     <button mat-stroked-button color="primary" (click)="openGabarit.emit()">
-  ➕ Ajouter du matériel
-</button>
+      ➕ Ajouter du matériel
+    </button>
+
+    <!-- 🔗 Кнопка входа в онлайн класс -->
+    <button *ngIf="showJoinButton()" mat-stroked-button color="accent" (click)="enterVirtualClass()">
+      🔗 Rejoindre la classe
+    </button>
   </div>
 
   <div class="drop-zone">
     <h4>📌 Tâches</h4>
-    <div
-      cdkDropList
-      [id]="'tasks-' + lesson.id"
-      [cdkDropListData]="lesson.tasks"
-      [cdkDropListConnectedTo]="taskDropIds"
+    <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks" [cdkDropListConnectedTo]="taskDropIds"
       (cdkDropListDropped)="dropItem($event)">
-      <div
-        *ngFor="let task of lesson.tasks; let i = index"
-        cdkDrag
-        class="drag-item">
+      <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item">
         {{ i + 1 }}. {{ task }}
       </div>
     </div>

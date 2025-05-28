@@ -12,7 +12,7 @@ export class LessonManagementComponent implements OnInit {
     {
       id: 1,
       teacher: 'Marie',
-      date: new Date('2025-06-01'),
+      date: new Date(Date.now() + 5 * 60 * 1000), 
       status: 'future',
       tasks: [
         'Analyser la chanson de Charles Aznavour',

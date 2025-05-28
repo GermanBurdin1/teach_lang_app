@@ -1,5 +1,6 @@
 import { CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-lesson-card',
@@ -12,15 +13,22 @@ export class LessonCardComponent {
   @Output() moveToFuture = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
   @Input() lessonId!: number;
   @Input() taskDropIds: string[] = [];
-@Input() questionDropIds: string[] = [];
+  @Input() questionDropIds: string[] = [];
 
   unresolved: string[] = [];
   resolved: string[] = [];
 
+  constructor(private router: Router) {}
 
-  enterVirtualClass() {
-    alert('Вход в виртуальный класс: ' + this.lesson?.id);
+  enterVirtualClass(): void {
+    const lessonId = this.lesson?.id;
+    if (lessonId) {
+      this.router.navigate([`/classroom/${lessonId}/lesson`], {
+        queryParams: { startCall: true }
+      });
+    }
   }
+
 
   ngOnInit(): void {
     // Допустим, lesson.materials делится на все задачи/вопросы
@@ -37,31 +45,31 @@ export class LessonCardComponent {
   }
 
   dropItem(event: CdkDragDrop<string[]>, type: 'task' | 'question') {
-  const containerId = event.container.id;
-  const previousId = event.previousContainer.id;
+    const containerId = event.container.id;
+    const previousId = event.previousContainer.id;
 
-  const targetId = this.extractLessonIdFromDropListId(containerId);
-  const sourceId = this.extractLessonIdFromDropListId(previousId);
+    const targetId = this.extractLessonIdFromDropListId(containerId);
+    const sourceId = this.extractLessonIdFromDropListId(previousId);
 
-  const isSameList = containerId === previousId;
+    const isSameList = containerId === previousId;
 
-  if (isSameList) {
-    if (this.lesson.status !== 'future') return;
+    if (isSameList) {
+      if (this.lesson.status !== 'future') return;
 
-    const list = event.container.data;
-    const [moved] = list.splice(event.previousIndex, 1);
-    list.splice(event.currentIndex, 0, moved);
-    return;
+      const list = event.container.data;
+      const [moved] = list.splice(event.previousIndex, 1);
+      list.splice(event.currentIndex, 0, moved);
+      return;
+    }
+
+    // ✅ Только эмитим и родитель сам добавит
+    this.itemDropped.emit({
+      from: sourceId,
+      to: targetId,
+      item: event.previousContainer.data[event.previousIndex],
+      type
+    });
   }
-
-  // ✅ Только эмитим и родитель сам добавит
-  this.itemDropped.emit({
-    from: sourceId,
-    to: targetId,
-    item: event.previousContainer.data[event.previousIndex],
-    type
-  });
-}
 
 
 
@@ -80,15 +88,15 @@ export class LessonCardComponent {
   }
 
   onPastItemClick(item: string, type: 'task' | 'question') {
-  if (!this.isPast()) return;
-  this.moveToFuture.emit({ item, type });
-}
+    if (!this.isPast()) return;
+    this.moveToFuture.emit({ item, type });
+  }
 
-private extractLessonIdFromDropListId(dropListId: string): number {
-  // dropListId в формате 'tasks-1' или 'questions-6'
-  const parts = dropListId.split('-');
-  return +parts[1];
-}
+  private extractLessonIdFromDropListId(dropListId: string): number {
+    // dropListId в формате 'tasks-1' или 'questions-6'
+    const parts = dropListId.split('-');
+    return +parts[1];
+  }
 
 
 }

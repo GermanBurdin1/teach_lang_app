@@ -3,7 +3,6 @@ import { VocabularyComponent } from './features/vocabulary/vocabulary.component'
 import { AboutComponent } from './features/about/about.component';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/components/register/register.component';
-import { LessonPageComponent } from './features/lessons/lesson-page/lesson-page.component';
 import { VideoCallComponent } from './features/lessons/video-call/video-call.component';
 import { LandingComponent } from './features/landing/landing.component';
 import { PreviewLandingComponent } from './features/landing/preview-landing/preview-landing.component';
@@ -24,7 +23,6 @@ export const routes: Routes = [
     path: 'cabinet/teacher',
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
   },
-  { path: 'lesson-page', component: LessonPageComponent },
   {
     path: 'lessons',
     loadChildren: () => import('./features/lessons/lessons.module').then(m => m.LessonsModule),

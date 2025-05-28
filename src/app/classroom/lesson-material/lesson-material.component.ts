@@ -12,13 +12,10 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
   styleUrls: ['./lesson-material.component.css'],
 })
 export class LessonMaterialComponent implements OnInit, OnDestroy {
-
-
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
   showBoard = false;
-
 
   constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute, public videoService: VideoCallService) { }
 
