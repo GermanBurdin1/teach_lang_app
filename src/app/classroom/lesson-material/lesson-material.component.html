@@ -43,63 +43,74 @@
         {{ tasksCollapsed ? '🔼' : '🔽' }}
       </div>
 
-      <div class="fixed-task-panel bg-light px-4 py-2" [class.collapsed]="tasksCollapsed">
-        <div class="collapse-toggle" (click)="toggleTasksCollapsed()">
-          {{ tasksCollapsed ? '🔼' : '🔽' }}
-        </div>
+      <div *ngIf="!tasksCollapsed" class="d-flex justify-content-between">
+        <!-- 👨‍🎓 Étudiant -->
+        <div class="student-zone w-50 pe-2">
+          <h5>👨‍🎓 Étudiant</h5>
 
-        <div *ngIf="!tasksCollapsed" class="d-flex justify-content-between">
-          <!-- Студент -->
-          <div class="student-zone w-50 pe-2">
-            <h5>👨‍🎓 Étudiant</h5>
-
-            <div *ngIf="currentLesson?.studentTasks?.length">
-              <div *ngFor="let task of currentLesson.studentTasks">
-                <label class="badge m-1 d-flex align-items-center" [ngClass]="{
-              'bg-secondary text-light': isResolved(task),
-              'bg-primary': !isResolved(task)
-            }">
-                  <input type="checkbox" class="me-2" [checked]="isResolved(task)"
-                    (change)="toggleResolved(task, 'task')" />
-                  {{ task }}
-                </label>
-              </div>
-            </div>
-
-            <div *ngIf="currentLesson?.studentQuestions?.length">
-              <div *ngFor="let question of currentLesson.studentQuestions">
-                <label class="badge m-1 d-flex align-items-center" [ngClass]="{
-              'bg-secondary text-light': isResolved(question),
-              'bg-info': !isResolved(question)
-            }">
-                  <input type="checkbox" class="me-2" [checked]="isResolved(question)"
-                    (change)="toggleResolved(question, 'question')" />
-                  {{ question }}
-                </label>
-              </div>
-            </div>
+          <!-- Добавление задач и вопросов студентом или преподавателем -->
+          <div *ngIf="userRole === 'student' || userRole === 'teacher'" class="input-group mb-2">
+            <input type="text" [(ngModel)]="newStudentTask" placeholder="Ajouter une tâche" class="form-control"
+              (keyup.enter)="addStudentTask()" />
+            <button class="btn btn-outline-primary" (click)="addStudentTask()">➕</button>
           </div>
 
-          <!-- Преподаватель -->
-          <div class="teacher-zone w-50 ps-2">
-            <h5>👩‍🏫 Enseignant</h5>
-            <div *ngFor="let task of currentLesson?.teacherTasks">
-              <label class="badge m-1 d-flex align-items-center" [ngClass]="{
-            'bg-secondary text-dark': isResolved(task),
-            'bg-warning text-dark': !isResolved(task)
-          }">
+          <div *ngIf="userRole === 'student' || userRole === 'teacher'" class="input-group mb-2">
+            <input type="text" [(ngModel)]="newStudentQuestion" placeholder="Ajouter une question" class="form-control"
+              (keyup.enter)="addStudentQuestion()" />
+            <button class="btn btn-outline-info" (click)="addStudentQuestion()">➕</button>
+          </div>
+
+          <!-- Список задач -->
+          <div *ngIf="currentLesson?.studentTasks?.length">
+            <div *ngFor="let task of currentLesson.studentTasks">
+              <label class="badge m-1 d-flex align-items-center"
+                [ngClass]="{ 'bg-secondary text-light': isResolved(task), 'bg-primary': !isResolved(task) }">
                 <input type="checkbox" class="me-2" [checked]="isResolved(task)"
                   (change)="toggleResolved(task, 'task')" />
                 {{ task }}
               </label>
             </div>
           </div>
+
+          <!-- Список вопросов -->
+          <div *ngIf="currentLesson?.studentQuestions?.length">
+            <div *ngFor="let question of currentLesson.studentQuestions">
+              <label class="badge m-1 d-flex align-items-center"
+                [ngClass]="{ 'bg-secondary text-light': isResolved(question), 'bg-info': !isResolved(question) }">
+                <input type="checkbox" class="me-2" [checked]="isResolved(question)"
+                  (change)="toggleResolved(question, 'question')" />
+                {{ question }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 👩‍🏫 Enseignant -->
+        <div class="teacher-zone w-50 ps-2">
+          <h5>👩‍🏫 Enseignant</h5>
+
+          <!-- Добавление задач преподавателем -->
+          <div *ngIf="userRole === 'teacher'" class="input-group mb-2">
+            <input type="text" [(ngModel)]="newTeacherTask" placeholder="Ajouter une tâche pour soi"
+              class="form-control" (keyup.enter)="addTeacherTask()" />
+            <button class="btn btn-outline-warning" (click)="addTeacherTask()">➕</button>
+          </div>
+
+          <!-- Список задач -->
+          <div *ngFor="let task of currentLesson?.teacherTasks">
+            <label class="badge m-1 d-flex align-items-center"
+              [ngClass]="{ 'bg-secondary text-dark': isResolved(task), 'bg-warning text-dark': !isResolved(task) }">
+
+              <input type="checkbox" class="me-2" [checked]="isResolved(task)" (change)="toggleResolved(task, 'task')"
+                [disabled]="userRole === 'student'" />
+
+              {{ task }}
+            </label>
+          </div>
+
         </div>
       </div>
-
-
-
-
-
     </div>
+
   </div>

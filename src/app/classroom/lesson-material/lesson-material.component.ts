@@ -5,6 +5,7 @@ import { LessonTabsService } from '../../services/lesson-tabs.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { VideoCallService } from '../../services/video-call.service';
 import { LoaderComponent } from '../../shared/components/loader/loader.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-lesson-material',
@@ -17,10 +18,16 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private isVideoCallStarted = false;
   showBoard = false;
   currentLesson: any = null;
+  userRole: 'student' | 'teacher' = 'student';
+  newStudentTask = '';
+  newStudentQuestion = '';
+  newTeacherTask = '';
+
   @Output() itemResolved = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
 
 
-  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute, public videoService: VideoCallService) { }
+  constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute, public videoService: VideoCallService,
+    private authService: AuthService) { }
 
   trackByIndex(index: number, item: string): number {
     return index;
@@ -28,6 +35,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('✅ LessonMaterialComponent загружен');
+    this.authService.currentRole$.subscribe(role => {
+      if (role === 'student' || role === 'teacher') {
+        this.userRole = role;
+        console.log('👤 Роль пользователя:', role);
+      }
+    });
 
     this.backgroundSubscription = this.backgroundService.background$.subscribe(
       (newBackground) => {
@@ -211,6 +224,27 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   isResolved(item: string): boolean {
     return this.resolvedItems.has(item);
+  }
+
+  addStudentTask() {
+    if (this.newStudentTask.trim()) {
+      this.currentLesson.studentTasks.push(this.newStudentTask.trim());
+      this.newStudentTask = '';
+    }
+  }
+
+  addStudentQuestion() {
+    if (this.newStudentQuestion.trim()) {
+      this.currentLesson.studentQuestions.push(this.newStudentQuestion.trim());
+      this.newStudentQuestion = '';
+    }
+  }
+
+  addTeacherTask() {
+    if (this.newTeacherTask.trim()) {
+      this.currentLesson.teacherTasks.push(this.newTeacherTask.trim());
+      this.newTeacherTask = '';
+    }
   }
 
 }
