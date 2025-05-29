@@ -189,4 +189,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.tasksCollapsed = !this.tasksCollapsed;
   }
 
+  toggleBoard(): void {
+  this.showBoard = !this.showBoard;
+  this.showGabarit = false;
+}
+
 }

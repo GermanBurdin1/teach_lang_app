@@ -1,8 +1,5 @@
 import { Component, AfterViewInit, HostListener, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { VideoCallService } from '../../../services/video-call.service';
-import { ClassroomModule } from '../../classroom.module';
 import { ChangeDetectorRef } from '@angular/core';
 import { WhiteWebSdk, Room, RoomPhase } from 'white-web-sdk';
 import { WhiteboardService } from '../../../services/whiteboard.service';
@@ -12,10 +9,8 @@ import { LessonTabsService } from '../../../services/lesson-tabs.service';
 
 @Component({
   selector: 'app-interactive-board',
-  standalone: true,
   templateUrl: './interactive-board.component.html',
   styleUrls: ['./interactive-board.component.css'],
-  imports: [CommonModule, FormsModule, ClassroomModule],
 })
 export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   @ViewChild('whiteboardContainer', { static: false }) whiteboardContainer!: ElementRef<HTMLDivElement>;
@@ -39,7 +34,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   private room?: Room;
 
 
-  constructor(private cdr: ChangeDetectorRef, public videoService: VideoCallService,
+  constructor(private cdr: ChangeDetectorRef,
     private whiteboardService: WhiteboardService, private lessonTabsService: LessonTabsService) { }
 
   ngOnInit(): void {
@@ -53,12 +48,6 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
     });
     console.log('📌 BoardComponent загружен');
     setTimeout(() => {
-      if (!this.videoService.isFloatingVideoSubject.getValue()) {
-        console.log('🟢 Включаем плавающее видео');
-        this.videoService.toggleFloatingVideo(true);
-      } else {
-        console.log('✅ Плавающее видео уже включено');
-      }
 
       // 🔥 Задержка перед обновлением Board
       setTimeout(() => {
@@ -72,68 +61,12 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      const videoElements = document.querySelectorAll('app-video-call');
-      console.log(`🔍 Найдено <app-video-call>:`, videoElements.length);
-      this.videoService.onResize(new MouseEvent('resize'));
-    }, 1000);
     console.log("📌 Контейнер найден через @ViewChild:", this.whiteboardContainer.nativeElement);
     this.whiteboardService.createRoomAndJoin(this.getCurrentUserId(), this.whiteboardContainer.nativeElement);
   }
 
 
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent): void {
-    this.videoService.onResize(event);
-  }
 
-  startDrag(event: MouseEvent): void {
-    this.dragging = true;
-
-    // Получаем сам элемент floating-video
-    const floatingVideo = document.querySelector('.floating-video') as HTMLElement;
-    if (!floatingVideo) return;
-
-    // Запоминаем текущее положение видео
-    const rect = floatingVideo.getBoundingClientRect();
-    this.offsetX = event.clientX - rect.left;
-    this.offsetY = event.clientY - rect.top;
-
-    document.addEventListener('mousemove', this.onDragMove.bind(this));
-    document.addEventListener('mouseup', this.stopDrag.bind(this));
-  }
-
-  onDragMove(event: MouseEvent): void {
-    if (!this.dragging) return;
-
-    const floatingVideo = document.querySelector('.floating-video') as HTMLElement;
-    if (!floatingVideo) return;
-
-    const maxX = window.innerWidth - floatingVideo.offsetWidth;
-    const maxY = window.innerHeight - floatingVideo.offsetHeight;
-
-    // Вычисляем новую позицию с учетом границ экрана
-    const newX = Math.max(0, Math.min(event.clientX - this.offsetX, maxX));
-    const newY = Math.max(0, Math.min(event.clientY - this.offsetY, maxY));
-
-    console.log(`🔄 Перемещение: (${newX}, ${newY})`);
-
-    // Применяем новую позицию к floating-video
-    floatingVideo.style.left = `${newX}px`;
-    floatingVideo.style.top = `${newY}px`;
-
-    // Обновляем координаты в сервисе
-    this.videoService.floatingVideoPosition.x = newX;
-    this.videoService.floatingVideoPosition.y = newY;
-
-    this.cdr.detectChanges();
-  }
-
-  stopDrag(): void {
-    this.dragging = false;
-    document.removeEventListener('mousemove', this.onDragMove.bind(this));
-    document.removeEventListener('mouseup', this.stopDrag.bind(this));
-  }
 
   //рисование
   setDrawingMode(): void {

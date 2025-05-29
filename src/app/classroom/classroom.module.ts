@@ -27,14 +27,14 @@ const routes: Routes = [
   declarations: [
     LessonMaterialComponent,
     VideoCallComponent,
-    GabaritPageComponent
+    GabaritPageComponent,
+    InteractiveBoardComponent
   ],
   imports: [
     CommonModule,
     LayoutModule,
     FormsModule,
     TabsComponent,
-    InteractiveBoardComponent,
     LessonsModule,
     RouterModule.forChild(routes) // Маршрут компонента
   ],

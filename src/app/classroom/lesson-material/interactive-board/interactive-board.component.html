@@ -49,22 +49,6 @@
   <!-- Whiteboard -->
   <div #whiteboardContainer class="whiteboard"></div>
 
-  <!-- Floating Video -->
-  <div class="floating-video"
-    *ngIf="(videoService.isFloatingVideo$ | async) && (videoService.showVideoCall$ | async); else delayRender"
-    [style.left.px]="videoService.floatingVideoPosition.x"
-    [style.top.px]="videoService.floatingVideoPosition.y"
-    (mousedown)="startDrag($event)">
-
-    <!-- Кнопка закрытия -->
-    <button class="close-btn-floating-video" (click)="videoService.toggleFloatingVideo(false)">✖</button>
-
-    <!-- Контейнер для адаптивного видео -->
-    <div class="video-container">
-        <app-video-call #videoCallElement *ngIf="videoService.showVideoCall$ | async"
-          [isFloatingMode]="true"></app-video-call>
-    </div>
-  </div>
 </div>
 
 
