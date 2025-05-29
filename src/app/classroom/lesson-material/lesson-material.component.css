@@ -269,3 +269,16 @@ body {
   padding-left: 20px; /* Отступ слева от края */
 }
 
+.whiteboard-layer {
+  z-index: 1;
+}
+
+.video-layer {
+  z-index: 2;
+}
+
+.gabarit-overlay {
+  z-index: 3;
+  background-color: rgba(255, 255, 255, 0.96); /* полупрозрачная белая подложка */
+  overflow-y: auto;
+}

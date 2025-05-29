@@ -2,35 +2,47 @@
   <div class="gabarit" (click)="$event.stopPropagation()">
     <h3>Matériel du cours ({{ lesson.date | date: 'dd/MM/yyyy' }})</h3>
 
+    <!-- 📄 Textes -->
     <div class="zone text-zone">
       <div class="zone-header">
         <span>📝 Textes</span>
-        <button (click)="add('text')">➕</button>
+        <button *ngIf="!readonly" (click)="add('text')">➕</button>
       </div>
-      <div cdkDropList [cdkDropListData]="texts" (cdkDropListDropped)="onDrop($event, 'texts')">
+      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="texts" (cdkDropListDropped)="onDrop($event, 'texts')">
         <div *ngFor="let t of texts" cdkDrag class="item">{{ t }}</div>
+      </div>
+      <div *ngIf="readonly">
+        <div *ngFor="let t of texts" class="item">{{ t }}</div>
       </div>
     </div>
 
+    <!-- 🎧 Audios -->
     <div class="zone audio-zone">
       <div class="zone-header">
         <span>🔊 Audios</span>
-        <button (click)="add('audio')">➕</button>
+        <button *ngIf="!readonly" (click)="add('audio')">➕</button>
       </div>
-      <div cdkDropList [cdkDropListData]="audios" (cdkDropListDropped)="onDrop($event, 'audios')">
+      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="audios" (cdkDropListDropped)="onDrop($event, 'audios')">
         <div *ngFor="let a of audios" cdkDrag class="item">{{ a }}</div>
+      </div>
+      <div *ngIf="readonly">
+        <div *ngFor="let a of audios" class="item">{{ a }}</div>
       </div>
     </div>
 
+    <!-- 🎬 Vidéos -->
     <div class="zone video-zone">
       <div class="zone-header">
         <span>🎬 Vidéos</span>
-        <button (click)="add('video')">➕</button>
+        <button *ngIf="!readonly" (click)="add('video')">➕</button>
       </div>
-      <div cdkDropList [cdkDropListData]="videos" (cdkDropListDropped)="onDrop($event, 'videos')">
+      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="videos" (cdkDropListDropped)="onDrop($event, 'videos')">
         <div *ngFor="let v of videos" cdkDrag class="item">{{ v }}</div>
       </div>
+      <div *ngIf="readonly">
+        <div *ngFor="let v of videos" class="item">{{ v }}</div>
+      </div>
     </div>
+
   </div>
 </div>
-

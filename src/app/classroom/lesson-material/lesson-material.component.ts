@@ -16,15 +16,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
   showBoard = false;
+  currentLesson: any = null;
 
   constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute, public videoService: VideoCallService) { }
-
-  listIcons: string[] = [
-    'icon-empty', // Заглушка для первой иконки
-    'icon-empty', // Заглушка для второй иконки
-    'icon-empty', // Заглушка для третьей иконки
-    'fas fa-chalkboard', // Заполненная иконка
-  ];
 
   trackByIndex(index: number, item: string): number {
     return index;
@@ -76,6 +70,24 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
     this.videoService.resetVideoSize();
 
+
+    this.lessonTabsService.setCurrentLessonData({
+      id: '1',
+      date: new Date(),
+      teacherTasks: ['Corriger une rédaction', 'Faire un résumé'],
+      studentTasks: ['Faire une synthèse', 'Compléter la fiche'],
+      studentQuestions: [
+        'Quand utilise-t-on “depuis” vs “il y a” ?',
+        'Quelle est la structure du discours indirect ?'
+      ]
+    });
+    
+    this.lessonTabsService.currentLessonData$.subscribe((lesson) => {
+      if (lesson) {
+        this.currentLesson = lesson;
+        console.log('🎓 Получены данные урока:', lesson);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -109,15 +121,16 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   // Открытие интерактивной доски
   openInteractiveBoard(): void {
     console.log('🔗 Навигация к', `${this.lessonTabsService.getCurrentLessonId()}/board`);
+    this.showBoard = true;
 
     this.videoService.setRegularVideoActive(false);
     this.videoService.setFloatingVideoActive(true);
     this.videoService.setFloatingVideoSize(320, 180);
 
     // Принудительное уничтожение и пересоздание доски
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate([`${this.lessonTabsService.getCurrentLessonId()}/board`]);
-    });
+    // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+    //   this.router.navigate([`${this.lessonTabsService.getCurrentLessonId()}/board`]);
+    // });
   }
 
   startVideoCall(): void {
@@ -151,4 +164,17 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   startDrag(event: MouseEvent): void {
     this.videoService.startResize(event);
   }
+
+  showGabarit = false;
+
+  toggleGabarit(): void {
+    this.showGabarit = !this.showGabarit;
+  }
+
+  selectView(view: 'board' | 'materials') {
+    this.showBoard = view === 'board';
+    this.showGabarit = view === 'materials';
+  }
+
+
 }

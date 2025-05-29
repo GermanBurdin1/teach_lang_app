@@ -1,21 +1,63 @@
 <div class="container mt-4" [ngStyle]="{ 'backgroundImage': backgroundStyle, 'backgroundSize': 'cover' }">
 
-  <div class="row justify-content-center align-items-start video-wrapper">
+  <!-- 🧭 Верхняя панель класса -->
+  <div class="class-header d-flex justify-content-start align-items-center gap-3 ps-3 mb-3">
+    <div class="btn-group" role="group" aria-label="View switch">
+      <input type="radio" class="btn-check" name="viewToggle" id="boardView" autocomplete="off" [checked]="showBoard"
+        (change)="selectView('board')">
+      <label class="btn btn-outline-primary" for="boardView">🧑‍🏫 Доска</label>
 
-    <!-- Левая часть с иконками -->
-    <div class="col-md-2 list-section d-flex flex-column align-items-start">
-      <div *ngFor="let icon of listIcons; let i = index; trackBy: trackByIndex" class="icon-item"
-        (click)="icon === 'fas fa-chalkboard' ? openInteractiveBoard() : null">
-        <i [ngClass]="icon"></i>
+      <input type="radio" class="btn-check" name="viewToggle" id="materialsView" autocomplete="off"
+        [checked]="showGabarit" (change)="selectView('materials')">
+      <label class="btn btn-outline-primary" for="materialsView">📂 Материалы</label>
+    </div>
+  </div>
+
+
+  <div class="row justify-content-center align-items-start video-wrapper position-relative">
+
+    <!-- Основной видео+доска блок -->
+    <div class="col-md-10 d-flex justify-content-center position-relative">
+
+      <!-- 📋 Интерактивная доска -->
+      <app-interactive-board *ngIf="showBoard" class="whiteboard-layer position-absolute top-0 start-0 w-100 h-100">
+      </app-interactive-board>
+
+      <!-- 🎥 Видео -->
+      <app-video-call *ngIf="(videoService.showVideoCall$ | async) && !(videoService.isFloatingVideo$ | async)"
+        [isFloatingMode]="false" class="video-layer position-relative">
+      </app-video-call>
+
+      <!-- 📁 Gabarit -->
+      <app-gabarit *ngIf="showGabarit" [lessonId]="lessonTabsService.getCurrentLessonId()" [readonly]="true"
+        [visible]="true" class="gabarit-overlay position-absolute top-0 start-0 w-100 h-100">
+      </app-gabarit>
+    </div>
+
+    <!-- 🧩 Нижняя панель заданий -->
+    <div class="bottom-panel d-flex justify-content-between px-4 py-2 bg-light mt-3">
+
+      <!-- Студент -->
+      <div class="student-zone w-50 pe-2">
+        <h5>👨‍🎓 Étudiant</h5>
+        <div *ngIf="currentLesson?.studentTasks?.length">
+          <div *ngFor="let task of currentLesson.studentTasks" class="badge bg-primary m-1">{{ task }}</div>
+        </div>
+        <div *ngIf="currentLesson?.studentQuestions?.length">
+          <div *ngFor="let q of currentLesson.studentQuestions" class="badge bg-info m-1">{{ q }}</div>
+        </div>
+      </div>
+
+      <!-- Преподаватель -->
+      <div class="teacher-zone w-50 ps-2">
+        <h5>👩‍🏫 Enseignant</h5>
+        <div *ngFor="let task of currentLesson?.teacherTasks" class="badge bg-warning text-dark m-1">
+          {{ task }}
+        </div>
       </div>
     </div>
 
-    <!-- Контейнер с видео -->
-    <div class="col-md-8 d-flex justify-content-center">
-      <app-video-call *ngIf="(videoService.showVideoCall$ | async) && !(videoService.isFloatingVideo$ | async)"
-        [isFloatingMode]="false"></app-video-call>
-    </div>
+
 
   </div>
-
 </div>

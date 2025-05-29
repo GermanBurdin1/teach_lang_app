@@ -71,4 +71,17 @@ export class LessonTabsService {
   getCurrentLessonId(): string {
     return this.currentLessonIdSource.value;
   }
+
+  //для lesson-material.component.ts
+  private currentLessonDataSource = new BehaviorSubject<any | null>(null);
+  currentLessonData$ = this.currentLessonDataSource.asObservable();
+
+  setCurrentLessonData(data: any): void {
+    console.log('📚 Установлен урок:', data);
+    this.currentLessonDataSource.next(data);
+  }
+
+  getCurrentLessonData(): any | null {
+    return this.currentLessonDataSource.value;
+  }
 }

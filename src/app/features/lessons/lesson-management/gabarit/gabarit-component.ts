@@ -10,10 +10,26 @@ export class GabaritComponent {
   @Input() lesson: any;
   @Input() visible: boolean = false;
   @Input() close!: () => void;
+  @Input() lessonId: string = '';
+  @Input() readonly: boolean = false;
+
+
+  ngOnInit(): void {
+    if (!this.lesson) {
+      console.warn('⚠️ [GabaritComponent] Aucune leçon reçue. On injecte un mock...');
+      this.lesson = {
+        date: new Date(),
+        texts: ['📄 Le subjonctif expliqué', '📄 Notes sur Victor Hugo'],
+        audios: ['🎧 Podcast grammaire', '🎧 Enregistrement oral'],
+        videos: ['🎬 Analyse de Molière', '🎬 Documentaire']
+      };
+    }
+  }
 
   get texts() { return this.lesson?.texts || []; }
   get audios() { return this.lesson?.audios || []; }
   get videos() { return this.lesson?.videos || []; }
+
 
   add(type: 'text' | 'audio' | 'video') {
     const input = document.createElement('input');
