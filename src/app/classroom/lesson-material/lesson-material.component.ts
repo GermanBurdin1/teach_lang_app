@@ -174,7 +174,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   toggleGabarit(): void {
     this.showGabarit = !this.showGabarit;
+    this.showBoard = false; // или true, если хочешь доску по умолчанию при скрытии
   }
+
 
   selectView(view: 'board' | 'materials') {
     this.showBoard = view === 'board';

@@ -186,25 +186,13 @@
   border-radius: 5px;
 }
 
-.control-btn:not(.share-screen-btn) {
-  bottom: 10px;
-  left: 80px; /* ⬅️ Чуть больше отступ слева */
-  max-width: 160px; /* ✅ ограничим, чтобы не растягивалась */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+
 
 
 .control-btn:hover {
   background-color: rgba(0, 86, 179, 0.9);
 }
 
-/* Стили для кнопки "Поделиться экраном" */
-.share-screen-btn {
-  left: auto;
-  right: 10px; /* ⬅️ Теперь кнопка будет справа */
-}
 
 .screen-sharing-active {
   border: 4px dashed red;
@@ -218,4 +206,18 @@
   to {
     border-color: transparent;
   }
+}
+
+/* Центрируем обе control-кнопки рядом, как в Teams */
+.control-btn {
+  bottom: 10px;
+  transform: none;
+}
+
+.control-btn:first-of-type {
+  left: calc(50% - 30px); /* Первая кнопка левее центра */
+}
+
+.control-btn.share-screen-btn {
+  left: calc(50% + 30px); /* Вторая кнопка правее центра */
 }

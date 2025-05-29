@@ -1,22 +1,22 @@
-<div class="video-call-container" [class.floating]="isFloatingMode" [class.screen-sharing-active]="isScreenSharing" (mousedown)="startDrag($event)">
-  <div class="video-container"
-       #localVideoContainer
-       [style.width.px]="videoWidth"
-       [style.height.px]="videoHeight"
-       (mouseenter)="showVideoControls()"
-       (mouseleave)="hideVideoControls()">
+<div class="video-call-container" [class.floating]="isFloatingMode" [class.screen-sharing-active]="isScreenSharing"
+  (mousedown)="startDrag($event)">
+  <div class="video-container" #localVideoContainer [style.width.px]="videoWidth" [style.height.px]="videoHeight"
+    (mouseenter)="showVideoControls()" (mouseleave)="hideVideoControls()">
 
     <video #localVideo autoplay playsinline class="video-stream"></video>
 
     <!-- Кнопки управления звонком -->
-    <button class="control-btn" *ngIf="showControls" (click)="toggleCall()">
-      {{ callActive ? '⏹ Завершить' : '▶ Возобновить' }}
+    <button class="control-btn" *ngIf="showControls" (click)="toggleCall()"
+      title="{{ callActive ? 'Terminer l\'appel' : 'Reprendre l\'appel' }}">
+      <i [class]="callActive ? 'fas fa-phone-slash' : 'fas fa-phone'"></i>
     </button>
 
     <!-- Кнопка "Поделиться экраном" -->
-    <button class="control-btn share-screen-btn" *ngIf="showControls" (click)="toggleScreenSharing()">
-      {{ isScreenSharing ? '🛑 Остановить экран' : '📺 Поделиться экраном' }}
+    <button class="control-btn share-screen-btn" *ngIf="showControls" (click)="toggleScreenSharing()"
+      title="{{ isScreenSharing ? 'Arrêter le partage d\'écran' : 'Partager l\'écran' }}">
+      <i [class]="isScreenSharing ? 'fas fa-stop-circle' : 'fas fa-desktop'"></i>
     </button>
+
 
 
     <!-- Область для изменения размера -->
