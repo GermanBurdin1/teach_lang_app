@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked, HostListener } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked, HostListener, Output, EventEmitter } from '@angular/core';
 import { BackgroundService } from '../../services/background.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
@@ -17,6 +17,8 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private isVideoCallStarted = false;
   showBoard = false;
   currentLesson: any = null;
+  @Output() itemResolved = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
+
 
   constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute, public videoService: VideoCallService) { }
 
@@ -190,8 +192,25 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   toggleBoard(): void {
-  this.showBoard = !this.showBoard;
-  this.showGabarit = false;
-}
+    this.showBoard = !this.showBoard;
+    this.showGabarit = false;
+  }
+
+  resolvedItems = new Set<string>();
+
+  toggleResolved(item: string, type: 'task' | 'question') {
+    if (this.resolvedItems.has(item)) {
+      this.resolvedItems.delete(item);
+    } else {
+      this.resolvedItems.add(item);
+    }
+
+    // Здесь можно эмитить наружу, если нужно синхронизировать с карточкой урока
+    // this.itemResolved.emit({ item, type });
+  }
+
+  isResolved(item: string): boolean {
+    return this.resolvedItems.has(item);
+  }
 
 }

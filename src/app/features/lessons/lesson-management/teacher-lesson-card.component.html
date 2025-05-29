@@ -17,9 +17,11 @@
     <h4>📌 Tâches</h4>
     <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks" [cdkDropListConnectedTo]="taskDropIds"
       (cdkDropListDropped)="dropItem($event)">
-      <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item">
+      <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item"
+        [class.text-muted]="resolvedItems.includes(task)">
         {{ i + 1 }}. {{ task }}
       </div>
     </div>
   </div>
+
 </div>

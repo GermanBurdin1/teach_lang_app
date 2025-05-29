@@ -29,32 +29,31 @@
 
   <!-- 🧲 Zones de glisser-déposer -->
   <div class="lesson-dnd">
-  <div class="drop-zone">
-    <h4>📌 Tâches</h4>
-    <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks" [cdkDropListConnectedTo]="taskDropIds"
-      (cdkDropListDropped)="dropItem($event, 'task')">
-      <div *ngFor="let task of lesson.tasks; let i = index"
-           cdkDrag class="drag-item"
-           (click)="onPastItemClick(task, 'task')"
-           [class.clickable]="isPast()">
-        {{ i + 1 }}. 🛠 {{ task }}
+    <div class="drop-zone">
+      <h4>📌 Tâches</h4>
+      <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks"
+        [cdkDropListConnectedTo]="taskDropIds" (cdkDropListDropped)="dropItem($event, 'task')">
+        <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item"
+          (click)="onPastItemClick(task, 'task')" [class.clickable]="isPast()"
+          [class.text-muted]="resolvedItems.includes(task)">
+          {{ i + 1 }}. 🛠 {{ task }}
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="drop-zone">
-    <h4>❓ Questions</h4>
-    <div cdkDropList [id]="'questions-' + lesson.id" [cdkDropListData]="lesson.questions" [cdkDropListConnectedTo]="questionDropIds"
-      (cdkDropListDropped)="dropItem($event, 'question')">
-      <div *ngFor="let q of lesson.questions; let i = index"
-           cdkDrag class="drag-item"
-           (click)="onPastItemClick(q, 'question')"
-           [class.clickable]="isPast()">
-        {{ i + 1 }}. 💬 {{ q }}
+    <div class="drop-zone">
+      <h4>❓ Questions</h4>
+      <div cdkDropList [id]="'questions-' + lesson.id" [cdkDropListData]="lesson.questions"
+        [cdkDropListConnectedTo]="questionDropIds" (cdkDropListDropped)="dropItem($event, 'question')">
+        <div *ngFor="let q of lesson.questions; let i = index" cdkDrag class="drag-item"
+          (click)="onPastItemClick(q, 'question')" [class.clickable]="isPast()"
+          [class.text-muted]="resolvedItems.includes(q)">
+          {{ i + 1 }}. 💬 {{ q }}
+        </div>
       </div>
     </div>
+
   </div>
-</div>
 
 
 

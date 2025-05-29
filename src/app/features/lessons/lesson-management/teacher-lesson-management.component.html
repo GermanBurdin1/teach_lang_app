@@ -19,8 +19,10 @@
 
   <div class="lesson-list">
     <app-teacher-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" [lessonId]="lesson.id"
-      [taskDropIds]="taskDropIds" (itemDropped)="onItemDropped($event)" (openGabarit)="openGabarit(lesson)">
+      [taskDropIds]="taskDropIds" [resolvedItems]="resolvedItemsPerLesson[lesson.id] || []"
+      (itemDropped)="onItemDropped($event)" (openGabarit)="openGabarit(lesson)">
     </app-teacher-lesson-card>
+
   </div>
 
   <app-gabarit *ngIf="activeLesson" [lesson]="activeLesson" [visible]="true" [close]="closeGabarit.bind(this)">

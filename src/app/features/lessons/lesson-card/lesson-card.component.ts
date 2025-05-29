@@ -14,6 +14,8 @@ export class LessonCardComponent {
   @Input() lessonId!: number;
   @Input() taskDropIds: string[] = [];
   @Input() questionDropIds: string[] = [];
+  @Input() resolvedItems: string[] = [];
+
 
   unresolved: string[] = [];
   resolved: string[] = [];

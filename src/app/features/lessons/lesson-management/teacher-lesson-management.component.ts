@@ -77,6 +77,8 @@ export class TeacherLessonManagementComponent {
   ];
 
 selectedStudent: string | null = null;
+resolvedItemsPerLesson: { [lessonId: number]: string[] } = {};
+
 
 ngOnInit() {
     this.updateUniqueStudents();

@@ -13,6 +13,8 @@ export class TeacherLessonCardComponent {
   @Input() taskDropIds: string[] = [];
   @Output() itemDropped = new EventEmitter<{ from: number, to: number, item: string }>();
   @Output() openGabarit = new EventEmitter<void>();
+  @Input() resolvedItems: string[] = [];
+
 
   constructor(private router: Router) {}
 

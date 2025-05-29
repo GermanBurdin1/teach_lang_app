@@ -14,15 +14,12 @@
 
   <!-- 📦 Liste des cours -->
   <div class="lesson-list">
-    <app-lesson-card
-  *ngFor="let lesson of filteredLessons"
-  [lesson]="lesson"
-  [lessonId]="lesson.id"
-  [taskDropIds]="taskDropListIds"
-  [questionDropIds]="questionDropListIds"
-  (itemDropped)="onItemDropped($event)"
-  (moveToFuture)="onMoveToFuture($event)">
-</app-lesson-card>
+    <app-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" [lessonId]="lesson.id"
+      [taskDropIds]="taskDropListIds" [questionDropIds]="questionDropListIds"
+      [resolvedItems]="resolvedItemsPerLesson[lesson.id] || []" (itemDropped)="onItemDropped($event)"
+      (moveToFuture)="onMoveToFuture($event)">
+    </app-lesson-card>
+
 
 
 
