@@ -356,3 +356,21 @@ body {
 .tab-button.active {
   background: rgba(0, 123, 255, 0.9);
 }
+
+.question-actions {
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.question-actions .dropdown-item {
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.question-actions .dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.question-actions .dropdown-item.text-warning:hover {
+  background-color: #fff3cd;
+}

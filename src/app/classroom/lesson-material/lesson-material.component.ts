@@ -22,6 +22,8 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   newStudentTask = '';
   newStudentQuestion = '';
   newTeacherTask = '';
+  hoveredQuestion: string | null = null;
+  hoveredItem: string | null = null;
 
   @Output() itemResolved = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
 
@@ -246,5 +248,31 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       this.newTeacherTask = '';
     }
   }
+
+  postponeQuestion(question: string): void {
+    console.log('🔁 Revoir plus tard:', question);
+    // Пример: сохраняем в lessonTabsService.postponedQuestions.push(question)
+  }
+
+  goToMindmap(question: string): void {
+    console.log('🧠 Mindmap:', question);
+    // this.router.navigate(['/mindmap'], { queryParams: { q: question } });
+  }
+
+  goToDictionary(question: string): void {
+    console.log('📘 Dictionnaire:', question);
+    // this.router.navigate(['/dictionary'], { queryParams: { q: question } });
+  }
+
+  postpone(item: string): void {
+    console.log('⏭ Reporter pour le prochain cours:', item);
+    // здесь будет логика перемещения в следующее занятие
+  }
+
+  addToHomework(item: string): void {
+  console.log('📚 Ajouter aux devoirs:', item);
+  // Здесь добавь логику, например:
+}
+
 
 }
