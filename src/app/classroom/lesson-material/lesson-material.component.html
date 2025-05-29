@@ -29,9 +29,9 @@
       </app-video-call>
 
       <!-- 📁 Gabarit -->
-      <app-gabarit *ngIf="showGabarit" [lessonId]="lessonTabsService.getCurrentLessonId()" [readonly]="true"
-        [visible]="true" class="gabarit-overlay position-absolute top-0 start-0 w-100 h-100">
-      </app-gabarit>
+      <app-gabarit-page *ngIf="showGabarit" [lesson]="currentLesson" [readonly]="true">
+      </app-gabarit-page>
+
     </div>
 
     <!-- 🧩 Нижняя панель заданий -->

@@ -8,6 +8,7 @@ import { TabsComponent } from './lesson-material/tabs/tabs.component';
 import { VideoCallComponent } from '../features/lessons/video-call/video-call.component';
 import { LessonsModule } from '../features/lessons/lessons.module';
 import { InteractiveBoardComponent } from './lesson-material/interactive-board/interactive-board.component';
+import { GabaritPageComponent } from './lesson-material/gabarit-page/gabarit-page.component';
 
 
 
@@ -26,6 +27,7 @@ const routes: Routes = [
   declarations: [
     LessonMaterialComponent,
     VideoCallComponent,
+    GabaritPageComponent
   ],
   imports: [
     CommonModule,
