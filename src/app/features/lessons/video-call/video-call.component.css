@@ -72,6 +72,7 @@
   border-radius: 8px;
   overflow: hidden;
   user-select: none;
+
 }
 
 .video-container video {
@@ -128,9 +129,13 @@
   background: rgba(0, 0, 0, 0.8);
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
+  z-index: 10000;
   top: 20px;
   right: 20px;
+  cursor: grab;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .video-stream {
@@ -173,17 +178,23 @@
 /* screensharing */
 .control-btn {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background-color: rgba(0, 123, 255, 0.8);
+  background: rgba(0, 0, 0, 0.5);
   color: white;
-  transition: background 0.3s;
+  border: none;
+  cursor: pointer;
+  padding: 10px 10px;
+  border-radius: 5px;
 }
+
+.control-btn:not(.share-screen-btn) {
+  bottom: 10px;
+  left: 80px; /* ⬅️ Чуть больше отступ слева */
+  max-width: 160px; /* ✅ ограничим, чтобы не растягивалась */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 
 .control-btn:hover {
   background-color: rgba(0, 86, 179, 0.9);
@@ -191,7 +202,8 @@
 
 /* Стили для кнопки "Поделиться экраном" */
 .share-screen-btn {
-  left: 120px; /* Отступ слева */
+  left: auto;
+  right: 10px; /* ⬅️ Теперь кнопка будет справа */
 }
 
 .screen-sharing-active {

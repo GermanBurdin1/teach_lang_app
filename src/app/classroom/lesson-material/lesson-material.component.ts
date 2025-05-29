@@ -79,23 +79,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       studentQuestions: [
         'Quand utilise-t-on “depuis” vs “il y a” ?',
         'Quelle est la structure du discours indirect ?'
-      ]
-    });
-
-    this.lessonTabsService.currentLessonData$.subscribe((lesson) => {
-      if (lesson) {
-        this.currentLesson = lesson;
-        console.log('🎓 Получены данные урока:', lesson);
-      }
-    });
-
-    this.lessonTabsService.setCurrentLessonData({
-      id: '1',
-      date: new Date(),
+      ],
       texts: ['📄 Le subjonctif expliqué', '📄 Notes sur Victor Hugo'],
       audios: ['🎧 Podcast grammaire', '🎧 Enregistrement oral'],
       videos: ['🎬 Analyse de Molière', '🎬 Documentaire']
     });
+
 
     this.lessonTabsService.currentLessonData$.subscribe((lesson) => {
       if (lesson) {
@@ -192,5 +181,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.showGabarit = view === 'materials';
   }
 
+  tasksCollapsed = false;
+
+  toggleTasksCollapsed() {
+    this.tasksCollapsed = !this.tasksCollapsed;
+  }
 
 }

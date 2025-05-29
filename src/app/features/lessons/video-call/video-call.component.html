@@ -1,4 +1,4 @@
-<div class="video-call-container" [class.floating]="isFloatingMode" [class.screen-sharing-active]="isScreenSharing">
+<div class="video-call-container" [class.floating]="isFloatingMode" [class.screen-sharing-active]="isScreenSharing" (mousedown)="startDrag($event)">
   <div class="video-container"
        #localVideoContainer
        [style.width.px]="videoWidth"

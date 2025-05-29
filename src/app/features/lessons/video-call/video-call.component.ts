@@ -156,18 +156,48 @@ export class VideoCallComponent implements OnInit {
     // Проверяем поддержку устройства перед началом трансляции
     const isSupported = await this.videoCallService.checkSystemSupport();
     if (!isSupported) {
-        alert("Ваш браузер не поддерживает трансляцию экрана!");
-        return;
+      alert("Ваш браузер не поддерживает трансляцию экрана!");
+      return;
     }
 
     if (this.isScreenSharing) {
-        await this.videoCallService.stopScreenSharing();
+      await this.videoCallService.stopScreenSharing();
     } else {
-        await this.videoCallService.startScreenSharing();
-        this.videoCallService.startTrackMonitoring(); // Начинаем мониторинг трека
+      await this.videoCallService.startScreenSharing();
+      this.videoCallService.startTrackMonitoring(); // Начинаем мониторинг трека
     }
 
     this.isScreenSharing = !this.isScreenSharing;
-}
+  }
+
+  startDrag(event: MouseEvent) {
+    event.preventDefault();
+
+    const elem = ((event.currentTarget as HTMLElement).closest('.video-call-container')) as HTMLElement;
+    if (!elem) return;
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startLeft = elem.offsetLeft;
+    const startTop = elem.offsetTop;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      elem.style.left = `${startLeft + deltaX}px`;
+      elem.style.top = `${startTop + deltaY}px`;
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
+
+
 
 }

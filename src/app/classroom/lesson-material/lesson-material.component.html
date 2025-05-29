@@ -24,9 +24,12 @@
       </app-interactive-board>
 
       <!-- 🎥 Видео -->
-      <app-video-call *ngIf="(videoService.showVideoCall$ | async) && !(videoService.isFloatingVideo$ | async)"
-        [isFloatingMode]="false" class="video-layer position-relative">
-      </app-video-call>
+      <app-video-call
+  *ngIf="videoService.showVideoCall$ | async"
+  [isFloatingMode]="true"
+  class="floating-video-layer">
+</app-video-call>
+
 
       <!-- 📁 Gabarit -->
       <app-gabarit-page *ngIf="showGabarit" [lesson]="currentLesson" [readonly]="true">
@@ -35,27 +38,33 @@
     </div>
 
     <!-- 🧩 Нижняя панель заданий -->
-    <div class="bottom-panel d-flex justify-content-between px-4 py-2 bg-light mt-3">
+    <div class="fixed-task-panel bg-light px-4 py-2" [class.collapsed]="tasksCollapsed">
+  <div class="collapse-toggle" (click)="toggleTasksCollapsed()">
+    {{ tasksCollapsed ? '🔼' : '🔽' }}
+  </div>
 
-      <!-- Студент -->
-      <div class="student-zone w-50 pe-2">
-        <h5>👨‍🎓 Étudiant</h5>
-        <div *ngIf="currentLesson?.studentTasks?.length">
-          <div *ngFor="let task of currentLesson.studentTasks" class="badge bg-primary m-1">{{ task }}</div>
-        </div>
-        <div *ngIf="currentLesson?.studentQuestions?.length">
-          <div *ngFor="let q of currentLesson.studentQuestions" class="badge bg-info m-1">{{ q }}</div>
-        </div>
+  <div *ngIf="!tasksCollapsed" class="d-flex justify-content-between">
+    <!-- Студент -->
+    <div class="student-zone w-50 pe-2">
+      <h5>👨‍🎓 Étudiant</h5>
+      <div *ngIf="currentLesson?.studentTasks?.length">
+        <div *ngFor="let task of currentLesson.studentTasks" class="badge bg-primary m-1">{{ task }}</div>
       </div>
-
-      <!-- Преподаватель -->
-      <div class="teacher-zone w-50 ps-2">
-        <h5>👩‍🏫 Enseignant</h5>
-        <div *ngFor="let task of currentLesson?.teacherTasks" class="badge bg-warning text-dark m-1">
-          {{ task }}
-        </div>
+      <div *ngIf="currentLesson?.studentQuestions?.length">
+        <div *ngFor="let q of currentLesson.studentQuestions" class="badge bg-info m-1">{{ q }}</div>
       </div>
     </div>
+
+    <!-- Преподаватель -->
+    <div class="teacher-zone w-50 ps-2">
+      <h5>👩‍🏫 Enseignant</h5>
+      <div *ngFor="let task of currentLesson?.teacherTasks" class="badge bg-warning text-dark m-1">
+        {{ task }}
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 
