@@ -185,9 +185,23 @@ export class VideoCallComponent implements OnInit {
       const deltaX = moveEvent.clientX - startX;
       const deltaY = moveEvent.clientY - startY;
 
-      elem.style.left = `${startLeft + deltaX}px`;
-      elem.style.top = `${startTop + deltaY}px`;
+      let newLeft = startLeft + deltaX;
+      let newTop = startTop + deltaY;
+
+      // Ограничения по ширине и высоте окна
+      const videoWidth = elem.offsetWidth;
+      const videoHeight = elem.offsetHeight;
+      const maxLeft = window.innerWidth - videoWidth;
+      const maxTop = window.innerHeight - videoHeight;
+
+      // 🔒 Ограничиваем перемещение
+      newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+      newTop = Math.max(0, Math.min(newTop, maxTop));
+
+      elem.style.left = `${newLeft}px`;
+      elem.style.top = `${newTop}px`;
     };
+
 
     const onMouseUp = () => {
       document.removeEventListener("mousemove", onMouseMove);
