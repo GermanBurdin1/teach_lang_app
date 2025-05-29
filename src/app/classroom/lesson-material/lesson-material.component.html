@@ -1,17 +1,24 @@
 <div class="container mt-4" [ngStyle]="{ 'backgroundImage': backgroundStyle, 'backgroundSize': 'cover' }">
 
-  <!-- 🧭 Верхняя панель класса -->
-  <div class="class-header d-flex justify-content-start align-items-center gap-3 ps-3 mb-3">
-    <div class="btn-group" role="group" aria-label="View switch">
-      <input type="radio" class="btn-check" name="viewToggle" id="boardView" autocomplete="off"
-        [checked]="showBoard && !showGabarit" (change)="selectView('board')">
-      <label class="btn btn-outline-primary" for="boardView">🧑‍🏫 Доска</label>
-
-      <button class="btn btn-outline-primary" [class.active]="showGabarit" (click)="toggleGabarit()">📂
-        Материалы</button>
-    </div>
-
+<!-- 🔧 Боковые вкладки -->
+<div class="side-tabs">
+  <div class="tab-button left-tab"
+       (click)="selectView('board')"
+       [class.active]="showBoard && !showGabarit"
+       title="Afficher le tableau">
+    🧑‍🏫
+    <div class="label">Tableau interactif</div>
   </div>
+
+  <div class="tab-button right-tab"
+       (click)="toggleGabarit()"
+       [class.active]="showGabarit"
+       title="Afficher les matériaux">
+    📂
+    <div class="label">matériaux</div>
+  </div>
+</div>
+
 
 
   <div class="row justify-content-center align-items-start video-wrapper position-relative">
