@@ -84,4 +84,5 @@ export class LessonTabsService {
   getCurrentLessonData(): any | null {
     return this.currentLessonDataSource.value;
   }
+
 }

@@ -14,13 +14,6 @@ import { GabaritPageComponent } from './lesson-material/gabarit-page/gabarit-pag
 
 const routes: Routes = [
   { path: ':id/lesson', component: LessonMaterialComponent },
-  // {
-  //   path: ':id/board',
-  //   loadComponent: () =>
-  //     import('./lesson-material/interactive-board/interactive-board.component').then(
-  //       (m) => m.InteractiveBoardComponent
-  //     )
-  // }
 ];
 
 @NgModule({

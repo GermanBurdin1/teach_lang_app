@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked, HostListener, Output, EventEmitter } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked, HostListener, Output, EventEmitter, Input } from '@angular/core';
 import { BackgroundService } from '../../services/background.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
@@ -6,6 +6,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { VideoCallService } from '../../services/video-call.service';
 import { LoaderComponent } from '../../shared/components/loader/loader.component';
 import { AuthService } from '../../services/auth.service';
+import { HomeworkService } from '../../services/homework.service';
 
 @Component({
   selector: 'app-lesson-material',
@@ -24,12 +25,14 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   newTeacherTask = '';
   hoveredQuestion: string | null = null;
   hoveredItem: string | null = null;
+  hoveredPosition: 'above' | 'below' = 'below';
 
   @Output() itemResolved = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
+  @Input() addHomeworkExternal?: (item: string) => void;
 
 
   constructor(private backgroundService: BackgroundService, public lessonTabsService: LessonTabsService, private router: Router, private route: ActivatedRoute, public videoService: VideoCallService,
-    private authService: AuthService) { }
+    private authService: AuthService, private homeworkService: HomeworkService) { }
 
   trackByIndex(index: number, item: string): number {
     return index;
@@ -254,15 +257,17 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     // Пример: сохраняем в lessonTabsService.postponedQuestions.push(question)
   }
 
-  goToMindmap(question: string): void {
-    console.log('🧠 Mindmap:', question);
-    // this.router.navigate(['/mindmap'], { queryParams: { q: question } });
+  goToMindmap(item: string) {
+    console.log('🔗 Redirection vers Mindmap avec:', item);
+    this.router.navigate(['/mindmap'], { queryParams: { highlight: item } });
   }
 
-  goToDictionary(question: string): void {
-    console.log('📘 Dictionnaire:', question);
-    // this.router.navigate(['/dictionary'], { queryParams: { q: question } });
+  goToDictionary(item: string) {
+    console.log('🔗 Redirection vers le dictionnaire avec:', item);
+    const basePath = this.userRole === 'teacher' ? '/teacher/wordsTeaching' : '/student/wordsTeaching';
+    this.router.navigate([basePath], { queryParams: { focus: item } });
   }
+
 
   postpone(item: string): void {
     console.log('⏭ Reporter pour le prochain cours:', item);
@@ -270,8 +275,32 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   addToHomework(item: string): void {
-  console.log('📚 Ajouter aux devoirs:', item);
-  // Здесь добавь логику, например:
+    console.log('📚 Ajouter aux devoirs:', item);
+    // Здесь добавь логику, например:
+  }
+
+  onHover(item: string, event: MouseEvent) {
+    this.hoveredItem = item;
+
+    const target = event.target as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+
+    this.hoveredPosition = spaceBelow < 200 ? 'above' : 'below'; // если мало места снизу
+  }
+
+newHomeworkEntry = '';
+
+submitHomework(): void {
+  if (!this.newHomeworkEntry.trim()) return;
+
+  this.currentLesson.homework ??= [];
+  this.currentLesson.homework.push(this.newHomeworkEntry.trim());
+
+  // ➕ Добавляем через сервис
+  this.homeworkService.addHomework(this.newHomeworkEntry.trim());
+
+  this.newHomeworkEntry = '';
 }
 
 

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HomeworkService } from '../../../services/homework.service';
 
 @Component({
   selector: 'app-lesson-management',
@@ -26,7 +27,8 @@ export class LessonManagementComponent implements OnInit {
         'Quelle est la structure du discours indirect ?'
       ],
       tasksDone: 1,
-      questionsDone: 0
+      questionsDone: 0,
+      homework: []
     },
     {
       id: 2,
@@ -36,7 +38,8 @@ export class LessonManagementComponent implements OnInit {
       tasks: ['Faire des phrases au subjonctif'],
       questions: ['Quelle est la différence entre “bien que” et “même si” ?'],
       tasksDone: 0,
-      questionsDone: 1
+      questionsDone: 1,
+      homework: []
     },
     {
       id: 3,
@@ -46,7 +49,8 @@ export class LessonManagementComponent implements OnInit {
       tasks: ['Préparer un exposé sur la pollution sonore'],
       questions: ['Faut-il accorder les participes passés avec avoir ?'],
       tasksDone: 0,
-      questionsDone: 0
+      questionsDone: 0,
+      homework: []
     },
     {
       id: 4,
@@ -56,7 +60,8 @@ export class LessonManagementComponent implements OnInit {
       tasks: ['Écrire une lettre de motivation'],
       questions: ['Quelles sont les erreurs fréquentes en conjugaison ?'],
       tasksDone: 1,
-      questionsDone: 1
+      questionsDone: 1,
+      homework: []
     },
     {
       id: 5,
@@ -66,7 +71,8 @@ export class LessonManagementComponent implements OnInit {
       tasks: ['Corriger les fautes dans un article'],
       questions: ['Quelle est la différence entre “depuis” et “pendant” ?'],
       tasksDone: 1,
-      questionsDone: 1
+      questionsDone: 1,
+      homework: []
     },
     {
       id: 6,
@@ -76,7 +82,8 @@ export class LessonManagementComponent implements OnInit {
       tasks: ['Expliquer une œuvre d’art'],
       questions: ['Quelle est la structure du discours indirect ?'],
       tasksDone: 0,
-      questionsDone: 0
+      questionsDone: 0,
+      homework: [],
     },
     {
       id: 7,
@@ -86,11 +93,15 @@ export class LessonManagementComponent implements OnInit {
       tasks: ['Préparer un débat sur l’intelligence artificielle'],
       questions: ['Peut-on utiliser “on” dans une rédaction formelle ?'],
       tasksDone: 0,
-      questionsDone: 0
+      questionsDone: 0,
+      homework: []
     }
   ];
   highlightedLessonId: number | null = null;
   resolvedItemsPerLesson: { [lessonId: number]: string[] } = {};
+  newHomeworkFromClass: string[] = [];
+
+  constructor(private homeworkService: HomeworkService) { }
 
 
   get filteredLessons() {
@@ -100,7 +111,9 @@ export class LessonManagementComponent implements OnInit {
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {this.homeworkService.getHomeworkStream().subscribe(items => {
+    this.newHomeworkFromClass = items;
+  }); }
 
   onItemDropped(event: { from: number, to: number, item: string, type: 'task' | 'question' }) {
     const fromLesson = this.allLessons.find(l => l.id === event.from);
@@ -157,6 +170,30 @@ export class LessonManagementComponent implements OnInit {
   get questionDropListIds(): string[] {
     return this.filteredLessons.map(l => `questions-${l.id}`);
   }
+
+addToHomework(item: any) {
+  const targetLesson = this.allLessons.find(l => l.status === 'future');
+  if (!targetLesson) return;
+
+  targetLesson.homework ??= [];
+
+  if ((targetLesson.homework as string[]).includes(item)) return;
+
+  (targetLesson.homework as string[]).push(item);
+  this.highlightedLessonId = targetLesson.id;
+
+  setTimeout(() => {
+    this.highlightedLessonId = null;
+  }, 3000);
+}
+
+get allHomework(): string[] {
+  return this.allLessons
+    .filter(l => l.status === 'future' && Array.isArray(l.homework))
+    .flatMap(l => l.homework)
+    .filter((value, index, self) => self.indexOf(value) === index); // убрать дубликаты
+}
+
 
 
 }

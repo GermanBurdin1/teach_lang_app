@@ -374,3 +374,11 @@ body {
 .question-actions .dropdown-item.text-warning:hover {
   background-color: #fff3cd;
 }
+
+.drop-below {
+  top: 100%;
+}
+
+.drop-above {
+  bottom: 100%;
+}

@@ -21,6 +21,16 @@
     </app-lesson-card>
 
 
+    <div class="homework-summary mt-4 p-3 border border-warning rounded bg-light">
+      <h4 class="text-warning">📚 Devoirs à faire</h4>
+      <ul class="mb-0 ps-3">
+        <li *ngFor="let hw of allHomework.concat(newHomeworkFromClass)" class="text-dark">
+          {{ hw }}
+        </li>
+      </ul>
+      <div *ngIf="!allHomework.length" class="text-muted">Aucun devoir assigné pour l’instant.</div>
+    </div>
+
 
 
   </div>
