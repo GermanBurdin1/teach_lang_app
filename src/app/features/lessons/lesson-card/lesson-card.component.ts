@@ -23,6 +23,9 @@ export class LessonCardComponent {
   newTask: string = '';
   newQuestion: string = '';
   newHomeworkFromClass: string[] = [];
+  collapsedTasks = false;
+collapsedQuestions = false;
+collapsedHomework = false;
 
   constructor(private router: Router, private homeworkService: HomeworkService) {}
 
@@ -116,5 +119,10 @@ removeItem(type: 'task' | 'question', index: number) {
   this.lesson[type === 'task' ? 'tasks' : 'questions'].splice(index, 1);
 }
 
+toggleCollapse(section: 'tasks' | 'questions' | 'homework'): void {
+  if (section === 'tasks') this.collapsedTasks = !this.collapsedTasks;
+  else if (section === 'questions') this.collapsedQuestions = !this.collapsedQuestions;
+  else if (section === 'homework') this.collapsedHomework = !this.collapsedHomework;
+}
 
 }

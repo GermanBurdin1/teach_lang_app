@@ -15,7 +15,7 @@ export class TeacherLessonCardComponent {
   @Output() openGabarit = new EventEmitter<void>();
   @Input() resolvedItems: string[] = [];
   newTask: string = '';
-
+collapsedTasks = false;
 
   constructor(private router: Router) { }
 
@@ -77,4 +77,8 @@ export class TeacherLessonCardComponent {
       });
     }
   }
+
+  toggleTasksCollapsed(): void {
+  this.collapsedTasks = !this.collapsedTasks;
+}
 }

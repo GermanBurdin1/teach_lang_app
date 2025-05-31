@@ -22,3 +22,16 @@
 .drop-zone {
   margin-top: 10px;
 }
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-icon {
+  font-size: 1.2em;
+  margin-left: 0.5em;
+}
