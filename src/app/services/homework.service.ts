@@ -3,7 +3,10 @@ import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class HomeworkService {
-  private homework$ = new BehaviorSubject<string[]>([]);
+  private homework$ = new BehaviorSubject<string[]>([
+    '📚 Lire un article sur l’IA',
+    '📚 Résumer une vidéo TED'
+  ]);
 
   getHomeworkStream() {
     return this.homework$.asObservable();

@@ -46,9 +46,11 @@
       <div class="add-item" *ngIf="!isPast()">
         <mat-form-field appearance="fill" class="w-100">
           <mat-label>Ajouter une tâche</mat-label>
-          <input matInput placeholder="ex: Analyser une chanson de Charles Aznavour" [(ngModel)]="newTask" (keydown.enter)="addItem('task', newTask); newTask=''">
+          <input matInput placeholder="ex: Analyser une chanson de Charles Aznavour" [(ngModel)]="newTask"
+            (keydown.enter)="addItem('task', newTask); newTask=''">
         </mat-form-field>
-        <button mat-icon-button color="primary" (click)="addItem('task', newTask); newTask=''" [disabled]="!newTask || !newTask.trim()">
+        <button mat-icon-button color="primary" (click)="addItem('task', newTask); newTask=''"
+          [disabled]="!newTask || !newTask.trim()">
           <mat-icon>add</mat-icon>
         </button>
       </div>
@@ -85,6 +87,15 @@
       </div>
 
     </div>
+
+    <!-- 📚 Devoirs -->
+    <div class="drop-zone" *ngIf="newHomeworkFromClass.length > 0">
+      <h4>📚 Devoirs</h4>
+      <div *ngFor="let hw of newHomeworkFromClass; let i = index" class="drag-item text-muted">
+        {{ i + 1 }}. 📚 {{ hw }}
+      </div>
+    </div>
+
 
   </div>
 

@@ -102,7 +102,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       ],
       texts: ['📄 Le subjonctif expliqué', '📄 Notes sur Victor Hugo'],
       audios: ['🎧 Podcast grammaire', '🎧 Enregistrement oral'],
-      videos: ['🎬 Analyse de Molière', '🎬 Documentaire']
+      videos: ['🎬 Analyse de Molière', '🎬 Documentaire'],
+      homework: [
+        'Préparer un exposé sur les temps du passé',
+        'Lire le chapitre 3 du manuel',
+        'Écouter le podcast de grammaire avancée'
+      ]
     });
 
 
@@ -289,19 +294,19 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.hoveredPosition = spaceBelow < 200 ? 'above' : 'below'; // если мало места снизу
   }
 
-newHomeworkEntry = '';
+  newHomeworkEntry = '';
 
-submitHomework(): void {
-  if (!this.newHomeworkEntry.trim()) return;
+  submitHomework(): void {
+    if (!this.newHomeworkEntry.trim()) return;
 
-  this.currentLesson.homework ??= [];
-  this.currentLesson.homework.push(this.newHomeworkEntry.trim());
+    this.currentLesson.homework ??= [];
+    this.currentLesson.homework.push(this.newHomeworkEntry.trim());
 
-  // ➕ Добавляем через сервис
-  this.homeworkService.addHomework(this.newHomeworkEntry.trim());
+    // ➕ Добавляем через сервис
+    this.homeworkService.addHomework(this.newHomeworkEntry.trim());
 
-  this.newHomeworkEntry = '';
-}
+    this.newHomeworkEntry = '';
+  }
 
 
 }

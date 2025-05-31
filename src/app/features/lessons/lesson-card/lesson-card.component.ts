@@ -1,6 +1,7 @@
 import { CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
+import { HomeworkService } from '../../../services/homework.service';
 
 @Component({
   selector: 'app-lesson-card',
@@ -20,10 +21,10 @@ export class LessonCardComponent {
   unresolved: string[] = [];
   resolved: string[] = [];
   newTask: string = '';
-newQuestion: string = '';
+  newQuestion: string = '';
+  newHomeworkFromClass: string[] = [];
 
-
-  constructor(private router: Router) {}
+  constructor(private router: Router, private homeworkService: HomeworkService) {}
 
   enterVirtualClass(): void {
     const lessonId = this.lesson?.id;
@@ -39,6 +40,9 @@ newQuestion: string = '';
     // Допустим, lesson.materials делится на все задачи/вопросы
     const items = this.lesson?.materials || ['Grammaire: Subjonctif', 'Phonétique: Liaison'];
     this.unresolved = [...items];
+    this.homeworkService.getHomeworkStream().subscribe(items => {
+      this.newHomeworkFromClass = items;
+    });
   }
 
   markAsResolved(item: string): void {
