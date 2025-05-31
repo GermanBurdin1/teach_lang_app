@@ -29,6 +29,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { TeacherSettingsModule } from './features/settings/teacher-settings.module';
 import { LOCALE_ID } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+import { getCosmicPaginatorIntl } from './shared/providers/custom-paginator-intl';
 
 @NgModule({
   declarations: [
@@ -62,7 +64,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatChipsModule,
     DragDropModule
 ],
-  providers: [provideHttpClient(),{ provide: LOCALE_ID, useValue: 'fr' }],
+  providers: [provideHttpClient(),{ provide: LOCALE_ID, useValue: 'fr' }, { provide: MatPaginatorIntl, useValue: getCosmicPaginatorIntl() }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

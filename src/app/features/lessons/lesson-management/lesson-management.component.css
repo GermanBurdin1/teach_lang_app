@@ -1,3 +1,14 @@
+:root {
+  --color-primary: #3f51b5; /* Indigo */
+  --color-primary-dark: #303f9f;
+  --color-accent: #ff4081; /* Розовый акцент */
+  --color-bg: #0d1117; /* Темно-космический фон */
+  --color-surface: #1f2937;
+  --color-text: #e4e4e4;
+  --color-muted: #9ca3af;
+}
+
+
 .lesson-management {
   padding: 1rem;
 }
@@ -131,4 +142,41 @@
 ::ng-deep .mat-button-toggle-checked {
   background-color: var(--color-indigo, #3f51b5) !important;
   color: white !important;
+}
+
+.paginator-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  padding: 8px 16px;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+}
+
+::ng-deep .mat-paginator {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-top: 1px solid var(--color-primary-dark);
+}
+
+::ng-deep .mat-paginator-range-label,
+::ng-deep .mat-paginator-page-size-label,
+::ng-deep .mat-paginator-page-size-select {
+  color: var(--color-text);
+}
+
+::ng-deep .mat-select-value {
+  color: var(--color-text);
+}
+
+::ng-deep .mat-paginator-icon {
+  fill: var(--color-text);
+}
+
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+  background-color: var(--color-surface);
 }

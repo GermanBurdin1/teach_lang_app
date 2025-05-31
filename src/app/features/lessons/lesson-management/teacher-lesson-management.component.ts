@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HomeworkService } from '../../../services/homework.service';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-teacher-lesson-management',
@@ -8,7 +9,7 @@ import { HomeworkService } from '../../../services/homework.service';
 })
 export class TeacherLessonManagementComponent implements OnInit {
   activeLesson: any = null;
-  filter: 'future' | 'past' | 'requested' = 'future';
+  filter: string = 'future';
   selectedStudent: string | null = null;
   searchTerm = '';
   startDate?: string;
@@ -18,6 +19,8 @@ export class TeacherLessonManagementComponent implements OnInit {
   newHomeworkFromClass: string[] = [];
   activePanel: 'cours' | 'homework' = 'cours';
   highlightedLessonId: number | null = null;
+  pageSize = 4;
+  currentPage = 1;
 
   lessons = [
     {
@@ -90,7 +93,7 @@ export class TeacherLessonManagementComponent implements OnInit {
 
   get fullFilteredLessons() {
     const result = this.lessons
-      .filter(l => l.status === this.filter)
+      .filter(l => this.filter === 'all' || l.status === this.filter)
       .filter(l => !this.selectedStudent || l.student === this.selectedStudent)
       .filter(l => {
         const time = l.date.getTime();
@@ -158,6 +161,11 @@ addToHomework(item: any) {
     setTimeout(() => {
       this.highlightedLessonId = null;
     }, 3000);
+  }
+
+  onPageChange(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.currentPage = event.pageIndex + 1;
   }
 
 }

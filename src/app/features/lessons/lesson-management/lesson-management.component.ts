@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HomeworkService } from '../../../services/homework.service';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-lesson-management',
@@ -102,70 +103,93 @@ export class LessonManagementComponent implements OnInit {
   newHomeworkFromClass: string[] = [];
   activePanel: 'cours' | 'homework' = 'cours';
   hideTabs = true;
-
+  searchTerm = '';
+  startDate?: string;
+  endDate?: string;
+  pageSize = 4;
+  currentPage = 1;
 
   constructor(private homeworkService: HomeworkService) { }
 
 
-  searchTerm = '';
-  startDate?: string;
-  endDate?: string;
-  visibleCount = 4;
-
-  get fullFilteredLessons() {
-  const result = this.allLessons
-    .filter(l => l.status === this.filter)
-    .filter(l => !this.selectedTeacher || l.teacher === this.selectedTeacher)
-    .filter(l => {
-      const time = l.date.getTime();
-      const afterStart = !this.startDate || time >= new Date(this.startDate).getTime();
-      const beforeEnd = !this.endDate || time <= new Date(this.endDate).getTime();
-      return afterStart && beforeEnd;
-    })
-    .filter(l => {
-      if (!this.searchTerm.trim()) return true;
-      const keyword = this.searchTerm.toLowerCase();
-      return (
-        l.tasks.some(t => t.toLowerCase().includes(keyword)) ||
-        l.questions.some(q => q.toLowerCase().includes(keyword))
-      );
-    })
-    .sort((a, b) => a.date.getTime() - b.date.getTime());
-
-  console.log('[fullFilteredLessons]', {
-    filter: this.filter,
-    selectedTeacher: this.selectedTeacher,
-    startDate: this.startDate,
-    endDate: this.endDate,
-    searchTerm: this.searchTerm,
-    result
-  });
-
-  return result;
-}
-
-
-  get filteredLessons() {
-    return this.fullFilteredLessons.slice(0, this.visibleCount);
-  }
-
-  loadMore() {
-    this.visibleCount += 4;
-  }
 
 
   ngOnInit(): void {
-  const now = Date.now();
-  this.allLessons.forEach(lesson => {
-    lesson.status = lesson.date.getTime() >= now ? 'future' : 'past';
-  });
+    const now = Date.now();
+    this.allLessons.forEach(lesson => {
+      lesson.status = lesson.date.getTime() >= now ? 'future' : 'past';
+    });
 
-  console.log('[ngOnInit] allLessons after status calc:', this.allLessons);
+    console.log('[ngOnInit] allLessons after status calc:', this.allLessons);
 
-  this.homeworkService.getHomeworkStream().subscribe(items => {
-    this.newHomeworkFromClass = items;
-  });
-}
+    this.homeworkService.getHomeworkStream().subscribe(items => {
+      this.newHomeworkFromClass = items;
+    });
+  }
+
+  get fullFilteredLessons() {
+    const result = this.allLessons
+      .filter(l => this.filter === 'all' || l.status === this.filter)
+      .filter(l => !this.selectedTeacher || l.teacher === this.selectedTeacher)
+      .filter(l => {
+        const time = l.date.getTime();
+        const afterStart = !this.startDate || time >= new Date(this.startDate).getTime();
+        const beforeEnd = !this.endDate || time <= new Date(this.endDate).getTime();
+        return afterStart && beforeEnd;
+      })
+      .filter(l => {
+        if (!this.searchTerm.trim()) return true;
+        const keyword = this.searchTerm.toLowerCase();
+        return (
+          l.tasks.some(t => t.toLowerCase().includes(keyword)) ||
+          l.questions.some(q => q.toLowerCase().includes(keyword))
+        );
+      })
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    console.log('[fullFilteredLessons]', {
+      filter: this.filter,
+      selectedTeacher: this.selectedTeacher,
+      startDate: this.startDate,
+      endDate: this.endDate,
+      searchTerm: this.searchTerm,
+      result
+    });
+
+    return result;
+  }
+
+
+  get filteredLessons() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.fullFilteredLessons.slice(start, start + this.pageSize);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.fullFilteredLessons.length / this.pageSize);
+  }
+
+  get taskDropListIds(): string[] {
+    return this.filteredLessons.map(l => `tasks-${l.id}`);
+  }
+
+  get questionDropListIds(): string[] {
+    return this.filteredLessons.map(l => `questions-${l.id}`);
+  }
+
+
+  get allHomework(): string[] {
+    return this.allLessons
+      .filter(l => l.status === 'future' && Array.isArray(l.homework))
+      .flatMap(l => l.homework)
+      .filter((value, index, self) => self.indexOf(value) === index); // убрать дубликаты
+  }
+
+
+  onPageChange(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.currentPage = event.pageIndex + 1;
+  }
 
 
   onItemDropped(event: { from: number, to: number, item: string, type: 'task' | 'question' }) {
@@ -216,13 +240,7 @@ export class LessonManagementComponent implements OnInit {
   }
 
 
-  get taskDropListIds(): string[] {
-    return this.filteredLessons.map(l => `tasks-${l.id}`);
-  }
 
-  get questionDropListIds(): string[] {
-    return this.filteredLessons.map(l => `questions-${l.id}`);
-  }
 
   addToHomework(item: any) {
     const targetLesson = this.allLessons.find(l => l.status === 'future');
@@ -240,21 +258,15 @@ export class LessonManagementComponent implements OnInit {
     }, 3000);
   }
 
-  get allHomework(): string[] {
-    return this.allLessons
-      .filter(l => l.status === 'future' && Array.isArray(l.homework))
-      .flatMap(l => l.homework)
-      .filter((value, index, self) => self.indexOf(value) === index); // убрать дубликаты
-  }
-
 
   recalculateStatus() {
-  const now = Date.now();
-  this.allLessons.forEach(lesson => {
-    lesson.status = lesson.date.getTime() >= now ? 'future' : 'past';
-  });
+    const now = Date.now();
+    this.allLessons.forEach(lesson => {
+      lesson.status = lesson.date.getTime() >= now ? 'future' : 'past';
+    });
+    this.currentPage = 1;
+  }
 
-}
 
 
 }

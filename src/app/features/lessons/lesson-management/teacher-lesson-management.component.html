@@ -8,6 +8,7 @@
       <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
         <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
         <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
+        <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
       </mat-button-toggle-group>
 
       <mat-form-field appearance="fill" class="filter-item">
@@ -40,6 +41,11 @@
         [taskDropIds]="taskDropIds" [resolvedItems]="resolvedItemsPerLesson[lesson.id] || []"
         (itemDropped)="onItemDropped($event)" (openGabarit)="openGabarit(lesson)">
       </app-teacher-lesson-card>
+      <div class="paginator-wrapper" *ngIf="activePanel === 'cours'">
+        <mat-paginator [length]="fullFilteredLessons.length" [pageSize]="pageSize" [pageSizeOptions]="[4, 8, 12]"
+          (page)="onPageChange($event)" [showFirstLastButtons]="true" aria-label="Pagination des cours">
+        </mat-paginator>
+      </div>
 
       <div *ngIf="filteredLessons.length < fullFilteredLessons.length" class="text-center mt-3">
         <button mat-stroked-button color="primary" (click)="loadMore()">Afficher plus</button>
