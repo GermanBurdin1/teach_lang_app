@@ -32,3 +32,81 @@
   padding: 0.5rem;
   border-radius: 6px;
 }
+
+.side-tabs-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 1000;
+}
+
+.side-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 1rem;
+  background-color: #6c63ff;
+  color: white;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  transition: width 0.3s ease, background-color 0.3s;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 48px; /* default = icon only */
+}
+
+.tab-button:hover {
+  width: 140px;
+  background-color: #5548d9;
+}
+
+.tab-button .label {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tab-button:hover .label {
+  opacity: 1;
+}
+
+.tab-button.active {
+  background-color: #4a40c3;
+}
+
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: center;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.filter-item {
+  min-width: 200px;
+  flex: 1;
+}
+
+.keyword {
+  flex: 2;
+}
+
+.mat-button-toggle-group {
+  background: var(--color-surface, #f1f1f1);
+  border-radius: 6px;
+  margin-right: 1rem;
+}
+
+::ng-deep .mat-button-toggle-checked {
+  background-color: var(--color-indigo, #3f51b5) !important;
+  color: white !important;
+}

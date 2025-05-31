@@ -1,90 +1,84 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { HomeworkService } from '../../../services/homework.service';
 
 @Component({
   selector: 'app-teacher-lesson-management',
   templateUrl: './teacher-lesson-management.component.html',
   styleUrls: ['./teacher-lesson-management.component.css']
 })
-export class TeacherLessonManagementComponent {
+export class TeacherLessonManagementComponent implements OnInit {
   activeLesson: any = null;
   filter: 'future' | 'past' | 'requested' = 'future';
+  selectedStudent: string | null = null;
+  searchTerm = '';
+  startDate?: string;
+  endDate?: string;
+  visibleCount = 4;
+  hideTabs = true;
+  newHomeworkFromClass: string[] = [];
+  activePanel: 'cours' | 'homework' = 'cours';
+  highlightedLessonId: number | null = null;
 
   lessons = [
     {
       id: 1,
-      date: new Date('2025-06-01'),
+      date: new Date(Date.now() + 1000 * 60 * 2), // ближайший урок для входа
       status: 'future',
       student: 'Alice',
-      tasks: [
-        'Corriger une rédaction',
-        'Faire un résumé',
-        'Analyser un poème'
-      ],
-      texts: [
-        'Introduction à Baudelaire',
-        'Fiche explicative du subjonctif',
-        'Texte de Victor Hugo'
-      ],
-      audios: [
-        'Lecture d’un extrait',
-        'Podcast: La grammaire au quotidien'
-      ],
-      videos: [
-        'Lien vers documentaire sur Molière',
-        'Analyse de scène théâtrale'
-      ]
+      tasks: ['Corriger une rédaction', 'Faire un résumé', 'Analyser un poème'],
+      texts: ['Intro Baudelaire'],
+      audios: ['Lecture extrait'],
+      videos: ['Docu Molière'],
+      homework: []
     },
     {
       id: 2,
       date: new Date('2025-06-05'),
       status: 'future',
       student: 'Max',
-      tasks: [
-        'Analyser une chanson',
-        'Corriger les erreurs d’un élève'
-      ],
-      texts: [
-        'Texte chanson française',
-        'Analyse stylistique'
-      ],
-      audios: [
-        'Lien vers podcast chanson',
-        'Enregistrement oral'
-      ],
-      videos: [
-        'Vidéo explicative subjonctif',
-        'Entretien avec un linguiste'
-      ]
+      tasks: ['Analyser une chanson'],
+      texts: ['Texte chanson'],
+      audios: [],
+      videos: [],
+      homework: []
     },
     {
       id: 3,
-      date: new Date('2025-06-10'),
-      status: 'future',
-      student: "Robert",
-      tasks: [
-        'Préparer un exposé oral',
-        'Corriger un dialogue'
-      ],
-      texts: [
-        'Dialogue exemple',
-        'Note explicative'
-      ],
+      date: new Date('2025-04-15'),
+      status: 'past',
+      student: 'Alice',
+      tasks: ['Ancien devoir'],
+      texts: [],
       audios: [],
-      videos: [
-        'Présentation orale exemple'
-      ]
+      videos: [],
+      homework: []
     }
   ];
 
-selectedStudent: string | null = null;
-resolvedItemsPerLesson: { [lessonId: number]: string[] } = {};
+  resolvedItemsPerLesson: { [lessonId: number]: string[] } = {};
+  uniqueStudents: string[] = [];
 
+  constructor(private homeworkService: HomeworkService) {}
 
-ngOnInit() {
-    this.updateUniqueStudents();
+  ngOnInit() {
+    this.recalculateStatus();
+  this.updateUniqueStudents();
+
+  this.homeworkService.getHomeworkStream().subscribe(items => {
+    this.newHomeworkFromClass = items;
+  });
   }
 
-  uniqueStudents: string[] = [];
+  recalculateStatus() {
+    const now = Date.now();
+    this.lessons.forEach(l => {
+      l.status = l.date.getTime() >= now ? 'future' : 'past';
+    });
+  }
+
+  updateUniqueStudents() {
+    this.uniqueStudents = [...new Set(this.lessons.map(l => l.student))];
+  }
 
   openGabarit(lesson: any) {
     this.activeLesson = lesson;
@@ -94,34 +88,76 @@ ngOnInit() {
     this.activeLesson = null;
   }
 
-  onItemDropped(event: { from: number, to: number, item: string }) {
-    const fromLesson = this.lessons.find(l => l.id === event.from);
-    const toLesson = this.lessons.find(l => l.id === event.to);
-    if (!fromLesson || !toLesson || fromLesson === toLesson) return;
+  get fullFilteredLessons() {
+    const result = this.lessons
+      .filter(l => l.status === this.filter)
+      .filter(l => !this.selectedStudent || l.student === this.selectedStudent)
+      .filter(l => {
+        const time = l.date.getTime();
+        const afterStart = !this.startDate || time >= new Date(this.startDate).getTime();
+        const beforeEnd = !this.endDate || time <= new Date(this.endDate).getTime();
+        return afterStart && beforeEnd;
+      })
+      .filter(l => {
+        if (!this.searchTerm.trim()) return true;
+        const keyword = this.searchTerm.toLowerCase();
+        return (
+          l.tasks.some(t => t.toLowerCase().includes(keyword)) ||
+          l.texts.some(t => t.toLowerCase().includes(keyword)) ||
+          l.audios.some(t => t.toLowerCase().includes(keyword)) ||
+          l.videos.some(t => t.toLowerCase().includes(keyword))
+        );
+      })
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-    const index = fromLesson.tasks.indexOf(event.item);
-    if (index !== -1) {
-      fromLesson.tasks.splice(index, 1);
-      toLesson.tasks.push(event.item);
-    }
+    return result;
+  }
+
+  get filteredLessons() {
+    return this.fullFilteredLessons.slice(0, this.visibleCount);
+  }
+
+  loadMore() {
+    this.visibleCount += 4;
   }
 
   get taskDropIds(): string[] {
-    return this.lessons.map(l => `tasks-${l.id}`);
+    return this.filteredLessons.map(l => `tasks-${l.id}`);
   }
 
+  onItemDropped(event: { from: number; to: number; item: string }) {
+    const from = this.lessons.find(l => l.id === event.from);
+    const to = this.lessons.find(l => l.id === event.to);
+    if (!from || !to || from === to) return;
 
+    const i = from.tasks.indexOf(event.item);
+    if (i !== -1) {
+      from.tasks.splice(i, 1);
+      to.tasks.push(event.item);
+    }
+  }
 
-  get filteredLessons() {
+  get allHomework(): string[] {
   return this.lessons
-    .filter(lesson => lesson.status === this.filter)
-    .filter(lesson => !this.selectedStudent || lesson.student === this.selectedStudent)
-    .sort((a, b) => a.date.getTime() - b.date.getTime());
+    .filter(l => l.status === 'future' && Array.isArray(l.homework))
+    .flatMap(l => l.homework)
+    .filter((v, i, arr) => arr.indexOf(v) === i); // без дубликатов
 }
 
- updateUniqueStudents() {
-    const students = this.lessons.map(l => l.student);
-    this.uniqueStudents = students.filter((v, i, a) => a.indexOf(v) === i);
+addToHomework(item: any) {
+    const targetLesson = this.lessons.find(l => l.status === 'future');
+    if (!targetLesson) return;
+
+    targetLesson.homework ??= [];
+
+    if ((targetLesson.homework as string[]).includes(item)) return;
+
+    (targetLesson.homework as string[]).push(item);
+    this.highlightedLessonId = targetLesson.id;
+
+    setTimeout(() => {
+      this.highlightedLessonId = null;
+    }, 3000);
   }
 
 }

@@ -1,30 +1,84 @@
-<div class="lesson-management">
-  <mat-form-field appearance="fill" class="student-select">
-    <mat-label>👩‍🎓 Étudiant</mat-label>
-    <mat-select [(ngModel)]="selectedStudent">
-      <mat-option value="">Tous les étudiants</mat-option>
-      <mat-option *ngFor="let s of uniqueStudents" [value]="s">
-        {{ s }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+<div class="lesson-management" *ngIf="!activeLesson">
 
+  <!-- === FILTRES + LEÇONS === -->
+  <div *ngIf="activePanel === 'cours'">
 
-  <!-- 🔍 Filtres -->
-  <div class="filters">
-    <button (click)="filter = 'future'" [class.active]="filter === 'future'">📅 À venir</button>
-    <button (click)="filter = 'past'" [class.active]="filter === 'past'">🕓 Passés</button>
-    <button (click)="filter = 'requested'" [class.active]="filter === 'requested'">📝 Demandés</button>
+    <!-- 🔍 Filtres -->
+    <div class="filter-container mat-elevation-z1">
+      <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
+        <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
+        <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>👩‍🎓 Étudiant</mat-label>
+        <mat-select [(ngModel)]="selectedStudent">
+          <mat-option value="">Tous les étudiants</mat-option>
+          <mat-option *ngFor="let s of uniqueStudents" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>Date de début</mat-label>
+        <input matInput type="date" [(ngModel)]="startDate">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>Date de fin</mat-label>
+        <input matInput type="date" [(ngModel)]="endDate">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="filter-item keyword">
+        <mat-label>Mot-clé</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="🔍 tâches, textes, etc.">
+      </mat-form-field>
+    </div>
+
+    <!-- 📦 Liste des cours -->
+    <div class="lesson-list">
+      <app-teacher-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" [lessonId]="lesson.id"
+        [taskDropIds]="taskDropIds" [resolvedItems]="resolvedItemsPerLesson[lesson.id] || []"
+        (itemDropped)="onItemDropped($event)" (openGabarit)="openGabarit(lesson)">
+      </app-teacher-lesson-card>
+
+      <div *ngIf="filteredLessons.length < fullFilteredLessons.length" class="text-center mt-3">
+        <button mat-stroked-button color="primary" (click)="loadMore()">Afficher plus</button>
+      </div>
+    </div>
+
   </div>
 
-  <div class="lesson-list">
-    <app-teacher-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" [lessonId]="lesson.id"
-      [taskDropIds]="taskDropIds" [resolvedItems]="resolvedItemsPerLesson[lesson.id] || []"
-      (itemDropped)="onItemDropped($event)" (openGabarit)="openGabarit(lesson)">
-    </app-teacher-lesson-card>
 
+  <div *ngIf="activePanel === 'homework'" class="lesson-list">
+    <div class="homework-summary mt-4 p-3 border border-warning rounded bg-light">
+      <h4 class="text-warning">📚 Devoirs à faire</h4>
+      <ul class="mb-0 ps-3">
+        <li *ngFor="let hw of allHomework.concat(newHomeworkFromClass)" class="text-dark">
+          {{ hw }}
+        </li>
+      </ul>
+      <div *ngIf="!allHomework.length && !newHomeworkFromClass.length" class="text-muted">
+        Aucun devoir assigné pour l’instant.
+      </div>
+    </div>
   </div>
 
-  <app-gabarit *ngIf="activeLesson" [lesson]="activeLesson" [visible]="true" [close]="closeGabarit.bind(this)">
-  </app-gabarit>
+  <!-- ⬅️ Сайдбар -->
+  <div class="side-tabs-wrapper" (mouseenter)="hideTabs = false" (mouseleave)="hideTabs = true">
+    <div class="side-tabs">
+      <div class="tab-button" (click)="activePanel = 'cours'" [class.active]="activePanel === 'cours'"
+        [class.expanded]="!hideTabs">
+        📋 <span class="label" *ngIf="!hideTabs">Cours</span>
+      </div>
+      <div class="tab-button" (click)="activePanel = 'homework'" [class.active]="activePanel === 'homework'"
+        [class.expanded]="!hideTabs">
+        📚 <span class="label" *ngIf="!hideTabs">Devoirs</span>
+      </div>
+
+    </div>
+  </div>
 </div>
+
+<!-- Габарит -->
+<app-gabarit *ngIf="activeLesson" [lesson]="activeLesson" [visible]="true" [close]="closeGabarit.bind(this)">
+</app-gabarit>
