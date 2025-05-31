@@ -14,9 +14,10 @@ export class TeacherLessonCardComponent {
   @Output() itemDropped = new EventEmitter<{ from: number, to: number, item: string }>();
   @Output() openGabarit = new EventEmitter<void>();
   @Input() resolvedItems: string[] = [];
+  newTask: string = '';
 
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   dropItem(event: CdkDragDrop<string[]>) {
     const fromId = this.extractLessonIdFromDropListId(event.previousContainer.id);
@@ -44,6 +45,18 @@ export class TeacherLessonCardComponent {
       );
     }
   }
+
+  addTask(): void {
+    const task = this.newTask?.trim();
+    if (!task) return;
+    this.lesson.tasks.push(task);
+    this.newTask = '';
+  }
+
+  removeTask(index: number): void {
+    this.lesson.tasks.splice(index, 1);
+  }
+
 
   private extractLessonIdFromDropListId(dropListId: string): number {
     return +dropListId.split('-')[1];

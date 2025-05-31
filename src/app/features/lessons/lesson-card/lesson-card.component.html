@@ -26,29 +26,66 @@
 
   <!-- 🧲 Zones de glisser-déposer -->
   <div class="lesson-dnd">
+    <!-- 📌 Tâches -->
     <div class="drop-zone">
       <h4>📌 Tâches</h4>
+
       <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks"
         [cdkDropListConnectedTo]="taskDropIds" (cdkDropListDropped)="dropItem($event, 'task')">
+
         <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item"
           (click)="onPastItemClick(task, 'task')" [class.clickable]="isPast()"
           [class.text-muted]="resolvedItems.includes(task)">
           {{ i + 1 }}. 🛠 {{ task }}
+          <button *ngIf="!isPast()" mat-icon-button color="warn" (click)="removeItem('task', i)">
+            <mat-icon>delete</mat-icon>
+          </button>
         </div>
       </div>
+
+      <div class="add-item" *ngIf="!isPast()">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Ajouter une tâche</mat-label>
+          <input matInput placeholder="ex: Analyser une chanson de Charles Aznavour" [(ngModel)]="newTask" (keydown.enter)="addItem('task', newTask); newTask=''">
+        </mat-form-field>
+        <button mat-icon-button color="primary" (click)="addItem('task', newTask); newTask=''" [disabled]="!newTask || !newTask.trim()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
     </div>
 
+    <!-- ❓ Questions -->
     <div class="drop-zone">
       <h4>❓ Questions</h4>
+
       <div cdkDropList [id]="'questions-' + lesson.id" [cdkDropListData]="lesson.questions"
         [cdkDropListConnectedTo]="questionDropIds" (cdkDropListDropped)="dropItem($event, 'question')">
+
         <div *ngFor="let q of lesson.questions; let i = index" cdkDrag class="drag-item"
           (click)="onPastItemClick(q, 'question')" [class.clickable]="isPast()"
           [class.text-muted]="resolvedItems.includes(q)">
           {{ i + 1 }}. 💬 {{ q }}
+          <button *ngIf="!isPast()" mat-icon-button color="warn" (click)="removeItem('question', i)">
+            <mat-icon>delete</mat-icon>
+          </button>
         </div>
       </div>
+
+      <div class="add-item" *ngIf="!isPast()">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Ajouter une question</mat-label>
+          <input matInput placeholder="ex: Quelle est la structure du discours indirect ?" [(ngModel)]="newQuestion"
+            (keydown.enter)="addItem('question', newQuestion); newQuestion=''">
+        </mat-form-field>
+        <button mat-icon-button color="primary" (click)="addItem('question', newQuestion); newQuestion=''"
+          [disabled]="!newQuestion || !newQuestion.trim()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
     </div>
+
   </div>
 
 </mat-card>

@@ -19,6 +19,9 @@ export class LessonCardComponent {
 
   unresolved: string[] = [];
   resolved: string[] = [];
+  newTask: string = '';
+newQuestion: string = '';
+
 
   constructor(private router: Router) {}
 
@@ -99,6 +102,15 @@ export class LessonCardComponent {
     const parts = dropListId.split('-');
     return +parts[1];
   }
+
+  addItem(type: 'task' | 'question', value: string) {
+  if (!value.trim()) return;
+  this.lesson[type === 'task' ? 'tasks' : 'questions'].push(value.trim());
+}
+
+removeItem(type: 'task' | 'question', index: number) {
+  this.lesson[type === 'task' ? 'tasks' : 'questions'].splice(index, 1);
+}
 
 
 }

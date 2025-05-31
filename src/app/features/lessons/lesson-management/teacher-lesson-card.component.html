@@ -14,14 +14,30 @@
   </div>
 
   <div class="drop-zone">
-    <h4>📌 Tâches</h4>
-    <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks" [cdkDropListConnectedTo]="taskDropIds"
-      (cdkDropListDropped)="dropItem($event)">
-      <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item"
-        [class.text-muted]="resolvedItems.includes(task)">
-        {{ i + 1 }}. {{ task }}
-      </div>
+  <h4>📌 Tâches</h4>
+
+  <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks" [cdkDropListConnectedTo]="taskDropIds"
+    (cdkDropListDropped)="dropItem($event)">
+    <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item"
+      [class.text-muted]="resolvedItems.includes(task)">
+      {{ i + 1 }}. 🛠 {{ task }}
+      <button mat-icon-button color="warn" (click)="removeTask(i)">
+        <mat-icon>delete</mat-icon>
+      </button>
     </div>
   </div>
+
+  <div class="add-item" *ngIf="lesson.status !== 'past'">
+    <mat-form-field appearance="fill" class="w-100">
+      <mat-label>Ajouter une tâche</mat-label>
+      <input matInput placeholder="ex: Corriger l'expression écrite de l'élève"
+             [(ngModel)]="newTask" (keydown.enter)="addTask()">
+    </mat-form-field>
+    <button mat-icon-button color="primary" (click)="addTask()" [disabled]="!newTask || !newTask.trim()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</div>
+
 
 </div>

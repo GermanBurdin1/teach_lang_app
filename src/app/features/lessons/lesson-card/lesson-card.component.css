@@ -102,3 +102,29 @@
   font-size: 1rem;
   margin-left: 0.5rem;
 }
+
+.drag-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border: 1px dashed var(--color-muted);
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  transition: background-color 0.2s;
+}
+
+.drag-item:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.w-100 {
+  width: 100%;
+}
+
+mat-form-field {
+  margin-top: 8px;
+}
+
