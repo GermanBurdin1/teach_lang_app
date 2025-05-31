@@ -11,6 +11,10 @@ import { GabaritComponent } from './lesson-management/gabarit/gabarit-component'
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatInputModule } from '@angular/material/input';
+
 
 
 @NgModule({
@@ -25,7 +29,10 @@ import { MatButtonModule } from '@angular/material/button';
     LessonsRoutingModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCardModule,
+    MatButtonToggleModule,
+    MatInputModule
   ]
 })
 export class LessonsModule { }

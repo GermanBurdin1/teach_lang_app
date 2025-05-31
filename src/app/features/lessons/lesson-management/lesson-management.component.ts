@@ -7,7 +7,7 @@ import { HomeworkService } from '../../../services/homework.service';
   styleUrls: ['./lesson-management.component.css']
 })
 export class LessonManagementComponent implements OnInit {
-  filter: 'future' | 'past' = 'future';
+  filter: string = 'future';
   selectedTeacher: string | null = null;
   allLessons = [
     {
@@ -100,20 +100,73 @@ export class LessonManagementComponent implements OnInit {
   highlightedLessonId: number | null = null;
   resolvedItemsPerLesson: { [lessonId: number]: string[] } = {};
   newHomeworkFromClass: string[] = [];
+  activePanel: 'cours' | 'homework' = 'cours';
+  hideTabs = true;
+
 
   constructor(private homeworkService: HomeworkService) { }
 
 
+  searchTerm = '';
+  startDate?: string;
+  endDate?: string;
+  visibleCount = 4;
+
+  get fullFilteredLessons() {
+  const result = this.allLessons
+    .filter(l => l.status === this.filter)
+    .filter(l => !this.selectedTeacher || l.teacher === this.selectedTeacher)
+    .filter(l => {
+      const time = l.date.getTime();
+      const afterStart = !this.startDate || time >= new Date(this.startDate).getTime();
+      const beforeEnd = !this.endDate || time <= new Date(this.endDate).getTime();
+      return afterStart && beforeEnd;
+    })
+    .filter(l => {
+      if (!this.searchTerm.trim()) return true;
+      const keyword = this.searchTerm.toLowerCase();
+      return (
+        l.tasks.some(t => t.toLowerCase().includes(keyword)) ||
+        l.questions.some(q => q.toLowerCase().includes(keyword))
+      );
+    })
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  console.log('[fullFilteredLessons]', {
+    filter: this.filter,
+    selectedTeacher: this.selectedTeacher,
+    startDate: this.startDate,
+    endDate: this.endDate,
+    searchTerm: this.searchTerm,
+    result
+  });
+
+  return result;
+}
+
+
   get filteredLessons() {
-    return this.allLessons
-      .filter(lesson => lesson.status === this.filter)
-      .filter(lesson => !this.selectedTeacher || lesson.teacher === this.selectedTeacher)
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+    return this.fullFilteredLessons.slice(0, this.visibleCount);
   }
 
-  ngOnInit(): void {this.homeworkService.getHomeworkStream().subscribe(items => {
+  loadMore() {
+    this.visibleCount += 4;
+  }
+
+
+  ngOnInit(): void {
+  const now = Date.now();
+  this.allLessons.forEach(lesson => {
+    lesson.status = lesson.date.getTime() >= now ? 'future' : 'past';
+  });
+
+  console.log('[ngOnInit] allLessons after status calc:', this.allLessons);
+
+  this.homeworkService.getHomeworkStream().subscribe(items => {
     this.newHomeworkFromClass = items;
-  }); }
+  });
+}
+
 
   onItemDropped(event: { from: number, to: number, item: string, type: 'task' | 'question' }) {
     const fromLesson = this.allLessons.find(l => l.id === event.from);
@@ -171,29 +224,37 @@ export class LessonManagementComponent implements OnInit {
     return this.filteredLessons.map(l => `questions-${l.id}`);
   }
 
-addToHomework(item: any) {
-  const targetLesson = this.allLessons.find(l => l.status === 'future');
-  if (!targetLesson) return;
+  addToHomework(item: any) {
+    const targetLesson = this.allLessons.find(l => l.status === 'future');
+    if (!targetLesson) return;
 
-  targetLesson.homework ??= [];
+    targetLesson.homework ??= [];
 
-  if ((targetLesson.homework as string[]).includes(item)) return;
+    if ((targetLesson.homework as string[]).includes(item)) return;
 
-  (targetLesson.homework as string[]).push(item);
-  this.highlightedLessonId = targetLesson.id;
+    (targetLesson.homework as string[]).push(item);
+    this.highlightedLessonId = targetLesson.id;
 
-  setTimeout(() => {
-    this.highlightedLessonId = null;
-  }, 3000);
+    setTimeout(() => {
+      this.highlightedLessonId = null;
+    }, 3000);
+  }
+
+  get allHomework(): string[] {
+    return this.allLessons
+      .filter(l => l.status === 'future' && Array.isArray(l.homework))
+      .flatMap(l => l.homework)
+      .filter((value, index, self) => self.indexOf(value) === index); // убрать дубликаты
+  }
+
+
+  recalculateStatus() {
+  const now = Date.now();
+  this.allLessons.forEach(lesson => {
+    lesson.status = lesson.date.getTime() >= now ? 'future' : 'past';
+  });
+
 }
-
-get allHomework(): string[] {
-  return this.allLessons
-    .filter(l => l.status === 'future' && Array.isArray(l.homework))
-    .flatMap(l => l.homework)
-    .filter((value, index, self) => self.indexOf(value) === index); // убрать дубликаты
-}
-
 
 
 }

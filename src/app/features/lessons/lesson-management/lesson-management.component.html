@@ -1,26 +1,57 @@
 <div class="lesson-management">
+  <div *ngIf="activePanel === 'cours'">
+    <!-- 📚 Filtres élégants -->
+    <div class="filter-container mat-elevation-z1">
 
-  <!-- 🔍 Filtres -->
-  <div class="filters">
-    <button (click)="filter = 'future'" [class.active]="filter === 'future'">📅 À venir</button>
-    <button (click)="filter = 'past'" [class.active]="filter === 'past'">🕓 Passés</button>
+      <!-- 🧭 Période -->
+      <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
 
+        <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
+        <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
+      </mat-button-toggle-group>
+      <!-- 👨‍🏫 Enseignant -->
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>Enseignant</mat-label>
+        <mat-select [(ngModel)]="selectedTeacher">
+          <mat-option value="">Tous</mat-option>
+          <mat-option *ngFor="let t of ['Marie', 'Paul', 'Claire']" [value]="t">{{ t }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <select [(ngModel)]="selectedTeacher">
-      <option value="">👩‍🏫 Tous les enseignants</option>
-      <option *ngFor="let t of ['Marie', 'Paul', 'Claire']" [value]="t">{{ t }}</option>
-    </select>
+      <!-- 📅 Date début -->
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>Date de début</mat-label>
+        <input matInput type="date" [(ngModel)]="startDate">
+      </mat-form-field>
+
+      <!-- 📅 Date fin -->
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>Date de fin</mat-label>
+        <input matInput type="date" [(ngModel)]="endDate">
+      </mat-form-field>
+
+      <!-- 🔍 Mot-clé -->
+      <mat-form-field appearance="fill" class="filter-item keyword">
+        <mat-label>Mot-clé dans tâches ou questions</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="🔍 Synthèse, discours, etc.">
+      </mat-form-field>
+
+    </div>
+
+    <!-- 📦 Liste des cours -->
+    <div class="lesson-list">
+      <app-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" [lessonId]="lesson.id"
+        [taskDropIds]="taskDropListIds" [questionDropIds]="questionDropListIds"
+        [resolvedItems]="resolvedItemsPerLesson[lesson.id] || []" (itemDropped)="onItemDropped($event)"
+        (moveToFuture)="onMoveToFuture($event)">
+      </app-lesson-card>
+      <div *ngIf="filteredLessons.length < fullFilteredLessons.length" class="text-center mt-3">
+        <button mat-stroked-button color="primary" (click)="loadMore()">Afficher plus</button>
+      </div>
+    </div>
+
   </div>
-
-  <!-- 📦 Liste des cours -->
-  <div class="lesson-list">
-    <app-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" [lessonId]="lesson.id"
-      [taskDropIds]="taskDropListIds" [questionDropIds]="questionDropListIds"
-      [resolvedItems]="resolvedItemsPerLesson[lesson.id] || []" (itemDropped)="onItemDropped($event)"
-      (moveToFuture)="onMoveToFuture($event)">
-    </app-lesson-card>
-
-
+  <div *ngIf="activePanel === 'homework'" class="lesson-list">
     <div class="homework-summary mt-4 p-3 border border-warning rounded bg-light">
       <h4 class="text-warning">📚 Devoirs à faire</h4>
       <ul class="mb-0 ps-3">
@@ -28,11 +59,27 @@
           {{ hw }}
         </li>
       </ul>
-      <div *ngIf="!allHomework.length" class="text-muted">Aucun devoir assigné pour l’instant.</div>
+      <div *ngIf="!allHomework.length && !newHomeworkFromClass.length" class="text-muted">
+        Aucun devoir assigné pour l’instant.
+      </div>
     </div>
-
-
-
   </div>
 
+
+
+
+
+  <!-- 📎 Side Tabs -->
+  <div class="side-tabs-wrapper" (mouseleave)="hideTabs = true" (mouseenter)="hideTabs = false">
+    <div class="side-tabs-wrapper">
+      <div class="side-tabs">
+        <div class="tab-button" (click)="activePanel = 'cours'" [class.active]="activePanel === 'cours'">
+          📋 <span class="label">Cours</span>
+        </div>
+        <div class="tab-button" (click)="activePanel = 'homework'" [class.active]="activePanel === 'homework'">
+          📚 <span class="label">Devoirs</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

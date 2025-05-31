@@ -1,4 +1,4 @@
-<div class="lesson-card">
+<mat-card class="lesson-card">
 
   <!-- 🧑‍🏫 En-tête de l’enseignant et bouton -->
   <div class="lesson-header">
@@ -10,21 +10,18 @@
       </div>
     </div>
 
-    <button *ngIf="showJoinButton()" class="join-btn" (click)="enterVirtualClass()">
+    <button *ngIf="showJoinButton()" mat-flat-button color="primary" (click)="enterVirtualClass()">
       🔗 Rejoindre la classe
     </button>
   </div>
 
-
   <!-- 📂 Corps principal -->
   <div class="lesson-body">
-
     <!-- 📈 Statistiques -->
     <div *ngIf="isPast()" class="stats">
       ✅ Tâches terminées : {{ lesson.tasksDone || 0 }}<br />
       ✅ Questions résolues : {{ lesson.questionsDone || 0 }}
     </div>
-
   </div>
 
   <!-- 🧲 Zones de glisser-déposer -->
@@ -52,8 +49,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
-
-</div>
+</mat-card>
