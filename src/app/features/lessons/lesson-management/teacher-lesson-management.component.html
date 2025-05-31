@@ -55,19 +55,24 @@
   </div>
 
 
-  <div *ngIf="activePanel === 'homework'" class="lesson-list">
-    <div class="homework-summary mt-4 p-3 border border-warning rounded bg-light">
-      <h4 class="text-warning">📚 Devoirs à faire</h4>
-      <ul class="mb-0 ps-3">
-        <li *ngFor="let hw of allHomework.concat(newHomeworkFromClass)" class="text-dark">
-          {{ hw }}
-        </li>
-      </ul>
-      <div *ngIf="!allHomework.length && !newHomeworkFromClass.length" class="text-muted">
-        Aucun devoir assigné pour l’instant.
-      </div>
-    </div>
+  <div *ngIf="activePanel === 'settings'" class="lesson-list p-3">
+    <h3>⚙️ Paramètres</h3>
+    <p class="text-muted">Zone de configuration (à définir)...</p>
   </div>
+
+  <div *ngIf="activePanel === 'stats'" class="lesson-list p-3">
+    <h3>📈 Statistiques globales</h3>
+
+    <ul class="mb-3">
+      <li>Cours passés : {{ pastLessonsCount }}</li>
+      <li>Cours à venir : {{ futureLessonsCount }}</li>
+      <li>Étudiants uniques : {{ uniqueStudents.length }}</li>
+    </ul>
+
+    <h4>🎯 Objectifs</h4>
+    <p class="text-muted">Définir des objectifs à long terme ici...</p>
+  </div>
+
 
   <!-- ⬅️ Сайдбар -->
   <div class="side-tabs-wrapper" (mouseenter)="hideTabs = false" (mouseleave)="hideTabs = true">
@@ -76,10 +81,15 @@
         [class.expanded]="!hideTabs">
         📋 <span class="label" *ngIf="!hideTabs">Cours</span>
       </div>
-      <div class="tab-button" (click)="activePanel = 'homework'" [class.active]="activePanel === 'homework'"
+      <div class="tab-button" (click)="activePanel = 'stats'" [class.active]="activePanel === 'stats'"
         [class.expanded]="!hideTabs">
-        📚 <span class="label" *ngIf="!hideTabs">Devoirs</span>
+        📈 <span class="label" *ngIf="!hideTabs">Statistiques</span>
       </div>
+      <div class="tab-button" (click)="activePanel = 'settings'" [class.active]="activePanel === 'settings'"
+        [class.expanded]="!hideTabs">
+        ⚙️ <span class="label" *ngIf="!hideTabs">Paramètres</span>
+      </div>
+
 
     </div>
   </div>

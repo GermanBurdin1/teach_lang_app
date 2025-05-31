@@ -101,7 +101,7 @@ export class LessonManagementComponent implements OnInit {
   highlightedLessonId: number | null = null;
   resolvedItemsPerLesson: { [lessonId: number]: string[] } = {};
   newHomeworkFromClass: string[] = [];
-  activePanel: 'cours' | 'homework' = 'cours';
+  activePanel: 'cours' | 'settings' | 'stats' = 'cours';
   hideTabs = true;
   searchTerm = '';
   startDate?: string;
@@ -110,9 +110,6 @@ export class LessonManagementComponent implements OnInit {
   currentPage = 1;
 
   constructor(private homeworkService: HomeworkService) { }
-
-
-
 
   ngOnInit(): void {
     const now = Date.now();
@@ -185,6 +182,14 @@ export class LessonManagementComponent implements OnInit {
       .filter((value, index, self) => self.indexOf(value) === index); // убрать дубликаты
   }
 
+  get stats() {
+    return {
+      pastCount: this.allLessons.filter(l => l.status === 'past').length,
+      futureCount: this.allLessons.filter(l => l.status === 'future').length,
+      totalTasks: this.allLessons.reduce((acc, l) => acc + l.tasks.length, 0),
+      totalQuestions: this.allLessons.reduce((acc, l) => acc + l.questions.length, 0),
+    };
+  }
 
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
@@ -266,7 +271,5 @@ export class LessonManagementComponent implements OnInit {
     });
     this.currentPage = 1;
   }
-
-
 
 }

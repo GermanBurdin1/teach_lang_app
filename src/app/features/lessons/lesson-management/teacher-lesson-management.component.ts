@@ -17,7 +17,7 @@ export class TeacherLessonManagementComponent implements OnInit {
   visibleCount = 4;
   hideTabs = true;
   newHomeworkFromClass: string[] = [];
-  activePanel: 'cours' | 'homework' = 'cours';
+  activePanel: 'cours' | 'settings' | 'stats' = 'cours';
   highlightedLessonId: number | null = null;
   pageSize = 4;
   currentPage = 1;
@@ -61,15 +61,15 @@ export class TeacherLessonManagementComponent implements OnInit {
   resolvedItemsPerLesson: { [lessonId: number]: string[] } = {};
   uniqueStudents: string[] = [];
 
-  constructor(private homeworkService: HomeworkService) {}
+  constructor(private homeworkService: HomeworkService) { }
 
   ngOnInit() {
     this.recalculateStatus();
-  this.updateUniqueStudents();
+    this.updateUniqueStudents();
 
-  this.homeworkService.getHomeworkStream().subscribe(items => {
-    this.newHomeworkFromClass = items;
-  });
+    this.homeworkService.getHomeworkStream().subscribe(items => {
+      this.newHomeworkFromClass = items;
+    });
   }
 
   recalculateStatus() {
@@ -141,13 +141,13 @@ export class TeacherLessonManagementComponent implements OnInit {
   }
 
   get allHomework(): string[] {
-  return this.lessons
-    .filter(l => l.status === 'future' && Array.isArray(l.homework))
-    .flatMap(l => l.homework)
-    .filter((v, i, arr) => arr.indexOf(v) === i); // без дубликатов
-}
+    return this.lessons
+      .filter(l => l.status === 'future' && Array.isArray(l.homework))
+      .flatMap(l => l.homework)
+      .filter((v, i, arr) => arr.indexOf(v) === i); // без дубликатов
+  }
 
-addToHomework(item: any) {
+  addToHomework(item: any) {
     const targetLesson = this.lessons.find(l => l.status === 'future');
     if (!targetLesson) return;
 
@@ -167,5 +167,14 @@ addToHomework(item: any) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex + 1;
   }
+
+  get pastLessonsCount(): number {
+  return this.lessons.filter(l => l.status === 'past').length;
+}
+
+get futureLessonsCount(): number {
+  return this.lessons.filter(l => l.status === 'future').length;
+}
+
 
 }
