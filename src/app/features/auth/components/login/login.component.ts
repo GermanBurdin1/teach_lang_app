@@ -12,6 +12,8 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   availableRoles: string[] = [];
   emailChecked = false;
+  showPassword = false;
+
 
   constructor(
     private fb: FormBuilder,

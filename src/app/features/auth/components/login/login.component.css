@@ -1,36 +1,101 @@
+:root {
+  --color-primary: #3f51b5; /* Indigo */
+  --color-primary-dark: #303f9f;
+  --color-primary-hover: #6c7fff;
+  --color-accent: #ff4081; /* Pink Accent */
+  --color-bg: #0d1117; /* Dark space */
+  --color-surface: #1f2937;
+  --color-text: #e4e4e4;
+  --color-muted: #9ca3af;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+
 .form-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* центрирование по вертикали */
-  background-color: #f8f9fa;
+  height: 100vh;
+  background: var(--color-bg);
 }
 
 .form-container {
   width: 100%;
   max-width: 400px;
-  padding: 32px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 24px 28px;
+  background: var(--color-surface);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(63, 81, 181, 0.3);
+  transition: box-shadow 0.3s ease;
 }
 
-.full-width {
+.form-container h2 {
+  margin-bottom: 12px;
+  color: var(--color-text);
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+
+.full-width,
+mat-form-field.full-width {
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 12px !important;
+}
+
+mat-form-field {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+
+mat-label, input, .mat-button-toggle {
+  color: var(--color-text) !important;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: var(--color-muted);
 }
 
 .auth-link {
-  margin-top: 16px;
-  font-size: 14px;
+  margin-top: 12px;
+  font-size: 13px;
+  text-align: center;
 }
 
 .auth-link a {
-  color: #1976d2;
-  text-decoration: none;
+  color: var(--color-accent);
   font-weight: 500;
+  text-decoration: none;
 }
 
 .auth-link a:hover {
   text-decoration: underline;
 }
+
+.login-button {
+  width: 100%;
+  font-weight: 600;
+  background-color: var(--color-primary);
+  transition: background-color 0.3s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: none;
+}
+
+.login-button:not(:disabled):hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: 0 0 10px rgba(127, 90, 240, 0.4); /* нежный фиолетовый свет */
+}
+
+.login-button:disabled {
+  background-color: #2c355d;
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+

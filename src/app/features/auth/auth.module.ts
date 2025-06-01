@@ -9,6 +9,7 @@ import { LoginComponent } from './components/login/login.component';
 import { AuthRoutingModule } from './auth-routing.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatIconModule } from '@angular/material/icon';
 @NgModule({
   declarations: [
     RegisterComponent,
@@ -22,7 +23,8 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     MatButtonModule,
     AuthRoutingModule,
     MatCheckboxModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatIconModule
   ]
 })
 export class AuthModule {}
