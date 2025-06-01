@@ -72,4 +72,20 @@ export class TeacherService {
     return this.http.get<Review[]>(`http://localhost:3002/reviews/teacher/${teacherId}`);
   }
 
+  updateProfile(userId: string, data: {
+    bio?: string;
+    price?: number;
+    experienceYears?: number;
+    specializations?: string[];
+    certificates?: string[];
+  }): Observable<any> {
+    return this.http.put(`http://localhost:3002/teacher-profile/update/${userId}`, data);
+  }
+
+
+  uploadPhoto(userId: string, photoUrl: string): Observable<any> {
+    return this.http.put(`http://localhost:3002/teacher-profile/photo/${userId}`, { photoUrl });
+  }
+
+
 }
