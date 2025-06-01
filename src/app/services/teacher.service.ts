@@ -51,9 +51,6 @@ export class TeacherService {
   );
 }
 
-
-
-
   getTeacherById(id: string): Observable<TeacherDetails> {
   return this.http.get<any>(`http://localhost:3002/teacher-profile/full/${id}`).pipe(
     map(profile => ({
