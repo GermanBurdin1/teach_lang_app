@@ -1,4 +1,4 @@
-import { Review } from '../src/app/features/dashboard/shared/models/review.model';
+import { Review } from '../dashboard/shared/models/review.model';
 export const MOCK_REVIEWS: Review[] = [
   {
     id: 'r1',

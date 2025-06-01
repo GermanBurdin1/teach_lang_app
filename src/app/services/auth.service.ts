@@ -14,6 +14,14 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+  get user(): User | null {
+    return this._user;
+  }
+
+  getAllTeachers(): Observable<User[]> {
+    return this.http.get<User[]>('http://localhost:3002/auth/teachers');
+  }
+
   login(email: string, password: string) {
     return this.http.post<User>('http://localhost:3002/auth/login', { email, password });
   }
@@ -36,9 +44,6 @@ export class AuthService {
 
 
 
-  get user(): User | null {
-    return this._user;
-  }
 
   setActiveRole(role: string) {
     if (this._user?.roles.includes(role)) {
@@ -64,10 +69,10 @@ export class AuthService {
   }
 
   getUserInitial(): string {
-  const email = this._user?.email || '';
-  const namePart = email.split('@')[0]; // до собаки
-  return namePart.charAt(0).toUpperCase(); // первая буква заглавная
-}
+    const email = this._user?.email || '';
+    const namePart = email.split('@')[0]; // до собаки
+    return namePart.charAt(0).toUpperCase(); // первая буква заглавная
+  }
 
 
 

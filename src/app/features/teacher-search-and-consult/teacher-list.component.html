@@ -1,0 +1,68 @@
+<div class="teacher-list-container">
+  <div *ngIf="isLoading" class="spinner">Chargement...</div>
+
+  <div *ngIf="!isLoading && total > 0" class="total-count">
+    {{ total }} enseignants trouvés
+  </div>
+
+  <div *ngIf="!isLoading && total === 0" class="empty-state">
+    Aucun enseignant trouvé.
+  </div>
+
+  <!-- 🔽 Filtres -->
+  <div class="filters mb-3 p-3 border rounded bg-light">
+    <input type="text" class="form-control mb-2" placeholder="Rechercher par nom ou matière"
+      [(ngModel)]="searchQuery" (ngModelChange)="onFilterChange()" />
+
+    <div class="d-flex gap-3 flex-wrap">
+      <select class="form-select" [(ngModel)]="selectedSpecialization" (change)="onFilterChange()">
+        <option value="">Toutes les spécialisations</option>
+        <option *ngFor="let s of availableSpecializations" [value]="s">{{ s }}</option>
+      </select>
+
+      <select class="form-select" [(ngModel)]="sortOption" (change)="onFilterChange()">
+        <option value="">Sans tri</option>
+        <option value="rating">Par note</option>
+        <option value="price">Par prix</option>
+        <option value="experience">Par expérience</option>
+      </select>
+
+      <select class="form-select" [(ngModel)]="selectedLanguage" (change)="onFilterChange()">
+        <option value="">Toutes les langues</option>
+        <option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</option>
+      </select>
+    </div>
+
+    <div class="d-flex gap-3 mt-3 flex-wrap">
+      <div>
+        <label>Expérience (années):</label>
+        <input type="number" class="form-control" [(ngModel)]="experienceMin" (change)="onFilterChange()" placeholder="Min" />
+        <input type="number" class="form-control mt-1" [(ngModel)]="experienceMax" (change)="onFilterChange()" placeholder="Max" />
+      </div>
+
+      <div>
+        <label>Tarif (€):</label>
+        <input type="number" class="form-control" [(ngModel)]="priceMin" (change)="onFilterChange()" placeholder="Min" />
+        <input type="number" class="form-control mt-1" [(ngModel)]="priceMax" (change)="onFilterChange()" placeholder="Max" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔽 Liste des enseignants -->
+  <div *ngFor="let teacher of allTeachers" class="teacher-card">
+    <img [src]="teacher.photoUrl" alt="Photo de {{ teacher.name }}" class="teacher-photo" />
+    <div class="teacher-info">
+      <h3>{{ teacher.name }}</h3>
+      <p class="specializations">{{ teacher.specializations.join(', ') }}</p>
+      <p class="price">{{ teacher.price }} €/heure</p>
+      <a [routerLink]="[teacher.id]">Voir le profil</a>
+    </div>
+  </div>
+
+  <!-- 🔽 Pagination -->
+  <div *ngIf="!isLoading && total > limit" class="pagination mt-3 d-flex justify-content-between align-items-center">
+    <button class="btn btn-outline-primary" (click)="prevPage()" [disabled]="page === 1">Précédent</button>
+    <span>Page {{ page }} sur {{ maxPage }}</span>
+    <button class="btn btn-outline-primary" (click)="nextPage()" [disabled]="page >= maxPage">Suivant</button>
+  </div>
+</div>
