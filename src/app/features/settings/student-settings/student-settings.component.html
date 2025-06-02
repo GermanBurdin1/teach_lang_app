@@ -2,8 +2,13 @@
   <h2>Mon profil</h2>
   <form [formGroup]="studentForm" (ngSubmit)="onSubmit()">
     <mat-form-field class="full-width">
-      <mat-label>Nom</mat-label>
+      <mat-label>Prénom</mat-label>
       <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Nom de famille</mat-label>
+      <input matInput formControlName="surname" />
     </mat-form-field>
 
     <div class="form-photo-section">

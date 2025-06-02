@@ -2,7 +2,24 @@
   <div class="form-container">
     <h2>Inscription</h2>
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Prénom -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Prénom</mat-label>
+        <input matInput formControlName="name" required />
+        <mat-error *ngIf="registerForm.get('name')?.hasError('required')">
+          Le prénom est requis
+        </mat-error>
+      </mat-form-field>
 
+      <!-- Nom de famille -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nom de famille</mat-label>
+        <input matInput formControlName="surname" required />
+        <mat-error *ngIf="registerForm.get('surname')?.hasError('required')">
+          Le nom de famille est requis
+        </mat-error>
+      </mat-form-field>
+      
       <!-- Email -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>

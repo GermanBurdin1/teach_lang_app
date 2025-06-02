@@ -23,16 +23,22 @@ export class StudentSettingsComponent implements OnInit {
   ngOnInit(): void {
     this.studentForm = this.fb.group({
       name: ['', Validators.required],
+      surname: ['', Validators.required],
       photoUrl: [''],
       bio: ['', Validators.required],
-      experienceYears: [null, Validators.required],
-      price: [null, Validators.required],
-      specializations: [''],
-      certificates: [''],
       email: ['', [Validators.required, Validators.email]],
       language: ['fr'],
       theme: ['dark'],
     });
+
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.studentForm.patchValue({
+        name: user.name,
+        surname: user.surname,
+        email: user.email
+      });
+    }
   }
 
   onSubmit(): void {
@@ -103,7 +109,7 @@ export class StudentSettingsComponent implements OnInit {
   }
 
   get availabilityArray(): FormGroup[] {
-  return (this.studentForm.get('availability') as FormArray).controls as FormGroup[];
-}
+    return (this.studentForm.get('availability') as FormArray).controls as FormGroup[];
+  }
 
 }
