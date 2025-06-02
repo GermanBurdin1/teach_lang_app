@@ -1,10 +1,6 @@
 <div class="form-container">
   <h2>Mon profil</h2>
   <form [formGroup]="teacherForm" (ngSubmit)="onSubmit()">
-    <mat-form-field class="full-width">
-      <mat-label>Nom</mat-label>
-      <input matInput formControlName="name" />
-    </mat-form-field>
 
     <div class="form-photo-section">
       <label class="photo-label">Photo de profil</label>
@@ -29,7 +25,15 @@
       </div>
     </div>
 
+    <mat-form-field class="full-width">
+      <mat-label>Prénom</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
 
+    <mat-form-field class="full-width">
+      <mat-label>Nom de famille</mat-label>
+      <input matInput formControlName="surname" />
+    </mat-form-field>
 
     <mat-form-field class="full-width">
       <mat-label>Biographie</mat-label>

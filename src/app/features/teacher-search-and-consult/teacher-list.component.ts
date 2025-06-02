@@ -64,7 +64,7 @@ export class TeacherListComponent implements OnInit {
       language: this.selectedLanguage
     };
 
-    this.teacherService.getTeachers(this.page, this.limit, filters).subscribe(response => {
+    this.teacherService.getTeachers(this.page, 9999, filters).subscribe(response => {
       console.log('📦 Полученные преподаватели:', response.data); // ⬅️ Вот сюда!
       this.allTeachers = response.data;
       this.total = response.total;

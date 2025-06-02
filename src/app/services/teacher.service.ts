@@ -44,6 +44,8 @@ export class TeacherService {
             rating: user.rating,
             reviewCount: user.reviewCount,
             specializations: user.specializations ?? [],
+            certificates: user.certificates ?? [],              // ✅ добавлено
+            bio: user.bio ?? '',
             teachingLanguages: user.teachingLanguages ?? []
           })),
           total: response.total
@@ -56,7 +58,9 @@ export class TeacherService {
     return this.http.get<any>(`http://localhost:3002/teacher-profile/full/${id}`).pipe(
       map(profile => ({
         id: profile.user.id_users,
-        name: profile.user.email,
+        name: profile.user.name || '',
+        surname: profile.user.surname || '',
+        email: profile.user.email || '',
         photoUrl: profile.photo_url || 'assets/default-avatar.png',
         specializations: profile.specializations || [],
         price: profile.price || 0,

@@ -8,4 +8,6 @@ export interface TeacherDetails {
   bio: string;
   experienceYears: number;
   certificates: string[];
+  surname: string;
+  email: string;
 }

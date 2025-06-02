@@ -1,12 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
-
+import { AuthService} from '../../../../services/auth.service';
+import { TeacherService } from '../../../../services/teacher.service';
 @Component({
   selector: 'app-teacher-home',
   templateUrl: './teacher-home.component.html',
   styleUrls: ['./teacher-home.component.css']
 })
 export class TeacherHomeComponent implements OnInit {
+  constructor(
+    private authService: AuthService,
+    private teacherService: TeacherService
+  ) {}
+
   notifications: string[] = [
     'Un nouvel avis a été laissé sur votre profil.',
     'Votre profil a été mis en avant cette semaine.'
@@ -38,5 +44,15 @@ export class TeacherHomeComponent implements OnInit {
     this.homeworksToReview.sort((a, b) =>
       a.dueDate.localeCompare(b.dueDate)
     );
+
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+
+    this.teacherService.getTeacherById(userId).subscribe(profile => {
+      if (!profile.bio || !profile.price || !profile.experienceYears ||
+          !profile.specializations.length || !profile.certificates.length) {
+        this.notifications.unshift('⚠️ Veuillez compléter votre profil pour apparaître dans les résultats de recherche.');
+      }
+    });
   }
 }

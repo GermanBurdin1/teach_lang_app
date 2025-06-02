@@ -23,7 +23,7 @@ import { AdminTeachersListComponent } from './school-dashboard/admin-management_
 import { TeacherDetailsComponent } from '../teacher-search-and-consult/teacher-details.component';
 import { AdminTeacherDetailsComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teacher-details.component';
 import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
-import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
+import { TeacherDashboardOverviewComponent } from '../../../../overview/teacher-dashboard-overview.component';
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { ReviewListComponent } from './shared/components/review-list/review-list.component';
 import { MatChipsModule } from '@angular/material/chips';

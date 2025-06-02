@@ -21,6 +21,8 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     this.registerForm = this.fb.group(
       {
+        name: ['', Validators.required],
+        surname: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
         password: ['', Validators.required],
         confirmPassword: ['', Validators.required],
@@ -50,37 +52,38 @@ export class RegisterComponent implements OnInit {
 
 
   onSubmit(): void {
-  if (this.registerForm.valid) {
-    const { email, password, isStudent, isTeacher } = this.registerForm.value;
+    if (this.registerForm.valid) {
+      const { email, password, isStudent, isTeacher, name, surname } = this.registerForm.value;
 
-    const roles: string[] = [];
-    if (isStudent) roles.push('student');
-    if (isTeacher) roles.push('teacher');
+      const roles: string[] = [];
+      if (isStudent) roles.push('student');
+      if (isTeacher) roles.push('teacher');
 
-    console.log('[RegisterComponent] Sending registration request:', { email, roles });
+      console.log('[RegisterComponent] Sending registration request:', { email, roles });
 
-    this.api.register({ email, password, roles }).subscribe({
-      next: (user) => {
-        console.log('[RegisterComponent] Registration successful:', user);
-        this.authService.setUser(user);
-        if (user.roles.length === 1) {
-          this.authService.setActiveRole(user.roles[0]);
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.router.navigate(['/select-role']);
+
+      this.api.register({ email, password, roles, name, surname }).subscribe({
+        next: (user) => {
+          console.log('[RegisterComponent] Registration successful:', user);
+          this.authService.setUser(user);
+          if (user.roles.length === 1) {
+            this.authService.setActiveRole(user.roles[0]);
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.router.navigate(['/select-role']);
+          }
+        },
+        error: (err) => {
+          console.error('[RegisterComponent] Registration failed:', err);
+          alert(err.error?.message || 'Erreur lors de la création du compte');
         }
-      },
-      error: (err) => {
-        console.error('[RegisterComponent] Registration failed:', err);
-        alert(err.error?.message || 'Erreur lors de la création du compte');
-      }
-    });
-  } else {
-    console.warn('[RegisterComponent] Form is invalid:', this.registerForm.errors);
+      });
+    } else {
+      console.warn('[RegisterComponent] Form is invalid:', this.registerForm.errors);
+    }
   }
-}
 
-onEmailBlur(): void {
+  onEmailBlur(): void {
     const email = this.registerForm.get('email')?.value;
     if (!email || !this.registerForm.get('email')?.valid) return;
 

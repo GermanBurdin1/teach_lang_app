@@ -25,6 +25,7 @@ export class TeacherSettingsComponent implements OnInit {
   ngOnInit(): void {
     this.teacherForm = this.fb.group({
       name: ['', Validators.required],
+      surname: ['', Validators.required],
       photoUrl: [''],
       bio: ['', Validators.required],
       experienceYears: [null, Validators.required],
@@ -44,6 +45,23 @@ export class TeacherSettingsComponent implements OnInit {
         this.fb.group({ day: 'Dimanche', from: '', to: '' }),
       ])
     });
+
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+
+    this.teacherService.getTeacherById(userId).subscribe(profile => {
+      this.teacherForm.patchValue({
+        name: profile.name,
+        surname: profile.surname,
+        photoUrl: profile.photoUrl,
+        bio: profile.bio,
+        experienceYears: profile.experienceYears,
+        price: profile.price,
+        specializations: profile.specializations.join(', '),
+        certificates: profile.certificates.join(', '),
+        email: profile.email,
+      });
+    });
   }
 
   onSubmit(): void {
@@ -59,6 +77,8 @@ export class TeacherSettingsComponent implements OnInit {
       const payload = {
         bio: value.bio,
         price: value.price,
+        name: value.name,
+        surname: value.surname,
         experienceYears: value.experienceYears,
         specializations: value.specializations.split(',').map((s: string) => s.trim()),
         certificates: value.certificates.split(',').map((c: string) => c.trim()),
@@ -146,46 +166,48 @@ export class TeacherSettingsComponent implements OnInit {
 
 
   autoFillAndSubmit(): void {
-  const randomNames = ['Jean Dupont', 'Marie Curie', 'Luc Moreau', 'Claire Martin'];
-  const randomBios = [
-    'Passionné par l\'enseignement du FLE depuis 10 ans.',
-    'Spécialiste des examens DELF/DALF.',
-    'J\'aime rendre l\'apprentissage ludique et efficace.',
-    'Méthodes modernes, résultats garantis.'
-  ];
-  const randomCerts = ['DALF C1', 'Alliance Française', 'Phonétique Avancée', 'Master FLE'];
-  const randomSpecs = ['DELF B2', 'Grammaire', 'Compréhension orale', 'Production écrite'];
+    const randomNames = ['Jean', 'Marie', 'Luc', 'Claire'];
+    const randomSurnames = ['Dupont', 'Curie', 'Moreau', 'Martin'];
+    const randomBios = [
+      'Passionné par l\'enseignement du FLE depuis 10 ans.',
+      'Spécialiste des examens DELF/DALF.',
+      'J\'aime rendre l\'apprentissage ludique et efficace.',
+      'Méthodes modernes, résultats garantis.'
+    ];
+    const randomCerts = ['DALF C1', 'Alliance Française', 'Phonétique Avancée', 'Master FLE'];
+    const randomSpecs = ['DELF B2', 'Grammaire', 'Compréhension orale', 'Production écrite'];
 
-  const random = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
-  const randomInt = (min: number, max: number) =>
-    Math.floor(Math.random() * (max - min + 1)) + min;
+    const random = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+    const randomInt = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
 
-  const availabilitySample = [
-    { day: 'Lundi', from: '09:00', to: '12:00' },
-    { day: 'Mardi', from: '10:00', to: '13:00' },
-    { day: 'Mercredi', from: '08:30', to: '11:30' },
-    { day: 'Jeudi', from: '14:00', to: '17:00' },
-    { day: 'Vendredi', from: '13:00', to: '15:00' },
-    { day: 'Samedi', from: '', to: '' },
-    { day: 'Dimanche', from: '', to: '' }
-  ];
+    const availabilitySample = [
+      { day: 'Lundi', from: '09:00', to: '12:00' },
+      { day: 'Mardi', from: '10:00', to: '13:00' },
+      { day: 'Mercredi', from: '08:30', to: '11:30' },
+      { day: 'Jeudi', from: '14:00', to: '17:00' },
+      { day: 'Vendredi', from: '13:00', to: '15:00' },
+      { day: 'Samedi', from: '', to: '' },
+      { day: 'Dimanche', from: '', to: '' }
+    ];
 
-  this.teacherForm.setValue({
-    name: random(randomNames),
-    photoUrl: 'https://randomuser.me/api/portraits/men/' + randomInt(10, 90) + '.jpg',
-    bio: random(randomBios),
-    experienceYears: randomInt(1, 15),
-    price: randomInt(10, 50),
-    specializations: `${random(randomSpecs)}, ${random(randomSpecs)}`,
-    certificates: `${random(randomCerts)}, ${random(randomCerts)}`,
-    email: `dev${randomInt(100, 999)}@test.dev`,
-    language: 'fr',
-    theme: 'dark',
-    availability: availabilitySample
-  });
+    this.teacherForm.setValue({
+      name: random(randomNames),
+      surname: random(randomSurnames),
+      photoUrl: 'https://randomuser.me/api/portraits/men/' + randomInt(10, 90) + '.jpg',
+      bio: random(randomBios),
+      experienceYears: randomInt(1, 15),
+      price: randomInt(10, 50),
+      specializations: `${random(randomSpecs)}, ${random(randomSpecs)}`,
+      certificates: `${random(randomCerts)}, ${random(randomCerts)}`,
+      email: `dev${randomInt(100, 999)}@test.dev`,
+      language: 'fr',
+      theme: 'dark',
+      availability: availabilitySample
+    });
 
-  this.onSubmit();
-}
+    this.onSubmit();
+  }
 
 
   get availabilityArray(): FormGroup[] {

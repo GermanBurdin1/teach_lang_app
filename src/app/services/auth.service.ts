@@ -26,10 +26,17 @@ export class AuthService {
     return this.http.post<User>('http://localhost:3002/auth/login', { email, password });
   }
 
-  register(data: { email: string; password: string; roles: string[] }): Observable<any> {
-    console.log('[AuthApiService] POST /auth/register', data);
-    return this.http.post(`${this.baseRegisterUrl}/register`, data);
-  }
+  register(data: {
+  email: string;
+  password: string;
+  roles: string[];
+  name: string;
+  surname: string;
+}): Observable<any> {
+  console.log('[AuthApiService] POST /auth/register', data);
+  return this.http.post(`${this.baseRegisterUrl}/register`, data);
+}
+
 
   setUser(user: User) {
     this._user = user;

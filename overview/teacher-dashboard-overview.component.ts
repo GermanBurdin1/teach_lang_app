@@ -1,10 +1,10 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { TeacherProfileService } from '../teacher-profile.service';
-import { TeacherProfile } from '../teacher-profile.model';
-import { Review } from '../../shared/models/review.model';
-import { MOCK_REVIEWS } from '../mock-reviews';
-import { AuthService } from '../../../../services/auth.service';
-import { ProfilesApiService } from '../../../../services/profiles-api.service';
+import { TeacherProfileService } from '../src/app/features/dashboard/teacher-dashboard/teacher-profile.service';
+import { TeacherProfile } from '../src/app/features/dashboard/teacher-dashboard/teacher-profile.model';
+import { Review } from '../src/app/features/dashboard/shared/models/review.model';
+import { MOCK_REVIEWS } from '../src/app/features/dashboard/teacher-dashboard/mock-reviews';
+import { AuthService } from '../src/app/services/auth.service';
+import { ProfilesApiService } from '../src/app/services/profiles-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarEvent } from 'angular-calendar';
 
