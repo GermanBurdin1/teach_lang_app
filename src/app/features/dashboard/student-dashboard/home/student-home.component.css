@@ -228,3 +228,19 @@ mat-dialog-actions {
   justify-content: center;
   margin-top: 1.5rem;
 }
+
+
+.event-confirmed {
+  background-color: #c8e6c9;
+  border-left: 4px solid #4caf50;
+}
+
+.event-declined {
+  background-color: #ffcdd2;
+  border-left: 4px solid #f44336;
+}
+
+.event-pending {
+  background-color: #eeeeee;
+  border-left: 4px solid #9e9e9e;
+}

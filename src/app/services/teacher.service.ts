@@ -29,7 +29,7 @@ export class TeacherService {
     });
 
     return this.http.get<{ data: any[]; total: number }>(
-      'http://localhost:3002/auth/teachers',
+      'http://localhost:3001/auth/teachers',
       { params }
     ).pipe(
       map(response => {
@@ -55,7 +55,7 @@ export class TeacherService {
   }
 
   getTeacherById(id: string): Observable<TeacherDetails> {
-    return this.http.get<any>(`http://localhost:3002/teacher-profile/full/${id}`).pipe(
+    return this.http.get<any>(`http://localhost:3001/teacher-profile/full/${id}`).pipe(
       map(profile => ({
         id: profile.user.id_users,
         name: profile.user.name || '',
@@ -73,7 +73,7 @@ export class TeacherService {
   }
 
   getReviewsByTeacher(teacherId: string): Observable<Review[]> {
-    return this.http.get<Review[]>(`http://localhost:3002/reviews/teacher/${teacherId}`);
+    return this.http.get<Review[]>(`http://localhost:3001/reviews/teacher/${teacherId}`);
   }
 
   updateProfile(userId: string, data: {
@@ -83,12 +83,12 @@ export class TeacherService {
     specializations?: string[];
     certificates?: string[];
   }): Observable<any> {
-    return this.http.put(`http://localhost:3002/teacher-profile/update/${userId}`, data);
+    return this.http.put(`http://localhost:3001/teacher-profile/update/${userId}`, data);
   }
 
 
   uploadPhoto(userId: string, photoUrl: string): Observable<any> {
-    return this.http.put(`http://localhost:3002/teacher-profile/photo/${userId}`, { photoUrl });
+    return this.http.put(`http://localhost:3001/teacher-profile/photo/${userId}`, { photoUrl });
   }
 
 

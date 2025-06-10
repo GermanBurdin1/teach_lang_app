@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
+import { NotificationService } from '../../../../services/notifications.service';
+import { AuthService } from '../../../../services/auth.service';
+import { LessonSession } from '../../../../models/lesson-session.model';
+import { LessonService } from '../../../../services/lesson.service';
 
 @Component({
   selector: 'app-student-home',
@@ -31,9 +35,39 @@ export class StudentHomeComponent implements OnInit {
   showModifyModal = false;
   actionType: 'reschedule' | 'cancel' | null = null;
   customCancelReason: string = '';
+  notifications: string[] = [];
 
+
+  constructor(
+    private notificationService: NotificationService,
+    private authService: AuthService,
+    private lessonService: LessonService
+  ) { }
 
   ngOnInit(): void {
+    const studentId = this.authService.getCurrentUser()?.id;
+    if (!studentId) return;
+
+    this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
+      this.notifications = res
+        .filter(n => n.type === 'booking_response')
+        .map(n => `${n.title}: ${n.content}`);
+    });
+
+    this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
+      this.upcomingLessons = lessons.map(lesson => ({
+        start: new Date(lesson.startTime),
+        end: new Date(lesson.endTime),
+        title: `Cours avec ${lesson.teacher.name}`,
+        color: { primary: '#3f51b5', secondary: '#e8eaf6' },
+        allDay: false
+      }));
+    });
+
+    this.lessonService.getSessionsForStudent().subscribe(sessions => {
+      this.upcomingLessons = this.mapSessionsToEvents(sessions);
+    });
+
     const tomorrow = new Date();
     tomorrow.setHours(11, 0, 0, 0);
 
@@ -129,9 +163,35 @@ export class StudentHomeComponent implements OnInit {
   }
 
   onBackFromModify(): void {
-  this.closeModifyModal();
-  this.showModal = true;
-}
+    this.closeModifyModal();
+    this.showModal = true;
+  }
+
+  mapSessionsToEvents(sessions: LessonSession[]): CalendarEvent[] {
+    return sessions.map(session => {
+      let color;
+      switch (session.status) {
+        case 'confirmed':
+          color = { primary: '#4caf50', secondary: '#e8f5e9' }; // зелёный
+          break;
+        case 'declined':
+          color = { primary: '#f44336', secondary: '#ffebee' }; // красный
+          break;
+        case 'pending':
+        default:
+          color = { primary: '#9e9e9e', secondary: '#f5f5f5' }; // серый
+          break;
+      }
+
+      return {
+        start: new Date(session.start),
+        end: new Date(session.end),
+        title: session.title,
+        color,
+        meta: { sessionId: session.id, status: session.status }
+      };
+    });
+  }
 
 
 }

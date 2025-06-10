@@ -2,6 +2,16 @@
 
   <!-- 🔼 Верхняя часть -->
   <div class="top-section">
+    <div class="notification-zone">
+      <h3>🔔 Notifications</h3>
+      <ul *ngIf="notifications.length > 0; else noNotifications">
+        <li *ngFor="let note of notifications">{{ note }}</li>
+      </ul>
+      <ng-template #noNotifications>
+        <p>✅ Aucun nouveau message</p>
+      </ng-template>
+    </div>
+
     <div class="goal-block">
       <h3>🎯 Objectif</h3>
       <p>{{ goal }}</p>

@@ -8,7 +8,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class AuthService {
   private _user: User | null = null;
-  private baseRegisterUrl = 'http://localhost:3002/auth';
+  private baseRegisterUrl = 'http://localhost:3001/auth';
   private currentRoleSubject = new BehaviorSubject<string | null>(null);
   currentRole$ = this.currentRoleSubject.asObservable();
 
@@ -19,11 +19,11 @@ export class AuthService {
   }
 
   getAllTeachers(): Observable<User[]> {
-    return this.http.get<User[]>('http://localhost:3002/auth/teachers');
+    return this.http.get<User[]>('http://localhost:3001/auth/teachers');
   }
 
   login(email: string, password: string) {
-    return this.http.post<User>('http://localhost:3002/auth/login', { email, password });
+    return this.http.post<User>('http://localhost:3001/auth/login', { email, password });
   }
 
   register(data: {
@@ -72,7 +72,7 @@ export class AuthService {
   }
 
   checkEmailExists(email: string): Observable<{ exists: boolean; roles?: string[] }> {
-    return this.http.get<{ exists: boolean; roles?: string[] }>(`http://localhost:3002/auth/check-email?email=${email}`);
+    return this.http.get<{ exists: boolean; roles?: string[] }>(`http://localhost:3001/auth/check-email?email=${email}`);
   }
 
   getUserInitial(): string {

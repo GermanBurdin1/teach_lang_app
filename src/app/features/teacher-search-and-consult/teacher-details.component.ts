@@ -3,6 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { TeacherService } from '../../services/teacher.service';
 import { TeacherDetails } from './teacher-details.model';
 import { Review } from '../dashboard/shared/models/review.model';
+import { AuthService } from '../../services/auth.service';
+import { LessonService } from '../../services/lesson.service';
 
 @Component({
   selector: 'app-teacher-details',
@@ -14,7 +16,9 @@ export class TeacherDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private teacherService: TeacherService
+    private teacherService: TeacherService,
+    private authService: AuthService,
+    private lessonService: LessonService
   ) { }
 
   messageText: string = '';
@@ -69,9 +73,19 @@ export class TeacherDetailsComponent implements OnInit {
       this.selectedTime.getMinutes()
     );
 
-    console.log('Занятие забронировано на:', bookedDateTime);
-    this.closeBookingModal();
-  }
+    const studentId = this.authService.getCurrentUser()?.id;
+    const teacherId = this.teacher?.id;
 
+    if (!studentId || !teacherId) return;
+
+    this.lessonService.requestBooking({
+      studentId: studentId,
+      teacherId: teacherId,
+      scheduledAt: bookedDateTime.toISOString()
+    }).subscribe(() => {
+      this.closeBookingModal();
+      alert('✅ Votre demande a été envoyée à l’enseignant.');
+    });
+  }
 
 }

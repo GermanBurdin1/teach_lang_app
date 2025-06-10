@@ -7,13 +7,19 @@
     <div class="column left-column">
       <h3>🔔 Notifications</h3>
       <ul>
-        <li *ngFor="let note of notifications">{{ note }}</li>
+        <li *ngFor="let note of notifications">
+          <strong>{{ note.title }}</strong><br />
+          <small>{{ note.content }}</small>
+        </li>
       </ul>
 
       <h3>📨 Nouvelles demandes</h3>
       <ul>
         <li *ngFor="let req of newRequests">
-          {{ req.name }} — {{ req.date }}
+          <strong>{{ req.title }}</strong><br />
+          {{ req.content }}
+          <button class="btn btn-success btn-sm" (click)="respondToRequest(req.id, true)">Accepter</button>
+          <button class="btn btn-outline-danger btn-sm ms-2" (click)="respondToRequest(req.id, false)">Refuser</button>
         </li>
       </ul>
     </div>
