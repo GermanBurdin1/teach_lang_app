@@ -48,3 +48,15 @@
   overflow: hidden;
   margin-top: 12px;
 }
+
+.request-card {
+  margin-bottom: 16px;
+  background-color: var(--color-surface); /* если используешь кастомную тему */
+}
+
+.voir-plus-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+

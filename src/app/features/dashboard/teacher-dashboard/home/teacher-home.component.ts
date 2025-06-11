@@ -44,6 +44,8 @@ export class TeacherHomeComponent implements OnInit {
     }
   ];
 
+  shownRequests = 5;
+
   ngOnInit(): void {
     // Возможна загрузка с backend позже
     this.homeworksToReview.sort((a, b) =>
@@ -85,6 +87,14 @@ export class TeacherHomeComponent implements OnInit {
     this.notificationService.updateNotificationStatus(id, status).subscribe(() => {
       this.newRequests = this.newRequests.filter(req => req.id !== id);
     });
+  }
+
+  loadMore(): void {
+    this.shownRequests = Math.min(this.shownRequests + 5, this.newRequests.length);
+  }
+
+  reduce(): void {
+    this.shownRequests = 5;
   }
 
 }

@@ -14,34 +14,51 @@
       </ul>
 
       <h3>📨 Nouvelles demandes</h3>
-      <ul>
-        <li *ngFor="let req of newRequests">
-          <strong>{{ req.title }}</strong><br />
-          {{ req.content }}
-          <button class="btn btn-success btn-sm" (click)="respondToRequest(req.id, true)">Accepter</button>
-          <button class="btn btn-outline-danger btn-sm ms-2" (click)="respondToRequest(req.id, false)">Refuser</button>
-        </li>
-      </ul>
+
+      <mat-card *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card">
+        <mat-card-title>{{ req.title }}</mat-card-title>
+        <mat-card-content>
+          <p>{{ req.content }}</p>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-raised-button color="primary" (click)="respondToRequest(req.id, true)">
+            Accepter
+          </button>
+          <button mat-stroked-button color="warn" (click)="respondToRequest(req.id, false)">
+            Refuser
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <div class="voir-plus-wrapper" *ngIf="newRequests.length > 5">
+        <button mat-button color="accent" *ngIf="shownRequests < newRequests.length" (click)="loadMore()">
+          Voir plus
+        </button>
+        <button mat-button color="warn" *ngIf="shownRequests > 5" (click)="reduce()">
+          Réduire
+        </button>
+
+
+      </div>
+
+      <!-- Правая колонка -->
+      <div class="column right-column">
+        <h3>📋 Devoirs à corriger</h3>
+        <ul>
+          <li *ngFor="let hw of homeworksToReview">
+            {{ hw.title }} — {{ hw.student }} (pour le {{ hw.dueDate }})
+          </li>
+        </ul>
+      </div>
+
     </div>
 
-    <!-- Правая колонка -->
-    <div class="column right-column">
-      <h3>📋 Devoirs à corriger</h3>
-      <ul>
-        <li *ngFor="let hw of homeworksToReview">
-          {{ hw.title }} — {{ hw.student }} (pour le {{ hw.dueDate }})
-        </li>
-      </ul>
+    <!-- 🔽 НИЖНЯЯ ЧАСТЬ -->
+    <div class="bottom-section">
+      <h3>🗓️ Prochains cours</h3>
+      <div class="calendar-wrapper">
+        <app-calendar-preview [events]="upcomingLessons"></app-calendar-preview>
+      </div>
     </div>
 
   </div>
-
-  <!-- 🔽 НИЖНЯЯ ЧАСТЬ -->
-  <div class="bottom-section">
-    <h3>🗓️ Prochains cours</h3>
-    <div class="calendar-wrapper">
-      <app-calendar-preview [events]="upcomingLessons"></app-calendar-preview>
-    </div>
-  </div>
-
-</div>
