@@ -38,6 +38,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatRadioModule } from '@angular/material/radio';
 import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
@@ -89,7 +90,8 @@ import { AdminSettingsComponent } from '../settings/admin-settings/admin-setting
     ReactiveFormsModule,
     MatButtonToggleModule,
     MatButtonModule,
-    MatDividerModule
+    MatDividerModule,
+    MatRadioModule
   ],
   exports: [ReviewListComponent]
 })

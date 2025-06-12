@@ -13,7 +13,20 @@
         </li>
       </ul>
 
-      <h3>📨 Nouvelles demandes</h3>
+      <h3>📨 Nouvelles demandes <span *ngIf="newRequests.length">+{{ newRequests.length }}</span></h3>
+
+      <!-- обработанные заявки -->
+      <ng-container *ngIf="treatedRequests.length > 0">
+        <h4 class="mt-4">✅ Demandes traitées</h4>
+        <mat-card *ngFor="let req of treatedRequests" class="request-card treated">
+          <mat-card-title>{{ req.title }}</mat-card-title>
+          <mat-card-content>
+            <p>{{ req.content }}</p>
+            <span>Status: <strong>{{ req.status }}</strong></span>
+          </mat-card-content>
+        </mat-card>
+      </ng-container>
+
 
       <mat-card *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card">
         <mat-card-title>{{ req.title }}</mat-card-title>
@@ -21,12 +34,32 @@
           <p>{{ req.content }}</p>
         </mat-card-content>
         <mat-card-actions align="end">
-          <button mat-raised-button color="primary" (click)="respondToRequest(req.id, true)">
+          <button mat-raised-button color="primary" (click)="respondToRequest(req, true)">
             Accepter
           </button>
-          <button mat-stroked-button color="warn" (click)="respondToRequest(req.id, false)">
+          <button mat-stroked-button color="warn" (click)="respondToRequest(req, false)">
             Refuser
           </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <mat-card *ngIf="showRefuseDialog" class="request-card">
+        <mat-card-title>Refuser la demande</mat-card-title>
+        <mat-card-content>
+          <mat-radio-group [(ngModel)]="selectedReason">
+            <mat-radio-button *ngFor="let reason of REJECTION_REASONS" [value]="reason">
+              {{ reason }}
+            </mat-radio-button>
+          </mat-radio-group>
+
+          <mat-form-field *ngIf="selectedReason === 'Autre'" appearance="fill" class="w-full">
+            <mat-label>Précisez</mat-label>
+            <input matInput [(ngModel)]="customReason" />
+          </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-button (click)="showRefuseDialog = false">Annuler</button>
+          <button mat-raised-button color="warn" (click)="confirmRefusal()">Confirmer le refus</button>
         </mat-card-actions>
       </mat-card>
 

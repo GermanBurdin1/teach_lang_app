@@ -56,15 +56,16 @@ export class StudentHomeComponent implements OnInit {
 
     this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
       this.upcomingLessons = lessons.map(lesson => ({
-        start: new Date(lesson.startTime),
-        end: new Date(lesson.endTime),
-        title: `Cours avec ${lesson.teacher.name}`,
+        start: new Date(lesson.scheduledAt),
+        end: new Date(new Date(lesson.scheduledAt).getTime() + 60 * 60 * 1000),
+        title: `Cours avec ${lesson.teacherName}`,
         color: { primary: '#3f51b5', secondary: '#e8eaf6' },
         allDay: false
       }));
     });
 
-    this.lessonService.getSessionsForStudent().subscribe(sessions => {
+
+    this.lessonService.getConfirmedLessons(studentId).subscribe(sessions => {
       this.upcomingLessons = this.mapSessionsToEvents(sessions);
     });
 

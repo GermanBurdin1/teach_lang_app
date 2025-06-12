@@ -18,6 +18,15 @@ export class LessonService {
     return this.http.post(`${this.baseUrl}/book`, data);
   }
 
+  respondToBooking(lessonId: string, accepted: boolean, reason?: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/respond`, {
+    lessonId,
+    accepted,
+    reason,
+  });
+}
+
+
 
 
   getSessionsForStudent(): Observable<any[]> {
