@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,21 +19,22 @@ export class LessonService {
   }
 
   respondToBooking(lessonId: string, accepted: boolean, reason?: string): Observable<any> {
-  return this.http.post(`${this.baseUrl}/respond`, {
-    lessonId,
-    accepted,
-    reason,
-  });
-}
-
-
-
+    return this.http.post(`${this.baseUrl}/respond`, {
+      lessonId,
+      accepted,
+      reason,
+    });
+  }
 
   getSessionsForStudent(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/student/me/confirmed`);
   }
 
   getConfirmedLessons(studentId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/student/${studentId}/confirmed-lessons`);
+    return this.http
+      .get<any[]>(`http://localhost:3004/lessons/student/${studentId}/confirmed-lessons`)
+      .pipe(
+        tap(lessons => console.log('📚 Confirmed lessons received from backend:', lessons))
+      );
   }
 }

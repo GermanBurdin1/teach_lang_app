@@ -9,7 +9,7 @@
       <ul>
         <li *ngFor="let note of notifications">
           <strong>{{ note.title }}</strong><br />
-          <small>{{ note.content }}</small>
+          <small>{{ note.message }}</small>
         </li>
       </ul>
 
@@ -21,7 +21,7 @@
         <mat-card *ngFor="let req of treatedRequests" class="request-card treated">
           <mat-card-title>{{ req.title }}</mat-card-title>
           <mat-card-content>
-            <p>{{ req.content }}</p>
+            <p>{{ req.message }}</p>
             <span>Status: <strong>{{ req.status }}</strong></span>
           </mat-card-content>
         </mat-card>
@@ -31,7 +31,7 @@
       <mat-card *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card">
         <mat-card-title>{{ req.title }}</mat-card-title>
         <mat-card-content>
-          <p>{{ req.content }}</p>
+          <p>{{ req.message }}</p>
         </mat-card-content>
         <mat-card-actions align="end">
           <button mat-raised-button color="primary" (click)="respondToRequest(req, true)">

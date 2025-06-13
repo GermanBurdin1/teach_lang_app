@@ -51,7 +51,7 @@ export class StudentHomeComponent implements OnInit {
     this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
       this.notifications = res
         .filter(n => n.type === 'booking_response')
-        .map(n => `${n.title}: ${n.content}`);
+        .map(n => `${n.title}: ${n.message}`);
     });
 
     this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
@@ -64,10 +64,6 @@ export class StudentHomeComponent implements OnInit {
       }));
     });
 
-
-    this.lessonService.getConfirmedLessons(studentId).subscribe(sessions => {
-      this.upcomingLessons = this.mapSessionsToEvents(sessions);
-    });
 
     const tomorrow = new Date();
     tomorrow.setHours(11, 0, 0, 0);

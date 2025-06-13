@@ -78,7 +78,7 @@ export class TeacherHomeComponent implements OnInit {
           id: 'warning-missing-profile',
           user_id: userId,
           title: '⚠️ Veuillez compléter votre profil',
-          content: '...pour apparaître dans les résultats de recherche.',
+          message: '...pour apparaître dans les résultats de recherche.',
           type: 'info',
           status: 'pending'
         });
@@ -147,7 +147,7 @@ export class TeacherHomeComponent implements OnInit {
     const reason = this.selectedReason === 'Autre' ? this.customReason.trim() : this.selectedReason;
     if (!reason || !this.selectedRequest) return;
 
-    const metadata = this.parseMetadata(this.selectedRequest.content);
+    const metadata = this.parseMetadata(this.selectedRequest.message);
     if (!metadata) return;
 
     this.lessonService.respondToBooking(metadata.lessonId, false, reason).subscribe(() => {
