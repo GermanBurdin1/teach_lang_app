@@ -36,7 +36,8 @@ export class StudentHomeComponent implements OnInit {
   actionType: 'reschedule' | 'cancel' | null = null;
   customCancelReason: string = '';
   notifications: string[] = [];
-
+  selectedDateOnly: Date | null = null;
+  selectedTimeOnly: string = '';
 
   constructor(
     private notificationService: NotificationService,
@@ -52,8 +53,20 @@ export class StudentHomeComponent implements OnInit {
       this.notifications = res
         .filter(n => n.type === 'booking_response')
         .map(n => `${n.title}: ${n.message}`);
+      
+      // Добавляем обновление календаря при получении уведомления
+      this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
+        this.upcomingLessons = lessons.map(lesson => ({
+          start: new Date(lesson.scheduledAt),
+          end: new Date(new Date(lesson.scheduledAt).getTime() + 60 * 60 * 1000),
+          title: `Cours avec ${lesson.teacherName}`,
+          color: { primary: '#3f51b5', secondary: '#e8eaf6' },
+          allDay: false
+        }));
+      });
     });
 
+    // Оставляем начальную загрузку календаря как есть
     this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
       this.upcomingLessons = lessons.map(lesson => ({
         start: new Date(lesson.scheduledAt),
@@ -63,7 +76,6 @@ export class StudentHomeComponent implements OnInit {
         allDay: false
       }));
     });
-
 
     const tomorrow = new Date();
     tomorrow.setHours(11, 0, 0, 0);
@@ -130,6 +142,8 @@ export class StudentHomeComponent implements OnInit {
     this.showModifyModal = true;
     this.actionType = null;
     this.cancelReason = null;
+    this.selectedDateOnly = null;
+    this.selectedTimeOnly = '';
   }
 
   closeModifyModal(): void {
@@ -137,26 +151,26 @@ export class StudentHomeComponent implements OnInit {
     this.selectedNewDate = null;
     this.cancelReason = null;
     this.actionType = null;
+    this.selectedDateOnly = null;
+    this.selectedTimeOnly = '';
   }
 
   submitModification(): void {
-    if (this.actionType === 'reschedule' && this.selectedNewDate) {
-      console.log('Reschedule requested:', this.selectedNewDate);
-    } else if (this.actionType === 'cancel' && this.cancelReason) {
-      const reasonToSend =
-        this.cancelReason === 'autre' ? this.customCancelReason.trim() : this.cancelReason;
-      if (!reasonToSend) {
-        console.warn('Veuillez préciser une raison d’annulation.');
-        return;
-      }
-      console.log('Cancellation reason sent:', reasonToSend);
-    } else {
-      console.warn('Formulaire incomplet');
-      return;
+    if (this.actionType === 'reschedule' && this.selectedDateOnly && this.selectedTimeOnly) {
+      const [hours, minutes] = this.selectedTimeOnly.split(':').map(Number);
+      const newDate = new Date(this.selectedDateOnly);
+      newDate.setHours(hours, minutes);
+      
+      // Here you would typically call your service to update the lesson
+      console.log('Rescheduling to:', newDate);
+      this.rescheduleConfirmed = true;
+      this.closeModifyModal();
+    } else if (this.actionType === 'cancel') {
+      const reason = this.cancelReason === 'autre' ? this.customCancelReason : this.cancelReason;
+      // Here you would typically call your service to cancel the lesson
+      console.log('Cancelling lesson with reason:', reason);
+      this.closeModifyModal();
     }
-
-    this.closeModifyModal();
-    this.rescheduleConfirmed = true;
   }
 
   onBackFromModify(): void {
@@ -189,6 +203,4 @@ export class StudentHomeComponent implements OnInit {
       };
     });
   }
-
-
 }

@@ -43,6 +43,9 @@ import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.comp
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
 import { AdminSettingsComponent } from '../settings/admin-settings/admin-settings.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 @NgModule({
   declarations: [
@@ -91,7 +94,10 @@ import { AdminSettingsComponent } from '../settings/admin-settings/admin-setting
     MatButtonToggleModule,
     MatButtonModule,
     MatDividerModule,
-    MatRadioModule
+    MatRadioModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    BsDatepickerModule.forRoot()
   ],
   exports: [ReviewListComponent]
 })

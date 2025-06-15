@@ -125,19 +125,25 @@
       <!-- Reporter -->
       <div *ngIf="actionType === 'reschedule'" class="mt-3">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nouvelle date souhaitée</mat-label>
-          <input matInput type="datetime-local" [(ngModel)]="selectedNewDate" />
+          <mat-label>Дата</mat-label>
+          <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDateOnly" />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Время</mat-label>
+          <input matInput type="time" [(ngModel)]="selectedTimeOnly" />
         </mat-form-field>
       </div>
 
       <!-- Annuler -->
       <div *ngIf="actionType === 'cancel'" class="mt-3">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Motif d’annulation</mat-label>
+          <mat-label>Motif d'annulation</mat-label>
           <mat-select [(ngModel)]="cancelReason">
             <mat-option value="malade">Je suis malade</mat-option>
             <mat-option value="urgence">Urgence personnelle</mat-option>
-            <mat-option value="emploi_du_temps">Changement d’emploi du temps</mat-option>
+            <mat-option value="emploi_du_temps">Changement d'emploi du temps</mat-option>
             <mat-option value="autre">Autre raison</mat-option>
           </mat-select>
         </mat-form-field>
@@ -161,7 +167,7 @@
 <ng-template [ngIf]="rescheduleConfirmed">
   <div class="modal-overlay" (click)="rescheduleConfirmed = false"></div>
   <div class="mat-modal-content" (click)="$event.stopPropagation()">
-    <p>📬 Votre demande de report a été envoyée à l’enseignant.</p>
+    <p>📬 Votre demande de report a été envoyée à l'enseignant.</p>
     <button mat-flat-button color="accent" (click)="rescheduleConfirmed = false">Fermer</button>
   </div>
 </ng-template>
