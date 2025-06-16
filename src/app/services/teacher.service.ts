@@ -91,5 +91,22 @@ export class TeacherService {
     return this.http.put(`http://localhost:3001/teacher-profile/photo/${userId}`, { photoUrl });
   }
 
+  getMyTeachers(): Observable<Teacher[]> {
+    return this.http.get<Teacher[]>('http://localhost:3001/student/my-teachers');
+  }
+
+  getMyTeachersFromLessonService(): Observable<Teacher[]> {
+    const studentId = this.authService.user?.id;
+    console.log('[TeacherService] getMyTeachersFromLessonService studentId:', studentId);
+    if (!studentId) {
+      throw new Error('Не найден id студента');
+    }
+    return this.http.get<Teacher[]>(`http://localhost:3004/lessons/student/${studentId}/teachers`).pipe(
+      map(result => {
+        console.log('[TeacherService] getMyTeachersFromLessonService result:', result);
+        return result;
+      })
+    );
+  }
 
 }

@@ -28,6 +28,9 @@ export class TeacherListComponent implements OnInit {
   total = 0;
   isLoading = false;
 
+  myTeachers: Teacher[] = [];
+  showMyTeachers = false;
+
   constructor(
     private teacherService: TeacherService,
     private route: ActivatedRoute,
@@ -35,7 +38,9 @@ export class TeacherListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    console.log('[TeacherListComponent] ngOnInit');
     this.route.queryParams.subscribe(params => {
+      console.log('[TeacherListComponent] queryParams', params);
       this.searchQuery = params['search'] || '';
       this.selectedSpecialization = params['specialization'] || '';
       this.sortOption = params['sort'] || '';
@@ -48,12 +53,13 @@ export class TeacherListComponent implements OnInit {
       this.reviewMin = params['reviewMin'] ? +params['reviewMin'] : null;
 
       this.loadTeachers();
+      this.loadMyTeachers();
     });
   }
 
   loadTeachers() {
     this.isLoading = true;
-
+    console.log('[TeacherListComponent] loadTeachers called');
     const filters = {
       search: this.searchQuery,
       specialization: this.selectedSpecialization,
@@ -63,9 +69,9 @@ export class TeacherListComponent implements OnInit {
       experienceMax: this.experienceMax ?? undefined,
       language: this.selectedLanguage
     };
-
+    console.log('[TeacherListComponent] loadTeachers filters', filters);
     this.teacherService.getTeachers(this.page, 9999, filters).subscribe(response => {
-      console.log('📦 Полученные преподаватели:', response.data); // ⬅️ Вот сюда!
+      console.log('[TeacherListComponent] Полученные преподаватели:', response.data);
       this.allTeachers = response.data;
       this.total = response.total;
       this.updateSpecializationOptions();
@@ -124,5 +130,13 @@ export class TeacherListComponent implements OnInit {
 
   get maxPage(): number {
     return Math.ceil(this.total / this.limit);
+  }
+
+  loadMyTeachers() {
+    console.log('[TeacherListComponent] loadMyTeachers called');
+    this.teacherService.getMyTeachersFromLessonService().subscribe(teachers => {
+      console.log('[TeacherListComponent] Получены мои преподаватели:', teachers);
+      this.myTeachers = teachers;
+    });
   }
 }
