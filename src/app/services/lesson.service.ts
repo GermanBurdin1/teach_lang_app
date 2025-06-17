@@ -37,4 +37,11 @@ export class LessonService {
         tap(lessons => console.log('📚 Confirmed lessons received from backend:', lessons))
       );
   }
+
+  getConfirmedStudentsForTeacher(teacherId: string): Observable<any[]> {
+    console.log('[FRONT] getConfirmedStudentsForTeacher called with teacherId:', teacherId);
+    return this.http.get<any[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-students`).pipe(
+      tap(students => console.log('[FRONT] getConfirmedStudentsForTeacher result:', students))
+    );
+  }
 }

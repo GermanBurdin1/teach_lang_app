@@ -7,6 +7,7 @@ import { AuthService } from '../src/app/services/auth.service';
 import { ProfilesApiService } from '../src/app/services/profiles-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarEvent } from 'angular-calendar';
+import { LessonService } from '../src/app/services/lesson.service';
 
 
 @Component({
@@ -18,7 +19,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   @ViewChild('publicProfile') publicProfileTemplate!: TemplateRef<any>;
   @ViewChild('studentDetailDialog') studentDetailDialog!: TemplateRef<any>;
 
-  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService,) { }
+  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService, private lessonService: LessonService) { }
 
   profile: TeacherProfile | null = null;
   reviews: Review[] = [];
@@ -78,13 +79,25 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
   ];
 
+  confirmedStudents: any[] = [];
+
   ngOnInit(): void {
-    this.profileService.getTeacherProfile().subscribe((data) => {
-      this.profile = data;
-    });
+    // this.profileService.getTeacherProfile().subscribe((data) => {
+    //   this.profile = data;
+    // });
 
     const stored = localStorage.getItem('teacher_reviews');
     this.reviews = stored ? JSON.parse(stored) : MOCK_REVIEWS;
+
+    // Загрузка подтверждённых студентов
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (teacherId) {
+      console.log('[OVERVIEW] Запрашиваем подтверждённых студентов для teacherId:', teacherId);
+      this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
+        this.confirmedStudents = students;
+        console.log('[OVERVIEW] confirmedStudents (ngOnInit):', students);
+      });
+    }
   }
 
   openPublicProfileModal(): void {
@@ -150,9 +163,10 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   filteredStudents() {
-    if (this.studentViewFilter === 'students') return this.students.filter(s => s.isStudent);
-    if (this.studentViewFilter === 'pending') return this.students.filter(s => !s.isStudent);
-    return this.students;
+    const source = this.confirmedStudents.length > 0 ? this.confirmedStudents : this.students;
+    if (this.studentViewFilter === 'students') return source.filter(s => s.isStudent);
+    if (this.studentViewFilter === 'pending') return source.filter(s => !s.isStudent);
+    return source;
   }
 
 
@@ -173,5 +187,15 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     this.currentPage = page;
   }
 
+  refreshConfirmedStudents(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (teacherId) {
+      console.log('[OVERVIEW] Обновляем подтверждённых студентов для teacherId:', teacherId);
+      this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
+        this.confirmedStudents = students;
+        console.log('[OVERVIEW] confirmedStudents (refresh):', students);
+      });
+    }
+  }
 
 }
