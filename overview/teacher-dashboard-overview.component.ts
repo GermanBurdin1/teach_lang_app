@@ -8,6 +8,7 @@ import { ProfilesApiService } from '../src/app/services/profiles-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarEvent } from 'angular-calendar';
 import { LessonService } from '../src/app/services/lesson.service';
+import { NotificationService } from '../src/app/services/notifications.service';
 
 
 @Component({
@@ -19,7 +20,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   @ViewChild('publicProfile') publicProfileTemplate!: TemplateRef<any>;
   @ViewChild('studentDetailDialog') studentDetailDialog!: TemplateRef<any>;
 
-  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService, private lessonService: LessonService) { }
+  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService, private lessonService: LessonService, private notificationService: NotificationService) { }
 
   profile: TeacherProfile | null = null;
   reviews: Review[] = [];
@@ -80,6 +81,19 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   ];
 
   confirmedStudents: any[] = [];
+  pendingRequests: any[] = [];
+  selectedRequest: any = null;
+  selectedReason = '';
+  customReason = '';
+  showRefuseDialog = false;
+  treatedRequests: any[] = [];
+  REJECTION_REASONS = [
+    'Je ne suis pas disponible à cette date',
+    'Ce créneau ne correspond pas à mon emploi du temps régulier',
+    'Je préfère discuter avant d\'accepter une première leçon',
+    'Je n\'enseigne pas actuellement à ce niveau',
+    'Autre'
+  ];
 
   ngOnInit(): void {
     // this.profileService.getTeacherProfile().subscribe((data) => {
@@ -96,6 +110,17 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
         this.confirmedStudents = students;
         console.log('[OVERVIEW] confirmedStudents (ngOnInit):', students);
+      });
+
+      // Загрузка заявок
+      this.notificationService.getNotificationsForUser(teacherId).subscribe({
+        next: (all: any[]) => {
+          this.pendingRequests = all.filter((n: any) => n.type === 'booking_request' && n.status === 'pending');
+          console.log('[OVERVIEW] pendingRequests:', this.pendingRequests);
+        },
+        error: (err: any) => {
+          console.error('[OVERVIEW] Ошибка при получении заявок:', err);
+        }
       });
     }
   }
@@ -163,9 +188,9 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   filteredStudents() {
+    if (this.studentViewFilter === 'pending') return this.pendingRequests;
     const source = this.confirmedStudents.length > 0 ? this.confirmedStudents : this.students;
     if (this.studentViewFilter === 'students') return source.filter(s => s.isStudent);
-    if (this.studentViewFilter === 'pending') return source.filter(s => !s.isStudent);
     return source;
   }
 
@@ -196,6 +221,56 @@ export class TeacherDashboardOverviewComponent implements OnInit {
         console.log('[OVERVIEW] confirmedStudents (refresh):', students);
       });
     }
+  }
+
+  respondToRequest(request: any, accepted: boolean): void {
+    const metadata = (request as any).data;
+    if (!metadata?.lessonId) {
+      console.error('❌ Données de requête invalides (lessonId manquant)');
+      return;
+    }
+
+    if (accepted) {
+      this.lessonService.respondToBooking(metadata.lessonId, accepted).subscribe(() => {
+        const processed = this.pendingRequests.find(r => r.id === request.id);
+        if (processed) {
+          this.treatedRequests.unshift({ ...processed, status: accepted ? 'accepted' : 'rejected' });
+        }
+        this.pendingRequests = this.pendingRequests.filter(r => r.id !== request.id);
+        this.refreshConfirmedStudents();
+      });
+    } else {
+      this.selectedRequest = request;
+      this.selectedReason = '';
+      this.customReason = '';
+      this.showRefuseDialog = true;
+    }
+  }
+
+  parseMetadata(content: string): { lessonId: string } | null {
+    try {
+      const parsed = JSON.parse(content);
+      if (parsed.lessonId) return parsed;
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  confirmRefusal(): void {
+    const reason = this.selectedReason === 'Autre' ? this.customReason.trim() : this.selectedReason;
+    if (!reason || !this.selectedRequest) return;
+
+    const metadata = this.parseMetadata(this.selectedRequest.message);
+    if (!metadata) return;
+
+    this.lessonService.respondToBooking(metadata.lessonId, false, reason).subscribe(() => {
+      console.log('📤 [OVERVIEW] Rejet envoyé avec raison:', reason);
+      this.pendingRequests = this.pendingRequests.filter(r => r.id !== this.selectedRequest!.id);
+      this.selectedRequest = null;
+      this.showRefuseDialog = false;
+      this.refreshConfirmedStudents();
+    });
   }
 
 }

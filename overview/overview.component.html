@@ -15,13 +15,40 @@
       <mat-card class="student-card" *ngFor="let student of paginatedStudents">
         <img *ngIf="student.photoUrl" [src]="student.photoUrl" class="student-photo" />
         <div class="student-info">
-          <h4>{{ student.name }}</h4>
+          <h4>{{ student.metadata?.studentName || student.name || student.title }}</h4>
           <p *ngIf="student.isStudent">Prochain cours: {{ student.nextLessonDate }}</p>
-          <p *ngIf="!student.isStudent">Demande reçue le {{ student.requestDate }}</p>
+          <p *ngIf="!student.isStudent && student.requestDate">Demande reçue le {{ student.requestDate }}</p>
+          <p *ngIf="student.type === 'booking_request' && student.status === 'pending'">
+            {{ student.message || 'Demande de réservation en attente' }}
+          </p>
         </div>
+        <ng-container *ngIf="student.type === 'booking_request' && student.status === 'pending'">
+          <button mat-raised-button color="primary" (click)="respondToRequest(student, true)">Accepter</button>
+          <button mat-stroked-button color="warn" (click)="respondToRequest(student, false)">Refuser</button>
+        </ng-container>
         <button mat-icon-button (click)="openStudentModal(student)" aria-label="Voir les détails" matTooltip="Détails">
           <mat-icon>open_in_new</mat-icon>
         </button>
+      </mat-card>
+
+      <mat-card *ngIf="showRefuseDialog" class="request-card">
+        <mat-card-title>Refuser la demande</mat-card-title>
+        <mat-card-content>
+          <mat-radio-group [(ngModel)]="selectedReason">
+            <mat-radio-button *ngFor="let reason of REJECTION_REASONS" [value]="reason">
+              {{ reason }}
+            </mat-radio-button>
+          </mat-radio-group>
+
+          <mat-form-field *ngIf="selectedReason === 'Autre'" appearance="fill" class="w-full">
+            <mat-label>Précisez</mat-label>
+            <input matInput [(ngModel)]="customReason" />
+          </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-button (click)="showRefuseDialog = false">Annuler</button>
+          <button mat-raised-button color="warn" (click)="confirmRefusal()">Confirmer le refus</button>
+        </mat-card-actions>
       </mat-card>
     </div>
     <div class="pagination-controls">
