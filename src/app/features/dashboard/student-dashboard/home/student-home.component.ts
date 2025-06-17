@@ -35,7 +35,7 @@ export class StudentHomeComponent implements OnInit {
   showModifyModal = false;
   actionType: 'reschedule' | 'cancel' | null = null;
   customCancelReason: string = '';
-  notifications: string[] = [];
+  notifications: { text: string, teacherId?: string, teacherName?: string }[] = [];
   selectedDateOnly: Date | null = null;
   selectedTimeOnly: string = '';
 
@@ -50,9 +50,19 @@ export class StudentHomeComponent implements OnInit {
     if (!studentId) return;
 
     this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
+      console.log('[StudentHomeComponent] RAW notifications from backend:', res);
       this.notifications = res
         .filter(n => n.type === 'booking_response')
-        .map(n => `${n.title}: ${n.message}`);
+        .map((n: any) => {
+          console.log('[StudentHomeComponent] notification object:', n);
+          console.log('[StudentHomeComponent] teacherName in data:', n.data?.teacherName);
+          return {
+            text: `${n.title}: ${n.message}`,
+            teacherId: n.data?.teacherId,
+            teacherName: n.data?.teacherName || ''
+          };
+        });
+      console.log('[StudentHomeComponent] notifications for template:', this.notifications);
       
       // Добавляем обновление календаря при получении уведомления
       this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
@@ -202,5 +212,13 @@ export class StudentHomeComponent implements OnInit {
         meta: { sessionId: session.id, status: session.status }
       };
     });
+  }
+
+  makeProfesseurLink(text: string, teacherId: string, teacherName?: string): string {
+    // Заменяем 'Le professeur' или 'Votre professeur' на ссылку с именем
+    const displayName = teacherName ? `Votre professeur ${teacherName}` : 'Votre professeur';
+    const link = `<a href="/student/teachers/${teacherId}" title="voir l'information" style="text-decoration: underline; cursor: pointer;">${displayName}</a>`;
+    // Заменяем оба варианта
+    return text.replace('Votre professeur', link).replace('Le professeur', link);
   }
 }

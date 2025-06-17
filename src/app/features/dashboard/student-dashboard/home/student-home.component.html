@@ -5,7 +5,10 @@
     <div class="notification-zone">
       <h3>🔔 Notifications</h3>
       <ul *ngIf="notifications.length > 0; else noNotifications">
-        <li *ngFor="let note of notifications">{{ note }}</li>
+        <li *ngFor="let note of notifications">
+          <span *ngIf="note.teacherId; else plainText" [innerHTML]="makeProfesseurLink(note.text, note.teacherId, note.teacherName)"></span>
+          <ng-template #plainText>{{ note.text }}</ng-template>
+        </li>
       </ul>
       <ng-template #noNotifications>
         <p>✅ Aucun nouveau message</p>
