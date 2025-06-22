@@ -5,6 +5,7 @@ import { TeacherService } from '../../../../services/teacher.service';
 import { NotificationService } from '../../../../services/notifications.service';
 import { Notification } from '../../../../models/notification.model';
 import { LessonService } from '../../../../services/lesson.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-teacher-home',
   templateUrl: './teacher-home.component.html',
@@ -15,7 +16,8 @@ export class TeacherHomeComponent implements OnInit {
     private authService: AuthService,
     private teacherService: TeacherService,
     private notificationService: NotificationService,
-    private lessonService: LessonService
+    private lessonService: LessonService,
+    private snackBar: MatSnackBar
   ) { }
 
   // notifications: string[] = [
@@ -176,17 +178,36 @@ export class TeacherHomeComponent implements OnInit {
   }
 
   confirmRefusal(): void {
+    console.log('[DEBUG] confirmRefusal вызван');
     const reason = this.selectedReason === 'Autre' ? this.customReason.trim() : this.selectedReason;
-    if (!reason || !this.selectedRequest) return;
+    console.log('[DEBUG] Выбранная причина отказа:', reason);
+    if (!reason || !this.selectedRequest) {
+      console.warn('[DEBUG] Нет причины или не выбрана заявка для отказа');
+      return;
+    }
 
-    const metadata = this.parseMetadata(this.selectedRequest.message);
-    if (!metadata) return;
+    let metadata = this.selectedRequest.data;
+    if (!metadata && 'metadata' in this.selectedRequest) {
+      metadata = (this.selectedRequest as any).metadata;
+    }
+    console.log('[DEBUG] metadata после извлечения:', metadata);
+    if (!metadata || !metadata.lessonId) {
+      console.warn('[DEBUG] Не удалось получить lessonId из data/metadata');
+      return;
+    }
 
-    this.lessonService.respondToBooking(metadata.lessonId, false, reason).subscribe(() => {
-      console.log('📤 [FRONT] Rejet envoyé avec raison:', reason);
-      this.newRequests = this.newRequests.filter(r => r.id !== this.selectedRequest!.id);
-      this.selectedRequest = null;
-      this.showRefuseDialog = false;
+    this.lessonService.respondToBooking(metadata.lessonId, false, reason).subscribe({
+      next: () => {
+        console.log('📤 [FRONT] Rejet envoyé avec raison:', reason);
+        this.newRequests = this.newRequests.filter(r => r.id !== this.selectedRequest!.id);
+        this.selectedRequest = null;
+        this.showRefuseDialog = false;
+        this.refreshNotifications();
+        this.snackBar.open('Студенту отправлено уведомление об отказе', 'OK', { duration: 3000 });
+      },
+      error: (err) => {
+        console.error('[DEBUG] Ошибка при отправке отказа:', err);
+      }
     });
   }
 }

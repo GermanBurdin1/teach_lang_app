@@ -10,6 +10,7 @@ import { CalendarEvent } from 'angular-calendar';
 import { LessonService } from '../src/app/services/lesson.service';
 import { NotificationService } from '../src/app/services/notifications.service';
 import { TeacherService } from '../src/app/services/teacher.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -21,7 +22,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   @ViewChild('publicProfile') publicProfileTemplate!: TemplateRef<any>;
   @ViewChild('studentDetailDialog') studentDetailDialog!: TemplateRef<any>;
 
-  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService, private lessonService: LessonService, private notificationService: NotificationService, private teacherService: TeacherService) { }
+  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService, private lessonService: LessonService, private notificationService: NotificationService, private teacherService: TeacherService, private snackBar: MatSnackBar) { }
 
   profile: TeacherProfile | null = null;
   reviews: Review[] = [];
@@ -338,6 +339,8 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       this.selectedRequest = null;
       this.showRefuseDialog = false;
       this.refreshConfirmedStudents();
+      this.refreshStudents();
+      this.snackBar.open('Студенту отправлено уведомление об отказе', 'OK', { duration: 3000 });
     });
   }
 
