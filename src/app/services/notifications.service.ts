@@ -10,15 +10,15 @@ export class NotificationService {
   constructor(private http: HttpClient) { }
 
   getNotificationsForUser(userId: string): Observable<Notification[]> {
+    console.log('[NotificationService][FRONT] getNotificationsForUser called with userId:', userId);
     return this.http.get<Notification[]>(`${this.baseUrl}/${userId}`)
       .pipe(
-        tap(notifs => console.log('🔔 Notifications received from backend:', notifs))
+        tap(notifs => console.log('[NotificationService][FRONT] Notifications received from backend:', notifs))
       );
   }
 
-
-
   updateNotificationStatus(id: string, status: 'accepted' | 'rejected'): Observable<any> {
+    console.log('[NotificationService][FRONT] updateNotificationStatus called with id:', id, 'status:', status);
     return this.http.patch(`${this.baseUrl}/${id}`, { status });
   }
 

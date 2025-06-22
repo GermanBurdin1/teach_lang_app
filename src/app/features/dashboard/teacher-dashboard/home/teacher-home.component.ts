@@ -66,6 +66,25 @@ export class TeacherHomeComponent implements OnInit {
     });
   }
 
+  private refreshNotifications(): void {
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+    console.log('[TeacherHome][FRONT] refreshNotifications called for userId:', userId);
+    this.notificationService.getNotificationsForUser(userId).subscribe({
+      next: (all) => {
+        console.log('[TeacherHome][FRONT] notifications from backend:', all);
+        this.notifications = all.filter(n => n.type !== 'booking_request');
+        this.newRequests = all.filter(n => n.type === 'booking_request' && n.status === 'pending');
+        this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending');
+        console.log('[TeacherHome][FRONT] newRequests:', this.newRequests);
+        console.log('[TeacherHome][FRONT] treatedRequests:', this.treatedRequests);
+      },
+      error: (err) => {
+        console.error('❌ [FRONT] Ошибка при получении уведомлений:', err);
+      }
+    });
+  }
+
   ngOnInit(): void {
     // Возможна загрузка с backend позже
     this.homeworksToReview.sort((a, b) =>
@@ -101,24 +120,22 @@ export class TeacherHomeComponent implements OnInit {
     });
 
     this.refreshCalendar();
+    this.refreshNotifications();
   }
 
   respondToRequest(request: Notification, accepted: boolean): void {
-    // 🔍 Используем data вместо content
     const metadata = (request as any).data;
     if (!metadata?.lessonId) {
       console.error('❌ Données de requête invalides (lessonId manquant)');
       return;
     }
 
+    console.log('[TeacherHome][FRONT] respondToRequest called for request:', request, 'accepted:', accepted);
     if (accepted) {
       this.lessonService.respondToBooking(metadata.lessonId, accepted).subscribe(() => {
-        const processed = this.newRequests.find(r => r.id === request.id);
-        if (processed) {
-          this.treatedRequests.unshift({ ...processed, status: accepted ? 'accepted' : 'rejected' });
-        }
-        this.newRequests = this.newRequests.filter(r => r.id !== request.id);
+        console.log('[TeacherHome][FRONT] Booking accepted, refreshing notifications and calendar');
         this.refreshCalendar();
+        this.refreshNotifications();
       });
     } else {
       this.selectedRequest = request;
@@ -127,9 +144,6 @@ export class TeacherHomeComponent implements OnInit {
       this.showRefuseDialog = true;
     }
   }
-
-
-
 
   loadMore(): void {
     this.shownRequests = Math.min(this.shownRequests + 5, this.newRequests.length);
@@ -162,8 +176,5 @@ export class TeacherHomeComponent implements OnInit {
       this.selectedRequest = null;
       this.showRefuseDialog = false;
     });
-
   }
-
-
 }
