@@ -67,20 +67,24 @@
     </div>
   </div>
 
-
   <!-- ПРАВАЯ ЧАСТЬ — СТАТИСТИКА -->
   <div class="stats-panel">
-    <h3>Mes statistiques</h3>
-
-    <p>👥 Nouveaux élèves ce mois: {{ stats.newStudents }}</p>
-    <div class="calendar-preview-wrapper">
-      <app-calendar-preview [events]="calendarEvents"></app-calendar-preview>
-    </div>
-
-    <button mat-stroked-button color="primary" (click)="openPublicProfileModal()">
+    <button mat-stroked-button color="primary" (click)="openPublicProfileModal()" style="margin-bottom: 16px; width: 100%;">
       <mat-icon>visibility</mat-icon> Voir ma fiche publique
     </button>
     <p class="preview-caption">Comment les étudiants me voient</p>
+
+    <h3>Mes statistiques</h3>
+    <p>👥 Nouveaux élèves ce mois: {{ stats.newStudents }}</p>
+    <div class="calendar-preview-wrapper" style="height: 800px; max-height: 800px; overflow: auto;">
+      <app-calendar-preview [events]="calendarEvents"
+        [hourSegments]="2"
+        [hourSegmentHeight]="80"
+        [dayStartHour]="8"
+        [dayEndHour]="22"
+        style="height: 800px; display: block;">
+      </app-calendar-preview>
+    </div>
   </div>
 </div>
 

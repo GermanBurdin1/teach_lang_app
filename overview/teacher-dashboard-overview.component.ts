@@ -96,26 +96,24 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // this.profileService.getTeacherProfile().subscribe((data) => {
-    //   this.profile = data;
-    // });
-
     const stored = localStorage.getItem('teacher_reviews');
     this.reviews = stored ? JSON.parse(stored) : MOCK_REVIEWS;
 
-    // Загрузка подтверждённых студентов
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
-      console.log('[OVERVIEW] Запрашиваем подтверждённых студентов для teacherId:', teacherId);
-      this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
-        this.confirmedStudents = students;
-        console.log('[OVERVIEW] confirmedStudents (ngOnInit):', students);
+      // Загружаем все подтверждённые занятия для календаря
+      this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
+        this.calendarEvents = lessons.map(lesson => ({
+          start: new Date(lesson.scheduledAt),
+          title: `Занятие с ${lesson.studentName}`,
+        }));
       });
 
-      // Загрузка заявок
+      // Загружаем заявки (demandes) как в teacher-home.component
       this.notificationService.getNotificationsForUser(teacherId).subscribe({
         next: (all: any[]) => {
           this.pendingRequests = all.filter((n: any) => n.type === 'booking_request' && n.status === 'pending');
+          this.treatedRequests = all.filter((n: any) => n.type === 'booking_request' && n.status !== 'pending');
           console.log('[OVERVIEW] pendingRequests:', this.pendingRequests);
         },
         error: (err: any) => {
