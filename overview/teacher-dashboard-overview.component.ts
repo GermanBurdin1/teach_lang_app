@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CalendarEvent } from 'angular-calendar';
 import { LessonService } from '../src/app/services/lesson.service';
 import { NotificationService } from '../src/app/services/notifications.service';
+import { TeacherService } from '../src/app/services/teacher.service';
 
 
 @Component({
@@ -20,7 +21,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   @ViewChild('publicProfile') publicProfileTemplate!: TemplateRef<any>;
   @ViewChild('studentDetailDialog') studentDetailDialog!: TemplateRef<any>;
 
-  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService, private lessonService: LessonService, private notificationService: NotificationService) { }
+  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService, private lessonService: LessonService, private notificationService: NotificationService, private teacherService: TeacherService) { }
 
   profile: TeacherProfile | null = null;
   reviews: Review[] = [];
@@ -95,6 +96,10 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     'Autre'
   ];
 
+  teacher: any = null;
+  teacherReviews: any[] = [];
+  showPublicProfilePreview = false;
+
   ngOnInit(): void {
     const stored = localStorage.getItem('teacher_reviews');
     this.reviews = stored ? JSON.parse(stored) : MOCK_REVIEWS;
@@ -120,14 +125,46 @@ export class TeacherDashboardOverviewComponent implements OnInit {
           console.error('[OVERVIEW] Ошибка при получении заявок:', err);
         }
       });
+
+      this.teacherService.getTeacherById(teacherId).subscribe(data => {
+        this.teacher = data || null;
+      });
+      this.teacherService.getReviewsByTeacher(teacherId).subscribe(reviews => {
+        this.teacherReviews = reviews;
+      });
     }
   }
 
   openPublicProfileModal(): void {
+    this.showPublicProfilePreview = true;
+    const userId = this.authService.getCurrentUser()?.id;
+    console.log('[Overview] Открытие публичного профиля для userId:', userId);
+    if (userId) {
+      this.teacherService.getTeacherById(userId).subscribe({
+        next: data => {
+          console.log('[Overview] teacherService.getTeacherById ответ:', data);
+          this.teacher = data || null;
+        },
+        error: err => {
+          console.error('[Overview] Ошибка при загрузке teacher:', err);
+        }
+      });
+      this.teacherService.getReviewsByTeacher(userId).subscribe({
+        next: reviews => {
+          console.log('[Overview] teacherService.getReviewsByTeacher ответ:', reviews);
+          this.teacherReviews = reviews;
+        },
+        error: err => {
+          console.error('[Overview] Ошибка при загрузке отзывов:', err);
+        }
+      });
+    }
     this.dialog.open(this.publicProfileTemplate, {
       width: '90%',
       maxWidth: '1100px',
       panelClass: 'teacher-preview-modal'
+    }).afterClosed().subscribe(() => {
+      this.showPublicProfilePreview = false;
     });
   }
 

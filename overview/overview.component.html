@@ -90,108 +90,141 @@
 
 <ng-template #publicProfile let-data>
   <div class="dialog-scrollable-content">
-    <div *ngIf="profile" class="teacher-overview-container">
-      <mat-card>
-        <div class="profile-header">
-          <img [src]="profile.photo_url" alt="Photo de {{ profile.full_name }}" class="profile-photo" />
-
-          <div class="profile-info">
-            <h2>{{ profile.full_name }}</h2>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Biographie</mat-label>
-              <textarea matInput [(ngModel)]="profile.bio" (ngModelChange)="updateProfileField()"></textarea>
-            </mat-form-field>
-
-            <div class="profile-tags">
-              <div class="chip-list">
-                <div class="chip" *ngFor="let subject of profile.specializations">
-                  {{ subject }}
-                  <button type="button" class="remove-btn" (click)="removeSpecialization(subject)">×</button>
+    <ng-container *ngIf="showPublicProfilePreview; else editableProfile">
+      <!-- Публичный вид (teacher) -->
+      <div *ngIf="teacher" class="teacher-overview-container">
+        <mat-card>
+          <div class="profile-header">
+            <img [src]="teacher.photoUrl" alt="Photo de {{ teacher.name }} {{ teacher.surname }}" class="profile-photo" />
+            <div class="profile-info">
+              <h2>{{ teacher.name }} {{ teacher.surname }}</h2>
+              <p>Email: {{ teacher.email }}</p>
+              <p>Bio: {{ teacher.bio }}</p>
+              <div class="profile-tags">
+                <div class="chip-list">
+                  <div class="chip" *ngFor="let subject of teacher.specializations">
+                    {{ subject }}
+                  </div>
                 </div>
               </div>
-
-
-
-              <mat-form-field class="full-width">
-                <mat-label>Ajouter une spécialisation</mat-label>
-                <input matInput (keyup.enter)="onEnterSpecialization($event)" />
-
-              </mat-form-field>
-            </div>
-
-            <div class="details">
-              <mat-form-field appearance="fill">
-                <mat-label>Expérience (années)</mat-label>
-                <input matInput type="number" [(ngModel)]="profile.experienceYears"
-                  (ngModelChange)="updateProfileField()" />
-              </mat-form-field>
-
-              <mat-form-field appearance="fill">
-                <mat-label>Tarif (€)</mat-label>
-                <input matInput type="number" [(ngModel)]="profile.price" (ngModelChange)="updateProfileField()" />
-              </mat-form-field>
-
-              <p>⭐ Рейтинг: {{ profile.rating }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="certificates mt-4">
-          <h4>Certificats</h4>
-          <div class="chip-list">
-            <div class="chip" *ngFor="let cert of profile.certificates">
-              {{ cert }}
-              <button type="button" class="remove-btn" (click)="removeCertificate(cert)">×</button>
-            </div>
-          </div>
-
-          <mat-form-field class="full-width">
-            <mat-label>Ajouter un certificat</mat-label>
-            <input matInput [(ngModel)]="profile.email" (ngModelChange)="updateProfileField()" />
-          </mat-form-field>
-        </div>
-
-        <div class="contact mt-4">
-          <h4>Email</h4>
-          <mat-form-field class="full-width">
-            <mat-label>Email</mat-label>
-            <input matInput [(ngModel)]="profile.email" (ngModelChange)="updateProfileField()" />
-          </mat-form-field>
-        </div>
-
-        <div class="availability mt-4">
-          <h4>Disponibilité</h4>
-          <div class="availability-grid">
-            <div class="availability-day" [ngClass]="{ 'available': !!day.hours, 'unavailable': !day.hours }"
-              *ngFor="let day of days">
-              <div class="day-name">{{ day.name }}</div>
-              <div class="day-time">
-                <ng-container *ngIf="day.hours; else unavailable">
-                  {{ day.hours.start }} — {{ day.hours.end }}
-                </ng-container>
-                <ng-template #unavailable>Indisponible</ng-template>
+              <div class="details">
+                <p>Expérience: {{ teacher.experienceYears }} ans</p>
+                <p>Tarif: {{ teacher.price }} €</p>
+                <p>⭐ Рейтинг: {{ teacher.rating }}</p>
               </div>
             </div>
           </div>
-        </div>
-
-
-        <mat-accordion class="reviews mt-5">
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title> Avis des étudiants </mat-panel-title>
-            </mat-expansion-panel-header>
-            <app-review-list [reviews]="reviews"></app-review-list>
-          </mat-expansion-panel>
-        </mat-accordion>
-      </mat-card>
-    </div>
-
-    <div *ngIf="!profile" class="loading">
-      <mat-spinner></mat-spinner>
-      <p>Chargement du profil enseignant...</p>
-    </div>
+          <div class="certificates mt-4">
+            <h4>Certificats</h4>
+            <div class="chip-list">
+              <div class="chip" *ngFor="let cert of teacher.certificates">
+                {{ cert }}
+              </div>
+            </div>
+          </div>
+          <mat-accordion class="reviews mt-5">
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Avis des étudiants </mat-panel-title>
+              </mat-expansion-panel-header>
+              <app-review-list [reviews]="teacherReviews"></app-review-list>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </mat-card>
+      </div>
+      <div *ngIf="!teacher" class="loading">
+        <mat-spinner></mat-spinner>
+        <p>Chargement du profil enseignant...</p>
+      </div>
+    </ng-container>
+    <ng-template #editableProfile>
+      <!-- Оставляю всю старую разметку для profile (редактирование) -->
+      <div *ngIf="profile" class="teacher-overview-container">
+        <mat-card>
+          <div class="profile-header">
+            <img [src]="profile.photo_url" alt="Photo de {{ profile.full_name }}" class="profile-photo" />
+            <div class="profile-info">
+              <h2>{{ profile.full_name }}</h2>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Biographie</mat-label>
+                <textarea matInput [(ngModel)]="profile.bio" (ngModelChange)="updateProfileField()"></textarea>
+              </mat-form-field>
+              <div class="profile-tags">
+                <div class="chip-list">
+                  <div class="chip" *ngFor="let subject of profile.specializations">
+                    {{ subject }}
+                    <button type="button" class="remove-btn" (click)="removeSpecialization(subject)">×</button>
+                  </div>
+                </div>
+                <mat-form-field class="full-width">
+                  <mat-label>Ajouter une spécialisation</mat-label>
+                  <input matInput (keyup.enter)="onEnterSpecialization($event)" />
+                </mat-form-field>
+              </div>
+              <div class="details">
+                <mat-form-field appearance="fill">
+                  <mat-label>Expérience (années)</mat-label>
+                  <input matInput type="number" [(ngModel)]="profile.experienceYears"
+                    (ngModelChange)="updateProfileField()" />
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Tarif (€)</mat-label>
+                  <input matInput type="number" [(ngModel)]="profile.price" (ngModelChange)="updateProfileField()" />
+                </mat-form-field>
+                <p>⭐ Рейтинг: {{ profile.rating }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="certificates mt-4">
+            <h4>Certificats</h4>
+            <div class="chip-list">
+              <div class="chip" *ngFor="let cert of profile.certificates">
+                {{ cert }}
+                <button type="button" class="remove-btn" (click)="removeCertificate(cert)">×</button>
+              </div>
+            </div>
+            <mat-form-field class="full-width">
+              <mat-label>Ajouter un certificat</mat-label>
+              <input matInput [(ngModel)]="profile.email" (ngModelChange)="updateProfileField()" />
+            </mat-form-field>
+          </div>
+          <div class="contact mt-4">
+            <h4>Email</h4>
+            <mat-form-field class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput [(ngModel)]="profile.email" (ngModelChange)="updateProfileField()" />
+            </mat-form-field>
+          </div>
+          <div class="availability mt-4">
+            <h4>Disponibilité</h4>
+            <div class="availability-grid">
+              <div class="availability-day" [ngClass]="{ 'available': !!day.hours, 'unavailable': !day.hours }"
+                *ngFor="let day of days">
+                <div class="day-name">{{ day.name }}</div>
+                <div class="day-time">
+                  <ng-container *ngIf="day.hours; else unavailable">
+                    {{ day.hours.start }} — {{ day.hours.end }}
+                  </ng-container>
+                  <ng-template #unavailable>Indisponible</ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+          <mat-accordion class="reviews mt-5">
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Avis des étudiants </mat-panel-title>
+              </mat-expansion-panel-header>
+              <app-review-list [reviews]="reviews"></app-review-list>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </mat-card>
+      </div>
+      <div *ngIf="!profile" class="loading">
+        <mat-spinner></mat-spinner>
+        <p>Chargement du profil enseignant...</p>
+      </div>
+    </ng-template>
   </div>
 </ng-template>
 
