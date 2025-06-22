@@ -51,6 +51,7 @@ export class TeacherHomeComponent implements OnInit {
   customReason = '';
   showRefuseDialog = false;
   treatedRequests: Notification[] = [];
+  confirmedStudents: any[] = [];
 
   private refreshCalendar(): void {
     const userId = this.authService.getCurrentUser()?.id;
@@ -85,7 +86,17 @@ export class TeacherHomeComponent implements OnInit {
     });
   }
 
+  private refreshStudents(): void {
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+    this.lessonService.getConfirmedStudentsForTeacher(userId).subscribe(students => {
+      this.confirmedStudents = students;
+      console.log('[TeacherHome] Обновлён список confirmedStudents:', students);
+    });
+  }
+
   ngOnInit(): void {
+    this.refreshStudents();
     // Возможна загрузка с backend позже
     this.homeworksToReview.sort((a, b) =>
       a.dueDate.localeCompare(b.dueDate)
@@ -133,7 +144,8 @@ export class TeacherHomeComponent implements OnInit {
     console.log('[TeacherHome][FRONT] respondToRequest called for request:', request, 'accepted:', accepted);
     if (accepted) {
       this.lessonService.respondToBooking(metadata.lessonId, accepted).subscribe(() => {
-        console.log('[TeacherHome][FRONT] Booking accepted, refreshing notifications and calendar');
+        console.log('[TeacherHome][FRONT] Booking accepted, refreshing notifications, calendar, and students');
+        this.refreshStudents();
         this.refreshCalendar();
         this.refreshNotifications();
       });

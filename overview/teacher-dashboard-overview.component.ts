@@ -133,6 +133,8 @@ export class TeacherDashboardOverviewComponent implements OnInit {
         this.teacherReviews = reviews;
       });
     }
+
+    this.refreshStudents();
   }
 
   openPublicProfileModal(): void {
@@ -224,9 +226,8 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
   filteredStudents() {
     if (this.studentViewFilter === 'pending') return this.pendingRequests;
-    const source = this.confirmedStudents.length > 0 ? this.confirmedStudents : this.students;
-    if (this.studentViewFilter === 'students') return source.filter(s => s.isStudent);
-    return source;
+    if (this.studentViewFilter === 'students') return this.confirmedStudents;
+    return this.confirmedStudents;
   }
 
 
@@ -258,6 +259,15 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
   }
 
+  private refreshStudents(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) return;
+    this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
+      this.confirmedStudents = students;
+      console.log('[Overview] Обновлён список confirmedStudents:', students);
+    });
+  }
+
   respondToRequest(request: any, accepted: boolean): void {
     const metadata = (request as any).data;
     if (!metadata?.lessonId) {
@@ -267,12 +277,8 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
     if (accepted) {
       this.lessonService.respondToBooking(metadata.lessonId, accepted).subscribe(() => {
-        const processed = this.pendingRequests.find(r => r.id === request.id);
-        if (processed) {
-          this.treatedRequests.unshift({ ...processed, status: accepted ? 'accepted' : 'rejected' });
-        }
-        this.pendingRequests = this.pendingRequests.filter(r => r.id !== request.id);
         this.refreshConfirmedStudents();
+        this.refreshStudents();
       });
     } else {
       this.selectedRequest = request;
