@@ -110,7 +110,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
         this.calendarEvents = lessons.map(lesson => ({
           start: new Date(lesson.scheduledAt),
-          title: `Занятие с ${lesson.studentName}`,
+          title: `Cours avec ${lesson.studentName}`,
         }));
       });
 
@@ -262,9 +262,36 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   private refreshStudents(): void {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId) return;
-    this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
-      this.confirmedStudents = students;
-      console.log('[Overview] Обновлён список confirmedStudents:', students);
+    this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
+      const now = new Date();
+      console.log('[DEBUG] Загруженные уроки для учителя:', lessons);
+      // Группируем занятия по studentId
+      const studentsMap: { [studentId: string]: any } = {};
+      lessons.forEach((lesson: any) => {
+        if (!studentsMap[lesson.studentId]) {
+          studentsMap[lesson.studentId] = {
+            studentId: lesson.studentId,
+            name: lesson.studentName,
+            photoUrl: lesson.studentPhotoUrl, // если есть
+            lessons: []
+          };
+        }
+        studentsMap[lesson.studentId].lessons.push(lesson);
+      });
+      console.log('[DEBUG] Сгруппированные по студентам уроки:', studentsMap);
+      // Для каждого студента ищем ближайшее будущее занятие
+      this.confirmedStudents = Object.values(studentsMap).map((student: any) => {
+        const futureLessons = student.lessons
+          .map((l: any) => new Date(l.scheduledAt))
+          .filter((date: Date) => date > now)
+          .sort((a: Date, b: Date) => a.getTime() - b.getTime());
+        console.log(`[DEBUG] Студент ${student.name} (${student.studentId}): futureLessons =`, futureLessons);
+        return {
+          ...student,
+          nextLessonDate: futureLessons.length > 0 ? futureLessons[0] : null
+        };
+      });
+      console.log('[Overview] Обновлён список confirmedStudents:', this.confirmedStudents);
     });
   }
 

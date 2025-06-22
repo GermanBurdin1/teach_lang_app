@@ -16,7 +16,8 @@
         <img *ngIf="student.photoUrl" [src]="student.photoUrl" class="student-photo" />
         <div class="student-info">
           <h4>{{ student.metadata?.studentName || student.name || student.title }}</h4>
-          <p *ngIf="student.isStudent">Prochain cours: {{ student.nextLessonDate }}</p>
+          <p *ngIf="student.nextLessonDate; else noLesson">Prochain cours: {{ student.nextLessonDate | date:'dd/MM/yyyy HH:mm' }}</p>
+          <ng-template #noLesson><span>Aucun cours à venir n'est encore planifié</span></ng-template>
           <p *ngIf="!student.isStudent && student.requestDate">Demande reçue le {{ student.requestDate }}</p>
           <p *ngIf="student.type === 'booking_request' && student.status === 'pending'">
             {{ student.message || 'Demande de réservation en attente' }}
