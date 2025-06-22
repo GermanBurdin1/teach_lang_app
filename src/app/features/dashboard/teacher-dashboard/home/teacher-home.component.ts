@@ -35,24 +35,15 @@ export class TeacherHomeComponent implements OnInit {
     { student: 'Marc Petit', title: 'Rédaction C1', dueDate: '2025-05-22' }
   ];
 
-  upcomingLessons: CalendarEvent[] = [
-    {
-      start: new Date(new Date().setDate(new Date().getDate() + 1)),
-      title: 'Cours avec Alice Dupont'
-    },
-    {
-      start: new Date(new Date().setDate(new Date().getDate() + 2)),
-      title: 'Cours avec Thomas Moreau'
-    }
-  ];
+  upcomingLessons: CalendarEvent[] = [];
 
   shownRequests = 5;
 
   REJECTION_REASONS = [
     'Je ne suis pas disponible à cette date',
     'Ce créneau ne correspond pas à mon emploi du temps régulier',
-    'Je préfère discuter avant d’accepter une première leçon',
-    'Je n’enseigne pas actuellement à ce niveau',
+    'Je préfère discuter avant d\'accepter une première leçon',
+    'Je n\'enseigne pas actuellement à ce niveau',
     'Autre'
   ];
   selectedRequest: Notification | null = null;
@@ -61,6 +52,19 @@ export class TeacherHomeComponent implements OnInit {
   showRefuseDialog = false;
   treatedRequests: Notification[] = [];
 
+  private refreshCalendar(): void {
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+    console.log('[TeacherHome] refreshCalendar: requesting all confirmed lessons for teacher', userId);
+    this.lessonService.getAllConfirmedLessonsForTeacher(userId).subscribe(lessons => {
+      console.log('[TeacherHome] Все подтверждённые занятия:', lessons);
+      this.upcomingLessons = lessons.map(lesson => ({
+        start: new Date(lesson.scheduledAt),
+        title: `Занятие с ${lesson.studentName}`,
+      }));
+      console.log('[TeacherHome] upcomingLessons для календаря:', this.upcomingLessons);
+    });
+  }
 
   ngOnInit(): void {
     // Возможна загрузка с backend позже
@@ -96,6 +100,7 @@ export class TeacherHomeComponent implements OnInit {
       }
     });
 
+    this.refreshCalendar();
   }
 
   respondToRequest(request: Notification, accepted: boolean): void {
@@ -113,6 +118,7 @@ export class TeacherHomeComponent implements OnInit {
           this.treatedRequests.unshift({ ...processed, status: accepted ? 'accepted' : 'rejected' });
         }
         this.newRequests = this.newRequests.filter(r => r.id !== request.id);
+        this.refreshCalendar();
       });
     } else {
       this.selectedRequest = request;

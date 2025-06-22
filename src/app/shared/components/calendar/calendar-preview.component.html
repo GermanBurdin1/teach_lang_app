@@ -11,16 +11,16 @@
 </div>
 
 
-<div style="height: 500px;">
+<div style="height: 800px;">
   <mwl-calendar-week-view
   [viewDate]="viewDate"
   [weekStartsOn]="1"
   [events]="events"
   [hourSegments]="2"
   [refresh]="refresh"
-  [hourSegmentHeight]="60"
+  [hourSegmentHeight]="80"
   [dayStartHour]="8"
-  [dayEndHour]="20"
+  [dayEndHour]="22"
   locale="fr"
   [eventTitleTemplate]="eventTitleTemplate"
   (eventClicked)="onEventClick($event.event)">

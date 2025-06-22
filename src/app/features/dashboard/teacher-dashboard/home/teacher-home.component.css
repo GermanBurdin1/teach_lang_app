@@ -44,8 +44,8 @@
 }
 
 .calendar-wrapper {
-  max-height: 300px;
-  overflow: hidden;
+  max-height: 600px;
+  overflow: auto;
   margin-top: 12px;
 }
 
