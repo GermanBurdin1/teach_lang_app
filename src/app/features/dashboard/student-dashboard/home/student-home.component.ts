@@ -35,7 +35,7 @@ export class StudentHomeComponent implements OnInit {
   showModifyModal = false;
   actionType: 'reschedule' | 'cancel' | null = null;
   customCancelReason: string = '';
-  notifications: { text: string, teacherId?: string, teacherName?: string }[] = [];
+  notifications: any[] = [];
   selectedDateOnly: Date | null = null;
   selectedTimeOnly: string = '';
 
@@ -52,14 +52,33 @@ export class StudentHomeComponent implements OnInit {
     this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
       console.log('[StudentHomeComponent] RAW notifications from backend:', res);
       this.notifications = res
-        .filter(n => n.type === 'booking_response')
+        .filter(n => n.type === 'booking_response' || n.type === 'booking_proposal')
         .map((n: any) => {
-          console.log('[StudentHomeComponent] notification object:', n);
-          console.log('[StudentHomeComponent] teacherName in data:', n.data?.teacherName);
+          if (n.type === 'booking_proposal') {
+            console.log('[StudentHomeComponent] Processing booking_proposal:', n);
+            const teacherName = n.data?.teacherName;
+            const displayText = teacherName 
+              ? `Votre professeur ${teacherName} vous propose ${n.data?.proposedTime ? (new Date(n.data.proposedTime)).toLocaleString('fr-FR') : ''}` 
+              : `Le professeur vous propose ${n.data?.proposedTime ? (new Date(n.data.proposedTime)).toLocaleString('fr-FR') : ''}`;
+              
+            return {
+              text: displayText,
+              type: n.type,
+              lessonId: n.data?.lessonId,
+              proposedTime: n.data?.proposedTime,
+              teacherId: n.data?.teacherId,
+              teacherName: n.data?.teacherName || '',
+              accepted: n.data?.accepted || false,
+              refused: n.data?.refused || false,
+              notification: n
+            };
+          }
           return {
             text: `${n.title}: ${n.message}`,
+            type: n.type,
             teacherId: n.data?.teacherId,
-            teacherName: n.data?.teacherName || ''
+            teacherName: n.data?.teacherName || '',
+            notification: n
           };
         });
       console.log('[StudentHomeComponent] notifications for template:', this.notifications);
@@ -215,10 +234,44 @@ export class StudentHomeComponent implements OnInit {
   }
 
   makeProfesseurLink(text: string, teacherId: string, teacherName?: string): string {
-    // Заменяем 'Le professeur' или 'Votre professeur' на ссылку с именем
+    // Заменяем 'Le professeur' или 'Votre professeur ИМЯ' на ссылку с именем
     const displayName = teacherName ? `Votre professeur ${teacherName}` : 'Votre professeur';
     const link = `<a href="/student/teachers/${teacherId}" title="voir l'information" style="text-decoration: underline; cursor: pointer;">${displayName}</a>`;
-    // Заменяем оба варианта
+    
+    // Сначала заменяем полное совпадение "Votre professeur ИМЯ"
+    if (teacherName) {
+      const fullMatch = `Votre professeur ${teacherName}`;
+      if (text.includes(fullMatch)) {
+        return text.replace(fullMatch, link);
+      }
+    }
+    
+    // Затем заменяем базовые варианты
     return text.replace('Votre professeur', link).replace('Le professeur', link);
+  }
+
+  acceptProposal(notif: any) {
+    console.log('[acceptProposal] notif:', notif);
+    this.lessonService.studentRespondToProposal({
+      lessonId: notif.lessonId,
+      accepted: true
+    }).subscribe((res) => {
+      console.log('[acceptProposal] ответ от сервера:', res);
+      notif.accepted = true;
+      notif.refused = false;
+      // Не вызываем ngOnInit для мгновенного эффекта
+    });
+  }
+
+  refuseProposal(notif: any) {
+    this.lessonService.studentRespondToProposal({
+      lessonId: notif.lessonId,
+      accepted: false
+    }).subscribe((res) => {
+      console.log('[refuseProposal] ответ от сервера:', res);
+      notif.accepted = false;
+      notif.refused = true;
+      // Не вызываем ngOnInit для мгновенного эффекта
+    });
   }
 }

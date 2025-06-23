@@ -8,6 +8,18 @@
         <li *ngFor="let note of notifications">
           <span *ngIf="note.teacherId; else plainText" [innerHTML]="makeProfesseurLink(note.text, note.teacherId, note.teacherName)"></span>
           <ng-template #plainText>{{ note.text }}</ng-template>
+          <ng-container *ngIf="note.type === 'booking_proposal' && note.proposedTime">
+            <ng-container *ngIf="!note.accepted && !note.refused">
+              <button mat-button color="primary" (click)="acceptProposal(note)">Accepter</button>
+              <button mat-button color="warn" (click)="refuseProposal(note)">Refuser</button>
+            </ng-container>
+            <ng-container *ngIf="note.accepted">
+              <span style="color: #388e3c; margin-left: 8px;">Vous avez accepté la nouvelle heure proposée par le professeur.</span>
+            </ng-container>
+            <ng-container *ngIf="note.refused">
+              <span style="color: #d32f2f; margin-left: 8px;">Vous avez refusé la nouvelle heure proposée par le professeur.</span>
+            </ng-container>
+          </ng-container>
         </li>
       </ul>
       <ng-template #noNotifications>

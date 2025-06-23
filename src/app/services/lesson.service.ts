@@ -18,11 +18,19 @@ export class LessonService {
     return this.http.post(`${this.baseUrl}/book`, data);
   }
 
-  respondToBooking(lessonId: string, accepted: boolean, reason?: string): Observable<any> {
+  respondToBooking(
+    lessonId: string,
+    accepted: boolean,
+    reason?: string,
+    proposeAlternative?: boolean,
+    proposedTime?: string
+  ): Observable<any> {
     return this.http.post(`${this.baseUrl}/respond`, {
       lessonId,
       accepted,
       reason,
+      ...(proposeAlternative !== undefined ? { proposeAlternative } : {}),
+      ...(proposedTime ? { proposedTime } : {}),
     });
   }
 
@@ -47,5 +55,14 @@ export class LessonService {
 
   getAllConfirmedLessonsForTeacher(teacherId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-lessons`);
+  }
+
+  studentRespondToProposal(data: { lessonId: string; accepted: boolean; newSuggestedTime?: string }): Observable<any> {
+    console.log('[studentRespondToProposal] data:', data);
+    return this.http.post(`${this.baseUrl}/student-respond`, data);
+  }
+
+  getLessonById(lessonId: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${lessonId}`);
   }
 }

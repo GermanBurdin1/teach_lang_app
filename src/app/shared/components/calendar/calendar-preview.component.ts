@@ -19,7 +19,10 @@ export class CalendarPreviewComponent {
   @Input() events: CalendarEvent[] = [];
   @Output() eventClicked = new EventEmitter<CalendarEvent>();
   @Input() eventTitleTemplate!: TemplateRef<any>;
-
+  @Input() hourSegments: number = 2;
+  @Input() hourSegmentHeight: number = 80;
+  @Input() dayStartHour: number = 8;
+  @Input() dayEndHour: number = 22;
 
   viewDate: Date = new Date();
   view: CalendarView = CalendarView.Week;

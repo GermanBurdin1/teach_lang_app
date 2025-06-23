@@ -54,6 +54,9 @@ export class TeacherHomeComponent implements OnInit {
   showRefuseDialog = false;
   treatedRequests: Notification[] = [];
   confirmedStudents: any[] = [];
+  selectedRefusalMode: 'refuse' | 'propose' = 'refuse';
+  selectedAlternativeDate?: Date;
+  selectedAlternativeTime?: string;
 
   private refreshCalendar(): void {
     const userId = this.authService.getCurrentUser()?.id;
@@ -178,36 +181,37 @@ export class TeacherHomeComponent implements OnInit {
   }
 
   confirmRefusal(): void {
-    console.log('[DEBUG] confirmRefusal вызван');
-    const reason = this.selectedReason === 'Autre' ? this.customReason.trim() : this.selectedReason;
-    console.log('[DEBUG] Выбранная причина отказа:', reason);
-    if (!reason || !this.selectedRequest) {
-      console.warn('[DEBUG] Нет причины или не выбрана заявка для отказа');
-      return;
-    }
-
+    if (!this.selectedRequest) return;
     let metadata = this.selectedRequest.data;
     if (!metadata && 'metadata' in this.selectedRequest) {
       metadata = (this.selectedRequest as any).metadata;
     }
-    console.log('[DEBUG] metadata после извлечения:', metadata);
-    if (!metadata || !metadata.lessonId) {
-      console.warn('[DEBUG] Не удалось получить lessonId из data/metadata');
-      return;
-    }
+    if (!metadata || !metadata.lessonId) return;
 
-    this.lessonService.respondToBooking(metadata.lessonId, false, reason).subscribe({
-      next: () => {
-        console.log('📤 [FRONT] Rejet envoyé avec raison:', reason);
-        this.newRequests = this.newRequests.filter(r => r.id !== this.selectedRequest!.id);
-        this.selectedRequest = null;
+    if (this.selectedRefusalMode === 'refuse') {
+      const reason = this.selectedReason === 'Autre' ? this.customReason.trim() : this.selectedReason;
+      if (!reason) return;
+      this.lessonService.respondToBooking(metadata.lessonId, false, reason, false).subscribe(() => {
         this.showRefuseDialog = false;
-        this.refreshNotifications();
+        this.selectedReason = '';
+        this.customReason = '';
+        this.selectedRefusalMode = 'refuse';
         this.snackBar.open('Студенту отправлено уведомление об отказе', 'OK', { duration: 3000 });
-      },
-      error: (err) => {
-        console.error('[DEBUG] Ошибка при отправке отказа:', err);
-      }
-    });
+        this.refreshNotifications();
+      });
+    } else if (this.selectedRefusalMode === 'propose') {
+      if (!this.selectedAlternativeDate || !this.selectedAlternativeTime) return;
+      const [hours, minutes] = this.selectedAlternativeTime.split(':').map(Number);
+      const proposedDateTime = new Date(this.selectedAlternativeDate);
+      proposedDateTime.setHours(hours, minutes, 0, 0);
+      this.lessonService.respondToBooking(metadata.lessonId, false, '', true, proposedDateTime.toISOString()).subscribe(() => {
+        this.showRefuseDialog = false;
+        this.selectedAlternativeDate = undefined;
+        this.selectedAlternativeTime = undefined;
+        this.selectedRefusalMode = 'refuse';
+        this.snackBar.open('Студенту отправлено предложение нового времени', 'OK', { duration: 3000 });
+        this.refreshNotifications();
+      });
+    }
   }
 }

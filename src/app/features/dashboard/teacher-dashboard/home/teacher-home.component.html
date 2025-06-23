@@ -44,22 +44,39 @@
       </mat-card>
 
       <mat-card *ngIf="showRefuseDialog" class="request-card">
-        <mat-card-title>Refuser la demande</mat-card-title>
+        <mat-card-title>Refuser ou proposer un autre horaire</mat-card-title>
         <mat-card-content>
-          <mat-radio-group [(ngModel)]="selectedReason">
-            <mat-radio-button *ngFor="let reason of REJECTION_REASONS" [value]="reason">
-              {{ reason }}
-            </mat-radio-button>
+          <mat-radio-group [(ngModel)]="selectedRefusalMode">
+            <mat-radio-button value="refuse">Refuser la demande</mat-radio-button>
+            <mat-radio-button value="propose">Proposer un autre horaire</mat-radio-button>
           </mat-radio-group>
 
-          <mat-form-field *ngIf="selectedReason === 'Autre'" appearance="fill" class="w-full">
-            <mat-label>Précisez</mat-label>
-            <input matInput [(ngModel)]="customReason" />
-          </mat-form-field>
+          <div *ngIf="selectedRefusalMode === 'refuse'" class="mt-2">
+            <mat-radio-group [(ngModel)]="selectedReason">
+              <mat-radio-button *ngFor="let reason of REJECTION_REASONS" [value]="reason">{{ reason }}</mat-radio-button>
+            </mat-radio-group>
+            <mat-form-field *ngIf="selectedReason === 'Autre'" appearance="fill" class="w-full">
+              <mat-label>Précisez</mat-label>
+              <input matInput [(ngModel)]="customReason" />
+            </mat-form-field>
+          </div>
+
+          <div *ngIf="selectedRefusalMode === 'propose'" class="mt-2">
+            <mat-form-field appearance="fill">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="altDatePicker" [(ngModel)]="selectedAlternativeDate">
+              <mat-datepicker-toggle matSuffix [for]="altDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #altDatePicker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Heure</mat-label>
+              <input matInput type="time" [(ngModel)]="selectedAlternativeTime">
+            </mat-form-field>
+          </div>
         </mat-card-content>
         <mat-card-actions align="end">
           <button mat-button (click)="showRefuseDialog = false">Annuler</button>
-          <button mat-raised-button color="warn" (click)="confirmRefusal()">Confirmer le refus</button>
+          <button mat-raised-button color="warn" (click)="confirmRefusal()">Envoyer</button>
         </mat-card-actions>
       </mat-card>
 
