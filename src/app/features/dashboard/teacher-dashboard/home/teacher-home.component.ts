@@ -58,6 +58,10 @@ export class TeacherHomeComponent implements OnInit {
   selectedAlternativeDate?: Date;
   selectedAlternativeTime?: string;
 
+  // Новые свойства для управления уведомлениями (как в student-home)
+  showMoreNotifications = false;
+  readonly MAX_NOTIFICATIONS = 10;
+
   private refreshCalendar(): void {
     const userId = this.authService.getCurrentUser()?.id;
     if (!userId) return;
@@ -213,5 +217,29 @@ export class TeacherHomeComponent implements OnInit {
         this.refreshNotifications();
       });
     }
+  }
+
+  // Методы для управления уведомлениями (как в student-home)
+  hideNotification(notification: any) {
+    if (notification.id) {
+      this.notificationService.hideNotification(notification.id).subscribe(() => {
+        // Удаляем уведомление из локального массива
+        this.notifications = this.notifications.filter(n => n.id !== notification.id);
+      });
+    }
+  }
+
+  get visibleNotifications() {
+    return this.showMoreNotifications 
+      ? this.notifications 
+      : this.notifications.slice(0, this.MAX_NOTIFICATIONS);
+  }
+
+  get hasMoreNotifications() {
+    return this.notifications.length > this.MAX_NOTIFICATIONS;
+  }
+
+  toggleShowMore() {
+    this.showMoreNotifications = !this.showMoreNotifications;
   }
 }

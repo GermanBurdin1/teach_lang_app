@@ -6,12 +6,44 @@
     <!-- Левая колонка -->
     <div class="column left-column">
       <h3>🔔 Notifications</h3>
-      <ul>
-        <li *ngFor="let note of notifications">
-          <strong>{{ note.title }}</strong><br />
-          <small>{{ note.message }}</small>
-        </li>
-      </ul>
+      
+      <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
+        <div *ngFor="let note of visibleNotifications" class="notification-card">
+          <div class="notification-content">
+            <div class="notification-text">
+              <strong>{{ note.title }}</strong><br />
+              <small>{{ note.message }}</small>
+            </div>
+            
+            <div class="notification-actions">
+              <!-- Hide button -->
+              <button mat-icon-button 
+                      class="hide-button" 
+                      (click)="hideNotification(note)"
+                      matTooltip="Masquer cette notification">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Show more/less button -->
+        <div *ngIf="hasMoreNotifications" class="show-more-container">
+          <button mat-stroked-button 
+                  color="accent" 
+                  (click)="toggleShowMore()">
+            {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')' }}
+            <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <ng-template #noNotifications>
+        <div class="no-notifications">
+          <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
+          <p>✅ Aucun nouveau message</p>
+        </div>
+      </ng-template>
 
       <h3>📨 Nouvelles demandes <span *ngIf="newRequests.length">+{{ newRequests.length }}</span></h3>
 
