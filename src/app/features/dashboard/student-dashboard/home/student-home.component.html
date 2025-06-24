@@ -4,26 +4,65 @@
   <div class="top-section">
     <div class="notification-zone">
       <h3>🔔 Notifications</h3>
-      <ul *ngIf="notifications.length > 0; else noNotifications">
-        <li *ngFor="let note of notifications">
-          <span *ngIf="note.teacherId; else plainText" [innerHTML]="makeProfesseurLink(note.text, note.teacherId, note.teacherName)"></span>
-          <ng-template #plainText>{{ note.text }}</ng-template>
-          <ng-container *ngIf="note.type === 'booking_proposal' && note.proposedTime">
-            <ng-container *ngIf="!note.accepted && !note.refused">
-              <button mat-button color="primary" (click)="acceptProposal(note)">Accepter</button>
-              <button mat-button color="warn" (click)="refuseProposal(note)">Refuser</button>
-            </ng-container>
-            <ng-container *ngIf="note.accepted">
-              <span style="color: #388e3c; margin-left: 8px;">Vous avez accepté la nouvelle heure proposée par le professeur.</span>
-            </ng-container>
-            <ng-container *ngIf="note.refused">
-              <span style="color: #d32f2f; margin-left: 8px;">Vous avez refusé la nouvelle heure proposée par le professeur.</span>
-            </ng-container>
-          </ng-container>
-        </li>
-      </ul>
+      
+      <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
+        <div *ngFor="let note of visibleNotifications" class="notification-card">
+          <div class="notification-content">
+            <div class="notification-text">
+              <span *ngIf="note.teacherId; else plainText" [innerHTML]="makeProfesseurLink(note.text, note.teacherId, note.teacherName)"></span>
+              <ng-template #plainText>{{ note.text }}</ng-template>
+            </div>
+            
+            <div class="notification-actions">
+              <!-- Actions for booking proposals -->
+              <ng-container *ngIf="note.type === 'booking_proposal' && note.proposedTime">
+                <ng-container *ngIf="!note.accepted && !note.refused">
+                  <button mat-raised-button color="primary" size="small" (click)="acceptProposal(note)">
+                    Accepter
+                  </button>
+                  <button mat-stroked-button color="warn" size="small" (click)="refuseProposal(note)">
+                    Refuser
+                  </button>
+                </ng-container>
+                <ng-container *ngIf="note.accepted">
+                  <span class="status-message accepted">
+                    ✅ Vous avez accepté la nouvelle heure proposée par le professeur.
+                  </span>
+                </ng-container>
+                <ng-container *ngIf="note.refused">
+                  <span class="status-message refused">
+                    ❌ Vous avez refusé la nouvelle heure proposée par le professeur.
+                  </span>
+                </ng-container>
+              </ng-container>
+              
+              <!-- Hide button -->
+              <button mat-icon-button 
+                      class="hide-button" 
+                      (click)="hideNotification(note)"
+                      matTooltip="Masquer cette notification">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Show more/less button -->
+        <div *ngIf="hasMoreNotifications" class="show-more-container">
+          <button mat-stroked-button 
+                  color="accent" 
+                  (click)="toggleShowMore()">
+            {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')' }}
+            <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+      
       <ng-template #noNotifications>
-        <p>✅ Aucun nouveau message</p>
+        <div class="no-notifications">
+          <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
+          <p>✅ Aucun nouveau message</p>
+        </div>
       </ng-template>
     </div>
 

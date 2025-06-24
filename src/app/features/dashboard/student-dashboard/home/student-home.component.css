@@ -16,7 +16,8 @@
 
 .goal-block,
 .stats-block,
-.homework-zone {
+.homework-zone,
+.notification-zone {
   flex: 1 1 30%;
   background-color: #fff;
   padding: 16px;
@@ -243,4 +244,119 @@ mat-dialog-actions {
 .event-pending {
   background-color: #eeeeee;
   border-left: 4px solid #9e9e9e;
+}
+
+/* ───────── NOTIFICATIONS SECTION ───────── */
+
+.notification-zone {
+  min-height: 200px;
+}
+
+.notifications-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-card {
+  background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+  border: 1px solid #e3f2fd;
+  border-left: 4px solid #2196f3;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+  border-left-color: #1976d2;
+}
+
+.notification-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.notification-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hide-button {
+  width: 28px;
+  height: 28px;
+  color: #666;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.hide-button:hover {
+  opacity: 1;
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.status-message {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.status-message.accepted {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.status-message.refused {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.show-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.show-more-container button {
+  font-size: 13px;
+  text-transform: none;
+}
+
+.no-notifications {
+  text-align: center;
+  color: #666;
+  padding: 24px 0;
+}
+
+.no-notifications-icon {
+  font-size: 48px;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+.no-notifications p {
+  margin: 0;
+  font-size: 14px;
 }

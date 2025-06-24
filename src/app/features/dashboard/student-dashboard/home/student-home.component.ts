@@ -39,6 +39,10 @@ export class StudentHomeComponent implements OnInit {
   selectedDateOnly: Date | null = null;
   selectedTimeOnly: string = '';
 
+  // Новые свойства для управления уведомлениями
+  showMoreNotifications = false;
+  readonly MAX_NOTIFICATIONS = 10;
+
   constructor(
     private notificationService: NotificationService,
     private authService: AuthService,
@@ -273,5 +277,28 @@ export class StudentHomeComponent implements OnInit {
       notif.refused = true;
       // Не вызываем ngOnInit для мгновенного эффекта
     });
+  }
+
+  hideNotification(notification: any) {
+    if (notification.notification?.id) {
+      this.notificationService.hideNotification(notification.notification.id).subscribe(() => {
+        // Удаляем уведомление из локального массива
+        this.notifications = this.notifications.filter(n => n.notification?.id !== notification.notification.id);
+      });
+    }
+  }
+
+  get visibleNotifications() {
+    return this.showMoreNotifications 
+      ? this.notifications 
+      : this.notifications.slice(0, this.MAX_NOTIFICATIONS);
+  }
+
+  get hasMoreNotifications() {
+    return this.notifications.length > this.MAX_NOTIFICATIONS;
+  }
+
+  toggleShowMore() {
+    this.showMoreNotifications = !this.showMoreNotifications;
   }
 }

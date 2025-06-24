@@ -30,4 +30,7 @@ export class NotificationService {
     return this.http.get<any[]>(`http://localhost:3001/lessons/student/${studentId}/confirmed-lessons`);
   }
 
+  hideNotification(notificationId: string): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/${notificationId}/hide`, {});
+  }
 }
