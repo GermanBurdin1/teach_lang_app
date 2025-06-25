@@ -62,6 +62,10 @@ export class TeacherHomeComponent implements OnInit {
   showMoreNotifications = false;
   readonly MAX_NOTIFICATIONS = 10;
 
+  // Новые свойства для управления обработанными заявками
+  showMoreTreatedRequests = false;
+  readonly MAX_TREATED_REQUESTS = 10;
+
   private refreshCalendar(): void {
     const userId = this.authService.getCurrentUser()?.id;
     if (!userId) return;
@@ -241,5 +245,29 @@ export class TeacherHomeComponent implements OnInit {
 
   toggleShowMore() {
     this.showMoreNotifications = !this.showMoreNotifications;
+  }
+
+  // Методы для управления обработанными заявками
+  hideTreatedRequest(request: any) {
+    if (request.id) {
+      this.notificationService.hideNotification(request.id).subscribe(() => {
+        // Удаляем заявку из локального массива
+        this.treatedRequests = this.treatedRequests.filter(r => r.id !== request.id);
+      });
+    }
+  }
+
+  get visibleTreatedRequests() {
+    return this.showMoreTreatedRequests 
+      ? this.treatedRequests 
+      : this.treatedRequests.slice(0, this.MAX_TREATED_REQUESTS);
+  }
+
+  get hasMoreTreatedRequests() {
+    return this.treatedRequests.length > this.MAX_TREATED_REQUESTS;
+  }
+
+  toggleShowMoreTreatedRequests() {
+    this.showMoreTreatedRequests = !this.showMoreTreatedRequests;
   }
 }

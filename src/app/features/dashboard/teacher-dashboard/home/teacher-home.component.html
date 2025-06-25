@@ -47,33 +47,95 @@
 
       <h3>📨 Nouvelles demandes <span *ngIf="newRequests.length">+{{ newRequests.length }}</span></h3>
 
-      <!-- обработанные заявки -->
-      <ng-container *ngIf="treatedRequests.length > 0">
-        <h4 class="mt-4">✅ Demandes traitées</h4>
-        <mat-card *ngFor="let req of treatedRequests" class="request-card treated">
-          <mat-card-title>{{ req.title }}</mat-card-title>
-          <mat-card-content>
-            <p>{{ req.message }}</p>
-            <span>Status: <strong>{{ req.status }}</strong></span>
-          </mat-card-content>
-        </mat-card>
-      </ng-container>
-
-
-      <mat-card *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card">
-        <mat-card-title>{{ req.title }}</mat-card-title>
-        <mat-card-content>
-          <p>{{ req.message }}</p>
-        </mat-card-content>
-        <mat-card-actions align="end">
-          <button mat-raised-button color="primary" (click)="respondToRequest(req, true)">
-            Accepter
+      <!-- НОВЫЕ ЗАЯВКИ (приоритет - показываем сверху) -->
+      <div *ngIf="newRequests.length > 0; else noNewRequests" class="requests-container">
+        <div *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card new-request">
+          <div class="request-content">
+            <div class="request-text">
+              <strong>{{ req.title }}</strong><br />
+              <small>{{ req.message }}</small>
+            </div>
+            
+            <div class="request-actions">
+              <button mat-raised-button color="primary" size="small" (click)="respondToRequest(req, true)">
+                Accepter
+              </button>
+              <button mat-stroked-button color="warn" size="small" (click)="respondToRequest(req, false)">
+                Refuser
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Show more/less button for new requests -->
+        <div *ngIf="newRequests.length > 5" class="show-more-container">
+          <button mat-stroked-button 
+                  color="primary" 
+                  *ngIf="shownRequests < newRequests.length" 
+                  (click)="loadMore()">
+            Voir plus ({{ newRequests.length - shownRequests }})
+            <mat-icon>expand_more</mat-icon>
           </button>
-          <button mat-stroked-button color="warn" (click)="respondToRequest(req, false)">
-            Refuser
+          <button mat-stroked-button 
+                  color="primary" 
+                  *ngIf="shownRequests > 5" 
+                  (click)="reduce()">
+            Réduire
+            <mat-icon>expand_less</mat-icon>
           </button>
-        </mat-card-actions>
-      </mat-card>
+        </div>
+      </div>
+      
+      <ng-template #noNewRequests>
+        <div class="no-requests">
+          <mat-icon class="no-requests-icon">inbox</mat-icon>
+          <p>✅ Aucune nouvelle demande</p>
+        </div>
+      </ng-template>
+
+      <!-- ОБРАБОТАННЫЕ ЗАЯВКИ -->
+      <h4 class="mt-4">✅ Demandes traitées <span *ngIf="treatedRequests.length">({{ treatedRequests.length }})</span></h4>
+      
+      <div *ngIf="treatedRequests.length > 0; else noTreatedRequests" class="requests-container treated-requests">
+        <div *ngFor="let req of visibleTreatedRequests" class="request-card treated-request">
+          <div class="request-content">
+            <div class="request-text">
+              <strong>{{ req.title }}</strong><br />
+              <small>{{ req.message }}</small>
+              <div class="status-badge status-{{ req.status }}">
+                Status: <strong>{{ req.status }}</strong>
+              </div>
+            </div>
+            
+            <div class="request-actions">
+              <!-- Hide button -->
+              <button mat-icon-button 
+                      class="hide-button" 
+                      (click)="hideTreatedRequest(req)"
+                      matTooltip="Masquer cette demande">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Show more/less button for treated requests -->
+        <div *ngIf="hasMoreTreatedRequests" class="show-more-container">
+          <button mat-stroked-button 
+                  color="accent" 
+                  (click)="toggleShowMoreTreatedRequests()">
+            {{ showMoreTreatedRequests ? 'Voir moins' : 'Voir plus (' + (treatedRequests.length - MAX_TREATED_REQUESTS) + ')' }}
+            <mat-icon>{{ showMoreTreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <ng-template #noTreatedRequests>
+        <div class="no-requests">
+          <mat-icon class="no-requests-icon">done_all</mat-icon>
+          <p>✅ Aucune demande traitée</p>
+        </div>
+      </ng-template>
 
       <mat-card *ngIf="showRefuseDialog" class="request-card">
         <mat-card-title>Refuser ou proposer un autre horaire</mat-card-title>
@@ -111,17 +173,6 @@
           <button mat-raised-button color="warn" (click)="confirmRefusal()">Envoyer</button>
         </mat-card-actions>
       </mat-card>
-
-      <div class="voir-plus-wrapper" *ngIf="newRequests.length > 5">
-        <button mat-button color="accent" *ngIf="shownRequests < newRequests.length" (click)="loadMore()">
-          Voir plus
-        </button>
-        <button mat-button color="warn" *ngIf="shownRequests > 5" (click)="reduce()">
-          Réduire
-        </button>
-
-
-      </div>
 
       <!-- Правая колонка -->
       <div class="column right-column">
