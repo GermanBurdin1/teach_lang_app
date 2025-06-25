@@ -45,6 +45,7 @@ import { AdminHomeComponent } from './school-dashboard/home/admin-home.component
 import { AdminSettingsComponent } from '../settings/admin-settings/admin-settings.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatTabsModule } from '@angular/material/tabs';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 @NgModule({
@@ -97,6 +98,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
     MatRadioModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatTabsModule,
     BsDatepickerModule.forRoot()
   ],
   exports: [ReviewListComponent]

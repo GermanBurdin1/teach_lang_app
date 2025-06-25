@@ -45,97 +45,118 @@
         </div>
       </ng-template>
 
-      <h3>📨 Nouvelles demandes <span *ngIf="newRequests.length">+{{ newRequests.length }}</span></h3>
-
-      <!-- НОВЫЕ ЗАЯВКИ (приоритет - показываем сверху) -->
-      <div *ngIf="newRequests.length > 0; else noNewRequests" class="requests-container">
-        <div *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card new-request">
-          <div class="request-content">
-            <div class="request-text">
-              <strong>{{ req.title }}</strong><br />
-              <small>{{ req.message }}</small>
-            </div>
-            
-            <div class="request-actions">
-              <button mat-raised-button color="primary" size="small" (click)="respondToRequest(req, true)">
-                Accepter
-              </button>
-              <button mat-stroked-button color="warn" size="small" (click)="respondToRequest(req, false)">
-                Refuser
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Show more/less button for new requests -->
-        <div *ngIf="newRequests.length > 5" class="show-more-container">
-          <button mat-stroked-button 
-                  color="primary" 
-                  *ngIf="shownRequests < newRequests.length" 
-                  (click)="loadMore()">
-            Voir plus ({{ newRequests.length - shownRequests }})
-            <mat-icon>expand_more</mat-icon>
-          </button>
-          <button mat-stroked-button 
-                  color="primary" 
-                  *ngIf="shownRequests > 5" 
-                  (click)="reduce()">
-            Réduire
-            <mat-icon>expand_less</mat-icon>
-          </button>
-        </div>
-      </div>
+      <!-- СИСТЕМА ВКЛАДОК ДЛЯ ЗАЯВОК -->
+      <h3>📨 Demandes de réservation</h3>
       
-      <ng-template #noNewRequests>
-        <div class="no-requests">
-          <mat-icon class="no-requests-icon">inbox</mat-icon>
-          <p>✅ Aucune nouvelle demande</p>
-        </div>
-      </ng-template>
-
-      <!-- ОБРАБОТАННЫЕ ЗАЯВКИ -->
-      <h4 class="mt-4">✅ Demandes traitées <span *ngIf="treatedRequests.length">({{ treatedRequests.length }})</span></h4>
-      
-      <div *ngIf="treatedRequests.length > 0; else noTreatedRequests" class="requests-container treated-requests">
-        <div *ngFor="let req of visibleTreatedRequests" class="request-card treated-request">
-          <div class="request-content">
-            <div class="request-text">
-              <strong>{{ req.title }}</strong><br />
-              <small>{{ req.message }}</small>
-              <div class="status-badge status-{{ req.status }}">
-                Status: <strong>{{ req.status }}</strong>
+      <mat-tab-group class="requests-tabs" animationDuration="300ms">
+        <!-- Вкладка: Nouvelles demandes -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">inbox</mat-icon>
+            Nouvelles
+            <span *ngIf="newRequests.length" class="tab-badge">{{ newRequests.length }}</span>
+          </ng-template>
+          
+          <div class="tab-content">
+            <div *ngIf="newRequests.length > 0; else noNewRequests" class="requests-container">
+              <div *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card new-request">
+                <div class="request-content">
+                  <div class="request-text">
+                    <strong>{{ req.title }}</strong><br />
+                    <small>{{ req.message }}</small>
+                  </div>
+                  
+                  <div class="request-actions">
+                    <button mat-raised-button color="primary" size="small" (click)="respondToRequest(req, true)">
+                      Accepter
+                    </button>
+                    <button mat-stroked-button color="warn" size="small" (click)="respondToRequest(req, false)">
+                      Refuser
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Show more/less button for new requests -->
+              <div *ngIf="newRequests.length > 5" class="show-more-container">
+                <button mat-stroked-button 
+                        color="primary" 
+                        *ngIf="shownRequests < newRequests.length" 
+                        (click)="loadMore()">
+                  Voir plus ({{ newRequests.length - shownRequests }})
+                  <mat-icon>expand_more</mat-icon>
+                </button>
+                <button mat-stroked-button 
+                        color="primary" 
+                        *ngIf="shownRequests > 5" 
+                        (click)="reduce()">
+                  Réduire
+                  <mat-icon>expand_less</mat-icon>
+                </button>
               </div>
             </div>
             
-            <div class="request-actions">
-              <!-- Hide button -->
-              <button mat-icon-button 
-                      class="hide-button" 
-                      (click)="hideTreatedRequest(req)"
-                      matTooltip="Masquer cette demande">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
+            <ng-template #noNewRequests>
+              <div class="no-requests">
+                <mat-icon class="no-requests-icon">inbox</mat-icon>
+                <p>✅ Aucune nouvelle demande</p>
+              </div>
+            </ng-template>
           </div>
-        </div>
-        
-        <!-- Show more/less button for treated requests -->
-        <div *ngIf="hasMoreTreatedRequests" class="show-more-container">
-          <button mat-stroked-button 
-                  color="accent" 
-                  (click)="toggleShowMoreTreatedRequests()">
-            {{ showMoreTreatedRequests ? 'Voir moins' : 'Voir plus (' + (treatedRequests.length - MAX_TREATED_REQUESTS) + ')' }}
-            <mat-icon>{{ showMoreTreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
-          </button>
-        </div>
-      </div>
-      
-      <ng-template #noTreatedRequests>
-        <div class="no-requests">
-          <mat-icon class="no-requests-icon">done_all</mat-icon>
-          <p>✅ Aucune demande traitée</p>
-        </div>
-      </ng-template>
+        </mat-tab>
+
+        <!-- Вкладка: Demandes traitées -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">done_all</mat-icon>
+            Traitées
+            <span *ngIf="treatedRequests.length" class="tab-badge">{{ treatedRequests.length }}</span>
+          </ng-template>
+          
+          <div class="tab-content">
+            <div *ngIf="treatedRequests.length > 0; else noTreatedRequests" class="requests-container treated-requests">
+              <div *ngFor="let req of visibleTreatedRequests" class="request-card treated-request">
+                <div class="request-content">
+                  <div class="request-text">
+                    <strong>{{ req.title }}</strong><br />
+                    <small>{{ req.message }}</small>
+                    <div class="status-badge status-{{ req.status }}">
+                      Status: <strong>{{ req.status }}</strong>
+                    </div>
+                  </div>
+                  
+                  <div class="request-actions">
+                    <!-- Hide button -->
+                    <button mat-icon-button 
+                            class="hide-button" 
+                            (click)="hideTreatedRequest(req)"
+                            matTooltip="Masquer cette demande">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Show more/less button for treated requests -->
+              <div *ngIf="hasMoreTreatedRequests" class="show-more-container">
+                <button mat-stroked-button 
+                        color="accent" 
+                        (click)="toggleShowMoreTreatedRequests()">
+                  {{ showMoreTreatedRequests ? 'Voir moins' : 'Voir plus (' + (treatedRequests.length - MAX_TREATED_REQUESTS) + ')' }}
+                  <mat-icon>{{ showMoreTreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </div>
+            </div>
+            
+            <ng-template #noTreatedRequests>
+              <div class="no-requests">
+                <mat-icon class="no-requests-icon">done_all</mat-icon>
+                <p>✅ Aucune demande traitée</p>
+              </div>
+            </ng-template>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
 
       <mat-card *ngIf="showRefuseDialog" class="request-card">
         <mat-card-title>Refuser ou proposer un autre horaire</mat-card-title>
