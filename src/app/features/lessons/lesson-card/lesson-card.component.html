@@ -1,6 +1,6 @@
 <mat-card class="lesson-card">
 
-  <!-- 🧑‍🏫 En-tête de l’enseignant et bouton -->
+  <!-- 🧑‍🏫 En-tête de l'enseignant et bouton -->
   <div class="lesson-header">
     <div class="teacher-info">
       <img class="avatar" src="https://via.placeholder.com/40" alt="avatar" />
@@ -10,9 +10,15 @@
       </div>
     </div>
 
-    <button *ngIf="showJoinButton()" mat-flat-button color="primary" (click)="enterVirtualClass()">
-      🔗 Rejoindre la classe
-    </button>
+    <div class="lesson-actions">
+      <button *ngIf="showJoinButton()" mat-flat-button color="primary" (click)="enterVirtualClass()">
+        🔗 Rejoindre la classe
+      </button>
+      
+      <button *ngIf="showCancelButton()" mat-stroked-button color="warn" (click)="openCancelModal()">
+        ❌ Annuler le cours
+      </button>
+    </div>
   </div>
 
   <!-- 📂 Corps principal -->
@@ -29,18 +35,36 @@
     <!-- 📌 Tâches -->
     <div class="drop-zone">
       <h4 (click)="toggleCollapse('tasks')" class="collapsible-header">
-        📌 Tâches
+        📌 Tâches ({{ realTasks.length }})
         <span class="toggle-icon">{{ collapsedTasks ? '🔽' : '🔼' }}</span>
       </h4>
       <div *ngIf="!collapsedTasks">
 
+        <!-- Tâches réelles du backend -->
+        <div *ngFor="let task of realTasks; let i = index" class="drag-item"
+             [class.completed]="task.isCompleted"
+             [class.text-muted]="task.isCompleted">
+          {{ i + 1 }}. 🛠 {{ task.title }}
+          <span *ngIf="task.description" class="task-description">{{ task.description }}</span>
+          <small class="task-meta">
+            {{ task.createdByRole === 'teacher' ? '👩‍🏫' : '👨‍🎓' }} 
+            {{ task.createdAt | date: 'dd/MM HH:mm' }}
+          </small>
+          <button *ngIf="!task.isCompleted && currentUserRole === 'student'" 
+                  mat-icon-button color="accent" 
+                  (click)="completeTask(task.id)">
+            <mat-icon>check</mat-icon>
+          </button>
+        </div>
+
+        <!-- Anciennes tâches (для совместимости) -->
         <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks"
           [cdkDropListConnectedTo]="taskDropIds" (cdkDropListDropped)="dropItem($event, 'task')">
 
           <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item"
             (click)="onPastItemClick(task, 'task')" [class.clickable]="isPast()"
             [class.text-muted]="resolvedItems.includes(task)">
-            {{ i + 1 }}. 🛠 {{ task }}
+            {{ i + realTasks.length + 1 }}. 🛠 {{ task }}
             <button *ngIf="!isPast()" mat-icon-button color="warn" (click)="removeItem('task', i)">
               <mat-icon>delete</mat-icon>
             </button>
@@ -64,17 +88,33 @@
     <!-- ❓ Questions -->
     <div class="drop-zone">
       <h4 (click)="toggleCollapse('questions')" class="collapsible-header">
-        ❓ Questions
+        ❓ Questions ({{ realQuestions.length }})
         <span class="toggle-icon">{{ collapsedQuestions ? '🔽' : '🔼' }}</span>
       </h4>
       <div *ngIf="!collapsedQuestions">
+        
+        <!-- Questions réelles du backend -->
+        <div *ngFor="let question of realQuestions; let i = index" class="drag-item"
+             [class.answered]="question.isAnswered"
+             [class.text-muted]="question.isAnswered">
+          {{ i + 1 }}. 💬 {{ question.question }}
+          <div *ngIf="question.answer" class="question-answer">
+            <strong>Réponse:</strong> {{ question.answer }}
+          </div>
+          <small class="question-meta">
+            {{ question.createdByRole === 'teacher' ? '👩‍🏫' : '👨‍🎓' }} 
+            {{ question.createdAt | date: 'dd/MM HH:mm' }}
+          </small>
+        </div>
+
+        <!-- Anciennes questions (для совместимости) -->
         <div cdkDropList [id]="'questions-' + lesson.id" [cdkDropListData]="lesson.questions"
           [cdkDropListConnectedTo]="questionDropIds" (cdkDropListDropped)="dropItem($event, 'question')">
 
           <div *ngFor="let q of lesson.questions; let i = index" cdkDrag class="drag-item"
             (click)="onPastItemClick(q, 'question')" [class.clickable]="isPast()"
             [class.text-muted]="resolvedItems.includes(q)">
-            {{ i + 1 }}. 💬 {{ q }}
+            {{ i + realQuestions.length + 1 }}. 💬 {{ q }}
             <button *ngIf="!isPast()" mat-icon-button color="warn" (click)="removeItem('question', i)">
               <mat-icon>delete</mat-icon>
             </button>
@@ -108,8 +148,52 @@
         </div>
       </div>
     </div>
-
-
   </div>
 
 </mat-card>
+
+<!-- Modal d'annulation -->
+<div *ngIf="showCancelModal" class="modal-backdrop" (click)="closeCancelModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Annuler le cours</h3>
+      <button mat-icon-button (click)="closeCancelModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="warning-box" [ngClass]="canCancelWithRefund() ? 'warning-info' : 'warning-danger'">
+        <mat-icon>{{ canCancelWithRefund() ? 'info' : 'warning' }}</mat-icon>
+        <div>
+          <strong>{{ canCancelWithRefund() ? 'Annulation avec remboursement' : 'Annulation sans remboursement' }}</strong>
+          <p>{{ canCancelWithRefund() 
+            ? 'Vous pouvez annuler ce cours et être remboursé car il reste plus de 2 heures.' 
+            : 'L\'annulation se fait moins de 2 heures avant le cours, aucun remboursement ne sera effectué.' }}</p>
+        </div>
+      </div>
+
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Raison de l'annulation</mat-label>
+        <mat-select [(value)]="cancellationReason">
+          <mat-option *ngFor="let reason of cancellationReasons" [value]="reason">
+            {{ reason }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="cancellationReason === 'Autre'" appearance="fill" class="w-100">
+        <mat-label>Précisez la raison</mat-label>
+        <textarea matInput [(ngModel)]="cancellationReason" rows="3"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="modal-footer">
+      <button mat-stroked-button (click)="closeCancelModal()">Annuler</button>
+      <button mat-flat-button color="warn" (click)="cancelLesson()" 
+              [disabled]="!cancellationReason.trim()">
+        Confirmer l'annulation
+      </button>
+    </div>
+  </div>
+</div>

@@ -74,7 +74,16 @@ export class TeacherHomeComponent implements OnInit {
       console.log('[TeacherHome] Все подтверждённые занятия:', lessons);
       this.upcomingLessons = lessons.map(lesson => ({
         start: new Date(lesson.scheduledAt),
-        title: `Занятие с ${lesson.studentName}`,
+        end: new Date(new Date(lesson.scheduledAt).getTime() + 60 * 60 * 1000),
+        title: `${this.getStatusIcon(lesson.status)} ${lesson.studentName}`,
+        color: this.getCalendarColor(lesson.status),
+        allDay: false,
+        meta: { 
+          lessonId: lesson.id, 
+          status: lesson.status,
+          studentId: lesson.studentId,
+          studentName: lesson.studentName
+        }
       }));
       console.log('[TeacherHome] upcomingLessons для календаря:', this.upcomingLessons);
     });
@@ -87,9 +96,13 @@ export class TeacherHomeComponent implements OnInit {
     this.notificationService.getNotificationsForUser(userId).subscribe({
       next: (all) => {
         console.log('[TeacherHome][FRONT] notifications from backend:', all);
-        this.notifications = all.filter(n => n.type !== 'booking_request');
+        // Фильтруем уведомления: исключаем booking_request, но включаем lesson_cancelled_by_student
+        this.notifications = all.filter(n => 
+          n.type !== 'booking_request'
+        );
         this.newRequests = all.filter(n => n.type === 'booking_request' && n.status === 'pending');
         this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending');
+        console.log('[TeacherHome][FRONT] notifications:', this.notifications);
         console.log('[TeacherHome][FRONT] newRequests:', this.newRequests);
         console.log('[TeacherHome][FRONT] treatedRequests:', this.treatedRequests);
       },
@@ -132,11 +145,48 @@ export class TeacherHomeComponent implements OnInit {
       }
     });
 
+    // Добавляем мок-уведомления об отмене для демонстрации
+    const mockCancellationNotifications: Notification[] = [
+      {
+        id: 'mock-cancel-1',
+        user_id: userId,
+        title: '❌ Pierre Martin a annulé le cours',
+        message: 'Pierre Martin a annulé le cours prévu le 15/01/2025 à 14:00. Raison: Je suis malade (remboursement prévu)',
+        type: 'lesson_cancelled_by_student',
+        status: 'unread',
+        data: {
+          lessonId: 'lesson-123',
+          studentId: 'student-456',
+          studentName: 'Pierre Martin',
+          refundAvailable: true,
+          reason: 'Je suis malade'
+        }
+      },
+      {
+        id: 'mock-cancel-2',
+        user_id: userId,
+        title: '⚠️ Sophie Dubois a annulé le cours',
+        message: 'Sophie Dubois a annulé le cours prévu le 16/01/2025 à 10:00. Raison: Urgence personnelle (pas de remboursement)',
+        type: 'lesson_cancelled_by_student',
+        status: 'unread',
+        data: {
+          lessonId: 'lesson-789',
+          studentId: 'student-101',
+          studentName: 'Sophie Dubois',
+          refundAvailable: false,
+          reason: 'Urgence personnelle'
+        }
+      }
+    ];
+
+    this.notifications = [...mockCancellationNotifications, ...this.notifications];
+
     this.notificationService.getNotificationsForUser(userId).subscribe({
       next: (all) => {
         console.log('🔔 [FRONT] Ответ от сервера:', all);
         this.notifications = all.filter(n => n.type !== 'booking_request');
         this.newRequests = all.filter(n => n.type === 'booking_request' && n.status === 'pending');
+        this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending');
       },
       error: (err) => {
         console.error('❌ [FRONT] Ошибка при получении уведомлений:', err);
@@ -269,5 +319,38 @@ export class TeacherHomeComponent implements OnInit {
 
   toggleShowMoreTreatedRequests() {
     this.showMoreTreatedRequests = !this.showMoreTreatedRequests;
+  }
+
+  private getCalendarColor(status: string): { primary: string, secondary: string } {
+    switch (status) {
+      case 'confirmed': 
+        return { primary: '#4caf50', secondary: '#e8f5e9' }; // Зеленый
+      case 'rejected': 
+        return { primary: '#f44336', secondary: '#ffebee' }; // Красный
+      case 'pending': 
+        return { primary: '#ff9800', secondary: '#fff3e0' }; // Желтый/оранжевый
+      case 'cancelled_by_student':
+      case 'cancelled_by_student_no_refund':
+        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый для отмененных
+      case 'in_progress':
+        return { primary: '#2196f3', secondary: '#e3f2fd' }; // Синий
+      case 'completed':
+        return { primary: '#9c27b0', secondary: '#f3e5f5' }; // Фиолетовый
+      default: 
+        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый
+    }
+  }
+
+  private getStatusIcon(status: string): string {
+    switch (status) {
+      case 'confirmed': return '✅';
+      case 'rejected': return '❌';
+      case 'pending': return '⏳';
+      case 'cancelled_by_student': return '🚫';
+      case 'cancelled_by_student_no_refund': return '⛔';
+      case 'in_progress': return '🔄';
+      case 'completed': return '✅';
+      default: return '❓';
+    }
   }
 }

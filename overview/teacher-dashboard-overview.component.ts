@@ -107,11 +107,18 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
-      // Загружаем все подтверждённые занятия для календаря
+      // Загружаем все подтверждённые занятия для календаря с цветовой индикацией
       this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
         this.calendarEvents = lessons.map(lesson => ({
           start: new Date(lesson.scheduledAt),
-          title: `Cours avec ${lesson.studentName}`,
+          title: `${this.getStatusIcon(lesson.status)} ${lesson.studentName}`,
+          color: this.getCalendarColor(lesson.status),
+          meta: {
+            lessonId: lesson.id,
+            status: lesson.status,
+            studentId: lesson.studentId,
+            studentName: lesson.studentName
+          }
         }));
       });
 
@@ -342,6 +349,39 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       this.refreshStudents();
       this.snackBar.open('Студенту отправлено уведомление об отказе', 'OK', { duration: 3000 });
     });
+  }
+
+  private getCalendarColor(status: string): { primary: string, secondary: string } {
+    switch (status) {
+      case 'confirmed': 
+        return { primary: '#4caf50', secondary: '#e8f5e9' }; // Зеленый
+      case 'rejected': 
+        return { primary: '#f44336', secondary: '#ffebee' }; // Красный
+      case 'pending': 
+        return { primary: '#ff9800', secondary: '#fff3e0' }; // Желтый/оранжевый
+      case 'cancelled_by_student':
+      case 'cancelled_by_student_no_refund':
+        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый для отмененных
+      case 'in_progress':
+        return { primary: '#2196f3', secondary: '#e3f2fd' }; // Синий
+      case 'completed':
+        return { primary: '#9c27b0', secondary: '#f3e5f5' }; // Фиолетовый
+      default: 
+        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый
+    }
+  }
+
+  private getStatusIcon(status: string): string {
+    switch (status) {
+      case 'confirmed': return '✅';
+      case 'rejected': return '❌';
+      case 'pending': return '⏳';
+      case 'cancelled_by_student': return '🚫';
+      case 'cancelled_by_student_no_refund': return '⛔';
+      case 'in_progress': return '🔄';
+      case 'completed': return '✅';
+      default: return '❓';
+    }
   }
 
 }

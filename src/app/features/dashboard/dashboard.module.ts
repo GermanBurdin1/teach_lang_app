@@ -47,6 +47,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-requests.component';
 
 @NgModule({
   declarations: [
@@ -70,7 +71,8 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
     TeacherHomeComponent,
     StudentHomeComponent,
     AdminHomeComponent,
-    AdminSettingsComponent
+    AdminSettingsComponent,
+    SentRequestsComponent
   ],
   imports: [
     LayoutModule,

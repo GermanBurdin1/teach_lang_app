@@ -65,4 +65,12 @@ export class LessonService {
   getLessonById(lessonId: string): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/${lessonId}`);
   }
+
+  cancelLesson(lessonId: string, reason: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/cancel`, { lessonId, reason });
+  }
+
+  getStudentSentRequests(studentId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/student/${studentId}/sent-requests`);
+  }
 }

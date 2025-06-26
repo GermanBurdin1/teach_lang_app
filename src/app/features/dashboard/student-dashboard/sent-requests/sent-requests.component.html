@@ -1,0 +1,121 @@
+<div class="sent-requests-container">
+  <div class="header">
+    <h2>📋 Mes demandes envoyées</h2>
+    <p class="subtitle">Historique de toutes vos demandes de cours par ordre chronologique</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement de vos demandes...</p>
+  </div>
+
+  <div *ngIf="!loading && sentRequests.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">inbox</mat-icon>
+    <h3>Aucune demande envoyée</h3>
+    <p>Vous n'avez encore envoyé aucune demande de cours.</p>
+    <button mat-raised-button color="primary" routerLink="/teacher-search">
+      Rechercher un professeur
+    </button>
+  </div>
+
+  <div *ngIf="!loading && sentRequests.length > 0" class="requests-list">
+    <mat-card *ngFor="let request of sentRequests" class="request-card" 
+              [style.border-left]="'4px solid ' + getStatusColor(request.status)">
+      
+      <!-- En-tête de la carte -->
+      <mat-card-header>
+        <div class="request-header">
+          <div class="teacher-info">
+            <h3 class="teacher-name">{{ request.teacherName }}</h3>
+            <div class="status-badge" [style.background-color]="getStatusColor(request.status)">
+              {{ getStatusIcon(request.status) }} {{ getStatusText(request.status) }}
+            </div>
+          </div>
+          <div class="request-meta">
+            <small class="sent-date">
+              Envoyé le {{ formatDate(request.createdAt) }} à {{ formatTime(request.createdAt) }}
+            </small>
+          </div>
+        </div>
+      </mat-card-header>
+
+      <!-- Corps de la carte -->
+      <mat-card-content>
+        <div class="request-details">
+          
+          <!-- Heure demandée initialement -->
+          <div class="time-info original-time">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <strong>Créneau demandé:</strong><br>
+              {{ formatDateTime(request.scheduledAt) }}
+            </div>
+          </div>
+
+          <!-- Proposition du professeur (si existe) -->
+          <div *ngIf="hasProposalFromTeacher(request)" class="time-info proposed-time">
+            <mat-icon>swap_horiz</mat-icon>
+            <div>
+              <strong>Professeur propose:</strong><br>
+              {{ formatDateTime(request.proposedTime!) }}
+              <br><small>Proposé le {{ formatDate(request.proposedByTeacherAt!) }}</small>
+            </div>
+          </div>
+
+          <!-- Réponse de l'étudiant aux propositions -->
+          <div *ngIf="hasProposalFromTeacher(request)" class="student-response">
+            <div *ngIf="request.studentConfirmed === true" class="response-accepted">
+              ✅ Vous avez accepté cette proposition
+            </div>
+            <div *ngIf="request.studentConfirmed === false" class="response-refused">
+              ❌ Vous avez refusé cette proposition
+            </div>
+            <div *ngIf="request.studentConfirmed === null" class="response-pending">
+              ⏳ En attente de votre réponse
+            </div>
+          </div>
+
+        </div>
+      </mat-card-content>
+
+      <!-- Actions (si nécessaire) -->
+      <mat-card-actions *ngIf="request.status === 'pending' && hasProposalFromTeacher(request) && request.studentConfirmed === null">
+        <button mat-raised-button color="primary">
+          Accepter la proposition
+        </button>
+        <button mat-stroked-button color="warn">
+          Refuser
+        </button>
+      </mat-card-actions>
+
+    </mat-card>
+  </div>
+
+  <!-- Légende des couleurs -->
+  <div *ngIf="!loading && sentRequests.length > 0" class="legend">
+    <h4>Légende des statuts:</h4>
+    <div class="legend-items">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #4caf50;"></div>
+        <span>✅ Confirmé - Le cours est programmé</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #f44336;"></div>
+        <span>❌ Refusé - Demande rejetée par le professeur</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #ff9800;"></div>
+        <span>⏳ En attente - En cours d'examen par le professeur</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #9e9e9e;"></div>
+        <span>🚫 Annulé (avec remboursement) - Cours annulé par l'étudiant</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #9e9e9e;"></div>
+        <span>⛔ Annulé (sans remboursement) - Cours annulé moins de 2h avant</span>
+      </div>
+    </div>
+  </div>
+
+</div> 

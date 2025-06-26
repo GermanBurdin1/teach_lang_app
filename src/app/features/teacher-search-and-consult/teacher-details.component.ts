@@ -82,9 +82,23 @@ export class TeacherDetailsComponent implements OnInit {
       studentId: studentId,
       teacherId: teacherId,
       scheduledAt: bookedDateTime.toISOString()
-    }).subscribe(() => {
-      this.closeBookingModal();
-      alert('✅ Votre demande a été envoyée à l’enseignant.');
+    }).subscribe({
+      next: () => {
+        this.closeBookingModal();
+        alert('✅ Votre demande a été envoyée à l\'enseignant.');
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la réservation:', error);
+        let errorMessage = 'Une erreur est survenue lors de l\'envoi de votre demande.';
+        
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        alert('❌ ' + errorMessage);
+      }
     });
   }
 

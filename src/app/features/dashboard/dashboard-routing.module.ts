@@ -26,6 +26,7 @@ import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.comp
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
 import { AdminSettingsComponent } from '../settings/admin-settings/admin-settings.component';
+import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-requests.component';
 
 const routes: Routes = [
   {
@@ -48,6 +49,7 @@ const routes: Routes = [
       { path: 'school/course/:id', component: MaterialsComponent},
       { path: 'student/teachers', component: TeacherListComponent },
       { path: 'student/teachers/:id', component: TeacherDetailsComponent },
+      { path: 'student/sent-requests', component: SentRequestsComponent },
       { path: 'student/settings', component: StudentSettingsComponent },
       { path: 'admin/teachers', component: AdminTeachersListComponent },
       { path: 'admin/teachers/:id', component: AdminTeacherDetailsComponent },

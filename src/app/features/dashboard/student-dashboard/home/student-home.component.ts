@@ -86,53 +86,12 @@ export class StudentHomeComponent implements OnInit {
           };
         });
       console.log('[StudentHomeComponent] notifications for template:', this.notifications);
-      
-      // Добавляем обновление календаря при получении уведомления
-      this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
-        this.upcomingLessons = lessons.map(lesson => ({
-          start: new Date(lesson.scheduledAt),
-          end: new Date(new Date(lesson.scheduledAt).getTime() + 60 * 60 * 1000),
-          title: `Cours avec ${lesson.teacherName}`,
-          color: { primary: '#3f51b5', secondary: '#e8eaf6' },
-          allDay: false
-        }));
-      });
     });
 
-    // Оставляем начальную загрузку календаря как есть
-    this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
-      this.upcomingLessons = lessons.map(lesson => ({
-        start: new Date(lesson.scheduledAt),
-        end: new Date(new Date(lesson.scheduledAt).getTime() + 60 * 60 * 1000),
-        title: `Cours avec ${lesson.teacherName}`,
-        color: { primary: '#3f51b5', secondary: '#e8eaf6' },
-        allDay: false
-      }));
-    });
+    // ==================== ЗАГРУЗКА ВСЕХ ЗАЯВОК ДЛЯ КАЛЕНДАРЯ ====================
+    this.loadAllLessonsForCalendar(studentId);
 
-    const tomorrow = new Date();
-    tomorrow.setHours(11, 0, 0, 0);
 
-    const inThreeDays = new Date();
-    inThreeDays.setDate(inThreeDays.getDate() + 3);
-    inThreeDays.setHours(12, 0, 0, 0);
-
-    this.upcomingLessons = [
-      {
-        start: tomorrow,
-        end: new Date(tomorrow.getTime() + 60 * 60 * 1000),
-        title: 'Cours avec Mme Dupont',
-        color: { primary: '#3f51b5', secondary: '#e8eaf6' },
-        allDay: false
-      },
-      {
-        start: inThreeDays,
-        end: new Date(inThreeDays.getTime() + 60 * 60 * 1000),
-        title: 'Cours avec M. Moreau',
-        color: { primary: '#3f51b5', secondary: '#e8eaf6' },
-        allDay: false
-      }
-    ];
   }
 
   onLessonClick(event: CalendarEvent): void {
@@ -200,10 +159,102 @@ export class StudentHomeComponent implements OnInit {
       this.closeModifyModal();
     } else if (this.actionType === 'cancel') {
       const reason = this.cancelReason === 'autre' ? this.customCancelReason : this.cancelReason;
-      // Here you would typically call your service to cancel the lesson
-      console.log('Cancelling lesson with reason:', reason);
-      this.closeModifyModal();
+      if (!reason || !this.selectedLesson?.meta?.lessonId) {
+        console.error('❌ Raison manquante ou ID de leçon manquant');
+        return;
+      }
+      this.cancelLesson(this.selectedLesson.meta.lessonId, reason);
     }
+  }
+
+  canCancelLesson(): boolean {
+    if (!this.selectedLesson?.start || !this.selectedLesson?.meta?.status) {
+      return false;
+    }
+
+    // Можно отменить только подтвержденные уроки
+    if (this.selectedLesson.meta.status !== 'confirmed') {
+      return false;
+    }
+
+    // Проверяем, что урок в будущем
+    return this.selectedLesson.start > this.now;
+  }
+
+  isCancellationTooLate(): boolean {
+    if (!this.selectedLesson?.start) {
+      return false;
+    }
+
+    const now = new Date();
+    const twoHoursBeforeLesson = new Date(this.selectedLesson.start.getTime() - 2 * 60 * 60 * 1000);
+    return now > twoHoursBeforeLesson;
+  }
+
+  cancelLesson(lessonId: string, reason: string): void {
+    // Проверяем, является ли это мок-уроком
+    if (lessonId.startsWith('mock-lesson-')) {
+      // Мок-имплементация для тестирования
+      const isWithinTwoHours = this.isCancellationTooLate();
+      const mockResponse = {
+        success: true,
+        status: isWithinTwoHours ? 'cancelled_by_student_no_refund' : 'cancelled_by_student',
+        refundAvailable: !isWithinTwoHours,
+        message: isWithinTwoHours 
+          ? 'Cours annulé. Comme l\'annulation a eu lieu moins de 2 heures avant le début, aucun remboursement ne sera effectué.'
+          : 'Cours annulé. Le remboursement sera effectué dans un délai de 3-5 jours ouvrés.'
+      };
+      
+      setTimeout(() => {
+        console.log('✅ [MOCK] Урок отменен:', mockResponse);
+        alert(mockResponse.message);
+        
+        // Удаляем урок из календаря
+        this.upcomingLessons = this.upcomingLessons.filter(
+          lesson => lesson.meta?.lessonId !== lessonId
+        );
+        
+        this.closeModifyModal();
+      }, 500); // Имитируем задержку API
+      
+      return;
+    }
+
+    // Реальный API вызов
+    this.lessonService.cancelLesson(lessonId, reason).subscribe({
+      next: (response) => {
+        console.log('✅ Урок отменен:', response);
+        
+        // Показываем сообщение пользователю
+        alert(response.message || 'Урок успешно отменен');
+        
+        // Обновляем календарь
+        const studentId = this.authService.getCurrentUser()?.id;
+        if (studentId) {
+          this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
+            this.upcomingLessons = lessons.map(lesson => ({
+              start: new Date(lesson.scheduledAt),
+              end: new Date(new Date(lesson.scheduledAt).getTime() + 60 * 60 * 1000),
+              title: `Cours avec ${lesson.teacherName}`,
+              color: { primary: '#3f51b5', secondary: '#e8eaf6' },
+              allDay: false,
+              meta: { 
+                lessonId: lesson.id, 
+                status: lesson.status,
+                teacherId: lesson.teacherId,
+                teacherName: lesson.teacherName
+              }
+            }));
+          });
+        }
+        
+        this.closeModifyModal();
+      },
+      error: (error) => {
+        console.error('❌ Ошибка при отмене урока:', error);
+        alert('Erreur lors de l\'annulation du cours: ' + (error.error?.message || error.message));
+      }
+    });
   }
 
   onBackFromModify(): void {
@@ -301,4 +352,131 @@ export class StudentHomeComponent implements OnInit {
   toggleShowMore() {
     this.showMoreNotifications = !this.showMoreNotifications;
   }
+
+  // ==================== ЗАГРУЗКА ВСЕХ ЗАЯВОК ДЛЯ КАЛЕНДАРЯ ====================
+  
+  private loadAllLessonsForCalendar(studentId: string): void {
+    // Загружаем отправленные заявки студента для отображения в календаре
+    this.lessonService.getStudentSentRequests(studentId).subscribe(requests => {
+      console.log('📅 Загружаем все заявки для календаря:', requests);
+      
+      this.upcomingLessons = requests.map(request => {
+        const lessonTime = new Date(request.scheduledAt);
+        const endTime = new Date(lessonTime.getTime() + 60 * 60 * 1000);
+        
+        return {
+          start: lessonTime,
+          end: endTime,
+          title: `${this.getStatusIcon(request.status)} ${request.teacherName}`,
+          color: this.getCalendarColor(request.status),
+          allDay: false,
+          meta: { 
+            lessonId: request.lessonId, 
+            status: request.status,
+            teacherId: request.teacherId,
+            teacherName: request.teacherName,
+            createdAt: request.createdAt,
+            proposedTime: request.proposedTime,
+            studentConfirmed: request.studentConfirmed,
+            studentRefused: request.studentRefused
+          }
+        };
+      });
+      
+      // Добавляем тестовые уроки для демонстрации
+      this.addMockLessonsForDemo();
+      
+      console.log('📅 Календарь обновлен:', this.upcomingLessons);
+    });
+  }
+
+  private getCalendarColor(status: string): { primary: string, secondary: string } {
+    switch (status) {
+      case 'confirmed': 
+        return { primary: '#4caf50', secondary: '#e8f5e9' }; // Зеленый
+      case 'rejected': 
+        return { primary: '#f44336', secondary: '#ffebee' }; // Красный
+      case 'pending': 
+        return { primary: '#ff9800', secondary: '#fff3e0' }; // Желтый/оранжевый
+      case 'cancelled_by_student':
+      case 'cancelled_by_student_no_refund':
+        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый для отмененных
+      case 'in_progress':
+        return { primary: '#2196f3', secondary: '#e3f2fd' }; // Синий
+      case 'completed':
+        return { primary: '#9c27b0', secondary: '#f3e5f5' }; // Фиолетовый
+      default: 
+        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый
+    }
+  }
+
+  private getStatusIcon(status: string): string {
+    switch (status) {
+      case 'confirmed': return '✅';
+      case 'rejected': return '❌';
+      case 'pending': return '⏳';
+      case 'cancelled_by_student': return '🚫';
+      case 'cancelled_by_student_no_refund': return '⛔';
+      case 'in_progress': return '🔄';
+      case 'completed': return '✅';
+      default: return '❓';
+    }
+  }
+
+  private addMockLessonsForDemo(): void {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(11, 0, 0, 0);
+
+    const soonLesson = new Date();
+    soonLesson.setHours(soonLesson.getHours() + 1);
+
+    const verySoonLesson = new Date();
+    verySoonLesson.setMinutes(verySoonLesson.getMinutes() + 30);
+
+    const mockLessons = [
+      {
+        start: soonLesson,
+        end: new Date(soonLesson.getTime() + 60 * 60 * 1000),
+        title: '✅ Mme Dupont (Test - dans 1h)',
+        color: { primary: '#4caf50', secondary: '#e8f5e9' },
+        allDay: false,
+        meta: { 
+          lessonId: 'mock-lesson-1', 
+          status: 'confirmed',
+          teacherId: 'teacher-1',
+          teacherName: 'Mme Dupont'
+        }
+      },
+      {
+        start: verySoonLesson,
+        end: new Date(verySoonLesson.getTime() + 60 * 60 * 1000),
+        title: '⏳ M. Moreau (Test - dans 30min)',
+        color: { primary: '#ff9800', secondary: '#fff3e0' },
+        allDay: false,
+        meta: { 
+          lessonId: 'mock-lesson-2', 
+          status: 'pending',
+          teacherId: 'teacher-2',
+          teacherName: 'M. Moreau'
+        }
+      },
+      {
+        start: tomorrow,
+        end: new Date(tomorrow.getTime() + 60 * 60 * 1000),
+        title: '❌ Mme Martin (Test - refusé)',
+        color: { primary: '#f44336', secondary: '#ffebee' },
+        allDay: false,
+        meta: { 
+          lessonId: 'mock-lesson-3', 
+          status: 'rejected',
+          teacherId: 'teacher-3',
+          teacherName: 'Mme Martin'
+        }
+      }
+    ];
+
+    this.upcomingLessons = [...this.upcomingLessons, ...mockLessons];
+  }
+
 }

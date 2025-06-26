@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import AgoraRTC, { IAgoraRTCClient, ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
 import { WebSocketService } from './web-socket.service';
+import { HomeworkService } from './homework.service';
 
 
 @Injectable({
@@ -11,6 +12,11 @@ export class VideoCallService {
   public showVideoCallSubject = new BehaviorSubject<boolean>(false);
   public isFloatingVideoSubject = new BehaviorSubject<boolean>(false);
   private _videoSize = { width: 640, height: 360 };
+  
+  // Добавляем поля для отслеживания урока
+  private currentLessonId: string | null = null;
+  private currentUserId: string | null = null;
+  
   get videoWidth() {
     return this._videoSize.width;
   }
@@ -39,9 +45,16 @@ export class VideoCallService {
   userId!: string; // Добавляем userId, если его нет
 
 
-  constructor(private wsService: WebSocketService) {
+  constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
     console.log('⚡ VideoCallService создан');
     this.setupEventListeners();
+  }
+
+  // Новый метод для установки данных урока
+  setLessonData(lessonId: string, userId: string) {
+    this.currentLessonId = lessonId;
+    this.currentUserId = userId;
+    console.log(`📚 Урок установлен: lessonId=${lessonId}, userId=${userId}`);
   }
 
   startVideoCall(): void {
@@ -52,6 +65,11 @@ export class VideoCallService {
 
     this.joinChannel().then(() => {
       console.log('✅ Успешно подключились к каналу!');
+      
+      // Автоматически начинаем урок при успешном подключении к видео
+      if (this.currentLessonId && this.currentUserId) {
+        this.startLessonAutomatically();
+      }
     }).catch(error => {
       console.error('❌ Ошибка при подключении к каналу:', error);
     });
@@ -364,5 +382,23 @@ export class VideoCallService {
     return localStorage.getItem('userId') || 'unknown';
   }
 
+  // Автоматическое начало урока при подключении к видео
+  private startLessonAutomatically() {
+    if (!this.currentLessonId || !this.currentUserId) {
+      console.warn('⚠️ Нет данных урока для автоматического начала');
+      return;
+    }
+
+    console.log(`🎬 Автоматическое начало урока: lessonId=${this.currentLessonId}, userId=${this.currentUserId}`);
+    
+    this.homeworkService.startLesson(this.currentLessonId, this.currentUserId).subscribe({
+      next: (response) => {
+        console.log('✅ Урок успешно начат:', response);
+      },
+      error: (error) => {
+        console.error('❌ Ошибка при начале урока:', error);
+      }
+    });
+  }
 
 }
