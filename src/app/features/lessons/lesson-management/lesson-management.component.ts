@@ -375,6 +375,37 @@ export class LessonManagementComponent implements OnInit {
     };
   }
 
+  // Методы для отображения статуса
+  getStatusText(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'pending': 'En attente',
+      'confirmed': 'Confirmé',
+      'rejected': 'Rejeté',
+      'cancelled_by_student': 'Annulé par l\'étudiant',
+      'cancelled_by_student_no_refund': 'Annulé (pas de remboursement)',
+      'in_progress': 'En cours',
+      'completed': 'Terminé',
+      'future': 'À venir',
+      'past': 'Passé'
+    };
+    return statusMap[status] || status;
+  }
+
+  getStatusClass(status: string): string {
+    const classMap: { [key: string]: string } = {
+      'pending': 'status-pending',
+      'confirmed': 'status-confirmed',
+      'rejected': 'status-rejected',
+      'cancelled_by_student': 'status-cancelled',
+      'cancelled_by_student_no_refund': 'status-cancelled',
+      'in_progress': 'status-in-progress',
+      'completed': 'status-completed',
+      'future': 'status-future',
+      'past': 'status-past'
+    };
+    return classMap[status] || 'status-default';
+  }
+
   // Методы-заглушки для совместимости
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
@@ -382,7 +413,7 @@ export class LessonManagementComponent implements OnInit {
   }
 
   addToHomework(item: any) {
-    // Реализовать при необходимости
+    // Реализовать при nécessité
   }
 
   recalculateStatus() {

@@ -65,9 +65,11 @@ export class TeacherLessonManagementComponent implements OnInit {
   
   // Формы для добавления
   showAddTaskForm = false;
+  showAddQuestionForm = false;
   showAddMaterialForm = false;
   newTaskTitle = '';
   newTaskDescription = '';
+  newQuestionText = '';
   
   // Материалы
   newMaterialTitle = '';
@@ -83,6 +85,12 @@ export class TeacherLessonManagementComponent implements OnInit {
   
   // Параметры URL
   highlightedLessonIdFromUrl: string | null = null;
+  
+  // Для совместимости со старым кодом
+  resolvedItemsPerLesson: { [key: string]: string[] } = {};
+  questionDropListIds: string[] = [];
+  taskDropListIds: string[] = [];
+  activeLesson: any = null;
 
   constructor(
     private homeworkService: HomeworkService,
@@ -248,6 +256,34 @@ export class TeacherLessonManagementComponent implements OnInit {
     });
   }
 
+  // Добавление вопроса студенту
+  addQuestionToStudent(): void {
+    if (!this.newQuestionText.trim() || !this.currentLesson) return;
+
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) return;
+
+    const questionData = {
+      lessonId: this.currentLesson.id,
+      question: this.newQuestionText,
+      createdBy: teacherId,
+      createdByRole: 'teacher' as const
+    };
+
+    this.lessonService.addQuestionToLesson(questionData).subscribe({
+      next: (newQuestion) => {
+        if (this.currentLesson) {
+          this.currentLesson.questions.push(newQuestion);
+        }
+        this.clearQuestionForm();
+        console.log('Вопрос добавлен студенту:', newQuestion);
+      },
+      error: (error) => {
+        console.error('Ошибка добавления вопроса:', error);
+      }
+    });
+  }
+
   // Ответ на вопрос студента
   answerQuestion(questionId: string): void {
     if (!this.answerText.trim()) return;
@@ -289,6 +325,11 @@ export class TeacherLessonManagementComponent implements OnInit {
     this.newTaskTitle = '';
     this.newTaskDescription = '';
     this.showAddTaskForm = false;
+  }
+
+  clearQuestionForm(): void {
+    this.newQuestionText = '';
+    this.showAddQuestionForm = false;
   }
 
   // Очистка формы ответа
@@ -426,6 +467,37 @@ export class TeacherLessonManagementComponent implements OnInit {
     return this.lessons.filter(l => l.status === 'future').length;
   }
 
+  // Методы для отображения статуса
+  getStatusText(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'pending': 'En attente',
+      'confirmed': 'Confirmé',
+      'rejected': 'Rejeté',
+      'cancelled_by_student': 'Annulé par l\'étudiant',
+      'cancelled_by_student_no_refund': 'Annulé (pas de remboursement)',
+      'in_progress': 'En cours',
+      'completed': 'Terminé',
+      'future': 'À venir',
+      'past': 'Passé'
+    };
+    return statusMap[status] || status;
+  }
+
+  getStatusClass(status: string): string {
+    const classMap: { [key: string]: string } = {
+      'pending': 'status-pending',
+      'confirmed': 'status-confirmed',
+      'rejected': 'status-rejected',
+      'cancelled_by_student': 'status-cancelled',
+      'cancelled_by_student_no_refund': 'status-cancelled',
+      'in_progress': 'status-in-progress',
+      'completed': 'status-completed',
+      'future': 'status-future',
+      'past': 'status-past'
+    };
+    return classMap[status] || 'status-default';
+  }
+
   // Методы-заглушки для совместимости
   recalculateStatus() {
     this.updateLessonStatuses();
@@ -436,11 +508,11 @@ export class TeacherLessonManagementComponent implements OnInit {
   }
 
   openGabarit(lesson: any) {
-    // Реализовать при необходимости
+    this.activeLesson = lesson;
   }
 
   closeGabarit() {
-    // Реализовать при необходимости
+    this.activeLesson = null;
   }
 
   loadMore() {
@@ -463,4 +535,5 @@ export class TeacherLessonManagementComponent implements OnInit {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex + 1;
   }
+
 }

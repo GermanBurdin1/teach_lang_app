@@ -1,17 +1,32 @@
 <div class="lesson-management">
-  <!-- Индикатор загрузки -->
+  <!-- Indicateur de chargement -->
   <div *ngIf="loading" class="loading-container">
     <mat-spinner></mat-spinner>
-    <p>Загрузка урока...</p>
+    <p>Chargement du cours...</p>
   </div>
 
-  <!-- Основной контент -->
+  <!-- Filtres -->
+  <div class="filter-container mat-elevation-z1">
+    <!-- 🧭 Période -->
+    <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
+      <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
+      <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
+      <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <!-- Contenu principal -->
   <div *ngIf="!loading && currentLesson" class="lesson-details">
-    <!-- Заголовок урока -->
+    <!-- En-tête du cours -->
     <div class="lesson-header mat-elevation-z2">
-      <h2>📚 Урок с {{ currentLesson.teacherName || 'преподавателем' }}</h2>
-      <p>📅 {{ currentLesson.scheduledAt | date:'short' }}</p>
-      <p>📊 Статус: {{ currentLesson.status }}</p>
+      <h2>📚 Cours avec {{ currentLesson.teacherName || 'le professeur' }}</h2>
+      <p>📅 {{ currentLesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
+      <div class="status-container">
+        <span class="status-label">📊 Statut:</span>
+        <span class="status-badge" [ngClass]="getStatusClass(currentLesson.status)">
+          {{ getStatusText(currentLesson.status) }}
+        </span>
+      </div>
     </div>
 
     <!-- Вкладки -->
@@ -55,17 +70,30 @@
 
           <!-- Liste des tâches -->
           <div class="tasks-list">
-            <mat-card *ngFor="let task of currentLesson.tasks" class="task-card" 
-                      [class.completed]="task.isCompleted">
+            <mat-card *ngFor="let task of currentLesson.tasks; let i = index" 
+                      class="task-card" 
+                      [class.completed]="task.isCompleted"
+                      [class.student-task]="task.createdByRole === 'student'"
+                      [class.teacher-task]="task.createdByRole === 'teacher'">
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon *ngIf="task.isCompleted">check_circle</mat-icon>
-                  <mat-icon *ngIf="!task.isCompleted">radio_button_unchecked</mat-icon>
-                  {{ task.title }}
+                  <div class="task-header">
+                    <span class="task-number">{{ i + 1 }}.</span>
+                    <mat-icon class="role-icon" [class.student-icon]="task.createdByRole === 'student'" 
+                              [class.teacher-icon]="task.createdByRole === 'teacher'">
+                      {{ task.createdByRole === 'student' ? 'person' : 'school' }}
+                    </mat-icon>
+                    <span class="task-title">{{ task.title }}</span>
+                    <mat-icon class="status-icon" *ngIf="task.isCompleted">check_circle</mat-icon>
+                    <mat-icon class="status-icon" *ngIf="!task.isCompleted">radio_button_unchecked</mat-icon>
+                  </div>
                 </mat-card-title>
                 <mat-card-subtitle>
-                  Par {{ task.createdByRole === 'student' ? 'moi' : 'le professeur' }} 
-                  le {{ task.createdAt | date:'short' }}
+                  <span class="author-badge" [class.student-badge]="task.createdByRole === 'student'"
+                        [class.teacher-badge]="task.createdByRole === 'teacher'">
+                    {{ task.createdByRole === 'student' ? '👨‍🎓 Étudiant' : '👨‍🏫 Professeur' }}
+                  </span>
+                  <span class="date">{{ task.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
                 </mat-card-subtitle>
               </mat-card-header>
               <mat-card-content *ngIf="task.description">
@@ -121,28 +149,41 @@
 
           <!-- Список вопросов -->
           <div class="questions-list">
-            <mat-card *ngFor="let question of currentLesson.questions" class="question-card"
-                      [class.answered]="question.isAnswered">
+            <mat-card *ngFor="let question of currentLesson.questions; let i = index" 
+                      class="question-card"
+                      [class.answered]="question.isAnswered"
+                      [class.student-question]="question.createdByRole === 'student'"
+                      [class.teacher-question]="question.createdByRole === 'teacher'">
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon *ngIf="question.isAnswered">help</mat-icon>
-                  <mat-icon *ngIf="!question.isAnswered">help_outline</mat-icon>
-                  {{ question.question }}
+                  <div class="question-header">
+                    <span class="question-number">{{ i + 1 }}.</span>
+                    <mat-icon class="role-icon" [class.student-icon]="question.createdByRole === 'student'" 
+                              [class.teacher-icon]="question.createdByRole === 'teacher'">
+                      {{ question.createdByRole === 'student' ? 'person' : 'school' }}
+                    </mat-icon>
+                    <span class="question-text">{{ question.question }}</span>
+                    <mat-icon class="status-icon" *ngIf="question.isAnswered">help</mat-icon>
+                    <mat-icon class="status-icon" *ngIf="!question.isAnswered">help_outline</mat-icon>
+                  </div>
                 </mat-card-title>
                 <mat-card-subtitle>
-                  Par {{ question.createdByRole === 'student' ? 'moi' : 'le professeur' }} 
-                  le {{ question.createdAt | date:'short' }}
+                  <span class="author-badge" [class.student-badge]="question.createdByRole === 'student'"
+                        [class.teacher-badge]="question.createdByRole === 'teacher'">
+                    {{ question.createdByRole === 'student' ? '👨‍🎓 Étudiant' : '👨‍🏫 Professeur' }}
+                  </span>
+                  <span class="date">{{ question.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
                 </mat-card-subtitle>
               </mat-card-header>
               <mat-card-content *ngIf="question.isAnswered && question.answer">
                 <div class="answer">
-                  <strong>Réponse:</strong>
+                  <strong>💬 Réponse:</strong>
                   <p>{{ question.answer }}</p>
-                  <small>Répondu le {{ question.answeredAt | date:'short' }}</small>
+                  <small>Répondu le {{ question.answeredAt | date:'dd/MM/yyyy à HH:mm' }}</small>
                 </div>
               </mat-card-content>
               <mat-card-content *ngIf="!question.isAnswered">
-                <p class="waiting-answer">En attente de réponse du professeur...</p>
+                <p class="waiting-answer">⏳ En attente de réponse du professeur...</p>
               </mat-card-content>
             </mat-card>
           </div>
@@ -164,92 +205,8 @@
     <p>Cliquez sur un cours dans le calendrier pour commencer à ajouter des tâches et des questions.</p>
   </div>
 
-  <div *ngIf="activePanel === 'cours'">
-    <!-- 📚 Filtres élégants -->
-    <div class="filter-container mat-elevation-z1">
 
-      <!-- 🧭 Période -->
-      <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
 
-        <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
-        <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
-        <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
-      </mat-button-toggle-group>
-      <!-- 👨‍🏫 Enseignant -->
-      <mat-form-field appearance="fill" class="filter-item">
-        <mat-label>Enseignant</mat-label>
-        <mat-select [(ngModel)]="selectedTeacher">
-          <mat-option value="">Tous</mat-option>
-          <mat-option *ngFor="let t of ['Marie', 'Paul', 'Claire']" [value]="t">{{ t }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <!-- 📅 Date début -->
-      <mat-form-field appearance="fill" class="filter-item">
-        <mat-label>Date de début</mat-label>
-        <input matInput type="date" [(ngModel)]="startDate">
-      </mat-form-field>
-
-      <!-- 📅 Date fin -->
-      <mat-form-field appearance="fill" class="filter-item">
-        <mat-label>Date de fin</mat-label>
-        <input matInput type="date" [(ngModel)]="endDate">
-      </mat-form-field>
-
-      <!-- 🔍 Mot-clé -->
-      <mat-form-field appearance="fill" class="filter-item keyword">
-        <mat-label>Mot-clé dans tâches ou questions</mat-label>
-        <input matInput [(ngModel)]="searchTerm" placeholder="🔍 Synthèse, discours, etc.">
-      </mat-form-field>
-
-    </div>
-
-    <!-- 📦 Liste des cours -->
-    <div class="lesson-list">
-      <app-lesson-card *ngFor="let lesson of filteredLessons" [lesson]="lesson" [lessonId]="lesson.id"
-        [taskDropIds]="taskDropListIds" [questionDropIds]="questionDropListIds"
-        [resolvedItems]="resolvedItemsPerLesson[lesson.id] || []" (itemDropped)="onItemDropped($event)"
-        (moveToFuture)="onMoveToFuture($event)">
-      </app-lesson-card>
-      <div class="paginator-wrapper" *ngIf="activePanel === 'cours'">
-        <mat-paginator [length]="fullFilteredLessons.length" [pageSize]="pageSize" [pageSizeOptions]="[4, 8, 12]"
-          (page)="onPageChange($event)" [showFirstLastButtons]="true" aria-label="Pagination des cours">
-        </mat-paginator>
-      </div>
-    </div>
-
-  </div>
-
-  <div *ngIf="activePanel === 'stats'" class="lesson-list p-4">
-    <h4>📊 Statistiques</h4>
-    <ul>
-      <li>Cours passés : {{ stats.pastCount }}</li>
-      <li>Cours à venir : {{ stats.futureCount }}</li>
-      <li>Tâches totales : {{ stats.totalTasks }}</li>
-      <li>Questions totales : {{ stats.totalQuestions }}</li>
-    </ul>
-
-    <h4 class="mt-3">🎯 Objectifs</h4>
-    <p class="text-muted">Définir ses objectifs d'apprentissage à long terme ici…</p>
-  </div>
-
-  <!-- 📎 Side Tabs -->
-  <div class="side-tabs-wrapper" (mouseleave)="hideTabs = true" (mouseenter)="hideTabs = false">
-    <div class="side-tabs-wrapper">
-      <div class="side-tabs">
-        <div class="tab-button" (click)="activePanel = 'cours'" [class.active]="activePanel === 'cours'">
-          📋 <span class="label">Cours</span>
-        </div>
-        <div class="tab-button" (click)="activePanel = 'settings'" [class.active]="activePanel === 'settings'">
-          ⚙️ <span class="label">Paramètres</span>
-        </div>
-        <div class="tab-button" (click)="activePanel = 'stats'" [class.active]="activePanel === 'stats'">
-          📊 <span class="label">Statistiques</span>
-        </div>
-
-      </div>
-    </div>
-  </div>
 
 
 </div>
