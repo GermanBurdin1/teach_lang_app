@@ -10,9 +10,8 @@
       <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
         <div *ngFor="let note of visibleNotifications" class="notification-card">
           <div class="notification-content">
-            <div class="notification-text">
-              <strong>{{ note.title }}</strong><br />
-              <small>{{ note.message }}</small>
+            <div class="notification-text" 
+                 [innerHTML]="makeStudentNameClickable(note.message, note)">
             </div>
             
             <div class="notification-actions">
@@ -211,8 +210,44 @@
     <div class="bottom-section">
       <h3>🗓️ Prochains cours</h3>
       <div class="calendar-wrapper">
-        <app-calendar-preview [events]="upcomingLessons"></app-calendar-preview>
+        <app-calendar-preview [events]="upcomingLessons" (eventClicked)="onCalendarEventClick($event)"></app-calendar-preview>
       </div>
     </div>
 
+  </div>
+
+  <!-- Модалка информации о студенте -->
+  <div *ngIf="showStudentModal" class="modal-overlay" (click)="closeStudentModal()">
+    <div class="student-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>�� Informations sur l'étudiant</h3>
+        <button mat-icon-button (click)="closeStudentModal()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="modal-content" *ngIf="selectedStudent">
+        <div class="student-info">
+          <p><strong>Nom:</strong> {{ selectedStudent.name }}</p>
+          <p><strong>ID:</strong> {{ selectedStudent.id }}</p>
+          <p *ngIf="selectedStudent.lessonId"><strong>Leçon:</strong> {{ selectedStudent.lessonId }}</p>
+          <p *ngIf="selectedStudent.reason"><strong>Raison:</strong> {{ selectedStudent.reason }}</p>
+          <p *ngIf="selectedStudent.refundAvailable !== undefined">
+            <strong>Remboursement:</strong> 
+            {{ selectedStudent.refundAvailable ? 'Disponible' : 'Non disponible' }}
+          </p>
+        </div>
+        
+        <div class="modal-actions">
+          <button mat-raised-button color="primary" 
+                  *ngIf="selectedStudent.lessonId"
+                  (click)="navigateToLesson(selectedStudent.lessonId)">
+            Aller à la leçon
+          </button>
+          <button mat-stroked-button (click)="closeStudentModal()">
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
   </div>

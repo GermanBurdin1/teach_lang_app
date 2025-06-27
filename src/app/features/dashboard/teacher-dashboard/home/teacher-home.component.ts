@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
 import { AuthService } from '../../../../services/auth.service';
 import { TeacherService } from '../../../../services/teacher.service';
@@ -6,18 +6,21 @@ import { NotificationService } from '../../../../services/notifications.service'
 import { Notification } from '../../../../models/notification.model';
 import { LessonService } from '../../../../services/lesson.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-teacher-home',
   templateUrl: './teacher-home.component.html',
   styleUrls: ['./teacher-home.component.css']
 })
-export class TeacherHomeComponent implements OnInit {
+export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private teacherService: TeacherService,
     private notificationService: NotificationService,
     private lessonService: LessonService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) { }
 
   // notifications: string[] = [
@@ -66,6 +69,10 @@ export class TeacherHomeComponent implements OnInit {
   showMoreTreatedRequests = false;
   readonly MAX_TREATED_REQUESTS = 10;
 
+  // Новые свойства для модалки студента
+  selectedStudent: any = null;
+  showStudentModal = false;
+
   private refreshCalendar(): void {
     const userId = this.authService.getCurrentUser()?.id;
     if (!userId) return;
@@ -79,13 +86,12 @@ export class TeacherHomeComponent implements OnInit {
         color: this.getCalendarColor(lesson.status),
         allDay: false,
         meta: { 
-          lessonId: lesson.id, 
+          lessonId: lesson.id,
           status: lesson.status,
           studentId: lesson.studentId,
           studentName: lesson.studentName
         }
       }));
-      console.log('[TeacherHome] upcomingLessons для календаря:', this.upcomingLessons);
     });
   }
 
@@ -184,7 +190,9 @@ export class TeacherHomeComponent implements OnInit {
     this.notificationService.getNotificationsForUser(userId).subscribe({
       next: (all) => {
         console.log('🔔 [FRONT] Ответ от сервера:', all);
-        this.notifications = all.filter(n => n.type !== 'booking_request');
+        // Объединяем реальные уведомления с мок-уведомлениями об отмене
+        const realNotifications = all.filter(n => n.type !== 'booking_request');
+        this.notifications = [...mockCancellationNotifications, ...realNotifications];
         this.newRequests = all.filter(n => n.type === 'booking_request' && n.status === 'pending');
         this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending');
       },
@@ -319,6 +327,103 @@ export class TeacherHomeComponent implements OnInit {
 
   toggleShowMoreTreatedRequests() {
     this.showMoreTreatedRequests = !this.showMoreTreatedRequests;
+  }
+
+  // Методы для модалки студента
+  openStudentModal(student: any): void {
+    this.selectedStudent = student;
+    this.showStudentModal = true;
+  }
+
+  closeStudentModal(): void {
+    this.showStudentModal = false;
+    this.selectedStudent = null;
+  }
+
+  // Извлечение имени студента из уведомления
+  getStudentNameFromNotification(notification: any): string {
+    return notification.data?.studentName || 'Étudiant';
+  }
+
+  // Извлечение ID студента из уведомления
+  getStudentIdFromNotification(notification: any): string {
+    return notification.data?.studentId || '';
+  }
+
+  // Обработка клика по имени студента в уведомлениях
+  onStudentNameClick(notification: any): void {
+    const studentInfo = {
+      id: this.getStudentIdFromNotification(notification),
+      name: this.getStudentNameFromNotification(notification),
+      lessonId: notification.data?.lessonId,
+      // Дополнительные данные из уведомления
+      ...notification.data
+    };
+    this.openStudentModal(studentInfo);
+  }
+
+  // Обработка клика по студенту в заявках
+  onStudentRequestClick(request: any): void {
+    const studentInfo = {
+      id: request.data?.studentId || '',
+      name: request.data?.studentName || request.title,
+      lessonId: request.data?.lessonId,
+      ...request.data
+    };
+    this.openStudentModal(studentInfo);
+  }
+
+  // Навигация к уроку
+  navigateToLesson(lessonId: string): void {
+    this.router.navigate(['/lessons/teacher'], { 
+      queryParams: { 
+        lessonId: lessonId,
+        tab: 'upcoming' 
+      } 
+    });
+  }
+
+  // Обработка клика по событию календаря
+  onCalendarEventClick(event: CalendarEvent): void {
+    if (event.meta?.lessonId) {
+      this.navigateToLesson(event.meta.lessonId);
+    }
+  }
+
+  // Создание кликабельных имен студентов в уведомлениях
+  makeStudentNameClickable(message: string, notification: any): string {
+    const studentName = this.getStudentNameFromNotification(notification);
+    if (!studentName || studentName === 'Étudiant') {
+      return `<strong>${notification.title}</strong><br><small>${message}</small>`;
+    }
+    
+    // Создаем кликабельную ссылку для имени студента
+    const clickableMessage = message.replace(
+      studentName, 
+      `<a href="javascript:void(0)" 
+         onclick="document.dispatchEvent(new CustomEvent('student-name-click', {detail: '${notification.id}'}))" 
+         style="color: #1976d2; text-decoration: underline; cursor: pointer; font-weight: bold;">
+         ${studentName}
+       </a>`
+    );
+    
+    return `<strong>${notification.title}</strong><br><small>${clickableMessage}</small>`;
+  }
+
+  ngAfterViewInit(): void {
+    // Слушатель для кликов по именам студентов
+    document.addEventListener('student-name-click', (event: any) => {
+      const notificationId = event.detail;
+      const notification = this.notifications.find(n => n.id === notificationId);
+      if (notification) {
+        this.onStudentNameClick(notification);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Убираем слушатель при уничтожении компонента
+    document.removeEventListener('student-name-click', () => {});
   }
 
   private getCalendarColor(status: string): { primary: string, secondary: string } {

@@ -1,6 +1,44 @@
 import { Component, OnInit } from '@angular/core';
 import { HomeworkService } from '../../../services/homework.service';
+import { LessonService } from '../../../services/lesson.service';
+import { AuthService } from '../../../services/auth.service';
 import { PageEvent } from '@angular/material/paginator';
+import { ActivatedRoute } from '@angular/router';
+
+interface Task {
+  id: string;
+  lessonId: string;
+  title: string;
+  description: string | null;
+  createdBy: string;
+  createdByRole: 'student' | 'teacher';
+  isCompleted: boolean;
+  completedAt: Date | null;
+  createdAt: Date;
+}
+
+interface Question {
+  id: string;
+  lessonId: string;
+  question: string;
+  answer: string | null;
+  createdBy: string;
+  createdByRole: 'student' | 'teacher';
+  isAnswered: boolean;
+  answeredAt: Date | null;
+  createdAt: Date;
+}
+
+interface Lesson {
+  id: string;
+  teacherId: string;
+  studentId: string;
+  scheduledAt: Date;
+  status: string;
+  teacherName?: string;
+  tasks: Task[];
+  questions: Question[];
+}
 
 @Component({
   selector: 'app-lesson-management',
@@ -8,99 +46,10 @@ import { PageEvent } from '@angular/material/paginator';
   styleUrls: ['./lesson-management.component.css']
 })
 export class LessonManagementComponent implements OnInit {
+  // UI состояние
   filter: string = 'future';
   selectedTeacher: string | null = null;
-  allLessons = [
-    {
-      id: 1,
-      teacher: 'Marie',
-      date: new Date(Date.now() + 5 * 60 * 1000),
-      status: 'future',
-      tasks: [
-        'Analyser la chanson de Charles Aznavour',
-        'Compléter la fiche de vocabulaire',
-        'Faire une synthèse sur le présent du subjonctif',
-        'Corriger les erreurs d’un camarade'
-      ],
-      questions: [
-        'Le passé simple est-il utilisé uniquement pour l’ironie ?',
-        'Quand utilise-t-on “depuis” vs “il y a” ?',
-        'Quelle est la structure du discours indirect ?'
-      ],
-      tasksDone: 1,
-      questionsDone: 0,
-      homework: []
-    },
-    {
-      id: 2,
-      teacher: 'Paul',
-      date: new Date('2025-06-05'),
-      status: 'future',
-      tasks: ['Faire des phrases au subjonctif'],
-      questions: ['Quelle est la différence entre “bien que” et “même si” ?'],
-      tasksDone: 0,
-      questionsDone: 1,
-      homework: []
-    },
-    {
-      id: 3,
-      teacher: 'Claire',
-      date: new Date('2025-05-20'),
-      status: 'future',
-      tasks: ['Préparer un exposé sur la pollution sonore'],
-      questions: ['Faut-il accorder les participes passés avec avoir ?'],
-      tasksDone: 0,
-      questionsDone: 0,
-      homework: []
-    },
-    {
-      id: 4,
-      teacher: 'Marie',
-      date: new Date('2025-04-10'),
-      status: 'past',
-      tasks: ['Écrire une lettre de motivation'],
-      questions: ['Quelles sont les erreurs fréquentes en conjugaison ?'],
-      tasksDone: 1,
-      questionsDone: 1,
-      homework: []
-    },
-    {
-      id: 5,
-      teacher: 'Paul',
-      date: new Date('2025-03-15'),
-      status: 'past',
-      tasks: ['Corriger les fautes dans un article'],
-      questions: ['Quelle est la différence entre “depuis” et “pendant” ?'],
-      tasksDone: 1,
-      questionsDone: 1,
-      homework: []
-    },
-    {
-      id: 6,
-      teacher: 'Claire',
-      date: new Date('2025-06-10'),
-      status: 'future',
-      tasks: ['Expliquer une œuvre d’art'],
-      questions: ['Quelle est la structure du discours indirect ?'],
-      tasksDone: 0,
-      questionsDone: 0,
-      homework: [],
-    },
-    {
-      id: 7,
-      teacher: 'Marie',
-      date: new Date('2025-06-03'),
-      status: 'past',
-      tasks: ['Préparer un débat sur l’intelligence artificielle'],
-      questions: ['Peut-on utiliser “on” dans une rédaction formelle ?'],
-      tasksDone: 0,
-      questionsDone: 0,
-      homework: []
-    }
-  ];
-  highlightedLessonId: number | null = null;
-  resolvedItemsPerLesson: { [lessonId: number]: string[] } = {};
-  newHomeworkFromClass: string[] = [];
+  highlightedLessonId: string | null = null;
   activePanel: 'cours' | 'settings' | 'stats' = 'cours';
   hideTabs = true;
   searchTerm = '';
@@ -108,168 +57,335 @@ export class LessonManagementComponent implements OnInit {
   endDate?: string;
   pageSize = 4;
   currentPage = 1;
+  showMoreNotifications = false;
+  readonly MAX_NOTIFICATIONS = 10;
 
-  constructor(private homeworkService: HomeworkService) { }
+  // Данные
+  lessons: Lesson[] = [];
+  currentLesson: Lesson | null = null;
+  
+  // Формы для добавления
+  showAddTaskForm = false;
+  showAddQuestionForm = false;
+  newTaskTitle = '';
+  newTaskDescription = '';
+  newQuestionText = '';
+  
+  // Загрузка
+  loading = false;
+  
+  // Параметры URL
+  highlightedLessonIdFromUrl: string | null = null;
+
+  constructor(
+    private homeworkService: HomeworkService,
+    private lessonService: LessonService,
+    private authService: AuthService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
-    const now = Date.now();
-    this.allLessons.forEach(lesson => {
-      lesson.status = lesson.date.getTime() >= now ? 'future' : 'past';
+    // Обработка параметров URL
+    this.route.queryParams.subscribe(params => {
+      const lessonId = params['lessonId'];
+      const tab = params['tab'];
+      
+      if (lessonId) {
+        this.highlightedLessonIdFromUrl = lessonId;
+        console.log(`[StudentLessonManagement] Navigated to lesson: ${lessonId}, tab: ${tab}`);
+        
+        // Устанавливаем фильтр
+        if (tab === 'upcoming' || tab === 'à venir') {
+          this.filter = 'future';
+        } else if (tab === 'past' || tab === 'passé') {
+          this.filter = 'past';
+        }
+        
+        // Загружаем конкретный урок
+        this.loadLesson(lessonId);
+      } else {
+        // Загружаем все уроки студента
+        this.loadStudentLessons();
+      }
     });
+  }
 
-    console.log('[ngOnInit] allLessons after status calc:', this.allLessons);
+  // Загрузка уроков студента
+  loadStudentLessons(): void {
+    const studentId = this.authService.getCurrentUser()?.id;
+    if (!studentId) return;
 
-    this.homeworkService.getHomeworkStream().subscribe(items => {
-      this.newHomeworkFromClass = items;
+    this.loading = true;
+    this.lessonService.getConfirmedLessons(studentId).subscribe({
+      next: (lessons) => {
+        this.lessons = lessons.map(lesson => ({
+          ...lesson,
+          tasks: [],
+          questions: []
+        }));
+        this.updateLessonStatuses();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Ошибка загрузки уроков:', error);
+        this.loading = false;
+      }
+    });
+  }
+
+  // Загрузка конкретного урока с задачами и вопросами
+  loadLesson(lessonId: string): void {
+    this.loading = true;
+    
+    // Загружаем урок
+    this.lessonService.getLessonDetails(lessonId).subscribe({
+      next: (lesson) => {
+        this.currentLesson = lesson;
+        this.highlightedLessonId = lessonId;
+        
+        // Загружаем задачи и вопросы
+        this.loadTasksAndQuestions(lessonId);
+        
+        setTimeout(() => {
+          this.highlightedLessonId = null;
+        }, 5000);
+      },
+      error: (error) => {
+        console.error('Ошибка загрузки урока:', error);
+        this.loading = false;
+      }
+    });
+  }
+
+  // Загрузка задач и вопросов для урока
+  loadTasksAndQuestions(lessonId: string): void {
+    Promise.all([
+      this.lessonService.getTasksForLesson(lessonId).toPromise(),
+      this.lessonService.getQuestionsForLesson(lessonId).toPromise()
+    ]).then(([tasks, questions]) => {
+      if (this.currentLesson) {
+        this.currentLesson.tasks = tasks || [];
+        this.currentLesson.questions = questions || [];
+      }
+      this.loading = false;
+    }).catch(error => {
+      console.error('Ошибка загрузки задач и вопросов:', error);
+      this.loading = false;
+    });
+  }
+
+  // Обновление статусов уроков (прошедшие/будущие)
+  updateLessonStatuses(): void {
+    const now = new Date();
+    this.lessons.forEach(lesson => {
+      const lessonDate = new Date(lesson.scheduledAt);
+      lesson.status = lessonDate > now ? 'future' : 'past';
+    });
+  }
+
+  // Добавление новой задачи
+  addTask(): void {
+    if (!this.newTaskTitle.trim() || !this.currentLesson) return;
+
+    const studentId = this.authService.getCurrentUser()?.id;
+    if (!studentId) return;
+
+    const taskData = {
+      lessonId: this.currentLesson.id,
+      title: this.newTaskTitle,
+      description: this.newTaskDescription || null,
+      createdBy: studentId,
+      createdByRole: 'student' as const
+    };
+
+    this.lessonService.addTaskToLesson(taskData).subscribe({
+      next: (newTask) => {
+        if (this.currentLesson) {
+          this.currentLesson.tasks.push(newTask);
+        }
+        this.clearTaskForm();
+        console.log('Задача добавлена:', newTask);
+      },
+      error: (error) => {
+        console.error('Ошибка добавления задачи:', error);
+      }
+    });
+  }
+
+  // Добавление нового вопроса
+  addQuestion(): void {
+    if (!this.newQuestionText.trim() || !this.currentLesson) return;
+
+    const studentId = this.authService.getCurrentUser()?.id;
+    if (!studentId) return;
+
+    const questionData = {
+      lessonId: this.currentLesson.id,
+      question: this.newQuestionText,
+      createdBy: studentId,
+      createdByRole: 'student' as const
+    };
+
+    this.lessonService.addQuestionToLesson(questionData).subscribe({
+      next: (newQuestion) => {
+        if (this.currentLesson) {
+          this.currentLesson.questions.push(newQuestion);
+        }
+        this.clearQuestionForm();
+        console.log('Вопрос добавлен:', newQuestion);
+      },
+      error: (error) => {
+        console.error('Ошибка добавления вопроса:', error);
+      }
+    });
+  }
+
+  // Очистка формы задачи
+  clearTaskForm(): void {
+    this.newTaskTitle = '';
+    this.newTaskDescription = '';
+    this.showAddTaskForm = false;
+  }
+
+  // Очистка формы вопроса
+  clearQuestionForm(): void {
+    this.newQuestionText = '';
+    this.showAddQuestionForm = false;
+  }
+
+  // Отметка задачи как выполненной
+  completeTask(taskId: string): void {
+    const studentId = this.authService.getCurrentUser()?.id;
+    if (!studentId) return;
+
+    this.lessonService.completeTask(taskId, studentId).subscribe({
+      next: (updatedTask) => {
+        if (this.currentLesson) {
+          const taskIndex = this.currentLesson.tasks.findIndex(t => t.id === taskId);
+          if (taskIndex > -1) {
+            this.currentLesson.tasks[taskIndex] = updatedTask;
+          }
+        }
+        console.log('Задача отмечена как выполненная:', updatedTask);
+      },
+      error: (error) => {
+        console.error('Ошибка выполнения задачи:', error);
+      }
+    });
+  }
+
+  // Геттеры для совместимости с шаблоном
+  get filteredLessons() {
+    if (this.currentLesson) {
+      return [this.currentLesson];
+    }
+    return this.lessons.filter(lesson => {
+      if (this.filter === 'future') return lesson.status === 'future';
+      if (this.filter === 'past') return lesson.status === 'past';
+      return true;
     });
   }
 
   get fullFilteredLessons() {
-    const result = this.allLessons
-      .filter(l => this.filter === 'all' || l.status === this.filter)
-      .filter(l => !this.selectedTeacher || l.teacher === this.selectedTeacher)
-      .filter(l => {
-        const time = l.date.getTime();
-        const afterStart = !this.startDate || time >= new Date(this.startDate).getTime();
-        const beforeEnd = !this.endDate || time <= new Date(this.endDate).getTime();
-        return afterStart && beforeEnd;
-      })
-      .filter(l => {
-        if (!this.searchTerm.trim()) return true;
-        const keyword = this.searchTerm.toLowerCase();
-        return (
-          l.tasks.some(t => t.toLowerCase().includes(keyword)) ||
-          l.questions.some(q => q.toLowerCase().includes(keyword))
-        );
-      })
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+    const result = this.lessons.filter(lesson => {
+      // Фильтр по времени
+      if (this.filter === 'future') {
+        const lessonDate = new Date(lesson.scheduledAt);
+        const now = new Date();
+        if (lessonDate <= now) return false;
+      }
+      if (this.filter === 'past') {
+        const lessonDate = new Date(lesson.scheduledAt);
+        const now = new Date();
+        if (lessonDate > now) return false;
+      }
 
-    console.log('[fullFilteredLessons]', {
-      filter: this.filter,
-      selectedTeacher: this.selectedTeacher,
-      startDate: this.startDate,
-      endDate: this.endDate,
-      searchTerm: this.searchTerm,
-      result
+      // Фильтр по преподавателю
+      if (this.selectedTeacher && lesson.teacherName !== this.selectedTeacher) {
+        return false;
+      }
+
+      // Фильтр по дате начала
+      if (this.startDate) {
+        const lessonDate = new Date(lesson.scheduledAt);
+        const filterDate = new Date(this.startDate);
+        if (lessonDate < filterDate) return false;
+      }
+
+      // Фильтр по дате окончания
+      if (this.endDate) {
+        const lessonDate = new Date(lesson.scheduledAt);
+        const filterDate = new Date(this.endDate);
+        filterDate.setHours(23, 59, 59, 999); // Конец дня
+        if (lessonDate > filterDate) return false;
+      }
+
+      // Фильтр по поисковому запросу
+      if (this.searchTerm) {
+        const searchLower = this.searchTerm.toLowerCase();
+        const hasMatchInTasks = lesson.tasks?.some(task => 
+          task.title.toLowerCase().includes(searchLower) ||
+          task.description?.toLowerCase().includes(searchLower)
+        );
+        const hasMatchInQuestions = lesson.questions?.some(question =>
+          question.question.toLowerCase().includes(searchLower)
+        );
+        
+        if (!hasMatchInTasks && !hasMatchInQuestions) return false;
+      }
+
+      return true;
     });
+
+    // Логируем только при изменении данных, а не постоянно
+    if (JSON.stringify(result) !== JSON.stringify(this._lastLoggedResult)) {
+      console.log('[fullFilteredLessons]', {
+        filter: this.filter,
+        selectedTeacher: this.selectedTeacher,
+        startDate: this.startDate,
+        endDate: this.endDate,
+        searchTerm: this.searchTerm,
+        result
+      });
+      this._lastLoggedResult = result;
+    }
 
     return result;
   }
 
+  private _lastLoggedResult: any[] = [];
 
-  get filteredLessons() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.fullFilteredLessons.slice(start, start + this.pageSize);
+  get uniqueTeachers(): string[] {
+    const teachers = this.lessons
+      .map(lesson => lesson.teacherName)
+      .filter((name, index, arr) => name && arr.indexOf(name) === index);
+    return teachers as string[];
   }
-
-  get totalPages() {
-    return Math.ceil(this.fullFilteredLessons.length / this.pageSize);
-  }
-
-  get taskDropListIds(): string[] {
-    return this.filteredLessons.map(l => `tasks-${l.id}`);
-  }
-
-  get questionDropListIds(): string[] {
-    return this.filteredLessons.map(l => `questions-${l.id}`);
-  }
-
 
   get allHomework(): string[] {
-    return this.allLessons
-      .filter(l => l.status === 'future' && Array.isArray(l.homework))
-      .flatMap(l => l.homework)
-      .filter((value, index, self) => self.indexOf(value) === index); // убрать дубликаты
+    return [];
   }
 
   get stats() {
     return {
-      pastCount: this.allLessons.filter(l => l.status === 'past').length,
-      futureCount: this.allLessons.filter(l => l.status === 'future').length,
-      totalTasks: this.allLessons.reduce((acc, l) => acc + l.tasks.length, 0),
-      totalQuestions: this.allLessons.reduce((acc, l) => acc + l.questions.length, 0),
+      pastCount: this.lessons.filter(l => l.status === 'past').length,
+      futureCount: this.lessons.filter(l => l.status === 'future').length,
+      totalTasks: this.lessons.reduce((acc, l) => acc + l.tasks.length, 0),
+      totalQuestions: this.lessons.reduce((acc, l) => acc + l.questions.length, 0),
     };
   }
 
+  // Методы-заглушки для совместимости
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex + 1;
   }
 
-
-  onItemDropped(event: { from: number, to: number, item: string, type: 'task' | 'question' }) {
-    const fromLesson = this.allLessons.find(l => l.id === event.from);
-    const toLesson = this.allLessons.find(l => l.id === event.to);
-
-    if (!fromLesson || !toLesson || fromLesson === toLesson) return;
-
-    const sourceArray = fromLesson[event.type === 'task' ? 'tasks' : 'questions'];
-    const targetArray = toLesson[event.type === 'task' ? 'tasks' : 'questions'];
-
-    const index = sourceArray.indexOf(event.item);
-    if (index > -1) {
-      sourceArray.splice(index, 1);
-      targetArray.push(event.item);
-    }
-  }
-
-  onMoveToFuture(event: { item: string, type: 'task' | 'question' }) {
-    // Переключаемся на вкладку À venir
-    this.filter = 'future';
-
-    // Ищем ближайший future-урок, в который еще не добавлен этот элемент
-    const futureLesson = this.allLessons.find(l =>
-      l.status === 'future' &&
-      !l[event.type === 'task' ? 'tasks' : 'questions'].includes(event.item)
-    );
-    if (!futureLesson) return;
-
-    // Добавляем в нужный список
-    const list = futureLesson[event.type === 'task' ? 'tasks' : 'questions'];
-    list.push(event.item);
-
-    // Удаляем из всех passés этот элемент, чтобы нельзя было повторно кликнуть
-    this.allLessons.forEach(lesson => {
-      if (lesson.status !== 'past') return;
-      const arr = lesson[event.type === 'task' ? 'tasks' : 'questions'];
-      const index = arr.indexOf(event.item);
-      if (index > -1) arr.splice(index, 1);
-    });
-
-    // Визуальное выделение карточки
-    this.highlightedLessonId = futureLesson.id;
-
-    setTimeout(() => {
-      this.highlightedLessonId = null;
-    }, 3000);
-  }
-
-
-
-
   addToHomework(item: any) {
-    const targetLesson = this.allLessons.find(l => l.status === 'future');
-    if (!targetLesson) return;
-
-    targetLesson.homework ??= [];
-
-    if ((targetLesson.homework as string[]).includes(item)) return;
-
-    (targetLesson.homework as string[]).push(item);
-    this.highlightedLessonId = targetLesson.id;
-
-    setTimeout(() => {
-      this.highlightedLessonId = null;
-    }, 3000);
+    // Реализовать при необходимости
   }
-
 
   recalculateStatus() {
-    const now = Date.now();
-    this.allLessons.forEach(lesson => {
-      lesson.status = lesson.date.getTime() >= now ? 'future' : 'past';
-    });
-    this.currentPage = 1;
+    this.updateLessonStatuses();
   }
-
 }

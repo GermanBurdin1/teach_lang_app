@@ -1,4 +1,169 @@
 <div class="lesson-management">
+  <!-- Индикатор загрузки -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Загрузка урока...</p>
+  </div>
+
+  <!-- Основной контент -->
+  <div *ngIf="!loading && currentLesson" class="lesson-details">
+    <!-- Заголовок урока -->
+    <div class="lesson-header mat-elevation-z2">
+      <h2>📚 Урок с {{ currentLesson.teacherName || 'преподавателем' }}</h2>
+      <p>📅 {{ currentLesson.scheduledAt | date:'short' }}</p>
+      <p>📊 Статус: {{ currentLesson.status }}</p>
+    </div>
+
+    <!-- Вкладки -->
+    <mat-tab-group>
+      <!-- Вкладка: Задачи -->
+      <mat-tab label="📝 Mes tâches">
+        <div class="tab-content">
+          <!-- Форма добавления задачи -->
+          <div class="add-form" *ngIf="showAddTaskForm">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>➕ Ajouter une nouvelle tâche</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-form-field appearance="fill" class="full-width">
+                  <mat-label>Titre de la tâche</mat-label>
+                  <input matInput [(ngModel)]="newTaskTitle" placeholder="Ex: Analyser un poème">
+                </mat-form-field>
+                
+                <mat-form-field appearance="fill" class="full-width">
+                  <mat-label>Description (optionnel)</mat-label>
+                  <textarea matInput [(ngModel)]="newTaskDescription" rows="3" 
+                            placeholder="Détails de la tâche..."></textarea>
+                </mat-form-field>
+              </mat-card-content>
+              <mat-card-actions align="end">
+                <button mat-button (click)="clearTaskForm()">Annuler</button>
+                <button mat-raised-button color="primary" (click)="addTask()"
+                        [disabled]="!newTaskTitle.trim()">
+                  Ajouter
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+
+          <!-- Bouton для отображения формы -->
+          <button *ngIf="!showAddTaskForm" mat-raised-button color="primary" 
+                  (click)="showAddTaskForm = true" class="add-button">
+            ➕ Ajouter une tâche
+          </button>
+
+          <!-- Liste des tâches -->
+          <div class="tasks-list">
+            <mat-card *ngFor="let task of currentLesson.tasks" class="task-card" 
+                      [class.completed]="task.isCompleted">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon *ngIf="task.isCompleted">check_circle</mat-icon>
+                  <mat-icon *ngIf="!task.isCompleted">radio_button_unchecked</mat-icon>
+                  {{ task.title }}
+                </mat-card-title>
+                <mat-card-subtitle>
+                  Par {{ task.createdByRole === 'student' ? 'moi' : 'le professeur' }} 
+                  le {{ task.createdAt | date:'short' }}
+                </mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content *ngIf="task.description">
+                <p>{{ task.description }}</p>
+              </mat-card-content>
+              <mat-card-actions *ngIf="!task.isCompleted && task.createdByRole === 'student'">
+                <button mat-raised-button color="accent" (click)="completeTask(task.id)">
+                  ✅ Marquer comme terminé
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+
+          <!-- Message si pas de tâches -->
+          <div *ngIf="currentLesson.tasks.length === 0" class="no-items">
+            <mat-icon>assignment</mat-icon>
+            <p>Aucune tâche pour ce cours</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Vkладка: Вопросы -->
+      <mat-tab label="❓ Mes questions">
+        <div class="tab-content">
+          <!-- Форма добавления вопроса -->
+          <div class="add-form" *ngIf="showAddQuestionForm">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>➕ Poser une nouvelle question</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-form-field appearance="fill" class="full-width">
+                  <mat-label>Votre question</mat-label>
+                  <textarea matInput [(ngModel)]="newQuestionText" rows="3" 
+                            placeholder="Ex: Comment utilise-t-on le subjonctif ?"></textarea>
+                </mat-form-field>
+              </mat-card-content>
+              <mat-card-actions align="end">
+                <button mat-button (click)="clearQuestionForm()">Annuler</button>
+                <button mat-raised-button color="primary" (click)="addQuestion()"
+                        [disabled]="!newQuestionText.trim()">
+                  Poser la question
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+
+          <!-- Bouton для отображения формы -->
+          <button *ngIf="!showAddQuestionForm" mat-raised-button color="primary" 
+                  (click)="showAddQuestionForm = true" class="add-button">
+            ❓ Poser une question
+          </button>
+
+          <!-- Список вопросов -->
+          <div class="questions-list">
+            <mat-card *ngFor="let question of currentLesson.questions" class="question-card"
+                      [class.answered]="question.isAnswered">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon *ngIf="question.isAnswered">help</mat-icon>
+                  <mat-icon *ngIf="!question.isAnswered">help_outline</mat-icon>
+                  {{ question.question }}
+                </mat-card-title>
+                <mat-card-subtitle>
+                  Par {{ question.createdByRole === 'student' ? 'moi' : 'le professeur' }} 
+                  le {{ question.createdAt | date:'short' }}
+                </mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content *ngIf="question.isAnswered && question.answer">
+                <div class="answer">
+                  <strong>Réponse:</strong>
+                  <p>{{ question.answer }}</p>
+                  <small>Répondu le {{ question.answeredAt | date:'short' }}</small>
+                </div>
+              </mat-card-content>
+              <mat-card-content *ngIf="!question.isAnswered">
+                <p class="waiting-answer">En attente de réponse du professeur...</p>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Message si нет вопросов -->
+          <div *ngIf="currentLesson.questions.length === 0" class="no-items">
+            <mat-icon>quiz</mat-icon>
+            <p>Aucune question pour ce cours</p>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- Message если нет урока -->
+  <div *ngIf="!loading && !currentLesson" class="no-lesson">
+    <mat-icon>school</mat-icon>
+    <h3>Aucun cours sélectionné</h3>
+    <p>Cliquez sur un cours dans le calendrier pour commencer à ajouter des tâches et des questions.</p>
+  </div>
+
   <div *ngIf="activePanel === 'cours'">
     <!-- 📚 Filtres élégants -->
     <div class="filter-container mat-elevation-z1">
@@ -65,7 +230,7 @@
     </ul>
 
     <h4 class="mt-3">🎯 Objectifs</h4>
-    <p class="text-muted">Définir ses objectifs d’apprentissage à long terme ici…</p>
+    <p class="text-muted">Définir ses objectifs d'apprentissage à long terme ici…</p>
   </div>
 
   <!-- 📎 Side Tabs -->

@@ -12,7 +12,39 @@ export class AuthService {
   private currentRoleSubject = new BehaviorSubject<string | null>(null);
   currentRole$ = this.currentRoleSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { 
+    // Восстанавливаем пользователя из localStorage при инициализации
+    this.loadUserFromStorage();
+  }
+
+  private loadUserFromStorage(): void {
+    try {
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        this._user = user;
+        this.currentRoleSubject.next(user.currentRole || null);
+        console.log('[AuthService] User restored from localStorage:', user);
+      }
+    } catch (error) {
+      console.error('[AuthService] Failed to restore user from localStorage:', error);
+      localStorage.removeItem('currentUser'); // Очищаем поврежденные данные
+    }
+  }
+
+  private saveUserToStorage(): void {
+    try {
+      if (this._user) {
+        localStorage.setItem('currentUser', JSON.stringify(this._user));
+        console.log('[AuthService] User saved to localStorage');
+      } else {
+        localStorage.removeItem('currentUser');
+        console.log('[AuthService] User removed from localStorage');
+      }
+    } catch (error) {
+      console.error('[AuthService] Failed to save user to localStorage:', error);
+    }
+  }
 
   get user(): User | null {
     return this._user;
@@ -26,17 +58,15 @@ export class AuthService {
     return this.http.post<User>('http://localhost:3001/auth/login', { email, password });
   }
 
-  register(data: {
-  email: string;
-  password: string;
-  roles: string[];
-  name: string;
-  surname: string;
-}): Observable<any> {
-  console.log('[AuthApiService] POST /auth/register', data);
-  return this.http.post(`${this.baseRegisterUrl}/register`, data);
-}
-
+  register(email: string, password: string, roles: string[], name: string, surname: string): Observable<User> {
+    return this.http.post<User>(`${this.baseRegisterUrl}/register`, {
+      email,
+      password,
+      roles,
+      name,
+      surname
+    });
+  }
 
   setUser(user: User) {
     this._user = user;
@@ -46,22 +76,19 @@ export class AuthService {
 
     console.log('[AuthService] User set:', this._user);
     this.currentRoleSubject.next(this._user.currentRole ?? null);
-    // 💥 добавь это!
+    this.saveUserToStorage(); // Сохраняем в localStorage
   }
-
-
-
 
   setActiveRole(role: string) {
     if (this._user?.roles.includes(role)) {
       console.log(`[AuthService] Setting active role: ${role}`);
       this._user.currentRole = role;
-      this.currentRoleSubject.next(role); // 💥 уведомляем подписчиков
+      this.currentRoleSubject.next(role);
+      this.saveUserToStorage(); // Сохраняем изменения
     } else {
       console.warn(`[AuthService] Attempted to set unknown role: ${role}`);
     }
   }
-
 
   get currentRole(): string | null {
     return this._user?.currentRole || null;
@@ -71,8 +98,11 @@ export class AuthService {
     return this._user;
   }
 
-  checkEmailExists(email: string): Observable<{ exists: boolean; roles?: string[] }> {
-    return this.http.get<{ exists: boolean; roles?: string[] }>(`http://localhost:3001/auth/check-email?email=${email}`);
+  logout(): void {
+    this._user = null;
+    this.currentRoleSubject.next(null);
+    this.saveUserToStorage(); // Очищаем localStorage
+    console.log('[AuthService] User logged out');
   }
 
   getUserInitial(): string {
@@ -81,6 +111,7 @@ export class AuthService {
     return namePart.charAt(0).toUpperCase(); // первая буква заглавная
   }
 
-
-
+  checkEmailExists(email: string): Observable<{ exists: boolean; roles?: string[] }> {
+    return this.http.get<{ exists: boolean; roles?: string[] }>(`http://localhost:3001/auth/check-email?email=${email}`);
+  }
 }

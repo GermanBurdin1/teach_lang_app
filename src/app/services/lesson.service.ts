@@ -73,4 +73,48 @@ export class LessonService {
   getStudentSentRequests(studentId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/student/${studentId}/sent-requests`);
   }
+
+  // Методы для работы с задачами и вопросами
+
+  getLessonDetails(lessonId: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${lessonId}/details`);
+  }
+
+  getTasksForLesson(lessonId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${lessonId}/tasks`);
+  }
+
+  getQuestionsForLesson(lessonId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${lessonId}/questions`);
+  }
+
+  addTaskToLesson(taskData: {
+    lessonId: string;
+    title: string;
+    description?: string | null;
+    createdBy: string;
+    createdByRole: 'student' | 'teacher';
+  }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/tasks`, taskData);
+  }
+
+  addQuestionToLesson(questionData: {
+    lessonId: string;
+    question: string;
+    createdBy: string;
+    createdByRole: 'student' | 'teacher';
+  }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/questions`, questionData);
+  }
+
+  completeTask(taskId: string, completedBy: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/tasks/${taskId}/complete`, { completedBy });
+  }
+
+  answerQuestion(questionId: string, answer: string, teacherId: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/questions/${questionId}/answer`, {
+      answer,
+      answeredBy: teacherId
+    });
+  }
 }

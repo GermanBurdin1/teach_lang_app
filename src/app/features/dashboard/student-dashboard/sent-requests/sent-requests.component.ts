@@ -31,15 +31,50 @@ export class SentRequestsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Проверяем авторизацию
     const currentUser = this.authService.getCurrentUser();
-    this.currentUserId = currentUser?.id || '';
+    console.log('[SentRequests] ngOnInit called, currentUser:', currentUser);
+    
+    if (!currentUser) {
+      console.warn('[SentRequests] User not authenticated, waiting...');
+      // Пробуем через секунду
+      setTimeout(() => {
+        const retryUser = this.authService.getCurrentUser();
+        if (retryUser) {
+          console.log('[SentRequests] User loaded on retry:', retryUser);
+          this.initializeComponent(retryUser);
+        } else {
+          console.error('[SentRequests] Still no user after retry');
+          this.loading = false;
+        }
+      }, 1000);
+      return;
+    }
+
+    this.initializeComponent(currentUser);
+  }
+
+  private initializeComponent(currentUser: any): void {
+    this.currentUserId = currentUser.id;
+    console.log('[SentRequests] Initializing with userId:', this.currentUserId);
     
     if (this.currentUserId) {
       this.loadSentRequests();
+    } else {
+      console.error('[SentRequests] No valid userId found');
+      this.loading = false;
     }
   }
 
   loadSentRequests(): void {
+    console.log('[SentRequests] loadSentRequests called with userId:', this.currentUserId);
+    
+    if (!this.currentUserId) {
+      console.error('[SentRequests] Cannot load requests without userId');
+      this.loading = false;
+      return;
+    }
+
     this.loading = true;
     this.lessonService.getStudentSentRequests(this.currentUserId).subscribe({
       next: (requests) => {

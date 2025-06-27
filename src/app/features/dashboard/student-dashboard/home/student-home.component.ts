@@ -4,6 +4,7 @@ import { NotificationService } from '../../../../services/notifications.service'
 import { AuthService } from '../../../../services/auth.service';
 import { LessonSession } from '../../../../models/lesson-session.model';
 import { LessonService } from '../../../../services/lesson.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-student-home',
@@ -46,12 +47,38 @@ export class StudentHomeComponent implements OnInit {
   constructor(
     private notificationService: NotificationService,
     private authService: AuthService,
-    private lessonService: LessonService
+    private lessonService: LessonService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
-    const studentId = this.authService.getCurrentUser()?.id;
-    if (!studentId) return;
+    // Проверяем авторизацию
+    const currentUser = this.authService.getCurrentUser();
+    const studentId = currentUser?.id;
+    
+    console.log('[StudentHome] ngOnInit called, currentUser:', currentUser, 'studentId:', studentId);
+    
+    if (!studentId) {
+      console.warn('[StudentHome] No studentId available, waiting for authentication...');
+      // Пробуем через секунду
+      setTimeout(() => {
+        const retryUser = this.authService.getCurrentUser();
+        const retryStudentId = retryUser?.id;
+        if (retryStudentId) {
+          console.log('[StudentHome] User loaded on retry:', retryUser);
+          this.initializeComponent(retryStudentId);
+        } else {
+          console.error('[StudentHome] Still no user after retry');
+        }
+      }, 1000);
+      return;
+    }
+
+    this.initializeComponent(studentId);
+  }
+
+  private initializeComponent(studentId: string): void {
+    console.log('[StudentHome] Initializing with studentId:', studentId);
 
     this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
       console.log('[StudentHomeComponent] RAW notifications from backend:', res);
@@ -90,11 +117,21 @@ export class StudentHomeComponent implements OnInit {
 
     // ==================== ЗАГРУЗКА ВСЕХ ЗАЯВОК ДЛЯ КАЛЕНДАРЯ ====================
     this.loadAllLessonsForCalendar(studentId);
-
-
   }
 
   onLessonClick(event: CalendarEvent): void {
+    // Если урок подтвержден, переходим к lesson-management
+    if (event.meta?.status === 'confirmed' && event.meta?.lessonId) {
+      this.router.navigate(['/lessons/student'], { 
+        queryParams: { 
+          lessonId: event.meta.lessonId,
+          tab: 'upcoming' 
+        } 
+      });
+      return;
+    }
+    
+    // Для других статусов показываем модалку с деталями
     this.selectedLesson = event;
     this.now = new Date(); // обновляем текущий момент
     this.showModal = true;

@@ -16,6 +16,8 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 
@@ -36,7 +38,9 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonToggleModule,
     MatInputModule,
     MatPaginatorModule,
-    MatIconModule
+    MatIconModule,
+    MatTabsModule,
+    MatProgressSpinnerModule
   ]
 })
 export class LessonsModule { }

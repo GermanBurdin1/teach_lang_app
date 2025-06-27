@@ -62,7 +62,7 @@ export class RegisterComponent implements OnInit {
       console.log('[RegisterComponent] Sending registration request:', { email, roles });
 
 
-      this.api.register({ email, password, roles, name, surname }).subscribe({
+      this.api.register(email, password, roles, name, surname).subscribe({
         next: (user) => {
           console.log('[RegisterComponent] Registration successful:', user);
           this.authService.setUser(user);
