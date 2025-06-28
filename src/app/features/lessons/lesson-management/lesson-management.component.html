@@ -5,18 +5,113 @@
     <p>Chargement du cours...</p>
   </div>
 
-  <!-- Filtres -->
-  <div class="filter-container mat-elevation-z1">
-    <!-- 🧭 Période -->
-    <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
-      <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
-      <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
-      <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
-    </mat-button-toggle-group>
+  <!-- Affichage de la liste des cours (quand aucun cours spécifique n'est sélectionné) -->
+  <div *ngIf="!currentLesson">
+    <!-- Filtres -->
+    <div class="filter-container mat-elevation-z1">
+      <!-- 🧭 Période -->
+      <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
+        <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
+        <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
+        <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>👨‍🏫 Professeur</mat-label>
+        <mat-select [(ngModel)]="selectedTeacher">
+          <mat-option value="">Tous les professeurs</mat-option>
+          <mat-option *ngFor="let t of uniqueTeachers" [value]="t">{{ t }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>Date de début</mat-label>
+        <input matInput type="date" [(ngModel)]="startDate">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="filter-item">
+        <mat-label>Date de fin</mat-label>
+        <input matInput type="date" [(ngModel)]="endDate">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="filter-item keyword">
+        <mat-label>Mot-clé</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="🔍 tâches, textes, etc.">
+      </mat-form-field>
+    </div>
+
+    <!-- Liste des cours -->
+    <div class="lesson-list">
+      <mat-card *ngFor="let lesson of filteredLessons; let i = index" 
+                class="lesson-card" 
+                [class.highlighted]="lesson.id === highlightedLessonId"
+                [ngClass]="getStatusClass(lesson.status)">
+        <mat-card-header>
+          <mat-card-title>
+                         <div class="lesson-card-header">
+               <mat-icon class="lesson-icon">school</mat-icon>
+               <span class="lesson-title">Cours avec {{ lesson.teacherName || 'Professeur' }}</span>
+               <span class="status-badge" [ngClass]="getStatusClass(lesson.status)">
+                 {{ getStatusText(lesson.status) }}
+               </span>
+             </div>
+          </mat-card-title>
+          <mat-card-subtitle>
+            📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="lesson-stats">
+            <span class="stat-item">
+              <mat-icon>assignment</mat-icon>
+              {{ lesson.tasks.length || 0 }} tâche(s)
+            </span>
+            <span class="stat-item">
+              <mat-icon>quiz</mat-icon>
+              {{ lesson.questions.length || 0 }} question(s)
+            </span>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="loadLesson(lesson.id)">
+            📝 Voir les détails
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Message si aucun cours -->
+      <div *ngIf="filteredLessons.length === 0 && !loading" class="no-lessons">
+        <mat-icon>event_note</mat-icon>
+        <h3>Aucun cours trouvé</h3>
+        <p *ngIf="filter === 'future'">Vous n'avez pas de cours à venir pour le moment.</p>
+        <p *ngIf="filter === 'past'">Vous n'avez pas encore eu de cours.</p>
+        <p *ngIf="filter === 'all'">Aucun cours trouvé avec les filtres actuels.</p>
+      </div>
+
+      <!-- Pagination -->
+      <div class="paginator-wrapper" *ngIf="fullFilteredLessons.length > pageSize">
+        <mat-paginator [length]="fullFilteredLessons.length" 
+                       [pageSize]="pageSize" 
+                       [pageIndex]="currentPage - 1"
+                       [pageSizeOptions]="[4, 8, 12]"
+                       (page)="onPageChange($event)" 
+                       [showFirstLastButtons]="true" 
+                       aria-label="Pagination des cours">
+        </mat-paginator>
+      </div>
+    </div>
   </div>
 
-  <!-- Contenu principal -->
+  <!-- Contenu principal (cours spécifique sélectionné) -->
   <div *ngIf="!loading && currentLesson" class="lesson-details">
+    <!-- Bouton retour -->
+    <div class="back-button-container">
+      <button mat-stroked-button (click)="backToLessonList()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Retour à la liste des cours
+      </button>
+    </div>
+
     <!-- En-tête du cours -->
     <div class="lesson-header mat-elevation-z2">
       <h2>📚 Cours avec {{ currentLesson.teacherName || 'le professeur' }}</h2>

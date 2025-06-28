@@ -131,16 +131,23 @@ export class TeacherLessonManagementComponent implements OnInit {
         this.highlightedLessonIdFromUrl = lessonId;
         console.log(`[TeacherLessonManagement] Navigated to lesson: ${lessonId}, tab: ${tab}`);
         
-        // Устанавливаем фильтр
+        // Устанавливаем фильтр в зависимости от tab параметра
         if (tab === 'upcoming' || tab === 'à venir') {
           this.filter = 'future';
         } else if (tab === 'past' || tab === 'passé') {
           this.filter = 'past';
+        } else if (tab === 'all' || tab === 'tous') {
+          this.filter = 'all';
+        } else {
+          // По умолчанию показываем предстоящие уроки
+          this.filter = 'future';
         }
         
         // Загружаем конкретный урок
         this.loadLesson(lessonId);
       } else {
+        // При прямом заходе на вкладку показываем предстоящие уроки
+        this.filter = 'future';
         // Загружаем все уроки преподавателя
         this.loadTeacherLessons();
       }
@@ -164,8 +171,8 @@ export class TeacherLessonManagementComponent implements OnInit {
       next: (lessons) => {
         this.lessons = lessons.map(lesson => ({
           ...lesson,
-          tasks: [],
-          questions: []
+          tasks: lesson.tasks || [],
+          questions: lesson.questions || []
         }));
         this.updateLessonStatuses();
         this.loading = false;
@@ -223,6 +230,14 @@ export class TeacherLessonManagementComponent implements OnInit {
     const now = new Date();
     this.lessons.forEach(lesson => {
       const lessonDate = new Date(lesson.scheduledAt);
+      
+      // Если статус уже установлен службой и включает pending/cancelled/etc, сохраняем его
+      if (['pending', 'confirmed', 'rejected', 'cancelled_by_student', 'cancelled_by_student_no_refund', 'in_progress', 'completed'].includes(lesson.status)) {
+        // Сохраняем оригинальный статус для фильтра "Tous"
+        return;
+      }
+      
+      // Для простых статусов устанавливаем future/past
       lesson.status = lessonDate > now ? 'future' : 'past';
     });
   }
@@ -369,84 +384,101 @@ export class TeacherLessonManagementComponent implements OnInit {
   // Геттеры для совместимости с шаблоном
   get filteredLessons() {
     if (this.currentLesson) {
-      return [this.currentLesson];
+      // Когда выбран конкретный урок через calendar, показываем его первым, затем остальные
+      const otherLessons = this.lessons.filter(lesson => 
+        lesson.id !== this.currentLesson!.id && this.matchesCurrentFilter(lesson)
+      );
+      return [this.currentLesson, ...otherLessons].slice(0, this.visibleCount);
     }
-    return this.lessons.filter(lesson => {
-      if (this.filter === 'future') return lesson.status === 'future';
-      if (this.filter === 'past') return lesson.status === 'past';
-      return true;
-    });
+    
+    // Когда заходим на вкладку напрямую, показываем все подходящие уроки
+    return this.fullFilteredLessons.slice(0, this.visibleCount);
   }
 
   get fullFilteredLessons() {
-    const result = this.lessons.filter(lesson => {
-      // Фильтр по времени
-      if (this.filter === 'future') {
-        const lessonDate = new Date(lesson.scheduledAt);
-        const now = new Date();
-        if (lessonDate <= now) return false;
-      }
-      if (this.filter === 'past') {
-        const lessonDate = new Date(lesson.scheduledAt);
-        const now = new Date();
-        if (lessonDate > now) return false;
-      }
+    const result = this.lessons.filter(lesson => this.matchesCurrentFilter(lesson));
 
-      // Фильтр по студенту
-      if (this.selectedStudent && lesson.studentName !== this.selectedStudent) {
-        return false;
+    // Если есть выделенный урок (через calendar), ставим его первым
+    if (this.highlightedLessonIdFromUrl) {
+      const highlightedLesson = result.find(l => l.id === this.highlightedLessonIdFromUrl);
+      const otherLessons = result.filter(l => l.id !== this.highlightedLessonIdFromUrl);
+      
+      if (highlightedLesson) {
+        return [highlightedLesson, ...otherLessons];
       }
-
-      // Фильтр по дате начала
-      if (this.startDate) {
-        const lessonDate = new Date(lesson.scheduledAt);
-        const filterDate = new Date(this.startDate);
-        if (lessonDate < filterDate) return false;
-      }
-
-      // Фильтр по дате окончания
-      if (this.endDate) {
-        const lessonDate = new Date(lesson.scheduledAt);
-        const filterDate = new Date(this.endDate);
-        filterDate.setHours(23, 59, 59, 999); // Конец дня
-        if (lessonDate > filterDate) return false;
-      }
-
-      // Фильтр по поисковому запросу
-      if (this.searchTerm) {
-        const searchLower = this.searchTerm.toLowerCase();
-        const hasMatchInTasks = lesson.tasks?.some(task => 
-          task.title.toLowerCase().includes(searchLower) ||
-          task.description?.toLowerCase().includes(searchLower)
-        );
-        const hasMatchInQuestions = lesson.questions?.some(question =>
-          question.question.toLowerCase().includes(searchLower)
-        );
-        
-        if (!hasMatchInTasks && !hasMatchInQuestions) return false;
-      }
-
-      return true;
-    });
-
-    // Логируем только при изменении данных, а не постоянно
-    if (JSON.stringify(result) !== JSON.stringify(this._lastLoggedResult)) {
-      console.log('[fullFilteredLessons]', {
-        filter: this.filter,
-        selectedTeacher: null, // У преподавателя нет selectedTeacher
-        selectedStudent: this.selectedStudent,
-        startDate: this.startDate,
-        endDate: this.endDate,
-        searchTerm: this.searchTerm,
-        result
-      });
-      this._lastLoggedResult = result;
     }
 
-    return result;
+    // Сортируем по дате: предстоящие по возрастанию, прошедшие по убыванию
+    return result.sort((a, b) => {
+      const dateA = new Date(a.scheduledAt);
+      const dateB = new Date(b.scheduledAt);
+      const now = new Date();
+      
+      const aIsFuture = dateA > now;
+      const bIsFuture = dateB > now;
+      
+      if (aIsFuture && bIsFuture) {
+        return dateA.getTime() - dateB.getTime(); // Предстоящие: ближайшие первыми
+      } else if (!aIsFuture && !bIsFuture) {
+        return dateB.getTime() - dateA.getTime(); // Прошедшие: последние первыми
+      } else {
+        return aIsFuture ? -1 : 1; // Предстоящие перед прошедшими
+      }
+    });
   }
 
-  private _lastLoggedResult: any[] = [];
+  private matchesCurrentFilter(lesson: Lesson): boolean {
+    const now = new Date();
+    const lessonDate = new Date(lesson.scheduledAt);
+    
+    // Фильтр по времени
+    if (this.filter === 'future') {
+      // À venir: все предстоящие уроки + подтвержденные будущие
+      const isFutureTime = lessonDate > now;
+      const isFutureStatus = ['confirmed', 'pending', 'in_progress'].includes(lesson.status);
+      if (!isFutureTime && !isFutureStatus) return false;
+    } else if (this.filter === 'past') {
+      // Passés: только прошедшие по времени или завершенные
+      const isPastTime = lessonDate <= now;
+      const isPastStatus = ['completed', 'past'].includes(lesson.status);
+      if (!isPastTime && !isPastStatus) return false;
+    }
+    // 'all' - показываем все (предстоящие, прошедшие, отмененные, ожидающие подтверждения)
+
+    // Фильтр по студенту
+    if (this.selectedStudent && lesson.studentName !== this.selectedStudent) {
+      return false;
+    }
+
+    // Фильтр по дате начала
+    if (this.startDate) {
+      const filterDate = new Date(this.startDate);
+      if (lessonDate < filterDate) return false;
+    }
+
+    // Фильтр по дате окончания
+    if (this.endDate) {
+      const filterDate = new Date(this.endDate);
+      filterDate.setHours(23, 59, 59, 999); // Конец дня
+      if (lessonDate > filterDate) return false;
+    }
+
+    // Фильтр по поисковому запросу
+    if (this.searchTerm) {
+      const searchLower = this.searchTerm.toLowerCase();
+      const hasMatchInTasks = lesson.tasks.some(task => 
+        task.title.toLowerCase().includes(searchLower) ||
+        task.description?.toLowerCase().includes(searchLower)
+      );
+      const hasMatchInQuestions = lesson.questions.some(question =>
+        question.question.toLowerCase().includes(searchLower)
+      );
+      
+      if (!hasMatchInTasks && !hasMatchInQuestions) return false;
+    }
+
+    return true;
+  }
 
   get uniqueStudents(): string[] {
     const students = this.lessons
@@ -460,11 +492,19 @@ export class TeacherLessonManagementComponent implements OnInit {
   }
 
   get pastLessonsCount(): number {
-    return this.lessons.filter(l => l.status === 'past').length;
+    const now = new Date();
+    return this.lessons.filter(l => {
+      const lessonDate = new Date(l.scheduledAt);
+      return lessonDate <= now || ['completed', 'past'].includes(l.status);
+    }).length;
   }
 
   get futureLessonsCount(): number {
-    return this.lessons.filter(l => l.status === 'future').length;
+    const now = new Date();
+    return this.lessons.filter(l => {
+      const lessonDate = new Date(l.scheduledAt);
+      return lessonDate > now || ['confirmed', 'pending', 'in_progress'].includes(l.status);
+    }).length;
   }
 
   // Методы для отображения статуса

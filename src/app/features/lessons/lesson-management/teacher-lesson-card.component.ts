@@ -9,9 +9,9 @@ import { Router } from '@angular/router';
 })
 export class TeacherLessonCardComponent {
   @Input() lesson: any;
-  @Input() lessonId!: number;
+  @Input() lessonId!: string;
   @Input() taskDropIds: string[] = [];
-  @Output() itemDropped = new EventEmitter<{ from: number, to: number, item: string }>();
+  @Output() itemDropped = new EventEmitter<{ from: string, to: string, item: string }>();
   @Output() openGabarit = new EventEmitter<void>();
   @Input() resolvedItems: string[] = [];
   newTask: string = '';
@@ -58,8 +58,8 @@ export class TeacherLessonCardComponent {
   }
 
 
-  private extractLessonIdFromDropListId(dropListId: string): number {
-    return +dropListId.split('-')[1];
+  private extractLessonIdFromDropListId(dropListId: string): string {
+    return dropListId.split('-')[1];
   }
 
   showJoinButton(): boolean {
