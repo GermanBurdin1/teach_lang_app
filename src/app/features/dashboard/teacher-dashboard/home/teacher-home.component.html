@@ -2,6 +2,23 @@
 
   <!-- 🔼 ВЕРХНЯЯ ЧАСТЬ -->
   <div class="top-section">
+    <!-- Кнопка входа в класс для ближайшего урока -->
+    <div *ngIf="getNextLesson() && canEnterClass(getNextLesson()!)" 
+         class="next-lesson-entry-zone">
+      <div class="next-lesson-card">
+        <div class="lesson-info">
+                     <h3>🎥 Prochain cours dans {{ getMinutesUntilLesson(getNextLesson()!) }} minutes</h3>
+          <p>{{ getNextLesson()!.title }}</p>
+          <p>{{ getNextLesson()!.start | date:'HH:mm' }} - {{ getNextLesson()!.end | date:'HH:mm' }}</p>
+        </div>
+        <button mat-raised-button 
+                color="accent" 
+                (click)="enterVirtualClass(getNextLesson()!)"
+                class="enter-class-btn large">
+          🎥 Entrer en classe
+        </button>
+      </div>
+    </div>
 
     <!-- Левая колонка -->
     <div class="column left-column">
@@ -179,14 +196,46 @@
           <div *ngIf="selectedRefusalMode === 'propose'" class="mt-2">
             <mat-form-field appearance="fill">
               <mat-label>Date</mat-label>
-              <input matInput [matDatepicker]="altDatePicker" [(ngModel)]="selectedAlternativeDate">
+              <input matInput [matDatepicker]="altDatePicker" [(ngModel)]="selectedAlternativeDate" (ngModelChange)="onAlternativeDateChange()">
               <mat-datepicker-toggle matSuffix [for]="altDatePicker"></mat-datepicker-toggle>
               <mat-datepicker #altDatePicker></mat-datepicker>
             </mat-form-field>
-            <mat-form-field appearance="fill">
-              <mat-label>Heure</mat-label>
-              <input matInput type="time" [(ngModel)]="selectedAlternativeTime">
-            </mat-form-field>
+            
+            <div class="alternative-time-slots">
+              <label class="form-label">Mes créneaux disponibles</label>
+              <div *ngIf="teacherAlternativeSchedule.length === 0" class="text-muted">
+                Sélectionnez d'abord une date...
+              </div>
+              <div class="time-slots-grid">
+                <button 
+                  *ngFor="let slot of teacherAlternativeSchedule" 
+                  type="button"
+                  class="time-slot-btn"
+                  [class.available]="slot.type === 'available'"
+                  [class.lesson]="slot.type === 'lesson'"
+                  [class.break]="slot.type === 'break'"
+                  [class.blocked]="slot.type === 'blocked'"
+                  [class.selected]="selectedAlternativeTime === slot.time"
+                  [disabled]="!slot.available"
+                  [title]="slot.reason || slot.time"
+                  (click)="selectAlternativeTimeSlot(slot.time)">
+                  
+                  <div class="slot-time">{{ slot.time }}</div>
+                  <div *ngIf="slot.type === 'lesson'" class="slot-info">
+                    👨‍🎓 {{ slot.studentName }}
+                  </div>
+                  <div *ngIf="slot.type === 'break'" class="slot-info">
+                    ⏸️ Pause
+                  </div>
+                  <div *ngIf="slot.type === 'available'" class="slot-info">
+                    ✅ Libre
+                  </div>
+                </button>
+              </div>
+              <div *ngIf="hasNoAlternativeSlots()" class="text-warning mt-2">
+                ⚠️ Aucun créneau libre pour cette date
+              </div>
+            </div>
           </div>
         </mat-card-content>
         <mat-card-actions align="end">
@@ -211,7 +260,29 @@
     <div class="bottom-section">
       <h3>🗓️ Prochains cours</h3>
       <div class="calendar-wrapper">
-        <app-calendar-preview [events]="upcomingLessons" (eventClicked)="onCalendarEventClick($event)"></app-calendar-preview>
+        <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate" (eventClicked)="onCalendarEventClick($event)"></app-calendar-preview>
+        
+                 <ng-template #customEventTemplate let-event="event">
+           <div class="custom-event" [ngClass]="{
+             'past-event': event?.end && event.end < now,
+             'upcoming-event': event?.end && event.end >= now
+           }" (click)="onCalendarEventClick(event)">
+            <div class="event-content">
+              <div class="event-info">
+                <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
+                {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
+              </div>
+              <button *ngIf="canEnterClass(event) && event?.meta?.status === 'confirmed'" 
+                      mat-mini-fab 
+                      color="accent" 
+                      (click)="enterVirtualClass(event); $event.stopPropagation()"
+                      class="enter-class-btn-mini"
+                      matTooltip="Entrer en classe">
+                🎥
+              </button>
+            </div>
+          </div>
+        </ng-template>
       </div>
     </div>
 

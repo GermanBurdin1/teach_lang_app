@@ -76,6 +76,13 @@
           <button mat-raised-button color="primary" (click)="loadLesson(lesson.id)">
             📝 Voir les détails
           </button>
+          <button *ngIf="canEnterClass(lesson)" 
+                  mat-raised-button 
+                  color="accent" 
+                  (click)="enterVirtualClass(lesson)"
+                  class="enter-class-btn">
+            🎥 Entrer en classe
+          </button>
         </mat-card-actions>
       </mat-card>
 
@@ -114,13 +121,25 @@
 
     <!-- En-tête du cours -->
     <div class="lesson-header mat-elevation-z2">
-      <h2>📚 Cours avec {{ currentLesson.teacherName || 'le professeur' }}</h2>
-      <p>📅 {{ currentLesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
-      <div class="status-container">
-        <span class="status-label">📊 Statut:</span>
-        <span class="status-badge" [ngClass]="getStatusClass(currentLesson.status)">
-          {{ getStatusText(currentLesson.status) }}
-        </span>
+      <div class="lesson-header-content">
+        <div class="lesson-info">
+          <h2>📚 Cours avec {{ currentLesson.teacherName || 'le professeur' }}</h2>
+          <p>📅 {{ currentLesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
+          <div class="status-container">
+            <span class="status-label">📊 Statut:</span>
+            <span class="status-badge" [ngClass]="getStatusClass(currentLesson.status)">
+              {{ getStatusText(currentLesson.status) }}
+            </span>
+          </div>
+        </div>
+        <div class="lesson-actions" *ngIf="canEnterClass(currentLesson)">
+          <button mat-raised-button 
+                  color="accent" 
+                  (click)="enterVirtualClass(currentLesson)"
+                  class="enter-class-btn large">
+            🎥 Entrer en classe
+          </button>
+        </div>
       </div>
     </div>
 

@@ -40,12 +40,33 @@
 
       <div class="mb-3">
         <label for="date" class="form-label">Date</label>
-        <input type="text" bsDatepicker [(ngModel)]="selectedDate" class="form-control">
+        <input type="text" bsDatepicker [(ngModel)]="selectedDate" (ngModelChange)="onDateChange()" class="form-control">
       </div>
 
       <div class="mb-3">
-        <label for="time" class="form-label">Heure</label>
-        <timepicker [(ngModel)]="selectedTime" [showMeridian]="false"></timepicker>
+        <label class="form-label">Créneaux disponibles</label>
+        <div *ngIf="teacherSchedule.length === 0" class="text-muted">
+          Chargement des créneaux...
+        </div>
+        
+        <!-- Simple grid pour étudiants - juste disponible/indisponible -->
+        <div class="simple-time-grid">
+          <button 
+            *ngFor="let slot of teacherSchedule" 
+            type="button"
+            class="simple-time-btn"
+            [class.available]="slot.available"
+            [class.unavailable]="!slot.available"
+            [class.selected]="selectedTime === slot.time"
+            [disabled]="!slot.available"
+            (click)="selectTimeSlot(slot.time)">
+            {{ slot.time }}
+          </button>
+        </div>
+        
+        <div *ngIf="hasNoAvailableSlots()" class="text-warning mt-2">
+          ⚠️ Aucun créneau disponible pour cette date
+        </div>
       </div>
 
       <div class="d-flex justify-content-end gap-2">

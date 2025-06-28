@@ -4,11 +4,12 @@ import { AuthService } from '../../../../services/auth.service';
 import { TeacherService } from '../../../../services/teacher.service';
 import { NotificationService } from '../../../../services/notifications.service';
 import { Notification } from '../../../../models/notification.model';
-import { LessonService } from '../../../../services/lesson.service';
+import { LessonService, TeacherTimeSlot } from '../../../../services/lesson.service';
 import { GoalsService } from '../../../../services/goals.service';
 import { StudentGoal, ExamLevel } from '../../../../models/student-goal.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { VideoCallService } from '../../../../services/video-call.service';
 
 @Component({
   selector: 'app-teacher-home',
@@ -24,7 +25,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private goalsService: GoalsService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private videoCallService: VideoCallService
   ) { }
 
   // notifications: string[] = [
@@ -64,6 +66,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedRefusalMode: 'refuse' | 'propose' = 'refuse';
   selectedAlternativeDate?: Date;
   selectedAlternativeTime?: string;
+  teacherAlternativeSchedule: TeacherTimeSlot[] = [];
 
   // Новые свойства для управления уведомлениями (как в student-home)
   showMoreNotifications = false;
@@ -76,6 +79,9 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Новые свойства для модалки студента
   selectedStudent: any = null;
   showStudentModal = false;
+
+  // Текущее время для шаблонов
+  now = new Date();
 
   private refreshCalendar(): void {
     const userId = this.authService.getCurrentUser()?.id;
@@ -95,9 +101,11 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           studentId: lesson.studentId,
           studentName: lesson.studentName
         }
-      }));
+              }));
     });
   }
+
+
 
   private refreshNotifications(): void {
     const userId = this.authService.getCurrentUser()?.id;
@@ -133,6 +141,11 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.refreshStudents();
+    
+    // Обновляем время каждую минуту
+    setInterval(() => {
+      this.now = new Date();
+    }, 60000);
     // Возможна загрузка с backend позже
     this.homeworksToReview.sort((a, b) =>
       a.dueDate.localeCompare(b.dueDate)
@@ -250,6 +263,64 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return null;
   }
 
+  onAlternativeDateChange() {
+    this.selectedAlternativeTime = '';
+    this.loadAvailableSlots();
+  }
+
+  loadAvailableSlots() {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId || !this.selectedAlternativeDate) return;
+    
+    const dateStr = this.selectedAlternativeDate.toISOString().split('T')[0];
+    this.lessonService.getAvailableSlots(teacherId, dateStr).subscribe({
+      next: (slots) => {
+        // Фильтруем прошедшие слоты
+        const now = new Date();
+        if (!this.selectedAlternativeDate) {
+          this.teacherAlternativeSchedule = slots;
+          return;
+        }
+        
+        const currentDate = this.selectedAlternativeDate.toDateString();
+        const todayDate = now.toDateString();
+        
+        if (currentDate === todayDate) {
+          // Если выбран сегодняшний день, фильтруем прошедшие часы
+          this.teacherAlternativeSchedule = slots.filter(slot => {
+            const [hours, minutes] = slot.time.split(':').map(Number);
+            const slotDateTime = new Date(
+              this.selectedAlternativeDate!.getFullYear(),
+              this.selectedAlternativeDate!.getMonth(),
+              this.selectedAlternativeDate!.getDate(),
+              hours,
+              minutes
+            );
+            return slotDateTime > now;
+          });
+        } else {
+          // Если выбран не сегодняшний день, показываем все слоты
+          this.teacherAlternativeSchedule = slots;
+        }
+        
+        console.log('✅ Planning alternatif du professeur chargé (filtré):', this.teacherAlternativeSchedule);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement du planning alternatif:', error);
+        this.teacherAlternativeSchedule = [];
+      }
+    });
+  }
+
+  selectAlternativeTimeSlot(time: string) {
+    this.selectedAlternativeTime = time;
+  }
+
+  // Методы для шаблона альтернативного времени
+  hasNoAlternativeSlots(): boolean {
+    return this.teacherAlternativeSchedule.length > 0 && !this.teacherAlternativeSchedule.some(s => s.available);
+  }
+
   confirmRefusal(): void {
     if (!this.selectedRequest) return;
     let metadata = this.selectedRequest.data;
@@ -279,6 +350,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.selectedAlternativeDate = undefined;
         this.selectedAlternativeTime = undefined;
         this.selectedRefusalMode = 'refuse';
+        this.teacherAlternativeSchedule = [];
         this.snackBar.open('Студенту отправлено предложение нового времени', 'OK', { duration: 3000 });
         this.refreshNotifications();
       });
@@ -506,5 +578,53 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       month: 'long',
       day: 'numeric'
     });
+  }
+
+  // Получить ближайший урок
+  getNextLesson(): CalendarEvent | null {
+    const now = new Date();
+    const confirmedLessons = this.upcomingLessons.filter(lesson => 
+      lesson.meta?.status === 'confirmed' && 
+      lesson.start > now
+    );
+    
+    if (confirmedLessons.length === 0) return null;
+    
+    return confirmedLessons.sort((a, b) => 
+      a.start.getTime() - b.start.getTime()
+    )[0];
+  }
+
+  // Проверка можно ли войти в класс (в день занятия)
+  canEnterClass(event: CalendarEvent): boolean {
+    if (event.meta?.status !== 'confirmed') return false;
+    
+    const now = new Date();
+    const lessonTime = event.start;
+    
+    // Проверяем что урок в тот же день
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const lessonDate = new Date(lessonTime.getFullYear(), lessonTime.getMonth(), lessonTime.getDate());
+    
+    return nowDate.getTime() === lessonDate.getTime();
+  }
+
+  // Вход в виртуальный класс
+  enterVirtualClass(event: CalendarEvent): void {
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    if (!currentUserId || !event.meta?.lessonId) return;
+
+    // Устанавливаем данные урока в VideoCallService
+    this.videoCallService.setLessonData(event.meta.lessonId, currentUserId);
+    
+    this.router.navigate([`/classroom/${event.meta.lessonId}/lesson`], {
+      queryParams: { startCall: true }
+    });
+  }
+
+  // Получить количество минут до урока
+  getMinutesUntilLesson(event: CalendarEvent): number {
+    const diffInMs = event.start.getTime() - this.now.getTime();
+    return Math.round(diffInMs / (1000 * 60));
   }
 }

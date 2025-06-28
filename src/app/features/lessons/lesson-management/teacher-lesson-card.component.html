@@ -7,9 +7,13 @@
       ➕ Ajouter du matériel
     </button>
 
-    <!-- 🔗 Кнопка входа в онлайн класс -->
-    <button *ngIf="showJoinButton()" mat-stroked-button color="accent" (click)="enterVirtualClass()">
-      🔗 Rejoindre la classe
+    <!-- 🎥 Кнопка входа в виртуальный класс -->
+    <button *ngIf="canEnterClass()" 
+            mat-raised-button 
+            color="accent" 
+            (click)="enterVirtualClass()"
+            class="enter-class-btn">
+      🎥 Entrer en classe
     </button>
   </div>
 

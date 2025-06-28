@@ -7,6 +7,7 @@ import { LessonService } from '../../../../services/lesson.service';
 import { GoalsService } from '../../../../services/goals.service';
 import { StudentGoal, ExamLevel, CreateGoalDto } from '../../../../models/student-goal.model';
 import { Router } from '@angular/router';
+import { VideoCallService } from '../../../../services/video-call.service';
 
 @Component({
   selector: 'app-student-home',
@@ -60,10 +61,16 @@ export class StudentHomeComponent implements OnInit {
     private authService: AuthService,
     private lessonService: LessonService,
     private goalsService: GoalsService,
-    private router: Router
+    private router: Router,
+    private videoCallService: VideoCallService
   ) { }
 
   ngOnInit(): void {
+    // Обновляем время каждую минуту
+    setInterval(() => {
+      this.now = new Date();
+    }, 60000);
+
     // Проверяем авторизацию
     const currentUser = this.authService.getCurrentUser();
     const studentId = currentUser?.id;
@@ -436,9 +443,6 @@ export class StudentHomeComponent implements OnInit {
         };
       });
       
-      // Добавляем тестовые уроки для демонстрации
-      this.addMockLessonsForDemo();
-      
       console.log('📅 Календарь обновлен:', this.upcomingLessons);
     });
   }
@@ -476,61 +480,7 @@ export class StudentHomeComponent implements OnInit {
     }
   }
 
-  private addMockLessonsForDemo(): void {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(11, 0, 0, 0);
 
-    const soonLesson = new Date();
-    soonLesson.setHours(soonLesson.getHours() + 1);
-
-    const verySoonLesson = new Date();
-    verySoonLesson.setMinutes(verySoonLesson.getMinutes() + 30);
-
-    const mockLessons = [
-      {
-        start: soonLesson,
-        end: new Date(soonLesson.getTime() + 60 * 60 * 1000),
-        title: '✅ Mme Dupont (Test - dans 1h)',
-        color: { primary: '#4caf50', secondary: '#e8f5e9' },
-        allDay: false,
-        meta: { 
-          lessonId: 'mock-lesson-1', 
-          status: 'confirmed',
-          teacherId: 'teacher-1',
-          teacherName: 'Mme Dupont'
-        }
-      },
-      {
-        start: verySoonLesson,
-        end: new Date(verySoonLesson.getTime() + 60 * 60 * 1000),
-        title: '⏳ M. Moreau (Test - dans 30min)',
-        color: { primary: '#ff9800', secondary: '#fff3e0' },
-        allDay: false,
-        meta: { 
-          lessonId: 'mock-lesson-2', 
-          status: 'pending',
-          teacherId: 'teacher-2',
-          teacherName: 'M. Moreau'
-        }
-      },
-      {
-        start: tomorrow,
-        end: new Date(tomorrow.getTime() + 60 * 60 * 1000),
-        title: '❌ Mme Martin (Test - refusé)',
-        color: { primary: '#f44336', secondary: '#ffebee' },
-        allDay: false,
-        meta: { 
-          lessonId: 'mock-lesson-3', 
-          status: 'rejected',
-          teacherId: 'teacher-3',
-          teacherName: 'Mme Martin'
-        }
-      }
-    ];
-
-    this.upcomingLessons = [...this.upcomingLessons, ...mockLessons];
-  }
 
   // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С ЦЕЛЯМИ ====================
 
@@ -621,6 +571,54 @@ export class StudentHomeComponent implements OnInit {
 
   getExamLevelDisplayName(level: ExamLevel): string {
     return this.goalsService.getExamLevelDisplayName(level);
+  }
+
+  // Получить ближайший урок
+  getNextLesson(): CalendarEvent | null {
+    const now = new Date();
+    const confirmedLessons = this.upcomingLessons.filter(lesson => 
+      lesson.meta?.status === 'confirmed' && 
+      lesson.start > now
+    );
+    
+    if (confirmedLessons.length === 0) return null;
+    
+    return confirmedLessons.sort((a, b) => 
+      a.start.getTime() - b.start.getTime()
+    )[0];
+  }
+
+  // Проверка можно ли войти в класс (в день занятия)
+  canEnterClass(event: CalendarEvent): boolean {
+    if (event.meta?.status !== 'confirmed') return false;
+    
+    const now = new Date();
+    const lessonTime = event.start;
+    
+    // Проверяем что урок в тот же день
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const lessonDate = new Date(lessonTime.getFullYear(), lessonTime.getMonth(), lessonTime.getDate());
+    
+    return nowDate.getTime() === lessonDate.getTime();
+  }
+
+  // Вход в виртуальный класс
+  enterVirtualClass(event: CalendarEvent): void {
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    if (!currentUserId || !event.meta?.lessonId) return;
+
+    // Устанавливаем данные урока в VideoCallService
+    this.videoCallService.setLessonData(event.meta.lessonId, currentUserId);
+    
+    this.router.navigate([`/classroom/${event.meta.lessonId}/lesson`], {
+      queryParams: { startCall: true }
+    });
+  }
+
+  // Получить количество минут до урока
+  getMinutesUntilLesson(event: CalendarEvent): number {
+    const diffInMs = event.start.getTime() - this.now.getTime();
+    return Math.round(diffInMs / (1000 * 60));
   }
 
 }

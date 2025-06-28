@@ -2,6 +2,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
+export interface TeacherTimeSlot {
+  time: string;
+  available: boolean;
+  type: 'available' | 'lesson' | 'break' | 'blocked';
+  reason?: string;
+  studentName?: string;
+  lessonId?: string;
+  interval?: {
+    start: string;
+    end: string;
+    duration: number;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,6 +30,11 @@ export class LessonService {
     scheduledAt: string;
   }): Observable<any> {
     return this.http.post(`${this.baseUrl}/book`, data);
+  }
+
+  getAvailableSlots(teacherId: string, date?: string): Observable<TeacherTimeSlot[]> {
+    const params = date ? `?date=${date}` : '';
+    return this.http.get<TeacherTimeSlot[]>(`${this.baseUrl}/teacher/${teacherId}/available-slots${params}`);
   }
 
   respondToBooking(

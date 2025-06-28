@@ -514,3 +514,91 @@ mat-dialog-actions {
 .goal-modal__actions button {
   min-width: 100px;
 }
+
+/* Стили для кнопки входа в класс ближайшего урока */
+.next-lesson-entry-zone {
+  margin-bottom: 24px;
+  padding: 0 16px;
+}
+
+.next-lesson-card {
+  background: linear-gradient(135deg, #ff4081 0%, #e91e63 100%);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(255, 64, 129, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.next-lesson-card .lesson-info {
+  flex: 1;
+}
+
+.next-lesson-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.next-lesson-card p {
+  margin: 4px 0;
+  opacity: 0.9;
+}
+
+/* Стили для кнопок входа в класс */
+.enter-class-btn {
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 64, 129, 0.3);
+}
+
+.enter-class-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 64, 129, 0.4);
+}
+
+.enter-class-btn.large {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.enter-class-btn.large:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Стили для мини-кнопок в календаре */
+.enter-class-btn-mini {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+.event-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.event-info {
+  flex: 1;
+}
+
+/* Анимация */
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 8px 25px rgba(255, 64, 129, 0.3);
+  }
+  50% { 
+    box-shadow: 0 12px 35px rgba(255, 64, 129, 0.5);
+  }
+}

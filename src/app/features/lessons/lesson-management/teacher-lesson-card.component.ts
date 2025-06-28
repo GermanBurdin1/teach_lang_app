@@ -1,6 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
+import { VideoCallService } from '../../../services/video-call.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-teacher-lesson-card',
@@ -17,7 +19,11 @@ export class TeacherLessonCardComponent {
   newTask: string = '';
   collapsedTasks = false;
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private videoCallService: VideoCallService,
+    private authService: AuthService
+  ) { }
 
   dropItem(event: CdkDragDrop<string[]>) {
     const fromId = this.extractLessonIdFromDropListId(event.previousContainer.id);
@@ -62,20 +68,40 @@ export class TeacherLessonCardComponent {
     return dropListId.split('-')[1];
   }
 
-  showJoinButton(): boolean {
+  // Проверка можно ли войти в класс (только для confirmed уроков в тот же день)
+  canEnterClass(): boolean {
+    // Проверяем статус - можно войти только в confirmed уроки (одобренные преподавателем)
+    if (this.lesson.status !== 'confirmed') {
+      return false;
+    }
+
     const now = new Date();
-    const lessonTime = new Date(this.lesson.date);
-    const diffInMin = (lessonTime.getTime() - now.getTime()) / 60000;
-    return this.lesson.status === 'future' && diffInMin <= 10 && diffInMin >= -60;
+    const lessonTime = new Date(this.lesson.scheduledAt || this.lesson.date);
+    
+    // Проверяем что урок в тот же день
+    const isSameDay = now.getFullYear() === lessonTime.getFullYear() &&
+                      now.getMonth() === lessonTime.getMonth() &&
+                      now.getDate() === lessonTime.getDate();
+    
+    return isSameDay;
   }
 
+  // Для обратной совместимости (если используется в шаблоне)
+  showJoinButton(): boolean {
+    return this.canEnterClass();
+  }
+
+  // Вход в виртуальный класс
   enterVirtualClass(): void {
-    const lessonId = this.lesson?.id;
-    if (lessonId) {
-      this.router.navigate([`/classroom/${lessonId}/lesson`], {
-        queryParams: { startCall: true }
-      });
-    }
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    if (!currentUserId) return;
+
+    // Устанавливаем данные урока в VideoCallService
+    this.videoCallService.setLessonData(this.lesson.id, currentUserId);
+    
+    this.router.navigate([`/classroom/${this.lesson.id}/lesson`], {
+      queryParams: { startCall: true }
+    });
   }
 
   toggleTasksCollapsed(): void {

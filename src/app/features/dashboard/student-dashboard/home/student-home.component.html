@@ -2,6 +2,24 @@
 
   <!-- 🔼 Верхняя часть -->
   <div class="top-section">
+    <!-- Кнопка входа в класс для ближайшего урока -->
+    <div *ngIf="getNextLesson() && canEnterClass(getNextLesson()!)" 
+         class="next-lesson-entry-zone">
+      <div class="next-lesson-card">
+        <div class="lesson-info">
+                     <h3>🎥 Prochain cours dans {{ getMinutesUntilLesson(getNextLesson()!) }} minutes</h3>
+          <p>{{ getNextLesson()!.title }}</p>
+          <p>{{ getNextLesson()!.start | date:'HH:mm' }} - {{ getNextLesson()!.end | date:'HH:mm' }}</p>
+        </div>
+        <button mat-raised-button 
+                color="accent" 
+                (click)="enterVirtualClass(getNextLesson()!)"
+                class="enter-class-btn large">
+          🎥 Entrer en classe
+        </button>
+      </div>
+    </div>
+
     <div class="notification-zone">
       <h3>🔔 Notifications</h3>
       
@@ -153,8 +171,20 @@
           'past-event': event?.end && event.end < now,
           'upcoming-event': event?.end && event.end >= now
         }" (click)="onLessonClick(event)">
-          <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
-          {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
+          <div class="event-content">
+            <div class="event-info">
+              <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
+              {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
+            </div>
+            <button *ngIf="canEnterClass(event) && event?.meta?.status === 'confirmed'" 
+                    mat-mini-fab 
+                    color="accent" 
+                    (click)="enterVirtualClass(event); $event.stopPropagation()"
+                    class="enter-class-btn-mini"
+                    matTooltip="Entrer en classe">
+              🎥
+            </button>
+          </div>
         </div>
       </ng-template>
     </div>

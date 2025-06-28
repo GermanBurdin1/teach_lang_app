@@ -733,3 +733,40 @@
     align-self: flex-end;
   }
 }
+
+/* Стили для кнопок входа в класс */
+.enter-class-btn {
+  margin-left: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 64, 129, 0.3);
+}
+
+.enter-class-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 64, 129, 0.4);
+}
+
+.enter-class-btn.large {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Стили для заголовка урока с кнопкой */
+.lesson-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.lesson-header-content .lesson-info {
+  flex: 1;
+}
+
+.lesson-header-content .lesson-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}

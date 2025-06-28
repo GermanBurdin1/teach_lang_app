@@ -4,6 +4,7 @@ import { LessonService } from '../../../services/lesson.service';
 import { AuthService } from '../../../services/auth.service';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
+import { VideoCallService } from '../../../services/video-call.service';
 
 interface Task {
   id: string;
@@ -82,7 +83,8 @@ export class LessonManagementComponent implements OnInit {
     private lessonService: LessonService,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private videoCallService: VideoCallService
   ) { }
 
   ngOnInit(): void {
@@ -556,6 +558,37 @@ export class LessonManagementComponent implements OnInit {
 
   addToHomework(item: any) {
     // Реализовать при nécessité
+  }
+
+  // Проверка можно ли войти в класс (только для confirmed уроков в тот же день)
+  canEnterClass(lesson: Lesson): boolean {
+    // Проверяем статус - можно войти только в confirmed уроки (одобренные преподавателем)
+    if (lesson.status !== 'confirmed') {
+      return false;
+    }
+
+    const now = new Date();
+    const lessonTime = new Date(lesson.scheduledAt);
+    
+    // Проверяем что урок в тот же день
+    const isSameDay = now.getFullYear() === lessonTime.getFullYear() &&
+                      now.getMonth() === lessonTime.getMonth() &&
+                      now.getDate() === lessonTime.getDate();
+    
+    return isSameDay;
+  }
+
+  // Вход в виртуальный класс
+  enterVirtualClass(lesson: Lesson): void {
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    if (!currentUserId) return;
+
+    // Устанавливаем данные урока в VideoCallService
+    this.videoCallService.setLessonData(lesson.id, currentUserId);
+    
+    this.router.navigate([`/classroom/${lesson.id}/lesson`], {
+      queryParams: { startCall: true }
+    });
   }
 
   recalculateStatus() {

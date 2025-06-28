@@ -53,3 +53,246 @@ h2 {
   width: 100%;
   max-width: 500px;
 }
+
+/* ==================== ПРОСТЫЕ СТИЛИ ДЛЯ СТУДЕНТОВ ==================== */
+
+.simple-time-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.simple-time-btn {
+  padding: 12px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f5f5f5;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.simple-time-btn.available {
+  background-color: #e8f5e8;
+  color: #2d7d32;
+  border-color: #4caf50;
+  cursor: pointer;
+}
+
+.simple-time-btn.available:hover {
+  background-color: #c8e6c9;
+  border-color: #388e3c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.simple-time-btn.unavailable {
+  background-color: #f5f5f5;
+  color: #999;
+  border-color: #ddd;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.simple-time-btn.selected {
+  background-color: #4caf50 !important;
+  color: white !important;
+  border-color: #388e3c !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  transform: scale(1.05);
+}
+
+/* ==================== АРХИВ - ДЕТАЛЬНЫЕ СТИЛИ ДЛЯ ПРЕПОДАВАТЕЛЕЙ ====================
+
+.intervals-title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 4px;
+  display: inline-block;
+}
+
+.available-intervals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.interval-card {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  border: 2px solid #4caf50;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  transition: all 0.3s ease;
+}
+
+.interval-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+}
+
+.interval-time {
+  font-weight: 600;
+  font-size: 16px;
+  color: #2d7d32;
+  margin-bottom: 4px;
+}
+
+.interval-duration {
+  font-size: 12px;
+  color: #388e3c;
+  font-style: italic;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #fafafa;
+}
+
+.time-slot-btn {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  color: #666;
+  font-size: 12px;
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.slot-time {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.slot-info {
+  font-size: 10px;
+  opacity: 0.8;
+  line-height: 1.2;
+}
+
+/* Стили для разных типов слотов */
+.time-slot-btn.available {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+  color: #2d7d32;
+  border-color: #4caf50;
+  cursor: pointer;
+}
+
+.time-slot-btn.available:hover {
+  background: linear-gradient(135deg, #c8e6c9 0%, #dcedc8 100%);
+  border-color: #388e3c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.time-slot-btn.lesson {
+  background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+  color: #c62828;
+  border-color: #e57373;
+}
+
+.time-slot-btn.break {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  color: #ef6c00;
+  border-color: #ffb74d;
+}
+
+.time-slot-btn.blocked {
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  color: #999;
+  border-color: #ccc;
+}
+
+.time-slot-btn.selected {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%) !important;
+  color: white !important;
+  border-color: #388e3c !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  transform: scale(1.05);
+}
+
+.time-slot-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Стили для легенды */
+.legend {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.legend h6 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.legend-color.available {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+  border-color: #4caf50;
+}
+
+.legend-color.lesson {
+  background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+  border-color: #e57373;
+}
+
+.legend-color.break {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border-color: #ffb74d;
+}

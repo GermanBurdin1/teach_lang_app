@@ -66,10 +66,9 @@ export class VideoCallService {
     this.joinChannel().then(() => {
       console.log('✅ Успешно подключились к каналу!');
       
-      // Автоматически начинаем урок при успешном подключении к видео
-      if (this.currentLessonId && this.currentUserId) {
-        this.startLessonAutomatically();
-      }
+      // НЕ начинаем урок автоматически при подключении к каналу
+      // Урок начнется только при реальном запуске видео
+      console.log('📝 Урок НЕ начат автоматически - ждем реального запуска видео');
     }).catch(error => {
       console.error('❌ Ошибка при подключении к каналу:', error);
     });
@@ -101,11 +100,7 @@ export class VideoCallService {
 
   async joinChannel(): Promise<void> {
     try {
-      console.log("🎥 Создаем аудио- и видеотреки...");
-      this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-      this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-
-      console.log("✅ Видеотрек создан:", this.localTracks.videoTrack);
+      console.log("🎥 Подключаемся к каналу (БЕЗ автоматического создания треков)...");
 
       const tokenToUse = this.token.trim() ? this.token : null;
       console.log(`🔑 Используем токен: ${tokenToUse || 'null'}`);
@@ -113,8 +108,9 @@ export class VideoCallService {
       await this.agoraClient.join(this.appId, this.channelName, tokenToUse);
       console.log("✅ Подключились к каналу");
 
-      await this.agoraClient.publish(Object.values(this.localTracks).filter(track => track !== null) as ILocalTrack[]);
-      console.log("📡 Поток опубликован");
+      // НЕ создаем и НЕ публикуем треки автоматически
+      // Треки будут созданы и опубликованы только при ручном включении камеры/микрофона
+      console.log("📝 Треки НЕ созданы автоматически - ждем ручного включения камеры/микрофона");
 
       this.callActive = true;
       // 📌 Добавляем подписку на новых пользователей
@@ -382,7 +378,104 @@ export class VideoCallService {
     return localStorage.getItem('userId') || 'unknown';
   }
 
-  // Автоматическое начало урока при подключении к видео
+  // Ручное включение камеры
+  async enableCamera(): Promise<void> {
+    try {
+      if (this.localTracks.videoTrack) {
+        console.log('📷 Камера уже включена');
+        return;
+      }
+
+      console.log('📷 Включаем камеру...');
+      this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      await this.agoraClient.publish(this.localTracks.videoTrack);
+      console.log('✅ Камера включена и опубликована');
+
+      // Начинаем урок при первом включении видео/аудио
+      this.checkAndStartLesson();
+    } catch (error) {
+      console.error('❌ Ошибка включения камеры:', error);
+    }
+  }
+
+  // Ручное выключение камеры
+  async disableCamera(): Promise<void> {
+    try {
+      if (!this.localTracks.videoTrack) {
+        console.log('📷 Камера уже выключена');
+        return;
+      }
+
+      console.log('📷 Выключаем камеру...');
+      await this.agoraClient.unpublish(this.localTracks.videoTrack);
+      this.localTracks.videoTrack.stop();
+      this.localTracks.videoTrack.close();
+      this.localTracks.videoTrack = null;
+      console.log('✅ Камера выключена');
+    } catch (error) {
+      console.error('❌ Ошибка выключения камеры:', error);
+    }
+  }
+
+  // Ручное включение микрофона
+  async enableMicrophone(): Promise<void> {
+    try {
+      if (this.localTracks.audioTrack) {
+        console.log('🎤 Микрофон уже включен');
+        return;
+      }
+
+      console.log('🎤 Включаем микрофон...');
+      this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      await this.agoraClient.publish(this.localTracks.audioTrack);
+      console.log('✅ Микрофон включен и опубликован');
+
+      // Начинаем урок при первом включении видео/аудио
+      this.checkAndStartLesson();
+    } catch (error) {
+      console.error('❌ Ошибка включения микрофона:', error);
+    }
+  }
+
+  // Ручное выключение микрофона
+  async disableMicrophone(): Promise<void> {
+    try {
+      if (!this.localTracks.audioTrack) {
+        console.log('🎤 Микрофон уже выключен');
+        return;
+      }
+
+      console.log('🎤 Выключаем микрофон...');
+      await this.agoraClient.unpublish(this.localTracks.audioTrack);
+      this.localTracks.audioTrack.stop();
+      this.localTracks.audioTrack.close();
+      this.localTracks.audioTrack = null;
+      console.log('✅ Микрофон выключен');
+    } catch (error) {
+      console.error('❌ Ошибка выключения микрофона:', error);
+    }
+  }
+
+  // Проверка и начало урока при первом включении видео/аудио
+  private lessonStarted = false;
+  private checkAndStartLesson(): void {
+    if (this.lessonStarted) {
+      console.log('📚 Урок уже начат, пропускаем');
+      return;
+    }
+
+    // Начинаем урок только если включен хотя бы один из треков (видео или аудио)
+    const hasActiveVideo = this.localTracks.videoTrack !== null;
+    const hasActiveAudio = this.localTracks.audioTrack !== null;
+
+    if (hasActiveVideo || hasActiveAudio) {
+      console.log('🎬 Запускаем урок - включено видео или аудио');
+      this.startLessonAutomatically();
+      this.lessonStarted = true;
+    }
+  }
+
+  // Автоматическое начало урока при включении видео/аудио
   private startLessonAutomatically() {
     if (!this.currentLessonId || !this.currentUserId) {
       console.warn('⚠️ Нет данных урока для автоматического начала');
