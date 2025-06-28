@@ -4,6 +4,8 @@ import { NotificationService } from '../../../../services/notifications.service'
 import { AuthService } from '../../../../services/auth.service';
 import { LessonSession } from '../../../../models/lesson-session.model';
 import { LessonService } from '../../../../services/lesson.service';
+import { GoalsService } from '../../../../services/goals.service';
+import { StudentGoal, ExamLevel, CreateGoalDto } from '../../../../models/student-goal.model';
 import { Router } from '@angular/router';
 
 @Component({
@@ -13,6 +15,15 @@ import { Router } from '@angular/router';
 })
 export class StudentHomeComponent implements OnInit {
   goal = 'DALF C1 avant le 15 juillet 2025';
+  
+  // Свойства для целей
+  currentGoal: StudentGoal | null = null;
+  showGoalModal = false;
+  availableExamLevels: ExamLevel[] = [];
+  selectedExamLevel: ExamLevel | null = null;
+  selectedTargetDate: Date | null = null;
+  goalDescription: string = '';
+  loadingGoals = false;
 
   stats = {
     daysActive: 42,
@@ -48,6 +59,7 @@ export class StudentHomeComponent implements OnInit {
     private notificationService: NotificationService,
     private authService: AuthService,
     private lessonService: LessonService,
+    private goalsService: GoalsService,
     private router: Router
   ) { }
 
@@ -79,6 +91,10 @@ export class StudentHomeComponent implements OnInit {
 
   private initializeComponent(studentId: string): void {
     console.log('[StudentHome] Initializing with studentId:', studentId);
+
+    // Загружаем цели студента
+    this.loadStudentGoal(studentId);
+    this.loadAvailableExamLevels();
 
     this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
       console.log('[StudentHomeComponent] RAW notifications from backend:', res);
@@ -514,6 +530,97 @@ export class StudentHomeComponent implements OnInit {
     ];
 
     this.upcomingLessons = [...this.upcomingLessons, ...mockLessons];
+  }
+
+  // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С ЦЕЛЯМИ ====================
+
+  private loadStudentGoal(studentId: string): void {
+    this.loadingGoals = true;
+    this.goalsService.getActiveGoal(studentId).subscribe({
+      next: (goal) => {
+        this.currentGoal = goal;
+        if (goal) {
+          this.goal = `${this.goalsService.getExamLevelDisplayName(goal.examLevel)}${goal.targetDate ? ' avant le ' + new Date(goal.targetDate).toLocaleDateString('fr-FR') : ''}`;
+        }
+        this.loadingGoals = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement de la cible:', error);
+        this.loadingGoals = false;
+      }
+    });
+  }
+
+  private loadAvailableExamLevels(): void {
+    this.goalsService.getAvailableExamLevels().subscribe({
+      next: (response) => {
+        this.availableExamLevels = response.levels;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des niveaux d\'examen:', error);
+      }
+    });
+  }
+
+  openGoalModal(): void {
+    if (this.currentGoal) {
+      this.selectedExamLevel = this.currentGoal.examLevel;
+      this.selectedTargetDate = this.currentGoal.targetDate ? new Date(this.currentGoal.targetDate) : null;
+      this.goalDescription = this.currentGoal.description || '';
+    } else {
+      this.selectedExamLevel = null;
+      this.selectedTargetDate = null;
+      this.goalDescription = '';
+    }
+    this.showGoalModal = true;
+  }
+
+  closeGoalModal(): void {
+    this.showGoalModal = false;
+    this.selectedExamLevel = null;
+    this.selectedTargetDate = null;
+    this.goalDescription = '';
+  }
+
+  saveGoal(): void {
+    if (!this.selectedExamLevel) {
+      console.error('Niveau d\'examen requis');
+      return;
+    }
+
+    const currentUser = this.authService.getCurrentUser();
+    const studentId = currentUser?.id;
+    
+    if (!studentId) {
+      console.error('Student ID not found');
+      return;
+    }
+
+    const goalData: CreateGoalDto & { studentId: string } = {
+      examLevel: this.selectedExamLevel,
+      targetDate: this.selectedTargetDate ? this.selectedTargetDate.toISOString() : undefined,
+      description: this.goalDescription.trim() || undefined,
+      studentId: studentId
+    };
+
+    this.loadingGoals = true;
+    this.goalsService.createGoal(goalData).subscribe({
+      next: (newGoal) => {
+        this.currentGoal = newGoal;
+        this.goal = `${this.goalsService.getExamLevelDisplayName(newGoal.examLevel)}${newGoal.targetDate ? ' avant le ' + new Date(newGoal.targetDate).toLocaleDateString('fr-FR') : ''}`;
+        this.closeGoalModal();
+        this.loadingGoals = false;
+        console.log('Objectif sauvegardé avec succès:', newGoal);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la sauvegarde de l\'objectif:', error);
+        this.loadingGoals = false;
+      }
+    });
+  }
+
+  getExamLevelDisplayName(level: ExamLevel): string {
+    return this.goalsService.getExamLevelDisplayName(level);
   }
 
 }

@@ -67,8 +67,49 @@
     </div>
 
     <div class="goal-block">
-      <h3>🎯 Objectif</h3>
-      <p>{{ goal }}</p>
+      <div class="goal-header">
+        <h3>🎯 Objectif</h3>
+      </div>
+      
+      <!-- Показываем цель или сообщение о необходимости установить цель -->
+      <div *ngIf="!loadingGoals" class="goal-content">
+        <div *ngIf="currentGoal" class="goal-display">
+          <div class="goal-details">
+            <div class="goal-level">
+              <strong>{{ getExamLevelDisplayName(currentGoal.examLevel) }}</strong>
+            </div>
+            <div *ngIf="currentGoal.targetDate" class="goal-date">
+              📅 Avant le {{ currentGoal.targetDate | date:'dd/MM/yyyy' }}
+            </div>
+            <div *ngIf="currentGoal.description" class="goal-description">
+              💭 {{ currentGoal.description }}
+            </div>
+          </div>
+          <button mat-icon-button 
+                  color="primary" 
+                  (click)="openGoalModal()" 
+                  matTooltip="Modifier l'objectif"
+                  class="edit-goal-button">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        
+        <div *ngIf="!currentGoal" class="no-goal-display">
+          <span class="no-goal-message">📝 Définissez votre objectif d'apprentissage</span>
+          <button mat-icon-button 
+                  color="primary" 
+                  (click)="openGoalModal()" 
+                  matTooltip="Définir un objectif"
+                  class="edit-goal-button">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <div *ngIf="loadingGoals" class="loading-goals">
+        <mat-spinner diameter="20"></mat-spinner>
+        <span>Chargement...</span>
+      </div>
     </div>
 
     <div class="stats-block">
@@ -242,5 +283,70 @@
   <div class="mat-modal-content" (click)="$event.stopPropagation()">
     <p>📬 Votre demande de report a été envoyée à l'enseignant.</p>
     <button mat-flat-button color="accent" (click)="rescheduleConfirmed = false">Fermer</button>
+  </div>
+</ng-template>
+
+<!-- ======================== МОДАЛЬНОЕ ОКНО ДЛЯ ЦЕЛЕЙ ======================== -->
+<ng-template [ngIf]="showGoalModal">
+  <div class="modal-overlay" (click)="closeGoalModal()"></div>
+  <div class="mat-modal-content goal-modal" (click)="$event.stopPropagation()">
+    
+    <!-- Заголовок -->
+    <div class="goal-modal__header">
+      <h2 class="goal-modal__title">🎯 Définir votre objectif</h2>
+      <button mat-icon-button (click)="closeGoalModal()" aria-label="Fermer" class="goal-modal__close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Контент -->
+    <div class="goal-modal__content">
+      
+      <!-- Выбор уровня экзамена -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Niveau d'examen souhaité</mat-label>
+        <mat-select [(ngModel)]="selectedExamLevel" required>
+          <mat-option *ngFor="let level of availableExamLevels" [value]="level">
+            {{ getExamLevelDisplayName(level) }}
+          </mat-option>
+        </mat-select>
+        <mat-hint>Choisissez le niveau que vous souhaitez atteindre</mat-hint>
+      </mat-form-field>
+
+      <!-- Дата-цель (опционально) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Date cible (optionnel)</mat-label>
+        <input matInput [matDatepicker]="goalPicker" [(ngModel)]="selectedTargetDate" />
+        <mat-datepicker-toggle matSuffix [for]="goalPicker"></mat-datepicker-toggle>
+        <mat-datepicker #goalPicker></mat-datepicker>
+        <mat-hint>Quand souhaitez-vous atteindre ce niveau ?</mat-hint>
+      </mat-form-field>
+
+      <!-- Описание (опционально) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description (optionnel)</mat-label>
+        <textarea matInput 
+                  [(ngModel)]="goalDescription" 
+                  rows="3" 
+                  placeholder="Pourquoi voulez-vous atteindre ce niveau ? Projet professionnel, voyage, etc.">
+        </textarea>
+        <mat-hint>Décrivez votre motivation</mat-hint>
+      </mat-form-field>
+
+    </div>
+
+    <!-- Actions -->
+    <div class="goal-modal__actions">
+      <button mat-stroked-button (click)="closeGoalModal()" [disabled]="loadingGoals">
+        Annuler
+      </button>
+      <button mat-raised-button 
+              color="primary" 
+              (click)="saveGoal()" 
+              [disabled]="!selectedExamLevel || loadingGoals">
+        <mat-spinner *ngIf="loadingGoals" diameter="16" style="margin-right: 8px;"></mat-spinner>
+        {{ currentGoal ? 'Modifier' : 'Sauvegarder' }}
+      </button>
+    </div>
   </div>
 </ng-template>

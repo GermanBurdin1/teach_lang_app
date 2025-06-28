@@ -11,7 +11,8 @@
         <div *ngFor="let note of visibleNotifications" class="notification-card">
           <div class="notification-content">
             <div class="notification-text" 
-                 [innerHTML]="makeStudentNameClickable(note.message, note)">
+                 [innerHTML]="makeStudentNameClickable(note.message, note)"
+                 (click)="onNotificationClick($event, note)">
             </div>
             
             <div class="notification-actions">
@@ -220,7 +221,7 @@
   <div *ngIf="showStudentModal" class="modal-overlay" (click)="closeStudentModal()">
     <div class="student-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>�� Informations sur l'étudiant</h3>
+        <h3>👤 Informations sur l'étudiant</h3>
         <button mat-icon-button (click)="closeStudentModal()" class="close-button">
           <mat-icon>close</mat-icon>
         </button>
@@ -229,13 +230,45 @@
       <div class="modal-content" *ngIf="selectedStudent">
         <div class="student-info">
           <p><strong>Nom:</strong> {{ selectedStudent.name }}</p>
-          <p><strong>ID:</strong> {{ selectedStudent.id }}</p>
-          <p *ngIf="selectedStudent.lessonId"><strong>Leçon:</strong> {{ selectedStudent.lessonId }}</p>
-          <p *ngIf="selectedStudent.reason"><strong>Raison:</strong> {{ selectedStudent.reason }}</p>
-          <p *ngIf="selectedStudent.refundAvailable !== undefined">
-            <strong>Remboursement:</strong> 
-            {{ selectedStudent.refundAvailable ? 'Disponible' : 'Non disponible' }}
-          </p>
+          
+          <!-- Objectif de l'étudiant -->
+          <div style="margin: 16px 0;">
+            <p><strong>🎯 Objectif d'apprentissage:</strong></p>
+            <div *ngIf="selectedStudent.loadingGoal" class="loading-text" style="margin-left: 16px;">
+              <mat-spinner diameter="16" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+              Chargement...
+            </div>
+            <div *ngIf="!selectedStudent.loadingGoal" style="margin-left: 16px;">
+              <div *ngIf="selectedStudent.goal; else noGoal">
+                <p style="margin: 4px 0; color: #1976d2; font-weight: bold;">
+                  📚 {{ getExamLevelDisplay(selectedStudent.goal.examLevel) }}
+                </p>
+                <p *ngIf="selectedStudent.goal.targetDate" style="margin: 4px 0; color: #4caf50;">
+                  📅 Objectif: {{ formatTargetDate(selectedStudent.goal.targetDate) }}
+                </p>
+                <div *ngIf="selectedStudent.goal.description" 
+                     style="margin: 8px 0; padding: 8px; background-color: #f5f5f5; border-left: 3px solid #1976d2; border-radius: 4px;">
+                  <strong>💭 Motivation:</strong> {{ selectedStudent.goal.description }}
+                </div>
+              </div>
+              <ng-template #noGoal>
+                <p style="color: #666; font-style: italic;">Aucun objectif défini</p>
+              </ng-template>
+            </div>
+          </div>
+          
+          <!-- Informations contextuelles -->
+          <div *ngIf="selectedStudent.reason" style="margin: 16px 0;">
+            <p><strong>ℹ️ Contexte:</strong> {{ selectedStudent.reason }}</p>
+          </div>
+          
+          <div *ngIf="selectedStudent.refundAvailable !== undefined" style="margin: 16px 0;">
+            <p><strong>💰 Remboursement:</strong> 
+              <span [style.color]="selectedStudent.refundAvailable ? '#4caf50' : '#f44336'">
+                {{ selectedStudent.refundAvailable ? '✅ Disponible' : '❌ Non disponible' }}
+              </span>
+            </p>
+          </div>
         </div>
         
         <div class="modal-actions">

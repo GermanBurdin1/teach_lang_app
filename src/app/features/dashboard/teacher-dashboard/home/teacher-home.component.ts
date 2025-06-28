@@ -1,10 +1,12 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
 import { AuthService } from '../../../../services/auth.service';
 import { TeacherService } from '../../../../services/teacher.service';
 import { NotificationService } from '../../../../services/notifications.service';
 import { Notification } from '../../../../models/notification.model';
 import { LessonService } from '../../../../services/lesson.service';
+import { GoalsService } from '../../../../services/goals.service';
+import { StudentGoal, ExamLevel } from '../../../../models/student-goal.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
@@ -19,8 +21,10 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private teacherService: TeacherService,
     private notificationService: NotificationService,
     private lessonService: LessonService,
+    private goalsService: GoalsService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone
   ) { }
 
   // notifications: string[] = [
@@ -331,8 +335,33 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Методы для модалки студента
   openStudentModal(student: any): void {
-    this.selectedStudent = student;
+    this.selectedStudent = { ...student, loadingGoal: true };
     this.showStudentModal = true;
+    
+    // Загружаем информацию о целях студента
+    if (student.id) {
+      this.goalsService.getActiveGoal(student.id).subscribe({
+        next: (goal: StudentGoal | null) => {
+          this.selectedStudent = {
+            ...this.selectedStudent,
+            goal: goal,
+            goalDisplayText: goal ? this.getGoalDisplayText(goal) : 'Aucun objectif défini',
+            loadingGoal: false
+          };
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement de l\'objectif de l\'étudiant:', error);
+          this.selectedStudent = {
+            ...this.selectedStudent,
+            goalDisplayText: 'Erreur lors du chargement de l\'objectif',
+            loadingGoal: false
+          };
+        }
+      });
+    } else {
+      this.selectedStudent.loadingGoal = false;
+      this.selectedStudent.goalDisplayText = 'Aucun objectif défini';
+    }
   }
 
   closeStudentModal(): void {
@@ -348,6 +377,14 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Извлечение ID студента из уведомления
   getStudentIdFromNotification(notification: any): string {
     return notification.data?.studentId || '';
+  }
+
+  // Обработка клика по уведомлению
+  onNotificationClick(event: any, notification: any): void {
+    // Проверяем, был ли клик по кликабельному элементу студента
+    if (event.target && event.target.classList.contains('student-name-clickable')) {
+      this.onStudentNameClick(notification);
+    }
   }
 
   // Обработка клика по имени студента в уведомлениях
@@ -393,37 +430,30 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Создание кликабельных имен студентов в уведомлениях
   makeStudentNameClickable(message: string, notification: any): string {
     const studentName = this.getStudentNameFromNotification(notification);
+    
     if (!studentName || studentName === 'Étudiant') {
       return `<strong>${notification.title}</strong><br><small>${message}</small>`;
     }
     
-    // Создаем кликабельную ссылку для имени студента
+    // Создаем кликабельный элемент для имени студента
     const clickableMessage = message.replace(
       studentName, 
-      `<a href="javascript:void(0)" 
-         onclick="document.dispatchEvent(new CustomEvent('student-name-click', {detail: '${notification.id}'}))" 
+      `<span class="student-name-clickable" 
+         data-notification-id="${notification.id}"
          style="color: #1976d2; text-decoration: underline; cursor: pointer; font-weight: bold;">
          ${studentName}
-       </a>`
+       </span>`
     );
     
     return `<strong>${notification.title}</strong><br><small>${clickableMessage}</small>`;
   }
 
   ngAfterViewInit(): void {
-    // Слушатель для кликов по именам студентов
-    document.addEventListener('student-name-click', (event: any) => {
-      const notificationId = event.detail;
-      const notification = this.notifications.find(n => n.id === notificationId);
-      if (notification) {
-        this.onStudentNameClick(notification);
-      }
-    });
+    // Больше не нужен глобальный слушатель событий
   }
 
   ngOnDestroy(): void {
-    // Убираем слушатель при уничтожении компонента
-    document.removeEventListener('student-name-click', () => {});
+    // Больше не нужно удалять слушатель
   }
 
   private getCalendarColor(status: string): { primary: string, secondary: string } {
@@ -457,5 +487,24 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       case 'completed': return '✅';
       default: return '❓';
     }
+  }
+
+  private getGoalDisplayText(goal: StudentGoal): string {
+    const examLevel = this.goalsService.getExamLevelDisplayName(goal.examLevel);
+    const targetDate = goal.targetDate ? ` avant le ${new Date(goal.targetDate).toLocaleDateString('fr-FR')}` : '';
+    return `${examLevel}${targetDate}`;
+  }
+
+  // Методы для отображения в модальном окне
+  getExamLevelDisplay(examLevel: string): string {
+    return this.goalsService.getExamLevelDisplayName(examLevel as ExamLevel);
+  }
+
+  formatTargetDate(targetDate: string): string {
+    return new Date(targetDate).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   }
 }
