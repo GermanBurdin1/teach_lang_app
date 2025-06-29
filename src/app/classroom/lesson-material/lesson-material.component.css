@@ -382,3 +382,397 @@ body {
 .drop-above {
   bottom: 100%;
 }
+
+/* Новые стили для зон студента и преподавателя */
+.student-zone, .teacher-zone {
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.zone-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.section-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin: 16px 0 8px 0;
+  padding: 4px 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  border-left: 3px solid #2196F3;
+}
+
+/* Стили для карточек задач */
+.task-card {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.task-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.task-card.student-task {
+  border-left: 4px solid #2196F3;
+  background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%);
+}
+
+.task-card.teacher-task {
+  border-left: 4px solid #FF9800;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFFFFF 100%);
+}
+
+.task-label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.task-text {
+  color: #333;
+  line-height: 1.4;
+}
+
+/* Стили для карточек вопросов */
+.question-card {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.question-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.question-card.student-question {
+  border-left: 4px solid #2196F3;
+  background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%);
+}
+
+.question-card.teacher-question {
+  border-left: 4px solid #FF9800;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFFFFF 100%);
+}
+
+.question-label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.question-text {
+  color: #333;
+  line-height: 1.4;
+}
+
+/* Материалы - обновленные стили */
+.material-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.material-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.material-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.material-content {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 8px;
+}
+
+/* Аудио плеер */
+.audio-content {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #90caf9;
+}
+
+.audio-player {
+  width: 100%;
+  height: 40px;
+  outline: none;
+}
+
+.audio-player::-webkit-media-controls-panel {
+  background-color: #1976d2;
+}
+
+/* Видео плеер */
+.video-content {
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ce93d8;
+}
+
+.video-player {
+  width: 100%;
+  max-height: 200px;
+  border-radius: 6px;
+}
+
+/* PDF контент */
+.pdf-content {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ffb74d;
+  text-align: center;
+}
+
+.pdf-link {
+  color: #f57c00;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.pdf-link:hover {
+  background: rgba(255,255,255,1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245,124,0,0.3);
+}
+
+/* Изображения */
+.image-content {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #a5d6a7;
+  text-align: center;
+}
+
+.material-image {
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Текст контент */
+.text-content {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.text-preview {
+  color: #424242;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Иконки материалов */
+.material-icon {
+  font-size: 1.2em;
+  min-width: 20px;
+}
+
+.material-title {
+  flex: 1;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.material-type {
+  background: #6c757d;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Специальные стили для студентских и преподавательских материалов */
+.student-material {
+  border-left: 4px solid #28a745;
+}
+
+.teacher-material {
+  border-left: 4px solid #dc3545;
+}
+
+.student-material .material-type {
+  background: #28a745;
+}
+
+.teacher-material .material-type {
+  background: #dc3545;
+}
+
+/* Стили для действий при наведении */
+.item-actions {
+  position: absolute;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  z-index: 1000;
+  min-width: 220px;
+  left: 0;
+}
+
+.item-actions.drop-above {
+  bottom: 100%;
+  margin-bottom: 8px;
+}
+
+.item-actions.drop-below {
+  top: 100%;
+  margin-top: 8px;
+}
+
+.action-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 2px 0;
+}
+
+.action-item:hover {
+  background: #f5f5f5;
+  color: #2196F3;
+}
+
+.action-item.primary {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+}
+
+.action-item.primary:hover {
+  background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+  color: white;
+}
+
+/* Стили для домашних заданий */
+.homework-list {
+  margin-top: 8px;
+}
+
+.homework-item {
+  background: #f8f9fa;
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Стили для индикатора загрузки */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  color: #666;
+}
+
+.loading-container p {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Анимации */
+.task-card, .question-card, .material-card {
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Улучшенные стили для панели задач */
+.fixed-task-panel {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.collapse-toggle {
+  text-align: center;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.collapse-toggle:hover {
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .student-zone, .teacher-zone {
+    width: 100% !important;
+    margin-bottom: 16px;
+  }
+  
+  .fixed-task-panel .d-flex {
+    flex-direction: column !important;
+  }
+  
+  .item-actions {
+    min-width: 180px;
+  }
+}

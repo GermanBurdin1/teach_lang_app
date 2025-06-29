@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { LessonMaterialComponent } from './lesson-material/lesson-material.component';
 import { LayoutModule } from '../layout/layout.module';
 import { RouterModule, Routes } from '@angular/router';
@@ -9,8 +9,12 @@ import { VideoCallComponent } from '../features/lessons/video-call/video-call.co
 import { LessonsModule } from '../features/lessons/lessons.module';
 import { InteractiveBoardComponent } from './lesson-material/interactive-board/interactive-board.component';
 import { GabaritPageComponent } from './lesson-material/gabarit-page/gabarit-page.component';
-
-
+import { LessonNotesModalComponent } from './lesson-material/lesson-notes-modal/lesson-notes-modal.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 const routes: Routes = [
   { path: ':id/lesson', component: LessonMaterialComponent },
@@ -21,7 +25,8 @@ const routes: Routes = [
     LessonMaterialComponent,
     VideoCallComponent,
     GabaritPageComponent,
-    InteractiveBoardComponent
+    InteractiveBoardComponent,
+    LessonNotesModalComponent
   ],
   imports: [
     CommonModule,
@@ -29,8 +34,14 @@ const routes: Routes = [
     FormsModule,
     TabsComponent,
     LessonsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
     RouterModule.forChild(routes) // Маршрут компонента
   ],
+  providers: [DatePipe],
   exports: [VideoCallComponent]
 })
 export class ClassroomModule { }

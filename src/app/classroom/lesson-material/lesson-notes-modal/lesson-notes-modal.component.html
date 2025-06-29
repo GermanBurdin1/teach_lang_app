@@ -1,0 +1,51 @@
+<div class="lesson-notes-modal">
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <span class="section-icon">{{ getSectionIcon() }}</span>
+      {{ getSectionTitle() }}
+    </h2>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <div class="item-info">
+      <h4>{{ data.itemText }}</h4>
+    </div>
+
+    <div class="notes-section">
+      <h5>📋 Конспект</h5>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Записи по теме</mat-label>
+        <textarea 
+          matInput 
+          [(ngModel)]="noteContent"
+          (ngModelChange)="onContentChange($event)"
+          placeholder="Здесь вы можете делать заметки во время отработки материала..."
+          rows="12"
+          class="notes-textarea">
+        </textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="save-status" *ngIf="lastSaved || isSaving">
+      <mat-icon *ngIf="isSaving" class="saving-icon spin">sync</mat-icon>
+      <mat-icon *ngIf="!isSaving && lastSaved" class="saved-icon">check_circle</mat-icon>
+      <span *ngIf="isSaving">Сохранение...</span>
+      <span *ngIf="!isSaving && lastSaved">
+        Сохранено {{ getFormattedDate() }}
+      </span>
+    </div>
+  </div>
+
+  <div class="modal-actions">
+    <button mat-button (click)="onClose()" class="cancel-btn">
+      Закрыть
+    </button>
+    <button mat-raised-button color="primary" (click)="onSave()" class="save-btn">
+      <mat-icon>save</mat-icon>
+      Сохранить
+    </button>
+  </div>
+</div> 

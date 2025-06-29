@@ -7,6 +7,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call.service';
 import { Subscription } from 'rxjs';
+import { LessonTabsService } from '../../../services/lesson-tabs.service';
 
 interface Task {
   id: string;
@@ -103,7 +104,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     private materialService: MaterialService,
     private route: ActivatedRoute,
     private router: Router,
-    private videoCallService: VideoCallService
+    private videoCallService: VideoCallService,
+    private lessonTabsService: LessonTabsService
   ) { }
 
   ngOnInit(): void {
@@ -669,12 +671,53 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   }
 
   // Вход в виртуальный класс
-  enterVirtualClass(lesson: Lesson): void {
+  async enterVirtualClass(lesson: Lesson): Promise<void> {
     const currentUserId = this.authService.getCurrentUser()?.id;
     if (!currentUserId) return;
 
     // Устанавливаем данные урока в VideoCallService
     this.videoCallService.setLessonData(lesson.id, currentUserId);
+    
+    // ВСЕГДА ПЕРЕЗАГРУЖАЕМ МАТЕРИАЛЫ ПЕРЕД ВХОДОМ В КЛАСС
+    console.log('🔄 Перезагружаем материалы перед входом в класс');
+    const freshMaterials = await this.getMaterialsForLesson(lesson.id);
+    
+    // Обновляем материалы в уроке
+    lesson.materials = freshMaterials;
+    
+    // Также обновляем материалы в списке уроков
+    const lessonInList = this.lessons.find(l => l.id === lesson.id);
+    if (lessonInList) {
+      lessonInList.materials = freshMaterials;
+    }
+    
+    // ПЕРЕДАЕМ РЕАЛЬНЫЕ ДАННЫЕ УРОКА В LESSON-MATERIAL КОМПОНЕНТ
+    const studentTasks = lesson.tasks.filter(t => t.createdByRole === 'student').map(t => t.title);
+    const teacherTasks = lesson.tasks.filter(t => t.createdByRole === 'teacher').map(t => t.title);
+    const studentQuestions = lesson.questions.filter(q => q.createdByRole === 'student').map(q => q.question);
+    const teacherQuestions = lesson.questions.filter(q => q.createdByRole === 'teacher').map(q => q.question);
+    
+    this.lessonTabsService.setCurrentLessonData({
+      id: lesson.id,
+      date: lesson.scheduledAt,
+      teacherTasks: teacherTasks,
+      studentTasks: studentTasks,
+      studentQuestions: studentQuestions,
+      teacherQuestions: teacherQuestions,
+      materials: freshMaterials,
+      texts: freshMaterials.filter(m => m.type === 'text'),
+      audios: freshMaterials.filter(m => m.type === 'audio'),
+      videos: freshMaterials.filter(m => m.type === 'video'),
+      homework: []
+    });
+    
+    console.log('✅ Реальные данные урока переданы в classroom:', {
+      studentTasks,
+      teacherTasks,
+      studentQuestions,
+      teacherQuestions,
+      materials: freshMaterials.length
+    });
     
     this.router.navigate([`/classroom/${lesson.id}/lesson`], {
       queryParams: { startCall: true }

@@ -4,3 +4,132 @@
   margin-bottom: 5px;
   border-radius: 5px;
 }
+
+.material-item {
+  margin-bottom: 10px;
+}
+
+.material-card {
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.material-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.audio-card {
+  border-left: 4px solid #28a745;
+  background: linear-gradient(135deg, #f8fff9, #ffffff);
+}
+
+.video-card {
+  border-left: 4px solid #dc3545;
+  background: linear-gradient(135deg, #fff8f8, #ffffff);
+}
+
+.material-card h6 {
+  color: #333;
+  font-weight: 600;
+  margin: 0;
+}
+
+.material-card .description {
+  color: #666;
+  font-size: 0.9em;
+  margin: 5px 0 0 0;
+  line-height: 1.4;
+}
+
+.material-card .content {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-family: monospace;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.material-card audio,
+.material-card video {
+  border-radius: 8px;
+}
+
+.material-card i {
+  color: #007bff;
+  font-size: 1.2em;
+}
+
+.audio-card i {
+  color: #28a745;
+}
+
+.video-card i {
+  color: #dc3545;
+}
+
+.zone {
+  margin-bottom: 20px;
+}
+
+.zone h5 {
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+/* Стили для простых материалов (строки) */
+.material-item .item {
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.material-item .item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Стили для аудио и видео плееров в простых материалах */
+.material-item .item audio,
+.material-item .item video {
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.material-item .item i {
+  color: #007bff;
+  font-size: 1.1em;
+}
+
+/* Иконки для разных типов материалов */
+.material-item .item i.fa-music {
+  color: #28a745;
+}
+
+.material-item .item i.fa-video {
+  color: #dc3545;
+}
+
+.material-item .item i.fa-file-text {
+  color: #17a2b8;
+}
+
+/* Стили для названий файлов */
+.material-item .item span {
+  font-weight: 500;
+  color: #333;
+}

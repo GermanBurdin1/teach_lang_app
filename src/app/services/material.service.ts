@@ -56,6 +56,11 @@ export class MaterialService {
     return this.http.get<Material[]>(`${this.baseUrl}/lesson-materials/${userId}`);
   }
 
+  // Получение материалов конкретного урока
+  getMaterialsByLessonId(lessonId: string): Observable<Material[]> {
+    return this.http.get<Material[]>(`${this.baseUrl}/lesson/${lessonId}`);
+  }
+
   // Создание нового материала
   createMaterial(material: Omit<Material, 'id' | 'createdAt' | 'attachedLessons'>): Observable<Material> {
     return this.http.post<Material>(this.baseUrl, {
