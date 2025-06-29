@@ -5,6 +5,7 @@ import { TeacherDetails } from './teacher-details.model';
 import { Review } from '../dashboard/shared/models/review.model';
 import { AuthService } from '../../services/auth.service';
 import { LessonService, TeacherTimeSlot } from '../../services/lesson.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-teacher-details',
@@ -18,7 +19,8 @@ export class TeacherDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private teacherService: TeacherService,
     private authService: AuthService,
-    private lessonService: LessonService
+    private lessonService: LessonService,
+    private notificationService: NotificationService
   ) { }
 
   messageText: string = '';
@@ -132,7 +134,7 @@ export class TeacherDetailsComponent implements OnInit {
 
   confirmBooking() {
     if (!this.selectedTime) {
-      alert('⚠️ Veuillez sélectionner un créneau horaire.');
+      this.notificationService.warning('Veuillez sélectionner un créneau horaire.');
       return;
     }
 
@@ -148,7 +150,7 @@ export class TeacherDetailsComponent implements OnInit {
     // Проверка, что время не в прошлом
     const now = new Date();
     if (bookedDateTime <= now) {
-      alert('⚠️ Impossible de réserver un créneau dans le passé. Veuillez choisir un horaire futur.');
+      this.notificationService.warning('Impossible de réserver un créneau dans le passé. Veuillez choisir un horaire futur.');
       return;
     }
 
@@ -164,7 +166,7 @@ export class TeacherDetailsComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.closeBookingModal();
-        alert('✅ Votre demande a été envoyée à l\'enseignant.');
+        this.notificationService.success('Votre demande a été envoyée à l\'enseignant.');
       },
       error: (error) => {
         console.error('❌ Erreur lors de la réservation:', error);
@@ -176,7 +178,7 @@ export class TeacherDetailsComponent implements OnInit {
           errorMessage = error.message;
         }
         
-        alert('❌ ' + errorMessage);
+        this.notificationService.error(errorMessage);
       }
     });
   }

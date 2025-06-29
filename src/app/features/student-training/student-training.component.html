@@ -1,0 +1,312 @@
+<div class="student-training-container">
+  <!-- Header -->
+  <div class="training-header">
+    <h1 class="page-title">
+      <i class="fas fa-user-graduate"></i>
+      Mon Espace d'Entraînement
+    </h1>
+    <p class="page-subtitle">Accédez à vos matériaux et devoirs</p>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-container">
+      <!-- Teacher Filter -->
+      <div class="filter-group">
+        <label>
+          <i class="fas fa-chalkboard-teacher"></i>
+          Professeur
+        </label>
+        <select 
+          [(ngModel)]="selectedTeacher"
+          (change)="onTeacherFilterChange()"
+          class="filter-control">
+          <option value="">Tous les professeurs</option>
+          <option 
+            *ngFor="let teacher of teachers"
+            [value]="teacher.name">
+            {{ teacher.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Material Type Filter -->
+      <div class="filter-group" *ngIf="activeTab === 'materials'">
+        <label>
+          <i class="fas fa-filter"></i>
+          Type de matériau
+        </label>
+        <select 
+          [(ngModel)]="selectedMaterialType"
+          (change)="onMaterialTypeFilterChange()"
+          class="filter-control">
+          <option value="">Tous les types</option>
+          <option value="text">📄 Texte</option>
+          <option value="audio">🎧 Audio</option>
+          <option value="video">🎬 Vidéo</option>
+          <option value="pdf">📋 PDF</option>
+          <option value="image">🖼️ Image</option>
+        </select>
+      </div>
+
+      <!-- Homework Status Filter -->
+      <div class="filter-group" *ngIf="activeTab === 'homework'">
+        <label>
+          <i class="fas fa-tasks"></i>
+          Statut
+        </label>
+        <select 
+          [(ngModel)]="selectedHomeworkStatus"
+          (change)="onHomeworkStatusFilterChange()"
+          class="filter-control">
+          <option value="">Tous les statuts</option>
+          <option value="assigned">Assigné</option>
+          <option value="submitted">Soumis</option>
+          <option value="completed">Terminé</option>
+          <option value="overdue">En retard</option>
+        </select>
+      </div>
+
+      <!-- Date Filter -->
+      <div class="filter-group" *ngIf="activeTab === 'homework'">
+        <label>
+          <i class="fas fa-calendar"></i>
+          Date
+        </label>
+        <input 
+          type="date" 
+          [(ngModel)]="dateFilter"
+          (change)="onDateFilterChange()"
+          class="filter-control">
+      </div>
+
+      <!-- Clear Filters -->
+      <button 
+        class="btn btn-secondary clear-filters-btn"
+        (click)="clearFilters()">
+        <i class="fas fa-times"></i>
+        Effacer
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Tabs -->
+  <div class="main-tabs">
+    <button 
+      class="tab-btn"
+      [class.active]="activeTab === 'materials'"
+      (click)="activeTab = 'materials'">
+      <i class="fas fa-folder-open"></i>
+      Matériaux
+      <span class="badge" *ngIf="filteredMaterials.length">{{ filteredMaterials.length }}</span>
+    </button>
+    <button 
+      class="tab-btn"
+      [class.active]="activeTab === 'homework'"
+      (click)="activeTab = 'homework'">
+      <i class="fas fa-clipboard-list"></i>
+      Devoirs
+      <span class="badge" *ngIf="filteredHomeworks.length">{{ filteredHomeworks.length }}</span>
+    </button>
+  </div>
+
+  <!-- ==================== MATERIALS TAB ==================== -->
+  <div *ngIf="activeTab === 'materials'" class="tab-content materials-tab">
+    <!-- Loading State -->
+    <div *ngIf="loadingMaterials" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des matériaux...</p>
+    </div>
+
+    <!-- Materials Grid -->
+    <div *ngIf="!loadingMaterials" class="materials-grid">
+      <div 
+        *ngFor="let material of filteredMaterials"
+        class="material-card"
+        (click)="openMaterial(material)">
+        <div class="material-header">
+          <div class="material-type">
+            <i [class]="getMaterialTypeIcon(material.type)"></i>
+            {{ material.type.toUpperCase() }}
+          </div>
+          <div class="material-teacher">
+            Par {{ material.createdByName }}
+          </div>
+        </div>
+
+        <div class="material-body">
+          <h4 class="material-title">{{ material.title }}</h4>
+          <p class="material-description" *ngIf="material.description">
+            {{ material.description }}
+          </p>
+          
+          <div class="material-preview">
+            <div class="content-preview">
+              {{ material.content | slice:0:150 }}
+              <span *ngIf="material.content.length > 150">...</span>
+            </div>
+          </div>
+          
+          <div class="material-tags" *ngIf="material.tags.length">
+            <span 
+              *ngFor="let tag of material.tags"
+              class="material-tag">
+              #{{ tag }}
+            </span>
+          </div>
+        </div>
+
+        <div class="material-footer">
+          <div class="material-date">
+            <i class="fas fa-calendar"></i>
+            {{ material.createdAt | date:'dd/MM/yyyy' }}
+          </div>
+          <div class="open-indicator">
+            <i class="fas fa-external-link-alt"></i>
+            Ouvrir
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State for Materials -->
+      <div *ngIf="filteredMaterials.length === 0 && !loadingMaterials" class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <h3>Aucun matériau disponible</h3>
+        <p *ngIf="materials.length === 0">Votre professeur n'a pas encore partagé de matériaux avec vous</p>
+        <p *ngIf="materials.length > 0">Aucun matériau ne correspond aux filtres sélectionnés</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HOMEWORK TAB ==================== -->
+  <div *ngIf="activeTab === 'homework'" class="tab-content homework-tab">
+    <!-- Loading State -->
+    <div *ngIf="loadingHomeworks" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des devoirs...</p>
+    </div>
+
+    <!-- Homework Grid -->
+    <div *ngIf="!loadingHomeworks" class="homework-grid">
+      <div 
+        *ngFor="let homework of filteredHomeworks"
+        class="homework-card"
+        [class.overdue]="isOverdue(homework.dueDate) && homework.status === 'assigned'">
+        
+        <div class="homework-header">
+          <div class="homework-status" [ngClass]="getHomeworkStatusClass(homework.status)">
+            <span class="status-indicator"></span>
+            {{ getHomeworkStatusText(homework.status) }}
+          </div>
+          <div class="homework-priority" *ngIf="getDaysUntilDue(homework.dueDate) <= 2 && homework.status === 'assigned'">
+            <i class="fas fa-exclamation-triangle"></i>
+            Urgent
+          </div>
+        </div>
+
+        <div class="homework-body">
+          <h4 class="homework-title">{{ homework.title }}</h4>
+          <p class="homework-description">{{ homework.description }}</p>
+          
+          <div class="homework-meta">
+            <div class="meta-item">
+              <i class="fas fa-chalkboard-teacher"></i>
+              <span>{{ homework.assignedByName }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-calendar"></i>
+              <span>Assigné le {{ homework.assignedAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="meta-item" [class.urgent]="getDaysUntilDue(homework.dueDate) <= 2">
+              <i class="fas fa-clock"></i>
+              <span>
+                Échéance: {{ homework.dueDate | date:'dd/MM/yyyy à HH:mm' }}
+                <small class="days-remaining" *ngIf="homework.status === 'assigned'">
+                  ({{ getDaysUntilDue(homework.dueDate) }} jours restants)
+                </small>
+              </span>
+            </div>
+            <div class="meta-item" *ngIf="homework.lessonId">
+              <i class="fas fa-link"></i>
+              <span>Lié au cours</span>
+            </div>
+          </div>
+
+          <!-- Linked Materials -->
+          <div class="linked-materials" *ngIf="homework.materialIds.length">
+            <h5>
+              <i class="fas fa-paperclip"></i>
+              Matériaux associés
+            </h5>
+            <div class="material-chips">
+              <span 
+                *ngFor="let materialId of homework.materialIds"
+                class="material-chip">
+                <i class="fas fa-file"></i>
+                Matériau associé
+              </span>
+            </div>
+          </div>
+
+          <!-- Feedback -->
+          <div class="teacher-feedback" *ngIf="homework.teacherFeedback">
+            <h5>
+              <i class="fas fa-comment"></i>
+              Commentaire du professeur
+            </h5>
+            <div class="feedback-content">
+              {{ homework.teacherFeedback }}
+            </div>
+          </div>
+        </div>
+
+        <div class="homework-footer">
+          <!-- Grade -->
+          <div class="homework-grade" *ngIf="homework.grade !== undefined">
+            <span class="grade-label">Note:</span>
+            <span class="grade-value" [class.good]="homework.grade >= 15" [class.average]="homework.grade >= 10 && homework.grade < 15" [class.poor]="homework.grade < 10">
+              {{ homework.grade }}/20
+            </span>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="homework-actions">
+            <button 
+              *ngIf="homework.status === 'assigned'"
+              class="btn btn-primary"
+              (click)="submitHomework(homework.id)">
+              <i class="fas fa-paper-plane"></i>
+              Soumettre
+            </button>
+            <span 
+              *ngIf="homework.status === 'submitted'"
+              class="status-text">
+              <i class="fas fa-clock"></i>
+              En attente de correction
+            </span>
+            <span 
+              *ngIf="homework.status === 'completed'"
+              class="status-text completed">
+              <i class="fas fa-check-circle"></i>
+              Terminé
+            </span>
+            <span 
+              *ngIf="homework.status === 'overdue'"
+              class="status-text overdue">
+              <i class="fas fa-exclamation-triangle"></i>
+              En retard
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State for Homework -->
+      <div *ngIf="filteredHomeworks.length === 0 && !loadingHomeworks" class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <h3>Aucun devoir disponible</h3>
+        <p *ngIf="homeworks.length === 0">Vous n'avez pas encore de devoirs assignés</p>
+        <p *ngIf="homeworks.length > 0">Aucun devoir ne correspond aux filtres sélectionnés</p>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../../services/auth.service';
 import { Router } from '@angular/router';
+import { NotificationService } from '../../../../services/notification.service';
 
 @Component({
   selector: 'app-register',
@@ -12,11 +13,18 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   existingRoles: string[] = [];
   emailChecked: boolean = false;
+  email = '';
+  name = '';
+  surname = '';
+  password = '';
+  role = '';
+  showPassword = false;
 
   constructor(private fb: FormBuilder,
     private authService: AuthService,
     private api: AuthService,
-    private router: Router) { }
+    private router: Router,
+    private notificationService: NotificationService) { }
 
   ngOnInit(): void {
     this.registerForm = this.fb.group(
@@ -75,7 +83,7 @@ export class RegisterComponent implements OnInit {
         },
         error: (err) => {
           console.error('[RegisterComponent] Registration failed:', err);
-          alert(err.error?.message || 'Erreur lors de la création du compte');
+          this.notificationService.error(err.error?.message || 'Erreur lors de la création du compte');
         }
       });
     } else {

@@ -10,6 +10,8 @@ import { AuthRoutingModule } from './auth-routing.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 @NgModule({
   declarations: [
     RegisterComponent,
@@ -24,7 +26,8 @@ import { MatIconModule } from '@angular/material/icon';
     AuthRoutingModule,
     MatCheckboxModule,
     MatButtonToggleModule,
-    MatIconModule
+    MatIconModule,
+    MatSnackBarModule
   ]
 })
 export class AuthModule {}

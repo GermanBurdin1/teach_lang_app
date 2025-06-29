@@ -1,20 +1,39 @@
 <div class="lesson-card">
   <div class="lesson-header">
     <div class="info">
-      👩‍🏫 {{ lesson.teacher }} — {{ lesson.date | date: 'dd/MM/yyyy' }}
+      👩‍🏫 {{ lesson.teacher || lesson.studentName || 'Étudiant' }} — {{ lesson.date || lesson.scheduledAt | date: 'dd/MM/yyyy' }}
     </div>
-    <button mat-stroked-button color="primary" (click)="openGabarit.emit()">
-      ➕ Ajouter du matériel
-    </button>
+    
+    <!-- Статистика урока -->
+    <div class="lesson-stats">
+      <span class="stat-item">
+        <mat-icon>assignment</mat-icon>
+        {{ lesson.tasks?.length || 0 }} tâche(s)
+      </span>
+      <span class="stat-item">
+        <mat-icon>quiz</mat-icon>
+        {{ lesson.questions?.length || 0 }} question(s)
+      </span>
+      <span class="stat-item">
+        <mat-icon>folder</mat-icon>
+        {{ lesson.materials?.length || 0 }} matériau(x)
+      </span>
+    </div>
 
-    <!-- 🎥 Кнопка входа в виртуальный класс -->
-    <button *ngIf="canEnterClass()" 
-            mat-raised-button 
-            color="accent" 
-            (click)="enterVirtualClass()"
-            class="enter-class-btn">
-      🎥 Entrer en classe
-    </button>
+    <div class="lesson-actions">
+      <button mat-stroked-button color="primary" (click)="openGabarit.emit()">
+        ➕ Ajouter du matériel
+      </button>
+
+      <!-- 🎥 Кнопка входа в виртуальный класс -->
+      <button *ngIf="canEnterClass()" 
+              mat-raised-button 
+              color="accent" 
+              (click)="enterVirtualClass()"
+              class="enter-class-btn">
+        🎥 Entrer en classe
+      </button>
+    </div>
   </div>
 
   <div class="drop-zone">

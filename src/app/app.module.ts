@@ -26,6 +26,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TeacherSettingsModule } from './features/settings/teacher-settings.module';
 import { LOCALE_ID } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -62,6 +63,7 @@ import { getCosmicPaginatorIntl } from './shared/providers/custom-paginator-intl
     MatFormFieldModule,
     TeacherSettingsModule,
     MatChipsModule,
+    MatSnackBarModule,
     DragDropModule
 ],
   providers: [provideHttpClient(),{ provide: LOCALE_ID, useValue: 'fr' }, { provide: MatPaginatorIntl, useValue: getCosmicPaginatorIntl() }],

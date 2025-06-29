@@ -15,7 +15,7 @@ export interface UploadedFile {
   providedIn: 'root'
 })
 export class FileUploadService {
-  private apiUrl = 'http://35.180.208.103:3000/files/upload'; // URL API на бэкенде
+  private apiUrl = 'http://localhost:3008/files/upload'; // URL API на бэкенде
 
   constructor(private http: HttpClient) {}
 
@@ -30,7 +30,7 @@ export class FileUploadService {
   }
 
   getFiles(courseId: string): Observable<UploadedFile[]> {
-    return this.http.get<UploadedFile[]>(`http://35.180.208.103:3000/files?courseId=${encodeURIComponent(courseId)}`);
+    return this.http.get<UploadedFile[]>(`http://localhost:3008/files?courseId=${encodeURIComponent(courseId)}`);
   }
 
 }

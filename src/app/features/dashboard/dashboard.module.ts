@@ -17,6 +17,7 @@ import { TariffsModule } from "../tariffs/tariffs.module";
 import { WordsComponent } from '../words/words.component';
 import { SharedModule } from '../../shared/shared.module';
 import { TrainerComponent } from '../trainer/trainer.component';
+import { StudentTrainingComponent } from '../student-training/student-training.component';
 import { GrammarFieldsComponent } from "../vocabulary/vocabulary-layout/grammar-fields.component";
 import { TeacherListComponent } from '../teacher-search-and-consult/teacher-list.component';
 import { AdminTeachersListComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teachers-list.component';
@@ -48,6 +49,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-requests.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -61,6 +63,7 @@ import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-re
     // StatiscticsComponent,
     WordsComponent,
     TrainerComponent,
+    StudentTrainingComponent,
     TeacherListComponent,
     AdminTeachersListComponent,
     TeacherDetailsComponent,
@@ -101,6 +104,7 @@ import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-re
     MatDatepickerModule,
     MatNativeDateModule,
     MatTabsModule,
+    MatSnackBarModule,
     BsDatepickerModule.forRoot()
   ],
   exports: [ReviewListComponent]

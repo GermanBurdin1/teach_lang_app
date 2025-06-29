@@ -11,13 +11,7 @@ export class GabaritPageComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.lesson) {
-      console.warn('⚠️ [GabaritPageComponent] Aucune leçon reçue. On injecte un mock...');
-      this.lesson = {
-        date: new Date(),
-        texts: ['📄 Exemple de texte'],
-        audios: ['🎧 Exemple audio'],
-        videos: ['🎬 Exemple vidéo']
-      };
+      console.warn('⚠️ [GabaritPageComponent] No lesson data received');
     }
   }
 

@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HomeworkService } from '../../../services/homework.service';
 import { LessonService } from '../../../services/lesson.service';
 import { AuthService } from '../../../services/auth.service';
+import { MaterialService } from '../../../services/material.service';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call.service';
+import { Subscription } from 'rxjs';
 
 interface Task {
   id: string;
@@ -30,6 +32,19 @@ interface Question {
   createdAt: Date;
 }
 
+interface Material {
+  id: string;
+  title: string;
+  type: 'text' | 'audio' | 'video' | 'pdf' | 'image';
+  content: string;
+  description?: string;
+  createdBy: string;
+  createdByName: string;
+  createdAt: Date;
+  attachedLessons: string[];
+  tags: string[];
+}
+
 interface Lesson {
   id: string;
   teacherId: string;
@@ -39,6 +54,7 @@ interface Lesson {
   studentName?: string;
   tasks: Task[];
   questions: Question[];
+  materials: Material[];
 }
 
 @Component({
@@ -46,7 +62,7 @@ interface Lesson {
   templateUrl: './teacher-lesson-management.component.html',
   styleUrls: ['./teacher-lesson-management.component.css']
 })
-export class TeacherLessonManagementComponent implements OnInit {
+export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   // UI состояние
   filter: string = 'future';
   selectedStudent: string | null = null;
@@ -58,7 +74,6 @@ export class TeacherLessonManagementComponent implements OnInit {
   endDate?: string;
   pageSize = 4;
   currentPage = 1;
-  visibleCount = 4;
 
   // Данные
   lessons: Lesson[] = [];
@@ -66,20 +81,10 @@ export class TeacherLessonManagementComponent implements OnInit {
   
   // Формы для добавления
   showAddTaskForm = false;
-  showAddQuestionForm = false;
-  showAddMaterialForm = false;
   newTaskTitle = '';
   newTaskDescription = '';
-  newQuestionText = '';
   
-  // Материалы
-  newMaterialTitle = '';
-  newMaterialType: 'text' | 'audio' | 'video' = 'text';
-  newMaterialContent = '';
-  
-  // Ответы на вопросы
-  answeringQuestionId: string | null = null;
-  answerText = '';
+  // Материалы (убираем управление вопросами для преподавателя)
   
   // Загрузка
   loading = false;
@@ -93,68 +98,65 @@ export class TeacherLessonManagementComponent implements OnInit {
   taskDropListIds: string[] = [];
   activeLesson: any = null;
 
+  private subscriptions: Subscription[] = [];
+
   constructor(
     private homeworkService: HomeworkService,
     private lessonService: LessonService,
     private authService: AuthService,
+    private materialService: MaterialService,
     private route: ActivatedRoute,
     private router: Router,
     private videoCallService: VideoCallService
   ) { }
 
-  ngOnInit() {
-    // Проверяем авторизацию
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) {
-      console.warn('[TeacherLessonManagement] User not authenticated, waiting...');
-      // Можно подписаться на изменения состояния авторизации
-      setTimeout(() => {
-        const retryUser = this.authService.getCurrentUser();
-        if (retryUser) {
-          console.log('[TeacherLessonManagement] User loaded on retry:', retryUser);
-          this.initializeComponent();
-        } else {
-          console.error('[TeacherLessonManagement] Still no user after retry');
-        }
-      }, 1000);
-      return;
-    }
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      this.highlightedLessonIdFromUrl = params['lessonId'] || null;
+      console.log('[TeacherLessonManagement] highlightedLessonIdFromUrl from params:', this.highlightedLessonIdFromUrl);
+    });
 
-    console.log('[TeacherLessonManagement] User authenticated:', currentUser);
-    this.initializeComponent();
-  }
-
-  private initializeComponent() {
-    // Обработка параметров URL
     this.route.queryParams.subscribe(params => {
-      const lessonId = params['lessonId'];
-      const tab = params['tab'];
-      
-      if (lessonId) {
-        this.highlightedLessonIdFromUrl = lessonId;
-        console.log(`[TeacherLessonManagement] Navigated to lesson: ${lessonId}, tab: ${tab}`);
-        
-        // Устанавливаем фильтр в зависимости от tab параметра
-        if (tab === 'upcoming' || tab === 'à venir') {
-          this.filter = 'future';
-        } else if (tab === 'past' || tab === 'passé') {
-          this.filter = 'past';
-        } else if (tab === 'all' || tab === 'tous') {
-          this.filter = 'all';
-        } else {
-          // По умолчанию показываем предстоящие уроки
-          this.filter = 'future';
-        }
-        
-        // Загружаем конкретный урок
-        this.loadLesson(lessonId);
-      } else {
-        // При прямом заходе на вкладку показываем предстоящие уроки
-        this.filter = 'future';
-        // Загружаем все уроки преподавателя
-        this.loadTeacherLessons();
+      if (params['lessonId']) {
+        this.highlightedLessonIdFromUrl = params['lessonId'];
+        console.log('[TeacherLessonManagement] highlightedLessonIdFromUrl from query:', this.highlightedLessonIdFromUrl);
       }
     });
+    
+    this.loadTeacherLessons();
+
+    // Если есть выделенный урок из URL, загружаем его
+    if (this.highlightedLessonIdFromUrl) {
+      setTimeout(() => {
+        this.loadLesson(this.highlightedLessonIdFromUrl!);
+      }, 500);
+    }
+    
+    // Подписка на уведомления о прикреплении материалов
+    const materialAttachedSubscription = this.materialService.onMaterialAttached().subscribe(({ materialId, lessonId }) => {
+      console.log('🔗 [Teacher] Получено уведомление о прикреплении материала:', { materialId, lessonId });
+      
+      // Если материал прикреплен к текущему уроку, перезагружаем материалы
+      if (this.currentLesson && this.currentLesson.id === lessonId) {
+        console.log('🔄 [Teacher] Перезагружаем материалы для текущего урока');
+        this.reloadMaterialsForCurrentLesson();
+      }
+      
+      // Также обновляем материалы в списке уроков
+      const lessonInList = this.lessons.find(l => l.id === lessonId);
+      if (lessonInList) {
+        console.log('🔄 [Teacher] Перезагружаем материалы для урока в списке');
+        this.getMaterialsForLesson(lessonId).then(materials => {
+          lessonInList.materials = materials;
+        });
+      }
+    });
+
+    this.subscriptions.push(materialAttachedSubscription);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   // Загрузка уроков преподавателя
@@ -171,14 +173,37 @@ export class TeacherLessonManagementComponent implements OnInit {
 
     this.loading = true;
     this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe({
-      next: (lessons) => {
+      next: async (lessons) => {
         this.lessons = lessons.map(lesson => ({
           ...lesson,
           tasks: lesson.tasks || [],
-          questions: lesson.questions || []
+          questions: lesson.questions || [],
+          materials: lesson.materials || []
         }));
+        
+        // Загружаем задачи, вопросы и материалы для каждого урока
+        for (const lesson of this.lessons) {
+          try {
+            const [tasks, questions, materials] = await Promise.all([
+              this.lessonService.getTasksForLesson(lesson.id).toPromise(),
+              this.lessonService.getQuestionsForLesson(lesson.id).toPromise(),
+              this.getMaterialsForLesson(lesson.id)
+            ]);
+            
+            lesson.tasks = tasks || [];
+            lesson.questions = questions || [];
+            lesson.materials = materials || [];
+            
+            console.log(`📊 Урок ${lesson.id}: ${lesson.tasks.length} задач, ${lesson.questions.length} вопросов, ${lesson.materials.length} материалов`);
+          } catch (error) {
+            console.error(`Ошибка загрузки данных для урока ${lesson.id}:`, error);
+          }
+        }
+        
         this.updateLessonStatuses();
         this.loading = false;
+        
+        console.log('✅ Все уроки загружены с подробностями:', this.lessons);
       },
       error: (error) => {
         console.error('Ошибка загрузки уроков:', error);
@@ -211,21 +236,56 @@ export class TeacherLessonManagementComponent implements OnInit {
     });
   }
 
-  // Загрузка задач и вопросов для урока
+  // Загрузка задач, вопросов и материалов для урока
   loadTasksAndQuestions(lessonId: string): void {
     Promise.all([
       this.lessonService.getTasksForLesson(lessonId).toPromise(),
-      this.lessonService.getQuestionsForLesson(lessonId).toPromise()
-    ]).then(([tasks, questions]) => {
+      this.lessonService.getQuestionsForLesson(lessonId).toPromise(),
+      this.getMaterialsForLesson(lessonId)
+    ]).then(([tasks, questions, materials]) => {
       if (this.currentLesson) {
         this.currentLesson.tasks = tasks || [];
         this.currentLesson.questions = questions || [];
+        this.currentLesson.materials = materials || [];
       }
       this.loading = false;
     }).catch(error => {
-      console.error('Ошибка загрузки задач и вопросов:', error);
+      console.error('Ошибка загрузки задач, вопросов и материалов:', error);
       this.loading = false;
     });
+  }
+
+  // Получение материалов для урока
+  private async getMaterialsForLesson(lessonId: string): Promise<Material[]> {
+    try {
+      const allMaterials = await this.materialService.getMaterials().toPromise();
+      return allMaterials?.filter(material => 
+        material.attachedLessons && material.attachedLessons.includes(lessonId)
+      ) || [];
+    } catch (error) {
+      console.error('Ошибка загрузки материалов для урока:', error);
+      return [];
+    }
+  }
+
+  // Перезагрузка материалов для текущего урока
+  async reloadMaterialsForCurrentLesson(): Promise<void> {
+    if (!this.currentLesson) return;
+    
+    try {
+      const materials = await this.getMaterialsForLesson(this.currentLesson.id);
+      this.currentLesson.materials = materials;
+      
+      // Обновляем материалы и в списке уроков
+      const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
+      if (lessonInList) {
+        lessonInList.materials = materials;
+      }
+      
+      console.log('✅ Материалы урока перезагружены:', materials);
+    } catch (error) {
+      console.error('❌ Ошибка перезагрузки материалов:', error);
+    }
   }
 
   // Обновление статусов уроков
@@ -274,94 +334,11 @@ export class TeacherLessonManagementComponent implements OnInit {
     });
   }
 
-  // Добавление вопроса студенту
-  addQuestionToStudent(): void {
-    if (!this.newQuestionText.trim() || !this.currentLesson) return;
-
-    const teacherId = this.authService.getCurrentUser()?.id;
-    if (!teacherId) return;
-
-    const questionData = {
-      lessonId: this.currentLesson.id,
-      question: this.newQuestionText,
-      createdBy: teacherId,
-      createdByRole: 'teacher' as const
-    };
-
-    this.lessonService.addQuestionToLesson(questionData).subscribe({
-      next: (newQuestion) => {
-        if (this.currentLesson) {
-          this.currentLesson.questions.push(newQuestion);
-        }
-        this.clearQuestionForm();
-        console.log('Вопрос добавлен студенту:', newQuestion);
-      },
-      error: (error) => {
-        console.error('Ошибка добавления вопроса:', error);
-      }
-    });
-  }
-
-  // Ответ на вопрос студента
-  answerQuestion(questionId: string): void {
-    if (!this.answerText.trim()) return;
-
-    const teacherId = this.authService.getCurrentUser()?.id;
-    if (!teacherId) return;
-
-    this.lessonService.answerQuestion(questionId, this.answerText, teacherId).subscribe({
-      next: (updatedQuestion) => {
-        if (this.currentLesson) {
-          const questionIndex = this.currentLesson.questions.findIndex(q => q.id === questionId);
-          if (questionIndex > -1) {
-            this.currentLesson.questions[questionIndex] = updatedQuestion;
-          }
-        }
-        this.clearAnswerForm();
-        console.log('Ответ добавлен:', updatedQuestion);
-      },
-      error: (error) => {
-        console.error('Ошибка добавления ответа:', error);
-      }
-    });
-  }
-
-  // Начать отвечать на вопрос
-  startAnswering(questionId: string): void {
-    this.answeringQuestionId = questionId;
-    this.answerText = '';
-  }
-
-  // Отменить ответ
-  cancelAnswering(): void {
-    this.answeringQuestionId = null;
-    this.answerText = '';
-  }
-
   // Очистка формы задачи
   clearTaskForm(): void {
     this.newTaskTitle = '';
     this.newTaskDescription = '';
     this.showAddTaskForm = false;
-  }
-
-  clearQuestionForm(): void {
-    this.newQuestionText = '';
-    this.showAddQuestionForm = false;
-  }
-
-  // Очистка формы ответа
-  clearAnswerForm(): void {
-    this.answeringQuestionId = null;
-    this.answerText = '';
-  }
-
-  // Очистка формы материала
-  clearMaterialForm(): void {
-    this.newMaterialTitle = '';
-    this.newMaterialContent = '';
-    this.newMaterialType = 'text';
-    this.showAddMaterialForm = false;
   }
 
   // Получение студенческих задач
@@ -374,16 +351,6 @@ export class TeacherLessonManagementComponent implements OnInit {
     return this.currentLesson?.tasks.filter(task => task.createdByRole === 'teacher') || [];
   }
 
-  // Получение неотвеченных вопросов
-  get unansweredQuestions(): Question[] {
-    return this.currentLesson?.questions.filter(q => !q.isAnswered) || [];
-  }
-
-  // Получение отвеченных вопросов
-  get answeredQuestions(): Question[] {
-    return this.currentLesson?.questions.filter(q => q.isAnswered) || [];
-  }
-
   // Геттеры для совместимости с шаблоном
   get filteredLessons() {
     if (this.currentLesson) {
@@ -391,15 +358,27 @@ export class TeacherLessonManagementComponent implements OnInit {
       const otherLessons = this.lessons.filter(lesson => 
         lesson.id !== this.currentLesson!.id && this.matchesCurrentFilter(lesson)
       );
-      return [this.currentLesson, ...otherLessons].slice(0, this.visibleCount);
+      return [this.currentLesson, ...otherLessons];
     }
     
-    // Когда заходим на вкладку напрямую, показываем все подходящие уроки
-    return this.fullFilteredLessons.slice(0, this.visibleCount);
+    // Когда заходим на вкладку напрямую, применяем пагинацию
+    const allFiltered = this.fullFilteredLessons;
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    return allFiltered.slice(startIndex, endIndex);
   }
 
   get fullFilteredLessons() {
+    console.log(`📊 Teacher: Применяем фильтр "${this.filter}" к ${this.lessons.length} урокам`);
+    
     const result = this.lessons.filter(lesson => this.matchesCurrentFilter(lesson));
+    
+    console.log(`📊 Teacher: После фильтрации: ${result.length} уроков`, result.map(l => ({
+      id: l.id, 
+      date: l.scheduledAt, 
+      status: l.status,
+      studentName: l.studentName
+    })));
 
     // Если есть выделенный урок (через calendar), ставим его первым
     if (this.highlightedLessonIdFromUrl) {
@@ -412,7 +391,7 @@ export class TeacherLessonManagementComponent implements OnInit {
     }
 
     // Сортируем по дате: предстоящие по возрастанию, прошедшие по убыванию
-    return result.sort((a, b) => {
+    const sorted = result.sort((a, b) => {
       const dateA = new Date(a.scheduledAt);
       const dateB = new Date(b.scheduledAt);
       const now = new Date();
@@ -428,6 +407,9 @@ export class TeacherLessonManagementComponent implements OnInit {
         return aIsFuture ? -1 : 1; // Предстоящие перед прошедшими
       }
     });
+    
+    console.log(`📊 Teacher: После сортировки: ${sorted.length} уроков`);
+    return sorted;
   }
 
   private matchesCurrentFilter(lesson: Lesson): boolean {
@@ -436,15 +418,31 @@ export class TeacherLessonManagementComponent implements OnInit {
     
     // Фильтр по времени
     if (this.filter === 'future') {
-      // À venir: все предстоящие уроки + подтвержденные будущие
+      // À venir: ТОЛЬКО предстоящие уроки по времени
       const isFutureTime = lessonDate > now;
-      const isFutureStatus = ['confirmed', 'pending', 'in_progress'].includes(lesson.status);
-      if (!isFutureTime && !isFutureStatus) return false;
+      
+      console.log(`🔍 Teacher Фильтр Future для урока ${lesson.id}:`, {
+        lessonDate: lessonDate.toISOString(),
+        now: now.toISOString(), 
+        status: lesson.status,
+        isFutureTime,
+        studentName: lesson.studentName
+      });
+      
+      if (!isFutureTime) return false;
     } else if (this.filter === 'past') {
-      // Passés: только прошедшие по времени или завершенные
+      // Passés: ТОЛЬКО прошедшие по времени
       const isPastTime = lessonDate <= now;
-      const isPastStatus = ['completed', 'past'].includes(lesson.status);
-      if (!isPastTime && !isPastStatus) return false;
+      
+      console.log(`🕐 Teacher Фильтр Past для урока ${lesson.id}:`, {
+        lessonDate: lessonDate.toISOString(),
+        now: now.toISOString(),
+        status: lesson.status,
+        isPastTime,
+        studentName: lesson.studentName
+      });
+      
+      if (!isPastTime) return false;
     }
     // 'all' - показываем все (предстоящие, прошедшие, отмененные, ожидающие подтверждения)
 
@@ -544,6 +542,7 @@ export class TeacherLessonManagementComponent implements OnInit {
   // Методы-заглушки для совместимости
   recalculateStatus() {
     this.updateLessonStatuses();
+    this.currentPage = 1; // Сброс на первую страницу при смене фильтра
   }
 
   updateUniqueStudents() {
@@ -556,10 +555,6 @@ export class TeacherLessonManagementComponent implements OnInit {
 
   closeGabarit() {
     this.activeLesson = null;
-  }
-
-  loadMore() {
-    this.visibleCount += 4;
   }
 
   get taskDropIds(): string[] {
@@ -610,4 +605,59 @@ export class TeacherLessonManagementComponent implements OnInit {
     });
   }
 
+  // Возврат к списку уроков
+  backToLessonList(): void {
+    this.currentLesson = null;
+    this.highlightedLessonId = null;
+    this.highlightedLessonIdFromUrl = null;
+    
+    // Обновляем URL, убирая параметры урока
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true
+    });
+    
+    // Загружаем список уроков если он пустой
+    if (this.lessons.length === 0) {
+      this.loadTeacherLessons();
+    }
+  }
+
+  // ==================== МЕТОДЫ ДЛЯ ОТОБРАЖЕНИЯ АВТОРСТВА ====================
+  
+  getTaskAuthorDisplay(task: Task): string {
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    if (task.createdBy === currentUserId) {
+      return 'Mes tâches';
+    } else {
+      // Если задача создана студентом, показываем имя студента
+      return this.currentLesson?.studentName || 'Étudiant';
+    }
+  }
+
+  getMaterialAuthorDisplay(material: Material): string {
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    if (material.createdBy === currentUserId) {
+      return 'Mes matériaux';
+    } else {
+      // Если материал создан студентом, показываем имя студента
+      return this.currentLesson?.studentName || 'Étudiant';
+    }
+  }
+
+  getQuestionAuthorDisplay(question: Question): string {
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    if (question.createdBy === currentUserId) {
+      return 'Mes questions';
+    } else {
+      // Если вопрос создан студентом, показываем имя студента
+      return this.currentLesson?.studentName || 'Étudiant';
+    }
+  }
+
+  isOwnContent(createdBy: string): boolean {
+    const currentUserId = this.authService.getCurrentUser()?.id;
+    return createdBy === currentUserId;
+  }
 }

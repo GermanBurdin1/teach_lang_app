@@ -6,8 +6,8 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 import { CalendarPreviewComponent } from './components/calendar/calendar-preview.component';
 import { MatButtonModule } from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [ScheduleComponent, CalendarPreviewComponent],
@@ -18,8 +18,13 @@ import {MatIconModule} from '@angular/material/icon';
       useFactory: adapterFactory
     }),
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatSnackBarModule
   ],
-  exports: [ScheduleComponent,CalendarPreviewComponent]
+  exports: [
+    ScheduleComponent,
+    CalendarPreviewComponent,
+    MatSnackBarModule
+  ]
 })
 export class SharedModule { }

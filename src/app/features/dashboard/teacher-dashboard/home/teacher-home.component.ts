@@ -113,16 +113,10 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('[TeacherHome][FRONT] refreshNotifications called for userId:', userId);
     this.notificationService.getNotificationsForUser(userId).subscribe({
       next: (all) => {
-        console.log('[TeacherHome][FRONT] notifications from backend:', all);
-        // Фильтруем уведомления: исключаем booking_request, но включаем lesson_cancelled_by_student
-        this.notifications = all.filter(n => 
-          n.type !== 'booking_request'
-        );
+        console.log('🔔 [FRONT] Ответ от сервера:', all);
+        this.notifications = all.filter(n => n.type !== 'booking_request');
         this.newRequests = all.filter(n => n.type === 'booking_request' && n.status === 'pending');
         this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending');
-        console.log('[TeacherHome][FRONT] notifications:', this.notifications);
-        console.log('[TeacherHome][FRONT] newRequests:', this.newRequests);
-        console.log('[TeacherHome][FRONT] treatedRequests:', this.treatedRequests);
       },
       error: (err) => {
         console.error('❌ [FRONT] Ошибка при получении уведомлений:', err);
@@ -146,6 +140,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     setInterval(() => {
       this.now = new Date();
     }, 60000);
+    
     // Возможна загрузка с backend позже
     this.homeworksToReview.sort((a, b) =>
       a.dueDate.localeCompare(b.dueDate)
@@ -168,48 +163,10 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // Добавляем мок-уведомления об отмене для демонстрации
-    const mockCancellationNotifications: Notification[] = [
-      {
-        id: 'mock-cancel-1',
-        user_id: userId,
-        title: '❌ Pierre Martin a annulé le cours',
-        message: 'Pierre Martin a annulé le cours prévu le 15/01/2025 à 14:00. Raison: Je suis malade (remboursement prévu)',
-        type: 'lesson_cancelled_by_student',
-        status: 'unread',
-        data: {
-          lessonId: 'lesson-123',
-          studentId: 'student-456',
-          studentName: 'Pierre Martin',
-          refundAvailable: true,
-          reason: 'Je suis malade'
-        }
-      },
-      {
-        id: 'mock-cancel-2',
-        user_id: userId,
-        title: '⚠️ Sophie Dubois a annulé le cours',
-        message: 'Sophie Dubois a annulé le cours prévu le 16/01/2025 à 10:00. Raison: Urgence personnelle (pas de remboursement)',
-        type: 'lesson_cancelled_by_student',
-        status: 'unread',
-        data: {
-          lessonId: 'lesson-789',
-          studentId: 'student-101',
-          studentName: 'Sophie Dubois',
-          refundAvailable: false,
-          reason: 'Urgence personnelle'
-        }
-      }
-    ];
-
-    this.notifications = [...mockCancellationNotifications, ...this.notifications];
-
     this.notificationService.getNotificationsForUser(userId).subscribe({
       next: (all) => {
         console.log('🔔 [FRONT] Ответ от сервера:', all);
-        // Объединяем реальные уведомления с мок-уведомлениями об отмене
-        const realNotifications = all.filter(n => n.type !== 'booking_request');
-        this.notifications = [...mockCancellationNotifications, ...realNotifications];
+        this.notifications = all.filter(n => n.type !== 'booking_request');
         this.newRequests = all.filter(n => n.type === 'booking_request' && n.status === 'pending');
         this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending');
       },
@@ -624,7 +581,9 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Получить количество минут до урока
   getMinutesUntilLesson(event: CalendarEvent): number {
-    const diffInMs = event.start.getTime() - this.now.getTime();
+    const now = new Date();
+    const lessonStart = new Date(event.start);
+    const diffInMs = lessonStart.getTime() - now.getTime();
     return Math.round(diffInMs / (1000 * 60));
   }
 }

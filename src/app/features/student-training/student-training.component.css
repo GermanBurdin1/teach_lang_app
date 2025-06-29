@@ -1,0 +1,716 @@
+/* ==================== MAIN CONTAINER ==================== */
+.student-training-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==================== HEADER ==================== */
+.training-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.page-title i {
+  margin-right: 1rem;
+  color: #ffd700;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+/* ==================== FILTERS SECTION ==================== */
+.filters-section {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  flex: 1;
+}
+
+.filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.filter-group label i {
+  color: #4facfe;
+}
+
+.filter-control {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.filter-control:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+}
+
+.clear-filters-btn {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0;
+  align-self: flex-end;
+}
+
+/* ==================== MAIN TABS ==================== */
+.main-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.tab-btn.active {
+  background: rgba(255, 255, 255, 0.95);
+  color: #4facfe;
+  border-color: white;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.tab-btn i {
+  font-size: 1.2rem;
+}
+
+.badge {
+  background: #ff6b6b;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  margin-left: 0.5rem;
+  font-weight: 700;
+}
+
+.tab-btn.active .badge {
+  background: #4facfe;
+}
+
+/* ==================== TAB CONTENT ==================== */
+.tab-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== LOADING STATE ==================== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #718096;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #4facfe;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==================== GRIDS ==================== */
+.materials-grid, .homework-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ==================== MATERIAL CARDS ==================== */
+.material-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+}
+
+.material-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border-color: #4facfe;
+}
+
+.material-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.material-type {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.875rem;
+}
+
+.material-type i {
+  color: #4facfe;
+  font-size: 1.1rem;
+}
+
+.material-teacher {
+  font-size: 0.75rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.material-body {
+  padding: 1.5rem;
+}
+
+.material-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.material-description {
+  color: #718096;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  font-size: 0.875rem;
+}
+
+.material-preview {
+  margin-bottom: 1rem;
+}
+
+.content-preview {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #4a5568;
+  border-left: 4px solid #4facfe;
+  line-height: 1.4;
+}
+
+.material-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.material-tag {
+  background: #e6f3ff;
+  color: #1a73e8;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.material-footer {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f7fafc;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+}
+
+.material-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #718096;
+}
+
+.open-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4facfe;
+  font-weight: 600;
+}
+
+/* ==================== HOMEWORK CARDS ==================== */
+.homework-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  position: relative;
+}
+
+.homework-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.homework-card.overdue {
+  border-left: 5px solid #e53e3e;
+  background: linear-gradient(135deg, #fff 0%, #fef5f5 100%);
+}
+
+.homework-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.homework-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-assigned {
+  background: #e6fffa;
+  color: #38b2ac;
+}
+
+.status-assigned .status-indicator {
+  background: #38b2ac;
+}
+
+.status-submitted {
+  background: #fef5e7;
+  color: #d69e2e;
+}
+
+.status-submitted .status-indicator {
+  background: #d69e2e;
+}
+
+.status-completed {
+  background: #f0fff4;
+  color: #38a169;
+}
+
+.status-completed .status-indicator {
+  background: #38a169;
+}
+
+.status-overdue {
+  background: #fed7d7;
+  color: #e53e3e;
+}
+
+.status-overdue .status-indicator {
+  background: #e53e3e;
+}
+
+.homework-priority {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e53e3e;
+  font-weight: 600;
+  font-size: 0.75rem;
+  background: #fed7d7;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.homework-body {
+  padding: 1.5rem;
+}
+
+.homework-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.homework-description {
+  color: #718096;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.homework-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.meta-item i {
+  color: #a0aec0;
+  width: 16px;
+  flex-shrink: 0;
+}
+
+.meta-item.urgent {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+.meta-item.urgent i {
+  color: #e53e3e;
+}
+
+.days-remaining {
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.linked-materials {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.linked-materials h5 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.material-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.material-chip {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.teacher-feedback {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border-left: 4px solid #0ea5e9;
+}
+
+.teacher-feedback h5 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0369a1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feedback-content {
+  color: #0c4a6e;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.homework-footer {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f7fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.homework-grade {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grade-label {
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.grade-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.grade-value.good {
+  color: #38a169;
+}
+
+.grade-value.average {
+  color: #d69e2e;
+}
+
+.grade-value.poor {
+  color: #e53e3e;
+}
+
+.homework-actions {
+  display: flex;
+  align-items: center;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(79, 172, 254, 0.6);
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e0;
+  transform: translateY(-1px);
+}
+
+.status-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.status-text.completed {
+  color: #38a169;
+}
+
+.status-text.overdue {
+  color: #e53e3e;
+}
+
+/* ==================== EMPTY STATES ==================== */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #718096;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  color: #cbd5e0;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #4a5568;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+  .student-training-container {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    min-width: auto;
+  }
+
+  .clear-filters-btn {
+    align-self: stretch;
+  }
+
+  .main-tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tab-btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+
+  .materials-grid, .homework-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .homework-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .homework-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .homework-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .material-header, .homework-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .material-footer, .homework-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .homework-meta {
+    gap: 0.5rem;
+  }
+
+  .meta-item {
+    font-size: 0.8rem;
+  }
+} 

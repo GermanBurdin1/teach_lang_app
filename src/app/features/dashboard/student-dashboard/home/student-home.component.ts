@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
 import { NotificationService } from '../../../../services/notifications.service';
+import { NotificationService as MatNotificationService } from '../../../../services/notification.service';
 import { AuthService } from '../../../../services/auth.service';
 import { LessonSession } from '../../../../models/lesson-session.model';
 import { LessonService } from '../../../../services/lesson.service';
@@ -8,6 +9,7 @@ import { GoalsService } from '../../../../services/goals.service';
 import { StudentGoal, ExamLevel, CreateGoalDto } from '../../../../models/student-goal.model';
 import { Router } from '@angular/router';
 import { VideoCallService } from '../../../../services/video-call.service';
+import { TeacherService } from '../../../../services/teacher.service';
 
 @Component({
   selector: 'app-student-home',
@@ -58,11 +60,13 @@ export class StudentHomeComponent implements OnInit {
 
   constructor(
     private notificationService: NotificationService,
+    private matNotificationService: MatNotificationService,
     private authService: AuthService,
     private lessonService: LessonService,
     private goalsService: GoalsService,
     private router: Router,
-    private videoCallService: VideoCallService
+    private videoCallService: VideoCallService,
+    private teacherService: TeacherService
   ) { }
 
   ngOnInit(): void {
@@ -267,7 +271,7 @@ export class StudentHomeComponent implements OnInit {
       
       setTimeout(() => {
         console.log('✅ [MOCK] Урок отменен:', mockResponse);
-        alert(mockResponse.message);
+        this.matNotificationService.info(mockResponse.message);
         
         // Удаляем урок из календаря
         this.upcomingLessons = this.upcomingLessons.filter(
@@ -286,7 +290,7 @@ export class StudentHomeComponent implements OnInit {
         console.log('✅ Урок отменен:', response);
         
         // Показываем сообщение пользователю
-        alert(response.message || 'Урок успешно отменен');
+        this.matNotificationService.success(response.message || 'Урок успешно отменен');
         
         // Обновляем календарь
         const studentId = this.authService.getCurrentUser()?.id;
@@ -312,7 +316,7 @@ export class StudentHomeComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Ошибка при отмене урока:', error);
-        alert('Erreur lors de l\'annulation du cours: ' + (error.error?.message || error.message));
+        this.matNotificationService.error('Erreur lors de l\'annulation du cours: ' + (error.error?.message || error.message));
       }
     });
   }

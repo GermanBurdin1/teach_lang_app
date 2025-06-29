@@ -1,394 +1,679 @@
 <div class="trainer-container">
-  <h2>🎓 Тренажёр</h2>
-
-  <div class="trainer-tabs">
-    <button (click)="setActiveTab('audio')" [class.active]="activeTab === 'audio'">🎧 Аудирование</button>
-    <button (click)="setActiveTab('reading')" [class.active]="activeTab === 'reading'">📖 Чтение</button>
-    <button (click)="setActiveTab('writing')" [class.active]="activeTab === 'writing'">✍ Письмо</button>
-    <button (click)="setActiveTab('speaking')" [class.active]="activeTab === 'speaking'">🗣 Устная речь</button>
-    <button (click)="setActiveTab('grammar')" [class.active]="activeTab === 'grammar'">📚 Грамматика</button>
-    <button (click)="setActiveTab('exam')" [class.active]="activeTab === 'exam'">🎯 Экзамен</button>
+  <!-- Header -->
+  <div class="trainer-header">
+    <h1 class="page-title">
+      <i class="fas fa-graduation-cap"></i>
+      Centre d'entraînement
+    </h1>
+    <p class="page-subtitle">Gérez vos matériaux pédagogiques et devoirs</p>
   </div>
 
-  <!-- Аудирование -->
-  <div *ngIf="activeTab === 'audio'">
-    <h3>🎤 Аудирование</h3>
-
-    <div class="audio-tabs">
-      <button (click)="setAudioTask('dictation')" [class.active]="audioTask === 'dictation'">📝 Диктант</button>
-      <button (click)="setAudioTask('choice')" [class.active]="audioTask === 'choice'">✅ Выбор ответа</button>
-      <button (click)="setAudioTask('sequence')" [class.active]="audioTask === 'sequence'">🔄 Расстановка
-        событий</button>
-      <button (click)="setAudioTask('paraphrase')" [class.active]="audioTask === 'paraphrase'">✍
-        Перефразирование</button>
-      <button (click)="setAudioTask('intonation')" [class.active]="audioTask === 'intonation'">🎭 Интонация</button>
-    </div>
-
-    <audio controls>
-      <source src="{{ currentAudio }}" type="audio/mpeg">
-    </audio>
-
-    <!-- Диктант с пропусками -->
-    <div *ngIf="audioTask === 'dictation'">
-      <h4>📝 Диктант с пропусками</h4>
-      <p>{{ maskedText }}</p>
-      <input [(ngModel)]="userDictation" placeholder="Введите пропущенные слова..." />
-      <button (click)="checkDictation()">Проверить</button>
-      <p *ngIf="resultDictation">{{ resultDictation }}</p>
-    </div>
-
-    <!-- Выбор правильного ответа -->
-    <div *ngIf="audioTask === 'choice'">
-      <h4>✅ Выбор правильного ответа</h4>
-      <div *ngFor="let option of choiceOptions">
-        <button (click)="checkChoice(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="resultChoice">{{ resultChoice }}</p>
-    </div>
-
-    <!-- Расстановка событий -->
-    <div *ngIf="audioTask === 'sequence'">
-      <h4>🔄 Расстановка событий</h4>
-      <ul>
-        <li *ngFor="let event of shuffledEvents" (click)="reorder(event)">
-          {{ event }}
-        </li>
-      </ul>
-      <button (click)="checkSequence()">Проверить</button>
-      <p *ngIf="resultSequence">{{ resultSequence }}</p>
-    </div>
-
-    <!-- Перефразирование -->
-    <div *ngIf="audioTask === 'paraphrase'">
-      <h4>✍ Перефразирование</h4>
-      <textarea [(ngModel)]="paraphraseInput" placeholder="Передайте услышанное своими словами..."></textarea>
-      <button (click)="checkParaphrase()">Проверить</button>
-      <p *ngIf="resultParaphrase">{{ resultParaphrase }}</p>
-    </div>
-
-    <!-- Распознавание интонации -->
-    <div *ngIf="audioTask === 'intonation'">
-      <h4>🎭 Определение интонации</h4>
-      <p>Какое настроение у говорящего?</p>
-      <div>
-        <button (click)="checkIntonation('joy')">😊 Радость</button>
-        <button (click)="checkIntonation('anger')">😡 Гнев</button>
-        <button (click)="checkIntonation('sarcasm')">🤨 Сарказм</button>
-      </div>
-      <p *ngIf="resultIntonation">{{ resultIntonation }}</p>
-    </div>
+  <!-- Main Tabs -->
+  <div class="main-tabs">
+    <button 
+      class="tab-btn"
+      [class.active]="activeTab === 'materials'"
+      (click)="activeTab = 'materials'">
+      <i class="fas fa-folder-open"></i>
+      Matériaux
+    </button>
+    <button 
+      class="tab-btn"
+      [class.active]="activeTab === 'homework'"
+      (click)="activeTab = 'homework'">
+      <i class="fas fa-tasks"></i>
+      Devoirs
+    </button>
+    <button 
+      class="tab-btn"
+      [class.active]="activeTab === 'training'"
+      (click)="activeTab = 'training'">
+      <i class="fas fa-dumbbell"></i>
+      Entraînement
+    </button>
   </div>
 
-  <!-- Чтение -->
-  <div *ngIf="activeTab === 'reading'">
-    <h3>📖 Тренажёры для чтения</h3>
-
-    <div class="reading-tabs">
-      <button (click)="setReadingTask('matchTitle')" [class.active]="readingTask === 'matchTitle'">📌 Найди
-        соответствие</button>
-      <button (click)="setReadingTask('mainIdea')" [class.active]="readingTask === 'mainIdea'">💡 Смысловой
-        анализ</button>
-      <button (click)="setReadingTask('paraphrase')" [class.active]="readingTask === 'paraphrase'">✍
-        Перефразирование</button>
-      <button (click)="setReadingTask('argumentation')" [class.active]="readingTask === 'argumentation'">📊
-        Аргументация</button>
+  <!-- ==================== MATERIALS TAB ==================== -->
+  <div *ngIf="activeTab === 'materials'" class="tab-content materials-tab">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-book"></i>
+        <span *ngIf="isTeacher()">Mes Matériaux Pédagogiques</span>
+        <span *ngIf="isStudent()">Matériaux d'Apprentissage</span>
+      </h2>
+      <button 
+        class="btn btn-primary"
+        *ngIf="isTeacher() || (isStudent() && activeMaterialTab === 'own')"
+        (click)="showCreateMaterialForm = true">
+        <i class="fas fa-plus"></i>
+        Nouveau Matériau
+      </button>
     </div>
 
-    <!-- Найди соответствие -->
-    <div *ngIf="readingTask === 'matchTitle'">
-      <h4>📌 Найдите правильный заголовок</h4>
-      <p>{{ readingText }}</p>
-      <div *ngFor="let option of readingOptions">
-        <button (click)="checkReading(option)">{{ option }}</button>
+    <!-- Material Sub-tabs (only for students) -->
+    <div class="material-tabs" *ngIf="shouldShowMaterialTabs()">
+      <button 
+        class="material-tab-btn"
+        [class.active]="activeMaterialTab === 'own'"
+        (click)="setActiveMaterialTab('own')">
+        <i class="fas fa-user"></i>
+        Mes propres matériaux
+      </button>
+      <button 
+        class="material-tab-btn"
+        [class.active]="activeMaterialTab === 'teachers'"
+        (click)="setActiveMaterialTab('teachers')">
+        <i class="fas fa-chalkboard-teacher"></i>
+        Matériaux des professeurs
+      </button>
+    </div>
+
+    <!-- Create Material Form -->
+    <div *ngIf="showCreateMaterialForm" class="create-form-modal">
+      <div class="modal-overlay" (click)="clearMaterialForm()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-plus-circle"></i>
+            Créer un Nouveau Matériau
+          </h3>
+          <button class="close-btn" (click)="clearMaterialForm()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Titre du matériau</label>
+            <input 
+              type="text" 
+              [(ngModel)]="newMaterial.title"
+              placeholder="Ex: Grammaire - Le subjonctif"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Type de matériau</label>
+            <select [(ngModel)]="newMaterial.type" class="form-control">
+              <option value="text">📄 Texte</option>
+              <option value="audio">🎧 Audio</option>
+              <option value="video">🎬 Vidéo</option>
+              <option value="pdf">📋 PDF</option>
+              <option value="image">🖼️ Image</option>
+            </select>
+          </div>
+
+          <!-- File Upload for specific types -->
+          <div class="form-group" *ngIf="needsFileUpload()">
+            <label>Fichier à télécharger</label>
+            <div class="file-upload-container" 
+                 (dragover)="onDragOver($event)" 
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)"
+                 [class.drag-over]="isDragOver">
+              <input 
+                type="file" 
+                id="materialFile"
+                (change)="onFileSelected($event)"
+                [accept]="getAcceptedFileTypes()"
+                class="file-input">
+              <label for="materialFile" class="file-upload-label">
+                <div class="upload-content">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <div class="upload-text">
+                    <span *ngIf="!selectedFile" class="upload-main">Choisir un fichier</span>
+                    <span *ngIf="selectedFile" class="upload-main">{{ selectedFile.name }}</span>
+                    <small class="upload-hint">ou glissez-déposez ici</small>
+                  </div>
+                </div>
+              </label>
+            </div>
+            
+            <!-- File Preview -->
+            <div *ngIf="selectedFile && filePreview" class="file-preview">
+              <div class="preview-header">
+                <h5>Aperçu du fichier</h5>
+                <button type="button" class="remove-file-btn" (click)="removeSelectedFile()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="preview-content">
+                <img *ngIf="newMaterial.type === 'image'" [src]="filePreview" alt="Aperçu" class="image-preview">
+                <div *ngIf="newMaterial.type === 'pdf'" class="file-info">
+                  <i class="fas fa-file-pdf"></i>
+                  <span>{{ selectedFile.name }}</span>
+                  <small>{{ formatFileSize(selectedFile.size) }}</small>
+                </div>
+                <div *ngIf="newMaterial.type === 'audio'" class="file-info">
+                  <i class="fas fa-music"></i>
+                  <span>{{ selectedFile.name }}</span>
+                  <small>{{ formatFileSize(selectedFile.size) }}</small>
+                </div>
+                <div *ngIf="newMaterial.type === 'video'" class="file-info">
+                  <i class="fas fa-video"></i>
+                  <span>{{ selectedFile.name }}</span>
+                  <small>{{ formatFileSize(selectedFile.size) }}</small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Upload Progress -->
+            <div *ngIf="uploadingFile" class="upload-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+              </div>
+              <span class="progress-text">Téléchargement... {{ uploadProgress }}%</span>
+            </div>
+
+            <!-- File Size Warning -->
+            <div *ngIf="selectedFile && isFileTooLarge()" class="file-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Attention: Le fichier est volumineux ({{ formatFileSize(selectedFile.size) }})</span>
+            </div>
+          </div>
+
+          <!-- Text Content for text materials -->
+          <div class="form-group" *ngIf="newMaterial.type === 'text'">
+            <label>Contenu</label>
+            <textarea 
+              [(ngModel)]="newMaterial.content"
+              placeholder="Contenu du matériau..."
+              rows="6"
+              class="form-control"></textarea>
+          </div>
+
+          <!-- URL field for non-text materials without file upload -->
+          <div class="form-group" *ngIf="needsFileUpload() && !selectedFile">
+            <label>URL (optionnel)</label>
+            <input 
+              type="url"
+              [(ngModel)]="newMaterial.content"
+              placeholder="https://exemple.com/fichier.pdf"
+              class="form-control">
+            <small class="form-hint">Ou téléchargez un fichier ci-dessus</small>
+          </div>
+
+          <div class="form-group">
+            <label>Description (optionnel)</label>
+            <textarea 
+              [(ngModel)]="newMaterial.description"
+              placeholder="Description détaillée du matériau..."
+              rows="3"
+              class="form-control"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Tags</label>
+            <div class="tags-container">
+              <span 
+                *ngFor="let tag of newMaterial.tags; let i = index"
+                class="tag">
+                {{ tag }}
+                <button (click)="removeTag(i)" class="tag-remove">×</button>
+              </span>
+            </div>
+            <input 
+              type="text" 
+              placeholder="Appuyez sur Entrée pour ajouter un tag"
+              (keyup.enter)="addTag($event)"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="clearMaterialForm()">
+            Annuler
+          </button>
+          <button class="btn btn-primary" (click)="createMaterial()">
+            <i class="fas fa-save"></i>
+            Créer le Matériau
+          </button>
+        </div>
       </div>
-      <p *ngIf="readingResult">{{ readingResult }}</p>
     </div>
 
-    <!-- Смысловой анализ -->
-    <div *ngIf="readingTask === 'mainIdea'">
-      <h4>💡 Определите основную мысль</h4>
-      <p>{{ analysisText }}</p>
-      <div *ngFor="let option of analysisOptions">
-        <button (click)="checkMainIdea(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="analysisResult">{{ analysisResult }}</p>
-    </div>
+    <!-- Materials Grid -->
+    <div class="materials-grid">
+      <div 
+        *ngFor="let material of getCurrentMaterials()"
+        class="material-card"
+        [title]="getAttachedLessonsInfo(material)">
+        <div class="material-header">
+          <div class="material-type">
+            <span class="type-icon" [ngSwitch]="material.type">
+              <i *ngSwitchCase="'text'" class="fas fa-file-text"></i>
+              <i *ngSwitchCase="'audio'" class="fas fa-volume-up"></i>
+              <i *ngSwitchCase="'video'" class="fas fa-video"></i>
+              <i *ngSwitchCase="'pdf'" class="fas fa-file-pdf"></i>
+              <i *ngSwitchCase="'image'" class="fas fa-image"></i>
+            </span>
+            {{ material.type.toUpperCase() }}
+          </div>
+          <div class="material-actions">
+            <button 
+              class="action-btn attach-btn"
+              (click)="openAttachModal(material)"
+              title="Attacher au cours">
+              <i class="fas fa-link"></i>
+            </button>
+            <button class="action-btn delete-btn" title="Supprimer">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
 
-    <!-- Перефразирование -->
-    <div *ngIf="readingTask === 'paraphrase'">
-      <h4>✍ Перефразируйте предложение</h4>
-      <p>{{ paraphraseText }}</p>
-      <textarea [(ngModel)]="paraphraseReadingInput" placeholder="Напишите перефразированное предложение..."></textarea>
-      <button (click)="checkReadingParaphrase()">Проверить</button>
-      <p *ngIf="readingParaphraseResult">{{ readingParaphraseResult }}</p>
-    </div>
+        <div class="material-body">
+          <h4 class="material-title">{{ material.title }}</h4>
+          <p class="material-description" *ngIf="material.description">
+            {{ material.description }}
+          </p>
+          
+          <!-- Content Display Based on Type -->
+          <div class="material-content">
+            <!-- Audio Content -->
+            <div *ngIf="material.type === 'audio'" class="audio-content">
+              <audio controls #audioPlayer class="audio-player" [src]="material.content" preload="metadata">
+                Votre navigateur ne supporte pas l'élément audio.
+              </audio>
+              <div class="audio-info">
+                <i class="fas fa-volume-up"></i>
+                <span>Fichier audio prêt à écouter</span>
+                <small class="audio-debug">{{ getAudioDebugInfo(material) }}</small>
+              </div>
+              <div class="audio-controls">
+                <a [href]="material.content" [download]="material.title" class="audio-test-btn download-btn">
+                  <i class="fas fa-download"></i>
+                  Télécharger
+                </a>
+              </div>
+            </div>
 
-    <!-- Определение аргументации -->
-    <div *ngIf="readingTask === 'argumentation'">
-      <h4>📊 Определите тезисы и аргументы</h4>
-      <p>{{ argumentationText }}</p>
-      <p>Какова структура аргументации?</p>
-      <div *ngFor="let option of argumentationOptions">
-        <button (click)="checkArgumentation(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="argumentationResult">{{ argumentationResult }}</p>
-    </div>
-  </div>
+            <!-- Video Content -->
+            <div *ngIf="material.type === 'video'" class="video-content">
+              <video controls preload="metadata" class="video-player">
+                <source [src]="material.content" type="video/mp4">
+                <source [src]="material.content" type="video/webm">
+                <source [src]="material.content" type="video/ogg">
+                Votre navigateur ne supporte pas l'élément vidéo.
+              </video>
+              <div class="video-info">
+                <i class="fas fa-play-circle"></i>
+                <span>Vidéo prête à visionner</span>
+              </div>
+            </div>
 
-  <!-- Письмо -->
-  <div *ngIf="activeTab === 'writing'">
-    <h3>✍ Тренажёры для письма</h3>
+            <!-- Image Content -->
+            <div *ngIf="material.type === 'image'" class="image-content">
+              <img [src]="material.content" [alt]="material.title" class="material-image" 
+                   (error)="onImageError($event)">
+            </div>
 
-    <div class="writing-tabs">
-      <button (click)="setWritingTask('plan')" [class.active]="writingTask === 'plan'">📜 Составление плана</button>
-      <button (click)="setWritingTask('styleCheck')" [class.active]="writingTask === 'styleCheck'">🧐 Автопроверка
-        стиля</button>
-      <button (click)="setWritingTask('expressions')" [class.active]="writingTask === 'expressions'">💬 Тренажёр
-        выражений</button>
-      <button (click)="setWritingTask('topicGeneration')" [class.active]="writingTask === 'topicGeneration'">🎲
-        Генерация тем</button>
-      <button (click)="setWritingTask('errorCorrection')" [class.active]="writingTask === 'errorCorrection'">✅
-        Редактирование ошибок</button>
-    </div>
+            <!-- PDF Content -->
+            <div *ngIf="material.type === 'pdf'" class="pdf-content">
+              <div class="pdf-preview">
+                <i class="fas fa-file-pdf"></i>
+                <div class="pdf-info">
+                  <span class="pdf-name">Document PDF</span>
+                  <a [href]="material.content" target="_blank" class="pdf-link">
+                    <i class="fas fa-external-link-alt"></i>
+                    Ouvrir le PDF
+                  </a>
+                </div>
+              </div>
+            </div>
 
-    <!-- Составление плана -->
-    <div *ngIf="writingTask === 'plan'">
-      <h4>📜 Составьте план эссе</h4>
-      <textarea [(ngModel)]="essayPlan" placeholder="Introduction, développement, conclusion..."></textarea>
-      <button (click)="checkEssayPlan()">Проверить</button>
-      <p *ngIf="essayFeedback">{{ essayFeedback }}</p>
-    </div>
+            <!-- Text Content -->
+            <div *ngIf="material.type === 'text'" class="text-content">
+              <p class="content-preview">{{ material.content | slice:0:150 }}
+                <span *ngIf="material.content.length > 150">...</span>
+              </p>
+              <button *ngIf="material.content.length > 150" class="btn-link show-more" 
+                      (click)="showFullContent(material)">
+                <i class="fas fa-chevron-down"></i>
+                Voir plus
+              </button>
+            </div>
 
-    <!-- Автопроверка стиля -->
-    <div *ngIf="writingTask === 'styleCheck'">
-      <h4>🧐 Автопроверка стиля</h4>
-      <textarea [(ngModel)]="essayText" placeholder="Введите текст для анализа..."></textarea>
-      <button (click)="checkStyle()">Анализировать</button>
-      <p *ngIf="styleFeedback">{{ styleFeedback }}</p>
-    </div>
+            <!-- Fallback for unknown types -->
+            <div *ngIf="!['audio', 'video', 'image', 'pdf', 'text'].includes(material.type)" class="unknown-content">
+              <i class="fas fa-file"></i>
+              <span>Contenu disponible</span>
+              <a [href]="material.content" target="_blank" class="content-link">
+                Ouvrir
+              </a>
+            </div>
+          </div>
+          
+          <div class="material-tags" *ngIf="material.tags.length">
+            <span 
+              *ngFor="let tag of material.tags"
+              class="material-tag">
+              #{{ tag }}
+            </span>
+          </div>
+        </div>
 
-    <!-- Тренажёр выражений -->
-    <div *ngIf="writingTask === 'expressions'">
-      <h4>💬 Выберите правильное выражение</h4>
-      <p>{{ expressionSentence }}</p>
-      <div *ngFor="let option of expressionOptions">
-        <button (click)="checkExpression(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="expressionFeedback">{{ expressionFeedback }}</p>
-    </div>
-
-    <!-- Генерация тем -->
-    <div *ngIf="writingTask === 'topicGeneration'">
-      <h4>🎲 Случайная тема эссе</h4>
-      <p><strong>Тема:</strong> {{ generatedTopic }}</p>
-      <button (click)="generateTopic()">🔄 Генерировать новую тему</button>
-      <textarea [(ngModel)]="generatedEssayPlan" placeholder="Введите план эссе..."></textarea>
-      <button (click)="checkGeneratedPlan()">Проверить</button>
-      <p *ngIf="generatedPlanFeedback">{{ generatedPlanFeedback }}</p>
-    </div>
-
-    <!-- Редактирование ошибок -->
-    <div *ngIf="writingTask === 'errorCorrection'">
-      <h4>✅ Исправьте ошибки в тексте</h4>
-      <p>{{ incorrectSentence }}</p>
-      <textarea [(ngModel)]="correctedSentence" placeholder="Введите исправленный текст..."></textarea>
-      <button (click)="checkCorrection()">Проверить</button>
-      <p *ngIf="correctionFeedback">{{ correctionFeedback }}</p>
-    </div>
-  </div>
-
-  <!-- Устная речь -->
-  <div *ngIf="activeTab === 'speaking'">
-    <h3>🗣 Тренажёры устной речи</h3>
-
-    <div class="speaking-tabs">
-      <button (click)="setSpeakingTask('argumentation')" [class.active]="speakingTask === 'argumentation'">📢 Разбор
-        аргументации</button>
-      <button (click)="setSpeakingTask('improvTopics')" [class.active]="speakingTask === 'improvTopics'">🎭
-        Импровизация</button>
-      <button (click)="setSpeakingTask('translation')" [class.active]="speakingTask === 'translation'">🌍 Синхронный
-        перевод</button>
-      <button (click)="setSpeakingTask('dialogues')" [class.active]="speakingTask === 'dialogues'">💬 Разговорные
-        сценарии</button>
-      <button (click)="setSpeakingTask('intonation')" [class.active]="speakingTask === 'intonation'">🎤 Интонация и
-        акцент</button>
-    </div>
-
-    <!-- Разбор аргументации -->
-    <div *ngIf="speakingTask === 'argumentation'">
-      <h4>📢 Запишите голосовой ответ</h4>
-      <p><b>{{ speakingQuestion }}</b></p>
-      <button (click)="startRecording()">🎤 Записать</button>
-      <p *ngIf="recording">{{ recordingMessage }}</p>
-    </div>
-
-    <!-- Импровизированные темы -->
-    <div *ngIf="speakingTask === 'improvTopics'">
-      <h4>🎭 Импровизированная тема</h4>
-      <p><strong>Тема:</strong> {{ improvTopic }}</p>
-      <button (click)="generateImprovTopic()">🔄 Новая тема</button>
-      <p>У вас есть <b>60 секунд</b>, чтобы подготовиться.</p>
-      <button (click)="startImprovTimer()">⏳ Начать отсчёт</button>
-      <p *ngIf="improvTimer">{{ improvTimerMessage }}</p>
-    </div>
-
-    <!-- Синхронный перевод -->
-    <div *ngIf="speakingTask === 'translation'">
-      <h4>🌍 Переведите фразу</h4>
-      <p><i>{{ translationSentence }}</i></p>
-      <textarea [(ngModel)]="userTranslation" placeholder="Переведите здесь..."></textarea>
-      <button (click)="checkTranslation()">Проверить</button>
-      <p *ngIf="translationFeedback">{{ translationFeedback }}</p>
-    </div>
-
-    <!-- Разговорные сценарии -->
-    <div *ngIf="speakingTask === 'dialogues'">
-      <h4>💬 Выберите ответ в диалоге</h4>
-      <p>{{ dialoguePrompt }}</p>
-      <div *ngFor="let option of dialogueOptions">
-        <button (click)="checkDialogue(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="dialogueFeedback">{{ dialogueFeedback }}</p>
-    </div>
-
-    <!-- Интонация и акцент -->
-    <div *ngIf="speakingTask === 'intonation'">
-      <h4>🎤 Определите интонацию</h4>
-      <p>{{ intonationSentence }}</p>
-      <button (click)="checkIntonation('joy')">😊 Радость</button>
-      <button (click)="checkIntonation('anger')">😡 Гнев</button>
-      <button (click)="checkIntonation('sarcasm')">🤨 Сарказм</button>
-      <p *ngIf="intonationFeedback">{{ intonationFeedback }}</p>
-    </div>
-  </div>
-
-
-  <!-- Грамматика и лексика -->
-  <div *ngIf="activeTab === 'grammar'">
-    <h3>📚 Тренажёры по грамматике и лексике</h3>
-
-    <div class="grammar-tabs">
-      <button (click)="setGrammarTask('connectors')" [class.active]="grammarTask === 'connectors'">🔗 Связки</button>
-      <button (click)="setGrammarTask('sentenceBuilder')" [class.active]="grammarTask === 'sentenceBuilder'">📝
-        Конструктор предложений</button>
-      <button (click)="setGrammarTask('miniGames')" [class.active]="grammarTask === 'miniGames'">🎮 Мини-игры</button>
-      <button (click)="setGrammarTask('context')" [class.active]="grammarTask === 'context'">📖 Лексика в
-        контексте</button>
-      <button (click)="setGrammarTask('synonyms')" [class.active]="grammarTask === 'synonyms'">🔄 Синонимы и
-        антонимы</button>
-    </div>
-
-    <!-- Тренажёр соединений фраз -->
-    <div *ngIf="grammarTask === 'connectors'">
-      <h4>🔗 Выберите правильную логическую связку</h4>
-      <p>{{ sentenceWithBlank }}</p>
-      <div *ngFor="let option of connectorOptions">
-        <button (click)="checkConnector(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="connectorResult">{{ connectorResult }}</p>
-    </div>
-
-    <!-- Конструктор предложений -->
-    <div *ngIf="grammarTask === 'sentenceBuilder'">
-      <h4>📝 Соберите предложение</h4>
-      <p>Перетащите слова в правильном порядке:</p>
-      <ul>
-        <li *ngFor="let word of shuffledSentenceWords" (click)="reorderSentence(word)">
-          {{ word }}
-        </li>
-      </ul>
-      <button (click)="checkSentenceOrder()">Проверить</button>
-      <p *ngIf="sentenceOrderResult">{{ sentenceOrderResult }}</p>
-    </div>
-
-    <!-- Грамматические мини-игры -->
-    <div *ngIf="grammarTask === 'miniGames'">
-      <h4>🎮 Выберите правильную форму глагола</h4>
-      <p>{{ verbQuestion }}</p>
-      <div *ngFor="let option of verbOptions">
-        <button (click)="checkVerb(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="verbResult">{{ verbResult }}</p>
-    </div>
-
-    <!-- Контекстный тренажёр лексики -->
-    <div *ngIf="grammarTask === 'context'">
-      <h4>📖 Выберите подходящее слово</h4>
-      <p>{{ contextSentence }}</p>
-      <div *ngFor="let option of contextOptions">
-        <button (click)="checkContext(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="contextResult">{{ contextResult }}</p>
-    </div>
-
-    <!-- Синонимы и антонимы -->
-    <div *ngIf="grammarTask === 'synonyms'">
-      <h4>🔄 Подберите синоним</h4>
-      <p>{{ synonymQuestion }}</p>
-      <div *ngFor="let option of synonymOptions">
-        <button (click)="checkSynonym(option)">{{ option }}</button>
-      </div>
-      <p *ngIf="synonymResult">{{ synonymResult }}</p>
-    </div>
-  </div>
-
-
-  <!-- Экзамен -->
-  <div *ngIf="activeTab === 'exam'">
-    <h3>🎯 Симуляция экзамена</h3>
-    <button (click)="startExam()" *ngIf="!examStarted">📢 Начать экзамен</button>
-
-    <div *ngIf="examStarted">
-      <p><b>Экзамен начался! Выполните задания последовательно.</b></p>
-
-      <!-- Тест по аудированию -->
-      <div *ngIf="examStep === 'listening'">
-        <h4>🎧 Аудирование</h4>
-        <audio controls>
-          <source src="{{ examAudio }}" type="audio/mpeg">
-        </audio>
-        <p>Выберите правильный ответ:</p>
-        <div *ngFor="let option of listeningOptions">
-          <button (click)="checkListening(option)">{{ option }}</button>
+        <div class="material-footer">
+          <div class="material-meta">
+            <small class="created-by">
+              Par {{ material.createdByName }}
+            </small>
+            <small class="created-date">
+              {{ material.createdAt | date:'dd/MM/yyyy' }}
+            </small>
+          </div>
+          <div class="attached-lessons" *ngIf="material.attachedLessons.length">
+            <span class="lesson-count">
+              <i class="fas fa-paperclip"></i>
+              {{ material.attachedLessons.length }} cours
+            </span>
+          </div>
         </div>
       </div>
 
-      <!-- Тест по чтению -->
-      <div *ngIf="examStep === 'reading'">
-        <h4>📖 Чтение</h4>
-        <p>{{ examReadingText }}</p>
-        <p>Выберите правильный ответ:</p>
-        <div *ngFor="let option of readingOptions">
-          <button (click)="checkReading(option)">{{ option }}</button>
-        </div>
+      <!-- Empty States -->
+      <!-- Teacher Empty State (no sub-tabs) -->
+      <div *ngIf="isTeacher() && ownMaterials.length === 0" class="empty-state">
+        <i class="fas fa-chalkboard-teacher"></i>
+        <h3>Aucun matériau créé</h3>
+        <p>Créez votre premier matériau pédagogique pour vos étudiants</p>
+        <button 
+          class="btn btn-primary"
+          (click)="showCreateMaterialForm = true">
+          <i class="fas fa-plus"></i>
+          Créer un Matériau
+        </button>
       </div>
 
-      <!-- Письменное задание -->
-      <div *ngIf="examStep === 'writing'">
-        <h4>✍ Письмо</h4>
-        <p>Напишите текст по следующей теме:</p>
-        <p><b>{{ examWritingTopic }}</b></p>
-        <textarea [(ngModel)]="examWritingAnswer" placeholder="Введите ваш ответ..."></textarea>
-        <button (click)="checkWriting()">Проверить</button>
+      <!-- Student Empty States (with sub-tabs) -->
+      <!-- Own Materials Empty State -->
+      <div *ngIf="isStudent() && activeMaterialTab === 'own' && ownMaterials.length === 0" class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <h3>Aucun matériau créé</h3>
+        <p>Commencez par créer votre premier matériau personnel</p>
+        <button 
+          class="btn btn-primary"
+          (click)="showCreateMaterialForm = true">
+          <i class="fas fa-plus"></i>
+          Créer un Matériau
+        </button>
       </div>
 
-      <!-- Устная речь -->
-      <div *ngIf="examStep === 'speaking'">
-        <h4>🗣 Устная речь</h4>
-        <p>Запишите голосовой ответ на вопрос:</p>
-        <p><b>{{ examSpeakingQuestion }}</b></p>
-        <button (click)="startSpeakingExam()">🎤 Записать</button>
-        <p *ngIf="speakingRecording">{{ speakingRecordingMessage }}</p>
-      </div>
-
-      <!-- Итоговый результат -->
-      <div *ngIf="examStep === 'results'">
-        <h4>✅ Результаты экзамена</h4>
-        <p>🎯 Ваши баллы: <b>{{ examScore }}/100</b></p>
-        <p *ngIf="examFeedback">{{ examFeedback }}</p>
-        <button (click)="restartExam()">🔄 Пройти ещё раз</button>
+      <!-- Teacher Materials Empty State -->
+      <div *ngIf="isStudent() && activeMaterialTab === 'teachers' && teacherMaterials.length === 0" class="empty-state">
+        <i class="fas fa-graduation-cap"></i>
+        <h3>Aucun matériau de professeur</h3>
+        <p>Les matériaux partagés par vos professeurs apparaîtront ici</p>
       </div>
     </div>
   </div>
 
+  <!-- ==================== HOMEWORK TAB ==================== -->
+  <div *ngIf="activeTab === 'homework'" class="tab-content homework-tab">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-clipboard-list"></i>
+        Gestion des Devoirs
+      </h2>
+      <button 
+        class="btn btn-primary"
+        (click)="showCreateHomeworkForm = true">
+        <i class="fas fa-plus"></i>
+        Nouveau Devoir
+      </button>
+    </div>
+
+    <!-- Create Homework Form -->
+    <div *ngIf="showCreateHomeworkForm" class="create-form-modal">
+      <div class="modal-overlay" (click)="clearHomeworkForm()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-clipboard-list"></i>
+            Créer un Nouveau Devoir
+          </h3>
+          <button class="close-btn" (click)="clearHomeworkForm()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Titre du devoir</label>
+            <input 
+              type="text" 
+              [(ngModel)]="newHomework.title"
+              placeholder="Ex: Rédaction sur l'environnement"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea 
+              [(ngModel)]="newHomework.description"
+              placeholder="Instructions détaillées pour le devoir..."
+              rows="6"
+              class="form-control"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Date limite</label>
+            <input 
+              type="datetime-local" 
+              [(ngModel)]="newHomework.dueDate"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Matériaux associés (optionnel)</label>
+            <div class="materials-selector">
+              <div 
+                *ngFor="let material of materials"
+                class="material-option">
+                <label class="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    [value]="material.id"
+                    (change)="toggleMaterialForHomework(material.id, $event)">
+                  <span class="checkmark"></span>
+                  {{ material.title }}
+                  <small class="material-type-small">{{ material.type }}</small>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="clearHomeworkForm()">
+            Annuler
+          </button>
+          <button class="btn btn-primary" (click)="createHomework()">
+            <i class="fas fa-save"></i>
+            Créer le Devoir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Homework Grid -->
+    <div class="homework-grid">
+      <div 
+        *ngFor="let homework of homeworks"
+        class="homework-card">
+        <div class="homework-header">
+          <div class="homework-status" [ngClass]="'status-' + homework.status">
+            <span class="status-indicator"></span>
+            {{ getHomeworkStatusText(homework.status) }}
+          </div>
+          <div class="homework-actions">
+            <button class="action-btn edit-btn" title="Modifier">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn" title="Supprimer">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="homework-body">
+          <h4 class="homework-title">{{ homework.title }}</h4>
+          <p class="homework-description">{{ homework.description }}</p>
+          
+          <div class="homework-meta">
+            <div class="meta-item">
+              <i class="fas fa-user-graduate"></i>
+              <span>{{ homework.assignedToName }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-calendar"></i>
+              <span>Assigné le {{ homework.assignedAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-clock"></i>
+              <span>Échéance: {{ homework.dueDate | date:'dd/MM/yyyy à HH:mm' }}</span>
+            </div>
+          </div>
+
+          <div class="linked-materials" *ngIf="homework.materialIds.length">
+            <h5>
+              <i class="fas fa-paperclip"></i>
+              Matériaux liés
+            </h5>
+            <div class="material-chips">
+              <span 
+                *ngFor="let materialId of homework.materialIds"
+                class="material-chip">
+                {{ getMaterialTitle(materialId) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="homework-footer">
+          <div class="homework-grade" *ngIf="homework.grade">
+            <span class="grade-label">Note:</span>
+            <span class="grade-value">{{ homework.grade }}/20</span>
+          </div>
+          <div class="homework-feedback" *ngIf="homework.teacherFeedback">
+            <i class="fas fa-comment"></i>
+            Commentaire ajouté
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="homeworks.length === 0" class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <h3>Aucun devoir créé</h3>
+        <p>Commencez par créer votre premier devoir</p>
+        <button 
+          class="btn btn-primary"
+          (click)="showCreateHomeworkForm = true">
+          <i class="fas fa-plus"></i>
+          Créer un Devoir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TRAINING TAB ==================== -->
+  <div *ngIf="activeTab === 'training'" class="tab-content training-tab">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-dumbbell"></i>
+        Exercices d'Entraînement
+      </h2>
+      <p class="section-subtitle">Outils d'entraînement pour vos étudiants</p>
+    </div>
+
+    <!-- Training Sub-tabs -->
+    <div class="training-tabs">
+      <button 
+        class="training-tab-btn"
+        [class.active]="activeTrainingTab === 'audio'"
+        (click)="activeTrainingTab = 'audio'">
+        <i class="fas fa-headphones"></i>
+        Écoute
+      </button>
+      <button 
+        class="training-tab-btn"
+        [class.active]="activeTrainingTab === 'reading'"
+        (click)="activeTrainingTab = 'reading'">
+        <i class="fas fa-book-open"></i>
+        Lecture
+      </button>
+      <button 
+        class="training-tab-btn"
+        [class.active]="activeTrainingTab === 'writing'"
+        (click)="activeTrainingTab = 'writing'">
+        <i class="fas fa-pen"></i>
+        Écriture
+      </button>
+      <button 
+        class="training-tab-btn"
+        [class.active]="activeTrainingTab === 'speaking'"
+        (click)="activeTrainingTab = 'speaking'">
+        <i class="fas fa-microphone"></i>
+        Expression orale
+      </button>
+      <button 
+        class="training-tab-btn"
+        [class.active]="activeTrainingTab === 'grammar'"
+        (click)="activeTrainingTab = 'grammar'">
+        <i class="fas fa-language"></i>
+        Grammaire
+      </button>
+    </div>
+
+    <!-- Training Content -->
+    <div class="training-content">
+      <div class="coming-soon">
+        <i class="fas fa-tools"></i>
+        <h3>Fonctionnalité en développement</h3>
+        <p>Les exercices d'entraînement seront bientôt disponibles</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ATTACH MATERIAL MODAL ==================== -->
+  <div *ngIf="showAttachModal" class="attach-modal">
+    <div class="modal-overlay" (click)="closeAttachModal()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <i class="fas fa-link"></i>
+          Attacher "{{ selectedMaterial?.title }}" à un cours
+        </h3>
+        <button class="close-btn" (click)="closeAttachModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div *ngIf="availableLessons.length === 0" class="no-lessons">
+          <i class="fas fa-calendar-times"></i>
+          <p>Aucun cours disponible pour le moment</p>
+        </div>
+
+        <div class="lessons-list">
+          <div 
+            *ngFor="let lesson of availableLessons"
+            class="lesson-item"
+            (click)="attachMaterialToLesson(lesson.id)">
+            <div class="lesson-info">
+              <p>{{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
+              <p class="lesson-teacher" *ngIf="lesson.teacherName">
+                <i class="fas fa-chalkboard-teacher"></i>
+                Avec {{ lesson.teacherName }}
+              </p>
+            </div>
+            <div class="attach-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

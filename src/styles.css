@@ -1,1 +1,155 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* ==================== NOTIFICATION STYLES ==================== */
+
+/* Успешные уведомления (зеленые) */
+.notification-success {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3) !important;
+}
+
+.notification-success .mat-mdc-snack-bar-action {
+  color: white !important;
+  font-weight: 600 !important;
+  opacity: 0.9 !important;
+}
+
+.notification-success .mat-mdc-snack-bar-action:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+}
+
+/* Уведомления об ошибках (красные) */
+.notification-error {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(244, 67, 54, 0.3) !important;
+}
+
+.notification-error .mat-mdc-snack-bar-action {
+  color: white !important;
+  font-weight: 600 !important;
+  opacity: 0.9 !important;
+}
+
+.notification-error .mat-mdc-snack-bar-action:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+}
+
+/* Предупреждения (оранжевые) */
+.notification-warning {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(255, 152, 0, 0.3) !important;
+}
+
+.notification-warning .mat-mdc-snack-bar-action {
+  color: white !important;
+  font-weight: 600 !important;
+  opacity: 0.9 !important;
+}
+
+.notification-warning .mat-mdc-snack-bar-action:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+}
+
+/* Информационные уведомления (синие) */
+.notification-info {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3) !important;
+}
+
+.notification-info .mat-mdc-snack-bar-action {
+  color: white !important;
+  font-weight: 600 !important;
+  opacity: 0.9 !important;
+}
+
+.notification-info .mat-mdc-snack-bar-action:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+}
+
+/* Уведомления с действиями (фиолетовые) */
+.notification-action {
+  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(156, 39, 176, 0.3) !important;
+}
+
+.notification-action .mat-mdc-snack-bar-action {
+  color: white !important;
+  font-weight: 600 !important;
+  opacity: 0.9 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  margin-left: 12px !important;
+}
+
+.notification-action .mat-mdc-snack-bar-action:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Общие стили для всех уведомлений */
+.mat-mdc-snack-bar-container {
+  margin: 8px !important;
+  max-width: 400px !important;
+  min-width: 300px !important;
+}
+
+.mat-mdc-snack-bar-surface {
+  padding: 16px 20px !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.25px !important;
+}
+
+/* Анимация появления */
+.mat-mdc-snack-bar-container {
+  animation: slideInRight 0.3s ease-out !important;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+  .mat-mdc-snack-bar-container {
+    max-width: 95vw !important;
+    min-width: 280px !important;
+    margin: 8px !important;
+  }
+  
+  .mat-mdc-snack-bar-surface {
+    padding: 14px 16px !important;
+    font-size: 13px !important;
+  }
+}

@@ -70,6 +70,10 @@
               <mat-icon>quiz</mat-icon>
               {{ lesson.questions.length || 0 }} question(s)
             </span>
+            <span class="stat-item">
+              <mat-icon>folder</mat-icon>
+              {{ lesson.materials.length || 0 }} matériau(x)
+            </span>
           </div>
         </mat-card-content>
         <mat-card-actions>
@@ -187,8 +191,8 @@
             <mat-card *ngFor="let task of currentLesson.tasks; let i = index" 
                       class="task-card" 
                       [class.completed]="task.isCompleted"
-                      [class.student-task]="task.createdByRole === 'student'"
-                      [class.teacher-task]="task.createdByRole === 'teacher'">
+                      [class.student-task]="isOwnContent(task.createdBy)"
+                      [class.teacher-task]="!isOwnContent(task.createdBy)">
               <mat-card-header>
                 <mat-card-title>
                   <div class="task-header">
@@ -203,9 +207,9 @@
                   </div>
                 </mat-card-title>
                 <mat-card-subtitle>
-                  <span class="author-badge" [class.student-badge]="task.createdByRole === 'student'"
-                        [class.teacher-badge]="task.createdByRole === 'teacher'">
-                    {{ task.createdByRole === 'student' ? '👨‍🎓 Étudiant' : '👨‍🏫 Professeur' }}
+                  <span class="author-badge" [class.student-badge]="isOwnContent(task.createdBy)"
+                        [class.teacher-badge]="!isOwnContent(task.createdBy)">
+                    {{ getTaskAuthorDisplay(task) }}
                   </span>
                   <span class="date">{{ task.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
                 </mat-card-subtitle>
@@ -229,7 +233,7 @@
         </div>
       </mat-tab>
 
-      <!-- Vkладка: Вопросы -->
+      <!-- Vkladка: Вопросы -->
       <mat-tab label="❓ Mes questions">
         <div class="tab-content">
           <!-- Форма добавления вопроса -->
@@ -266,8 +270,8 @@
             <mat-card *ngFor="let question of currentLesson.questions; let i = index" 
                       class="question-card"
                       [class.answered]="question.isAnswered"
-                      [class.student-question]="question.createdByRole === 'student'"
-                      [class.teacher-question]="question.createdByRole === 'teacher'">
+                      [class.student-question]="isOwnContent(question.createdBy)"
+                      [class.teacher-question]="!isOwnContent(question.createdBy)">
               <mat-card-header>
                 <mat-card-title>
                   <div class="question-header">
@@ -282,9 +286,9 @@
                   </div>
                 </mat-card-title>
                 <mat-card-subtitle>
-                  <span class="author-badge" [class.student-badge]="question.createdByRole === 'student'"
-                        [class.teacher-badge]="question.createdByRole === 'teacher'">
-                    {{ question.createdByRole === 'student' ? '👨‍🎓 Étudiant' : '👨‍🏫 Professeur' }}
+                  <span class="author-badge" [class.student-badge]="isOwnContent(question.createdBy)"
+                        [class.teacher-badge]="!isOwnContent(question.createdBy)">
+                    {{ getQuestionAuthorDisplay(question) }}
                   </span>
                   <span class="date">{{ question.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
                 </mat-card-subtitle>
@@ -309,18 +313,112 @@
           </div>
         </div>
       </mat-tab>
+
+      <!-- Вкладка: Материалы -->
+      <mat-tab label="📁 Matériaux">
+        <div class="tab-content">
+          <!-- Заголовок с кнопкой обновления -->
+          <div class="materials-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0;">Matériaux du cours</h3>
+            <button mat-icon-button 
+                    color="primary" 
+                    (click)="reloadMaterialsForCurrentLesson()"
+                    matTooltip="Actualiser les matériaux"
+                    style="margin-left: auto;">
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+          
+          <!-- Список материалов -->
+          <div class="materials-list">
+            <mat-card *ngFor="let material of currentLesson.materials; let i = index" 
+                      class="material-card"
+                      [class.student-material]="isOwnContent(material.createdBy)"
+                      [class.teacher-material]="!isOwnContent(material.createdBy)">
+              <mat-card-header>
+                <mat-card-title>
+                  <div class="material-header">
+                    <span class="material-number">{{ i + 1 }}.</span>
+                    <mat-icon class="material-type-icon">
+                      {{ material.type === 'text' ? 'article' : 
+                         material.type === 'audio' ? 'audiotrack' :
+                         material.type === 'video' ? 'videocam' :
+                         material.type === 'pdf' ? 'picture_as_pdf' :
+                         material.type === 'image' ? 'image' : 'description' }}
+                    </mat-icon>
+                    <span class="material-title">{{ material.title }}</span>
+                    <span class="material-type-badge" [class]="'type-' + material.type">
+                      {{ material.type.toUpperCase() }}
+                    </span>
+                  </div>
+                </mat-card-title>
+                <mat-card-subtitle>
+                  <span class="author-badge" 
+                        [class.student-badge]="isOwnContent(material.createdBy)"
+                        [class.teacher-badge]="!isOwnContent(material.createdBy)">
+                    {{ getMaterialAuthorDisplay(material) }}
+                  </span>
+                  <span class="date">{{ material.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                </mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <p *ngIf="material.description" class="material-description">{{ material.description }}</p>
+                
+                <!-- Контент материала -->
+                <div class="material-content">
+                  <!-- Текстовый материал -->
+                  <div *ngIf="material.type === 'text'" class="text-content">
+                    <p>{{ material.content }}</p>
+                  </div>
+                  
+                  <!-- Аудио материал -->
+                  <div *ngIf="material.type === 'audio'" class="audio-content">
+                    <audio controls class="audio-player">
+                      <source [src]="material.content" type="audio/mpeg">
+                      <source [src]="material.content" type="audio/wav">
+                      Votre navigateur ne supporte pas l'élément audio.
+                    </audio>
+                  </div>
+                  
+                  <!-- Видео материал -->
+                  <div *ngIf="material.type === 'video'" class="video-content">
+                    <video controls class="video-player">
+                      <source [src]="material.content" type="video/mp4">
+                      <source [src]="material.content" type="video/webm">
+                      Votre navigateur ne supporte pas l'élément vidéo.
+                    </video>
+                  </div>
+                  
+                  <!-- PDF материал -->
+                  <div *ngIf="material.type === 'pdf'" class="pdf-content">
+                    <a [href]="material.content" target="_blank" mat-raised-button color="primary">
+                      <mat-icon>picture_as_pdf</mat-icon>
+                      Ouvrir le PDF
+                    </a>
+                  </div>
+                  
+                  <!-- Изображение -->
+                  <div *ngIf="material.type === 'image'" class="image-content">
+                    <img [src]="material.content" [alt]="material.title" class="material-image">
+                  </div>
+                </div>
+                
+                <!-- Теги -->
+                <div *ngIf="material.tags && material.tags.length > 0" class="material-tags">
+                  <span class="tag" *ngFor="let tag of material.tags">{{ tag }}</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Message si нет материалов -->
+          <div *ngIf="currentLesson.materials.length === 0" class="no-items">
+            <mat-icon>folder</mat-icon>
+            <p>Aucun matériau pour ce cours</p>
+            <small>Les matériaux attachés à ce cours apparaîtront ici</small>
+          </div>
+        </div>
+      </mat-tab>
     </mat-tab-group>
   </div>
-
-  <!-- Message если нет урока -->
-  <div *ngIf="!loading && !currentLesson" class="no-lesson">
-    <mat-icon>school</mat-icon>
-    <h3>Aucun cours sélectionné</h3>
-    <p>Cliquez sur un cours dans le calendrier pour commencer à ajouter des tâches et des questions.</p>
-  </div>
-
-
-
-
-
 </div>

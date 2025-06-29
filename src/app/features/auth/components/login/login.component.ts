@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../../services/auth.service';
 import { Router } from '@angular/router';
+import { NotificationService } from '../../../../services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -14,11 +15,14 @@ export class LoginComponent implements OnInit {
   emailChecked = false;
   showPassword = false;
 
+  email = '';
+  password = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit(): void {
@@ -75,7 +79,7 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
-          alert(err.error?.message || 'Identifiants incorrects');
+          this.notificationService.error(err.error?.message || 'Identifiants incorrects');
         }
       });
     }
