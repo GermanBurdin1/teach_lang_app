@@ -216,24 +216,40 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   loadLesson(lessonId: string): void {
     this.loading = true;
     
-    // Загружаем урок
-    this.lessonService.getLessonDetails(lessonId).subscribe({
-      next: (lesson) => {
-        this.currentLesson = lesson;
-        this.highlightedLessonId = lessonId;
-        
-        // Загружаем задачи и вопросы
-        this.loadTasksAndQuestions(lessonId);
-        
-        setTimeout(() => {
-          this.highlightedLessonId = null;
-        }, 5000);
-      },
-      error: (error) => {
-        console.error('Ошибка загрузки урока:', error);
-        this.loading = false;
-      }
-    });
+    // Сначала пытаемся найти урок в уже загруженном списке
+    const lessonInList = this.lessons.find(l => l.id === lessonId);
+    
+    if (lessonInList) {
+      // Если урок найден в списке, используем его (там уже есть studentName)
+      this.currentLesson = { ...lessonInList };
+      this.highlightedLessonId = lessonId;
+      
+      // Загружаем задачи, вопросы и материалы
+      this.loadTasksAndQuestions(lessonId);
+      
+      setTimeout(() => {
+        this.highlightedLessonId = null;
+      }, 5000);
+    } else {
+      // Если урока нет в списке, загружаем через API
+      this.lessonService.getLessonDetails(lessonId).subscribe({
+        next: (lesson) => {
+          this.currentLesson = lesson;
+          this.highlightedLessonId = lessonId;
+          
+          // Загружаем задачи и вопросы
+          this.loadTasksAndQuestions(lessonId);
+          
+          setTimeout(() => {
+            this.highlightedLessonId = null;
+          }, 5000);
+        },
+        error: (error) => {
+          console.error('Ошибка загрузки урока:', error);
+          this.loading = false;
+        }
+      });
+    }
   }
 
   // Загрузка задач, вопросов и материалов для урока
@@ -325,11 +341,19 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
         if (this.currentLesson) {
           this.currentLesson.tasks.push(newTask);
         }
+        
+        // ✅ ВАЖНО: Обновляем задачи и в списке уроков для счетчиков
+        const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
+        if (lessonInList) {
+          lessonInList.tasks.push(newTask);
+          console.log(`✅ Задача добавлена в список уроков. Новый счетчик: ${lessonInList.tasks.length}`);
+        }
+        
         this.clearTaskForm();
-        console.log('Задача добавлена студенту:', newTask);
+        console.log('✅ Задача добавлена студенту:', newTask);
       },
       error: (error) => {
-        console.error('Ошибка добавления задачи:', error);
+        console.error('❌ Ошибка добавления задачи:', error);
       }
     });
   }
