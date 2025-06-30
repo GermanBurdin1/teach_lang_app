@@ -6,6 +6,7 @@ import { MaterialService } from '../../../services/material.service';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call.service';
+import { LessonNotesService, LessonNote, LessonNotesData } from '../../../services/lesson-notes.service';
 import { Subscription } from 'rxjs';
 
 interface Task {
@@ -109,7 +110,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     private materialService: MaterialService,
     private route: ActivatedRoute,
     private router: Router,
-    private videoCallService: VideoCallService
+    private videoCallService: VideoCallService,
+    private lessonNotesService: LessonNotesService
   ) { }
 
   ngOnInit(): void {
@@ -239,8 +241,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
           this.currentLesson = lesson;
           this.highlightedLessonId = lessonId;
           
-          // Загружаем задачи и вопросы
-          this.loadTasksAndQuestions(lessonId);
+                // Загружаем задачи, вопросы, домашние задания и заметки
+      this.loadTasksAndQuestions(lessonId);
           
           setTimeout(() => {
             this.highlightedLessonId = null;
@@ -736,27 +738,83 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   loadLessonNotes(lessonId: string): Promise<any> {
     console.log('📝 Начинаем загрузку заметок для урока:', lessonId);
     
-    // Здесь должен быть вызов к сервису заметок
-    // Пока заглушка, можно реализовать позже
-    return Promise.resolve(null).then(() => {
+    const savedNotes = localStorage.getItem(`lesson_notes_${lessonId}`);
+    if (savedNotes) {
+      const notesData: LessonNotesData = JSON.parse(savedNotes);
+      console.log('📝 Загружен конспект для урока из localStorage:', lessonId, notesData);
+      
+      // Преобразуем данные из LessonNotesService в формат, ожидаемый HTML
+      this.lessonNotes = {
+        tasksNotes: this.extractStructuredNotes(notesData.tasks || []),
+        questionsNotes: this.extractStructuredNotes(notesData.questions || []),
+        materialsNotes: this.extractStructuredNotes(notesData.materials || []),
+        // Сохраняем старый формат для совместимости
+        tasksContent: this.extractNotesContent(notesData.tasks || []),
+        questionsContent: this.extractNotesContent(notesData.questions || []),
+        materialsContent: this.extractNotesContent(notesData.materials || [])
+      };
+      
+      console.log('📝 Конспект преобразован для отображения:', this.lessonNotes);
+    } else {
       this.lessonNotes = null;
-      console.log('📝 Заметки для урока (заглушка):', this.lessonNotes);
-      return null;
-    });
+      console.log('📝 Конспект не найден для урока:', lessonId);
+    }
+    
+    return Promise.resolve(this.lessonNotes);
+  }
+
+  // Извлекает содержимое заметок и объединяет их
+  private extractNotesContent(notes: LessonNote[]): string {
+    if (!notes || notes.length === 0) {
+      return '';
+    }
+    
+    return notes.map(note => {
+      if (note.content && note.content.trim()) {
+        return `${note.itemText}:\n${note.content}`;
+      }
+      return '';
+    }).filter(content => content.length > 0).join('\n\n');
+  }
+
+  // Новый метод для структурированных заметок
+  private extractStructuredNotes(notes: LessonNote[]): any[] {
+    if (!notes || notes.length === 0) {
+      return [];
+    }
+    
+    return notes.filter(note => note.content && note.content.trim()).map(note => ({
+      itemText: note.itemText,
+      content: note.content.trim(),
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt
+    }));
   }
 
   hasNotesForSection(section: 'tasks' | 'questions' | 'materials'): boolean {
     if (!this.lessonNotes) return false;
     
-    switch (section) {
-      case 'tasks':
-        return this.lessonNotes.tasksNotes && this.lessonNotes.tasksNotes.length > 0;
-      case 'questions':
-        return this.lessonNotes.questionsNotes && this.lessonNotes.questionsNotes.length > 0;
-      case 'materials':
-        return this.lessonNotes.materialsNotes && this.lessonNotes.materialsNotes.length > 0;
-      default:
-        return false;
+    const sectionNotes = this.lessonNotes[`${section}Notes`];
+    return sectionNotes && sectionNotes.length > 0;
+  }
+
+  // Дополнительные методы для проверки заметок
+  hasLessonNotes(lessonId: string): boolean {
+    const savedNotes = localStorage.getItem(`lesson_notes_${lessonId}`);
+    if (!savedNotes) return false;
+    
+    try {
+      const notesData: LessonNotesData = JSON.parse(savedNotes);
+      
+      // Проверяем, есть ли хотя бы одна заметка с содержимым
+      const hasTasks = notesData.tasks && notesData.tasks.some(note => note.content && note.content.trim());
+      const hasQuestions = notesData.questions && notesData.questions.some(note => note.content && note.content.trim());
+      const hasMaterials = notesData.materials && notesData.materials.some(note => note.content && note.content.trim());
+      
+      return hasTasks || hasQuestions || hasMaterials;
+    } catch (error) {
+      console.error('Ошибка при проверке конспекта:', error);
+      return false;
     }
   }
 }
