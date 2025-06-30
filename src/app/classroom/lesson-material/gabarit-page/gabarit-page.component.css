@@ -212,3 +212,10 @@
   box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
   transform: translateX(2px) translateY(-1px);
 }
+
+.action-item.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
