@@ -221,6 +221,10 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       
       // Преобразуем данные из LessonNotesService в формат, ожидаемый HTML
       this.lessonNotes = {
+        tasksNotes: this.extractStructuredNotes(notesData.tasks || []),
+        questionsNotes: this.extractStructuredNotes(notesData.questions || []),
+        materialsNotes: this.extractStructuredNotes(notesData.materials || []),
+        // Сохраняем старый формат для совместимости
         tasksContent: this.extractNotesContent(notesData.tasks || []),
         questionsContent: this.extractNotesContent(notesData.questions || []),
         materialsContent: this.extractNotesContent(notesData.materials || [])
@@ -247,6 +251,20 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     }).filter(content => content.length > 0).join('\n\n');
   }
 
+  // Новый метод для структурированных заметок
+  private extractStructuredNotes(notes: LessonNote[]): any[] {
+    if (!notes || notes.length === 0) {
+      return [];
+    }
+    
+    return notes.filter(note => note.content && note.content.trim()).map(note => ({
+      itemText: note.itemText,
+      content: note.content.trim(),
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt
+    }));
+  }
+
   // Проверка, есть ли домашние задания для урока
   hasHomeworkItems(lessonId: string): boolean {
     const savedHomework = localStorage.getItem(`homework_${lessonId}`);
@@ -271,6 +289,14 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       console.error('Ошибка при проверке конспекта:', error);
       return false;
     }
+  }
+
+  // Проверка наличия заметок для конкретного раздела
+  hasNotesForSection(section: 'tasks' | 'questions' | 'materials'): boolean {
+    if (!this.lessonNotes) return false;
+    
+    const sectionNotes = this.lessonNotes[`${section}Notes`];
+    return sectionNotes && sectionNotes.length > 0;
   }
 
   // Загрузка конкретного урока с задачами и вопросами

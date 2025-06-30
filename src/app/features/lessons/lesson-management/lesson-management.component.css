@@ -858,33 +858,12 @@
 }
 
 .homework-description {
-  margin: 0;
+  margin: 8px 0;
+  color: #555;
   line-height: 1.5;
-  color: #333;
 }
 
-/* Стили для конспектов */
-.notes-section-card {
-  margin-bottom: 20px;
-  border-left: 4px solid #673ab7;
-}
-
-.notes-section-card mat-card-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #673ab7;
-}
-
-.notes-content {
-  background-color: #f8f9fa;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+/* Устаревшие стили удалены для нового формата конспектов */
 
 /* Индикаторы в карточках уроков */
 .homework-indicator {
@@ -904,4 +883,172 @@
 
 .stat-item.notes-indicator {
   background-color: rgba(103, 58, 183, 0.1);
+}
+
+/* Стили для улучшенного отображения конспектов */
+.lesson-notes {
+  padding: 16px 0;
+}
+
+.notes-section {
+  margin-bottom: 32px;
+}
+
+.section-header-notes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.section-header-notes h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.section-header-notes .section-icon {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.notes-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.note-card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.note-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.note-card.task-note {
+  border-left-color: #2196F3;
+  background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%);
+}
+
+.note-card.question-note {
+  border-left-color: #FF9800;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFFFFF 100%);
+}
+
+.note-card.material-note {
+  border-left-color: #4CAF50;
+  background: linear-gradient(135deg, #E8F5E8 0%, #FFFFFF 100%);
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-number {
+  background: #6c63ff;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.note-item {
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  word-break: break-word;
+}
+
+.note-date {
+  color: #666;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.note-date::before {
+  content: '🕒';
+  font-size: 0.8rem;
+}
+
+.note-content {
+  color: #444;
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 8px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Адаптивность для конспектов */
+@media (max-width: 768px) {
+  .notes-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .section-header-notes {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .section-header-notes h3 {
+    font-size: 1.1rem;
+  }
+  
+  .notes-count {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+}
+
+/* Анимации для заметок */
+.note-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

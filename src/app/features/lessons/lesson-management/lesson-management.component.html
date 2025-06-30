@@ -484,51 +484,96 @@
       <!-- Вкладка: Конспект -->
       <mat-tab label="📝 Notes de cours">
         <div class="tab-content">
-          <div class="lesson-notes" *ngIf="lessonNotes && (lessonNotes.tasksContent || lessonNotes.questionsContent || lessonNotes.materialsContent)">
+          <div class="lesson-notes" *ngIf="lessonNotes && (hasNotesForSection('tasks') || hasNotesForSection('questions') || hasNotesForSection('materials'))">
             
             <!-- Раздел задач в конспекте -->
-            <mat-card *ngIf="lessonNotes.tasksContent" class="notes-section-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>assignment</mat-icon>
-                  Notes sur les tâches
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="notes-content">{{ lessonNotes.tasksContent }}</div>
-              </mat-card-content>
-            </mat-card>
+            <div *ngIf="hasNotesForSection('tasks')" class="notes-section">
+              <div class="section-header-notes">
+                <mat-icon class="section-icon">assignment</mat-icon>
+                <h3>📝 Notes sur les tâches</h3>
+                <span class="notes-count">({{ lessonNotes.tasksNotes.length }} note(s))</span>
+              </div>
+              
+              <div class="notes-grid">
+                <mat-card *ngFor="let note of lessonNotes.tasksNotes; let i = index" class="note-card task-note">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="note-header">
+                        <span class="note-number">{{ i + 1 }}.</span>
+                        <span class="note-item">{{ note.itemText }}</span>
+                      </div>
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                      <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="note-content">{{ note.content }}</div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
 
             <!-- Раздел вопросов в конспекте -->
-            <mat-card *ngIf="lessonNotes.questionsContent" class="notes-section-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>quiz</mat-icon>
-                  Notes sur les questions
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="notes-content">{{ lessonNotes.questionsContent }}</div>
-              </mat-card-content>
-            </mat-card>
+            <div *ngIf="hasNotesForSection('questions')" class="notes-section">
+              <div class="section-header-notes">
+                <mat-icon class="section-icon">quiz</mat-icon>
+                <h3>❓ Notes sur les questions</h3>
+                <span class="notes-count">({{ lessonNotes.questionsNotes.length }} note(s))</span>
+              </div>
+              
+              <div class="notes-grid">
+                <mat-card *ngFor="let note of lessonNotes.questionsNotes; let i = index" class="note-card question-note">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="note-header">
+                        <span class="note-number">{{ i + 1 }}.</span>
+                        <span class="note-item">{{ note.itemText }}</span>
+                      </div>
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                      <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="note-content">{{ note.content }}</div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
 
             <!-- Раздел материалов в конспекте -->
-            <mat-card *ngIf="lessonNotes.materialsContent" class="notes-section-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>folder</mat-icon>
-                  Notes sur les matériaux
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="notes-content">{{ lessonNotes.materialsContent }}</div>
-              </mat-card-content>
-            </mat-card>
+            <div *ngIf="hasNotesForSection('materials')" class="notes-section">
+              <div class="section-header-notes">
+                <mat-icon class="section-icon">folder</mat-icon>
+                <h3>📚 Notes sur les matériaux</h3>
+                <span class="notes-count">({{ lessonNotes.materialsNotes.length }} note(s))</span>
+              </div>
+              
+              <div class="notes-grid">
+                <mat-card *ngFor="let note of lessonNotes.materialsNotes; let i = index" class="note-card material-note">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="note-header">
+                        <span class="note-number">{{ i + 1 }}.</span>
+                        <span class="note-item">{{ note.itemText }}</span>
+                      </div>
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                      <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="note-content">{{ note.content }}</div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
 
           </div>
 
           <!-- Message si нет конспекта -->
-          <div *ngIf="!lessonNotes || (!lessonNotes.tasksContent && !lessonNotes.questionsContent && !lessonNotes.materialsContent)" class="no-items">
+          <div *ngIf="!lessonNotes || (!hasNotesForSection('tasks') && !hasNotesForSection('questions') && !hasNotesForSection('materials'))" class="no-items">
             <mat-icon>note_alt</mat-icon>
             <p>Aucune note pour ce cours</p>
             <small>Les notes prises pendant le cours apparaîtront ici</small>
