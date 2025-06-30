@@ -8,6 +8,7 @@ import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angu
 export class GabaritPageComponent implements OnInit, OnDestroy {
   @Input() lesson: any;
   @Input() readonly = true;
+  @Input() lessonStarted = false;
 
   // События для родительского компонента
   @Output() openNotesEvent = new EventEmitter<{section: 'materials', itemId: string, itemText: string}>();

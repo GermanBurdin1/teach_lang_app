@@ -32,6 +32,7 @@
       <app-gabarit-page *ngIf="showGabarit" 
                         [lesson]="currentLesson" 
                         [readonly]="true"
+                        [lessonStarted]="lessonStarted"
                         (openNotesEvent)="onGabaritOpenNotes($event)"
                         (addToHomeworkEvent)="onGabaritAddToHomework($event)">
       </app-gabarit-page>
@@ -99,10 +100,10 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" (click)="openNotes('tasks', task, task)">
+                <div class="action-item primary" (click)="lessonStarted && openNotes('tasks', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📝 Travailler la tâche
                 </div>
-                <div class="action-item secondary" (click)="addToHomework('task', task, task)">
+                <div class="action-item secondary" (click)="lessonStarted && addToHomework('task', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📋 Ajouter aux devoirs
                 </div>
                 <!-- Закомментированные действия для будущей реализации -->
@@ -136,10 +137,10 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" (click)="openNotes('questions', question, question)">
+                <div class="action-item primary" (click)="lessonStarted && openNotes('questions', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   ❓ Travailler la question
                 </div>
-                <div class="action-item secondary" (click)="addToHomework('question', question, question)">
+                <div class="action-item secondary" (click)="lessonStarted && addToHomework('question', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📋 Ajouter aux devoirs
                 </div>
                 <!-- Закомментированные действия для будущей реализации -->
@@ -200,10 +201,10 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" (click)="openNotes('tasks', task, task)">
+                <div class="action-item primary" (click)="lessonStarted && openNotes('tasks', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📝 Travailler la tâche
                 </div>
-                <div class="action-item secondary" (click)="addToHomework('task', task, task)">
+                <div class="action-item secondary" (click)="lessonStarted && addToHomework('task', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📋 Ajouter aux devoirs
                 </div>
                 <!-- Закомментированные действия для будущей реализации -->
@@ -237,10 +238,10 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" (click)="openNotes('questions', question, question)">
+                <div class="action-item primary" (click)="lessonStarted && openNotes('questions', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   ❓ Travailler la question
                 </div>
-                <div class="action-item secondary" (click)="addToHomework('question', question, question)">
+                <div class="action-item secondary" (click)="lessonStarted && addToHomework('question', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📋 Ajouter aux devoirs
                 </div>
                 <!-- Закомментированные действия для будущей реализации -->
@@ -259,5 +260,15 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Кнопка старта урока -->
+  <div class="text-center my-3">
+    <button *ngIf="!lessonStarted" (click)="startLesson()" class="btn btn-success btn-lg">
+      ▶️ Démarrer la session
+    </button>
+    <div *ngIf="lessonStarted" class="lesson-timer alert alert-info mt-2">
+      ⏳ Temps restant: {{ countdown }} sec
+    </div>
   </div>
 </div>

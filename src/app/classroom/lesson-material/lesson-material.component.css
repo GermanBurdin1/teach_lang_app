@@ -708,6 +708,13 @@ body {
   color: white;
 }
 
+.action-item.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
+
 /* Стили для домашних заданий */
 .homework-list {
   margin-top: 8px;

@@ -51,6 +51,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private hideTimeout: any = null;
   private isHoveringActions = false;
 
+  lessonStarted = false;
+  countdown = 180; // 3 минуты
+  private countdownInterval: any = null;
+
   constructor(
     private backgroundService: BackgroundService, 
     public lessonTabsService: LessonTabsService, 
@@ -186,6 +190,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     if (this.hideTimeout) {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
+    }
+
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
     }
 
     // ❌ НЕ СБРАСЫВАЕМ ВИДЕО, ЧТОБЫ ОНО НЕ ПРОПАДАЛО
@@ -665,4 +673,16 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   // Force recompilation - angular cache fix
+
+  startLesson() {
+    this.lessonStarted = true;
+    this.countdown = 180;
+    this.countdownInterval = setInterval(() => {
+      if (this.countdown > 0) {
+        this.countdown--;
+      } else {
+        clearInterval(this.countdownInterval);
+      }
+    }, 1000);
+  }
 }

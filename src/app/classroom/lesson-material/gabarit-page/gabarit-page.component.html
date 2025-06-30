@@ -22,10 +22,10 @@
         'drop-above': hoveredPosition === 'above',
         'drop-below': hoveredPosition === 'below'
       }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-        <div class="action-item primary" (click)="openNotes(getMaterialId(t), getMaterialTitle(t))">
+        <div class="action-item primary" (click)="lessonStarted && openNotes(getMaterialId(t), getMaterialTitle(t))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📚 Travailler le matériel
         </div>
-        <div class="action-item secondary" (click)="addToHomework('text', getMaterialTitle(t), getMaterialId(t))">
+        <div class="action-item secondary" (click)="lessonStarted && addToHomework('text', getMaterialTitle(t), getMaterialId(t))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📋 Ajouter aux devoirs
         </div>
       </div>
@@ -83,10 +83,10 @@
         'drop-above': hoveredPosition === 'above',
         'drop-below': hoveredPosition === 'below'
       }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-        <div class="action-item primary" (click)="openNotes(getMaterialId(a), getMaterialTitle(a))">
+        <div class="action-item primary" (click)="lessonStarted && openNotes(getMaterialId(a), getMaterialTitle(a))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📚 Travailler le matériel
         </div>
-        <div class="action-item secondary" (click)="addToHomework('audio', getMaterialTitle(a), getMaterialId(a))">
+        <div class="action-item secondary" (click)="lessonStarted && addToHomework('audio', getMaterialTitle(a), getMaterialId(a))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📋 Ajouter aux devoirs
         </div>
       </div>
@@ -144,10 +144,10 @@
         'drop-above': hoveredPosition === 'above',
         'drop-below': hoveredPosition === 'below'
       }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-        <div class="action-item primary" (click)="openNotes(getMaterialId(v), getMaterialTitle(v))">
+        <div class="action-item primary" (click)="lessonStarted && openNotes(getMaterialId(v), getMaterialTitle(v))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📚 Travailler le matériel
         </div>
-        <div class="action-item secondary" (click)="addToHomework('video', getMaterialTitle(v), getMaterialId(v))">
+        <div class="action-item secondary" (click)="lessonStarted && addToHomework('video', getMaterialTitle(v), getMaterialId(v))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📋 Ajouter aux devoirs
         </div>
       </div>
