@@ -496,9 +496,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         // Создаем домашнее задание через обновленный сервис
         const homeworkData = {
           lessonId: lessonId,
-          title: result.title,
-          description: result.description,
-          dueDate: new Date(result.dueDate),
+          title: result.title || title,
+          description: result.description || '',
+          dueDate: result.dueDate ? new Date(result.dueDate) : new Date(),
           assignedBy: currentUser.id,
           assignedTo: this.currentLesson?.studentId || currentUser.id,
           sourceType: type,
@@ -513,16 +513,16 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
             
             // Добавляем в локальный массив для немедленного отображения
             const homeworkItem = {
-              id: homework.id,
+              id: homework.id || Date.now().toString(),
               type,
-              title: homework.title,
-              description: homework.description,
-              dueDate: homework.dueDate,
-              status: homework.status,
+              title: homework.title || title,
+              description: homework.description || '',
+              dueDate: homework.dueDate || new Date().toISOString(),
+              status: homework.status || 'unfinished',
               itemId,
-              createdAt: homework.assignedAt.toString(),
-              lessonId: homework.lessonId,
-              createdInClass: homework.createdInClass
+              createdAt: homework.assignedAt ? homework.assignedAt.toString() : new Date().toISOString(),
+              lessonId: homework.lessonId || lessonId,
+              createdInClass: homework.createdInClass !== undefined ? homework.createdInClass : true
             };
             
             this.homeworkItems.push(homeworkItem);
@@ -541,22 +541,22 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
             console.error('❌ Ошибка создания домашнего задания:', error);
             
             // Fallback: сохраняем локально если сервер недоступен
-        const homeworkItem = {
-          id: Date.now().toString(),
-          type,
-          title: result.title,
-          description: result.description,
-          dueDate: result.dueDate,
-          status: 'unfinished',
-          itemId,
-          createdAt: new Date().toISOString(),
+            const homeworkItem = {
+              id: Date.now().toString(),
+              type,
+              title: result.title || title,
+              description: result.description || '',
+              dueDate: result.dueDate || new Date().toISOString(),
+              status: 'unfinished',
+              itemId,
+              createdAt: new Date().toISOString(),
               lessonId: lessonId,
               createdInClass: true
-        };
-        
-        this.homeworkItems.push(homeworkItem);
-          this.coveredInClass.add(itemId);
-        this.saveHomeworkItems();
+            };
+            
+            this.homeworkItems.push(homeworkItem);
+            this.coveredInClass.add(itemId);
+            this.saveHomeworkItems();
           }
         });
       }
