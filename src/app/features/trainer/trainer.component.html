@@ -465,6 +465,20 @@
           </div>
 
           <div class="form-group">
+            <label>Cours associé</label>
+            <select 
+              [(ngModel)]="newHomework.lessonId"
+              class="form-control">
+              <option value="">Sélectionnez un cours</option>
+              <option 
+                *ngFor="let lesson of availableLessons" 
+                [value]="lesson.id">
+                {{ lesson.teacherName || lesson.studentName }} - {{ lesson.scheduledAt | date:'dd/MM/yyyy HH:mm' }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label>Matériaux associés (optionnel)</label>
             <div class="materials-selector">
               <div 

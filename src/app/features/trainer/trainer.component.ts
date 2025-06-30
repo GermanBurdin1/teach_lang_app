@@ -46,7 +46,8 @@ export class TrainerComponent implements OnInit {
     title: '',
     description: '',
     dueDate: new Date(),
-    materialIds: [] as string[]
+    materialIds: [] as string[],
+    lessonId: ''
   };
   
   // Lesson selection for material attachment
@@ -298,11 +299,45 @@ export class TrainerComponent implements OnInit {
   }
 
   loadHomeworks() {
-    if (this.currentUser?.id) {
-      this.homeworkService.getHomeworkForTeacher(this.currentUser.id).subscribe(homeworks => {
-        this.homeworks = homeworks;
-      });
+    console.log('🔍 Chargement des devoirs', this.currentUser?.id);
+    if (!this.currentUser?.id) {
+      console.error('❌ User not authenticated');
+      return;
     }
+
+    console.log('👤 Current user:', {
+      id: this.currentUser.id,
+      role: this.currentUser.role,
+      isTeacher: this.isTeacher()
+    });
+
+    const loadMethod = this.isTeacher() 
+      ? this.homeworkService.getHomeworkForTeacher(this.currentUser.id)
+      : this.homeworkService.getHomeworkForStudent(this.currentUser.id);
+
+    console.log('🔄 Starting homework load for', this.isTeacher() ? 'teacher' : 'student');
+
+    loadMethod.subscribe({
+      next: (homeworks) => {
+        console.log('✅ Homeworks loaded successfully:', {
+          count: homeworks.length,
+          homeworks: homeworks
+        });
+        this.homeworks = homeworks;
+      },
+      error: (error) => {
+        console.error('❌ Error loading homeworks:', {
+          error,
+          userId: this.currentUser?.id,
+          role: this.currentUser?.role,
+          isTeacher: this.isTeacher(),
+          status: error.status,
+          url: error.url
+        });
+        this.notificationService.error('Erreur lors du chargement des devoirs');
+        this.homeworks = []; // Set empty array on error
+      }
+    });
   }
 
   loadAvailableLessons() {
@@ -591,8 +626,76 @@ export class TrainerComponent implements OnInit {
   // ==================== HOMEWORK SECTION ====================
 
   createHomework() {
-    if (!this.newHomework.title.trim() || !this.newHomework.description.trim()) return;
-    console.log('📚 Création de devoir:', this.newHomework);
+    console.log('🔍 Création de devoir - DÉBUT');
+    
+    console.log('📝 Données actuelles:', {
+      title: this.newHomework.title,
+      description: this.newHomework.description,
+      lessonId: this.newHomework.lessonId,
+      dueDate: this.newHomework.dueDate
+    });
+
+    if (!this.newHomework.title.trim() || !this.newHomework.description.trim()) {
+      console.log('❌ Titre ou description vide');
+      return;
+    }
+    console.log('✅ Titre et description OK');
+
+    if (!this.newHomework.lessonId) {
+      console.log('❌ Aucun cours sélectionné');
+      this.notificationService.error('Veuillez sélectionner un cours');
+      return;
+    }
+    console.log('✅ Cours sélectionné:', this.newHomework.lessonId);
+
+    if (!this.currentUser?.id) {
+      console.log('❌ Utilisateur non authentifié');
+      this.notificationService.error('Utilisateur non authentifié');
+      return;
+    }
+    console.log('✅ Utilisateur authentifié:', this.currentUser.id);
+
+    console.log('🔍 Recherche du cours dans availableLessons:', {
+      lessonId: this.newHomework.lessonId,
+      availableLessons: this.availableLessons
+    });
+
+    // Obtenir l'étudiant du cours sélectionné
+    const selectedLesson = this.availableLessons.find(lesson => lesson.id === this.newHomework.lessonId);
+    if (!selectedLesson) {
+      console.log('❌ Cours sélectionné non trouvé dans availableLessons');
+      this.notificationService.error('Cours sélectionné non trouvé');
+      return;
+    }
+    console.log('✅ Cours trouvé:', selectedLesson);
+
+    const homeworkData = {
+      title: this.newHomework.title,
+      description: this.newHomework.description,
+      dueDate: this.newHomework.dueDate,
+      assignedBy: this.currentUser.id,
+      assignedTo: this.isTeacher() ? selectedLesson.studentId : selectedLesson.teacherId,
+      lessonId: this.newHomework.lessonId,
+      materialIds: this.newHomework.materialIds
+    };
+
+    console.log('📚 Préparation des données du devoir:', homeworkData);
+    console.log('🚀 Appel du service createHomeworkFromTraining...');
+
+    this.homeworkService.createHomeworkFromTraining(homeworkData).subscribe({
+      next: (homework) => {
+        console.log('✅ Devoir créé avec succès:', homework);
+        this.notificationService.success('Devoir créé avec succès');
+        this.clearHomeworkForm();
+        this.loadHomeworks(); // Recharger la liste
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la création du devoir:', error);
+        this.notificationService.error('Erreur lors de la création du devoir');
+      }
+    });
+    
+    console.log('🔍 Création de devoir - FIN (méthode appelée)');
   }
 
   clearHomeworkForm() {
@@ -600,7 +703,8 @@ export class TrainerComponent implements OnInit {
       title: '',
       description: '',
       dueDate: new Date(),
-      materialIds: []
+      materialIds: [],
+      lessonId: ''
     };
     this.showCreateHomeworkForm = false;
   }

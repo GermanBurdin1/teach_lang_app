@@ -259,7 +259,8 @@ export class HomeworkService {
       title: data.title,
       description: data.description,
       dueDate: data.dueDate,
-      itemType: 'manual' as const,
+      itemType: 'task' as const, // Используем 'task' вместо 'manual' 
+      originalItemId: null, // Для ручного создания не связываем с конкретным элементом
       createdBy: data.assignedBy,
       createdByRole: 'teacher' as const
     };
