@@ -128,12 +128,22 @@ export class HomeworkService {
 
   // Получение домашних заданий для студента
   getHomeworkForStudent(studentId: string): Observable<Homework[]> {
-    return this.http.get<Homework[]>(`${this.baseUrl}/student/${studentId}/homework`);
+    const url = `${this.baseUrl}/student/${studentId}/homework`;
+    console.log(`📋 [FRONTEND SERVICE] Отправляем запрос студента на: ${url}`);
+    console.log(`📋 [FRONTEND SERVICE] baseUrl: ${this.baseUrl}`);
+    console.log(`📋 [FRONTEND SERVICE] studentId: ${studentId}`);
+    
+    return this.http.get<Homework[]>(url);
   }
 
   // Получение домашних заданий для преподавателя
   getHomeworkForTeacher(teacherId: string): Observable<Homework[]> {
-    return this.http.get<Homework[]>(`${this.baseUrl}/teacher/${teacherId}/homework`);
+    const url = `${this.baseUrl}/teacher/${teacherId}/homework`;
+    console.log(`📋 [FRONTEND SERVICE] Отправляем запрос на: ${url}`);
+    console.log(`📋 [FRONTEND SERVICE] baseUrl: ${this.baseUrl}`);
+    console.log(`📋 [FRONTEND SERVICE] teacherId: ${teacherId}`);
+    
+    return this.http.get<Homework[]>(url);
   }
 
   // Создание домашнего задания

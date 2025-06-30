@@ -84,7 +84,9 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   newTaskTitle = '';
   newTaskDescription = '';
   
-  // Материалы (убираем управление вопросами для преподавателя)
+  // Домашние задания и заметки
+  homeworkItems: any[] = [];
+  lessonNotes: any = null;
   
   // Загрузка
   loading = false;
@@ -252,13 +254,15 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Загрузка задач, вопросов и материалов для урока
+  // Загрузка задач, вопросов, материалов, домашних заданий и заметок для урока
   loadTasksAndQuestions(lessonId: string): void {
     Promise.all([
       this.lessonService.getTasksForLesson(lessonId).toPromise(),
       this.lessonService.getQuestionsForLesson(lessonId).toPromise(),
-      this.getMaterialsForLesson(lessonId)
-    ]).then(([tasks, questions, materials]) => {
+      this.getMaterialsForLesson(lessonId),
+      this.loadHomeworkItems(lessonId),
+      this.loadLessonNotes(lessonId)
+    ]).then(([tasks, questions, materials, homeworkItems, lessonNotes]) => {
       if (this.currentLesson) {
         this.currentLesson.tasks = tasks || [];
         this.currentLesson.questions = questions || [];
@@ -445,13 +449,13 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
       // À venir: ТОЛЬКО предстоящие уроки по времени
       const isFutureTime = lessonDate > now;
       
-      console.log(`🔍 Teacher Фильтр Future для урока ${lesson.id}:`, {
-        lessonDate: lessonDate.toISOString(),
-        now: now.toISOString(), 
-        status: lesson.status,
-        isFutureTime,
-        studentName: lesson.studentName
-      });
+      // console.log(`🔍 Teacher Фильтр Future для урока ${lesson.id}:`, {
+      //   lessonDate: lessonDate.toISOString(),
+      //   now: now.toISOString(), 
+      //   status: lesson.status,
+      //   isFutureTime,
+      //   studentName: lesson.studentName
+      // });
       
       if (!isFutureTime) return false;
     } else if (this.filter === 'past') {
@@ -683,5 +687,76 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   isOwnContent(createdBy: string): boolean {
     const currentUserId = this.authService.getCurrentUser()?.id;
     return createdBy === currentUserId;
+  }
+
+  // ==================== МЕТОДЫ ДЛЯ ДОМАШНИХ ЗАДАНИЙ ====================
+  
+  loadHomeworkItems(lessonId: string): Promise<any[]> {
+    console.log('📋 Начинаем загрузку домашних заданий для урока:', lessonId);
+    
+    return this.homeworkService.getHomeworkForLesson(lessonId).toPromise().then(
+      (homeworkFromDB) => {
+        console.log('📋 Домашние задания загружены из БД:', homeworkFromDB);
+        
+        if (!homeworkFromDB) {
+          this.homeworkItems = [];
+          return [];
+        }
+        
+        // Преобразуем в формат для отображения
+        const homeworkItems = homeworkFromDB.map(homework => ({
+          id: homework.id,
+          sourceType: homework.sourceType || 'task',
+          title: homework.title,
+          description: homework.description,
+          dueDate: homework.dueDate,
+          status: homework.status === 'assigned' ? 'unfinished' : homework.status,
+          itemId: homework.sourceItemId,
+          createdAt: homework.assignedAt,
+          lessonId: homework.lessonId,
+          createdInClass: homework.createdInClass,
+          sourceItemText: homework.sourceItemText,
+          grade: homework.grade,
+          teacherFeedback: homework.teacherFeedback
+        }));
+        
+        this.homeworkItems = homeworkItems;
+        console.log('📋 Домашние задания установлены:', this.homeworkItems);
+        return homeworkItems;
+      }
+    ).catch(error => {
+      console.warn('⚠️ Ошибка загрузки домашних заданий из БД:', error);
+      this.homeworkItems = [];
+      return [];
+    });
+  }
+
+  // ==================== МЕТОДЫ ДЛЯ ЗАМЕТОК ====================
+  
+  loadLessonNotes(lessonId: string): Promise<any> {
+    console.log('📝 Начинаем загрузку заметок для урока:', lessonId);
+    
+    // Здесь должен быть вызов к сервису заметок
+    // Пока заглушка, можно реализовать позже
+    return Promise.resolve(null).then(() => {
+      this.lessonNotes = null;
+      console.log('📝 Заметки для урока (заглушка):', this.lessonNotes);
+      return null;
+    });
+  }
+
+  hasNotesForSection(section: 'tasks' | 'questions' | 'materials'): boolean {
+    if (!this.lessonNotes) return false;
+    
+    switch (section) {
+      case 'tasks':
+        return this.lessonNotes.tasksNotes && this.lessonNotes.tasksNotes.length > 0;
+      case 'questions':
+        return this.lessonNotes.questionsNotes && this.lessonNotes.questionsNotes.length > 0;
+      case 'materials':
+        return this.lessonNotes.materialsNotes && this.lessonNotes.materialsNotes.length > 0;
+      default:
+        return false;
+    }
   }
 }

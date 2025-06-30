@@ -549,7 +549,7 @@
             </div>
           </div>
 
-          <div class="linked-materials" *ngIf="homework.materialIds.length">
+          <div class="linked-materials" *ngIf="homework.materialIds && homework.materialIds.length">
             <h5>
               <i class="fas fa-paperclip"></i>
               Matériaux liés
@@ -577,7 +577,7 @@
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="homeworks.length === 0" class="empty-state">
+      <div *ngIf="homeworks && homeworks.length === 0" class="empty-state">
         <i class="fas fa-clipboard-list"></i>
         <h3>Aucun devoir créé</h3>
         <p>Commencez par créer votre premier devoir</p>
@@ -665,7 +665,7 @@
       </div>
       
       <div class="modal-body">
-        <div *ngIf="availableLessons.length === 0" class="no-lessons">
+        <div *ngIf="availableLessons && availableLessons.length === 0" class="no-lessons">
           <i class="fas fa-calendar-times"></i>
           <p>Aucun cours disponible pour le moment</p>
         </div>

@@ -541,22 +541,22 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
             console.error('❌ Ошибка создания домашнего задания:', error);
             
             // Fallback: сохраняем локально если сервер недоступен
-            const homeworkItem = {
-              id: Date.now().toString(),
-              type,
-              title: result.title,
-              description: result.description,
-              dueDate: result.dueDate,
-              status: 'unfinished',
-              itemId,
-              createdAt: new Date().toISOString(),
+        const homeworkItem = {
+          id: Date.now().toString(),
+          type,
+          title: result.title,
+          description: result.description,
+          dueDate: result.dueDate,
+          status: 'unfinished',
+          itemId,
+          createdAt: new Date().toISOString(),
               lessonId: lessonId,
               createdInClass: true
-            };
-            
-            this.homeworkItems.push(homeworkItem);
-            this.coveredInClass.add(itemId);
-            this.saveHomeworkItems();
+        };
+        
+        this.homeworkItems.push(homeworkItem);
+          this.coveredInClass.add(itemId);
+        this.saveHomeworkItems();
           }
         });
       }
