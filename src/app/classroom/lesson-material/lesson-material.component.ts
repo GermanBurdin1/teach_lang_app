@@ -674,15 +674,28 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   // Force recompilation - angular cache fix
 
-  startLesson() {
-    this.lessonStarted = true;
-    this.countdown = 180;
-    this.countdownInterval = setInterval(() => {
-      if (this.countdown > 0) {
-        this.countdown--;
-      } else {
-        clearInterval(this.countdownInterval);
-      }
-    }, 1000);
+  async startLesson() {
+    const lessonId = this.lessonTabsService.getCurrentLessonId();
+    const currentUser = this.authService.getCurrentUser();
+    if (!lessonId || !currentUser) {
+      console.error('Нет данных для старта урока');
+      return;
+    }
+    try {
+      await this.lessonService.startLesson(lessonId, currentUser.id).toPromise();
+      this.lessonStarted = true;
+      this.countdown = 180;
+      this.countdownInterval = setInterval(() => {
+        if (this.countdown > 0) {
+          this.countdown--;
+        } else {
+          clearInterval(this.countdownInterval);
+        }
+      }, 1000);
+      console.log('✅ Урок успешно начат (статус обновлен в БД)');
+    } catch (error) {
+      console.error('❌ Ошибка при старте урока:', error);
+      alert('Ошибка при старте урока. Попробуйте еще раз.');
+    }
   }
 }

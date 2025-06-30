@@ -136,4 +136,8 @@ export class LessonService {
       answeredBy: teacherId
     });
   }
+
+  startLesson(lessonId: string, startedBy: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/start`, { lessonId, startedBy });
+  }
 }
