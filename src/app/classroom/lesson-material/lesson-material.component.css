@@ -413,28 +413,28 @@ body {
 
 /* Стили для карточек задач */
 .task-card {
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
+  background: #f8f9fa;
+  padding: 12px 16px;
   margin: 8px 0;
-  border: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  border-left: 3px solid #007bff;
+  transition: all 0.2s ease;
   position: relative;
+  /* Добавляем дополнительное пространство для лучшего hover */
+  min-height: 50px;
 }
 
 .task-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  background: #e3f2fd;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
 }
 
 .task-card.student-task {
-  border-left: 4px solid #2196F3;
-  background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%);
+  border-left-color: #28a745;
 }
 
 .task-card.teacher-task {
-  border-left: 4px solid #FF9800;
-  background: linear-gradient(135deg, #FFF3E0 0%, #FFFFFF 100%);
+  border-left-color: #dc3545;
 }
 
 .task-label {
@@ -450,28 +450,28 @@ body {
 
 /* Стили для карточек вопросов */
 .question-card {
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
+  background: #f8f9fa;
+  padding: 12px 16px;
   margin: 8px 0;
-  border: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  border-left: 3px solid #17a2b8;
+  transition: all 0.2s ease;
   position: relative;
+  /* Добавляем дополнительное пространство для лучшего hover */
+  min-height: 50px;
 }
 
 .question-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  background: #e1f5fe;
+  box-shadow: 0 2px 8px rgba(23, 162, 184, 0.15);
 }
 
 .question-card.student-question {
-  border-left: 4px solid #2196F3;
-  background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%);
+  border-left-color: #28a745;
 }
 
 .question-card.teacher-question {
-  border-left: 4px solid #FF9800;
-  background: linear-gradient(135deg, #FFF3E0 0%, #FFFFFF 100%);
+  border-left-color: #dc3545;
 }
 
 .question-label {
@@ -645,37 +645,42 @@ body {
   background: #dc3545;
 }
 
-/* Стили для действий при наведении */
+/* Стили для действий при наведении 
+   Улучшенная логика: кнопки не исчезают мгновенно при mouseleave,
+   а остаются видимыми с задержкой, что позволяет легко кликать по ним */
 .item-actions {
   position: absolute;
   background: white;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  padding: 8px;
+  padding: 12px;
   z-index: 1000;
   min-width: 220px;
   left: 0;
+  /* Добавляем небольшой отступ для улучшения hover-области */
+  margin-left: -4px;
 }
 
 .item-actions.drop-above {
   bottom: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .item-actions.drop-below {
   top: 100%;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .action-item {
-  padding: 8px 12px;
+  padding: 12px 16px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s ease;
   font-size: 14px;
   font-weight: 500;
-  margin: 2px 0;
+  margin: 3px 0;
+  user-select: none;
 }
 
 .action-item:hover {
@@ -690,6 +695,16 @@ body {
 
 .action-item.primary:hover {
   background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+  color: white;
+}
+
+.action-item.secondary {
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: white;
+}
+
+.action-item.secondary:hover {
+  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
   color: white;
 }
 
@@ -775,4 +790,34 @@ body {
   .item-actions {
     min-width: 180px;
   }
+}
+
+/* Стили для индикаторов статуса */
+.status-indicators {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-indicators .badge {
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+.covered-in-class {
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196f3;
+}
+
+.covered-in-class .task-text,
+.covered-in-class .question-text,
+.covered-in-class .material-title {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.material-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

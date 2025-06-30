@@ -10,6 +10,7 @@ import { LessonsModule } from '../features/lessons/lessons.module';
 import { InteractiveBoardComponent } from './lesson-material/interactive-board/interactive-board.component';
 import { GabaritPageComponent } from './lesson-material/gabarit-page/gabarit-page.component';
 import { LessonNotesModalComponent } from './lesson-material/lesson-notes-modal/lesson-notes-modal.component';
+import { HomeworkModalComponent } from './lesson-material/homework-modal/homework-modal.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -26,7 +27,8 @@ const routes: Routes = [
     VideoCallComponent,
     GabaritPageComponent,
     InteractiveBoardComponent,
-    LessonNotesModalComponent
+    LessonNotesModalComponent,
+    HomeworkModalComponent
   ],
   imports: [
     CommonModule,

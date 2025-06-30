@@ -1,8 +1,8 @@
 <div class="lesson-notes-modal">
   <div class="modal-header">
     <h2 class="modal-title">
-      <span class="section-icon">{{ getSectionIcon() }}</span>
-      {{ getSectionTitle() }}
+      <span class="section-icon">📋</span>
+      Notes de cours
     </h2>
     <button mat-icon-button (click)="onClose()" class="close-button">
       <mat-icon>close</mat-icon>
@@ -12,40 +12,186 @@
   <div class="modal-content">
     <div class="item-info">
       <h4>{{ data.itemText }}</h4>
+      <small class="text-muted">{{ getSectionTitle() }}</small>
     </div>
 
-    <div class="notes-section">
-      <h5>📋 Конспект</h5>
-      <mat-form-field class="full-width" appearance="outline">
-        <mat-label>Записи по теме</mat-label>
+    <!-- Всегда показываем 3 раздела -->
+    <div class="sections-container">
+      
+      <!-- Раздел задач -->
+      <div class="notes-section" [class.blur]="data.section !== 'tasks'">
+        <h5 class="section-header" [class.active]="data.section === 'tasks'">
+          📝 Tâches
+        </h5>
+        
+        <!-- Список задач студента -->
+        <div class="items-list" *ngIf="data.lessonData?.studentTasks?.length">
+          <h6 class="subsection-title">👩‍🎓 Tâches de l'étudiant</h6>
+          <div class="item-container" *ngFor="let task of (data.lessonData?.studentTasks || []); let i = index"
+               [class.highlighted]="data.section === 'tasks' && isCurrentItem('student-task-' + i)">
+            <div class="item-title">{{ task }}</div>
+            <mat-form-field class="item-textarea" appearance="outline" *ngIf="data.section === 'tasks' && isCurrentItem('student-task-' + i)">
+              <mat-label>Notes sur cette tâche</mat-label>
+              <textarea 
+                matInput 
+                [(ngModel)]="tasksContent"
+                (ngModelChange)="onTasksContentChange($event)"
+                placeholder="Notes sur la résolution de cette tâche..."
+                rows="3">
+              </textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Список задач преподавателя -->
+        <div class="items-list" *ngIf="data.lessonData?.teacherTasks?.length">
+          <h6 class="subsection-title">👩‍🏫 Tâches du professeur</h6>
+          <div class="item-container" *ngFor="let task of (data.lessonData?.teacherTasks || []); let i = index"
+               [class.highlighted]="data.section === 'tasks' && isCurrentItem('teacher-task-' + i)">
+            <div class="item-title">{{ task }}</div>
+            <mat-form-field class="item-textarea" appearance="outline" *ngIf="data.section === 'tasks' && isCurrentItem('teacher-task-' + i)">
+              <mat-label>Notes sur cette tâche</mat-label>
+              <textarea 
+                matInput 
+                [(ngModel)]="tasksContent"
+                (ngModelChange)="onTasksContentChange($event)"
+                placeholder="Notes sur la résolution de cette tâche..."
+                rows="3">
+              </textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Fallback для общих заметок по задачам -->
+        <mat-form-field class="full-width" appearance="outline" *ngIf="data.section !== 'tasks' || (!data.lessonData?.studentTasks?.length && !data.lessonData?.teacherTasks?.length)">
+          <mat-label>Notes générales sur les tâches</mat-label>
+          <textarea 
+            matInput 
+            [(ngModel)]="tasksContent"
+            [disabled]="data.section !== 'tasks'"
+            placeholder="Notes générales sur les tâches..."
+            rows="4">
+          </textarea>
+        </mat-form-field>
+      </div>
+
+      <!-- Раздел вопросов -->
+      <div class="notes-section" [class.blur]="data.section !== 'questions'">
+        <h5 class="section-header" [class.active]="data.section === 'questions'">
+          ❓ Questions
+        </h5>
+        
+        <!-- Список вопросов студента -->
+        <div class="items-list" *ngIf="data.lessonData?.studentQuestions?.length">
+          <h6 class="subsection-title">👩‍🎓 Questions de l'étudiant</h6>
+          <div class="item-container" *ngFor="let question of (data.lessonData?.studentQuestions || []); let i = index"
+               [class.highlighted]="data.section === 'questions' && isCurrentItem('student-question-' + i)">
+            <div class="item-title">{{ question }}</div>
+            <mat-form-field class="item-textarea" appearance="outline" *ngIf="data.section === 'questions' && isCurrentItem('student-question-' + i)">
+              <mat-label>Réponse à cette question</mat-label>
+              <textarea 
+                matInput 
+                [(ngModel)]="questionsContent"
+                (ngModelChange)="onQuestionsContentChange($event)"
+                placeholder="Réponse et explications pour cette question..."
+                rows="3">
+              </textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Список вопросов преподавателя -->
+        <div class="items-list" *ngIf="data.lessonData?.teacherQuestions?.length">
+          <h6 class="subsection-title">👩‍🏫 Questions du professeur</h6>
+          <div class="item-container" *ngFor="let question of (data.lessonData?.teacherQuestions || []); let i = index"
+               [class.highlighted]="data.section === 'questions' && isCurrentItem('teacher-question-' + i)">
+            <div class="item-title">{{ question }}</div>
+            <mat-form-field class="item-textarea" appearance="outline" *ngIf="data.section === 'questions' && isCurrentItem('teacher-question-' + i)">
+              <mat-label>Réponse à cette question</mat-label>
+              <textarea 
+                matInput 
+                [(ngModel)]="questionsContent"
+                (ngModelChange)="onQuestionsContentChange($event)"
+                placeholder="Réponse et explications pour cette question..."
+                rows="3">
+              </textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Fallback для общих заметок по вопросам -->
+        <mat-form-field class="full-width" appearance="outline" *ngIf="data.section !== 'questions' || (!data.lessonData?.studentQuestions?.length && !data.lessonData?.teacherQuestions?.length)">
+          <mat-label>Notes générales sur les questions</mat-label>
+          <textarea 
+            matInput 
+            [(ngModel)]="questionsContent"
+            [disabled]="data.section !== 'questions'"
+            placeholder="Notes générales sur les questions..."
+            rows="4">
+          </textarea>
+        </mat-form-field>
+      </div>
+
+      <!-- Раздел материалов -->
+      <div class="notes-section" [class.blur]="data.section !== 'materials'">
+        <h5 class="section-header" [class.active]="data.section === 'materials'">
+          📚 Matériaux
+        </h5>
+        
+        <!-- Список материалов -->
+        <div class="items-list" *ngIf="data.lessonData?.materials?.length">
+          <div class="item-container" *ngFor="let material of (data.lessonData?.materials || []); let i = index"
+               [class.highlighted]="data.section === 'materials' && isCurrentItem(getMaterialId(material))">
+            <div class="item-title">
+              <span class="material-icon">{{ getMaterialTypeIcon(material?.type || 'text') }}</span>
+              {{ material?.title || 'Matériau' }}
+              <span class="material-type-badge">{{ material?.type || 'text' }}</span>
+            </div>
+            <mat-form-field class="item-textarea" appearance="outline" *ngIf="data.section === 'materials' && isCurrentItem(getMaterialId(material))">
+              <mat-label>Notes sur ce matériau</mat-label>
+              <textarea 
+                matInput 
+                [(ngModel)]="materialsContent"
+                (ngModelChange)="onMaterialsContentChange($event)"
+                placeholder="Notes sur ce matériau, points clés, conclusions..."
+                rows="3">
+              </textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Fallback для общих заметок по материалам -->
+        <mat-form-field class="full-width" appearance="outline" *ngIf="data.section !== 'materials' || !data.lessonData?.materials?.length">
+          <mat-label>Notes générales sur les matériaux</mat-label>
         <textarea 
           matInput 
-          [(ngModel)]="noteContent"
-          (ngModelChange)="onContentChange($event)"
-          placeholder="Здесь вы можете делать заметки во время отработки материала..."
-          rows="12"
-          class="notes-textarea">
+            [(ngModel)]="materialsContent"
+            [disabled]="data.section !== 'materials'"
+            placeholder="Notes générales sur les matériaux..."
+            rows="4">
         </textarea>
       </mat-form-field>
+      </div>
+
     </div>
 
     <div class="save-status" *ngIf="lastSaved || isSaving">
       <mat-icon *ngIf="isSaving" class="saving-icon spin">sync</mat-icon>
       <mat-icon *ngIf="!isSaving && lastSaved" class="saved-icon">check_circle</mat-icon>
-      <span *ngIf="isSaving">Сохранение...</span>
+      <span *ngIf="isSaving">Sauvegarde...</span>
       <span *ngIf="!isSaving && lastSaved">
-        Сохранено {{ getFormattedDate() }}
+        Sauvegardé {{ getFormattedDate() }}
       </span>
     </div>
   </div>
 
   <div class="modal-actions">
     <button mat-button (click)="onClose()" class="cancel-btn">
-      Закрыть
+      Fermer
     </button>
     <button mat-raised-button color="primary" (click)="onSave()" class="save-btn">
       <mat-icon>save</mat-icon>
-      Сохранить
+      Sauvegarder
     </button>
   </div>
 </div> 

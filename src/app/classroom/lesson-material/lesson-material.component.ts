@@ -12,6 +12,7 @@ import { MaterialService } from '../../services/material.service';
 import { LessonNotesService } from '../../services/lesson-notes.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LessonNotesModalComponent } from './lesson-notes-modal/lesson-notes-modal.component';
+import { HomeworkModalComponent } from './homework-modal/homework-modal.component';
 
 @Component({
   selector: 'app-lesson-material',
@@ -28,6 +29,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   newStudentTask = '';
   newStudentQuestion = '';
   newTeacherTask = '';
+  newTeacherQuestion = '';
   hoveredQuestion: string | null = null;
   hoveredItem: string | null = null;
   hoveredPosition: 'above' | 'below' = 'below';
@@ -37,9 +39,17 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   lessonQuestions: any[] = [];
   lessonMaterials: any[] = [];
   isLoadingData = false;
+  
+  // Сохраненные домашние задания
+  homeworkItems: any[] = [];
+  coveredInClass = new Set<string>();
 
   @Output() itemResolved = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
   @Input() addHomeworkExternal?: (item: string) => void;
+
+  // Улучшенная логика для кнопок действий
+  private hideTimeout: any = null;
+  private isHoveringActions = false;
 
   constructor(
     private backgroundService: BackgroundService, 
@@ -134,13 +144,48 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     // ИСПОЛЬЗУЕМ ДАННЫЕ ПЕРЕДАННЫЕ ИЗ LESSON-MANAGEMENT ЧЕРЕЗ LessonTabsService
     console.log('✅ Данные урока уже переданы через LessonTabsService из lesson-management');
     
+    // Загружаем сохраненные домашние задания
+    this.loadHomeworkItems(lessonId);
+    
     this.isLoadingData = false;
+  }
+
+  // Загрузка сохраненных домашних заданий из localStorage
+  private loadHomeworkItems(lessonId: string) {
+    const savedHomework = localStorage.getItem(`homework_${lessonId}`);
+    const savedCovered = localStorage.getItem(`covered_${lessonId}`);
+    
+    if (savedHomework) {
+      this.homeworkItems = JSON.parse(savedHomework);
+      console.log('📋 Загружены сохраненные домашние задания:', this.homeworkItems);
+    }
+    
+    if (savedCovered) {
+      this.coveredInClass = new Set(JSON.parse(savedCovered));
+      console.log('✅ Загружены задания, разобранные в классе:', Array.from(this.coveredInClass));
+    }
+  }
+
+  // Сохранение домашних заданий в localStorage
+  private saveHomeworkItems() {
+    const lessonId = this.lessonTabsService.getCurrentLessonId();
+    if (lessonId) {
+      localStorage.setItem(`homework_${lessonId}`, JSON.stringify(this.homeworkItems));
+      localStorage.setItem(`covered_${lessonId}`, JSON.stringify(Array.from(this.coveredInClass)));
+      console.log('💾 Домашние задания сохранены в localStorage');
+    }
   }
 
   ngOnDestroy(): void {
     if (this.backgroundSubscription) {
       console.log('📢 Отписка от backgroundSubscription');
       this.backgroundSubscription.unsubscribe();
+    }
+
+    // Очищаем таймер если он существует
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
     }
 
     // ❌ НЕ СБРАСЫВАЕМ ВИДЕО, ЧТОБЫ ОНО НЕ ПРОПАДАЛО
@@ -261,55 +306,209 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     return this.resolvedItems.has(item);
   }
 
+  // Проверка, добавлено ли задание в домашнее задание
+  isAddedToHomework(itemId: string): boolean {
+    return this.homeworkItems.some(item => item.itemId === itemId);
+  }
+
+  // Проверка, разобрано ли задание в классе
+  isCoveredInClass(itemId: string): boolean {
+    return this.coveredInClass.has(itemId);
+  }
+
   addStudentTask() {
-    if (this.newStudentTask.trim()) {
-      // ВРЕМЕННО БЕЗ API - ДОБАВЛЯЕМ ЛОКАЛЬНО
-      if (this.currentLesson) {
-        this.currentLesson.studentTasks.push(this.newStudentTask.trim());
-        console.log('✅ Задача студента добавлена локально');
-      }
-      this.newStudentTask = '';
+    if (this.newStudentTask.trim() && this.currentLesson) {
+      const currentUser = this.authService.getCurrentUser();
+      if (!currentUser) return;
+
+      const taskData = {
+        lessonId: this.currentLesson.id,
+        title: this.newStudentTask.trim(),
+        description: null,
+        createdBy: currentUser.id,
+        createdByRole: 'student' as const
+      };
+
+      this.lessonService.addTaskToLesson(taskData).subscribe({
+        next: (newTask) => {
+          if (this.currentLesson) {
+            // Добавляем задачу в локальный массив
+            if (!this.currentLesson.studentTasks) {
+              this.currentLesson.studentTasks = [];
+            }
+            this.currentLesson.studentTasks.push(newTask.title);
+          }
+          this.newStudentTask = '';
+          console.log('✅ Задача студента добавлена в БД:', newTask);
+        },
+        error: (error) => {
+          console.error('❌ Ошибка добавления задачи студента:', error);
+        }
+      });
     }
   }
 
   addStudentQuestion() {
-    if (this.newStudentQuestion.trim()) {
-      // ВРЕМЕННО БЕЗ API - ДОБАВЛЯЕМ ЛОКАЛЬНО
-      if (this.currentLesson) {
-        this.currentLesson.studentQuestions.push(this.newStudentQuestion.trim());
-        console.log('✅ Вопрос студента добавлен локально');
-      }
-      this.newStudentQuestion = '';
+    if (this.newStudentQuestion.trim() && this.currentLesson) {
+      const currentUser = this.authService.getCurrentUser();
+      if (!currentUser) return;
+
+      const questionData = {
+        lessonId: this.currentLesson.id,
+        question: this.newStudentQuestion.trim(),
+        createdBy: currentUser.id,
+        createdByRole: 'student' as const
+      };
+
+      this.lessonService.addQuestionToLesson(questionData).subscribe({
+        next: (newQuestion) => {
+          if (this.currentLesson) {
+            // Добавляем вопрос в локальный массив
+            if (!this.currentLesson.studentQuestions) {
+              this.currentLesson.studentQuestions = [];
+            }
+            this.currentLesson.studentQuestions.push(newQuestion.question);
+          }
+          this.newStudentQuestion = '';
+          console.log('✅ Вопрос студента добавлен в БД:', newQuestion);
+        },
+        error: (error) => {
+          console.error('❌ Ошибка добавления вопроса студента:', error);
+        }
+      });
     }
   }
 
   addTeacherTask() {
-    if (this.newTeacherTask.trim()) {
-      // ВРЕМЕННО БЕЗ API - ДОБАВЛЯЕМ ЛОКАЛЬНО
-      if (this.currentLesson) {
-        this.currentLesson.teacherTasks.push(this.newTeacherTask.trim());
-        console.log('✅ Задача преподавателя добавлена локально');
-      }
-      this.newTeacherTask = '';
+    if (this.newTeacherTask.trim() && this.currentLesson) {
+      const currentUser = this.authService.getCurrentUser();
+      if (!currentUser) return;
+
+      const taskData = {
+        lessonId: this.currentLesson.id,
+        title: this.newTeacherTask.trim(),
+        description: null,
+        createdBy: currentUser.id,
+        createdByRole: 'teacher' as const
+      };
+
+      this.lessonService.addTaskToLesson(taskData).subscribe({
+        next: (newTask) => {
+          if (this.currentLesson) {
+            // Добавляем задачу в локальный массив
+            if (!this.currentLesson.teacherTasks) {
+              this.currentLesson.teacherTasks = [];
+            }
+            this.currentLesson.teacherTasks.push(newTask.title);
+          }
+          this.newTeacherTask = '';
+          console.log('✅ Задача преподавателя добавлена в БД:', newTask);
+        },
+        error: (error) => {
+          console.error('❌ Ошибка добавления задачи преподавателя:', error);
+        }
+      });
+    }
+  }
+
+  addTeacherQuestion() {
+    if (this.newTeacherQuestion.trim() && this.currentLesson) {
+      const currentUser = this.authService.getCurrentUser();
+      if (!currentUser) return;
+
+      const questionData = {
+        lessonId: this.currentLesson.id,
+        question: this.newTeacherQuestion.trim(),
+        createdBy: currentUser.id,
+        createdByRole: 'teacher' as const
+      };
+
+      this.lessonService.addQuestionToLesson(questionData).subscribe({
+        next: (newQuestion) => {
+          if (this.currentLesson) {
+            // Добавляем вопрос в локальный массив
+            if (!this.currentLesson.teacherQuestions) {
+              this.currentLesson.teacherQuestions = [];
+            }
+            this.currentLesson.teacherQuestions.push(newQuestion.question);
+          }
+          this.newTeacherQuestion = '';
+          console.log('✅ Вопрос преподавателя добавлен в БД:', newQuestion);
+        },
+        error: (error) => {
+          console.error('❌ Ошибка добавления вопроса преподавателя:', error);
+        }
+      });
     }
   }
 
   // Новые методы для работы с конспектом
   openNotes(section: 'tasks' | 'questions' | 'materials', itemId: string, itemText: string) {
     const dialogRef = this.dialog.open(LessonNotesModalComponent, {
-      width: '800px',
-      maxWidth: '90vw',
+      width: '900px',
+      maxWidth: '95vw',
       data: {
         lessonId: this.lessonTabsService.getCurrentLessonId(),
         section,
         itemId,
-        itemText
+        itemText,
+        lessonData: {
+          studentTasks: this.currentLesson?.studentTasks || [],
+          teacherTasks: this.currentLesson?.teacherTasks || [],
+          studentQuestions: this.currentLesson?.studentQuestions || [],
+          teacherQuestions: this.currentLesson?.teacherQuestions || [],
+          materials: this.currentLesson?.materials || []
+        }
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('📝 Конспект сохранен:', result);
+      }
+    });
+  }
+
+  // Метод для добавления в домашнее задание
+  addToHomework(type: 'task' | 'question' | 'material', title: string, itemId: string) {
+    const dialogRef = this.dialog.open(HomeworkModalComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      data: {
+        type,
+        title,
+        itemId
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('📋 Домашнее задание создано:', result);
+        
+        // Добавляем в массив домашних заданий
+        const homeworkItem = {
+          id: Date.now().toString(),
+          type,
+          title: result.title,
+          description: result.description,
+          dueDate: result.dueDate,
+          status: 'unfinished',
+          itemId,
+          createdAt: new Date().toISOString(),
+          lessonId: this.lessonTabsService.getCurrentLessonId()
+        };
+        
+        this.homeworkItems.push(homeworkItem);
+        
+        // Помечаем как разобранное в классе если это задание/вопрос
+        if (type === 'task' || type === 'question') {
+          this.coveredInClass.add(itemId);
+        }
+        
+        // Сохраняем в localStorage
+        this.saveHomeworkItems();
+        
+        console.log('✅ Домашнее задание добавлено и сохранено:', homeworkItem);
       }
     });
   }
@@ -337,18 +536,43 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     // TODO: Реализовать перенос задания на следующий урок
   }
 
-  addToHomework(item: string): void {
-    console.log('📚 Добавляем в домашнее задание:', item);
-    if (this.addHomeworkExternal) {
-      this.addHomeworkExternal(item);
-    }
-  }
-
   onHover(item: string, event: MouseEvent) {
+    // Отменяем любой существующий таймер скрытия
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
+    
     this.hoveredItem = item;
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const windowHeight = window.innerHeight;
     this.hoveredPosition = rect.bottom + 200 > windowHeight ? 'above' : 'below';
+  }
+
+  onLeaveItem() {
+    // Задержка перед скрытием кнопок
+    this.hideTimeout = setTimeout(() => {
+      if (!this.isHoveringActions) {
+        this.hoveredItem = null;
+      }
+    }, 300); // 300ms задержка
+  }
+
+  onEnterActions() {
+    // Отменяем скрытие при наведении на кнопки
+    this.isHoveringActions = true;
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
+  }
+
+  onLeaveActions() {
+    // Скрываем кнопки при уходе с них
+    this.isHoveringActions = false;
+    this.hideTimeout = setTimeout(() => {
+      this.hoveredItem = null;
+    }, 100); // Более короткая задержка при уходе с кнопок
   }
 
   getMaterialIcon(materialType: string): string {
@@ -379,6 +603,15 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       this.currentLesson.homework.push(this.newHomeworkEntry.trim());
       this.newHomeworkEntry = '';
     }
+  }
+
+  // Обработчики событий от gabarit-page
+  onGabaritOpenNotes(event: {section: 'materials', itemId: string, itemText: string}) {
+    this.openNotes(event.section, event.itemId, event.itemText);
+  }
+
+  onGabaritAddToHomework(event: {type: string, materialTitle: string, materialId: string}) {
+    this.addToHomework('material', event.materialTitle, event.materialId);
   }
 
   // Force recompilation - angular cache fix

@@ -1,0 +1,77 @@
+<div class="homework-modal">
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <span class="type-icon">{{ getTypeIcon() }}</span>
+      Ajouter aux devoirs - {{ getTypeTitle() }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <div class="source-info">
+      <h4>{{ data.title }}</h4>
+      <small class="text-muted">Source: {{ getTypeTitle() }}</small>
+    </div>
+
+    <form class="homework-form">
+      <!-- Titre du devoir -->
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Titre du devoir</mat-label>
+        <input 
+          matInput 
+          [(ngModel)]="homeworkTitle"
+          name="title"
+          placeholder="Nom du devoir..."
+          required>
+      </mat-form-field>
+
+      <!-- Description du devoir -->
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Description du devoir</mat-label>
+        <textarea 
+          matInput 
+          [(ngModel)]="homeworkDescription"
+          name="description"
+          placeholder="Décrivez ce que l'étudiant doit faire..."
+          rows="6"
+          required>
+        </textarea>
+      </mat-form-field>
+
+      <!-- Date d'échéance -->
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Date d'échéance</mat-label>
+        <input 
+          matInput 
+          type="date"
+          [(ngModel)]="dueDate"
+          name="dueDate"
+          required>
+      </mat-form-field>
+
+      <!-- Info sur le statut -->
+      <div class="status-info">
+        <mat-icon class="status-icon">info</mat-icon>
+        <span>Ce devoir sera créé avec le statut "Non terminé" et sera visible dans l'espace d'entraînement de l'étudiant.</span>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-actions">
+    <button mat-button (click)="onCancel()" class="cancel-btn" [disabled]="isSaving">
+      Annuler
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSave()" 
+      class="save-btn"
+      [disabled]="!homeworkTitle.trim() || !homeworkDescription.trim() || !dueDate || isSaving">
+      <mat-icon *ngIf="!isSaving">add</mat-icon>
+      <mat-icon *ngIf="isSaving" class="spin">sync</mat-icon>
+      {{ isSaving ? 'Création...' : 'Créer le devoir' }}
+    </button>
+  </div>
+</div> 

@@ -770,3 +770,138 @@
   display: flex;
   align-items: center;
 }
+
+/* Стили для домашних заданий */
+.homework-card {
+  margin-bottom: 16px;
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.homework-card.type-task {
+  border-left-color: #2196f3;
+}
+
+.homework-card.type-question {
+  border-left-color: #ff9800;
+}
+
+.homework-card.type-material {
+  border-left-color: #4caf50;
+}
+
+.homework-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.homework-number {
+  font-weight: bold;
+  color: #666;
+  min-width: 20px;
+}
+
+.homework-type-icon {
+  color: #2196f3;
+}
+
+.homework-title {
+  flex: 1;
+  font-weight: 600;
+}
+
+.homework-status-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.homework-status-badge.status-unfinished {
+  background-color: #ffeb3b;
+  color: #333;
+}
+
+.homework-status-badge.status-finished {
+  background-color: #4caf50;
+  color: white;
+}
+
+.covered-badge {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.homework-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.homework-type {
+  background-color: #f5f5f5;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.homework-date, .homework-due {
+  font-size: 13px;
+  color: #666;
+}
+
+.homework-description {
+  margin: 0;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Стили для конспектов */
+.notes-section-card {
+  margin-bottom: 20px;
+  border-left: 4px solid #673ab7;
+}
+
+.notes-section-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #673ab7;
+}
+
+.notes-content {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Индикаторы в карточках уроков */
+.homework-indicator {
+  color: #4caf50 !important;
+}
+
+.notes-indicator {
+  color: #673ab7 !important;
+}
+
+.stat-item.homework-indicator,
+.stat-item.notes-indicator {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 12px;
+  padding: 4px 8px;
+}
+
+.stat-item.notes-indicator {
+  background-color: rgba(103, 58, 183, 0.1);
+}

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-gabarit-page',
@@ -8,6 +8,14 @@ import { Component, Input, OnInit } from '@angular/core';
 export class GabaritPageComponent implements OnInit {
   @Input() lesson: any;
   @Input() readonly = true;
+
+  // События для родительского компонента
+  @Output() openNotesEvent = new EventEmitter<{section: 'materials', itemId: string, itemText: string}>();
+  @Output() addToHomeworkEvent = new EventEmitter<{type: string, materialTitle: string, materialId: string}>();
+
+  // Hover management
+  hoveredItem: string | null = null;
+  hoveredPosition: 'above' | 'below' = 'below';
 
   ngOnInit(): void {
     if (!this.lesson) {
@@ -61,5 +69,47 @@ export class GabaritPageComponent implements OnInit {
     
     // If it's not a URL, return as is (but limit length)
     return item.length > 50 ? item.substring(0, 47) + '...' : item;
+  }
+
+  // Helper method to get material identifier
+  getMaterialId(material: any): string {
+    if (typeof material === 'string') {
+      return material;
+    }
+    return material?.id || material?.title || material?.name || 'unknown';
+  }
+
+  // Helper method to get material title  
+  getMaterialTitle(material: any): string {
+    if (typeof material === 'string') {
+      return this.getDisplayName(material);
+    }
+    return material?.title || material?.name || 'Matériau';
+  }
+
+  // Hover management
+  onHover(materialTitle: string, event: MouseEvent) {
+    this.hoveredItem = materialTitle;
+    
+    // Determine position based on viewport
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    this.hoveredPosition = rect.bottom > viewportHeight * 0.7 ? 'above' : 'below';
+  }
+
+  // Add to homework method - передаем событие родительскому компоненту
+  addToHomework(materialType: string, materialTitle: string, materialId: string) {
+    console.log('📋 Adding to homework:', { materialType, materialTitle, materialId });
+    this.addToHomeworkEvent.emit({ type: materialType, materialTitle, materialId });
+  }
+
+  // Open notes method - передаем событие родительскому компоненту
+  openNotes(materialId: string, materialTitle: string) {
+    console.log('📝 Opening notes for material:', { materialId, materialTitle });
+    this.openNotesEvent.emit({ 
+      section: 'materials', 
+      itemId: materialId, 
+      itemText: materialTitle 
+    });
   }
 }

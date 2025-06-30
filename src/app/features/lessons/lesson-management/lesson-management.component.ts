@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../../services/lesson-tabs.service';
+import { LessonNotesService, LessonNote, LessonNotesData } from '../../../services/lesson-notes.service';
 
 interface Task {
   id: string;
@@ -82,6 +83,10 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   lessons: Lesson[] = [];
   currentLesson: Lesson | null = null;
   
+  // Домашние задания и конспекты
+  homeworkItems: any[] = [];
+  lessonNotes: any = null;
+  
   // Формы для добавления
   showAddTaskForm = false;
   showAddQuestionForm = false;
@@ -105,7 +110,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private videoCallService: VideoCallService,
-    private lessonTabsService: LessonTabsService
+    private lessonTabsService: LessonTabsService,
+    private lessonNotesService: LessonNotesService
   ) { }
 
   ngOnInit(): void {
@@ -195,6 +201,78 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Загрузка домашних заданий для урока
+  loadHomeworkItems(lessonId: string): void {
+    const savedHomework = localStorage.getItem(`homework_${lessonId}`);
+    if (savedHomework) {
+      this.homeworkItems = JSON.parse(savedHomework);
+      console.log('📋 Загружены домашние задания для урока:', lessonId, this.homeworkItems);
+    } else {
+      this.homeworkItems = [];
+    }
+  }
+
+  // Загрузка конспекта урока
+  loadLessonNotes(lessonId: string): void {
+    const savedNotes = localStorage.getItem(`lesson_notes_${lessonId}`);
+    if (savedNotes) {
+      const notesData: LessonNotesData = JSON.parse(savedNotes);
+      console.log('📝 Загружен конспект для урока из localStorage:', lessonId, notesData);
+      
+      // Преобразуем данные из LessonNotesService в формат, ожидаемый HTML
+      this.lessonNotes = {
+        tasksContent: this.extractNotesContent(notesData.tasks || []),
+        questionsContent: this.extractNotesContent(notesData.questions || []),
+        materialsContent: this.extractNotesContent(notesData.materials || [])
+      };
+      
+      console.log('📝 Конспект преобразован для отображения:', this.lessonNotes);
+    } else {
+      this.lessonNotes = null;
+      console.log('📝 Конспект не найден для урока:', lessonId);
+    }
+  }
+
+  // Извлекает содержимое заметок и объединяет их
+  private extractNotesContent(notes: LessonNote[]): string {
+    if (!notes || notes.length === 0) {
+      return '';
+    }
+    
+    return notes.map(note => {
+      if (note.content && note.content.trim()) {
+        return `${note.itemText}:\n${note.content}`;
+      }
+      return '';
+    }).filter(content => content.length > 0).join('\n\n');
+  }
+
+  // Проверка, есть ли домашние задания для урока
+  hasHomeworkItems(lessonId: string): boolean {
+    const savedHomework = localStorage.getItem(`homework_${lessonId}`);
+    return !!(savedHomework && JSON.parse(savedHomework).length > 0);
+  }
+
+  // Проверка, есть ли конспект для урока
+  hasLessonNotes(lessonId: string): boolean {
+    const savedNotes = localStorage.getItem(`lesson_notes_${lessonId}`);
+    if (!savedNotes) return false;
+    
+    try {
+      const notesData: LessonNotesData = JSON.parse(savedNotes);
+      
+      // Проверяем, есть ли хотя бы одна заметка с содержимым
+      const hasTasks = notesData.tasks && notesData.tasks.some(note => note.content && note.content.trim());
+      const hasQuestions = notesData.questions && notesData.questions.some(note => note.content && note.content.trim());
+      const hasMaterials = notesData.materials && notesData.materials.some(note => note.content && note.content.trim());
+      
+      return hasTasks || hasQuestions || hasMaterials;
+    } catch (error) {
+      console.error('Ошибка при проверке конспекта:', error);
+      return false;
+    }
+  }
+
   // Загрузка конкретного урока с задачами и вопросами
   loadLesson(lessonId: string): void {
     this.loading = true;
@@ -207,6 +285,10 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         
         // Загружаем задачи и вопросы
         this.loadTasksAndQuestions(lessonId);
+        
+        // Загружаем домашние задания и конспекты
+        this.loadHomeworkItems(lessonId);
+        this.loadLessonNotes(lessonId);
         
         setTimeout(() => {
           this.highlightedLessonId = null;
@@ -766,3 +848,4 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     return createdBy === currentUserId;
   }
 }
+

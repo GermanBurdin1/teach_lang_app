@@ -4,7 +4,9 @@
   <!-- 📄 Textes -->
   <div class="zone text-zone mt-3">
     <h5>📝 Textes</h5>
-    <div *ngFor="let t of texts" class="material-item">
+    <div *ngFor="let t of texts" class="material-item position-relative" 
+         (mouseenter)="onHover(getMaterialTitle(t), $event)" 
+         (mouseleave)="hoveredItem = null">
       <div *ngIf="isString(t); else objectText" class="item">{{ getDisplayName(t) }}</div>
       <ng-template #objectText>
         <div class="material-card">
@@ -14,13 +16,28 @@
           <a *ngIf="t.url" [href]="t.url" target="_blank" class="btn btn-sm btn-outline-primary">Ouvrir</a>
         </div>
       </ng-template>
+      
+      <!-- Action buttons on hover -->
+      <div *ngIf="hoveredItem === getMaterialTitle(t)" class="item-actions" [ngClass]="{
+        'drop-above': hoveredPosition === 'above',
+        'drop-below': hoveredPosition === 'below'
+      }">
+        <div class="action-item primary" (click)="openNotes(getMaterialId(t), getMaterialTitle(t))">
+          📚 Travailler le matériel
+        </div>
+        <div class="action-item secondary" (click)="addToHomework('text', getMaterialTitle(t), getMaterialId(t))">
+          📋 Ajouter aux devoirs
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- 🎧 Audios -->
   <div class="zone audio-zone mt-3">
     <h5>🔊 Audios</h5>
-    <div *ngFor="let a of audios" class="material-item">
+    <div *ngFor="let a of audios" class="material-item position-relative" 
+         (mouseenter)="onHover(getMaterialTitle(a), $event)" 
+         (mouseleave)="hoveredItem = null">
       <div *ngIf="isString(a); else objectAudio" class="item">
         <div class="d-flex align-items-center">
           <i class="fas fa-music me-2"></i>
@@ -60,13 +77,28 @@
           <div *ngIf="!a.url && a.content && !isAudioUrl(a.content)" class="content">{{ a.content }}</div>
         </div>
       </ng-template>
+      
+      <!-- Action buttons on hover -->
+      <div *ngIf="hoveredItem === getMaterialTitle(a)" class="item-actions" [ngClass]="{
+        'drop-above': hoveredPosition === 'above',
+        'drop-below': hoveredPosition === 'below'
+      }">
+        <div class="action-item primary" (click)="openNotes(getMaterialId(a), getMaterialTitle(a))">
+          📚 Travailler le matériel
+        </div>
+        <div class="action-item secondary" (click)="addToHomework('audio', getMaterialTitle(a), getMaterialId(a))">
+          📋 Ajouter aux devoirs
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- 🎬 Vidéos -->
   <div class="zone video-zone mt-3">
     <h5>🎬 Vidéos</h5>
-    <div *ngFor="let v of videos" class="material-item">
+    <div *ngFor="let v of videos" class="material-item position-relative" 
+         (mouseenter)="onHover(getMaterialTitle(v), $event)" 
+         (mouseleave)="hoveredItem = null">
       <div *ngIf="isString(v); else objectVideo" class="item">
         <div class="d-flex align-items-center">
           <i class="fas fa-video me-2"></i>
@@ -106,6 +138,19 @@
           <div *ngIf="!v.url && v.content && !isVideoUrl(v.content)" class="content">{{ v.content }}</div>
         </div>
       </ng-template>
+      
+      <!-- Action buttons on hover -->
+      <div *ngIf="hoveredItem === getMaterialTitle(v)" class="item-actions" [ngClass]="{
+        'drop-above': hoveredPosition === 'above',
+        'drop-below': hoveredPosition === 'below'
+      }">
+        <div class="action-item primary" (click)="openNotes(getMaterialId(v), getMaterialTitle(v))">
+          📚 Travailler le matériel
+        </div>
+        <div class="action-item secondary" (click)="addToHomework('video', getMaterialTitle(v), getMaterialId(v))">
+          📋 Ajouter aux devoirs
+        </div>
+      </div>
     </div>
   </div>
 </div>
