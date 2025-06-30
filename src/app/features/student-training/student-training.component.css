@@ -638,6 +638,19 @@
   margin-bottom: 2rem;
 }
 
+.empty-state-hint {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border-left: 3px solid #0ea5e9;
+}
+
+.empty-state-hint small {
+  color: #0369a1;
+  font-style: italic;
+}
+
 /* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 768px) {
   .student-training-container {
@@ -713,4 +726,357 @@
   .meta-item {
     font-size: 0.8rem;
   }
+}
+
+/* ==================== SECTION HEADER ==================== */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.section-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2d3748;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.section-header h2 i {
+  color: #4facfe;
+}
+
+/* ==================== CREATE HOMEWORK FORM ==================== */
+.create-form-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2d3748;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-header h3 i {
+  color: #4facfe;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #718096;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #f7fafc;
+  color: #2d3748;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  background: white;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+}
+
+.materials-selector {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.material-option {
+  padding: 0.5rem;
+  border-bottom: 1px solid #f7fafc;
+}
+
+.material-option:last-child {
+  border-bottom: none;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin: 0;
+}
+
+.material-type-small {
+  color: #718096;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ==================== HOMEWORK LIST (LESSON-MANAGEMENT STYLE) ==================== */
+.homework-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ==================== LESSON GROUPING STYLES ==================== */
+
+.lesson-group {
+  margin-bottom: 2rem;
+}
+
+.lesson-group-header {
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.lesson-title {
+  color: white;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lesson-title i {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+.homework-count {
+  font-size: 0.875rem;
+  opacity: 0.8;
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-weight: 500;
+}
+
+.lesson-homework-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-left: 1rem;
+  border-left: 3px solid #e2e8f0;
+}
+
+.homework-card.type-task {
+  border-left: 4px solid #3182ce !important;
+}
+
+.homework-card.type-question {
+  border-left: 4px solid #ed8936 !important;
+}
+
+.homework-card.type-material {
+  border-left: 4px solid #38a169 !important;
+}
+
+.homework-card.type-manual {
+  border-left: 4px solid #805ad5 !important;
+}
+
+.homework-number {
+  background: #4facfe;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.homework-type-icon {
+  color: #4facfe !important;
+}
+
+.homework-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.homework-status-badge.status-assigned {
+  background: #bee3f8;
+  color: #2b6cb0;
+}
+
+.homework-status-badge.status-submitted {
+  background: #fef5e7;
+  color: #c05621;
+}
+
+.homework-status-badge.status-completed {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.homework-status-badge.status-overdue {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+/* ==================== SOURCE BADGES ==================== */
+.source-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.source-badge.in-class {
+  background: #c6f6d5;
+  color: #276749;
+  border: 1px solid #9ae6b4;
+}
+
+.source-badge.outside-class {
+  background: #fef5e7;
+  color: #c05621;
+  border: 1px solid #fbd38d;
+}
+
+.source-info {
+  background: #f7fafc;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 3px solid #4facfe;
+}
+
+.source-info strong {
+  color: #2d3748;
+}
+
+/* ==================== HOMEWORK ACTIONS UPDATES ==================== */
+.homework-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.homework-grade {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grade-value {
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.grade-value.good {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.grade-value.average {
+  background: #fef5e7;
+  color: #c05621;
+}
+
+.grade-value.poor {
+  background: #fed7d7;
+  color: #c53030;
 } 

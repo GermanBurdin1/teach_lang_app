@@ -485,30 +485,80 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       if (result) {
         console.log('📋 Домашнее задание создано:', result);
         
-        // Добавляем в массив домашних заданий
-        const homeworkItem = {
-          id: Date.now().toString(),
-          type,
+        const currentUser = this.authService.getCurrentUser();
+        const lessonId = this.lessonTabsService.getCurrentLessonId();
+        
+        if (!currentUser || !lessonId) {
+          console.error('❌ Нет данных пользователя или урока');
+          return;
+        }
+
+        // Создаем домашнее задание через обновленный сервис
+        const homeworkData = {
+          lessonId: lessonId,
           title: result.title,
           description: result.description,
-          dueDate: result.dueDate,
-          status: 'unfinished',
-          itemId,
-          createdAt: new Date().toISOString(),
-          lessonId: this.lessonTabsService.getCurrentLessonId()
+          dueDate: new Date(result.dueDate),
+          assignedBy: currentUser.id,
+          assignedTo: this.currentLesson?.studentId || currentUser.id,
+          sourceType: type,
+          sourceItemId: itemId,
+          sourceItemText: title,
+          materialIds: type === 'material' ? [itemId] : []
         };
-        
-        this.homeworkItems.push(homeworkItem);
-        
-        // Помечаем как разобранное в классе если это задание/вопрос
-        if (type === 'task' || type === 'question') {
-          this.coveredInClass.add(itemId);
-        }
-        
-        // Сохраняем в localStorage
-        this.saveHomeworkItems();
-        
-        console.log('✅ Домашнее задание добавлено и сохранено:', homeworkItem);
+
+        this.homeworkService.createHomeworkFromLesson(homeworkData).subscribe({
+          next: (homework) => {
+            console.log('✅ Домашнее задание сохранено в БД:', homework);
+            
+            // Добавляем в локальный массив для немедленного отображения
+            const homeworkItem = {
+              id: homework.id,
+              type,
+              title: homework.title,
+              description: homework.description,
+              dueDate: homework.dueDate,
+              status: homework.status,
+              itemId,
+              createdAt: homework.assignedAt.toString(),
+              lessonId: homework.lessonId,
+              createdInClass: homework.createdInClass
+            };
+            
+            this.homeworkItems.push(homeworkItem);
+            
+            // Помечаем как разобранное в классе если это задание/вопрос
+            if (type === 'task' || type === 'question') {
+              this.coveredInClass.add(itemId);
+            }
+            
+            // Сохраняем в localStorage для совместимости
+            this.saveHomeworkItems();
+            
+            console.log('✅ Домашнее задание добавлено локально:', homeworkItem);
+          },
+          error: (error) => {
+            console.error('❌ Ошибка создания домашнего задания:', error);
+            
+            // Fallback: сохраняем локально если сервер недоступен
+            const homeworkItem = {
+              id: Date.now().toString(),
+              type,
+              title: result.title,
+              description: result.description,
+              dueDate: result.dueDate,
+              status: 'unfinished',
+              itemId,
+              createdAt: new Date().toISOString(),
+              lessonId: lessonId,
+              createdInClass: true
+            };
+            
+            this.homeworkItems.push(homeworkItem);
+            this.coveredInClass.add(itemId);
+            this.saveHomeworkItems();
+          }
+        });
       }
     });
   }

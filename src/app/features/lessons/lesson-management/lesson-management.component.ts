@@ -203,13 +203,77 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
 
   // Загрузка домашних заданий для урока
   loadHomeworkItems(lessonId: string): void {
-    const savedHomework = localStorage.getItem(`homework_${lessonId}`);
-    if (savedHomework) {
-      this.homeworkItems = JSON.parse(savedHomework);
-      console.log('📋 Загружены домашние задания для урока:', lessonId, this.homeworkItems);
-    } else {
-      this.homeworkItems = [];
-    }
+    console.log('📋 Начинаем загрузку домашних заданий для урока:', lessonId);
+    
+    // Загружаем домашние задания из БД через HomeworkService
+    this.homeworkService.getHomeworkForLesson(lessonId).subscribe({
+      next: (homeworkFromDB) => {
+        console.log('📋 Домашние задания загружены из БД:', homeworkFromDB);
+        
+        // Преобразуем в формат для отображения
+        const homeworkItems = homeworkFromDB.map(homework => ({
+          id: homework.id,
+          type: homework.sourceType,
+          title: homework.title,
+          description: homework.description,
+          dueDate: homework.dueDate,
+          status: homework.status === 'assigned' ? 'unfinished' : homework.status,
+          itemId: homework.sourceItemId,
+          createdAt: homework.assignedAt,
+          lessonId: homework.lessonId,
+          createdInClass: homework.createdInClass,
+          sourceItemText: homework.sourceItemText,
+          grade: homework.grade,
+          teacherFeedback: homework.teacherFeedback
+        }));
+        
+        // Загружаем также из localStorage для совместимости со старыми данными
+        const savedHomework = localStorage.getItem(`homework_${lessonId}`);
+        let localHomework: any[] = [];
+        if (savedHomework) {
+          localHomework = JSON.parse(savedHomework);
+          console.log('📋 Домашние задания загружены из localStorage:', localHomework);
+        }
+        
+        // Объединяем данные из БД и localStorage, избегая дублирования
+        const combinedHomework = [...homeworkItems];
+        
+        // Добавляем домашние задания из localStorage которых нет в БД
+        localHomework.forEach(localItem => {
+          const existsInDB = homeworkItems.some(dbItem => 
+            dbItem.itemId === localItem.itemId && 
+            dbItem.title === localItem.title
+          );
+          
+          if (!existsInDB) {
+            // Добавляем поле createdInClass для совместимости
+            localItem.createdInClass = localItem.createdInClass !== undefined ? localItem.createdInClass : true;
+            combinedHomework.push(localItem);
+          }
+        });
+        
+        this.homeworkItems = combinedHomework;
+        console.log('📋 Итоговые домашние задания для урока:', lessonId, this.homeworkItems);
+      },
+      error: (error) => {
+        console.warn('⚠️ Ошибка загрузки домашних заданий из БД, используем localStorage:', error);
+        
+        // Fallback: загружаем только из localStorage
+        const savedHomework = localStorage.getItem(`homework_${lessonId}`);
+        if (savedHomework) {
+          this.homeworkItems = JSON.parse(savedHomework);
+          // Добавляем поле createdInClass для совместимости
+          this.homeworkItems.forEach(item => {
+            if (item.createdInClass === undefined) {
+              item.createdInClass = true; // по умолчанию считаем что создано в классе
+            }
+          });
+          console.log('📋 Домашние задания загружены из localStorage (fallback):', this.homeworkItems);
+        } else {
+          this.homeworkItems = [];
+        }
+      }
+    });
   }
 
   // Загрузка конспекта урока
@@ -613,26 +677,26 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       // À venir: ТОЛЬКО предстоящие уроки по времени
       const isFutureTime = lessonDate > now;
       
-      console.log(`🔍 Фильтр Future для урока ${lesson.id}:`, {
-        lessonDate: lessonDate.toISOString(),
-        now: now.toISOString(), 
-        status: lesson.status,
-        isFutureTime,
-        teacherName: lesson.teacherName
-      });
+      // console.log(`🔍 Фильтр Future для урока ${lesson.id}:`, {
+      //   lessonDate: lessonDate.toISOString(),
+      //   now: now.toISOString(), 
+      //   status: lesson.status,
+      //   isFutureTime,
+      //   teacherName: lesson.teacherName
+      // });
       
       if (!isFutureTime) return false;
     } else if (this.filter === 'past') {
       // Passés: ТОЛЬКО прошедшие по времени
       const isPastTime = lessonDate <= now;
       
-      console.log(`🕐 Фильтр Past для урока ${lesson.id}:`, {
-        lessonDate: lessonDate.toISOString(),
-        now: now.toISOString(),
-        status: lesson.status,
-        isPastTime,
-        teacherName: lesson.teacherName
-      });
+      // console.log(`🕐 Фильтр Past для урока ${lesson.id}:`, {
+      //   lessonDate: lessonDate.toISOString(),
+      //   now: now.toISOString(),
+      //   status: lesson.status,
+      //   isPastTime,
+      //   teacherName: lesson.teacherName
+      // });
       
       if (!isPastTime) return false;
     }

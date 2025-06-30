@@ -434,25 +434,30 @@
           <div class="homework-list">
             <mat-card *ngFor="let homework of homeworkItems; let i = index" 
                       class="homework-card"
-                      [class]="'type-' + homework.type">
+                      [class]="'type-' + homework.sourceType">
               <mat-card-header>
                 <mat-card-title>
                   <div class="homework-header">
                     <span class="homework-number">{{ i + 1 }}.</span>
                     <mat-icon class="homework-type-icon">
-                      {{ homework.type === 'task' ? 'assignment' : 
-                         homework.type === 'question' ? 'quiz' : 'folder' }}
+                      {{ homework.sourceType === 'task' ? 'assignment' : 
+                         homework.sourceType === 'question' ? 'quiz' : 'folder' }}
                     </mat-icon>
                     <span class="homework-title">{{ homework.title }}</span>
                     <span class="homework-status-badge" [class]="'status-' + homework.status">
                       {{ homework.status === 'unfinished' ? 'Non terminé' : 'Terminé' }}
                     </span>
-                    <span class="covered-badge" title="Traité en classe">✅ Traité en classe</span>
+                    <span *ngIf="homework.createdInClass" class="covered-badge in-class" title="Créé en classe">
+                      ✅ Créé en classe
+                    </span>
+                    <span *ngIf="!homework.createdInClass" class="covered-badge outside-class" title="Créé hors classe">
+                      🏠 Créé hors classe
+                    </span>
                   </div>
                 </mat-card-title>
                 <mat-card-subtitle>
                   <div class="homework-meta">
-                    <span class="homework-type">{{ homework.type === 'task' ? 'Tâche' : homework.type === 'question' ? 'Question' : 'Matériau' }}</span>
+                    <span class="homework-type">{{ homework.sourceType === 'task' ? 'Tâche' : homework.sourceType === 'question' ? 'Question' : 'Matériau' }}</span>
                     <span class="homework-date">Créé le {{ homework.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
                     <span class="homework-due" *ngIf="homework.dueDate">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}</span>
                   </div>

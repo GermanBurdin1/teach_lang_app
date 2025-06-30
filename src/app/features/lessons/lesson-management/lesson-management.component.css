@@ -829,12 +829,22 @@
 }
 
 .covered-badge {
-  background-color: #e3f2fd;
-  color: #1976d2;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 11px;
   font-weight: 500;
+}
+
+.covered-badge.in-class {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.covered-badge.outside-class {
+  background-color: #fff3e0;
+  color: #f57c00;
+  border: 1px solid #ffcc02;
 }
 
 .homework-meta {
