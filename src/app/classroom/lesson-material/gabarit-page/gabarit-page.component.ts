@@ -1,11 +1,11 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-gabarit-page',
   templateUrl: './gabarit-page.component.html',
   styleUrls: ['./gabarit-page.component.css']
 })
-export class GabaritPageComponent implements OnInit {
+export class GabaritPageComponent implements OnInit, OnDestroy {
   @Input() lesson: any;
   @Input() readonly = true;
 
@@ -13,9 +13,13 @@ export class GabaritPageComponent implements OnInit {
   @Output() openNotesEvent = new EventEmitter<{section: 'materials', itemId: string, itemText: string}>();
   @Output() addToHomeworkEvent = new EventEmitter<{type: string, materialTitle: string, materialId: string}>();
 
-  // Hover management
+  // Hover management - улучшенная логика
   hoveredItem: string | null = null;
   hoveredPosition: 'above' | 'below' = 'below';
+  
+  // Улучшенная логика для кнопок действий
+  private hideTimeout: any = null;
+  private isHoveringActions = false;
 
   ngOnInit(): void {
     if (!this.lesson) {
@@ -87,14 +91,54 @@ export class GabaritPageComponent implements OnInit {
     return material?.title || material?.name || 'Matériau';
   }
 
-  // Hover management
+  // Hover management - улучшенная логика
   onHover(materialTitle: string, event: MouseEvent) {
+    // Отменяем любой существующий таймер скрытия
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
+    
     this.hoveredItem = materialTitle;
     
     // Determine position based on viewport
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     this.hoveredPosition = rect.bottom > viewportHeight * 0.7 ? 'above' : 'below';
+  }
+
+  onLeaveItem() {
+    // Задержка перед скрытием кнопок
+    this.hideTimeout = setTimeout(() => {
+      if (!this.isHoveringActions) {
+        this.hoveredItem = null;
+      }
+    }, 300); // 300ms задержка
+  }
+
+  onEnterActions() {
+    // Отменяем скрытие при наведении на кнопки
+    this.isHoveringActions = true;
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
+  }
+
+  onLeaveActions() {
+    // Скрываем кнопки с небольшой задержкой при уходе с кнопок
+    this.isHoveringActions = false;
+    this.hideTimeout = setTimeout(() => {
+      this.hoveredItem = null;
+    }, 100); // 100ms задержка при уходе с кнопок
+  }
+
+  ngOnDestroy(): void {
+    // Очищаем таймер если он существует
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
   }
 
   // Add to homework method - передаем событие родительскому компоненту

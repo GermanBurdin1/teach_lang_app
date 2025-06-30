@@ -6,7 +6,7 @@
     <h5>📝 Textes</h5>
     <div *ngFor="let t of texts" class="material-item position-relative" 
          (mouseenter)="onHover(getMaterialTitle(t), $event)" 
-         (mouseleave)="hoveredItem = null">
+         (mouseleave)="onLeaveItem()">
       <div *ngIf="isString(t); else objectText" class="item">{{ getDisplayName(t) }}</div>
       <ng-template #objectText>
         <div class="material-card">
@@ -21,7 +21,7 @@
       <div *ngIf="hoveredItem === getMaterialTitle(t)" class="item-actions" [ngClass]="{
         'drop-above': hoveredPosition === 'above',
         'drop-below': hoveredPosition === 'below'
-      }">
+      }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
         <div class="action-item primary" (click)="openNotes(getMaterialId(t), getMaterialTitle(t))">
           📚 Travailler le matériel
         </div>
@@ -37,7 +37,7 @@
     <h5>🔊 Audios</h5>
     <div *ngFor="let a of audios" class="material-item position-relative" 
          (mouseenter)="onHover(getMaterialTitle(a), $event)" 
-         (mouseleave)="hoveredItem = null">
+         (mouseleave)="onLeaveItem()">
       <div *ngIf="isString(a); else objectAudio" class="item">
         <div class="d-flex align-items-center">
           <i class="fas fa-music me-2"></i>
@@ -82,7 +82,7 @@
       <div *ngIf="hoveredItem === getMaterialTitle(a)" class="item-actions" [ngClass]="{
         'drop-above': hoveredPosition === 'above',
         'drop-below': hoveredPosition === 'below'
-      }">
+      }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
         <div class="action-item primary" (click)="openNotes(getMaterialId(a), getMaterialTitle(a))">
           📚 Travailler le matériel
         </div>
@@ -98,7 +98,7 @@
     <h5>🎬 Vidéos</h5>
     <div *ngFor="let v of videos" class="material-item position-relative" 
          (mouseenter)="onHover(getMaterialTitle(v), $event)" 
-         (mouseleave)="hoveredItem = null">
+         (mouseleave)="onLeaveItem()">
       <div *ngIf="isString(v); else objectVideo" class="item">
         <div class="d-flex align-items-center">
           <i class="fas fa-video me-2"></i>
@@ -143,7 +143,7 @@
       <div *ngIf="hoveredItem === getMaterialTitle(v)" class="item-actions" [ngClass]="{
         'drop-above': hoveredPosition === 'above',
         'drop-below': hoveredPosition === 'below'
-      }">
+      }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
         <div class="action-item primary" (click)="openNotes(getMaterialId(v), getMaterialTitle(v))">
           📚 Travailler le matériel
         </div>

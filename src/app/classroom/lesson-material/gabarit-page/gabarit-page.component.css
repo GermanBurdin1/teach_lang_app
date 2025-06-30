@@ -7,6 +7,8 @@
 
 .material-item {
   margin-bottom: 10px;
+  position: relative;
+  min-height: 60px;
 }
 
 .material-card {
@@ -17,6 +19,7 @@
   margin-bottom: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  min-height: 50px;
 }
 
 .material-card:hover {
@@ -96,6 +99,9 @@
   margin-bottom: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  position: relative;
+  /* Добавляем дополнительное пространство для лучшего hover */
+  min-height: 50px;
 }
 
 .material-item .item:hover {
@@ -134,60 +140,75 @@
   color: #333;
 }
 
-/* Стили для действий при наведении */
+/* Стили для действий при наведении - улучшенная версия
+   Улучшенная логика: кнопки не исчезают мгновенно при mouseleave,
+   а остаются видимыми с задержкой, что позволяет легко кликать по ним */
 .item-actions {
   position: absolute;
   background: white;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  padding: 8px;
+  padding: 12px;
   z-index: 1000;
   min-width: 220px;
   left: 0;
+  /* Добавляем небольшой отступ для улучшения hover-области */
+  margin-left: -4px;
 }
 
 .item-actions.drop-above {
   bottom: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 4px; /* Уменьшаем отступ для лучшего перехода курсора */
 }
 
 .item-actions.drop-below {
   top: 100%;
-  margin-top: 8px;
+  margin-top: 4px; /* Уменьшаем отступ для лучшего перехода курсора */
 }
 
 .action-item {
-  padding: 8px 12px;
+  padding: 12px 16px; /* Увеличиваем padding для лучшей кликабельности */
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s ease;
   font-size: 14px;
   font-weight: 500;
-  margin: 2px 0;
+  margin: 4px 0;
+  border: none;
+  outline: none;
+  user-select: none;
 }
 
 .action-item:hover {
   background: #f5f5f5;
   color: #2196F3;
+  transform: translateX(2px); /* Добавляем небольшое движение */
 }
 
 .action-item.primary {
   background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
   color: white;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
 }
 
 .action-item.primary:hover {
   background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
   color: white;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+  transform: translateX(2px) translateY(-1px);
 }
 
 .action-item.secondary {
   background: #f5f5f5;
   color: #666;
+  border: 1px solid #e0e0e0;
 }
 
 .action-item.secondary:hover {
   background: #28a745;
   color: white;
+  border-color: #28a745;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  transform: translateX(2px) translateY(-1px);
 }
