@@ -140,4 +140,8 @@ export class LessonService {
   startLesson(lessonId: string, startedBy: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/start`, { lessonId, startedBy });
   }
+
+  endLesson(lessonId: string, endedBy: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/end`, { lessonId, endedBy });
+  }
 }

@@ -683,13 +683,26 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     }
     try {
       await this.lessonService.startLesson(lessonId, currentUser.id).toPromise();
+      // Получаем и показываем статус после старта
+      const startedLesson = await this.lessonService.getLessonById(lessonId).toPromise();
+      alert('Статус урока после старта: ' + (startedLesson?.status || 'неизвестно'));
       this.lessonStarted = true;
       this.countdown = 180;
-      this.countdownInterval = setInterval(() => {
+      this.countdownInterval = setInterval(async () => {
         if (this.countdown > 0) {
           this.countdown--;
         } else {
           clearInterval(this.countdownInterval);
+          // Завершаем урок
+          try {
+            await this.lessonService.endLesson(lessonId, currentUser.id).toPromise();
+            // Получаем и показываем статус после завершения
+            const endedLesson = await this.lessonService.getLessonById(lessonId).toPromise();
+            alert('Статус урока после завершения: ' + (endedLesson?.status || 'неизвестно'));
+            console.log('✅ Урок завершён (статус completed в БД)');
+          } catch (err) {
+            console.error('❌ Ошибка при завершении урока:', err);
+          }
         }
       }, 1000);
       console.log('✅ Урок успешно начат (статус обновлен в БД)');
