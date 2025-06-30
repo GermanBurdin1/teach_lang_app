@@ -605,16 +605,17 @@ export class StudentHomeComponent implements OnInit {
 
   // Проверка можно ли войти в класс (в день занятия)
   canEnterClass(event: CalendarEvent): boolean {
-    if (event.meta?.status !== 'confirmed') return false;
-    
-    const now = new Date();
-    const lessonTime = event.start;
-    
-    // Проверяем что урок в тот же день
-    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lessonDate = new Date(lessonTime.getFullYear(), lessonTime.getMonth(), lessonTime.getDate());
-    
-    return nowDate.getTime() === lessonDate.getTime();
+    const status = event.meta?.status;
+    if (status === 'confirmed') {
+      // Старое поведение: только в день урока
+      const now = new Date();
+      const lessonTime = event.start;
+      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const lessonDate = new Date(lessonTime.getFullYear(), lessonTime.getMonth(), lessonTime.getDate());
+      return nowDate.getTime() === lessonDate.getTime();
+    }
+    // Новое: разрешить вход только если статус in_progress
+    return status === 'in_progress';
   }
 
   // Вход в виртуальный класс

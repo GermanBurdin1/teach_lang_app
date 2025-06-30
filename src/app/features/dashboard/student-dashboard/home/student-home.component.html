@@ -199,7 +199,7 @@
               <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
               {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
             </div>
-            <button *ngIf="canEnterClass(event) && event?.meta?.status === 'confirmed'" 
+            <button *ngIf="canEnterClass(event) && (event?.meta?.status === 'confirmed' || event?.meta?.status === 'in_progress')" 
                     mat-mini-fab 
                     color="accent" 
                     (click)="enterVirtualClass(event); $event.stopPropagation()"

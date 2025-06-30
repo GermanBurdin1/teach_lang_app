@@ -52,7 +52,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private isHoveringActions = false;
 
   lessonStarted = false;
-  countdown = 180; // 3 минуты
+  countdown = 30; // 30 секунд
   private countdownInterval: any = null;
 
   constructor(
@@ -687,7 +687,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       const startedLesson = await this.lessonService.getLessonById(lessonId).toPromise();
       alert('Статус урока после старта: ' + (startedLesson?.status || 'неизвестно'));
       this.lessonStarted = true;
-      this.countdown = 180;
+      this.countdown = 30;
       this.countdownInterval = setInterval(async () => {
         if (this.countdown > 0) {
           this.countdown--;
