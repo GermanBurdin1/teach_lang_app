@@ -142,12 +142,35 @@
     <div class="homework-zone">
       <h3>📚 Devoirs à faire</h3>
 
-      <ng-container *ngIf="pendingHomework.length > 0; else noHomework">
-        <ul>
-          <li *ngFor="let hw of pendingHomework">
-            {{ hw.title }} — pour le {{ hw.dueDate }}
-          </li>
-        </ul>
+      <ng-container *ngIf="studentHomework.length > 0; else noHomework">
+        <div class="student-homework-list">
+          <mat-card *ngFor="let hw of studentHomework" class="homework-card">
+            <mat-card-header>
+              <mat-card-title>
+                <span class="homework-title">{{ hw.title }}</span>
+                <span class="homework-status" [ngClass]="{
+                  'status-unfinished': hw.status === 'assigned',
+                  'status-completed': hw.status === 'completed',
+                  'status-overdue': hw.status === 'overdue'
+                }">
+                  {{ hw.status === 'completed' ? '✅ Terminé' : (hw.status === 'overdue' ? '⏰ En retard' : '📝 À faire') }}
+                </span>
+              </mat-card-title>
+              <mat-card-subtitle>
+                Pour le {{ hw.dueDate | date:'dd/MM/yyyy' }}
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="homework-description">{{ hw.description }}</div>
+              <div *ngIf="hw.teacherFeedback" class="homework-feedback">
+                <strong>Feedback:</strong> {{ hw.teacherFeedback }}
+              </div>
+              <div *ngIf="hw.grade !== undefined && hw.grade !== null" class="homework-grade">
+                <strong>Note:</strong> {{ hw.grade }}
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
       </ng-container>
 
       <ng-template #noHomework>

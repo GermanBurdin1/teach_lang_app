@@ -10,6 +10,7 @@ import { StudentGoal, ExamLevel, CreateGoalDto } from '../../../../models/studen
 import { Router } from '@angular/router';
 import { VideoCallService } from '../../../../services/video-call.service';
 import { TeacherService } from '../../../../services/teacher.service';
+import { HomeworkService, Homework } from '../../../../services/homework.service';
 
 @Component({
   selector: 'app-student-home',
@@ -34,11 +35,6 @@ export class StudentHomeComponent implements OnInit {
     wordsLearned: 87
   };
 
-  pendingHomework = [
-    { title: 'Production écrite #2', dueDate: '2025-05-24' },
-    { title: 'Exercice de grammaire B2', dueDate: '2025-05-26' }
-  ];
-
   selectedLesson: CalendarEvent | null = null;
   showModal = false;
   upcomingLessons: CalendarEvent[] = [];
@@ -58,6 +54,8 @@ export class StudentHomeComponent implements OnInit {
   showMoreNotifications = false;
   readonly MAX_NOTIFICATIONS = 10;
 
+  studentHomework: Homework[] = [];
+
   constructor(
     private notificationService: NotificationService,
     private matNotificationService: MatNotificationService,
@@ -66,7 +64,8 @@ export class StudentHomeComponent implements OnInit {
     private goalsService: GoalsService,
     private router: Router,
     private videoCallService: VideoCallService,
-    private teacherService: TeacherService
+    private teacherService: TeacherService,
+    private homeworkService: HomeworkService
   ) { }
 
   ngOnInit(): void {
@@ -144,6 +143,18 @@ export class StudentHomeComponent implements OnInit {
 
     // ==================== ЗАГРУЗКА ВСЕХ ЗАЯВОК ДЛЯ КАЛЕНДАРЯ ====================
     this.loadAllLessonsForCalendar(studentId);
+
+    // Загрузка реальных домашних заданий
+    this.homeworkService.getHomeworkForStudent(studentId).subscribe({
+      next: (homework) => {
+        this.studentHomework = homework;
+        console.log('[StudentHome] Загружены реальные домашние задания:', homework);
+      },
+      error: (err) => {
+        console.error('[StudentHome] Ошибка загрузки домашних заданий:', err);
+        this.studentHomework = [];
+      }
+    });
   }
 
   onLessonClick(event: CalendarEvent): void {
