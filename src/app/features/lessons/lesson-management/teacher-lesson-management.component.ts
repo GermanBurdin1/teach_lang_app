@@ -735,32 +735,40 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
 
   // ==================== МЕТОДЫ ДЛЯ ЗАМЕТОК ====================
   
-  loadLessonNotes(lessonId: string): Promise<any> {
+  async loadLessonNotes(lessonId: string): Promise<any> {
     console.log('📝 Начинаем загрузку заметок для урока:', lessonId);
     
-    const savedNotes = localStorage.getItem(`lesson_notes_${lessonId}`);
-    if (savedNotes) {
-      const notesData: LessonNotesData = JSON.parse(savedNotes);
-      console.log('📝 Загружен конспект для урока из localStorage:', lessonId, notesData);
+    try {
+      // Инициализируем заметки из базы данных
+      await this.lessonNotesService.initNotesForLesson(lessonId);
       
-      // Преобразуем данные из LessonNotesService в формат, ожидаемый HTML
-      this.lessonNotes = {
-        tasksNotes: this.extractStructuredNotes(notesData.tasks || []),
-        questionsNotes: this.extractStructuredNotes(notesData.questions || []),
-        materialsNotes: this.extractStructuredNotes(notesData.materials || []),
-        // Сохраняем старый формат для совместимости
-        tasksContent: this.extractNotesContent(notesData.tasks || []),
-        questionsContent: this.extractNotesContent(notesData.questions || []),
-        materialsContent: this.extractNotesContent(notesData.materials || [])
-      };
+      // Подписываемся на заметки
+      this.lessonNotesService.notes$.subscribe(notesData => {
+        if (notesData && notesData.lessonId === lessonId) {
+          console.log('📝 Загружен конспект для урока из базы данных:', lessonId, notesData);
+          
+          // Преобразуем данные из LessonNotesService в формат, ожидаемый HTML
+          this.lessonNotes = {
+            tasksNotes: this.extractStructuredNotes(notesData.tasks || []),
+            questionsNotes: this.extractStructuredNotes(notesData.questions || []),
+            materialsNotes: this.extractStructuredNotes(notesData.materials || []),
+            // Сохраняем старый формат для совместимости
+            tasksContent: this.extractNotesContent(notesData.tasks || []),
+            questionsContent: this.extractNotesContent(notesData.questions || []),
+            materialsContent: this.extractNotesContent(notesData.materials || [])
+          };
+          
+          console.log('📝 Конспект преобразован для отображения:', this.lessonNotes);
+        }
+      });
       
-      console.log('📝 Конспект преобразован для отображения:', this.lessonNotes);
-    } else {
+      return this.lessonNotes;
+    } catch (error) {
+      console.error('❌ Ошибка загрузки конспекта из базы данных:', error);
       this.lessonNotes = null;
       console.log('📝 Конспект не найден для урока:', lessonId);
+      return null;
     }
-    
-    return Promise.resolve(this.lessonNotes);
   }
 
   // Извлекает содержимое заметок и объединяет их
@@ -800,6 +808,18 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
 
   // Дополнительные методы для проверки заметок
   hasLessonNotes(lessonId: string): boolean {
+    // Проверяем в текущих заметках из сервиса
+    const currentNotes = this.lessonNotesService.exportNotes();
+    if (currentNotes && currentNotes.lessonId === lessonId) {
+      // Проверяем, есть ли хотя бы одна заметка с содержимым
+      const hasTasks = currentNotes.tasks && currentNotes.tasks.some(note => note.content && note.content.trim());
+      const hasQuestions = currentNotes.questions && currentNotes.questions.some(note => note.content && note.content.trim());
+      const hasMaterials = currentNotes.materials && currentNotes.materials.some(note => note.content && note.content.trim());
+      
+      return hasTasks || hasQuestions || hasMaterials;
+    }
+    
+    // Fallback к localStorage для совместимости
     const savedNotes = localStorage.getItem(`lesson_notes_${lessonId}`);
     if (!savedNotes) return false;
     

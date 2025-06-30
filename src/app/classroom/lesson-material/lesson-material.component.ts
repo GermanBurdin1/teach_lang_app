@@ -115,14 +115,14 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     console.log('📍 ActivatedRoute snapshot:', this.route.snapshot.paramMap.keys);
     console.log('📍 ActivatedRoute param id:', this.route.snapshot.paramMap.get('id'));
 
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe(async params => {
       console.log('📍 paramMap содержит:', params.keys);
       const lessonId = params.get('id');
       if (lessonId) {
         console.log(`🔄 Обновляем lessonId: ${lessonId}`);
         this.lessonTabsService.setCurrentLessonId(lessonId);
         this.loadLessonData(lessonId);
-        this.lessonNotesService.initNotesForLesson(lessonId);
+        await this.lessonNotesService.initNotesForLesson(lessonId);
       }
     });
 
