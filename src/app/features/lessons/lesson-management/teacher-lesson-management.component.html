@@ -308,9 +308,6 @@
                   <small>Répondu le {{ question.answeredAt | date:'dd/MM/yyyy à HH:mm' }}</small>
                 </div>
               </mat-card-content>
-              <mat-card-content *ngIf="!question.isAnswered">
-                <p class="waiting-answer">⏳ Question en attente de réponse...</p>
-              </mat-card-content>
               
               <!-- Кнопка раскрытия заметок -->
               <mat-card-actions *ngIf="isItemProcessed('questions', question.question)" class="card-actions-with-expand">
@@ -389,10 +386,6 @@
                     <span class="material-title">{{ material.title }}</span>
                     <span class="material-type-badge" [class]="'type-' + material.type">
                       {{ material.type.toUpperCase() }}
-                    </span>
-                    <!-- Статус проработки -->
-                    <span class="processing-status" [class]="getProcessingStatusClass('materials', material.id)">
-                      {{ getProcessingStatusText('materials', material.id) }}
                     </span>
                   </div>
                 </mat-card-title>

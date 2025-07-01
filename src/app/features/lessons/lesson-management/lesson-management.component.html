@@ -343,9 +343,6 @@
                   <small>Répondu le {{ question.answeredAt | date:'dd/MM/yyyy à HH:mm' }}</small>
                 </div>
               </mat-card-content>
-              <mat-card-content *ngIf="!question.isAnswered">
-                <p class="waiting-answer">⏳ En attente de réponse du professeur...</p>
-              </mat-card-content>
               
               <!-- Кнопка раскрытия заметок -->
               <mat-card-actions *ngIf="isItemProcessed('questions', question.question)" class="card-actions-with-expand">

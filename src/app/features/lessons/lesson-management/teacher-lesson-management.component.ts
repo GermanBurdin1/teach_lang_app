@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call.service';
 import { LessonNotesService, LessonNote, LessonNotesData } from '../../../services/lesson-notes.service';
 import { Subscription } from 'rxjs';
+import { LessonTabsService } from '../../../services/lesson-tabs.service';
 
 interface Task {
   id: string;
@@ -116,7 +117,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private videoCallService: VideoCallService,
-    private lessonNotesService: LessonNotesService
+    private lessonNotesService: LessonNotesService,
+    private lessonTabsService: LessonTabsService
   ) { }
 
   ngOnInit(): void {
@@ -628,13 +630,38 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   }
 
   // Вход в виртуальный класс
-  enterVirtualClass(lesson: Lesson): void {
+  async enterVirtualClass(lesson: Lesson): Promise<void> {
     const currentUserId = this.authService.getCurrentUser()?.id;
     if (!currentUserId) return;
 
-    // Устанавливаем данные урока в VideoCallService
+    // Загружаем актуальные данные
+    const [tasks, questions, materials] = await Promise.all([
+      this.lessonService.getTasksForLesson(lesson.id).toPromise(),
+      this.lessonService.getQuestionsForLesson(lesson.id).toPromise(),
+      this.getMaterialsForLesson(lesson.id)
+    ]);
+
+    const studentTasks = (tasks || []).filter((t: any) => t.createdByRole === 'student').map((t: any) => ({ id: t.id, title: t.title }));
+    const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => ({ id: t.id, title: t.title }));
+    const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => ({ id: q.id, question: q.question }));
+    const teacherQuestions = (questions || []).filter((q: any) => q.createdByRole === 'teacher').map((q: any) => ({ id: q.id, question: q.question }));
+
+    this.lessonTabsService.setCurrentLessonData({
+      id: lesson.id,
+      date: lesson.scheduledAt,
+      teacherTasks: teacherTasks,
+      studentTasks: studentTasks,
+      studentQuestions: studentQuestions,
+      teacherQuestions: teacherQuestions,
+      materials: materials,
+      texts: materials.filter((m: any) => m.type === 'text'),
+      audios: materials.filter((m: any) => m.type === 'audio'),
+      videos: materials.filter((m: any) => m.type === 'video'),
+      homework: []
+    });
+
     this.videoCallService.setLessonData(lesson.id, currentUserId);
-    
+
     this.router.navigate([`/classroom/${lesson.id}/lesson`], {
       queryParams: { startCall: true }
     });

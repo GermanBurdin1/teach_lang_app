@@ -401,11 +401,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       this.lessonService.addTaskToLesson(taskData).subscribe({
         next: (newTask) => {
           if (this.currentLesson) {
-            // Добавляем задачу в локальный массив
             if (!this.currentLesson.teacherTasks) {
               this.currentLesson.teacherTasks = [];
             }
-            this.currentLesson.teacherTasks.push(newTask.title);
+            this.currentLesson.teacherTasks.push(newTask);
           }
           this.newTeacherTask = '';
           console.log('✅ Задача преподавателя добавлена в БД:', newTask);
@@ -432,11 +431,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       this.lessonService.addQuestionToLesson(questionData).subscribe({
         next: (newQuestion) => {
           if (this.currentLesson) {
-            // Добавляем вопрос в локальный массив
             if (!this.currentLesson.teacherQuestions) {
               this.currentLesson.teacherQuestions = [];
             }
-            this.currentLesson.teacherQuestions.push(newQuestion.question);
+            this.currentLesson.teacherQuestions.push(newQuestion);
           }
           this.newTeacherQuestion = '';
           console.log('✅ Вопрос преподавателя добавлен в БД:', newQuestion);

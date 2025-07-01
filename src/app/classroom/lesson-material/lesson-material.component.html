@@ -171,9 +171,6 @@
             <div *ngFor="let homework of homeworkItems" class="homework-item-card">
               <div class="homework-header">
                 <span class="homework-title">{{ homework.title }}</span>
-                <span class="homework-status" [class]="'status-' + homework.status">
-                  {{ homework.status === 'finished' ? 'Terminé' : 'Non terminé' }}
-                </span>
               </div>
               <div *ngIf="homework.description" class="homework-description">{{ homework.description }}</div>
               <div class="homework-meta">
@@ -225,8 +222,6 @@
 
             <div class="task-card teacher-task" [class.covered-in-class]="isCoveredInClass(task)">
               <label class="task-label d-flex align-items-center">
-                <input type="checkbox" class="me-2" [checked]="isResolved(task)" (change)="toggleResolved(task, 'task')"
-                  [disabled]="userRole === 'student'" />
                 <span class="task-text">{{ task.title }}</span>
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
@@ -268,8 +263,6 @@
 
             <div class="question-card teacher-question" [class.covered-in-class]="isCoveredInClass(question)">
               <label class="question-label d-flex align-items-center">
-                <input type="checkbox" class="me-2" [checked]="isResolved(question)"
-                  (change)="toggleResolved(question, 'question')" [disabled]="userRole === 'student'" />
                 <span class="question-text">{{ question.question }}</span>
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(question)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
