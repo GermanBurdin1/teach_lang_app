@@ -109,6 +109,15 @@ export class HomeworkService {
     return this.http.post(`${this.baseUrl}/tasks/${taskId}/complete`, { completedBy });
   }
 
+  // Отметка домашнего задания как выполненного
+  completeHomeworkItem(homeworkId: string, completedBy: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/homework-item/${homeworkId}/complete`, { completedBy });
+  }
+
+  completeQuestion(questionId: string, completedBy: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/questions/${questionId}/complete`, { completedBy });
+  }
+
   // Ответ на вопрос
   answerQuestion(questionId: string, answer: string, answeredBy: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/questions/${questionId}/answer`, { answer, answeredBy });

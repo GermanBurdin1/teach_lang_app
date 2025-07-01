@@ -1181,3 +1181,235 @@
     transform: translateY(0);
   }
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== СТИЛИ ДЛЯ СТАТУСА ПРОРАБОТКИ ==================== */
+
+.processing-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  margin-left: auto;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-processed {
+  background-color: #e8f5e8;
+  color: #2e7d2e;
+  border: 1px solid #4caf50;
+}
+
+.status-unprocessed {
+  background-color: #ffeaa7;
+  color: #d63031;
+  border: 1px solid #fab1a0;
+}
+
+/* Обновляем header'ы для размещения статуса проработки */
+.task-header, .question-header, .material-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.material-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ==================== СТИЛИ ДЛЯ РАСКРЫВАЮЩИХСЯ ПАНЕЛЕЙ ==================== */
+
+.card-actions-with-expand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px !important;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.notes-expansion-panel {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+    padding: 16px;
+  }
+}
+
+.notes-content {
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.notes-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #495057;
+}
+
+.notes-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.notes-icon {
+  color: #6c757d;
+  font-size: 18px;
+}
+
+.note-content {
+  background-color: white;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  color: #495057;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.note-meta {
+  display: flex;
+  justify-content: flex-end;
+  color: #6c757d;
+  font-size: 11px;
+}
+
+/* ==================== СТИЛИ ДЛЯ КАРТОЧЕК С ПРОРАБОТКОЙ ==================== */
+
+.task-card.processed,
+.question-card.processed,
+.material-card.processed {
+  border-left: 4px solid #28a745;
+  background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%);
+}
+
+.task-card.unprocessed,
+.question-card.unprocessed,
+.material-card.unprocessed {
+  border-left: 4px solid #ffc107;
+  background: linear-gradient(135deg, #fffcf0 0%, #ffffff 100%);
+}
+
+/* Анимация для кнопки раскрытия */
+.card-actions-with-expand button[mat-icon-button] {
+  transition: transform 0.3s ease;
+}
+
+.card-actions-with-expand button[mat-icon-button]:hover {
+  transform: scale(1.1);
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* ==================== АДАПТИВНЫЕ СТИЛИ ==================== */
+
+@media (max-width: 768px) {
+  .processing-status {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  
+  .task-header, .question-header, .material-header {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  
+  .notes-content {
+    padding: 12px;
+  }
+  
+  .notes-header h4 {
+    font-size: 13px;
+  }
+  
+  .note-content {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+/* ==================== ТЕМНАЯ ТЕМА ==================== */
+
+@media (prefers-color-scheme: dark) {
+  .status-processed {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #5cb85c;
+    border-color: #28a745;
+  }
+  
+  .status-unprocessed {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border-color: #ffc107;
+  }
+  
+  .notes-expansion-panel {
+    background-color: #2c3e50;
+    border-top-color: #34495e;
+  }
+  
+  .notes-content {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: #ecf0f1;
+  }
+  
+  .notes-header h4 {
+    color: #ecf0f1;
+  }
+  
+  .note-content {
+    background-color: #34495e;
+    color: #ecf0f1;
+    border-left-color: #3498db;
+  }
+  
+  .task-card.processed,
+  .question-card.processed,
+  .material-card.processed {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, transparent 100%);
+  }
+  
+  .task-card.unprocessed,
+  .question-card.unprocessed,
+  .material-card.unprocessed {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, transparent 100%);
+  }
+}

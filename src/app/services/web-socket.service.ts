@@ -6,25 +6,25 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class WebSocketService {
-  private socket: Socket;
+  //private socket: Socket;
 
   constructor() {
-    this.socket = io('http://localhost:3000'); // Подключаемся к серверу NestJS
+    //this.socket = io('http://localhost:3000'); // Подключаемся к серверу NestJS
   }
 
-  sendMessage(event: string, data: any) {
-    this.socket.emit(event, data);
-  }
+  // sendMessage(event: string, data: any) {
+  //   this.socket.emit(event, data);
+  // }
 
-  listen(event: string): Observable<any> {
-    return new Observable(observer => {
-      this.socket.on(event, (data) => {
-        observer.next(data);
-      });
-    });
-  }
+  // listen(event: string): Observable<any> {
+  //   return new Observable(observer => {
+  //     this.socket.on(event, (data) => {
+  //       observer.next(data);
+  //     });
+  //   });
+  // }
 
-  registerUser(userId: string) {
-    this.sendMessage('register', userId);
-  }
+  // registerUser(userId: string) {
+  //   this.sendMessage('register', userId);
+  // }
 }

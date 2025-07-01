@@ -100,6 +100,11 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // Параметры URL
   highlightedLessonIdFromUrl: string | null = null;
 
+  // Управление раскрывающимися панелями
+  expandedTasks: Set<string> = new Set();
+  expandedQuestions: Set<string> = new Set();
+  expandedMaterials: Set<string> = new Set();
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -446,7 +451,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       
       const filteredMaterials = allMaterials.filter(material => {
         const isAttached = material.attachedLessons && material.attachedLessons.includes(lessonId);
-        console.log(`📎 Материал "${material.title}" прикреплен к урокам:`, material.attachedLessons, 'включает урок', lessonId, '?', isAttached);
+        //console.log(`📎 Материал "${material.title}" прикреплен к урокам:`, material.attachedLessons, 'включает урок', lessonId, '?', isAttached);
         return isAttached;
       });
       
@@ -599,35 +604,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     this.showAddQuestionForm = false;
   }
 
-  // Отметка задачи как выполненной
-  completeTask(taskId: string): void {
-    const studentId = this.authService.getCurrentUser()?.id;
-    if (!studentId) return;
 
-    this.lessonService.completeTask(taskId, studentId).subscribe({
-      next: (updatedTask) => {
-        if (this.currentLesson) {
-          const taskIndex = this.currentLesson.tasks.findIndex(t => t.id === taskId);
-          if (taskIndex > -1) {
-            this.currentLesson.tasks[taskIndex] = updatedTask;
-          }
-          
-          // Обновляем задачу и в списке уроков
-          const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
-          if (lessonInList) {
-            const taskIndexInList = lessonInList.tasks.findIndex(t => t.id === taskId);
-            if (taskIndexInList > -1) {
-              lessonInList.tasks[taskIndexInList] = updatedTask;
-            }
-          }
-        }
-        console.log('Задача отмечена как выполненная:', updatedTask);
-      },
-      error: (error) => {
-        console.error('Ошибка выполнения задачи:', error);
-      }
-    });
-  }
 
   // Геттеры для совместимости с шаблоном
   get filteredLessons() {
@@ -647,16 +624,16 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   }
 
   get fullFilteredLessons() {
-    console.log(`📊 Применяем фильтр "${this.filter}" к ${this.lessons.length} урокам`);
+    //console.log(`📊 Применяем фильтр "${this.filter}" к ${this.lessons.length} урокам`);
     
     const result = this.lessons.filter(lesson => this.matchesCurrentFilter(lesson));
     
-    console.log(`📊 После фильтрации: ${result.length} уроков`, result.map(l => ({
-      id: l.id, 
-      date: l.scheduledAt, 
-      status: l.status,
-      teacherName: l.teacherName
-    })));
+    // console.log(`📊 После фильтрации: ${result.length} уроков`, result.map(l => ({
+    //   id: l.id, 
+    //   date: l.scheduledAt, 
+    //   status: l.status,
+    //   teacherName: l.teacherName
+    // })));
 
     // Если есть выделенный урок (через calendar), ставим его первым
     if (this.highlightedLessonIdFromUrl) {
@@ -686,7 +663,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       }
     });
     
-    console.log(`📊 После сортировки: ${sorted.length} уроков`);
+    // console.log(`📊 После сортировки: ${sorted.length} уроков`);
     return sorted;
   }
 
@@ -886,10 +863,10 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     }
     
     // ПЕРЕДАЕМ РЕАЛЬНЫЕ ДАННЫЕ УРОКА В LESSON-MATERIAL КОМПОНЕНТ
-    const studentTasks = lesson.tasks.filter(t => t.createdByRole === 'student').map(t => t.title);
-    const teacherTasks = lesson.tasks.filter(t => t.createdByRole === 'teacher').map(t => t.title);
-    const studentQuestions = lesson.questions.filter(q => q.createdByRole === 'student').map(q => q.question);
-    const teacherQuestions = lesson.questions.filter(q => q.createdByRole === 'teacher').map(q => q.question);
+    const studentTasks = lesson.tasks.filter(t => t.createdByRole === 'student').map(t => ({ id: t.id, title: t.title }));
+    const teacherTasks = lesson.tasks.filter(t => t.createdByRole === 'teacher').map(t => ({ id: t.id, title: t.title }));
+    const studentQuestions = lesson.questions.filter(q => q.createdByRole === 'student').map(q => ({ id: q.id, question: q.question }));
+    const teacherQuestions = lesson.questions.filter(q => q.createdByRole === 'teacher').map(q => ({ id: q.id, question: q.question }));
     
     this.lessonTabsService.setCurrentLessonData({
       id: lesson.id,
@@ -958,6 +935,100 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   isOwnContent(createdBy: string): boolean {
     const currentUserId = this.authService.getCurrentUser()?.id;
     return createdBy === currentUserId;
+  }
+
+  // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С СТАТУСОМ ПРОРАБОТКИ ====================
+  
+  // Проверка проработан ли элемент (есть ли для него заметки)
+  isItemProcessed(section: 'tasks' | 'questions' | 'materials', itemIdentifier: string): boolean {
+    // Для задач и вопросов используем содержимое как идентификатор (совместимость с lesson-material)
+    // Для материалов используем ID
+    let itemId: string;
+    if (section === 'tasks') {
+      // Ищем задачу по содержимому (title)
+      const task = this.currentLesson?.tasks.find(t => t.title === itemIdentifier);
+      itemId = task ? task.title : itemIdentifier; // Используем title как itemId для совместимости
+    } else if (section === 'questions') {
+      // Ищем вопрос по содержимому
+      const question = this.currentLesson?.questions.find(q => q.question === itemIdentifier);
+      itemId = question ? question.question : itemIdentifier; // Используем question как itemId для совместимости
+    } else {
+      itemId = itemIdentifier; // Для материалов используем ID
+    }
+    
+    const note = this.lessonNotesService.getNoteForItem(section, itemId);
+    return note !== undefined && note.content.trim().length > 0;
+  }
+
+  // Получение заметки для элемента
+  getNoteForItem(section: 'tasks' | 'questions' | 'materials', itemIdentifier: string): any {
+    // Аналогично с isItemProcessed
+    let itemId: string;
+    if (section === 'tasks') {
+      const task = this.currentLesson?.tasks.find(t => t.title === itemIdentifier);
+      itemId = task ? task.title : itemIdentifier;
+    } else if (section === 'questions') {
+      const question = this.currentLesson?.questions.find(q => q.question === itemIdentifier);
+      itemId = question ? question.question : itemIdentifier;
+    } else {
+      itemId = itemIdentifier;
+    }
+    
+    return this.lessonNotesService.getNoteForItem(section, itemId);
+  }
+
+  // Получение статуса проработки в текстовом виде
+  getProcessingStatusText(section: 'tasks' | 'questions' | 'materials', itemId: string): string {
+    return this.isItemProcessed(section, itemId) ? 'Travaillé' : 'Non travaillé';
+  }
+
+  // Получение CSS класса для статуса проработки
+  getProcessingStatusClass(section: 'tasks' | 'questions' | 'materials', itemId: string): string {
+    return this.isItemProcessed(section, itemId) ? 'status-processed' : 'status-unprocessed';
+  }
+
+  // ==================== УПРАВЛЕНИЕ РАСКРЫВАЮЩИМИСЯ ПАНЕЛЯМИ ====================
+  
+  // Переключение состояния панели задач
+  toggleTaskExpansion(taskId: string): void {
+    if (this.expandedTasks.has(taskId)) {
+      this.expandedTasks.delete(taskId);
+    } else {
+      this.expandedTasks.add(taskId);
+    }
+  }
+
+  // Переключение состояния панели вопросов
+  toggleQuestionExpansion(questionId: string): void {
+    if (this.expandedQuestions.has(questionId)) {
+      this.expandedQuestions.delete(questionId);
+    } else {
+      this.expandedQuestions.add(questionId);
+    }
+  }
+
+  // Переключение состояния панели материалов
+  toggleMaterialExpansion(materialId: string): void {
+    if (this.expandedMaterials.has(materialId)) {
+      this.expandedMaterials.delete(materialId);
+    } else {
+      this.expandedMaterials.add(materialId);
+    }
+  }
+
+  // Проверка раскрыта ли панель задач
+  isTaskExpanded(taskId: string): boolean {
+    return this.expandedTasks.has(taskId);
+  }
+
+  // Проверка раскрыта ли панель вопросов
+  isQuestionExpanded(questionId: string): boolean {
+    return this.expandedQuestions.has(questionId);
+  }
+
+  // Проверка раскрыта ли панель материалов
+  isMaterialExpanded(materialId: string): boolean {
+    return this.expandedMaterials.has(materialId);
   }
 }
 

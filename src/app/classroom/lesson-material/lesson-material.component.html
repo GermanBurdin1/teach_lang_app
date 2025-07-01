@@ -25,8 +25,8 @@
       </app-interactive-board>
 
       <!-- 🎥 Видео -->
-      <app-video-call *ngIf="videoService.showVideoCall$ | async" [isFloatingMode]="true" class="floating-video-layer">
-      </app-video-call>
+      <!-- <app-video-call *ngIf="videoService.showVideoCall$ | async" [isFloatingMode]="true" class="floating-video-layer">
+      </app-video-call> -->
 
       <!-- 📁 Gabarit -->
       <app-gabarit-page *ngIf="showGabarit" 
@@ -86,12 +86,16 @@
 
             <div class="task-card student-task" [class.covered-in-class]="isCoveredInClass(task)">
               <label class="task-label d-flex align-items-center">
-                <input type="checkbox" class="me-2" [checked]="isResolved(task)"
-                  (change)="toggleResolved(task, 'task')" />
-                <span class="task-text">{{ task }}</span>
+                <span class="task-text">{{ task.title }}</span>
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
                   <span *ngIf="isCoveredInClass(task)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
+                  <button *ngIf="!isResolved(task)" 
+                          class="btn btn-sm btn-outline-success ms-1" 
+                          (click)="markTaskAsCompleted(task.id)"
+                          title="Marquer comme terminé">
+                    ✅
+                  </button>
                 </div>
               </label>
 
@@ -123,12 +127,16 @@
 
             <div class="question-card student-question" [class.covered-in-class]="isCoveredInClass(question)">
               <label class="question-label d-flex align-items-center">
-                <input type="checkbox" class="me-2" [checked]="isResolved(question)"
-                  (change)="toggleResolved(question, 'question')" />
-                <span class="question-text">{{ question }}</span>
+                <span class="question-text">{{ question.question }}</span>
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(question)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
                   <span *ngIf="isCoveredInClass(question)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
+                  <button *ngIf="!isResolved(question)" 
+                          class="btn btn-sm btn-outline-success ms-1" 
+                          (click)="markQuestionAsCompleted(question.id)"
+                          title="Marquer comme terminé">
+                    ✅
+                  </button>
                 </div>
               </label>
 
@@ -156,8 +164,38 @@
 
 
           <!-- Домашние задания -->
-          <div *ngIf="currentLesson?.homework?.length" class="section-header">📚 Devoirs</div>
-          <div *ngIf="currentLesson?.homework?.length" class="homework-list">
+          <div *ngIf="homeworkItems?.length || currentLesson?.homework?.length" class="section-header">📚 Devoirs</div>
+          
+          <!-- Домашние задания из системы (новые) -->
+          <div *ngIf="homeworkItems?.length" class="homework-list">
+            <div *ngFor="let homework of homeworkItems" class="homework-item-card">
+              <div class="homework-header">
+                <span class="homework-title">{{ homework.title }}</span>
+                <span class="homework-status" [class]="'status-' + homework.status">
+                  {{ homework.status === 'finished' ? 'Terminé' : 'Non terminé' }}
+                </span>
+              </div>
+              <div *ngIf="homework.description" class="homework-description">{{ homework.description }}</div>
+              <div class="homework-meta">
+                <span class="homework-type">{{ homework.type === 'task' ? 'Tâche' : homework.type === 'question' ? 'Question' : 'Matériau' }}</span>
+                <span class="homework-due">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="homework-actions">
+                <button *ngIf="homework.status !== 'finished' && !homework.isCompleted" 
+                        class="btn btn-sm btn-success" 
+                        (click)="markHomeworkAsCompleted(homework.id)">
+                  ✅ Marquer comme terminé
+                </button>
+                <span *ngIf="homework.status === 'finished' || homework.isCompleted" 
+                      class="completed-badge">
+                  ✅ Terminé
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Домашние задания старой системы (для совместимости) -->
+          <div *ngIf="currentLesson?.homework?.length" class="homework-list legacy">
             <div *ngFor="let hw of currentLesson.homework" class="homework-item">{{ hw }}</div>
           </div>
         </div>
@@ -189,10 +227,16 @@
               <label class="task-label d-flex align-items-center">
                 <input type="checkbox" class="me-2" [checked]="isResolved(task)" (change)="toggleResolved(task, 'task')"
                   [disabled]="userRole === 'student'" />
-                <span class="task-text">{{ task }}</span>
+                <span class="task-text">{{ task.title }}</span>
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
                   <span *ngIf="isCoveredInClass(task)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
+                  <button *ngIf="!isResolved(task) && userRole === 'teacher'" 
+                          class="btn btn-sm btn-outline-success ms-1" 
+                          (click)="markTaskAsCompleted(task.id)"
+                          title="Marquer comme terminé">
+                    ✅
+                  </button>
                 </div>
               </label>
 
@@ -226,10 +270,11 @@
               <label class="question-label d-flex align-items-center">
                 <input type="checkbox" class="me-2" [checked]="isResolved(question)"
                   (change)="toggleResolved(question, 'question')" [disabled]="userRole === 'student'" />
-                <span class="question-text">{{ question }}</span>
+                <span class="question-text">{{ question.question }}</span>
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(question)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
                   <span *ngIf="isCoveredInClass(question)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
+                  <span *ngIf="isResolved(question.id)">✅</span>
                 </div>
               </label>
 

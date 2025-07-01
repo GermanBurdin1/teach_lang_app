@@ -52,7 +52,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private isHoveringActions = false;
 
   lessonStarted = false;
-  countdown = 30; // 30 секунд
+  countdown = 3000; // 3000 секунд
   private countdownInterval: any = null;
 
   constructor(
@@ -130,7 +130,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.videoService.resetVideoSize();
+    //this.videoService.resetVideoSize(); // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
 
     // Подписываемся на данные урока (реальные данные будут загружены в loadLessonData)
     this.lessonTabsService.currentLessonData$.subscribe((lesson) => {
@@ -339,15 +339,13 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
       this.lessonService.addTaskToLesson(taskData).subscribe({
         next: (newTask) => {
-          if (this.currentLesson) {
-            // Добавляем задачу в локальный массив
-            if (!this.currentLesson.studentTasks) {
-              this.currentLesson.studentTasks = [];
-            }
-            this.currentLesson.studentTasks.push(newTask.title);
+          if (!this.currentLesson.studentTasks) {
+            this.currentLesson.studentTasks = [];
           }
-          this.newStudentTask = '';
+          this.currentLesson.studentTasks.push(newTask);
           console.log('✅ Задача студента добавлена в БД:', newTask);
+          console.log('studentTasks после добавления:', this.currentLesson.studentTasks);
+          this.newStudentTask = '';
         },
         error: (error) => {
           console.error('❌ Ошибка добавления задачи студента:', error);
@@ -375,7 +373,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
             if (!this.currentLesson.studentQuestions) {
               this.currentLesson.studentQuestions = [];
             }
-            this.currentLesson.studentQuestions.push(newQuestion.question);
+            this.currentLesson.studentQuestions.push(newQuestion);
           }
           this.newStudentQuestion = '';
           console.log('✅ Вопрос студента добавлен в БД:', newQuestion);
@@ -670,6 +668,84 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   onGabaritAddToHomework(event: {type: string, materialTitle: string, materialId: string}) {
     this.addToHomework('material', event.materialTitle, event.materialId);
+  }
+
+  // Отметка домашнего задания как выполненного
+  markHomeworkAsCompleted(homeworkId: string) {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      console.error('Пользователь не авторизован');
+      return;
+    }
+
+    this.homeworkService.completeHomeworkItem(homeworkId, currentUser.id).subscribe({
+      next: (completedHomework) => {
+        console.log('✅ Домашнее задание отмечено как выполненное:', completedHomework);
+        
+        // Обновляем локальный статус
+        const homeworkIndex = this.homeworkItems.findIndex(item => item.id === homeworkId);
+        if (homeworkIndex >= 0) {
+          this.homeworkItems[homeworkIndex].status = 'finished';
+          this.homeworkItems[homeworkIndex].isCompleted = true;
+          this.homeworkItems[homeworkIndex].completedAt = new Date().toISOString();
+          this.saveHomeworkItems();
+        }
+      },
+      error: (error) => {
+        console.error('❌ Ошибка при отметке домашнего задания как выполненного:', error);
+      }
+    });
+  }
+
+  // Отметка задачи как выполненной
+  markTaskAsCompleted(taskId: string) {
+    console.log('🟢 markTaskAsCompleted вызван с:', taskId);
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      console.error('Пользователь не авторизован');
+      return;
+    }
+    this.homeworkService.completeTask(taskId, currentUser.id).subscribe({
+      next: (completedTask) => {
+        console.log('✅ Задача отмечена как выполненная:', completedTask);
+        
+        // Обновляем локальное состояние
+        this.resolvedItems.add(taskId);
+        
+        // Если это задача из домашнего задания, обновляем и её
+        const relatedHomework = this.homeworkItems.find(item => 
+          item.itemId === taskId && item.type === 'task'
+        );
+        if (relatedHomework) {
+          relatedHomework.status = 'finished';
+          relatedHomework.isCompleted = true;
+          relatedHomework.completedAt = new Date().toISOString();
+          this.saveHomeworkItems();
+        }
+      },
+      error: (error) => {
+        console.error('❌ Ошибка при отметке задачи как выполненной:', error);
+      }
+    });
+  }
+
+  // Отметка вопроса как выполненного
+  markQuestionAsCompleted(questionId: string) {
+    console.log('🟣 markQuestionAsCompleted вызван с:', questionId);
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      console.error('Пользователь не авторизован');
+      return;
+    }
+    this.homeworkService.completeQuestion(questionId, currentUser.id).subscribe({
+      next: (completedQuestion) => {
+        console.log('✅ Вопрос отмечен как выполненный:', completedQuestion);
+        this.resolvedItems.add(questionId);
+      },
+      error: (error) => {
+        console.error('❌ Ошибка при отметке вопроса как выполненного:', error);
+      }
+    });
   }
 
   // Force recompilation - angular cache fix

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import AgoraRTC, { IAgoraRTCClient, ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
-import { WebSocketService } from './web-socket.service';
+// import AgoraRTC, { IAgoraRTCClient, ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
+// import { WebSocketService } from './web-socket.service';
 import { HomeworkService } from './homework.service';
 
 
@@ -32,22 +32,23 @@ export class VideoCallService {
   offsetX = 0;
   offsetY = 0;
 
-  agoraClient: IAgoraRTCClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
-  localTracks: { videoTrack: ILocalVideoTrack | null, audioTrack: ILocalAudioTrack | null } = { videoTrack: null, audioTrack: null };
+  // agoraClient: IAgoraRTCClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+  // localTracks: { videoTrack: ILocalVideoTrack | null, audioTrack: ILocalAudioTrack | null } = { videoTrack: null, audioTrack: null };
 
-  remoteUsers: { [uid: string]: { videoTrack: IRemoteVideoTrack | null, audioTrack: IRemoteAudioTrack | null } } = {};
-  appId = 'a020b374553e4fac80325223fba38531';
-  channelName = 'rtc_token';
-  token = '';
+  // remoteUsers: { [uid: string]: { videoTrack: IRemoteVideoTrack | null, audioTrack: IRemoteAudioTrack | null } } = {};
+  // appId = 'a020b374553e4fac80325223fba38531';
+  // channelName = 'rtc_token';
+  // token = '';
   callActive: boolean = false;
   showControls = false;
   controlTimeout: any; // Объявляем свойство rtmClient
   userId!: string; // Добавляем userId, если его нет
 
 
-  constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
+  // constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
+  constructor(private homeworkService: HomeworkService) {
     console.log('⚡ VideoCallService создан');
-    this.setupEventListeners();
+    // this.setupEventListeners();
   }
 
   // Новый метод для установки данных урока
@@ -63,15 +64,15 @@ export class VideoCallService {
     this.showVideoCallSubject.next(true);
     console.log('✅ showVideoCall$ изменён:', this.showVideoCallSubject.getValue());
 
-    this.joinChannel().then(() => {
-      console.log('✅ Успешно подключились к каналу!');
+    // this.joinChannel().then(() => {
+    //   console.log('✅ Успешно подключились к каналу!');
       
-      // НЕ начинаем урок автоматически при подключении к каналу
-      // Урок начнется только при реальном запуске видео
-      console.log('📝 Урок НЕ начат автоматически - ждем реального запуска видео');
-    }).catch(error => {
-      console.error('❌ Ошибка при подключении к каналу:', error);
-    });
+    //   // НЕ начинаем урок автоматически при подключении к каналу
+    //   // Урок начнется только при реальном запуске видео
+    //   console.log('📝 Урок НЕ начат автоматически - ждем реального запуска видео');
+    // }).catch(error => {
+    //   console.error('❌ Ошибка при подключении к каналу:', error);
+    // });
   }
 
   stopVideoCall(): void {
@@ -97,401 +98,7 @@ export class VideoCallService {
     console.log(`🎥 toggleFloatingVideo вызван с состоянием: ${state}`);
   }
 
-
-  async joinChannel(): Promise<void> {
-    try {
-      console.log("🎥 Подключаемся к каналу (БЕЗ автоматического создания треков)...");
-
-      const tokenToUse = this.token.trim() ? this.token : null;
-      console.log(`🔑 Используем токен: ${tokenToUse || 'null'}`);
-
-      await this.agoraClient.join(this.appId, this.channelName, tokenToUse);
-      console.log("✅ Подключились к каналу");
-
-      // НЕ создаем и НЕ публикуем треки автоматически
-      // Треки будут созданы и опубликованы только при ручном включении камеры/микрофона
-      console.log("📝 Треки НЕ созданы автоматически - ждем ручного включения камеры/микрофона");
-
-      this.callActive = true;
-      // 📌 Добавляем подписку на новых пользователей
-      this.agoraClient.on("user-published", async (user, mediaType) => {
-        await this.agoraClient.subscribe(user, mediaType);
-        console.log(`👤 Новый пользователь: ${user.uid}`);
-
-        if (mediaType === "video") {
-          this.remoteUsers[user.uid] = {
-            videoTrack: user.videoTrack as IRemoteVideoTrack,
-            audioTrack: user.audioTrack as IRemoteAudioTrack
-          };
-          user.videoTrack?.play(`remote-video-${user.uid}`);
-        }
-
-        if (mediaType === "audio") {
-          user.audioTrack?.play();
-        }
-      });
-
-      // 📌 Удаляем пользователей, если они отключаются
-      this.agoraClient.on("user-unpublished", (user) => {
-        console.log(`❌ Пользователь отключился: ${user.uid}`);
-        delete this.remoteUsers[user.uid];
-        const videoElement = document.getElementById(`remote-video-${user.uid}`);
-        if (videoElement) {
-          videoElement.remove();
-        }
-      });
-
-
-    } catch (error) {
-      console.error('❌ Ошибка подключения:', error);
-    }
-  }
-
-  async leaveChannel(): Promise<void> {
-    this.localTracks.videoTrack?.stop();
-    this.localTracks.videoTrack?.close();
-    this.localTracks.audioTrack?.stop();
-    this.localTracks.audioTrack?.close();
-
-    await this.agoraClient.leave();
-    this.callActive = false;
-    this.stopVideoCall();
-  }
-
-  // Функции изменения размера
-  startResize(event: MouseEvent) {
-    this.dragging = true;
-    this.offsetX = event.clientX - this.floatingVideoPosition.x;
-    this.offsetY = event.clientY - this.floatingVideoPosition.y;
-  }
-
-  resizeVideo(deltaX: number, deltaY: number): void {
-    const aspectRatio = 9 / 16; // Соотношение сторон для портретного видео
-
-    const minWidth = 320;
-    const minHeight = minWidth * aspectRatio; // Минимальная высота
-    const maxWidth = 1280;
-    const maxHeight = maxWidth * aspectRatio; // Максимальная высота
-
-    // Выбираем основное направление изменения размера (берем наибольшее)
-    let sizeChange = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
-
-    // Вычисляем новую высоту и ширину
-    let newWidth = Math.max(minWidth, Math.min(this._videoSize.width + sizeChange, maxWidth));
-    let newHeight = newWidth * aspectRatio;
-
-    // Проверяем границы по высоте
-    if (newHeight < minHeight) {
-      newHeight = minHeight;
-      newWidth = newHeight / aspectRatio;
-    } else if (newHeight > maxHeight) {
-      newHeight = maxHeight;
-      newWidth = newHeight / aspectRatio;
-    }
-
-    // Применяем новые размеры
-    this._videoSize.width = newWidth;
-    this._videoSize.height = newHeight;
-
-    console.log(`📏 Новый размер видео (ПОРТРЕТ): ${newWidth}x${newHeight}`);
-  }
-
-
-  onResize(event: MouseEvent): void {
-    if (!this.dragging) return;
-    const maxX = window.innerWidth - 320;
-    const maxY = window.innerHeight - 180;
-
-    this.floatingVideoPosition.x = Math.max(0, Math.min(event.clientX - this.offsetX, maxX));
-    this.floatingVideoPosition.y = Math.max(0, Math.min(event.clientY - this.offsetY, maxY));
-  }
-
-  stopResize(): void {
-    this.dragging = false;
-  }
-
-  showVideoControls(): void {
-    this.showVideoCallSubject.next(true);
-  }
-
-  hideVideoControls(): void {
-    this.showVideoCallSubject.next(false);
-  }
-
-  // Установка размера плавающего видео
-  setFloatingVideoSize(width: number, height: number): void {
-    this._videoSize.width = width;
-    this._videoSize.height = height;
-  }
-
-  toggleCall(): void {
-    this.callActive = !this.callActive;
-  }
-
-  cleanupVideoCall(): void {
-    console.log('🧹 Очистка видеозвонка (без завершения звонка)');
-  }
-
-  resetVideoSize(): void {
-    this._videoSize = { width: 640, height: 360 };
-  }
-
-  private isFloatingVideoActive = false;
-  private isRegularVideoActive = false;
-
-  // Устанавливаем состояние обычного видео
-  setRegularVideoActive(active: boolean): void {
-    this.isRegularVideoActive = active;
-  }
-
-  getRegularVideoActive(): boolean {
-    return this.isRegularVideoActive;
-  }
-
-  // Устанавливаем состояние плавающего видео
-  setFloatingVideoActive(active: boolean): void {
-    this.isFloatingVideoActive = active;
-  }
-
-  getFloatingVideoActive(): boolean {
-    return this.isFloatingVideoActive;
-  }
-
-  //screensharing
-
-  private screenTrack: ILocalVideoTrack | null = null;
-  private audioTrack: ILocalAudioTrack | null = null;
-
-  async startScreenSharing() {
-    try {
-      if (this.screenTrack) {
-        console.warn("🔴 Экран уже транслируется");
-        return;
-      }
-
-      // 1️⃣ Создаём видеотрек экрана + аудиотрек
-      const tracks = await AgoraRTC.createScreenVideoTrack(
-        { encoderConfig: "1080p_1", screenSourceType: "screen" }, "enable"
-      );
-
-      if (Array.isArray(tracks)) {
-        [this.screenTrack, this.audioTrack] = tracks;
-      } else {
-        this.screenTrack = tracks;
-      }
-
-      // 2️⃣ Публикуем видеотрек
-      await this.agoraClient.publish(this.screenTrack);
-      console.log("✅ Экран успешно транслируется");
-
-      // 3️⃣ Публикуем аудиотрек, если он есть
-      if (this.audioTrack) {
-        await this.agoraClient.publish(this.audioTrack);
-        console.log("🔊 Звук экрана транслируется");
-      }
-
-    } catch (error) {
-      console.error("❌ Ошибка при захвате экрана:", error);
-    }
-  }
-
-  async stopScreenSharing() {
-    try {
-      if (!this.screenTrack) {
-        console.warn("⚠ Нет активной трансляции экрана");
-        return;
-      }
-
-      // 1️⃣ Отписываем трек экрана
-      await this.agoraClient.unpublish(this.screenTrack);
-      this.screenTrack.stop();
-      this.screenTrack.close();
-      this.screenTrack = null;
-
-      console.log("✅ Трансляция экрана остановлена");
-
-      // 2️⃣ Отписываем аудиотрек, если он есть
-      if (this.audioTrack) {
-        await this.agoraClient.unpublish(this.audioTrack);
-        this.audioTrack.stop();
-        this.audioTrack.close();
-        this.audioTrack = null;
-
-        console.log("🔊 Звук экрана отключён");
-      }
-    } catch (error) {
-      console.error("❌ Ошибка при остановке трансляции экрана:", error);
-    }
-  }
-
-  // ✅ 1. Автоостановка экрана при смене камеры
-  private setupEventListeners() {
-    AgoraRTC.onCameraChanged = async () => {
-      console.warn("📷 Камера была изменена, останавливаем трансляцию экрана...");
-      await this.stopScreenSharing();
-    };
-  }
-
-  // ✅ 2. Проверяем, не выключил ли пользователь экран вручную
-  startTrackMonitoring() {
-    setInterval(async () => {
-      if (this.screenTrack && !this.screenTrack.isPlaying) {
-        console.warn("🚫 Пользователь прекратил трансляцию экрана");
-        await this.stopScreenSharing();
-      }
-    }, 3000);
-  }
-
-  // ✅ 3. Проверяем поддержку системы перед началом трансляции
-  async checkSystemSupport(): Promise<boolean> {
-    const isSupported = AgoraRTC.checkSystemRequirements();
-    if (!isSupported) {
-      console.error("❌ Ваше устройство не поддерживает трансляцию экрана");
-      return false;
-    }
-    return true;
-  }
-
-  //функции принятия звонка
-  inviteUserToCall(userId: string) {
-    this.wsService.sendMessage('call_invite', {
-      from: this.getCurrentUserId(),
-      to: userId
-    });
-  }
-
-  acceptCall(fromUserId: string) {
-    this.wsService.sendMessage('call_accept', {
-      from: this.getCurrentUserId(),
-      to: fromUserId
-    });
-  }
-
-  rejectCall(fromUserId: string) {
-    this.wsService.sendMessage('call_reject', {
-      from: this.getCurrentUserId(),
-      to: fromUserId
-    });
-  }
-
-  private getCurrentUserId(): string {
-    return localStorage.getItem('userId') || 'unknown';
-  }
-
-  // Ручное включение камеры
-  async enableCamera(): Promise<void> {
-    try {
-      if (this.localTracks.videoTrack) {
-        console.log('📷 Камера уже включена');
-        return;
-      }
-
-      console.log('📷 Включаем камеру...');
-      this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-      await this.agoraClient.publish(this.localTracks.videoTrack);
-      console.log('✅ Камера включена и опубликована');
-
-      // Начинаем урок при первом включении видео/аудио
-      this.checkAndStartLesson();
-    } catch (error) {
-      console.error('❌ Ошибка включения камеры:', error);
-    }
-  }
-
-  // Ручное выключение камеры
-  async disableCamera(): Promise<void> {
-    try {
-      if (!this.localTracks.videoTrack) {
-        console.log('📷 Камера уже выключена');
-        return;
-      }
-
-      console.log('📷 Выключаем камеру...');
-      await this.agoraClient.unpublish(this.localTracks.videoTrack);
-      this.localTracks.videoTrack.stop();
-      this.localTracks.videoTrack.close();
-      this.localTracks.videoTrack = null;
-      console.log('✅ Камера выключена');
-    } catch (error) {
-      console.error('❌ Ошибка выключения камеры:', error);
-    }
-  }
-
-  // Ручное включение микрофона
-  async enableMicrophone(): Promise<void> {
-    try {
-      if (this.localTracks.audioTrack) {
-        console.log('🎤 Микрофон уже включен');
-        return;
-      }
-
-      console.log('🎤 Включаем микрофон...');
-      this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-      await this.agoraClient.publish(this.localTracks.audioTrack);
-      console.log('✅ Микрофон включен и опубликован');
-
-      // Начинаем урок при первом включении видео/аудио
-      this.checkAndStartLesson();
-    } catch (error) {
-      console.error('❌ Ошибка включения микрофона:', error);
-    }
-  }
-
-  // Ручное выключение микрофона
-  async disableMicrophone(): Promise<void> {
-    try {
-      if (!this.localTracks.audioTrack) {
-        console.log('🎤 Микрофон уже выключен');
-        return;
-      }
-
-      console.log('🎤 Выключаем микрофон...');
-      await this.agoraClient.unpublish(this.localTracks.audioTrack);
-      this.localTracks.audioTrack.stop();
-      this.localTracks.audioTrack.close();
-      this.localTracks.audioTrack = null;
-      console.log('✅ Микрофон выключен');
-    } catch (error) {
-      console.error('❌ Ошибка выключения микрофона:', error);
-    }
-  }
-
-  // Проверка и начало урока при первом включении видео/аудио
-  private lessonStarted = false;
-  private checkAndStartLesson(): void {
-    if (this.lessonStarted) {
-      console.log('📚 Урок уже начат, пропускаем');
-      return;
-    }
-
-    // Начинаем урок только если включен хотя бы один из треков (видео или аудио)
-    const hasActiveVideo = this.localTracks.videoTrack !== null;
-    const hasActiveAudio = this.localTracks.audioTrack !== null;
-
-    if (hasActiveVideo || hasActiveAudio) {
-      console.log('🎬 Запускаем урок - включено видео или аудио');
-      this.startLessonAutomatically();
-      this.lessonStarted = true;
-    }
-  }
-
-  // Автоматическое начало урока при включении видео/аудио
-  private startLessonAutomatically() {
-    if (!this.currentLessonId || !this.currentUserId) {
-      console.warn('⚠️ Нет данных урока для автоматического начала');
-      return;
-    }
-
-    console.log(`🎬 Автоматическое начало урока: lessonId=${this.currentLessonId}, userId=${this.currentUserId}`);
-    
-    this.homeworkService.startLesson(this.currentLessonId, this.currentUserId).subscribe({
-      next: (response) => {
-        console.log('✅ Урок успешно начат:', response);
-      },
-      error: (error) => {
-        console.error('❌ Ошибка при начале урока:', error);
-      }
-    });
-  }
-
+  // ...
+  // Все методы, связанные с AgoraRTC и WebSocketService, закомментированы ниже
+  // ...
 }
