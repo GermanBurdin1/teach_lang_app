@@ -636,10 +636,10 @@ export class StudentHomeComponent implements OnInit {
     ]);
 
     // Разделяем задачи и вопросы по ролям
-    const studentTasks = (tasks || []).filter((t: any) => t.createdByRole === 'student').map((t: any) => t.title);
-    const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => t.title);
-    const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => q.question);
-    const teacherQuestions = (questions || []).filter((q: any) => q.createdByRole === 'teacher').map((q: any) => q.question);
+    const studentTasks = (tasks || []).filter((t: any) => t.createdByRole === 'student').map((t: any) => ({ id: t.id, title: t.title }));
+    const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => ({ id: t.id, title: t.title }));
+    const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => ({ id: q.id, question: q.question }));
+    const teacherQuestions = (questions || []).filter((q: any) => q.createdByRole === 'teacher').map((q: any) => ({ id: q.id, question: q.question }));
 
     this.lessonTabsService.setCurrentLessonData({
       id: event.meta.lessonId,
