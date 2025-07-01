@@ -1864,7 +1864,7 @@ export class TrainerComponent implements OnInit {
     return 'Date inconnue';
   }
 
-  getGradeClass(grade: number | null): string {
+  getGradeClass(grade: number | undefined): string {
     if (!grade) return '';
     if (grade >= 16) return 'excellent';
     if (grade >= 12) return 'good';
@@ -1872,7 +1872,7 @@ export class TrainerComponent implements OnInit {
     return 'poor';
   }
 
-  getGradeLabel(grade: number | null): string {
+  getGradeLabel(grade: number | undefined): string {
     if (!grade) return '';
     if (grade >= 16) return 'Excellent';
     if (grade >= 12) return 'Bien';
