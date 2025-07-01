@@ -151,13 +151,24 @@ export class StudentHomeComponent implements OnInit {
     // Загрузка реальных домашних заданий
     this.homeworkService.getHomeworkForStudent(studentId).subscribe({
       next: (homework) => {
-        this.studentHomework = homework;
-        console.log('[StudentHome] Загружены реальные домашние задания:', homework);
+        // Фильтруем только невыполненные домашние задания для отображения в "Devoirs à faire"
+        this.studentHomework = homework.filter(hw => 
+          hw.status !== 'completed' && 
+          hw.status !== 'submitted' && 
+          hw.status !== 'finished'  // Добавляем фильтр для статуса 'finished'
+        );
+        console.log('[StudentHome] Загружены невыполненные домашние задания:', this.studentHomework);
       },
       error: (err) => {
         console.error('[StudentHome] Ошибка загрузки домашних заданий:', err);
         this.studentHomework = [];
       }
+    });
+
+    // Подписываемся на обновления домашних заданий
+    this.homeworkService.onHomeworkUpdated().subscribe(() => {
+      console.log('[StudentHome] Получено уведомление об обновлении домашних заданий');
+      this.refreshHomework(studentId);
     });
   }
 
@@ -672,8 +683,27 @@ export class StudentHomeComponent implements OnInit {
 
   // Получить количество минут до урока
   getMinutesUntilLesson(event: CalendarEvent): number {
-    const diffInMs = event.start.getTime() - this.now.getTime();
-    return Math.round(diffInMs / (1000 * 60));
+    if (!event.start) return 0;
+    const diffMs = event.start.getTime() - this.now.getTime();
+    return Math.floor(diffMs / (1000 * 60));
+  }
+
+  // Методы для работы с домашними заданиями
+  goToHomeworkDetails(homework: Homework): void {
+    // Переход в TrainingComponent на вкладку домашних заданий
+    this.router.navigate(['/student/trainer'], { 
+      queryParams: { 
+        tab: 'homework',
+        homeworkId: homework.id 
+      } 
+    });
+  }
+
+  isHomeworkOverdue(homework: Homework): boolean {
+    if (!homework.dueDate) return false;
+    const now = new Date();
+    const dueDate = new Date(homework.dueDate);
+    return now > dueDate && (homework.status === 'unfinished' || homework.status === 'assigned');
   }
 
   private async getMaterialsForLesson(lessonId: string): Promise<any[]> {
@@ -698,6 +728,25 @@ export class StudentHomeComponent implements OnInit {
       console.error('❌ [StudentHome] Ошибка загрузки материалов для урока:', error);
       return [];
     }
+  }
+
+  private refreshHomework(studentId: string): void {
+    // Загрузка реальных домашних заданий
+    this.homeworkService.getHomeworkForStudent(studentId).subscribe({
+      next: (homework) => {
+        // Фильтруем только невыполненные домашние задания для отображения в "Devoirs à faire"
+        this.studentHomework = homework.filter(hw => 
+          hw.status !== 'completed' && 
+          hw.status !== 'submitted' && 
+          hw.status !== 'finished'  // Добавляем фильтр для статуса 'finished'
+        );
+        console.log('[StudentHome] Перезагружены невыполненные домашние задания:', this.studentHomework);
+      },
+      error: (err) => {
+        console.error('[StudentHome] Ошибка перезагрузки домашних заданий:', err);
+        this.studentHomework = [];
+      }
+    });
   }
 
 }

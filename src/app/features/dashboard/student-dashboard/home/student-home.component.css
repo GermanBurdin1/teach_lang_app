@@ -595,10 +595,53 @@ mat-dialog-actions {
 
 /* Анимация */
 @keyframes pulse-glow {
-  0%, 100% { 
-    box-shadow: 0 8px 25px rgba(255, 64, 129, 0.3);
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
   }
-  50% { 
-    box-shadow: 0 12px 35px rgba(255, 64, 129, 0.5);
+  50% {
+    box-shadow: 0 0 16px rgba(76, 175, 80, 0.7);
   }
+}
+
+/* Стили для домашних заданий */
+.homework-action {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.overdue-warning {
+  display: block;
+  color: #ff6b6b;
+  font-weight: bold;
+  margin-top: 5px;
+  padding: 5px 10px;
+  background-color: #fff5f5;
+  border-left: 3px solid #ff6b6b;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+.homework-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.homework-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.status-overdue {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.student-homework-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

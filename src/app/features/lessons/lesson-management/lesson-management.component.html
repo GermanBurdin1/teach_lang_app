@@ -543,12 +543,6 @@
                     <span class="homework-status-badge" [class]="'status-' + homework.status">
                       {{ homework.status === 'unfinished' ? 'Non terminé' : 'Terminé' }}
                     </span>
-                    <span *ngIf="homework.createdInClass" class="covered-badge in-class" title="Créé en classe">
-                      ✅ Créé en classe
-                    </span>
-                    <span *ngIf="!homework.createdInClass" class="covered-badge outside-class" title="Créé hors classe">
-                      🏠 Créé hors classe
-                    </span>
                   </div>
                 </mat-card-title>
                 <mat-card-subtitle>

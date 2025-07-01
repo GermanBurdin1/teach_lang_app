@@ -163,6 +163,18 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     });
 
     this.subscriptions.push(materialAttachedSubscription);
+    
+    // Подписка на обновления домашних заданий
+    const homeworkUpdatedSubscription = this.homeworkService.onHomeworkUpdated().subscribe(() => {
+      console.log('📋 Получено уведомление об обновлении домашних заданий');
+      if (this.currentLesson) {
+        this.loadHomeworkItems(this.currentLesson.id);
+      }
+    });
+    
+    this.subscriptions.push(homeworkUpdatedSubscription);
+    
+
   }
 
   ngOnDestroy(): void {

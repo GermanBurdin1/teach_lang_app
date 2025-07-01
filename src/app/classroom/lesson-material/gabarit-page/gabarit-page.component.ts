@@ -12,7 +12,6 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
 
   // События для родительского компонента
   @Output() openNotesEvent = new EventEmitter<{section: 'materials', itemId: string, itemText: string}>();
-  @Output() addToHomeworkEvent = new EventEmitter<{type: string, materialTitle: string, materialId: string}>();
 
   // Hover management - улучшенная логика
   hoveredItem: string | null = null;
@@ -142,11 +141,7 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Add to homework method - передаем событие родительскому компоненту
-  addToHomework(materialType: string, materialTitle: string, materialId: string) {
-    console.log('📋 Adding to homework:', { materialType, materialTitle, materialId });
-    this.addToHomeworkEvent.emit({ type: materialType, materialTitle, materialId });
-  }
+
 
   // Open notes method - передаем событие родительскому компоненту
   openNotes(materialId: string, materialTitle: string) {

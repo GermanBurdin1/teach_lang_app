@@ -25,9 +25,7 @@
         <div class="action-item primary" (click)="lessonStarted && openNotes(getMaterialId(t), getMaterialTitle(t))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📚 Travailler le matériel
         </div>
-        <div class="action-item secondary" (click)="lessonStarted && addToHomework('text', getMaterialTitle(t), getMaterialId(t))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
-          📋 Ajouter aux devoirs
-        </div>
+
       </div>
     </div>
   </div>
@@ -86,9 +84,7 @@
         <div class="action-item primary" (click)="lessonStarted && openNotes(getMaterialId(a), getMaterialTitle(a))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📚 Travailler le matériel
         </div>
-        <div class="action-item secondary" (click)="lessonStarted && addToHomework('audio', getMaterialTitle(a), getMaterialId(a))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
-          📋 Ajouter aux devoirs
-        </div>
+
       </div>
     </div>
   </div>
@@ -147,9 +143,7 @@
         <div class="action-item primary" (click)="lessonStarted && openNotes(getMaterialId(v), getMaterialTitle(v))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
           📚 Travailler le matériel
         </div>
-        <div class="action-item secondary" (click)="lessonStarted && addToHomework('video', getMaterialTitle(v), getMaterialId(v))" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
-          📋 Ajouter aux devoirs
-        </div>
+
       </div>
     </div>
   </div>

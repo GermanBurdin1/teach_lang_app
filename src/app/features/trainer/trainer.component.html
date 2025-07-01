@@ -20,7 +20,7 @@
     <button 
       class="tab-btn"
       [class.active]="activeTab === 'homework'"
-      (click)="activeTab = 'homework'">
+      (click)="setHomeworkTab()">
       <i class="fas fa-tasks"></i>
       Devoirs
     </button>
@@ -410,27 +410,108 @@
 
   <!-- ==================== HOMEWORK TAB ==================== -->
   <div *ngIf="activeTab === 'homework'" class="tab-content homework-tab">
+    
+    <!-- Section Header with Create Button -->
     <div class="section-header">
       <h2>
         <i class="fas fa-clipboard-list"></i>
-        Gestion des Devoirs
+        {{ isTeacher() ? 'Gestion des Devoirs' : 'Mes Devoirs' }}
       </h2>
       <button 
+        *ngIf="isTeacher()"
         class="btn btn-primary"
-        (click)="showCreateHomeworkForm = true">
+                (click)="openCreateHomeworkForm()">
         <i class="fas fa-plus"></i>
-        Nouveau Devoir
+        Assigner un Devoir
       </button>
     </div>
 
-    <!-- Create Homework Form -->
+
+
+    <!-- Homework Sub-tabs for Students -->
+    <div *ngIf="isStudent()" class="homework-subtabs">
+      <button 
+        class="homework-subtab-btn" 
+        [class.active]="activeHomeworkTab === 'pending'"
+        [class.pending]="activeHomeworkTab === 'pending'"
+        (click)="setActiveHomeworkTab('pending')">
+        <div class="subtab-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="subtab-content">
+          <span class="subtab-title">À faire</span>
+          <span class="subtab-badge">{{ pendingHomeworks.length }}</span>
+        </div>
+      </button>
+      
+      <button 
+        class="homework-subtab-btn" 
+        [class.active]="activeHomeworkTab === 'completed'"
+        [class.completed]="activeHomeworkTab === 'completed'"
+        (click)="setActiveHomeworkTab('completed')">
+        <div class="subtab-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="subtab-content">
+          <span class="subtab-title">Terminés</span>
+          <span class="subtab-badge">{{ completedHomeworks.length }}</span>
+        </div>
+      </button>
+      
+      <button 
+        class="homework-subtab-btn" 
+        [class.active]="activeHomeworkTab === 'overdue'"
+        [class.overdue]="activeHomeworkTab === 'overdue'"
+        (click)="setActiveHomeworkTab('overdue')">
+        <div class="subtab-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="subtab-content">
+          <span class="subtab-title">En retard</span>
+          <span class="subtab-badge">{{ overdueHomeworks.length }}</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Homework Sub-tabs for Teachers -->
+    <div *ngIf="isTeacher()" class="homework-subtabs">
+      <button 
+        class="homework-subtab-btn" 
+        [class.active]="activeTeacherHomeworkTab === 'toReview'"
+        [class.to-review]="activeTeacherHomeworkTab === 'toReview'"
+        (click)="setActiveTeacherHomeworkTab('toReview')">
+        <div class="subtab-icon">
+          <i class="fas fa-eye"></i>
+        </div>
+        <div class="subtab-content">
+          <span class="subtab-title">À corriger</span>
+          <span class="subtab-badge">{{ homeworksToReview.length }}</span>
+        </div>
+      </button>
+      
+      <button 
+        class="homework-subtab-btn" 
+        [class.active]="activeTeacherHomeworkTab === 'reviewed'"
+        [class.reviewed]="activeTeacherHomeworkTab === 'reviewed'"
+        (click)="setActiveTeacherHomeworkTab('reviewed')">
+        <div class="subtab-icon">
+          <i class="fas fa-check-double"></i>
+        </div>
+        <div class="subtab-content">
+          <span class="subtab-title">Corrigés</span>
+          <span class="subtab-badge">{{ reviewedHomeworks.length }}</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Create Homework Form (for teachers) -->
     <div *ngIf="showCreateHomeworkForm" class="create-form-modal">
       <div class="modal-overlay" (click)="clearHomeworkForm()"></div>
       <div class="modal-content">
         <div class="modal-header">
           <h3>
             <i class="fas fa-clipboard-list"></i>
-            Créer un Nouveau Devoir
+            Assigner un Devoir à un Étudiant
           </h3>
           <button class="close-btn" (click)="clearHomeworkForm()">
             <i class="fas fa-times"></i>
@@ -443,7 +524,7 @@
             <input 
               type="text" 
               [(ngModel)]="newHomework.title"
-              placeholder="Ex: Rédaction sur l'environnement"
+              placeholder="Ex: Révision du chapitre 3"
               class="form-control">
           </div>
 
@@ -451,7 +532,7 @@
             <label>Description</label>
             <textarea 
               [(ngModel)]="newHomework.description"
-              placeholder="Instructions détaillées pour le devoir..."
+              placeholder="Décrivez en détail ce que l'étudiant doit faire..."
               rows="6"
               class="form-control"></textarea>
           </div>
@@ -465,13 +546,11 @@
           </div>
 
           <div class="form-group">
-            <label>Cours associé</label>
-            <select 
-              [(ngModel)]="newHomework.lessonId"
-              class="form-control">
-              <option value="">Sélectionnez un cours</option>
+            <label>Cours pour l'étudiant <span class="text-danger">*</span></label>
+            <select [(ngModel)]="newHomework.lessonId" class="form-control" required>
+              <option value="">Sélectionner un cours</option>
               <option 
-                *ngFor="let lesson of availableLessons" 
+                *ngFor="let lesson of availableLessons"
                 [value]="lesson.id">
                 {{ lesson.teacherName || lesson.studentName }} - {{ lesson.scheduledAt | date:'dd/MM/yyyy HH:mm' }}
               </option>
@@ -510,84 +589,376 @@
       </div>
     </div>
 
-    <!-- Homework Grid -->
-    <div class="homework-grid">
-      <div 
-        *ngFor="let homework of homeworks"
-        class="homework-card">
-        <div class="homework-header">
-          <div class="homework-status" [ngClass]="'status-' + homework.status">
-            <span class="status-indicator"></span>
-            {{ getHomeworkStatusText(homework.status) }}
+    <!-- Homework Completion Modal -->
+    <div *ngIf="showHomeworkModal" class="homework-modal">
+      <div class="modal-overlay" (click)="closeHomeworkModal()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-edit"></i>
+            Faire le devoir: {{ selectedHomework?.title }}
+          </h3>
+          <button class="close-btn" (click)="closeHomeworkModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="homework-details">
+            <p><strong>Description:</strong> {{ selectedHomework?.description }}</p>
+            <p><strong>Échéance:</strong> {{ selectedHomework?.dueDate | date:'dd/MM/yyyy à HH:mm' }}</p>
+            
+            <div *ngIf="selectedHomework?.materialIds?.length" class="linked-materials">
+              <h5>Matériaux associés:</h5>
+              <ul>
+                <li *ngFor="let materialId of selectedHomework?.materialIds || []">
+                  {{ getMaterialTitle(materialId) }}
+                </li>
+              </ul>
+            </div>
           </div>
-          <div class="homework-actions">
-            <button class="action-btn edit-btn" title="Modifier">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="action-btn delete-btn" title="Supprimer">
-              <i class="fas fa-trash"></i>
-            </button>
+
+          <div class="form-group">
+            <label>Votre réponse / travail accompli:</label>
+            <textarea 
+              [(ngModel)]="homeworkResponse"
+              placeholder="Décrivez ce que vous avez fait, vos réponses, ou téléchargez votre travail..."
+              rows="8"
+              class="form-control"
+              required>
+            </textarea>
           </div>
         </div>
 
-        <div class="homework-body">
-          <h4 class="homework-title">{{ homework.title }}</h4>
-          <p class="homework-description">{{ homework.description }}</p>
-          
-          <div class="homework-meta">
-            <div class="meta-item">
-              <i class="fas fa-user-graduate"></i>
-              <span>{{ homework.assignedToName }}</span>
-            </div>
-            <div class="meta-item">
-              <i class="fas fa-calendar"></i>
-              <span>Assigné le {{ homework.assignedAt | date:'dd/MM/yyyy' }}</span>
-            </div>
-            <div class="meta-item">
-              <i class="fas fa-clock"></i>
-              <span>Échéance: {{ homework.dueDate | date:'dd/MM/yyyy à HH:mm' }}</span>
-            </div>
-          </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeHomeworkModal()">
+            Annuler
+          </button>
+          <button 
+            class="btn btn-success" 
+            (click)="completeHomework()"
+            [disabled]="!homeworkResponse.trim() || isSubmittingHomework">
+            <i class="fas fa-check" *ngIf="!isSubmittingHomework"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isSubmittingHomework"></i>
+            {{ isSubmittingHomework ? 'Envoi...' : 'Marquer comme terminé' }}
+          </button>
+        </div>
+      </div>
+    </div>
 
-          <div class="linked-materials" *ngIf="homework.materialIds && homework.materialIds.length">
+    <!-- Grading Modal (for teachers) -->
+    <div *ngIf="showGradingModal" class="grading-modal">
+      <div class="modal-overlay" (click)="closeGradingModal()"></div>
+      <div class="modal-content grading-modal-content">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-star"></i>
+            Évaluer le devoir: {{ selectedHomeworkForGrading?.title }}
+          </h3>
+          <button class="close-btn" (click)="closeGradingModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Student Info -->
+          <div class="student-info">
             <h5>
-              <i class="fas fa-paperclip"></i>
-              Matériaux liés
+              <i class="fas fa-user-graduate"></i>
+              Étudiant: {{ selectedHomeworkForGrading?.assignedToName }}
             </h5>
-            <div class="material-chips">
-              <span 
-                *ngFor="let materialId of homework.materialIds"
-                class="material-chip">
-                {{ getMaterialTitle(materialId) }}
-              </span>
+            <div class="homework-details">
+              <p><strong>Devoir:</strong> {{ selectedHomeworkForGrading?.description }}</p>
+              <p><strong>Échéance:</strong> {{ selectedHomeworkForGrading?.dueDate | date:'dd/MM/yyyy à HH:mm' }}</p>
+            </div>
+          </div>
+
+          <!-- Student Response -->
+          <div *ngIf="selectedHomeworkForGrading?.studentResponse" class="student-response-section">
+            <h5>
+              <i class="fas fa-comments"></i>
+              Réponse de l'étudiant
+            </h5>
+            <div class="response-display">
+              {{ selectedHomeworkForGrading?.studentResponse }}
+            </div>
+          </div>
+
+          <!-- Grading Form -->
+          <div class="grading-form">
+            <div class="form-row">
+              <div class="form-group grade-input">
+                <label for="gradeInput">
+                  <i class="fas fa-trophy"></i>
+                  Note (sur {{ gradingData.maxGrade }})
+                </label>
+                <div class="grade-input-container">
+                  <input 
+                    type="number" 
+                    id="gradeInput"
+                    [(ngModel)]="gradingData.grade"
+                    (ngModelChange)="onGradeChange($event)"
+                    [min]="0"
+                    [max]="gradingData.maxGrade"
+                    step="0.5"
+                    class="form-control grade-input-field"
+                    placeholder="Ex: 15.5">
+                  <span class="grade-max">/ {{ gradingData.maxGrade }}</span>
+                </div>
+                <div class="grade-scale">
+                  <span class="scale-item excellent" [class.selected]="gradingData.grade !== null && gradingData.grade >= 16">Excellent (16-20)</span>
+                  <span class="scale-item good" [class.selected]="gradingData.grade !== null && gradingData.grade >= 12 && gradingData.grade < 16">Bien (12-16)</span>
+                  <span class="scale-item average" [class.selected]="gradingData.grade !== null && gradingData.grade >= 8 && gradingData.grade < 12">Passable (8-12)</span>
+                  <span class="scale-item poor" [class.selected]="gradingData.grade !== null && gradingData.grade < 8 && gradingData.grade >= 0">Insuffisant (0-8)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="feedbackInput">
+                <i class="fas fa-comment-alt"></i>
+                Commentaire (optionnel)
+              </label>
+              <textarea 
+                id="feedbackInput"
+                [(ngModel)]="gradingData.teacherFeedback"
+                placeholder="Commentaires constructifs pour l'étudiant..."
+                rows="6"
+                class="form-control feedback-textarea"></textarea>
+              <small class="form-hint">
+                💡 Donnez des conseils constructifs pour aider l'étudiant à s'améliorer
+              </small>
             </div>
           </div>
         </div>
 
-        <div class="homework-footer">
-          <div class="homework-grade" *ngIf="homework.grade">
-            <span class="grade-label">Note:</span>
-            <span class="grade-value">{{ homework.grade }}/20</span>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeGradingModal()">
+            <i class="fas fa-times"></i>
+            Annuler
+          </button>
+          <button 
+            class="btn btn-primary grade-submit-btn" 
+            (click)="submitGrade()"
+            [disabled]="!isGradeValid() || isSubmittingGrade">
+            <i class="fas fa-check" *ngIf="!isSubmittingGrade"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isSubmittingGrade"></i>
+            {{ isSubmittingGrade ? 'Enregistrement...' : 'Enregistrer l\'évaluation' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loadingHomeworks" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des devoirs...</p>
+    </div>
+
+    <!-- Homework Lists by Status -->
+    <div *ngIf="!loadingHomeworks" class="homework-content">
+      
+      <!-- STUDENT HOMEWORK SECTIONS -->
+      <div *ngIf="isStudent()">
+        <!-- Pending Homework -->
+        <div *ngIf="activeHomeworkTab === 'pending'" class="homework-list">
+        <div *ngIf="pendingHomeworks.length === 0" class="empty-state">
+          <i class="fas fa-clipboard-check"></i>
+          <h3>Aucun devoir en attente</h3>
+          <p>Tous vos devoirs sont terminés ! 🎉</p>
+        </div>
+        
+        <div *ngFor="let homework of pendingHomeworks" 
+             class="homework-card pending"
+             [id]="'homework-' + homework.id">
+          <div class="homework-header">
+            <h4>{{ homework.title }}</h4>
+            <span class="homework-status pending">📝 À faire</span>
           </div>
-          <div class="homework-feedback" *ngIf="homework.teacherFeedback">
-            <i class="fas fa-comment"></i>
-            Commentaire ajouté
+          <div class="homework-meta">
+            <span class="homework-due">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy à HH:mm' }}</span>
+            <span *ngIf="isOverdue(homework.dueDate)" class="overdue-badge">⚠️ En retard</span>
+          </div>
+          <div class="homework-description">
+            {{ homework.description || 'Aucune description disponible' }}
+          </div>
+          
+          <div *ngIf="homework.materialIds && homework.materialIds.length" class="linked-materials">
+            <strong>Matériaux:</strong>
+            <span *ngFor="let materialId of homework.materialIds; let last = last" class="material-link">
+              {{ getMaterialTitle(materialId) }}<span *ngIf="!last">, </span>
+            </span>
+          </div>
+          
+          <div class="homework-actions">
+            <button class="btn btn-primary" (click)="openHomeworkModal(homework)">
+              <i class="fas fa-edit"></i>
+              Faire le devoir
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Empty State -->
-      <div *ngIf="homeworks && homeworks.length === 0" class="empty-state">
-        <i class="fas fa-clipboard-list"></i>
-        <h3>Aucun devoir créé</h3>
-        <p>Commencez par créer votre premier devoir</p>
-        <button 
-          class="btn btn-primary"
-          (click)="showCreateHomeworkForm = true">
-          <i class="fas fa-plus"></i>
-          Créer un Devoir
-        </button>
+      <!-- Completed Homework -->
+      <div *ngIf="activeHomeworkTab === 'completed'" class="homework-list">
+        <div *ngIf="completedHomeworks.length === 0" class="empty-state">
+          <i class="fas fa-clipboard-list"></i>
+          <h3>Aucun devoir terminé</h3>
+          <p>Les devoirs que vous terminez apparaîtront ici.</p>
+        </div>
+        
+        <div *ngFor="let homework of completedHomeworks" 
+             class="homework-card completed"
+             [id]="'homework-' + homework.id">
+          <div class="homework-header">
+            <h4>{{ homework.title }}</h4>
+            <span class="homework-status completed">✅ Terminé</span>
+          </div>
+          <div class="homework-meta">
+            <span class="homework-completed" *ngIf="formatCompletedDate(homework)">
+              Terminé le {{ formatCompletedDate(homework) }}
+            </span>
+            <span *ngIf="homework.grade" class="homework-grade">Note: {{ homework.grade }}/20</span>
+          </div>
+          <div class="homework-description">
+            {{ homework.description || 'Aucune description disponible' }}
+          </div>
+          
+          <div *ngIf="homework.studentResponse" class="student-response">
+            <strong>Votre réponse:</strong>
+            <p>{{ homework.studentResponse }}</p>
+          </div>
+          
+          <div *ngIf="homework.teacherFeedback" class="teacher-feedback">
+            <strong>Commentaire du professeur:</strong>
+            <p>{{ homework.teacherFeedback }}</p>
+          </div>
+        </div>
       </div>
+
+      <!-- Overdue Homework -->
+      <div *ngIf="activeHomeworkTab === 'overdue'" class="homework-list">
+        <div *ngIf="overdueHomeworks.length === 0" class="empty-state">
+          <i class="fas fa-clock"></i>
+          <h3>Aucun devoir en retard</h3>
+          <p>Continuez comme ça ! 👍</p>
+        </div>
+        
+        <div *ngFor="let homework of overdueHomeworks" 
+             class="homework-card overdue"
+             [id]="'homework-' + homework.id">
+          <div class="homework-header">
+            <h4>{{ homework.title }}</h4>
+            <span class="homework-status overdue">⏰ En retard</span>
+          </div>
+          <div class="homework-meta">
+            <span class="homework-due overdue">Était dû le: {{ homework.dueDate | date:'dd/MM/yyyy à HH:mm' }}</span>
+            <span class="days-overdue">{{ getDaysOverdue(homework.dueDate) }} jour(s) de retard</span>
+          </div>
+          <div class="homework-description">
+            {{ homework.description || 'Aucune description disponible' }}
+          </div>
+          
+          <div class="urgency-message">
+            ⚠️ Ce devoir est en retard ! Terminez-le au plus vite.
+          </div>
+          
+          <div class="homework-actions">
+            <button class="btn btn-warning" (click)="openHomeworkModal(homework)">
+              <i class="fas fa-exclamation-triangle"></i>
+              Faire maintenant
+            </button>
+          </div>
+        </div>
+      </div>
+      </div> <!-- End of student sections -->
+
+      <!-- TEACHER HOMEWORK SECTIONS -->
+      <div *ngIf="isTeacher()">
+        <!-- Homework to Review -->
+        <div *ngIf="activeTeacherHomeworkTab === 'toReview'" class="homework-list">
+          <div *ngIf="homeworksToReview.length === 0" class="empty-state">
+            <i class="fas fa-eye"></i>
+            <h3>Aucun devoir à corriger</h3>
+            <p>Tous les devoirs sont à jour ! ✅</p>
+          </div>
+          
+          <div *ngFor="let homework of homeworksToReview" 
+               class="homework-card to-review"
+               [id]="'homework-' + homework.id">
+            <div class="homework-header">
+              <h4>{{ homework.title }}</h4>
+              <span class="homework-status to-review">👁️ À corriger</span>
+            </div>
+            <div class="homework-meta">
+              <span class="student-name">Étudiant: {{ homework.assignedToName }}</span>
+              <span class="homework-due">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy à HH:mm' }}</span>
+              <span *ngIf="isOverdue(homework.dueDate)" class="overdue-badge">⚠️ En retard</span>
+            </div>
+            <div class="homework-description">
+              {{ homework.description || 'Aucune description disponible' }}
+            </div>
+            
+            <div *ngIf="homework.studentResponse" class="student-response">
+              <strong>Réponse de l'étudiant:</strong>
+              <p>{{ homework.studentResponse }}</p>
+            </div>
+            
+            <div class="homework-actions">
+              <button class="btn btn-primary" (click)="openGradingModal(homework)">
+                <i class="fas fa-star"></i>
+                Évaluer
+              </button>
+              <button class="btn btn-secondary" (click)="goToHomeworkReview(homework)">
+                <i class="fas fa-eye"></i>
+                Voir détails
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviewed Homework -->
+        <div *ngIf="activeTeacherHomeworkTab === 'reviewed'" class="homework-list">
+          <div *ngIf="reviewedHomeworks.length === 0" class="empty-state">
+            <i class="fas fa-check-double"></i>
+            <h3>Aucun devoir corrigé</h3>
+            <p>Les devoirs évalués apparaîtront ici.</p>
+          </div>
+          
+          <div *ngFor="let homework of reviewedHomeworks" 
+               class="homework-card reviewed"
+               [id]="'homework-' + homework.id">
+            <div class="homework-header">
+              <h4>{{ homework.title }}</h4>
+              <span class="homework-status reviewed">✅ Corrigé</span>
+            </div>
+            <div class="homework-meta">
+              <span class="student-name">Étudiant: {{ homework.assignedToName }}</span>
+              <span *ngIf="homework.grade" class="homework-grade">Note: {{ homework.grade }}/20</span>
+            </div>
+            <div class="homework-description">
+              {{ homework.description || 'Aucune description disponible' }}
+            </div>
+            
+            <div *ngIf="homework.studentResponse" class="student-response">
+              <strong>Réponse de l'étudiant:</strong>
+              <p>{{ homework.studentResponse }}</p>
+            </div>
+            
+            <div *ngIf="homework.teacherFeedback" class="teacher-feedback">
+              <strong>Votre commentaire:</strong>
+              <p>{{ homework.teacherFeedback }}</p>
+            </div>
+            
+            <div class="homework-actions">
+              <button class="btn btn-outline-primary" (click)="openGradingModal(homework)">
+                <i class="fas fa-edit"></i>
+                Modifier l'évaluation
+              </button>
+            </div>
+          </div>
+        </div>
+      </div> <!-- End of teacher sections -->
     </div>
   </div>
 

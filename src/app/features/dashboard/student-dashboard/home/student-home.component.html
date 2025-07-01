@@ -144,7 +144,7 @@
 
       <ng-container *ngIf="studentHomework.length > 0; else noHomework">
         <div class="student-homework-list">
-          <mat-card *ngFor="let hw of studentHomework" class="homework-card">
+          <mat-card *ngFor="let hw of studentHomework" class="homework-card" (click)="goToHomeworkDetails(hw)">
             <mat-card-header>
               <mat-card-title>
                 <span class="homework-title">{{ hw.title }}</span>
@@ -158,6 +158,9 @@
               </mat-card-title>
               <mat-card-subtitle>
                 Pour le {{ hw.dueDate | date:'dd/MM/yyyy' }}
+                <span *ngIf="isHomeworkOverdue(hw)" class="overdue-warning">
+                  ⚠️ Ce devoir est en retard ! Cliquez pour le terminer rapidement.
+                </span>
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
@@ -169,6 +172,22 @@
                 <strong>Note:</strong> {{ hw.grade }}
               </div>
             </mat-card-content>
+            <mat-card-actions class="homework-action">
+              <button mat-raised-button 
+                      color="primary" 
+                      (click)="goToHomeworkDetails(hw); $event.stopPropagation()"
+                      *ngIf="hw.status !== 'completed'">
+                <mat-icon>assignment</mat-icon>
+                Faire le devoir
+              </button>
+              <button mat-stroked-button 
+                      color="accent" 
+                      (click)="goToHomeworkDetails(hw); $event.stopPropagation()"
+                      *ngIf="hw.status === 'completed'">
+                <mat-icon>visibility</mat-icon>
+                Voir détails
+              </button>
+            </mat-card-actions>
           </mat-card>
         </div>
       </ng-container>

@@ -572,3 +572,336 @@
   font-size: 14px;
 }
 
+/* ==================== HOMEWORK SECTION ==================== */
+.homework-section {
+  margin-top: 16px;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.loading-state .spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.homework-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.homework-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.homework-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #667eea;
+  transition: width 0.3s ease;
+}
+
+.homework-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #667eea;
+}
+
+.homework-item:hover::before {
+  width: 8px;
+}
+
+.homework-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.homework-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.homework-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+  flex: 1;
+}
+
+.homework-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.homework-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.homework-status.status-submitted {
+  background: rgba(246, 173, 85, 0.1);
+  color: #c05621;
+  border: 1px solid rgba(246, 173, 85, 0.3);
+}
+
+.homework-status.status-completed {
+  background: rgba(72, 187, 120, 0.1);
+  color: #276749;
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.homework-status.status-overdue {
+  background: rgba(245, 101, 101, 0.1);
+  color: #c53030;
+  border: 1px solid rgba(245, 101, 101, 0.3);
+}
+
+.homework-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-name,
+.due-date,
+.submission-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.student-name i,
+.due-date i,
+.submission-info i {
+  color: #667eea;
+  width: 16px;
+}
+
+.student-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.due-date.overdue {
+  color: #c53030;
+  font-weight: 600;
+}
+
+.overdue-label {
+  color: #c53030;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.homework-description {
+  margin: 0;
+  font-size: 14px;
+  color: #718096;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.submission-info {
+  background: rgba(102, 126, 234, 0.05);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+}
+
+.homework-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.review-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.review-btn i {
+  font-size: 14px;
+}
+
+.homework-priority {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.priority-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.priority-badge.urgent {
+  background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+  color: #c53030;
+  border: 1px solid #f56565;
+  animation: urgentPulse 2s infinite;
+}
+
+@keyframes urgentPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 101, 101, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(245, 101, 101, 0); }
+}
+
+.no-homework {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+}
+
+.no-homework-icon {
+  font-size: 48px;
+  color: #cbd5e0;
+  margin-bottom: 12px;
+}
+
+.no-homework p {
+  margin: 8px 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.no-homework small {
+  font-size: 14px;
+  color: #a0aec0;
+}
+
+.homework-stats {
+  margin-top: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item.urgent {
+  border-color: #f56565;
+  background: linear-gradient(135deg, #fed7d7 0%, #ffffff 100%);
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.stat-item.urgent .stat-number {
+  color: #c53030;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #718096;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .homework-item {
+    padding: 12px;
+  }
+  
+  .homework-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .homework-title {
+    font-size: 14px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .stat-item {
+    padding: 8px;
+  }
+  
+  .stat-number {
+    font-size: 20px;
+  }
+}
+

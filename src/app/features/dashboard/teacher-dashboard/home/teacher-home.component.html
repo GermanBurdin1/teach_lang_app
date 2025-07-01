@@ -244,17 +244,107 @@
         </mat-card-actions>
       </mat-card>
 
-      <!-- Правая колонка -->
-      <div class="column right-column">
-        <h3>📋 Devoirs à corriger</h3>
-        <ul>
-          <li *ngFor="let hw of homeworksToReview">
-            {{ hw.title }} — {{ hw.student }} (pour le {{ hw.dueDate }})
-          </li>
-        </ul>
-      </div>
-
     </div>
+    
+    <!-- Правая колонка -->
+    <div class="column right-column">
+      <h3>📋 Devoirs à corriger</h3>
+      
+      <!-- Loading state -->
+      <div *ngIf="loadingHomework" class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement des devoirs...</p>
+      </div>
+      
+      <!-- Homework to review -->
+      <div *ngIf="!loadingHomework" class="homework-section">
+        <div *ngIf="homeworksToReview.length > 0; else noHomeworkToReview" class="homework-list">
+          <div *ngFor="let hw of homeworksToReview" class="homework-item" (click)="goToHomeworkReview(hw)">
+            <div class="homework-content">
+              <div class="homework-header">
+                <h4 class="homework-title">
+                  <span class="homework-icon" [ngClass]="'status-' + hw.status">
+                    {{ hw.status === 'submitted' ? '📥' : hw.status === 'completed' ? '✅' : '⏰' }}
+                  </span>
+                  {{ hw.title }}
+                </h4>
+                <span class="homework-status" [ngClass]="'status-' + hw.status">
+                  {{ hw.status === 'submitted' ? 'Soumis' : hw.status === 'completed' ? 'Complété' : 'En retard' }}
+                </span>
+              </div>
+              
+              <div class="homework-details">
+                <p class="student-name">
+                  <i class="fas fa-user"></i>
+                  {{ hw.assignedToName }}
+                </p>
+                
+                <p class="due-date" [ngClass]="{ 'overdue': isHomeworkOverdue(hw) }">
+                  <i class="fas fa-calendar"></i>
+                  Échéance: {{ hw.dueDate | date:'dd/MM/yyyy à HH:mm' }}
+                  <span *ngIf="isHomeworkOverdue(hw)" class="overdue-label">
+                    ({{ getDaysOverdue(hw) }} jour(s) de retard)
+                  </span>
+                </p>
+                
+                <p *ngIf="hw.description" class="homework-description">
+                  {{ hw.description | slice:0:100 }}<span *ngIf="hw.description.length > 100">...</span>
+                </p>
+                
+                <div *ngIf="hw.submittedAt" class="submission-info">
+                  <i class="fas fa-clock"></i>
+                  Soumis le {{ hw.submittedAt | date:'dd/MM/yyyy à HH:mm' }}
+                </div>
+              </div>
+              
+              <div class="homework-actions">
+                <button mat-raised-button 
+                        color="primary" 
+                        class="review-btn"
+                        (click)="goToHomeworkReview(hw); $event.stopPropagation()">
+                  <i class="fas fa-check"></i>
+                  {{ hw.status === 'submitted' ? 'Corriger' : 'Voir détails' }}
+                </button>
+              </div>
+            </div>
+            
+            <div class="homework-priority" *ngIf="isHomeworkOverdue(hw)">
+              <span class="priority-badge urgent">
+                <i class="fas fa-exclamation-triangle"></i>
+                Urgent
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <ng-template #noHomeworkToReview>
+          <div class="no-homework">
+            <i class="fas fa-clipboard-check no-homework-icon"></i>
+            <p>✅ Aucun devoir à corriger</p>
+            <small>Les devoirs soumis ou en retard apparaîtront ici</small>
+          </div>
+        </ng-template>
+        
+        <!-- Statistics -->
+        <div *ngIf="teacherHomework.length > 0" class="homework-stats">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">{{ teacherHomework.length }}</div>
+              <div class="stat-label">Total assignés</div>
+            </div>
+            <div class="stat-item urgent">
+              <div class="stat-number">{{ getOverdueCount() }}</div>
+              <div class="stat-label">En retard</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ getSubmittedCount() }}</div>
+              <div class="stat-label">Soumis</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <!-- 🔽 НИЖНЯЯ ЧАСТЬ -->
     <div class="bottom-section">

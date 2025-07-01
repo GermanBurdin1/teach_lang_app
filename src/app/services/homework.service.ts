@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environment';
 
@@ -15,11 +16,12 @@ export interface Homework {
   lessonDate?: Date;
   assignedAt: Date;
   dueDate: Date;
-  status: 'assigned' | 'submitted' | 'completed' | 'overdue';
+  status: 'assigned' | 'submitted' | 'completed' | 'overdue' | 'unfinished' | 'finished';
   materialIds: string[]; // Linked materials
   submittedAt?: Date;
   teacherFeedback?: string;
   grade?: number;
+  studentResponse?: string; // Ответ студента
   isLinkedToMaterials: boolean;
   createdInClass: boolean; // true если создано во время урока, false если в TrainingComponent
   sourceType?: string; // тип источника (task, question, material)
@@ -110,12 +112,34 @@ export class HomeworkService {
   }
 
   // Отметка домашнего задания как выполненного
-  completeHomeworkItem(homeworkId: string, completedBy: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}/homework-item/${homeworkId}/complete`, { completedBy });
+  completeHomeworkItem(homeworkId: string, completedBy: string, studentResponse?: string): Observable<any> {
+    const body: any = { completedBy };
+    if (studentResponse) {
+      body.studentResponse = studentResponse;
+    }
+    
+    console.log('🔗 HomeworkService.completeHomeworkItem called:', {
+      homeworkId,
+      completedBy,
+      studentResponse,
+      body,
+      url: `${this.baseUrl}/homework-item/${homeworkId}/complete`
+    });
+    
+    return this.http.put(`${this.baseUrl}/homework-item/${homeworkId}/complete`, body);
   }
 
   completeQuestion(questionId: string, completedBy: string): Observable<any> {
     return this.http.put(`${this.baseUrl}/questions/${questionId}/complete`, { completedBy });
+  }
+
+  // Оценка домашнего задания преподавателем
+  gradeHomeworkItem(homeworkId: string, grade: number, teacherFeedback?: string): Observable<any> {
+    const body: any = { grade };
+    if (teacherFeedback) {
+      body.teacherFeedback = teacherFeedback;
+    }
+    return this.http.put(`${this.baseUrl}/homework-item/${homeworkId}/grade`, body);
   }
 
   // Ответ на вопрос
@@ -132,7 +156,15 @@ export class HomeworkService {
 
   // Получение домашних заданий для урока
   getHomeworkForLesson(lessonId: string): Observable<Homework[]> {
-    return this.http.get<Homework[]>(`${this.baseUrl}/${lessonId}/homework`);
+    const url = `${this.baseUrl}/${lessonId}/homework`;
+    console.log(`📋 [SERVICE] getHomeworkForLesson called for lessonId: ${lessonId}`);
+    console.log(`📋 [SERVICE] Request URL: ${url}`);
+    
+    return this.http.get<Homework[]>(url).pipe(
+      tap((homework: Homework[]) => {
+        console.log(`📋 [SERVICE] getHomeworkForLesson response for ${lessonId}:`, homework);
+      })
+    );
   }
 
   // Получение домашних заданий для студента
@@ -169,6 +201,8 @@ export class HomeworkService {
   addGradeAndFeedback(homeworkId: string, grade: number, feedback: string): Observable<Homework> {
     return this.http.patch<Homework>(`${this.baseUrl}/homework/${homeworkId}/grade`, { grade, feedback });
   }
+
+
 
   // Уведомление об обновлении домашних заданий
   notifyHomeworkUpdated() {
@@ -250,6 +284,8 @@ export class HomeworkService {
     sourceItemText: string;
     materialIds?: string[];
   }): Observable<Homework> {
+    console.log('📋 [SERVICE] createHomeworkFromLesson called with:', data);
+    
     const homeworkData = {
       title: data.title,
       description: data.description,
@@ -260,9 +296,20 @@ export class HomeworkService {
       createdByRole: 'teacher' as const
     };
 
-    console.log('📝 Создаем домашнее задание через lesson-service:', homeworkData);
-    return this.http.post<Homework>(`${this.baseUrl}/${data.lessonId}/homework`, homeworkData);
+    const url = `${this.baseUrl}/${data.lessonId}/homework`;
+    console.log('📝 Создаем домашнее задание через lesson-service:', {
+      url,
+      homeworkData
+    });
+    
+    return this.http.post<Homework>(url, homeworkData).pipe(
+      tap((response: Homework) => {
+        console.log('✅ [SERVICE] createHomeworkFromLesson response:', response);
+      })
+    );
   }
+
+
 
   // Создание домашнего задания из training компонента
   createHomeworkFromTraining(data: {
@@ -285,11 +332,30 @@ export class HomeworkService {
     };
 
     if (data.lessonId) {
-      console.log('📝 Создаем домашнее задание для урока:', data.lessonId);
-      return this.http.post<Homework>(`${this.baseUrl}/${data.lessonId}/homework`, homeworkData);
+      const url = `${this.baseUrl}/${data.lessonId}/homework`;
+      console.log('📝 Создаем домашнее задание для урока:', {
+        lessonId: data.lessonId,
+        url,
+        homeworkData
+      });
+      
+      return this.http.post<Homework>(url, homeworkData).pipe(
+        tap((response: Homework) => {
+          console.log('✅ [SERVICE] createHomeworkFromTraining response:', response);
+        })
+      );
     } else {
-      console.log('📝 Создаем общее домашнее задание');
-      return this.http.post<Homework>(`${this.baseUrl}/homework/general`, homeworkData);
+      const url = `${this.baseUrl}/homework/general`;
+      console.log('📝 Создаем общее домашнее задание:', {
+        url,
+        homeworkData
+      });
+      
+      return this.http.post<Homework>(url, homeworkData).pipe(
+        tap((response: Homework) => {
+          console.log('✅ [SERVICE] createHomeworkFromTraining (general) response:', response);
+        })
+      );
     }
   }
 

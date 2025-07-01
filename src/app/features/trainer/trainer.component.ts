@@ -5,6 +5,30 @@ import { LessonService } from '../../services/lesson.service';
 import { AuthService } from '../../services/auth.service';
 import { FileUploadService } from '../../services/file-upload.service';
 import { NotificationService } from '../../services/notification.service';
+import { ActivatedRoute, Router } from '@angular/router';
+
+interface HomeworkDisplay {
+  id: string;
+  sourceType: string;
+  title: string;
+  description: string;
+  dueDate: Date;
+  status: string;
+  itemId: string;
+  createdAt: Date;
+  lessonId: string;
+  createdInClass: boolean;
+  sourceItemText?: string;
+  grade?: number;
+  teacherFeedback?: string;
+  studentResponse?: string;
+  assignedByName: string;
+  assignedBy: string;
+  assignedTo: string;
+  assignedToName: string;
+  assignedAt: Date;
+  materialIds: string[];
+}
 
 @Component({
   selector: 'app-trainer',
@@ -15,6 +39,8 @@ export class TrainerComponent implements OnInit {
   // ==================== MATERIALS PROPERTIES ====================
   
   activeTab = 'materials';
+  activeHomeworkTab = 'pending'; // For students: 'pending', 'completed', 'overdue'
+  activeTeacherHomeworkTab = 'toReview'; // For teachers: 'toReview', 'reviewed'
   activeMaterialTab = 'own'; // 'own' for mes propres matériaux, 'teachers' for matériaux des professeurs
   
   // ==================== MATERIAL DATA ====================
@@ -40,7 +66,7 @@ export class TrainerComponent implements OnInit {
   maxFileSize = 50 * 1024 * 1024; // 50MB
   
   // Homework management
-  homeworks: Homework[] = [];
+  homeworks: HomeworkDisplay[] = [];
   showCreateHomeworkForm = false;
   newHomework = {
     title: '',
@@ -49,6 +75,30 @@ export class TrainerComponent implements OnInit {
     materialIds: [] as string[],
     lessonId: ''
   };
+
+  // Homework filtering by status
+  pendingHomeworks: HomeworkDisplay[] = [];
+  completedHomeworks: HomeworkDisplay[] = [];
+  overdueHomeworks: HomeworkDisplay[] = [];
+  
+  // Teacher homework arrays
+  homeworksToReview: HomeworkDisplay[] = []; // Для проверки (с ответами студентов)
+  reviewedHomeworks: HomeworkDisplay[] = []; // Уже проверенные
+  // Homework completion modal
+  showHomeworkModal = false;
+  selectedHomework: HomeworkDisplay | null = null;
+  homeworkResponse = '';
+  isSubmittingHomework = false;
+
+  // Grading modal for teachers
+  showGradingModal = false;
+  selectedHomeworkForGrading: HomeworkDisplay | null = null;
+  gradingData = {
+    grade: null as number | null,
+    teacherFeedback: '',
+    maxGrade: 20
+  };
+  isSubmittingGrade = false;
   
   // Lesson selection for material attachment
   showAttachModal = false;
@@ -57,6 +107,9 @@ export class TrainerComponent implements OnInit {
   
   // Current user
   currentUser: any = null;
+
+  // Loading states
+  loadingHomeworks = false;
 
   // User type detection
   isTeacher(): boolean {
@@ -198,7 +251,9 @@ export class TrainerComponent implements OnInit {
     private lessonService: LessonService,
     private authService: AuthService,
     private fileUploadService: FileUploadService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -209,7 +264,26 @@ export class TrainerComponent implements OnInit {
       this.loadMaterials();
       this.loadHomeworks();
       this.loadAvailableLessons();
+      
+      console.log('🎯 TrainerComponent initialized for role:', this.isTeacher() ? 'teacher' : 'student');
     }
+
+    // Обработка параметров URL
+    this.route.queryParams.subscribe(params => {
+      console.log('🔄 Query params received:', params);
+      if (params['tab']) {
+        this.activeTab = params['tab'];
+        console.log('📌 Set activeTab to:', this.activeTab);
+      }
+      if (params['homeworkId']) {
+        // Если передан ID домашнего задания, переходим на вкладку домашних заданий
+        this.activeTab = 'homework';
+        console.log('📌 Set activeTab to homework, homeworkId:', params['homeworkId']);
+        setTimeout(() => {
+          this.highlightHomework(params['homeworkId']);
+        }, 1000); // Увеличиваем задержку чтобы данные успели загрузиться
+      }
+    });
   }
 
   // ==================== MATERIALS SECTION ====================
@@ -305,6 +379,8 @@ export class TrainerComponent implements OnInit {
       return;
     }
 
+    this.loadingHomeworks = true;
+
     console.log('👤 Current user:', {
       id: this.currentUser.id,
       role: this.currentUser.role,
@@ -323,7 +399,57 @@ export class TrainerComponent implements OnInit {
           count: homeworks.length,
           homeworks: homeworks
         });
-        this.homeworks = homeworks;
+
+        console.log('🔍 Raw homework data from API:', homeworks.map(hw => ({
+          id: hw.id,
+          title: hw.title,
+          studentResponse: hw.studentResponse,
+          studentResponseType: typeof hw.studentResponse,
+          studentResponseLength: hw.studentResponse?.length,
+          hasStudentResponse: hw.studentResponse != null,
+          status: hw.status,
+          rawData: hw
+        })));
+
+        console.log('🔍 Specific check for d097ef72-7d65-409a-946a-264a620d5b1f:', 
+          homeworks.find(hw => hw.id === 'd097ef72-7d65-409a-946a-264a620d5b1f'));
+
+        // Преобразуем Homework[] в HomeworkDisplay[]
+        this.homeworks = homeworks.map(hw => ({
+          id: hw.id,
+          sourceType: hw.sourceType || '',
+          title: hw.title,
+          description: hw.description,
+          dueDate: new Date(hw.dueDate), // Принудительно преобразуем в Date
+          status: hw.status,
+          itemId: hw.sourceItemId || '',
+          createdAt: new Date(hw.assignedAt),
+          lessonId: hw.lessonId || '',
+          createdInClass: hw.createdInClass || false,
+          sourceItemText: hw.sourceItemText,
+          grade: hw.grade,
+          teacherFeedback: hw.teacherFeedback,
+          studentResponse: hw.studentResponse,
+          assignedByName: hw.assignedByName || '',
+          assignedBy: hw.assignedBy,
+          assignedTo: hw.assignedTo,
+          assignedToName: hw.assignedToName || '',
+          assignedAt: new Date(hw.assignedAt), // Тоже преобразуем в Date
+          materialIds: hw.materialIds || []
+        } as HomeworkDisplay));
+
+        console.log('📋 After mapping to HomeworkDisplay:');
+        this.homeworks.forEach(hw => {
+          console.log(`Homework ${hw.id}:`, {
+            title: hw.title,
+            studentResponse: hw.studentResponse,
+            hasStudentResponse: hw.studentResponse != null,
+            status: hw.status
+          });
+        });
+
+        this.filterHomeworksByStatus();
+        this.loadingHomeworks = false;
       },
       error: (error) => {
         console.error('❌ Error loading homeworks:', {
@@ -336,6 +462,7 @@ export class TrainerComponent implements OnInit {
         });
         this.notificationService.error('Erreur lors du chargement des devoirs');
         this.homeworks = []; // Set empty array on error
+        this.loadingHomeworks = false;
       }
     });
   }
@@ -624,6 +751,16 @@ export class TrainerComponent implements OnInit {
   }
 
   // ==================== HOMEWORK SECTION ====================
+
+  openCreateHomeworkForm() {
+    this.showCreateHomeworkForm = true;
+    this.loadAvailableLessons();
+    
+    // Set default due date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    this.newHomework.dueDate = tomorrow;
+  }
 
   createHomework() {
     console.log('🔍 Création de devoir - DÉBUT');
@@ -1301,5 +1438,404 @@ export class TrainerComponent implements OnInit {
     }
 
     return `Attaché aux cours:\n${lessonInfos.join('\n')}`;
+  }
+
+  // Фильтрация домашних заданий по статусу
+  private filterHomeworksByStatus(): void {
+    console.log('🔄 Filtering homeworks by status for role:', this.isTeacher() ? 'teacher' : 'student');
+    console.log('🔍 Raw homeworks data:', this.homeworks.map(hw => ({
+      id: hw.id,
+      title: hw.title,
+      status: hw.status,
+      dueDate: hw.dueDate,
+      studentResponse: hw.studentResponse,
+      grade: hw.grade,
+      isOverdue: this.isOverdue(hw.dueDate)
+    })));
+    
+    const now = new Date();
+    console.log('⏰ Current time:', now.toISOString());
+    
+    if (this.isStudent()) {
+      // Student filtering logic
+      // Сначала фильтруем завершенные
+      this.completedHomeworks = this.homeworks.filter(hw => {
+        const isCompleted = hw.status === 'completed' || hw.status === 'submitted' || hw.status === 'finished';
+        console.log(`✅ ${hw.title}: status=${hw.status}, isCompleted=${isCompleted}`);
+        return isCompleted;
+      });
+      
+      // Затем фильтруем просроченные (unfinished/assigned которые просрочены)
+      this.overdueHomeworks = this.homeworks.filter(hw => {
+        const dueDate = new Date(hw.dueDate);
+        const isPending = hw.status === 'assigned' || hw.status === 'unfinished';
+        const isOverdue = now > dueDate;
+        const result = isPending && isOverdue;
+        console.log(`⏰ ${hw.title}: status=${hw.status}, dueDate=${dueDate.toISOString()}, now=${now.toISOString()}, isOverdue=${isOverdue}, result=${result}`);
+        return result;
+      });
+      
+      // Наконец, pending (unfinished/assigned которые не просрочены)
+      this.pendingHomeworks = this.homeworks.filter(hw => {
+        const dueDate = new Date(hw.dueDate);
+        const isPending = hw.status === 'assigned' || hw.status === 'unfinished';
+        const isNotOverdue = now <= dueDate;
+        const result = isPending && isNotOverdue;
+        console.log(`📝 ${hw.title}: status=${hw.status}, dueDate=${dueDate.toISOString()}, now=${now.toISOString()}, isNotOverdue=${isNotOverdue}, result=${result}`);
+        return result;
+      });
+      
+      console.log('📊 Student homework filtered by status:');
+      console.log('📝 Pending count:', this.pendingHomeworks.length);
+      console.log('✅ Completed count:', this.completedHomeworks.length);
+      console.log('⏰ Overdue count:', this.overdueHomeworks.length);
+    } else if (this.isTeacher()) {
+      // Teacher filtering logic
+      this.homeworksToReview = this.homeworks.filter(hw => {
+        const hasResponse = hw.studentResponse && hw.studentResponse.trim().length > 0;
+        const isNotGraded = hw.grade === null || hw.grade === undefined;
+        const isFinishedWithResponse = hw.status === 'finished' && hasResponse && isNotGraded;
+        const isSubmitted = hw.status === 'submitted';
+        const isOverdueUnfinished = hw.status === 'unfinished' && this.isOverdue(hw.dueDate);
+        
+        const shouldReview = isFinishedWithResponse || isSubmitted || isOverdueUnfinished;
+        
+        console.log(`🔍 ${hw.title}: status=${hw.status}, hasResponse=${hasResponse}, isNotGraded=${isNotGraded}, shouldReview=${shouldReview}`);
+        return shouldReview;
+      });
+      
+      this.reviewedHomeworks = this.homeworks.filter(hw => {
+        const isGraded = hw.grade !== null && hw.grade !== undefined;
+        console.log(`📊 ${hw.title}: grade=${hw.grade}, isGraded=${isGraded}`);
+        return isGraded;
+      });
+
+      console.log('📊 Teacher homework filtered by status:');
+      console.log('🔍 To review count:', this.homeworksToReview.length);
+      console.log('✅ Reviewed count:', this.reviewedHomeworks.length);
+      console.log('📊 Breakdown:', {
+        finishedWithResponse: this.homeworks.filter(hw => hw.status === 'finished' && hw.studentResponse).length,
+        finishedWithResponseNoGrade: this.homeworks.filter(hw => hw.status === 'finished' && hw.studentResponse && !hw.grade).length,
+        submitted: this.homeworks.filter(hw => hw.status === 'submitted').length,
+        graded: this.homeworks.filter(hw => hw.grade !== null).length
+      });
+    }
+  }
+
+  // Подсветка конкретного домашнего задания
+  private highlightHomework(homeworkId: string): void {
+    console.log('🎯 Highlighting homework:', homeworkId);
+    console.log('📝 Available homeworks count:', this.homeworks.length);
+    console.log('📝 Available homeworks IDs:', this.homeworks.map(h => h.id));
+    console.log('🔍 Pending homeworks:', this.pendingHomeworks.length);
+    console.log('✅ Completed homeworks:', this.completedHomeworks.length);
+    console.log('⏰ Overdue homeworks:', this.overdueHomeworks.length);
+    
+    const homework = this.homeworks.find(hw => hw.id === homeworkId);
+    if (homework) {
+      console.log('✅ Found homework:', {
+        id: homework.id,
+        title: homework.title,
+        status: homework.status,
+        dueDate: homework.dueDate
+      });
+      
+      // Определяем, на какую подвкладку перейти
+      if (homework.status === 'completed' || homework.status === 'submitted') {
+        this.activeHomeworkTab = 'completed';
+      } else if (this.isOverdue(homework.dueDate)) {
+        this.activeHomeworkTab = 'overdue';
+      } else {
+        this.activeHomeworkTab = 'pending';
+      }
+      
+      console.log('📌 Set activeHomeworkTab to:', this.activeHomeworkTab);
+      
+      // НЕ открываем модалку автоматически, а только прокручиваем к карточке
+      // Пользователь должен нажать "Faire le devoir" чтобы открыть модалку
+      
+      // Прокручиваем к элементу
+      setTimeout(() => {
+        const element = document.getElementById(`homework-${homeworkId}`);
+        if (element) {
+          console.log('🎯 Found homework element, scrolling to it');
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.classList.add('highlighted');
+          setTimeout(() => element.classList.remove('highlighted'), 3000);
+        } else {
+          console.warn('⚠️ Homework element not found in DOM:', `homework-${homeworkId}`);
+        }
+      }, 500); // Увеличиваем задержку для полной загрузки карточек
+    } else {
+      console.warn('⚠️ Homework not found:', homeworkId);
+      console.log('🔍 All homework data:', this.homeworks);
+    }
+  }
+
+  // Открытие модали для выполнения домашнего задания
+  openHomeworkModal(homework: HomeworkDisplay): void {
+    this.selectedHomework = homework;
+    this.homeworkResponse = '';
+    this.showHomeworkModal = true;
+  }
+
+  // Закрытие модали
+  closeHomeworkModal(): void {
+    this.showHomeworkModal = false;
+    this.selectedHomework = null;
+    this.homeworkResponse = '';
+    this.isSubmittingHomework = false;
+  }
+
+  // Завершение домашнего задания
+  completeHomework(): void {
+    console.log('🚀 COMPLETE HOMEWORK - СТАРТ:', {
+      selectedHomework: this.selectedHomework?.id,
+      homeworkResponse: this.homeworkResponse,
+      responseLength: this.homeworkResponse?.length,
+      responseTrimmed: this.homeworkResponse?.trim(),
+      trimmedLength: this.homeworkResponse?.trim()?.length
+    });
+
+    if (!this.selectedHomework || !this.homeworkResponse.trim()) {
+      console.error('❌ No homework selected or empty response:', {
+        selectedHomework: this.selectedHomework?.id,
+        responseLength: this.homeworkResponse?.length,
+        responseValue: this.homeworkResponse,
+        trimmedLength: this.homeworkResponse?.trim()?.length
+      });
+      return;
+    }
+
+    console.log('📝 Starting homework completion:', {
+      homeworkId: this.selectedHomework.id,
+      homeworkTitle: this.selectedHomework.title,
+      studentResponse: this.homeworkResponse,
+      responseLength: this.homeworkResponse.length,
+      responsePreview: this.homeworkResponse.substring(0, 100) + '...'
+    });
+
+    this.isSubmittingHomework = true;
+    const currentUser = this.authService.getCurrentUser();
+    
+    if (!currentUser) {
+      console.error('❌ Пользователь не авторизован');
+      this.isSubmittingHomework = false;
+      return;
+    }
+
+    console.log('👤 Current user:', currentUser.id);
+    console.log('📤 Calling completeHomeworkItem with:', {
+      homeworkId: this.selectedHomework.id,
+      userId: currentUser.id,
+      studentResponse: this.homeworkResponse
+    });
+
+    // Используем правильный endpoint для завершения homework с ответом студента
+    this.homeworkService.completeHomeworkItem(
+      this.selectedHomework.id, 
+      currentUser.id, 
+      this.homeworkResponse
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ Домашнее задание завершено:', response);
+        this.closeHomeworkModal();
+        this.loadHomeworks(); // Перезагружаем список для обновления статуса
+        
+        // Уведомляем об обновлении домашнего задания
+        this.homeworkService.notifyHomeworkUpdated();
+        
+        // Показываем уведомление об успехе
+        // this.notificationService.success('Devoir terminé avec succès !');
+      },
+      error: (error: Error) => {
+        console.error('❌ Ошибка при завершении домашнего задания:', error);
+        this.isSubmittingHomework = false;
+        // this.notificationService.error('Erreur lors de la soumission du devoir');
+      }
+    });
+  }
+
+  // Method to set homework tab
+  setHomeworkTab() {
+    console.log('🖱️ Clicked homework tab - method called!');
+    this.activeTab = 'homework';
+    console.log('📌 activeTab set to:', this.activeTab);
+  }
+
+  // Method to set materials tab
+  setMaterialsTab() {
+    console.log('🖱️ Clicked materials tab - method called!');
+    this.activeTab = 'materials';
+    console.log('📌 activeTab set to:', this.activeTab);
+  }
+
+  // Method to set homework subtab for students
+  setActiveHomeworkTab(tab: string) {
+    this.activeHomeworkTab = tab;
+    console.log('🎯 Switched to homework subtab:', tab);
+  }
+
+  // Method to set teacher homework subtab
+  setActiveTeacherHomeworkTab(tab: string) {
+    this.activeTeacherHomeworkTab = tab;
+    console.log('🎯 Switched to teacher homework subtab:', tab);
+  }
+
+  getDaysUntilDue(dueDate: Date): number {
+    const now = new Date();
+    const diffTime = dueDate.getTime() - now.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  getDaysOverdue(dueDate: Date): number {
+    const now = new Date();
+    const diffTime = now.getTime() - dueDate.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  isOverdue(dueDate: Date): boolean {
+    const now = new Date();
+    const due = new Date(dueDate);
+    const isOverdueResult = due < now;
+    console.log('🕒 isOverdue check:', {
+      dueDate: due.toISOString(),
+      now: now.toISOString(),
+      isOverdue: isOverdueResult
+    });
+    return isOverdueResult;
+  }
+
+  getCompletedDate(homework: HomeworkDisplay): Date | null {
+    // Для завершенных заданий используем дату назначения как заглушку
+    // В будущем здесь может быть отдельное поле completedAt
+    return homework.assignedAt || null;
+  }
+
+  formatCompletedDate(homework: HomeworkDisplay): string | null {
+    const date = this.getCompletedDate(homework);
+    if (!date) return null;
+    
+    // Проверяем валидность даты
+    if (isNaN(date.getTime())) {
+      console.warn('⚠️ Invalid date for homework:', homework.id, date);
+      return null;
+    }
+    
+    return date.toLocaleDateString('fr-FR');
+  }
+
+  // ==================== TEACHER METHODS FOR GRADING ====================
+  
+  openGradingModal(homework: HomeworkDisplay): void {
+    this.selectedHomeworkForGrading = homework;
+    this.gradingData = {
+      grade: homework.grade || null,
+      teacherFeedback: homework.teacherFeedback || '',
+      maxGrade: 20
+    };
+    this.showGradingModal = true;
+    this.isSubmittingGrade = false;
+    
+    console.log('🎯 Opening grading modal for homework:', {
+      id: homework.id,
+      title: homework.title,
+      student: homework.assignedToName,
+      currentGrade: homework.grade,
+      currentFeedback: homework.teacherFeedback,
+      studentResponse: homework.studentResponse
+    });
+  }
+
+  closeGradingModal(): void {
+    this.showGradingModal = false;
+    this.selectedHomeworkForGrading = null;
+    this.gradingData = {
+      grade: null,
+      teacherFeedback: '',
+      maxGrade: 20
+    };
+    this.isSubmittingGrade = false;
+  }
+
+  onGradeChange(value: any): void {
+    // Убеждаемся что grade это число, а не строка
+    this.gradingData.grade = value === null || value === undefined || value === '' ? null : Number(value);
+    console.log('🎯 Grade changed:', {
+      originalValue: value,
+      originalType: typeof value,
+      convertedValue: this.gradingData.grade,
+      convertedType: typeof this.gradingData.grade,
+      isValid: this.gradingData.grade !== null && !isNaN(this.gradingData.grade)
+    });
+  }
+
+  isGradeValid(): boolean {
+    return this.gradingData.grade !== null && 
+           this.gradingData.grade !== undefined && 
+           !isNaN(this.gradingData.grade) &&
+           this.gradingData.grade >= 0 && 
+           this.gradingData.grade <= this.gradingData.maxGrade;
+  }
+
+  submitGrade(): void {
+    console.log('🎯 submitGrade called with data:', {
+      selectedHomework: this.selectedHomeworkForGrading?.id,
+      grade: this.gradingData.grade,
+      gradeType: typeof this.gradingData.grade,
+      feedback: this.gradingData.teacherFeedback,
+      isSubmitting: this.isSubmittingGrade
+    });
+
+    if (!this.selectedHomeworkForGrading) {
+      console.error('❌ Cannot submit grade: missing homework');
+      return;
+    }
+
+    if (!this.isGradeValid()) {
+      console.error('❌ Cannot submit grade: invalid grade', {
+        grade: this.gradingData.grade,
+        gradeType: typeof this.gradingData.grade,
+        isValid: this.isGradeValid()
+      });
+      return;
+    }
+
+    this.isSubmittingGrade = true;
+    
+    console.log('📝 Submitting grade:', {
+      homeworkId: this.selectedHomeworkForGrading.id,
+      grade: this.gradingData.grade,
+      teacherFeedback: this.gradingData.teacherFeedback
+    });
+
+    this.homeworkService.gradeHomeworkItem(
+      this.selectedHomeworkForGrading.id,
+      this.gradingData.grade!,
+      this.gradingData.teacherFeedback.trim() || undefined
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ Grade submitted successfully:', response);
+        this.closeGradingModal();
+        this.loadHomeworks(); // Reload homework to see updated grade
+        
+        // Notify about homework update
+        this.homeworkService.notifyHomeworkUpdated();
+        
+        // TODO: Show success notification
+        // this.notificationService.success('Évaluation enregistrée avec succès !');
+      },
+      error: (error) => {
+        console.error('❌ Error submitting grade:', error);
+        this.isSubmittingGrade = false;
+        // TODO: Show error notification
+        // this.notificationService.error('Erreur lors de l\'enregistrement de l\'évaluation');
+      }
+    });
+  }
+
+  goToHomeworkReview(homework: HomeworkDisplay): void {
+    // Open the grading modal for detailed review
+    this.openGradingModal(homework);
   }
 }

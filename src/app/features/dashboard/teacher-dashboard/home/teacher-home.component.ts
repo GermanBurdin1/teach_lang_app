@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { VideoCallService } from '../../../../services/video-call.service';
 import { LessonTabsService } from '../../../../services/lesson-tabs.service';
 import { MaterialService } from '../../../../services/material.service';
+import { HomeworkService, Homework } from '../../../../services/homework.service';
 
 @Component({
   selector: 'app-teacher-home',
@@ -30,7 +31,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private ngZone: NgZone,
     private videoCallService: VideoCallService,
     private lessonTabsService: LessonTabsService,
-    private materialService: MaterialService
+    private materialService: MaterialService,
+    private homeworkService: HomeworkService
   ) { }
 
   // notifications: string[] = [
@@ -45,10 +47,10 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   //   { name: 'Julien Lefevre', date: '20/05/2025' }
   // ];
 
-  homeworksToReview = [
-    { student: 'Alice Dupont', title: 'Exercice B2', dueDate: '2025-05-23' },
-    { student: 'Marc Petit', title: 'Rédaction C1', dueDate: '2025-05-22' }
-  ];
+  // Homework properties
+  teacherHomework: Homework[] = [];
+  homeworksToReview: Homework[] = [];
+  loadingHomework = false;
 
   upcomingLessons: CalendarEvent[] = [];
 
@@ -137,6 +139,92 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private loadTeacherHomework(): void {
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+    
+    this.loadingHomework = true;
+    console.log('[TeacherHome] Loading homework for teacher:', userId);
+    
+    this.homeworkService.getHomeworkForTeacher(userId).subscribe({
+      next: (homework: Homework[]) => {
+        console.log('[TeacherHome] Loaded teacher homework:', homework);
+        this.teacherHomework = homework;
+        
+        // Фильтруем homework для проверки (выполненные, но еще не оцененные)
+        this.homeworksToReview = homework.filter((hw: Homework) => {
+          // Исключаем уже оцененные домашние задания
+          if (hw.grade !== null && hw.grade !== undefined) {
+            return false;
+          }
+          
+          // Включаем задания со статусом submitted, completed, или finished с ответом студента
+          return hw.status === 'submitted' || 
+                 hw.status === 'completed' || 
+                 (hw.status === 'finished' && hw.studentResponse && hw.studentResponse.trim().length > 0) ||
+                 (hw.status === 'unfinished' && this.isHomeworkOverdue(hw));
+        });
+        
+        console.log('[TeacherHome] Homework status breakdown:', {
+          total: homework.length,
+          submitted: homework.filter(hw => hw.status === 'submitted').length,
+          completed: homework.filter(hw => hw.status === 'completed').length,
+          finished: homework.filter(hw => hw.status === 'finished').length,
+          finishedWithResponse: homework.filter(hw => hw.status === 'finished' && hw.studentResponse).length,
+          unfinished: homework.filter(hw => hw.status === 'unfinished').length,
+          toReview: this.homeworksToReview.length
+        });
+        
+        console.log('[TeacherHome] Homework to review:', this.homeworksToReview);
+        this.loadingHomework = false;
+      },
+      error: (error: any) => {
+        console.error('[TeacherHome] Error loading homework:', error);
+        this.loadingHomework = false;
+      }
+    });
+  }
+
+  isHomeworkOverdue(homework: Homework): boolean {
+    if (!homework.dueDate) return false;
+    const now = new Date();
+    const dueDate = new Date(homework.dueDate);
+    return now > dueDate;
+  }
+
+  goToHomeworkReview(homework: Homework): void {
+    // Переходим к homework в trainer компоненте со специальными параметрами для преподавателя
+    this.router.navigate(['/teacher/trainer'], { 
+      queryParams: { 
+        tab: 'homework', 
+        homeworkId: homework.id,
+        mode: 'review' // Специальный режим для преподавателей
+      } 
+    });
+  }
+
+  getDaysOverdue(homework: Homework): number {
+    if (!homework.dueDate) return 0;
+    const now = new Date();
+    const dueDate = new Date(homework.dueDate);
+    const diffTime = now.getTime() - dueDate.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  getOverdueCount(): number {
+    return this.teacherHomework.filter(hw => 
+      hw.status === 'unfinished' && this.isHomeworkOverdue(hw)
+    ).length;
+  }
+
+  getSubmittedCount(): number {
+    return this.teacherHomework.filter(hw => 
+      hw.status === 'submitted' || 
+      hw.status === 'completed' ||
+      (hw.status === 'finished' && hw.studentResponse) // ✨ Включаем finished со studentResponse
+    ).length;
+  }
+
   ngOnInit(): void {
     this.refreshStudents();
     
@@ -145,10 +233,14 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.now = new Date();
     }, 60000);
     
-    // Возможна загрузка с backend позже
-    this.homeworksToReview.sort((a, b) =>
-      a.dueDate.localeCompare(b.dueDate)
-    );
+    // Загружаем homework для преподавателя
+    this.loadTeacherHomework();
+    
+    // Подписываемся на обновления homework
+    this.homeworkService.onHomeworkUpdated().subscribe(() => {
+      console.log('[TeacherHome] Homework updated, reloading...');
+      this.loadTeacherHomework();
+    });
 
     const userId = this.authService.getCurrentUser()?.id;
     if (!userId) return;

@@ -473,6 +473,15 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Обработчики событий от gabarit-page
+  onGabaritOpenNotes(event: {section: 'materials', itemId: string, itemText: string}) {
+    this.openNotes(event.section, event.itemId, event.itemText);
+  }
+
+  onGabaritAddToHomework(event: {type: string, materialTitle: string, materialId: string}) {
+    this.addToHomework('material', event.materialTitle, event.materialId);
+  }
+
   // Метод для добавления в домашнее задание
   addToHomework(type: 'task' | 'question' | 'material', title: string, itemId: string) {
     const dialogRef = this.dialog.open(HomeworkModalComponent, {
@@ -660,13 +669,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   // Обработчики событий от gabarit-page
-  onGabaritOpenNotes(event: {section: 'materials', itemId: string, itemText: string}) {
-    this.openNotes(event.section, event.itemId, event.itemText);
-  }
 
-  onGabaritAddToHomework(event: {type: string, materialTitle: string, materialId: string}) {
-    this.addToHomework('material', event.materialTitle, event.materialId);
-  }
 
   // Отметка домашнего задания как выполненного
   markHomeworkAsCompleted(homeworkId: string) {
