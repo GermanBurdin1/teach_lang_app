@@ -259,42 +259,66 @@
       <!-- Homework to review -->
       <div *ngIf="!loadingHomework" class="homework-section">
         <div *ngIf="homeworksToReview.length > 0; else noHomeworkToReview" class="homework-list">
-          <div *ngFor="let hw of homeworksToReview" class="homework-item" (click)="goToHomeworkReview(hw)">
+          <div *ngFor="let hw of homeworksToReview" class="homework-item enhanced" (click)="goToHomeworkReview(hw)">
             <div class="homework-content">
               <div class="homework-header">
                 <h4 class="homework-title">
                   <span class="homework-icon" [ngClass]="'status-' + hw.status">
-                    {{ hw.status === 'submitted' ? '📥' : hw.status === 'completed' ? '✅' : '⏰' }}
+                    {{ hw.status === 'submitted' ? '📥' : hw.status === 'completed' ? '✅' : hw.status === 'finished' ? '🏁' : '⏰' }}
                   </span>
                   {{ hw.title }}
                 </h4>
-                <span class="homework-status" [ngClass]="'status-' + hw.status">
-                  {{ hw.status === 'submitted' ? 'Soumis' : hw.status === 'completed' ? 'Complété' : 'En retard' }}
-                </span>
+                <div class="homework-status-badges">
+                  <span class="homework-status" [ngClass]="'status-' + hw.status">
+                    {{ getHomeworkStatusText(hw.status) }}
+                  </span>
+                  <span *ngIf="isHomeworkOverdue(hw)" class="urgent-badge">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    URGENT
+                  </span>
+                </div>
               </div>
               
-              <div class="homework-details">
-                <p class="student-name">
-                  <i class="fas fa-user"></i>
-                  {{ hw.assignedToName }}
-                </p>
-                
-                <p class="due-date" [ngClass]="{ 'overdue': isHomeworkOverdue(hw) }">
-                  <i class="fas fa-calendar"></i>
-                  Échéance: {{ hw.dueDate | date:'dd/MM/yyyy à HH:mm' }}
-                  <span *ngIf="isHomeworkOverdue(hw)" class="overdue-label">
-                    ({{ getDaysOverdue(hw) }} jour(s) de retard)
-                  </span>
-                </p>
-                
-                <p *ngIf="hw.description" class="homework-description">
-                  {{ hw.description | slice:0:100 }}<span *ngIf="hw.description.length > 100">...</span>
-                </p>
-                
-                <div *ngIf="hw.submittedAt" class="submission-info">
-                  <i class="fas fa-clock"></i>
-                  Soumis le {{ hw.submittedAt | date:'dd/MM/yyyy à HH:mm' }}
+              <div class="homework-student-info">
+                <div class="student-details">
+                  <div class="student-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                  </div>
+                  <div class="student-meta">
+                    <h5 class="student-name">{{ hw.assignedToName }}</h5>
+                    <div class="student-lesson-info">
+                      <i class="fas fa-book"></i>
+                      <span>Leçon du {{ hw.assignedAt | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                  </div>
                 </div>
+                
+                <div class="dates-info">
+                  <div class="due-date-info" [ngClass]="{ 'overdue': isHomeworkOverdue(hw) }">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="date-label">Échéance</span>
+                    <span class="date-value">{{ hw.dueDate | date:'dd/MM à HH:mm' }}</span>
+                    <span *ngIf="isHomeworkOverdue(hw)" class="overdue-indicator">
+                      {{ getDaysOverdue(hw) }}j de retard
+                    </span>
+                  </div>
+                  
+                  <div *ngIf="hw.submittedAt || hw.status === 'finished'" class="submitted-date-info">
+                    <i class="fas fa-paper-plane"></i>
+                    <span class="date-label">Soumis</span>
+                    <span class="date-value">{{ (hw.submittedAt || hw.assignedAt) | date:'dd/MM à HH:mm' }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div *ngIf="hw.description" class="homework-description">
+                <h6><i class="fas fa-info-circle"></i> Description</h6>
+                <p>{{ hw.description | slice:0:120 }}<span *ngIf="hw.description && hw.description.length > 120">...</span></p>
+              </div>
+              
+              <div *ngIf="hw.studentResponse" class="student-response-preview">
+                <h6><i class="fas fa-comment-dots"></i> Réponse de l'étudiant</h6>
+                <p class="response-text">{{ hw.studentResponse | slice:0:100 }}<span *ngIf="hw.studentResponse && hw.studentResponse.length > 100">...</span></p>
               </div>
               
               <div class="homework-actions">
@@ -302,17 +326,21 @@
                         color="primary" 
                         class="review-btn"
                         (click)="goToHomeworkReview(hw); $event.stopPropagation()">
-                  <i class="fas fa-check"></i>
-                  {{ hw.status === 'submitted' ? 'Corriger' : 'Voir détails' }}
+                  <i class="fas fa-star"></i>
+                  Évaluer et corriger
+                </button>
+                <button mat-stroked-button 
+                        color="accent"
+                        class="details-btn"
+                        (click)="goToHomeworkReview(hw); $event.stopPropagation()">
+                  <i class="fas fa-eye"></i>
+                  Voir détails
                 </button>
               </div>
             </div>
             
-            <div class="homework-priority" *ngIf="isHomeworkOverdue(hw)">
-              <span class="priority-badge urgent">
-                <i class="fas fa-exclamation-triangle"></i>
-                Urgent
-              </span>
+            <div class="homework-priority-indicator" *ngIf="isHomeworkOverdue(hw)">
+              <div class="priority-pulse"></div>
             </div>
           </div>
         </div>

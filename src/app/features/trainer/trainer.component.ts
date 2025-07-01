@@ -99,6 +99,9 @@ export class TrainerComponent implements OnInit {
     maxGrade: 20
   };
   isSubmittingGrade = false;
+
+  // Homework expansion for reviewed section
+  selectedExpandedHomework: string | null = null;
   
   // Lesson selection for material attachment
   showAttachModal = false;
@@ -430,11 +433,11 @@ export class TrainerComponent implements OnInit {
           grade: hw.grade,
           teacherFeedback: hw.teacherFeedback,
           studentResponse: hw.studentResponse,
-          assignedByName: hw.assignedByName || '',
+          assignedByName: hw.assignedByName || 'Enseignant inconnu',
           assignedBy: hw.assignedBy,
           assignedTo: hw.assignedTo,
-          assignedToName: hw.assignedToName || '',
-          assignedAt: new Date(hw.assignedAt), // Тоже преобразуем в Date
+          assignedToName: hw.assignedToName || 'Nom manquant',
+          assignedAt: new Date(hw.assignedAt),
           materialIds: hw.materialIds || []
         } as HomeworkDisplay));
 
@@ -1837,5 +1840,57 @@ export class TrainerComponent implements OnInit {
   goToHomeworkReview(homework: HomeworkDisplay): void {
     // Open the grading modal for detailed review
     this.openGradingModal(homework);
+  }
+
+  // ==================== HOMEWORK EXPANSION METHODS ====================
+  
+  toggleHomeworkExpansion(homeworkId: string): void {
+    if (this.selectedExpandedHomework === homeworkId) {
+      this.selectedExpandedHomework = null;
+    } else {
+      this.selectedExpandedHomework = homeworkId;
+    }
+  }
+
+  getGradedDate(homework: HomeworkDisplay): string {
+    // TODO: В будущем можно добавить поле gradedAt в entity
+    // Пока используем дату создания как примерную дату оценивания
+    if (homework.createdAt) {
+      return new Date(homework.createdAt).toLocaleDateString('fr-FR');
+    }
+    if (homework.assignedAt) {
+      return new Date(homework.assignedAt).toLocaleDateString('fr-FR');
+    }
+    return 'Date inconnue';
+  }
+
+  getGradeClass(grade: number | null): string {
+    if (!grade) return '';
+    if (grade >= 16) return 'excellent';
+    if (grade >= 12) return 'good';
+    if (grade >= 8) return 'average';
+    return 'poor';
+  }
+
+  getGradeLabel(grade: number | null): string {
+    if (!grade) return '';
+    if (grade >= 16) return 'Excellent';
+    if (grade >= 12) return 'Bien';
+    if (grade >= 8) return 'Passable';
+    return 'Insuffisant';
+  }
+
+  viewHomeworkHistory(homework: HomeworkDisplay): void {
+    // TODO: Implement homework history modal
+    console.log('📋 Viewing homework history for:', homework.id);
+    // For now, just log the information
+    console.log('Homework details:', {
+      title: homework.title,
+      student: homework.assignedToName,
+      grade: homework.grade,
+      feedback: homework.teacherFeedback,
+      dueDate: homework.dueDate,
+      assignedAt: homework.assignedAt
+    });
   }
 }

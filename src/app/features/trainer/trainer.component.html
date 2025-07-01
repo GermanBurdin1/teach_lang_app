@@ -926,35 +926,80 @@
           </div>
           
           <div *ngFor="let homework of reviewedHomeworks" 
-               class="homework-card reviewed"
+               class="homework-card reviewed expandable"
+               [class.expanded]="homework.id === selectedExpandedHomework"
                [id]="'homework-' + homework.id">
-            <div class="homework-header">
-              <h4>{{ homework.title }}</h4>
-              <span class="homework-status reviewed">✅ Corrigé</span>
-            </div>
-            <div class="homework-meta">
-              <span class="student-name">Étudiant: {{ homework.assignedToName }}</span>
-              <span *ngIf="homework.grade" class="homework-grade">Note: {{ homework.grade }}/20</span>
-            </div>
-            <div class="homework-description">
-              {{ homework.description || 'Aucune description disponible' }}
+            
+            <!-- Collapsed View (Card Summary) -->
+            <div class="homework-summary" (click)="toggleHomeworkExpansion(homework.id)">
+              <div class="homework-header">
+                <h4>{{ homework.title }}</h4>
+                <div class="homework-status-badges">
+                  <span class="homework-status reviewed">✅ Corrigé</span>
+                  <span *ngIf="homework.grade" class="homework-grade-badge">{{ homework.grade }}/20</span>
+                </div>
+              </div>
+              
+              <div class="homework-summary-meta">
+                <div class="student-info">
+                  <i class="fas fa-user-graduate"></i>
+                  <span class="student-name">{{ homework.assignedToName }}</span>
+                </div>
+                <div class="date-info">
+                  <span class="corrected-date">
+                    <i class="fas fa-check-circle"></i>
+                    Corrigé le {{ getGradedDate(homework) }}
+                  </span>
+                  <span class="due-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="expand-indicator">
+                <i class="fas fa-chevron-down" [class.rotated]="homework.id === selectedExpandedHomework"></i>
+              </div>
             </div>
             
-            <div *ngIf="homework.studentResponse" class="student-response">
-              <strong>Réponse de l'étudiant:</strong>
-              <p>{{ homework.studentResponse }}</p>
-            </div>
-            
-            <div *ngIf="homework.teacherFeedback" class="teacher-feedback">
-              <strong>Votre commentaire:</strong>
-              <p>{{ homework.teacherFeedback }}</p>
-            </div>
-            
-            <div class="homework-actions">
-              <button class="btn btn-outline-primary" (click)="openGradingModal(homework)">
-                <i class="fas fa-edit"></i>
-                Modifier l'évaluation
-              </button>
+            <!-- Expanded View (Full Details) -->
+            <div *ngIf="homework.id === selectedExpandedHomework" class="homework-details">
+              <div class="homework-description">
+                <h5><i class="fas fa-info-circle"></i> Description</h5>
+                <p>{{ homework.description || 'Aucune description disponible' }}</p>
+              </div>
+              
+              <div *ngIf="homework.studentResponse" class="student-response">
+                <h5><i class="fas fa-comment-dots"></i> Réponse de l'étudiant</h5>
+                <div class="response-content">{{ homework.studentResponse }}</div>
+              </div>
+              
+              <div *ngIf="homework.teacherFeedback" class="teacher-feedback">
+                <h5><i class="fas fa-comment-alt"></i> Votre commentaire</h5>
+                <div class="feedback-content">{{ homework.teacherFeedback }}</div>
+              </div>
+              
+              <div class="evaluation-summary">
+                <h5><i class="fas fa-star"></i> Évaluation</h5>
+                <div class="grade-display">
+                  <span class="grade-value">{{ homework.grade }}</span>
+                  <span class="grade-max">/20</span>
+                  <span class="grade-label" [ngClass]="getGradeClass(homework.grade)">
+                    {{ getGradeLabel(homework.grade) }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="homework-actions">
+                <button class="btn btn-outline-primary" (click)="openGradingModal(homework); $event.stopPropagation()">
+                  <i class="fas fa-edit"></i>
+                  Modifier l'évaluation
+                </button>
+                <button class="btn btn-outline-secondary" (click)="viewHomeworkHistory(homework); $event.stopPropagation()">
+                  <i class="fas fa-history"></i>
+                  Historique
+                </button>
+              </div>
             </div>
           </div>
         </div>

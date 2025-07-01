@@ -741,4 +741,14 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const diffInMs = lessonStart.getTime() - now.getTime();
     return Math.round(diffInMs / (1000 * 60));
   }
+
+  getHomeworkStatusText(status: string): string {
+    switch (status) {
+      case 'submitted': return 'Soumis';
+      case 'completed': return 'Complété';
+      case 'finished': return 'Terminé';
+      case 'unfinished': return 'En cours';
+      default: return 'Statut inconnu';
+    }
+  }
 }

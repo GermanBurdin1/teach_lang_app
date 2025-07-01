@@ -905,3 +905,171 @@
   }
 }
 
+/* ==================== ENHANCED HOMEWORK CARDS ==================== */
+
+.homework-item.enhanced {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.homework-item.enhanced:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  border-color: #667eea;
+}
+
+.homework-status-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.urgent-badge {
+  background: linear-gradient(135deg, #ff5722 0%, #d32f2f 100%);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: urgentPulse 2s infinite;
+  box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4);
+}
+
+.homework-student-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.student-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.student-avatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.student-meta h5 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.student-lesson-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #718096;
+  font-size: 13px;
+}
+
+.dates-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: right;
+  min-width: 140px;
+}
+
+.due-date-info, .submitted-date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.due-date-info.overdue {
+  color: #e53e3e;
+}
+
+.date-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #a0aec0;
+  letter-spacing: 0.5px;
+}
+
+.date-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.overdue-indicator {
+  font-size: 11px;
+  color: #e53e3e;
+  font-weight: 600;
+  background: rgba(229, 62, 62, 0.1);
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-top: 2px;
+}
+
+.submitted-date-info {
+  color: #38a169;
+}
+
+.homework-description h6, 
+.student-response-preview h6 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.homework-description p,
+.student-response-preview p {
+  margin: 0;
+  color: #718096;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.student-response-preview {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  padding: 12px;
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+}
+
+.response-text {
+  color: #4a5568 !important;
+  font-style: italic;
+}
+
+.homework-status.status-finished {
+  background: rgba(102, 126, 234, 0.1);
+  color: #553c9a;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+

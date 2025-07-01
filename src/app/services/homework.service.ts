@@ -15,6 +15,7 @@ export interface Homework {
   lessonId?: string;
   lessonDate?: Date;
   assignedAt: Date;
+  createdAt: Date; // Дата создания домашнего задания
   dueDate: Date;
   status: 'assigned' | 'submitted' | 'completed' | 'overdue' | 'unfinished' | 'finished';
   materialIds: string[]; // Linked materials
