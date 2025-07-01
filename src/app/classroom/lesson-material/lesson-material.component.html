@@ -90,7 +90,7 @@
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
                   <span *ngIf="isCoveredInClass(task)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
-                  <button *ngIf="!isResolved(task)" 
+                  <button *ngIf="lessonStarted && !isResolved(task)" 
                           class="btn btn-sm btn-outline-success ms-1" 
                           (click)="markTaskAsCompleted(task.id)"
                           title="Marquer comme terminé">
@@ -131,7 +131,7 @@
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(question)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
                   <span *ngIf="isCoveredInClass(question)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
-                  <button *ngIf="!isResolved(question)" 
+                  <button *ngIf="lessonStarted && !isResolved(question)" 
                           class="btn btn-sm btn-outline-success ms-1" 
                           (click)="markQuestionAsCompleted(question.id)"
                           title="Marquer comme terminé">
@@ -181,12 +181,12 @@
                 <span class="homework-due">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}</span>
               </div>
               <div class="homework-actions">
-                <button *ngIf="homework.status !== 'finished' && !homework.isCompleted" 
+                <button *ngIf="lessonStarted && homework.status !== 'finished' && !homework.isCompleted" 
                         class="btn btn-sm btn-success" 
                         (click)="markHomeworkAsCompleted(homework.id)">
                   ✅ Marquer comme terminé
                 </button>
-                <span *ngIf="homework.status === 'finished' || homework.isCompleted" 
+                <span *ngIf="lessonStarted && homework.status === 'finished' || homework.isCompleted" 
                       class="completed-badge">
                   ✅ Terminé
                 </span>
@@ -231,7 +231,7 @@
                 <div class="status-indicators ms-auto">
                   <span *ngIf="isAddedToHomework(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
                   <span *ngIf="isCoveredInClass(task)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
-                  <button *ngIf="!isResolved(task) && userRole === 'teacher'" 
+                  <button *ngIf="lessonStarted && !isResolved(task) && userRole === 'teacher'" 
                           class="btn btn-sm btn-outline-success ms-1" 
                           (click)="markTaskAsCompleted(task.id)"
                           title="Marquer comme terminé">
