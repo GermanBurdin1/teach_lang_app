@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { VideoCallService } from '../../../../services/video-call.service';
 import { LessonTabsService } from '../../../../services/lesson-tabs.service';
+import { MaterialService } from '../../../../services/material.service';
 
 @Component({
   selector: 'app-teacher-home',
@@ -28,7 +29,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private ngZone: NgZone,
     private videoCallService: VideoCallService,
-    private lessonTabsService: LessonTabsService
+    private lessonTabsService: LessonTabsService,
+    private materialService: MaterialService
   ) { }
 
   // notifications: string[] = [
@@ -568,6 +570,30 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return nowDate.getTime() === lessonDate.getTime();
   }
 
+  private async getMaterialsForLesson(lessonId: string): Promise<any[]> {
+    try {
+      console.log('🔍 [TeacherHome] Загружаем материалы для урока:', lessonId);
+      const allMaterials = await this.materialService.getMaterials().toPromise();
+      console.log('📦 [TeacherHome] Все материалы получены:', allMaterials);
+      
+      if (!allMaterials || allMaterials.length === 0) {
+        console.warn('⚠️ [TeacherHome] Материалы не найдены или список пуст. Возможно file-service не запущен?');
+        return [];
+      }
+      
+      const filteredMaterials = allMaterials.filter(material => {
+        const isAttached = material.attachedLessons && material.attachedLessons.includes(lessonId);
+        return isAttached;
+      });
+      
+      console.log('✅ [TeacherHome] Отфильтрованные материалы для урока:', filteredMaterials);
+      return filteredMaterials;
+    } catch (error) {
+      console.error('❌ [TeacherHome] Ошибка загрузки материалов для урока:', error);
+      return [];
+    }
+  }
+
   // Вход в виртуальный класс
   async enterVirtualClass(event: CalendarEvent): Promise<void> {
     const currentUserId = this.authService.getCurrentUser()?.id;
@@ -580,7 +606,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const [tasks, questions, materials] = await Promise.all([
       this.lessonService.getTasksForLesson(event.meta.lessonId).toPromise(),
       this.lessonService.getQuestionsForLesson(event.meta.lessonId).toPromise(),
-      this.lessonService.getLessonDetails(event.meta.lessonId).toPromise().then(l => l.materials || [])
+      this.getMaterialsForLesson(event.meta.lessonId)
     ]);
 
     // Разделяем задачи и вопросы по ролям
@@ -588,6 +614,14 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => ({ id: t.id, title: t.title }));
     const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => ({ id: q.id, question: q.question }));
     const teacherQuestions = (questions || []).filter((q: any) => q.createdByRole === 'teacher').map((q: any) => ({ id: q.id, question: q.question }));
+
+    console.log('✅ [TeacherHome] Данные урока подготовлены:', {
+      studentTasks,
+      teacherTasks,
+      studentQuestions,
+      teacherQuestions,
+      materials: materials.length
+    });
 
     this.lessonTabsService.setCurrentLessonData({
       id: event.meta.lessonId,

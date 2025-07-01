@@ -12,6 +12,7 @@ import { VideoCallService } from '../../../../services/video-call.service';
 import { TeacherService } from '../../../../services/teacher.service';
 import { HomeworkService, Homework } from '../../../../services/homework.service';
 import { LessonTabsService } from '../../../../services/lesson-tabs.service';
+import { MaterialService } from '../../../../services/material.service';
 
 @Component({
   selector: 'app-student-home',
@@ -67,7 +68,8 @@ export class StudentHomeComponent implements OnInit {
     private videoCallService: VideoCallService,
     private teacherService: TeacherService,
     private homeworkService: HomeworkService,
-    private lessonTabsService: LessonTabsService
+    private lessonTabsService: LessonTabsService,
+    private materialService: MaterialService
   ) { }
 
   ngOnInit(): void {
@@ -632,7 +634,7 @@ export class StudentHomeComponent implements OnInit {
     const [tasks, questions, materials] = await Promise.all([
       this.lessonService.getTasksForLesson(event.meta.lessonId).toPromise(),
       this.lessonService.getQuestionsForLesson(event.meta.lessonId).toPromise(),
-      this.lessonService.getLessonDetails(event.meta.lessonId).toPromise().then(l => l.materials || [])
+      this.getMaterialsForLesson(event.meta.lessonId)
     ]);
 
     // Разделяем задачи и вопросы по ролям
@@ -640,6 +642,14 @@ export class StudentHomeComponent implements OnInit {
     const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => ({ id: t.id, title: t.title }));
     const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => ({ id: q.id, question: q.question }));
     const teacherQuestions = (questions || []).filter((q: any) => q.createdByRole === 'teacher').map((q: any) => ({ id: q.id, question: q.question }));
+
+    console.log('✅ [StudentHome] Данные урока подготовлены:', {
+      studentTasks,
+      teacherTasks,
+      studentQuestions,
+      teacherQuestions,
+      materials: materials.length
+    });
 
     this.lessonTabsService.setCurrentLessonData({
       id: event.meta.lessonId,
@@ -664,6 +674,30 @@ export class StudentHomeComponent implements OnInit {
   getMinutesUntilLesson(event: CalendarEvent): number {
     const diffInMs = event.start.getTime() - this.now.getTime();
     return Math.round(diffInMs / (1000 * 60));
+  }
+
+  private async getMaterialsForLesson(lessonId: string): Promise<any[]> {
+    try {
+      console.log('🔍 [StudentHome] Загружаем материалы для урока:', lessonId);
+      const allMaterials = await this.materialService.getMaterials().toPromise();
+      console.log('📦 [StudentHome] Все материалы получены:', allMaterials);
+      
+      if (!allMaterials || allMaterials.length === 0) {
+        console.warn('⚠️ [StudentHome] Материалы не найдены или список пуст. Возможно file-service не запущен?');
+        return [];
+      }
+      
+      const filteredMaterials = allMaterials.filter(material => {
+        const isAttached = material.attachedLessons && material.attachedLessons.includes(lessonId);
+        return isAttached;
+      });
+      
+      console.log('✅ [StudentHome] Отфильтрованные материалы для урока:', filteredMaterials);
+      return filteredMaterials;
+    } catch (error) {
+      console.error('❌ [StudentHome] Ошибка загрузки материалов для урока:', error);
+      return [];
+    }
   }
 
 }
