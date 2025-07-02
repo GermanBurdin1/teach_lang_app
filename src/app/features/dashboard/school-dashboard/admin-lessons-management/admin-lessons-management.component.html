@@ -1,0 +1,232 @@
+<div class="admin-lessons-management">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fas fa-chalkboard-teacher galaxy-icon"></i>
+      Gestion des cours
+    </h1>
+    <p class="page-subtitle">Statistiques et suivi des leçons dispensées</p>
+  </div>
+
+  <!-- Sélecteur de mois -->
+  <div class="month-selector">
+    <label for="monthSelect" class="selector-label">
+      <i class="fas fa-calendar-alt"></i>
+      Période d'analyse:
+    </label>
+    <select 
+      id="monthSelect" 
+      [(ngModel)]="selectedMonth" 
+      (change)="onMonthChange()"
+      class="month-dropdown">
+      <option *ngFor="let month of monthOptions" [value]="month.value">
+        {{ month.label }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Statistiques principales -->
+  <div class="stats-grid">
+    <div class="stat-card total-lessons-card">
+      <div class="stat-icon">
+        <i class="fas fa-calendar-check"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ loading ? '...' : lessonsStats.totalLessons }}</div>
+        <div class="stat-label">Total des leçons</div>
+        <div class="stat-period">en {{ selectedMonthLabel }}</div>
+      </div>
+      <div class="stat-bg-pattern total-pattern"></div>
+    </div>
+
+    <div class="stat-card completed-card">
+      <div class="stat-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ loading ? '...' : lessonsStats.completedLessons }}</div>
+        <div class="stat-label">Leçons terminées</div>
+        <div class="stat-period">en {{ selectedMonthLabel }}</div>
+      </div>
+      <div class="stat-bg-pattern completed-pattern"></div>
+    </div>
+
+    <div class="stat-card cancelled-card">
+      <div class="stat-icon">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ loading ? '...' : lessonsStats.cancelledLessons }}</div>
+        <div class="stat-label">Leçons annulées</div>
+        <div class="stat-period">en {{ selectedMonthLabel }}</div>
+      </div>
+      <div class="stat-bg-pattern cancelled-pattern"></div>
+    </div>
+
+    <div class="stat-card success-rate-card">
+      <div class="stat-icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ loading ? '...' : lessonsStats.successRate }}%</div>
+        <div class="stat-label">Taux de réussite</div>
+        <div class="stat-period">{{ lessonsEfficiency }}</div>
+      </div>
+      <div class="stat-bg-pattern success-pattern"></div>
+    </div>
+  </div>
+
+  <!-- Section d'analyse -->
+  <div class="analysis-section">
+    <h2 class="section-title">
+      <i class="fas fa-analytics"></i>
+      Analyse des performances
+    </h2>
+    
+    <div class="analysis-cards">
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <i class="fas fa-pie-chart"></i>
+          <span>Répartition des statuts</span>
+        </div>
+        <div class="lessons-distribution" *ngIf="lessonsStats.totalLessons > 0">
+          <div class="distribution-chart">
+            <div class="chart-segment completed-segment" 
+                 [style.width.%]="(lessonsStats.completedLessons / lessonsStats.totalLessons) * 100">
+            </div>
+            <div class="chart-segment cancelled-segment" 
+                 [style.width.%]="(lessonsStats.cancelledLessons / lessonsStats.totalLessons) * 100">
+            </div>
+            <div class="chart-segment pending-segment" 
+                 [style.width.%]="(pendingLessons / lessonsStats.totalLessons) * 100">
+            </div>
+          </div>
+          <div class="distribution-labels">
+            <div class="label-item completed-label">
+              <span class="label-dot completed-dot"></span>
+              Terminées: {{ ((lessonsStats.completedLessons / lessonsStats.totalLessons) * 100).toFixed(1) }}%
+            </div>
+            <div class="label-item cancelled-label">
+              <span class="label-dot cancelled-dot"></span>
+              Annulées: {{ ((lessonsStats.cancelledLessons / lessonsStats.totalLessons) * 100).toFixed(1) }}%
+            </div>
+            <div class="label-item pending-label">
+              <span class="label-dot pending-dot"></span>
+              En attente: {{ ((pendingLessons / lessonsStats.totalLessons) * 100).toFixed(1) }}%
+            </div>
+          </div>
+        </div>
+        <div class="no-data" *ngIf="lessonsStats.totalLessons === 0">
+          <i class="fas fa-info-circle"></i>
+          Aucune leçon ce mois-ci
+        </div>
+      </div>
+
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <i class="fas fa-target"></i>
+          <span>Indicateurs clés</span>
+        </div>
+        <div class="kpi-list">
+          <div class="kpi-item">
+            <div class="kpi-label">Efficacité globale</div>
+            <div class="kpi-value" [ngClass]="{
+              'excellent': lessonsStats.successRate >= 90,
+              'good': lessonsStats.successRate >= 70 && lessonsStats.successRate < 90,
+              'average': lessonsStats.successRate >= 50 && lessonsStats.successRate < 70,
+              'poor': lessonsStats.successRate < 50
+            }">
+              {{ lessonsEfficiency }}
+            </div>
+          </div>
+          
+          <div class="kpi-item">
+            <div class="kpi-label">Taux d'annulation</div>
+            <div class="kpi-value" [ngClass]="{
+              'good': lessonsStats.totalLessons > 0 && (lessonsStats.cancelledLessons / lessonsStats.totalLessons) < 0.1,
+              'average': lessonsStats.totalLessons > 0 && (lessonsStats.cancelledLessons / lessonsStats.totalLessons) < 0.2,
+              'poor': lessonsStats.totalLessons > 0 && (lessonsStats.cancelledLessons / lessonsStats.totalLessons) >= 0.2
+            }">
+              {{ lessonsStats.totalLessons > 0 ? ((lessonsStats.cancelledLessons / lessonsStats.totalLessons) * 100).toFixed(1) : 0 }}%
+            </div>
+          </div>
+
+          <div class="kpi-item">
+            <div class="kpi-label">Leçons en attente</div>
+            <div class="kpi-value">{{ pendingLessons }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommandations -->
+  <div class="recommendations-section" *ngIf="!loading">
+    <h3 class="recommendations-title">
+      <i class="fas fa-lightbulb"></i>
+      Recommandations
+    </h3>
+    <div class="recommendations-list">
+      <div class="recommendation-item" *ngIf="lessonsStats.successRate < 70">
+        <i class="fas fa-exclamation-triangle warning-icon"></i>
+        <div class="recommendation-content">
+          <strong>Taux de réussite faible</strong>
+          <p>Le taux de réussite est inférieur à 70%. Considérez l'amélioration du processus de planification des cours.</p>
+        </div>
+      </div>
+      
+      <div class="recommendation-item" *ngIf="lessonsStats.totalLessons > 0 && (lessonsStats.cancelledLessons / lessonsStats.totalLessons) > 0.15">
+        <i class="fas fa-exclamation-triangle warning-icon"></i>
+        <div class="recommendation-content">
+          <strong>Taux d'annulation élevé</strong>
+          <p>Plus de 15% des leçons sont annulées. Examinez les causes principales d'annulation.</p>
+        </div>
+      </div>
+      
+      <div class="recommendation-item" *ngIf="lessonsStats.successRate >= 90">
+        <i class="fas fa-star success-icon"></i>
+        <div class="recommendation-content">
+          <strong>Excellentes performances</strong>
+          <p>Votre taux de réussite est excellent ! Continuez sur cette lancée.</p>
+        </div>
+      </div>
+      
+      <div class="recommendation-item" *ngIf="lessonsStats.totalLessons === 0">
+        <i class="fas fa-info-circle info-icon"></i>
+        <div class="recommendation-content">
+          <strong>Aucune activité</strong>
+          <p>Aucune leçon programmée ce mois-ci. Encouragez les réservations ou vérifiez la disponibilité des enseignants.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="quick-actions">
+    <h3 class="actions-title">
+      <i class="fas fa-bolt"></i>
+      Actions rapides
+    </h3>
+    <div class="action-buttons">
+      <button class="action-btn export-btn">
+        <i class="fas fa-download"></i>
+        Exporter rapport
+      </button>
+      <button class="action-btn trend-btn" (click)="loadLastMonthsData()">
+        <i class="fas fa-chart-area"></i>
+        Voir les tendances
+      </button>
+      <button class="action-btn refresh-btn" (click)="loadLessonsStats()">
+        <i class="fas fa-sync-alt"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Overlay de chargement -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="loading-spinner">
+      <div class="spinner-galaxy"></div>
+      <p>Chargement des statistiques de cours...</p>
+    </div>
+  </div>
+</div> 

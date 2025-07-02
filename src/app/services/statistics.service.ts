@@ -51,4 +51,29 @@ export class StatisticsService {
   getLearnedWordsCount(studentId: string): Observable<{count: number}> {
     return this.http.get<{count: number}>(`${this.baseUrl}/student/${studentId}/words/learned`);
   }
+
+  // ==================== ADMIN METHODS ====================
+
+  /**
+   * Получить статистику регистрации пользователей по месяцам
+   */
+  getAdminUserStats(month?: string): Observable<any> {
+    const url = month ? `${this.baseUrl}/admin/users/${month}` : `${this.baseUrl}/admin/users`;
+    return this.http.get(url);
+  }
+
+  /**
+   * Получить статистику уроков по месяцам
+   */
+  getAdminLessonsStats(month?: string): Observable<any> {
+    const url = month ? `${this.baseUrl}/admin/lessons/${month}` : `${this.baseUrl}/admin/lessons`;
+    return this.http.get(url);
+  }
+
+  /**
+   * Получить общую статистику платформы
+   */
+  getAdminPlatformStats(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/admin/platform`);
+  }
 } 

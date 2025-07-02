@@ -1,0 +1,205 @@
+<div class="admin-platform-analytics">
+  <!-- Header -->
+  <div class="analytics-header">
+    <h1>📊 Analytique de la Plateforme</h1>
+    <p>Vue d'ensemble de la santé et performance de votre plateforme éducative</p>
+  </div>
+
+  <!-- Controls -->
+  <div class="analytics-controls">
+    <button class="action-button" (click)="refreshAll()">
+      <i class="fas fa-sync-alt"></i> Actualiser
+    </button>
+  </div>
+
+  <!-- Main Dashboard Grid -->
+  <div class="analytics-grid">
+    <!-- Santé de la plateforme -->
+    <div class="analytics-card health-card">
+      <div class="card-header">
+        <i class="card-icon fas fa-heartbeat"></i>
+        <h3 class="card-title">Santé de la plateforme</h3>
+      </div>
+      <div class="health-indicator">
+        <div class="health-status" [ngClass]="platformHealthClass">
+          <div class="status-icon">
+            <i class="fas" [ngClass]="{
+              'fa-heart': platformHealthClass === 'excellent',
+              'fa-thumbs-up': platformHealthClass === 'good',
+              'fa-hand-paper': platformHealthClass === 'average',
+              'fa-exclamation-triangle': platformHealthClass === 'poor'
+            }"></i>
+          </div>
+          <div class="status-text">{{ platformHealth }}</div>
+        </div>
+        <div class="health-metrics">
+          <div class="metric">
+            <span class="metric-label">Croissance utilisateurs:</span>
+            <span class="metric-value" [ngClass]="userGrowthClass">{{ userGrowthTrend }}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Taux de succès des cours:</span>
+            <span class="metric-value">{{ combinedStats.lessons.successRate }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activité mensuelle -->
+    <div class="analytics-card monthly-activity-card">
+      <div class="card-header">
+        <i class="card-icon fas fa-calendar-month"></i>
+        <h3 class="card-title">Activité mensuelle</h3>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value">{{ platformStats.monthlyUserGrowth }}</div>
+          <div class="stat-label">Nouveaux utilisateurs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ platformStats.monthlyLessons }}</div>
+          <div class="stat-label">Leçons dispensées</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Engagement des utilisateurs -->
+    <div class="analytics-card engagement-card">
+      <div class="card-header">
+        <i class="card-icon fas fa-users-cog"></i>
+        <h3 class="card-title">Engagement utilisateurs</h3>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value">{{ platformStats.platformActivity.activeUsers }}</div>
+          <div class="stat-label">Utilisateurs actifs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ platformStats.platformActivity.totalLogins }}</div>
+          <div class="stat-label">Total connexions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ engagementRate }}</div>
+          <div class="stat-label">Taux d'engagement</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Langues populaires -->
+  <div class="insights-section">
+    <h2 class="section-title">
+      <i class="fas fa-globe"></i>
+      Langues les plus étudiées
+    </h2>
+    <div class="insights-grid">
+      <div class="analytics-card">
+        <div class="languages-list">
+          <div class="language-item" *ngFor="let lang of platformStats.topLanguagePairs; let i = index">
+            <span class="language-name">{{ i + 1 }}. {{ lang.pair }}</span>
+            <span class="language-count">{{ lang.count }}</span>
+          </div>
+          <div class="language-item" *ngIf="platformStats.topLanguagePairs.length === 0">
+            <span class="language-name">Aucune donnée disponible</span>
+            <span class="language-count">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Résumé des statistiques -->
+  <div class="insights-section">
+    <h2 class="section-title">
+      <i class="fas fa-chart-bar"></i>
+      Résumé mensuel
+    </h2>
+    <div class="insights-grid">
+      <div class="analytics-card">
+        <div class="card-header">
+          <i class="card-icon fas fa-users"></i>
+          <h3 class="card-title">Utilisateurs</h3>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">{{ combinedStats.users.newStudents }}</div>
+            <div class="stat-label">Nouveaux étudiants</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ combinedStats.users.newTeachers }}</div>
+            <div class="stat-label">Nouveaux enseignants</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-card">
+        <div class="card-header">
+          <i class="card-icon fas fa-graduation-cap"></i>
+          <h3 class="card-title">Cours</h3>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">{{ combinedStats.lessons.totalLessons }}</div>
+            <div class="stat-label">Total leçons</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ combinedStats.lessons.completedLessons }}</div>
+            <div class="stat-label">Terminées</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ combinedStats.lessons.successRate }}%</div>
+            <div class="stat-label">Taux de succès</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommandations intelligentes -->
+  <div class="insights-section">
+    <h2 class="section-title">
+      <i class="fas fa-brain"></i>
+      Insights automatiques
+    </h2>
+    <div class="insights-grid">
+      <div class="insight-item" [ngClass]="'success'" *ngIf="platformStats.monthlyUserGrowth > 20">
+        <div class="insight-header">
+          <i class="insight-icon fas fa-rocket"></i>
+          <h4 class="insight-title">Croissance forte</h4>
+        </div>
+        <p class="insight-text">Votre plateforme connaît une excellente croissance avec {{ platformStats.monthlyUserGrowth }} nouveaux utilisateurs ce mois-ci.</p>
+      </div>
+
+      <div class="insight-item" [ngClass]="'warning'" *ngIf="platformStats.monthlyUserGrowth < 5 && platformStats.monthlyUserGrowth > 0">
+        <div class="insight-header">
+          <i class="insight-icon fas fa-chart-line"></i>
+          <h4 class="insight-title">Croissance lente</h4>
+        </div>
+        <p class="insight-text">La croissance d'utilisateurs ralentit. Considérez des campagnes marketing.</p>
+      </div>
+
+      <div class="insight-item" [ngClass]="'info'" *ngIf="topLanguagePair">
+        <div class="insight-header">
+          <i class="insight-icon fas fa-trophy"></i>
+          <h4 class="insight-title">Langue la plus populaire</h4>
+        </div>
+        <p class="insight-text">{{ topLanguagePair.pair }} est la paire de langues la plus étudiée avec {{ topLanguagePair.count }} traductions.</p>
+      </div>
+
+      <div class="insight-item" [ngClass]="'success'" *ngIf="combinedStats.lessons.successRate > 85">
+        <div class="insight-header">
+          <i class="insight-icon fas fa-medal"></i>
+          <h4 class="insight-title">Excellent taux de réussite</h4>
+        </div>
+        <p class="insight-text">Vos cours ont un taux de réussite de {{ combinedStats.lessons.successRate }}%, ce qui est excellent !</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,166 @@
+<div class="admin-users-management">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fas fa-users galaxy-icon"></i>
+      Gestion des utilisateurs
+    </h1>
+    <p class="page-subtitle">Statistiques d'inscription des nouveaux utilisateurs</p>
+  </div>
+
+  <!-- Sélecteur de mois -->
+  <div class="month-selector">
+    <label for="monthSelect" class="selector-label">
+      <i class="fas fa-calendar-alt"></i>
+      Période d'analyse:
+    </label>
+    <select 
+      id="monthSelect" 
+      [(ngModel)]="selectedMonth" 
+      (change)="onMonthChange()"
+      class="month-dropdown">
+      <option *ngFor="let month of monthOptions" [value]="month.value">
+        {{ month.label }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Statistiques principales -->
+  <div class="stats-grid">
+    <div class="stat-card student-card">
+      <div class="stat-icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ loading ? '...' : userStats.newStudents }}</div>
+        <div class="stat-label">Nouveaux étudiants</div>
+        <div class="stat-period">en {{ selectedMonthLabel }}</div>
+      </div>
+      <div class="stat-bg-pattern student-pattern"></div>
+    </div>
+
+    <div class="stat-card teacher-card">
+      <div class="stat-icon">
+        <i class="fas fa-chalkboard-teacher"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ loading ? '...' : userStats.newTeachers }}</div>
+        <div class="stat-label">Nouveaux enseignants</div>
+        <div class="stat-period">en {{ selectedMonthLabel }}</div>
+      </div>
+      <div class="stat-bg-pattern teacher-pattern"></div>
+    </div>
+
+    <div class="stat-card total-card">
+      <div class="stat-icon">
+        <i class="fas fa-user-plus"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ loading ? '...' : userStats.totalNew }}</div>
+        <div class="stat-label">Total inscriptions</div>
+        <div class="stat-period">en {{ selectedMonthLabel }}</div>
+      </div>
+      <div class="stat-bg-pattern total-pattern"></div>
+    </div>
+  </div>
+
+  <!-- Section d'analyse -->
+  <div class="analysis-section">
+    <h2 class="section-title">
+      <i class="fas fa-chart-line"></i>
+      Analyse des inscriptions
+    </h2>
+    
+    <div class="analysis-cards">
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <i class="fas fa-percentage"></i>
+          <span>Répartition des rôles</span>
+        </div>
+        <div class="ratio-display" *ngIf="userStats.totalNew > 0">
+          <div class="ratio-bar">
+            <div class="ratio-segment student-segment" 
+                 [style.width.%]="(userStats.newStudents / userStats.totalNew) * 100">
+            </div>
+            <div class="ratio-segment teacher-segment" 
+                 [style.width.%]="(userStats.newTeachers / userStats.totalNew) * 100">
+            </div>
+          </div>
+          <div class="ratio-labels">
+            <span class="ratio-label student-label">
+              Étudiants: {{ ((userStats.newStudents / userStats.totalNew) * 100).toFixed(1) }}%
+            </span>
+            <span class="ratio-label teacher-label">
+              Enseignants: {{ ((userStats.newTeachers / userStats.totalNew) * 100).toFixed(1) }}%
+            </span>
+          </div>
+        </div>
+        <div class="no-data" *ngIf="userStats.totalNew === 0">
+          <i class="fas fa-info-circle"></i>
+          Aucune inscription ce mois-ci
+        </div>
+      </div>
+
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <i class="fas fa-trend-up"></i>
+          <span>Tendance générale</span>
+        </div>
+        <div class="trend-info">
+          <div class="trend-metric">
+            <span class="metric-label">Ratio étudiant/enseignant:</span>
+            <span class="metric-value" *ngIf="userStats.newTeachers > 0">
+              {{ (userStats.newStudents / userStats.newTeachers).toFixed(1) }}:1
+            </span>
+            <span class="metric-value" *ngIf="userStats.newTeachers === 0">
+              {{ userStats.newStudents }}:0
+            </span>
+          </div>
+          <div class="trend-description">
+            <p *ngIf="userStats.newStudents > userStats.newTeachers * 3" class="trend-positive">
+              <i class="fas fa-arrow-up"></i>
+              Forte demande d'étudiants, croissance saine
+            </p>
+            <p *ngIf="userStats.newStudents <= userStats.newTeachers * 3 && userStats.newStudents > 0" class="trend-neutral">
+              <i class="fas fa-balance-scale"></i>
+              Croissance équilibrée entre étudiants et enseignants
+            </p>
+            <p *ngIf="userStats.newStudents === 0 && userStats.newTeachers === 0" class="trend-neutral">
+              <i class="fas fa-pause"></i>
+              Période calme, aucune nouvelle inscription
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="quick-actions">
+    <h3 class="actions-title">
+      <i class="fas fa-bolt"></i>
+      Actions rapides
+    </h3>
+    <div class="action-buttons">
+      <button class="action-btn export-btn">
+        <i class="fas fa-download"></i>
+        Exporter les données
+      </button>
+      <button class="action-btn chart-btn" (click)="loadLastMonthsData()">
+        <i class="fas fa-chart-bar"></i>
+        Voir l'évolution
+      </button>
+      <button class="action-btn refresh-btn" (click)="loadUserStats()">
+        <i class="fas fa-sync-alt"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Overlay de chargement -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="loading-spinner">
+      <div class="spinner-galaxy"></div>
+      <p>Chargement des statistiques...</p>
+    </div>
+  </div>
+</div> 

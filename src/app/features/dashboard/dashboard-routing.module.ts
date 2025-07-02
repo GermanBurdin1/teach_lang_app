@@ -28,6 +28,9 @@ import { StudentHomeComponent } from './student-dashboard/home/student-home.comp
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
 import { AdminSettingsComponent } from '../settings/admin-settings/admin-settings.component';
 import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-requests.component';
+import { AdminUsersManagementComponent } from './school-dashboard/admin-users-management/admin-users-management.component';
+import { AdminLessonsManagementComponent } from './school-dashboard/admin-lessons-management/admin-lessons-management.component';
+import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
 
 const routes: Routes = [
   {
@@ -56,7 +59,10 @@ const routes: Routes = [
       { path: 'admin/teachers', component: AdminTeachersListComponent },
       { path: 'admin/teachers/:id', component: AdminTeacherDetailsComponent },
       { path: 'admin/home', component: AdminHomeComponent },
-      { path: 'admin/settings', component: AdminSettingsComponent }
+      { path: 'admin/settings', component: AdminSettingsComponent },
+      { path: 'admin/gestion-utilisateurs', component: AdminUsersManagementComponent },
+      { path: 'admin/gestion-cours', component: AdminLessonsManagementComponent },
+      { path: 'admin/analytique-plateforme', component: AdminPlatformAnalyticsComponent }
     ]
   },
 

@@ -50,6 +50,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-requests.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AdminUsersManagementComponent } from './school-dashboard/admin-users-management/admin-users-management.component';
+import { AdminLessonsManagementComponent } from './school-dashboard/admin-lessons-management/admin-lessons-management.component';
+import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +78,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     StudentHomeComponent,
     AdminHomeComponent,
     AdminSettingsComponent,
-    SentRequestsComponent
+    SentRequestsComponent,
+    AdminUsersManagementComponent,
+    AdminLessonsManagementComponent,
+    AdminPlatformAnalyticsComponent
   ],
   imports: [
     LayoutModule,
