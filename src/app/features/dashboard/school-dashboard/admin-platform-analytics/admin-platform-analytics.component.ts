@@ -7,6 +7,8 @@ import { StatisticsService } from '../../../../services/statistics.service';
   styleUrls: ['./admin-platform-analytics.component.css']
 })
 export class AdminPlatformAnalyticsComponent implements OnInit {
+  currentMonth: string = new Date().toISOString().slice(0, 7); // Format: 2025-01
+  selectedMonth: string = this.currentMonth;
   
   platformStats = {
     monthlyUserGrowth: 0,
@@ -26,11 +28,31 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
   loading = false;
   lastUpdated: Date = new Date();
 
+  // Options pour le sélecteur de mois (derniers 12 mois)
+  monthOptions: {value: string, label: string}[] = [];
+
   constructor(private statisticsService: StatisticsService) {}
 
   ngOnInit(): void {
+    this.generateMonthOptions();
     this.loadPlatformStats();
     this.loadCombinedStats();
+  }
+
+  generateMonthOptions() {
+    const months = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+
+    this.monthOptions = [];
+    for (let i = 0; i < 12; i++) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const value = date.toISOString().slice(0, 7);
+      const label = `${months[date.getMonth()]} ${date.getFullYear()}`;
+      this.monthOptions.push({ value, label });
+    }
   }
 
   loadPlatformStats() {
@@ -49,12 +71,10 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
   }
 
   loadCombinedStats() {
-    // Charge les stats des utilisateurs et des cours pour le mois actuel
-    const currentMonth = new Date().toISOString().slice(0, 7);
-    
+    // Charge les stats des utilisateurs et des cours pour le mois sélectionné
     Promise.all([
-      this.statisticsService.getAdminUserStats(currentMonth).toPromise(),
-      this.statisticsService.getAdminLessonsStats(currentMonth).toPromise()
+      this.statisticsService.getAdminUserStats(this.selectedMonth).toPromise(),
+      this.statisticsService.getAdminLessonsStats(this.selectedMonth).toPromise()
     ]).then(([userStats, lessonStats]) => {
       this.combinedStats.users = userStats;
       this.combinedStats.lessons = lessonStats;
@@ -63,13 +83,17 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
     });
   }
 
+  onMonthChange() {
+    this.loadCombinedStats();
+  }
+
   refreshAll() {
     this.loadPlatformStats();
     this.loadCombinedStats();
   }
 
   get userGrowthTrend(): string {
-    const growth = this.platformStats.monthlyUserGrowth;
+    const growth = this.combinedStats.users.totalNew;
     if (growth > 50) return 'Excellente croissance';
     if (growth > 20) return 'Bonne croissance';
     if (growth > 10) return 'Croissance modérée';
@@ -78,7 +102,7 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
   }
 
   get userGrowthClass(): string {
-    const growth = this.platformStats.monthlyUserGrowth;
+    const growth = this.combinedStats.users.totalNew;
     if (growth > 50) return 'excellent';
     if (growth > 20) return 'good';
     if (growth > 10) return 'average';
@@ -88,7 +112,7 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
 
   get platformHealth(): string {
     const lessons = this.combinedStats.lessons.successRate;
-    const users = this.platformStats.monthlyUserGrowth;
+    const users = this.combinedStats.users.totalNew;
     
     if (lessons >= 80 && users >= 20) return 'Excellente santé';
     if (lessons >= 70 && users >= 10) return 'Bonne santé';
@@ -112,5 +136,10 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
     const { activeUsers, totalLogins } = this.platformStats.platformActivity;
     if (activeUsers === 0) return 0;
     return Math.round((totalLogins / activeUsers) * 100) / 100;
+  }
+
+  get selectedMonthLabel(): string {
+    const option = this.monthOptions.find(opt => opt.value === this.selectedMonth);
+    return option ? option.label : this.selectedMonth;
   }
 } 

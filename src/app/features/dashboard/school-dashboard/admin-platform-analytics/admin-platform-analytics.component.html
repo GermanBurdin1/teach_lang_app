@@ -7,6 +7,23 @@
 
   <!-- Controls -->
   <div class="analytics-controls">
+    <!-- Sélecteur de mois -->
+    <div class="month-selector">
+      <label for="monthSelect" class="selector-label">
+        <i class="fas fa-calendar-alt"></i>
+        Période d'analyse:
+      </label>
+      <select 
+        id="monthSelect" 
+        [(ngModel)]="selectedMonth" 
+        (change)="onMonthChange()"
+        class="month-dropdown">
+        <option *ngFor="let month of monthOptions" [value]="month.value">
+          {{ month.label }}
+        </option>
+      </select>
+    </div>
+
     <button class="action-button" (click)="refreshAll()">
       <i class="fas fa-sync-alt"></i> Actualiser
     </button>
@@ -51,16 +68,18 @@
         <i class="card-icon fas fa-calendar-month"></i>
         <h3 class="card-title">Activité mensuelle</h3>
       </div>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-value">{{ platformStats.monthlyUserGrowth }}</div>
-          <div class="stat-label">Nouveaux utilisateurs</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">{{ platformStats.monthlyLessons }}</div>
-          <div class="stat-label">Leçons dispensées</div>
-        </div>
-      </div>
+             <div class="stats-grid">
+         <div class="stat-item">
+           <div class="stat-value">{{ combinedStats.users.totalNew }}</div>
+           <div class="stat-label">Nouveaux utilisateurs</div>
+           <div class="stat-period">en {{ selectedMonthLabel }}</div>
+         </div>
+         <div class="stat-item">
+           <div class="stat-value">{{ combinedStats.lessons.totalLessons }}</div>
+           <div class="stat-label">Leçons dispensées</div>
+           <div class="stat-period">en {{ selectedMonthLabel }}</div>
+         </div>
+       </div>
     </div>
 
     <!-- Engagement des utilisateurs -->
@@ -162,21 +181,21 @@
       Insights automatiques
     </h2>
     <div class="insights-grid">
-      <div class="insight-item" [ngClass]="'success'" *ngIf="platformStats.monthlyUserGrowth > 20">
-        <div class="insight-header">
-          <i class="insight-icon fas fa-rocket"></i>
-          <h4 class="insight-title">Croissance forte</h4>
-        </div>
-        <p class="insight-text">Votre plateforme connaît une excellente croissance avec {{ platformStats.monthlyUserGrowth }} nouveaux utilisateurs ce mois-ci.</p>
-      </div>
+             <div class="insight-item" [ngClass]="'success'" *ngIf="combinedStats.users.totalNew > 20">
+         <div class="insight-header">
+           <i class="insight-icon fas fa-rocket"></i>
+           <h4 class="insight-title">Croissance forte</h4>
+         </div>
+         <p class="insight-text">Votre plateforme connaît une excellente croissance avec {{ combinedStats.users.totalNew }} nouveaux utilisateurs en {{ selectedMonthLabel }}.</p>
+       </div>
 
-      <div class="insight-item" [ngClass]="'warning'" *ngIf="platformStats.monthlyUserGrowth < 5 && platformStats.monthlyUserGrowth > 0">
-        <div class="insight-header">
-          <i class="insight-icon fas fa-chart-line"></i>
-          <h4 class="insight-title">Croissance lente</h4>
-        </div>
-        <p class="insight-text">La croissance d'utilisateurs ralentit. Considérez des campagnes marketing.</p>
-      </div>
+       <div class="insight-item" [ngClass]="'warning'" *ngIf="combinedStats.users.totalNew < 5 && combinedStats.users.totalNew > 0">
+         <div class="insight-header">
+           <i class="insight-icon fas fa-chart-line"></i>
+           <h4 class="insight-title">Croissance lente</h4>
+         </div>
+         <p class="insight-text">La croissance d'utilisateurs ralentit en {{ selectedMonthLabel }}. Considérez des campagnes marketing.</p>
+       </div>
 
       <div class="insight-item" [ngClass]="'info'" *ngIf="topLanguagePair">
         <div class="insight-header">

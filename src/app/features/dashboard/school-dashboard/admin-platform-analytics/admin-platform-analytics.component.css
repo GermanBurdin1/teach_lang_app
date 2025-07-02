@@ -83,7 +83,72 @@
   flex-wrap: wrap;
 }
 
-.month-selector,
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: #ffffff;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 280px;
+}
+
+.month-selector:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.selector-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.selector-label i {
+  color: #4ecdc4;
+  font-size: 1rem;
+}
+
+.month-dropdown {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 160px;
+  backdrop-filter: blur(5px);
+}
+
+.month-dropdown:hover {
+  border-color: #4ecdc4;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.month-dropdown:focus {
+  outline: none;
+  border-color: #45b7d1;
+  box-shadow: 0 0 0 3px rgba(69, 183, 209, 0.2);
+}
+
+.month-dropdown option {
+  background: #2b5876;
+  color: #ffffff;
+}
+
 .action-button {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -96,15 +161,10 @@
   transition: all 0.3s ease;
 }
 
-.month-selector:hover,
 .action-button:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.month-selector {
-  min-width: 200px;
 }
 
 /* Main Grid */
@@ -236,6 +296,14 @@
   color: #b8c6db;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.stat-period {
+  color: #4ecdc4;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 2px;
+  opacity: 0.9;
 }
 
 /* Languages List */
