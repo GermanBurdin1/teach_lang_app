@@ -7,11 +7,11 @@ import { Component } from '@angular/core';
 })
 export class TeachersComponent {
   teacherSettings = [
-    { label: 'Редактировать рабочий график', tooltip: 'Опция для редактирования рабочего графика', enabled: true },
-    { label: 'Создавать занятия', tooltip: 'Опция для создания занятий', enabled: false },
-    { label: 'Изменять время занятия', tooltip: 'Опция для изменения времени занятия', enabled: true },
-    { label: 'Отменять занятия', tooltip: 'Опция для отмены занятий', enabled: false },
-    { label: 'Редактирование прошедших уроков', tooltip: 'Опция для редактирования прошедших уроков', enabled: true },
-    { label: 'Доступ к каталогу материалов', tooltip: 'Опция для доступа к каталогу материалов', enabled: false },
+    { label: 'Modifier le planning', tooltip: 'Option pour modifier le planning', enabled: true },
+    { label: 'Créer des cours', tooltip: 'Option pour créer des cours', enabled: false },
+    { label: 'Modifier le temps du cours', tooltip: 'Option pour modifier le temps du cours', enabled: true },
+    { label: 'Annuler les cours', tooltip: 'Option pour annuler les cours', enabled: false },
+    { label: 'Modifier les cours passés', tooltip: 'Option pour modifier les cours passés', enabled: true },
+    { label: 'Accès au catalogue des matériaux', tooltip: 'Option pour accès au catalogue des matériaux', enabled: false },
   ];
 }

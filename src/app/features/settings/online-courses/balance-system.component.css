@@ -11,3 +11,169 @@ h5 {
 button {
   font-weight: bold;
 }
+
+/* Dark Theme Compatibility for Balance System Component */
+
+.container {
+  color: #ffffff;
+}
+
+/* Form labels */
+.form-label {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Form controls */
+.form-control {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+  color: #ffffff;
+}
+
+.form-control::placeholder {
+  color: #b8c6db;
+  opacity: 0.8;
+}
+
+/* Select dropdown */
+.form-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.form-select:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+  color: #ffffff;
+}
+
+.form-select option {
+  background: #2b5876;
+  color: #ffffff;
+}
+
+/* Text elements */
+.text-muted {
+  color: #b8c6db !important;
+}
+
+/* Form switches */
+.form-check-input {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-check-input:checked {
+  background-color: #4ecdc4;
+  border-color: #4ecdc4;
+}
+
+.form-check-input:focus {
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+}
+
+.form-check-label {
+  color: #ffffff;
+}
+
+/* Cards and sections */
+.card, .border {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff;
+}
+
+/* Balance display */
+.balance-display {
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.balance-amount {
+  color: #4ecdc4;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.balance-currency {
+  color: #b8c6db;
+  font-size: 0.9em;
+}
+
+/* Tariff cards */
+.tariff-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.tariff-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(78, 205, 196, 0.3);
+  transform: translateY(-2px);
+}
+
+.tariff-price {
+  color: #4ecdc4;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+  border: none;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, #45b7d1, #4ecdc4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .tariff-card {
+    padding: 16px;
+  }
+  
+  .balance-amount {
+    font-size: 1.5em;
+  }
+}

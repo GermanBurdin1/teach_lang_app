@@ -6,15 +6,15 @@ import { Component } from '@angular/core';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent {
-  activeMainTab: string = 'settings'; // Отвечает за верхний уровень (настройки/поддержка)
-  activeTab: string = 'school'; // Отвечает за вкладки "Школа"/"Онлайн-уроки"
+  activeMainTab: string = 'settings'; // Gère le niveau supérieur (paramètres/support)
+  activeTab: string = 'school'; // Gère les onglets "École"/"Cours en ligne"
 
-  // Метод для переключения между вкладками "Школа" и "Онлайн-уроки"
+  // Méthode pour basculer entre les onglets "École" et "Cours en ligne"
   setActiveTab(tab: string) {
     this.activeTab = tab;
   }
 
-  // Метод для переключения между основными вкладками "Настройки" и "Поддержка"
+  // Méthode pour basculer entre les onglets principaux "Paramètres" et "Support"
   setActiveMainTab(mainTab: string) {
     this.activeMainTab = mainTab;
   }

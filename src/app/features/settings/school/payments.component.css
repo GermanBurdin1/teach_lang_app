@@ -1,0 +1,131 @@
+/* Dark Theme Compatibility for Payments Component */
+
+.container {
+  color: #ffffff;
+}
+
+/* Form labels */
+.form-label {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Form controls */
+.form-control {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+  color: #ffffff;
+}
+
+.form-control::placeholder {
+  color: #b8c6db;
+  opacity: 0.8;
+}
+
+/* Select dropdown */
+.form-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.form-select:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+  color: #ffffff;
+}
+
+.form-select option {
+  background: #2b5876;
+  color: #ffffff;
+}
+
+/* Text elements */
+.text-muted {
+  color: #b8c6db !important;
+}
+
+/* Cards and sections */
+.card, .border {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff;
+}
+
+/* Form switches */
+.form-check-input {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-check-input:checked {
+  background-color: #4ecdc4;
+  border-color: #4ecdc4;
+}
+
+.form-check-input:focus {
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+}
+
+.form-check-label {
+  color: #ffffff;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+  border: none;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, #45b7d1, #4ecdc4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+
+/* Payment provider logos/icons */
+.payment-logo {
+  filter: brightness(0.8);
+  transition: filter 0.3s ease;
+}
+
+.payment-logo:hover {
+  filter: brightness(1);
+}
+
+/* Currency symbol styling */
+.currency-symbol {
+  color: #4ecdc4;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+}

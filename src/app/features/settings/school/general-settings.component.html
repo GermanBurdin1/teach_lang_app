@@ -1,74 +1,74 @@
 <div class="container mt-4">
   <form>
-    <!-- Аватарка и Загрузка -->
+    <!-- Photo de profil et Téléchargement -->
     <div class="mb-3">
-      <label for="avatar" class="form-label">Аватарка</label>
+      <label for="avatar" class="form-label">Photo de profil</label>
       <div class="d-flex align-items-center">
         <div class="avatar bg-light text-center me-3 rounded-circle" style="width: 50px; height: 50px;">
           <span class="initials">G</span>
         </div>
-        <button type="button" class="btn btn-light" (click)="triggerFileUpload()">Загрузка</button>
+        <button type="button" class="btn btn-light" (click)="triggerFileUpload()">Télécharger</button>
         <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;">
       </div>
     </div>
 
-    <!-- Название школы -->
+    <!-- Nom de l'école -->
     <div class="mb-3">
-      <label for="school-name" class="form-label">Название школы</label>
+      <label for="school-name" class="form-label">Nom de l'école</label>
       <input type="text" class="form-control" id="school-name" value="German">
     </div>
 
-    <!-- Email -->
+    <!-- E-mail -->
     <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
+      <label for="email" class="form-label">E-mail</label>
       <input type="email" class="form-control" id="email" value="germanburdin1@gmail.com" disabled>
     </div>
 
-    <!-- Пароль -->
+    <!-- Mot de passe -->
     <div class="mb-3">
-      <label for="password" class="form-label">Пароль</label>
+      <label for="password" class="form-label">Mot de passe</label>
       <div *ngIf="!showPasswordChange">
         <div class="d-flex">
           <input type="password" class="form-control" id="password" value="**********" disabled>
-          <button class="btn btn-light ms-2" type="button" (click)="togglePasswordChange()">Изменить пароль</button>
+          <button class="btn btn-light ms-2" type="button" (click)="togglePasswordChange()">Modifier le mot de passe</button>
         </div>
       </div>
       <div *ngIf="showPasswordChange">
-        <input type="password" class="form-control mb-2" placeholder="Старый пароль">
-        <input type="password" class="form-control mb-2" placeholder="Новый пароль">
-        <input type="password" class="form-control mb-3" placeholder="Подтвердите новый пароль">
-        <button class="btn btn-secondary me-2" type="button" (click)="togglePasswordChange()">Отмена</button>
-        <button class="btn btn-primary" type="button">Сохранить</button>
+        <input type="password" class="form-control mb-2" placeholder="Ancien mot de passe">
+        <input type="password" class="form-control mb-2" placeholder="Nouveau mot de passe">
+        <input type="password" class="form-control mb-3" placeholder="Confirmer le nouveau mot de passe">
+        <button class="btn btn-secondary me-2" type="button" (click)="togglePasswordChange()">Annuler</button>
+        <button class="btn btn-primary" type="button">Enregistrer</button>
       </div>
     </div>
 
-    <!-- Страна и Часовой пояс -->
+    <!-- Pays et Fuseau horaire -->
     <div class="mb-3">
-      <label for="country" class="form-label">Страна</label>
+      <label for="country" class="form-label">Pays</label>
       <select class="form-select" id="country">
-        <option value="Russia" selected>Россия</option>
+        <option value="France" selected>France</option>
       </select>
     </div>
     <div class="mb-3">
-      <label for="timezone" class="form-label">Часовой пояс</label>
+      <label for="timezone" class="form-label">Fuseau horaire</label>
       <select class="form-select" id="timezone">
-        <option value="UTC+3" selected>17:03 (UTC+3)</option>
+        <option value="UTC+1" selected>17:03 (UTC+1)</option>
       </select>
     </div>
 
-    <!-- Язык интерфейса -->
+    <!-- Langue d'interface -->
     <div class="mb-3">
-      <label for="interface-language" class="form-label">Язык интерфейса</label>
+      <label for="interface-language" class="form-label">Langue d'interface</label>
       <select class="form-select" id="interface-language">
-        <option value="Russian" selected>Русский</option>
+        <option value="French" selected>Français</option>
       </select>
     </div>
 
     <div class="container mt-4">
       <form>
-        <!-- Языки -->
+        <!-- Langues -->
         <div class="mb-3">
-          <label for="languages" class="form-label">Языки</label>
+          <label for="languages" class="form-label">Langues</label>
           <select class="form-select mb-2" [(ngModel)]="selectedLanguage" (change)="addLanguage()" name="languagesSelect">
             <option *ngFor="let language of availableLanguages" [ngValue]="language">{{ language.name }}</option>
           </select>
@@ -86,14 +86,14 @@
       </form>
     </div>
 
-    <!-- Остальные настройки -->
+    <!-- Autres paramètres -->
     <div class="form-check form-switch mb-3">
       <input class="form-check-input" type="checkbox" id="send-mails" checked>
-      <label class="form-check-label" for="send-mails">Отправка писем при регистрации</label>
+      <label class="form-check-label" for="send-mails">Envoi d'e-mails lors de l'inscription</label>
     </div>
     <div class="mb-3">
-      <label for="email-domain" class="form-label">Домен писем</label>
-      <input type="text" class="form-control" id="email-domain" value="@edvibe" disabled>
+      <label for="email-domain" class="form-label">Domaine d'e-mail</label>
+      <input type="text" class="form-control" id="email-domain" value="@langapp" disabled>
     </div>
   </form>
 </div>

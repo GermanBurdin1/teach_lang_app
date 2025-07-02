@@ -1,64 +1,116 @@
-<!-- Вкладки верхнего уровня: Настройки и Поддержка -->
-<ul class="nav nav-tabs">
-  <li class="nav-item">
-    <a class="nav-link" [class.active]="activeMainTab === 'settings'" (click)="setActiveMainTab('settings')">Настройки</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" [class.active]="activeMainTab === 'support'" (click)="setActiveMainTab('support')">Поддержка</a>
-  </li>
-</ul>
-
-<!-- Контент для верхнего уровня вкладок -->
-<div class="tab-content mt-4">
-  <!-- Настройки -->
-  <div *ngIf="activeMainTab === 'settings'">
-    <!-- Внутренние вкладки: Школа и Онлайн-уроки -->
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'school'" (click)="setActiveTab('school')">Школа</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'online-courses'" (click)="setActiveTab('online-courses')">Онлайн-уроки</a>
-      </li>
-    </ul>
-
-    <!-- Контент для вкладок Школы -->
-    <div *ngIf="activeTab === 'school'">
-      <app-school></app-school>
-    </div>
-
-    <!-- Контент для вкладок Онлайн-уроков -->
-    <div *ngIf="activeTab === 'online-courses'">
-      <app-online-lessons></app-online-lessons>
-    </div>
+<div class="admin-settings">
+  <!-- Header -->
+  <div class="settings-header">
+    <h1 class="page-title">
+      <i class="fas fa-cogs galaxy-icon"></i>
+      Paramètres de l'école
+    </h1>
+    <p class="page-subtitle">Configuration et gestion des paramètres système</p>
   </div>
 
-  <!-- Поддержка -->
-  <div *ngIf="activeMainTab === 'support'">
-    <div class="support-container p-4">
-      <h3 class="mb-4">Свяжитесь с нами</h3>
+  <!-- Main Navigation Tabs -->
+  <div class="main-nav-tabs">
+    <button 
+      class="nav-tab-btn"
+      [class.active]="activeMainTab === 'settings'"
+      (click)="setActiveMainTab('settings')">
+      <i class="fas fa-cog"></i>
+      <span>Paramètres</span>
+    </button>
+    <button 
+      class="nav-tab-btn"
+      [class.active]="activeMainTab === 'support'"
+      (click)="setActiveMainTab('support')">
+      <i class="fas fa-life-ring"></i>
+      <span>Support</span>
+    </button>
+  </div>
 
-      <p class="text-muted">
-        Если у вас есть вопросы, идеи или предложения, <a href="link_to_chat" class="text-primary">пишите нам в чат</a>. Чат находится в левом нижнем углу.
-      </p>
+  <!-- Content -->
+  <div class="tab-content">
+    <!-- Settings Tab -->
+    <div *ngIf="activeMainTab === 'settings'" class="settings-content">
+      <!-- Sub Navigation -->
+      <div class="sub-nav-tabs">
+        <button 
+          class="sub-tab-btn"
+          [class.active]="activeTab === 'school'"
+          (click)="setActiveTab('school')">
+          <i class="fas fa-school"></i>
+          <span>École</span>
+        </button>
+        <button 
+          class="sub-tab-btn"
+          [class.active]="activeTab === 'online-courses'"
+          (click)="setActiveTab('online-courses')">
+          <i class="fas fa-video"></i>
+          <span>Cours en ligne</span>
+        </button>
+      </div>
 
-      <div class="mt-5">
-        <h5 class="text-muted">Наши контакты</h5>
-        <p><a href="mailto:support@progressme.ru" class="text-dark">support&#64;progressme.ru</a></p>
+      <!-- School Settings -->
+      <div *ngIf="activeTab === 'school'" class="settings-section">
+        <app-school></app-school>
+      </div>
 
-        <div class="d-flex mt-3">
-          <a href="https://vk.com" target="_blank" class="mr-3">
-            <img src="path_to_vk_icon" alt="VK" width="30">
-          </a>
-          <a href="https://facebook.com" target="_blank" class="mr-3">
-            <img src="path_to_facebook_icon" alt="Facebook" width="30">
-          </a>
-          <a href="https://instagram.com" target="_blank" class="mr-3">
-            <img src="path_to_instagram_icon" alt="Instagram" width="30">
-          </a>
-          <a href="https://youtube.com" target="_blank">
-            <img src="path_to_youtube_icon" alt="YouTube" width="30">
-          </a>
+      <!-- Online Courses Settings -->
+      <div *ngIf="activeTab === 'online-courses'" class="settings-section">
+        <app-online-lessons></app-online-lessons>
+      </div>
+    </div>
+
+    <!-- Support Tab -->
+    <div *ngIf="activeMainTab === 'support'" class="support-content">
+      <div class="support-card">
+        <div class="card-header">
+          <i class="fas fa-headset card-icon"></i>
+          <h3 class="card-title">Contactez-nous</h3>
+        </div>
+        
+        <div class="support-info">
+          <p class="support-description">
+            Si vous avez des questions, des idées ou des suggestions, 
+            <a href="#" class="support-link">écrivez-nous via le chat</a>. 
+            Le chat se trouve dans le coin inférieur gauche.
+          </p>
+
+          <div class="contact-section">
+            <h4 class="contact-title">
+              <i class="fas fa-envelope"></i>
+              Nos contacts
+            </h4>
+            <div class="contact-item">
+              <i class="fas fa-at"></i>
+              <a href="mailto:support@langapp.fr" class="contact-link">
+                support&#64;langapp.fr
+              </a>
+            </div>
+          </div>
+
+          <div class="social-section">
+            <h4 class="social-title">
+              <i class="fas fa-share-alt"></i>
+              Suivez-nous
+            </h4>
+            <div class="social-links">
+              <a href="https://vk.com" target="_blank" class="social-link vk">
+                <i class="fab fa-vk"></i>
+                <span>VKontakte</span>
+              </a>
+              <a href="https://facebook.com" target="_blank" class="social-link facebook">
+                <i class="fab fa-facebook"></i>
+                <span>Facebook</span>
+              </a>
+              <a href="https://instagram.com" target="_blank" class="social-link instagram">
+                <i class="fab fa-instagram"></i>
+                <span>Instagram</span>
+              </a>
+              <a href="https://youtube.com" target="_blank" class="social-link youtube">
+                <i class="fab fa-youtube"></i>
+                <span>YouTube</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>

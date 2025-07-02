@@ -1,8 +1,8 @@
 <div class="container mt-4">
   <div class="d-flex align-items-center justify-content-between">
     <div class="d-flex align-items-center">
-      <span>Прием платежей через платформу</span>
-      <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Дополнительная информация">
+      <span>Réception des paiements via la plateforme</span>
+      <button type="button" class="btn btn-link p-0 ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Informations supplémentaires">
         <i class="bi bi-question-circle"></i>
       </button>
     </div>
@@ -12,20 +12,20 @@
   </div>
 
   <div class="form-group row mt-3">
-    <label class="col-sm-2 col-form-label">Платежная система</label>
+    <label class="col-sm-2 col-form-label">Système de paiement</label>
     <div class="col-sm-10 d-flex align-items-center">
-      <span class="badge bg-danger me-2">Не настроено</span>
-      <button class="btn btn-primary" (click)="openSettingsModal()">Настроить</button>
+      <span class="badge bg-danger me-2">Non configuré</span>
+      <button class="btn btn-primary" (click)="openSettingsModal()">Configurer</button>
     </div>
   </div>
 </div>
 
-<!-- Модальное окно настройки реквизитов -->
+<!-- Fenêtre modale de configuration des informations de paiement -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showModal }" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Настройка реквизитов</h5>
+        <h5 class="modal-title">Configuration des informations de paiement</h5>
         <button type="button" class="close" (click)="closeModal()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -33,72 +33,72 @@
       <div class="modal-body">
         <form>
           <div class="mb-3">
-            <label class="form-label">Платежная система</label>
+            <label class="form-label">Système de paiement</label>
             <select class="form-select">
-              <option>ЮKassa</option>
-              <!-- Добавьте другие системы оплаты, если необходимо -->
+              <option>Stripe</option>
+              <!-- Ajouter d'autres systèmes de paiement si nécessaire -->
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Идентификатор магазина</label>
+            <label class="form-label">Identifiant du magasin</label>
             <input type="text" class="form-control" placeholder="id">
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Секретный ключ</label>
-            <input type="password" class="form-control" placeholder="secret key">
+            <label class="form-label">Clé secrète</label>
+            <input type="password" class="form-control" placeholder="clé secrète">
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Система налогообложения</label>
+            <label class="form-label">Système de taxation</label>
             <select class="form-select">
-              <option>Не выбрано</option>
-              <!-- Другие варианты -->
+              <option>Non sélectionné</option>
+              <!-- Autres options -->
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Ставка НДС</label>
+            <label class="form-label">Taux de TVA</label>
             <select class="form-select">
-              <option>Не выбрано</option>
-              <!-- Другие варианты -->
+              <option>Non sélectionné</option>
+              <!-- Autres options -->
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Признак предмета расчета</label>
+            <label class="form-label">Indicateur d'objet de calcul</label>
             <select class="form-select">
-              <option>Не выбрано</option>
-              <!-- Другие варианты -->
+              <option>Non sélectionné</option>
+              <!-- Autres options -->
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Признак способа расчета</label>
+            <label class="form-label">Indicateur de méthode de calcul</label>
             <select class="form-select">
-              <option>Не выбрано</option>
-              <!-- Другие варианты -->
+              <option>Non sélectionné</option>
+              <!-- Autres options -->
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Валюта</label>
+            <label class="form-label">Devise</label>
             <select class="form-select">
-              <option>RUB</option>
-              <!-- Другие валюты -->
+              <option>EUR</option>
+              <!-- Autres devises -->
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">URL для уведомлений</label>
-            <input type="text" class="form-control" placeholder="https://progressme.ru/YandexCassa/SchoolPaym...">
+            <label class="form-label">URL pour les notifications</label>
+            <input type="text" class="form-control" placeholder="https://langapp.fr/payment-notifications...">
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Отмена</button>
-        <button type="button" class="btn btn-primary">Сохранить</button>
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+        <button type="button" class="btn btn-primary">Enregistrer</button>
       </div>
     </div>
   </div>

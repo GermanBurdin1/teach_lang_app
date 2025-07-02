@@ -1,0 +1,98 @@
+/* Dark Theme Compatibility for Students Component */
+
+.container {
+  color: #ffffff;
+}
+
+/* Text elements */
+.text-muted {
+  color: #b8c6db !important;
+}
+
+/* Form switches */
+.form-check-input {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-check-input:checked {
+  background-color: #4ecdc4;
+  border-color: #4ecdc4;
+}
+
+.form-check-input:focus {
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+}
+
+.form-check-label {
+  color: #ffffff;
+}
+
+/* Settings cards */
+.settings-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.settings-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(78, 205, 196, 0.3);
+  transform: translateY(-2px);
+}
+
+.settings-card h5 {
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.settings-card p {
+  color: #b8c6db;
+  margin-bottom: 12px;
+}
+
+/* Tooltip styling */
+.tooltip-icon {
+  color: #4ecdc4;
+  cursor: help;
+  margin-left: 8px;
+}
+
+.tooltip-icon:hover {
+  color: #45b7d1;
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-indicator.active {
+  background-color: #4ecdc4;
+  box-shadow: 0 0 8px rgba(78, 205, 196, 0.5);
+}
+
+.status-indicator.inactive {
+  background-color: #ff6b6b;
+  box-shadow: 0 0 8px rgba(255, 107, 107, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .settings-card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+} 
