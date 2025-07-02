@@ -1,6 +1,9 @@
 .container {
   text-align: center;
   transition: background-color 0.5s ease;
+  overflow-x: hidden; /* Убираем горизонтальный скролл */
+  width: 100%;
+  max-width: 100vw;
 }
 
 .container.zoom-active {
@@ -10,20 +13,28 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  overflow: hidden; /* Убираем все скроллы при зуме */
 }
 
 .galaxies {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 80px;
+  gap: 60px; /* Уменьшил gap с 80px до 60px */
+  padding: 20px;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow: hidden; /* Убираем overflow */
 }
 
 .galaxy-wrapper {
   overflow: visible;
   position: relative;
-  width: 20vw;
-  height: 20vw;
+  width: min(18vw, 250px); /* Адаптивная ширина с максимумом */
+  height: min(18vw, 250px); /* Адаптивная высота с максимумом */
+  min-width: 200px; /* Минимальная ширина */
+  min-height: 200px; /* Минимальная высота */
 }
 
 .galaxy {

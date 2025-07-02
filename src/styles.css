@@ -358,3 +358,112 @@ router-outlet {
   height: calc(100vh - 64px) !important;
   overflow: hidden !important;
 }
+
+/* ==================== WORDS COMPONENT HORIZONTAL SCROLL FIX ==================== */
+
+/* Fix horizontal scroll in words component */
+.words-container {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+}
+
+.words-container .galaxies {
+  gap: 60px !important; /* Reduced from 80px */
+  padding: 20px !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.words-container .galaxy-wrapper {
+  width: min(18vw, 250px) !important; /* Adaptive width with max */
+  height: min(18vw, 250px) !important; /* Adaptive height with max */
+  min-width: 200px !important; /* Minimum width */
+  min-height: 200px !important; /* Minimum height */
+}
+
+/* Mobile responsiveness for galaxies */
+@media (max-width: 768px) {
+  .words-container .galaxies {
+    gap: 30px !important;
+    padding: 15px !important;
+  }
+  
+  .words-container .galaxy-wrapper {
+    width: min(40vw, 180px) !important;
+    height: min(40vw, 180px) !important;
+    min-width: 150px !important;
+    min-height: 150px !important;
+  }
+}
+
+/* ==================== COSMIC GALAXIES STYLING ==================== */
+
+/* Enhanced cosmic appearance for galaxies */
+.cosmic-galaxies .galaxy-cosmic {
+  position: relative;
+}
+
+.cosmic-galaxies .galaxy-cosmic::before {
+  content: '';
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  top: -10%;
+  left: -10%;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(114, 9, 183, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgba(72, 12, 168, 0.05) 0%, transparent 50%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: cosmicGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes cosmicGlow {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+.cosmic-galaxies .galaxy-enhanced {
+  transition: all 0.4s ease;
+  filter: brightness(1) saturate(1.2);
+}
+
+.cosmic-galaxies .galaxy-enhanced:hover {
+  transform: scale(1.08) scaleX(1.35);
+  filter: brightness(1.3) saturate(1.4) drop-shadow(0 0 25px rgba(157, 78, 221, 0.8));
+}
+
+.cosmic-galaxies .galaxy-stellar {
+  overflow: visible;
+}
+
+/* Enhanced cosmic button */
+.cosmic-button {
+  background: linear-gradient(135deg, rgba(157, 78, 221, 0.8), rgba(114, 9, 183, 0.9)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+  border-radius: 50% !important;
+  box-shadow: 
+    0 0 10px rgba(157, 78, 221, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.cosmic-button:hover {
+  background: linear-gradient(135deg, rgba(157, 78, 221, 1), rgba(114, 9, 183, 1)) !important;
+  box-shadow: 
+    0 0 15px rgba(157, 78, 221, 0.8),
+    0 0 25px rgba(157, 78, 221, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  transform: scale(1.1) !important;
+}

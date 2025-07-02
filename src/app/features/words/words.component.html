@@ -1,4 +1,4 @@
-<div class="container" [ngClass]="{
+<div class="container words-container" [ngClass]="{
   'zoom-active': zoomedGalaxy,
   'zoom-to-galaxy': isZoomingToGalaxy
 }">
@@ -26,14 +26,14 @@
   </h2>
   <div class="main-content">
     <div class="zone-libre-panel" *ngIf="!zoomedGalaxy">
-      <!-- Здесь будет зона с нераспределёнными словами -->
+      <!-- Зона с нераспределёнными словами - переведено на французский -->
       <div class="zone-libre-toggle" (click)="toggleZoneLibre()">
-        📦 {{ showZoneLibre ? 'Скрыть' : 'Слова без категории' }}
+        📦 {{ showZoneLibre ? 'Masquer' : 'Mots sans catégorie' }}
       </div>
 
       <div class="zone-libre-wrapper" *ngIf="zoomedZoneLibre">
         <div class="zone-libre-container">
-          <h3>Слова без категории</h3>
+          <h3>Mots sans catégorie</h3>
           <div class="zone-libre-word-list">
             <div class="zone-libre-card" *ngFor="let word of orphanWords" draggable="true"
               (dragstart)="onDragStart($event, word)">
@@ -46,52 +46,84 @@
       </div>
     </div>
 
-    <div class="galaxies" *ngIf="!zoomedGalaxy">
-      <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper" #galaxyWrapper>
-        <div class="galaxy" (click)="zoomIntoGalaxy(galaxy)" (drop)="onDropToGalaxy($event, galaxy.name)"
+    <div class="galaxies cosmic-galaxies" *ngIf="!zoomedGalaxy">
+      <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper galaxy-cosmic" #galaxyWrapper>
+        <div class="galaxy galaxy-enhanced" (click)="zoomIntoGalaxy(galaxy)" (drop)="onDropToGalaxy($event, galaxy.name)"
           (dragover)="onDragOver($event)">
-          <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg">
-            <!-- Генерируем уникальный градиент -->
+          <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg galaxy-stellar">
+            <!-- Генерируем уникальный градиент с улучшенными космическими цветами -->
             <defs>
               <radialGradient [attr.id]="'galaxyGradient-' + galaxy.sanitizedName" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" style="stop-color:#7d5ba6; stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#2c2a4a; stop-opacity:1" />
+                <stop offset="0%" style="stop-color:#9D4EDD; stop-opacity:1" />
+                <stop offset="30%" style="stop-color:#7209B7; stop-opacity:0.9" />
+                <stop offset="60%" style="stop-color:#480CA8; stop-opacity:0.8" />
+                <stop offset="100%" style="stop-color:#240046; stop-opacity:1" />
+              </radialGradient>
+
+              <!-- Звездное поле градиент -->
+              <radialGradient id="starsGradient" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.9)" />
+                <stop offset="100%" stop-color="rgba(255,255,255,0.1)" />
               </radialGradient>
 
               <radialGradient id="planetGradient" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#ffd27f" />
-                <stop offset="60%" stop-color="#ff914d" />
-                <stop offset="100%" stop-color="#cc4b2c" />
+                <stop offset="0%" stop-color="#FFD27F" />
+                <stop offset="60%" stop-color="#FF914D" />
+                <stop offset="100%" stop-color="#CC4B2C" />
               </radialGradient>
+
+              <!-- Звездочки паттерн -->
+              <pattern id="stars" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="5" cy="5" r="0.5" fill="white" opacity="0.8"/>
+                <circle cx="15" cy="12" r="0.3" fill="white" opacity="0.6"/>
+                <circle cx="25" cy="8" r="0.4" fill="white" opacity="0.7"/>
+                <circle cx="35" cy="20" r="0.2" fill="white" opacity="0.5"/>
+                <circle cx="8" cy="25" r="0.3" fill="white" opacity="0.6"/>
+                <circle cx="30" cy="35" r="0.5" fill="white" opacity="0.8"/>
+              </pattern>
             </defs>
 
-            <!-- Применяем градиент -->
-            <ellipse cx="100" cy="100" rx="90" ry="60"
-              [attr.fill]="'url(#galaxyGradient-' + galaxy.sanitizedName + ')'" />
+            <!-- Звездное поле фон -->
+            <ellipse cx="100" cy="100" rx="95" ry="65" fill="url(#stars)" opacity="0.3"/>
 
-            <!-- Название темы в центре -->
-            <text x="100" y="105" fill="white" font-size="20px" font-weight="bold" font-family="Arial"
-              text-anchor="middle">
+            <!-- Основная галактика с улучшенным градиентом -->
+            <ellipse cx="100" cy="100" rx="90" ry="60"
+              [attr.fill]="'url(#galaxyGradient-' + galaxy.sanitizedName + ')'" 
+              style="filter: drop-shadow(0 0 20px rgba(157, 78, 221, 0.6)) blur(0.5px);"/>
+
+            <!-- Внутреннее свечение -->
+            <ellipse cx="100" cy="100" rx="75" ry="45" 
+              fill="url(#starsGradient)" 
+              opacity="0.3"/>
+
+            <!-- Название темы в центре с улучшенным стилем -->
+            <text x="100" y="105" fill="white" font-size="18px" font-weight="bold" font-family="Arial, sans-serif"
+              text-anchor="middle" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); text-shadow: 0 0 10px rgba(255,255,255,0.5);">
               {{ galaxy.name }}
             </text>
 
 
             <!-- Плюсик прямо под названием -->
             <foreignObject x="90" y="115" width="20" height="20">
-              <button class="galaxy-add-button" (click)="onGalaxyAddButtonClick($event, galaxy.name)"
+              <button class="galaxy-add-button cosmic-button" (click)="onGalaxyAddButtonClick($event, galaxy.name)"
                 title="Ajouter un mot ou une expression">
                 +
               </button>
             </foreignObject>
 
 
-            <!-- Подтемы (планеты) -->
+            <!-- Подтемы (планеты) с улучшенным стилем -->
             <g *ngFor="let subtopic of galaxy.subtopics">
               <title>
                 {{ subtopic.name }} ({{ getWordAndExpressionCount(galaxy.name, subtopic.name) }})
               </title>
-              <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="8" fill="url(#planetGradient)">
+              <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="8" 
+                fill="url(#planetGradient)"
+                style="filter: drop-shadow(0 0 6px rgba(255, 209, 127, 0.8));">
               </circle>
+              <!-- Кольца вокруг планет -->
+              <ellipse [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" rx="12" ry="3" 
+                fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.5" opacity="0.7"/>
             </g>
           </svg>
 
@@ -149,7 +181,7 @@
       </svg>
       <div class="zone-libre-wrapper" *ngIf="postponedWordsByGalaxy[zoomedGalaxy.name]?.length">
         <div class="zone-libre-toggle" (click)="togglePostponedList(zoomedGalaxy.name)">
-          📥 {{ collapsedPostponedList[zoomedGalaxy.name] ? 'Показать отложенные слова' : 'Скрыть отложенные слова' }}
+          📥 {{ collapsedPostponedList[zoomedGalaxy.name] ? 'Afficher les mots reportés' : 'Masquer les mots reportés' }}
         </div>
 
         <div class="zone-libre-container" *ngIf="!collapsedPostponedList[zoomedGalaxy.name]">
@@ -172,8 +204,8 @@
 
       </div>
       <div class="subtopic-prompt" *ngIf="pendingSubtopicWords.length">
-        <h3 *ngIf="activePendingWord">🪐 К какой подтеме относится "{{ activePendingWord.word }}"?</h3>
-        <button class="postpone-btn" (click)="postponePendingWord()">Отложить</button>
+        <h3 *ngIf="activePendingWord">🪐 À quel sous-thème appartient "{{ activePendingWord.word }}" ?</h3>
+        <button class="postpone-btn" (click)="postponePendingWord()">Reporter</button>
       </div>
     </div>
   </div>
@@ -185,7 +217,7 @@
 <!-- 🌌 Модалка добавления -->
 <div class="modal-overlay" *ngIf="showGlobalAddWordOrExpressionModal">
   <div class="add-entry-modal">
-    <button class="add-entry-modal__close-btn" (click)="closeGlobalAddWordOrExpressionModal()" aria-label="Закрыть">
+    <button class="add-entry-modal__close-btn" (click)="closeGlobalAddWordOrExpressionModal()" aria-label="Fermer">
       <i class="fas fa-times"></i>
     </button>
 
@@ -194,42 +226,42 @@
     <!-- Тип карточки -->
     <div class="add-entry-modal__type-toggle">
       <button (click)="toggleGlobalType()" class="add-entry-modal__toggle-type"
-        [attr.aria-label]="'Тип: ' + (newGlobalType === 'word' ? 'Слово' : 'Выражение')">
-        {{ newGlobalType === 'word' ? '➤ Слово' : '➤ Выражение' }}
+        [attr.aria-label]="'Type: ' + (newGlobalType === 'word' ? 'Mot' : 'Expression')">
+        {{ newGlobalType === 'word' ? '➤ Mot' : '➤ Expression' }}
       </button>
     </div>
 
     <!-- Языки -->
     <div class="lang-selectors">
-      <label>С языка:
+      <label>De la langue :
         <select [(ngModel)]="sourceLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode">
-          <option value="ru">русский</option>
-          <option value="fr">французский</option>
-          <option value="en">английский</option>
+          <option value="ru">russe</option>
+          <option value="fr">français</option>
+          <option value="en">anglais</option>
         </select>
       </label>
 
-      <label>На язык:
+      <label>Vers la langue :
         <select [(ngModel)]="targetLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode">
-          <option value="ru">русский</option>
-          <option value="fr">французский</option>
-          <option value="en">английский</option>
+          <option value="ru">russe</option>
+          <option value="fr">français</option>
+          <option value="en">anglais</option>
         </select>
       </label>
 
-      <div *ngIf="isMultiEntryMode" class="entry-warning">⚠️ Языки нельзя менять при множественном добавлении</div>
+      <div *ngIf="isMultiEntryMode" class="entry-warning">⚠️ Les langues ne peuvent pas être modifiées lors d'un ajout multiple</div>
     </div>
 
     <!-- 🔁 Множественные поля -->
     <div *ngFor="let entry of entries; let i = index" class="entry-block">
-      <input [(ngModel)]="entry.word" placeholder="Слово/выражение" (ngModelChange)="onEntryChanged(i)"
+      <input [(ngModel)]="entry.word" placeholder="Mot/expression" (ngModelChange)="onEntryChanged(i)"
         class="add-entry-modal__input" />
 
-      <input [(ngModel)]="entry.translation" placeholder="Перевод" class="add-entry-modal__input"
+      <input [(ngModel)]="entry.translation" placeholder="Traduction" class="add-entry-modal__input"
         (ngModelChange)="onTranslationChanged(entry)" />
 
       <!-- Показывать кнопку перевода только если нет введённого перевода -->
-      <button *ngIf="!entry.translation?.trim()" (click)="autoTranslateWord(i)" title="Автоматический перевод"
+      <button *ngIf="!entry.translation?.trim()" (click)="autoTranslateWord(i)" title="Traduction automatique"
         class="translate-btn">
         🌍
       </button>
@@ -246,12 +278,12 @@
     <!-- ➕ Добавить ещё -->
     <button *ngIf="hasStartedTypingFirstEntry && !isMultiEntryMode" (click)="enableMultiEntry()"
       class="generate-button">
-      ➕ Добавить ещё
+      ➕ Ajouter plus
     </button>
 
     <!-- Показываем счётчик ТОЛЬКО если включён multi-entry -->
     <div *ngIf="isMultiEntryMode" class="limit-hint">
-      Осталось {{ maxEntries - entries.length }} из {{ maxEntries }}
+      Reste {{ maxEntries - entries.length }} sur {{ maxEntries }}
     </div>
 
 
@@ -259,13 +291,13 @@
     <div *ngIf="!isFromGalaxyShortcut">
       <!-- Категория -->
       <select [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()" class="add-entry-modal__select">
-        <option value="">Без категории</option>
+        <option value="">Sans catégorie</option>
         <option *ngFor="let galaxy of galaxies" [value]="galaxy.name">{{ galaxy.name }}</option>
       </select>
 
       <!-- Подтема -->
       <select *ngIf="availableSubtopics.length" [(ngModel)]="selectedSubtopic" class="add-entry-modal__select">
-        <option value="" disabled selected>Выберите подтему</option>
+        <option value="" disabled selected>Choisir un sous-thème</option>
         <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
       </select>
     </div>
@@ -274,7 +306,7 @@
     <div *ngIf="isFromGalaxyShortcut">
       <!-- Только Подтема -->
       <select [(ngModel)]="selectedSubtopic" class="add-entry-modal__select">
-        <option value="">Без категории</option> <!-- Важно: добавляем вручную -->
+        <option value="">Sans catégorie</option> <!-- Важно: добавляем вручную -->
         <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
       </select>
     </div>
@@ -283,13 +315,13 @@
     <!-- Подтема -->
     <select *ngIf="availableSubtopics.length && !isFromGalaxyShortcut" [(ngModel)]="selectedSubtopic"
       class="add-entry-modal__select">
-      <option value="" disabled selected>Выберите подтему</option>
+      <option value="" disabled selected>Choisir un sous-thème</option>
       <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
     </select>
 
     <!-- GPT классификация -->
     <button *ngIf="!isFromGalaxyShortcut" class="generate-button" (click)="generateWithGPT()">
-      🤖 Автоматическая классификация
+      🤖 Classification automatique
     </button>
 
     <!-- Сообщение об успехе -->
@@ -301,10 +333,10 @@
     <div class="add-entry-modal__actions">
       <button (click)="isMultiEntryMode ? saveAll() : saveGlobalWordOrExpression()" class="add-entry-modal__button"
         [disabled]="entries.length === 0 || !entries[0].word.trim()">
-        {{ isMultiEntryMode ? 'Сохранить всё' : 'Добавить слово' }}
+        {{ isMultiEntryMode ? 'Tout sauvegarder' : 'Ajouter le mot' }}
       </button>
       <button class="add-entry-modal__button add-entry-modal__cancel" (click)="closeGlobalAddWordOrExpressionModal()">
-        Отмена
+        Annuler
       </button>
     </div>
 
@@ -316,8 +348,8 @@
   <div class="confirmation-modal">
     <p>{{ confirmationMessage }}</p>
     <div class="confirmation-modal__actions">
-      <button class="confirmation-modal__button" (click)="stayOnGlobalPage()">Остаться здесь</button>
-      <button class="confirmation-modal__button" (click)="goToPostponedWords()">Открыть список без категории</button>
+      <button class="confirmation-modal__button" (click)="stayOnGlobalPage()">Rester ici</button>
+      <button class="confirmation-modal__button" (click)="goToPostponedWords()">Ouvrir la liste sans catégorie</button>
     </div>
   </div>
 </div>
