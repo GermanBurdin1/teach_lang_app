@@ -305,3 +305,56 @@
     max-height: calc(100vh - 32px);
   }
 }
+
+/* ==================== DOUBLE SCROLL FIX ==================== */
+
+/* Force body/html to not scroll */
+html, body {
+  height: 100vh !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Fix admin analytics component */
+.admin-platform-analytics {
+  min-height: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Ensure sidebar doesn't create its own scroll */
+.side-menu {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Force proper scrolling only in content area */
+.content-area {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+}
+
+/* Fix any rogue overflow settings */
+* {
+  box-sizing: border-box;
+}
+
+/* Router outlet should not have overflow */
+router-outlet {
+  display: block;
+}
+
+/* Fix header height */
+.header-area {
+  height: 64px !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Dashboard layout fix */
+.dashboard-layout {
+  height: calc(100vh - 64px) !important;
+  overflow: hidden !important;
+}

@@ -1,11 +1,9 @@
 /* Galaxy Theme Container */
 .admin-platform-analytics {
-  min-height: 100vh;
   background: linear-gradient(135deg, #0f0c29 0%, #24243e 50%, #2b5876 100%);
   color: #ffffff;
   padding: 24px;
   position: relative;
-  overflow: hidden;
 }
 
 /* Animated Background Elements */

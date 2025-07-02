@@ -1,5 +1,18 @@
-<app-header *ngIf="shouldShowHeader()"></app-header>
-<div *ngIf="isDashboardRoute()">
-  <app-sidebar></app-sidebar>
+<div class="app-container">
+  <div class="header-area" *ngIf="shouldShowHeader()">
+    <app-header></app-header>
+  </div>
+  
+  <div class="dashboard-layout" *ngIf="isDashboardRoute()">
+    <div class="sidebar-area">
+      <app-sidebar></app-sidebar>
+    </div>
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  
+  <div class="content-area" *ngIf="!isDashboardRoute()">
+    <router-outlet></router-outlet>
+  </div>
 </div>
-<router-outlet></router-outlet>

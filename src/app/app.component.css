@@ -1,5 +1,47 @@
+/* Fix double scroll issue */
 body, html {
   margin: 0;
   padding: 0;
+  overflow: hidden; /* Remove body scroll */
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Main app layout */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  flex-direction: column;
+}
+
+/* Dashboard layout with sidebar */
+.dashboard-layout {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 64px); /* Subtract header height */
+  overflow: hidden;
+}
+
+/* Sidebar area */
+.sidebar-area {
+  flex-shrink: 0;
+  width: 64px;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Main content area */
+.content-area {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto; /* Only content scrolls */
   overflow-x: hidden;
+}
+
+/* Header area */
+.header-area {
+  flex-shrink: 0;
+  height: 64px;
+  z-index: 1000;
 }

@@ -5,7 +5,7 @@
 
 .side-menu {
   background-color: #f8f9fa;
-  height: 100vh;
+  height: 100%; /* Changed from 100vh to 100% */
   width: 64px; /* Установим ширину боковой панели */
   display: flex;
   flex-direction: column;
