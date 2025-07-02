@@ -13,6 +13,8 @@ import { TeacherService } from '../../../../services/teacher.service';
 import { HomeworkService, Homework } from '../../../../services/homework.service';
 import { LessonTabsService } from '../../../../services/lesson-tabs.service';
 import { MaterialService } from '../../../../services/material.service';
+import { StatisticsService, StudentStats } from '../../../../services/statistics.service';
+import { LexiconService } from '../../../../services/lexicon.service';
 
 @Component({
   selector: 'app-student-home',
@@ -31,11 +33,13 @@ export class StudentHomeComponent implements OnInit {
   goalDescription: string = '';
   loadingGoals = false;
 
-  stats = {
-    daysActive: 42,
-    lessonsCompleted: 18,
-    wordsLearned: 87
+  stats: StudentStats = {
+    daysActive: 0,
+    lessonsCompleted: 0,
+    wordsLearned: 0
   };
+  
+  loadingStats = false;
 
   selectedLesson: CalendarEvent | null = null;
   showModal = false;
@@ -69,7 +73,9 @@ export class StudentHomeComponent implements OnInit {
     private teacherService: TeacherService,
     private homeworkService: HomeworkService,
     private lessonTabsService: LessonTabsService,
-    private materialService: MaterialService
+    private materialService: MaterialService,
+    private statisticsService: StatisticsService,
+    private lexiconService: LexiconService
   ) { }
 
   ngOnInit(): void {
@@ -106,9 +112,18 @@ export class StudentHomeComponent implements OnInit {
   private initializeComponent(studentId: string): void {
     console.log('[StudentHome] Initializing with studentId:', studentId);
 
+    // Записываем вход пользователя для статистики активных дней
+    this.statisticsService.recordUserLogin(studentId).subscribe({
+      next: () => console.log('[StudentHome] User login recorded'),
+      error: (err) => console.error('[StudentHome] Failed to record login:', err)
+    });
+
     // Загружаем цели студента
     this.loadStudentGoal(studentId);
     this.loadAvailableExamLevels();
+    
+    // Загружаем статистику студента
+    this.loadStudentStats(studentId);
 
     this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
       console.log('[StudentHomeComponent] RAW notifications from backend:', res);
@@ -747,6 +762,45 @@ export class StudentHomeComponent implements OnInit {
         this.studentHomework = [];
       }
     });
+  }
+
+  /**
+   * Загрузить статистику студента
+   */
+  private loadStudentStats(studentId: string): void {
+    this.loadingStats = true;
+    console.log('[StudentHome] Загружаем статистику для студента:', studentId);
+    
+    // Загружаем статистику напрямую используя разные сервисы
+    const activeDaysPromise = this.statisticsService.getActiveDaysCount(studentId).toPromise();
+    const lessonsCompletedPromise = this.statisticsService.getCompletedLessonsCount(studentId).toPromise();
+    const wordsLearnedPromise = this.lexiconService.getLearnedWordsCount().toPromise();
+    
+    Promise.all([activeDaysPromise, lessonsCompletedPromise, wordsLearnedPromise])
+      .then(([activeDaysResult, lessonsResult, wordsResult]) => {
+        console.log('[StudentHome] Получена статистика:', {
+          activeDays: activeDaysResult?.count || 0,
+          lessons: lessonsResult?.count || 0,
+          words: wordsResult?.count || 0
+        });
+        
+        this.stats = {
+          daysActive: activeDaysResult?.count || 0,
+          lessonsCompleted: lessonsResult?.count || 0,
+          wordsLearned: wordsResult?.count || 0
+        };
+        this.loadingStats = false;
+      })
+      .catch((error) => {
+        console.error('[StudentHome] Ошибка загрузки статистики:', error);
+        this.loadingStats = false;
+        // Оставляем значения по умолчанию (0)
+        this.stats = {
+          daysActive: 0,
+          lessonsCompleted: 0,
+          wordsLearned: 0
+        };
+      });
   }
 
 }

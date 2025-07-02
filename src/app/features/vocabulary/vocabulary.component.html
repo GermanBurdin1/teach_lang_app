@@ -3,21 +3,21 @@
   </h1>
 
   <div class="view-sort-toggle">
-    <label>Сортировать по:</label>
+    <label>Trier par :</label>
     <select [(ngModel)]="sortBy" (change)="sortWords()">
-      <option value="all"><i class="fas fa-layer-group"></i> Все</option>
-      <option value="repeat"><i class="fas fa-sync-alt"></i> Повторить</option>
-      <option value="learned"><i class="fas fa-check-circle"></i> Выученные</option>
-      <option value="untranslated"><i class="fas fa-question-circle"></i> Без перевода</option>
-      <option value="hardest"><i class="fas fa-fire"></i> Ошибки</option>
+      <option value="all"><i class="fas fa-layer-group"></i> Tous</option>
+      <option value="repeat"><i class="fas fa-sync-alt"></i> Réviser</option>
+      <option value="learned"><i class="fas fa-check-circle"></i> Appris</option>
+      <option value="untranslated"><i class="fas fa-question-circle"></i> Sans traduction</option>
+      <option value="hardest"><i class="fas fa-fire"></i> Erreurs</option>
     </select>
 
     <!-- Toggle-переключатель -->
     <div class="view-toggle-switch">
-      <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'" aria-label="Карточки">
+      <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'" aria-label="Cartes">
         📇
       </button>
-      <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'" aria-label="Списком">
+      <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'" aria-label="En liste">
         📋
       </button>
     </div>
@@ -26,9 +26,9 @@
 
   <!-- Фильтрация слов/выражений -->
   <div class="filter-toggle">
-    <button (click)="filterType = 'all'" [class.active]="filterType === 'all'">Все</button>
-    <button (click)="filterType = 'word'" [class.active]="filterType === 'word'">Только слова</button>
-    <button (click)="filterType = 'expression'" [class.active]="filterType === 'expression'">Только выражения</button>
+    <button (click)="filterType = 'all'" [class.active]="filterType === 'all'">Tous</button>
+    <button (click)="filterType = 'word'" [class.active]="filterType === 'word'">Mots seulement</button>
+    <button (click)="filterType = 'expression'" [class.active]="filterType === 'expression'">Expressions seulement</button>
   </div>
 
   <!-- Карточки -->
@@ -39,15 +39,15 @@
     <!-- Колонка для слов -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'word'">
       <div class="controls-row">
-        <button class="add-icon-btn" (click)="openAddCardModal('word')" title="Добавить слово">
+        <button class="add-icon-btn" (click)="openAddCardModal('word')" title="Ajouter un mot">
           <i class="fas fa-plus"></i>
         </button>
         <button class="sort-toggle-btn" (click)="toggleSortOrderWords()"
-          title="Сначала {{ sortOrderWords === 'desc' ? 'новые' : 'старые' }}">
+          title="D'abord {{ sortOrderWords === 'desc' ? 'nouveaux' : 'anciens' }}">
           <i class="fas" [ngClass]="sortOrderWords === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
         <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
-          title="Сортировать по языку">
+          title="Trier par langue">
           <i class="fas fa-language"></i>
         </button>
       </div>
@@ -73,14 +73,14 @@
                 'card-front--untranslated': !card.translations[0] || card.translations[0].target === '...'
               }">
                 <div class="card-icon" *ngIf="sortBy === 'repeat' && card.status === 'repeat'">
-                  <i class="fas fa-sync-alt" title="На повторение"></i>
+                  <i class="fas fa-sync-alt" title="À réviser"></i>
                 </div>
                 <div class="card-icon" *ngIf="sortBy === 'learned' && card.status === 'learned'">
-                  <i class="fas fa-check-circle" title="Изучено"></i>
+                  <i class="fas fa-check-circle" title="Appris"></i>
                 </div>
                 <div class="card-icon"
                   *ngIf="sortBy === 'untranslated' && (!card.translations[0] || card.translations[0].target === '...')">
-                  <i class="fas fa-question-circle" title="Нет перевода"></i>
+                  <i class="fas fa-question-circle" title="Pas de traduction"></i>
                 </div>
                 <div class="card-header">
                   <p class="date-label">
@@ -100,39 +100,39 @@
                   <span *ngIf="card.hintVisible">
                     <span *ngIf="card.translations?.[0]?.target === '...' || !card.translations[0]"
                       class="hint untranslated" (click)="openTranslationForm(card, true)">
-                      Добавить перевод
+                      Ajouter une traduction
                     </span>
                     <span *ngIf="card.translations[0] && card.translations[0].target !== '...'" class="hint" (click)="flipCard(card); $event.stopPropagation()">
-                      Кликни, чтобы увидеть перевод
+                      Clique pour voir la traduction
                     </span>
                   </span>
                 </div>
                 <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
-                  <i class="fas fa-retweet"></i> <!-- или другая иконка, например fa-rotate -->
+                  <i class="fas fa-retweet"></i>
                 </button>
               </div>
               <div class="card-back">
                 <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
                   <button
                     *ngIf="card.translations[0] && !card.showTranslation && (card.hintIndex ?? 0) < card.translations[0].target.length - 1"
-                    (click)="revealNextHint(card)">
-                    {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
+                    (click)="revealNextHint(card); $event.stopPropagation()">
+                    {{ card.hintIndex ? 'Encore un indice' : 'Obtenir un indice' }}
                   </button>
 
 
-                  <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
-                    Показать слово
+                  <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card); $event.stopPropagation()">
+                    Montrer le mot
                   </button>
-                  <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод"
+                  <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Saisir la traduction"
                     class="input-field" />
                 </div>
 
                 <div *ngIf="(card.isCorrect === true || card.showTranslation) && !card.status" class="after-guess-btns">
-                  <button (click)="markAsLearned(card)">Я знаю это слово</button>
-                  <button (click)="markForRepetition(card)">Повторить позже</button>
+                  <button (click)="markAsLearned(card); $event.stopPropagation()">Je connais ce mot</button>
+                  <button (click)="markForRepetition(card); $event.stopPropagation()">Réviser plus tard</button>
                 </div>
                 <div *ngIf="card.status === 'learned'" class="after-guess-btns">
-                  <button (click)="resetToPractice(card)">Снова спрятать перевод</button>
+                  <button (click)="resetToPractice(card); $event.stopPropagation()">Cacher à nouveau la traduction</button>
                 </div>
 
 
@@ -142,7 +142,7 @@
                     <p>{{ t.target }}</p>
                     <button class="translation-entry__more-button"
                       (click)="ensureCardGrammar(card); toggleEnlargedCard(card, i); $event.stopPropagation()">
-                      {{ enlargedCardId === card.id ? '↩ обычный режим' : 'дополнительно' }}
+                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'détails' }}
                     </button>
 
 
@@ -155,24 +155,24 @@
                   <div class="translation-modal__actions" *ngIf="editingCard">
                     <button class="more-info-tooltip-btn" (click)="openAddMeaningModal(editingCard); $event.stopPropagation()">
                       <i class="fas fa-plus-circle"></i>
-                      <span class="tooltip-text">Добавить значение</span>
+                      <span class="tooltip-text">Ajouter une signification</span>
                     </button>
                   </div>
                   <button class="more-info-tooltip-btn" (click)="openExampleModal(); $event.stopPropagation()"><i
                       class="fas fa-plus"></i>
-                    <span class="tooltip-text">Пример</span></button>
+                    <span class="tooltip-text">Exemple</span></button>
                   <button class="more-info-tooltip-btn"
                     (click)="openExtraTranslationModal(); $event.stopPropagation()"><i class="fas fa-language"></i>
-                    <span class="tooltip-text">Перевод</span></button>
+                    <span class="tooltip-text">Traduction</span></button>
                   <button class="more-info-tooltip-btn" (click)="viewExamples(); $event.stopPropagation()"><i
                       class="fas fa-eye"></i>
-                    <span class="tooltip-text">Примеры</span></button>
+                    <span class="tooltip-text">Exemples</span></button>
                   <button class="more-info-tooltip-btn" (click)="viewTranslations(); $event.stopPropagation()"><i
                       class="fas fa-eye"></i>
-                    <span class="tooltip-text">Переводы</span></button>
+                    <span class="tooltip-text">Traductions</span></button>
                   <button class="more-info-tooltip-btn" (click)="closeEnlargedCard(); $event.stopPropagation()"><i
                       class="fas fa-times"></i>
-                    <span class="tooltip-text">Закрыть</span></button>
+                    <span class="tooltip-text">Fermer</span></button>
                 </div>
 
                 <p *ngIf="!card.showTranslation && (card.hintIndex ?? 0) > 0" class="hint-display">
@@ -210,7 +210,7 @@
       <!-- Пагинация для слов -->
       <div class="pagination-controls">
         <button (click)="changeWordsPage(-1)" [disabled]="!hasPrevWordsPage">⬅</button>
-        <span>Страница {{ currentWordsPage }}</span>
+        <span>Page {{ currentWordsPage }}</span>
         <button (click)="changeWordsPage(1)" [disabled]="!hasNextWordsPage">➡</button>
       </div>
 
@@ -218,16 +218,16 @@
     <!-- Колонка для выражений -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'expression'">
       <div class="controls-row">
-        <button class="add-icon-btn" (click)="openAddCardModal('expression')" title="Добавить выражение"
-          aria-label="Добавить выражение">
+        <button class="add-icon-btn" (click)="openAddCardModal('expression')" title="Ajouter une expression"
+          aria-label="Ajouter une expression">
           <i class="fas fa-plus"></i>
         </button>
         <button class="sort-toggle-btn" (click)="toggleSortOrderExpressions()"
-          title="Сначала {{ sortOrderExpressions === 'desc' ? 'новые' : 'старые' }}">
+          title="D'abord {{ sortOrderExpressions === 'desc' ? 'nouvelles' : 'anciennes' }}">
           <i class="fas" [ngClass]="sortOrderExpressions === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
         <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
-          title="Сортировать по языку">
+          title="Trier par langue">
           <i class="fas fa-language"></i>
         </button>
       </div>
@@ -259,7 +259,7 @@
                 </div>
                 <div class="card-body">
                   <p>{{ card.word }}</p>
-                  <span *ngIf="card.hintVisible" class="hint">Кликни, чтобы увидеть перевод</span>
+                  <span *ngIf="card.hintVisible" class="hint">Clique pour voir la traduction</span>
                 </div>
                 <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i>
@@ -271,7 +271,7 @@
                     <p>{{ t.target }}</p>
                     <button class="translation-entry__more-button"
                       (click)="ensureCardGrammar(card); toggleEnlargedCard(card, i); $event.stopPropagation()">
-                      {{ enlargedCardId === card.id ? '↩ обычный режим' : 'дополнительно' }}
+                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'détails' }}
                     </button>
                   </div>
                 </div>
@@ -281,51 +281,51 @@
 
                     <!-- Существительное -->
                     <ng-container *ngIf="getNounGrammar(card) as noun">
-                      <p>Род: {{ noun.gender || 'не указан' }}</p>
-                      <p>Число: {{ noun.number || 'не указано' }}</p>
-                      <p>Имя собственное: {{ noun.isProper ? 'да' : 'нет' }}</p>
+                      <p>Genre : {{ noun.gender || 'non spécifié' }}</p>
+                      <p>Nombre : {{ noun.number || 'non spécifié' }}</p>
+                      <p>Nom propre : {{ noun.isProper ? 'oui' : 'non' }}</p>
                     </ng-container>
 
                     <!-- Глагол -->
                     <ng-container *ngIf="getVerbGrammar(card) as verb">
-                      <p>Переходность: {{ verb.transitivity || 'не указана' }}</p>
-                      <p>Возвратный: {{ verb.isPronominal ? 'да' : 'нет' }}</p>
-                      <p>Неправильный: {{ verb.isIrregular ? 'да' : 'нет' }}</p>
+                      <p>Transitivité : {{ verb.transitivity || 'non spécifiée' }}</p>
+                      <p>Pronominal : {{ verb.isPronominal ? 'oui' : 'non' }}</p>
+                      <p>Irrégulier : {{ verb.isIrregular ? 'oui' : 'non' }}</p>
                     </ng-container>
 
                     <!-- Прилагательное -->
                     <ng-container *ngIf="getAdjectiveGrammar(card) as adj">
-                      <p>Степень сравнения: {{ adj.comparison || 'не указана' }}</p>
-                      <p>Изменяемость: {{ adj.variable ? 'да' : 'нет' }}</p>
+                      <p>Degré de comparaison : {{ adj.comparison || 'non spécifié' }}</p>
+                      <p>Variable : {{ adj.variable ? 'oui' : 'non' }}</p>
                     </ng-container>
 
                     <!-- Наречие -->
                     <ng-container *ngIf="getAdverbGrammar(card) as adv">
-                      <p>Степень сравнения: {{ adv.comparison || 'не указана' }}</p>
+                      <p>Degré de comparaison : {{ adv.comparison || 'non spécifié' }}</p>
                     </ng-container>
 
                     <!-- Местоимение -->
                     <ng-container *ngIf="getPronounGrammar(card) as pron">
-                      <p>Лицо: {{ pron.person || 'не указано' }}</p>
-                      <p>Род: {{ pron.gender || 'не указан' }}</p>
-                      <p>Число: {{ pron.number || 'не указано' }}</p>
-                      <p>Тип: {{ pron.type || 'не указан' }}</p>
+                      <p>Personne : {{ pron.person || 'non spécifiée' }}</p>
+                      <p>Genre : {{ pron.gender || 'non spécifié' }}</p>
+                      <p>Nombre : {{ pron.number || 'non spécifié' }}</p>
+                      <p>Type : {{ pron.type || 'non spécifié' }}</p>
                     </ng-container>
 
                     <!-- Союз -->
                     <ng-container *ngIf="getConjunctionGrammar(card) as conj">
-                      <p>Тип: {{ conj.type || 'не указан' }}</p>
+                      <p>Type : {{ conj.type || 'non spécifié' }}</p>
                     </ng-container>
 
                     <!-- Междометие -->
                     <ng-container *ngIf="getInterjectionGrammar(card) as interj">
-                      <p>Тип эмоции: {{ interj.emotionType || 'не указан' }}</p>
+                      <p>Type d'émotion : {{ interj.emotionType || 'non spécifié' }}</p>
                     </ng-container>
 
                     <!-- Выражение -->
                     <ng-container *ngIf="getExpressionGrammar(card) as expr">
-                      <p>Тип выражения: {{ expr.expressionType || 'не указан' }}</p>
-                      <p>Происхождение: {{ expr.origin || 'не указано' }}</p>
+                      <p>Type d'expression : {{ expr.expressionType || 'non spécifié' }}</p>
+                      <p>Origine : {{ expr.origin || 'non spécifiée' }}</p>
                     </ng-container>
 
                   </ng-container>
@@ -333,20 +333,20 @@
 
                 <div class="btn-group" *ngIf="!card.isCorrect && !card.showTranslation">
                   <button *ngIf="!card.showTranslation && (card.hintIndex ?? 0) < card.translations.length - 1"
-                    (click)="revealNextHint(card)">
-                    {{ card.hintIndex ? 'Ещё подсказку' : 'Получить подсказку' }}
+                    (click)="revealNextHint(card); $event.stopPropagation()">
+                    {{ card.hintIndex ? 'Encore un indice' : 'Obtenir un indice' }}
                   </button>
 
-                  <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card)">
-                    Показать слово
+                  <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card); $event.stopPropagation()">
+                    Montrer le mot
                   </button>
-                  <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Введи перевод"
+                  <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Saisir la traduction"
                     class="input-field" />
                 </div>
 
                 <div *ngIf="(card.isCorrect === true || card.showTranslation) && !card.status" class="after-guess-btns">
-                  <button (click)="markAsLearned(card)">Я знаю это слово</button>
-                  <button (click)="markForRepetition(card)">Повторить позже</button>
+                  <button (click)="markAsLearned(card); $event.stopPropagation()">Je connais ce mot</button>
+                  <button (click)="markForRepetition(card); $event.stopPropagation()">Réviser plus tard</button>
                 </div>
 
                 <div *ngIf="card.showTranslation">
@@ -354,7 +354,7 @@
                     <p>{{ t.target }}</p>
                     <button class="translation-entry__more-button"
                       (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
-                      {{ enlargedCardId === card.id ? '↩ обычный режим' : 'дополнительно' }}
+                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'détails' }}
                     </button>
                   </div>
                 </div>
@@ -388,7 +388,7 @@
       <!-- Пагинация для выражений -->
       <div class="pagination-controls">
         <button (click)="changeExpressionsPage(-1)" [disabled]="!hasPrevExpressionsPage">⬅</button>
-        <span>Страница {{ currentExpressionsPage }}</span>
+        <span>Page {{ currentExpressionsPage }}</span>
         <button (click)="changeExpressionsPage(1)" [disabled]="!hasNextExpressionsPage">➡</button>
       </div>
 
@@ -398,81 +398,37 @@
 
 </div>
 
-<div class="modal-overlay" *ngIf="showAddCardModal">
-  <div class="modal card">
-    <div class="card-inner no-flip">
-      <button class="add-entry-modal__close-btn" (click)="closeAddCardModal()" aria-label="Закрыть">
-        <i class="fas fa-times"></i>
-      </button>
-      <div class="card-front modal-content">
-        <h2 class="modal-title">Добавить {{ newWordType === 'word' ? 'слово' : 'выражение' }}</h2>
-
-        <input [(ngModel)]="newWord" placeholder="Введите {{ newWordType === 'word' ? 'слово' : 'выражение' }}" />
-        <app-grammar-fields *ngIf="newWordType === 'word' && isManualTranslation && newGrammarData"
-          [grammar]="newGrammarData"
-          [showValidateButton]="false">
-          >
-        </app-grammar-fields>
-        <button *ngIf="!isManualTranslation" (click)="requestTranslation()" class="generate-button">
-          🌐 Найти перевод
-        </button>
-        <input *ngIf="!isAutoTranslation" [(ngModel)]="newTranslation" (input)="onManualTranslationInput()"
-          placeholder="или введите его сами" />
-        <div class="lang-selectors">
-          <label>С языка:
-            <select [(ngModel)]="sourceLang">
-              <option value="ru">русский</option>
-              <option value="fr">французский</option>
-              <option value="en">английский</option>
-            </select>
-          </label>
-          <label>На язык:
-            <select [(ngModel)]="targetLang">
-              <option value="ru">русский</option>
-              <option value="fr">французский</option>
-              <option value="en">английский</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="modal-actions">
-          <button (click)="addItem()">Добавить</button>
-          <button class="cancel-btn" (click)="closeAddCardModal()">Отмена</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Старое модальное окно заменено на Material Dialog в добавить-слово-диалог компоненте -->
 
 <!-- Модалка перевода для непереведённой карточки -->
 <div class="translation-modal-overlay"
   *ngIf="editingCard && manualTranslation !== '' && !showExtraModal && !showExtraTranslationModal">
   <div class="translation-modal">
-    <button class="close-btn" (click)="cancelTranslationEdit()" aria-label="Закрыть">
+    <button class="close-btn" (click)="cancelTranslationEdit()" aria-label="Fermer">
       <i class="fas fa-times"></i>
     </button>
-    <h2>Добавить перевод</h2>
+    <h2>Ajouter une traduction</h2>
     <p><strong>{{ editingCard.word }}</strong></p>
     <div class="input-group">
-      <input [(ngModel)]="manualTranslation" placeholder="Введите перевод вручную" />
+      <input [(ngModel)]="manualTranslation" placeholder="Entrer la traduction manuellement" />
     </div>
 
     <div class="modal-actions">
-      <button (click)="saveManualTranslation()">Сохранить</button>
-      <button (click)="requestTranslation(editingCard)">🌐 Перевести</button>
-      <button (click)="cancelTranslationEdit()">Отмена</button>
+      <button (click)="saveManualTranslation()">Sauvegarder</button>
+      <button (click)="requestTranslation(editingCard)">🌐 Traduire</button>
+      <button (click)="cancelTranslationEdit()">Annuler</button>
     </div>
   </div>
 </div>
 
 <div *ngIf="showExtraModal" class="translation-modal">
-  <h3 class="translation-modal__title">Добавить пример</h3>
+  <h3 class="translation-modal__title">Ajouter un exemple</h3>
 
-  <input class="translation-modal__input" [(ngModel)]="newExample" placeholder="Введите пример" />
+  <input class="translation-modal__input" [(ngModel)]="newExample" placeholder="Entrer un exemple" />
 
   <div class="translation-modal__button-group">
-    <button class="translation-modal__button" (click)="addExample()">Добавить</button>
-    <button class="translation-modal__button" (click)="closeExtraModal()">Закрыть</button>
+    <button class="translation-modal__button" (click)="addExample()">Ajouter</button>
+    <button class="translation-modal__button" (click)="closeExtraModal()">Fermer</button>
   </div>
 
   <ul *ngIf="selectedTranslation" class="translation-modal__examples">
@@ -481,9 +437,9 @@
 </div>
 
 <div *ngIf="showAddMeaningModal" class="add-meaning-modal">
-  <h3 *ngIf="selectedCard">Добавить новое значение для "{{ selectedCard.word }}"</h3>
+  <h3 *ngIf="selectedCard">Ajouter une nouvelle signification pour "{{ selectedCard.word }}"</h3>
 
-  <input [(ngModel)]="newMeaningWord" placeholder="Новое значение слова">
+  <input [(ngModel)]="newMeaningWord" placeholder="Nouvelle signification du mot">
 
   <select [(ngModel)]="newMeaningGalaxy" (change)="onMeaningGalaxyChange()">
     <option *ngFor="let galaxy of availableGalaxies" [value]="galaxy">{{ galaxy }}</option>
@@ -493,6 +449,6 @@
     <option *ngFor="let sub of availableSubtopics" [value]="sub">{{ sub }}</option>
   </select>
 
-  <button (click)="saveNewMeaning()">Сохранить</button>
-  <button (click)="cancelAddMeaning()">Отмена</button>
+  <button (click)="saveNewMeaning()">Sauvegarder</button>
+  <button (click)="cancelAddMeaning()">Annuler</button>
 </div>

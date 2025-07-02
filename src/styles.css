@@ -153,3 +153,155 @@
     font-size: 13px !important;
   }
 }
+
+/* ==================== CUSTOM DIALOG STYLES ==================== */
+
+.custom-dialog-container .mat-mdc-dialog-container {
+  background: linear-gradient(135deg, 
+    rgba(16, 18, 30, 0.95) 0%, 
+    rgba(30, 27, 75, 0.95) 50%, 
+    rgba(16, 18, 30, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  box-shadow: 
+    0 25px 50px rgba(109, 40, 217, 0.3),
+    0 0 40px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: relative;
+  min-height: 400px;
+  height: auto !important;
+}
+
+.custom-dialog-container .mat-mdc-dialog-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(109, 40, 217, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.custom-dialog-container .mat-mdc-dialog-content {
+  color: #F9FAFB;
+  max-height: 70vh;
+  min-height: 200px;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.custom-dialog-container .mat-mdc-dialog-title {
+  color: #F9FAFB;
+  font-weight: 600;
+  margin-bottom: 0;
+  padding: 24px 24px 0 24px;
+}
+
+.custom-dialog-container .mat-mdc-dialog-actions {
+  padding: 16px 24px 24px 24px;
+  margin: 0;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Material Form Field стили для диалога */
+.custom-dialog-container .mat-mdc-form-field {
+  width: 100%;
+}
+
+.custom-dialog-container .mat-mdc-text-field-wrapper {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.custom-dialog-container .mat-mdc-text-field-wrapper:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+.custom-dialog-container .mat-mdc-text-field-wrapper.mdc-text-field--focused {
+  border-color: #8B5CF6;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.custom-dialog-container .mat-mdc-form-field-label {
+  color: rgba(249, 250, 251, 0.7) !important;
+}
+
+.custom-dialog-container .mat-mdc-form-field-label.mdc-floating-label--float-above {
+  color: #8B5CF6 !important;
+}
+
+.custom-dialog-container .mat-mdc-input-element {
+  color: #1F2937 !important;
+  caret-color: #8B5CF6;
+}
+
+.custom-dialog-container .mat-mdc-input-element::placeholder {
+  color: rgba(249, 250, 251, 0.4);
+}
+
+/* Button стили для диалога */
+.custom-dialog-container .mat-mdc-button,
+.custom-dialog-container .mat-mdc-raised-button {
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.custom-dialog-container .mat-mdc-raised-button.mat-primary {
+  background: linear-gradient(135deg, #6D28D9, #8B5CF6);
+  color: white;
+  box-shadow: 0 4px 15px rgba(109, 40, 217, 0.3);
+}
+
+.custom-dialog-container .mat-mdc-raised-button.mat-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(109, 40, 217, 0.4);
+}
+
+.custom-dialog-container .mat-mdc-button.mat-warn {
+  color: #EC4899;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.custom-dialog-container .mat-mdc-button.mat-warn:hover {
+  background: rgba(236, 72, 153, 0.1);
+}
+
+/* Select стили для диалога */
+.custom-dialog-container .mat-mdc-select {
+  color: #1F2937;
+}
+
+.custom-dialog-container .mat-mdc-select-value {
+  color: #1F2937;
+}
+
+.custom-dialog-container .mat-mdc-select-min-line {
+  color: #1F2937 !important;
+}
+
+.custom-dialog-container .mat-mdc-select-arrow {
+  color: #8B5CF6;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .custom-dialog-container .mat-mdc-dialog-container {
+    margin: 16px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+  }
+}

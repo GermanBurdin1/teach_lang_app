@@ -1,9 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { LexiconService } from '../../services/lexicon.service';
 import { TranslationService } from '../../services/translation.service';
 import * as Grammar from './models/grammar-data.model';
 import { GrammarData } from './models/grammar-data.model';
+import { AddWordDialogComponent, AddWordDialogData, AddWordDialogResult } from './add-word-dialog.component';
 
 interface TranslationEntry {
   id?: number;
@@ -43,19 +45,19 @@ export class VocabularyComponent implements OnInit {
   expressions: WordCard[] = [];
   newWord: string = '';
   newTranslation: string = '';
-  showHint: boolean = true; // Подсказка "Кликни, чтобы увидеть перевод"
+  showHint: boolean = true; // Astuce "Clique pour voir la traduction"
   sortBy: string = 'all';
   sortOrderWords: 'asc' | 'desc' = 'desc';
   sortOrderExpressions: 'asc' | 'desc' = 'desc';
   sortByLang: boolean = false;
   newWordType: 'word' | 'expression' = 'word';
-  // Переменная для управления отображением формы ввода
+  // Variable pour contrôler l'affichage du formulaire de saisie
   showInputFields: boolean = false;
   wordsPerPage = 10;
   expressionsPerPage = 10;
   currentWordsPage = 1;
   currentExpressionsPage = 1;
-  viewMode: 'cards' | 'list' = 'cards'; // по умолчанию карточки
+  viewMode: 'cards' | 'list' = 'cards'; // cartes par défaut
   filterType: 'all' | 'word' | 'expression' = 'all';
   showAddCardModal: boolean = false;
   editingCard: WordCard | null = null;
@@ -76,7 +78,12 @@ export class VocabularyComponent implements OnInit {
   showTranslationInputForm: boolean = false;
 
 
-  constructor(private route: ActivatedRoute, private lexiconService: LexiconService, private translationService: TranslationService) { }
+  constructor(
+    private route: ActivatedRoute, 
+    private lexiconService: LexiconService, 
+    private translationService: TranslationService,
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -86,12 +93,12 @@ export class VocabularyComponent implements OnInit {
       console.log('📌 Galaxy from route:', this.currentGalaxy);
       console.log('📌 Subtopic from route:', this.currentSubtopic);
 
-      // 🔁 Пытаемся загрузить с backend
+      // 🔁 Essai de chargement depuis le backend
       this.lexiconService.getWordsByGalaxyAndSubtopic(this.currentGalaxy, this.currentSubtopic)
         .subscribe({
 
           next: (data) => {
-            console.log('📦 Данные от backend:', data);
+            console.log('📦 Données du backend:', data);
             const enriched = data.map(card => {
               const translations = (card.translations ?? []).map(t => ({
                 id: t.id,
@@ -118,13 +125,13 @@ export class VocabularyComponent implements OnInit {
 
             this.words = enriched.filter(item => item.type === 'word');
             this.expressions = enriched.filter(item => item.type === 'expression');
-            // ✅ Сохраняем резервную копию
+            // ✅ Sauvegarde de secours
             this.saveToLocalStorage(enriched);
 
-            console.log('✅ Загрузили карточки с backend:', enriched);
+            console.log('✅ Cartes chargées depuis le backend:', enriched);
           },
           error: (err) => {
-            console.error('❌ Ошибка при загрузке с backend. Пробуем localStorage:', err);
+            console.error('❌ Erreur lors du chargement depuis le backend. Tentative localStorage:', err);
 
             const updated = this.loadFromLocalStorage();
             if (!updated) return;
@@ -135,7 +142,7 @@ export class VocabularyComponent implements OnInit {
             this.words = relevant.filter(item => item.type === 'word');
             this.expressions = relevant.filter(item => item.type === 'expression');
 
-            console.log('✅ Загружено из localStorage:', relevant);
+            console.log('✅ Chargé depuis localStorage:', relevant);
           }
         });
     });
@@ -173,31 +180,31 @@ export class VocabularyComponent implements OnInit {
     return card.grammar?.partOfSpeech === 'expression' ? card.grammar as Grammar.ExpressionGrammar : null;
   }
 
-  // Загрузка карточек (пока что просто статичный массив)
+  // Chargement des cartes (pour l'instant juste un tableau statique)
   loadWords(): void {
     const rawItems: WordCard[] = [
-      // КРУГОЗОР
-      { id: 1, word: 'революция', translations: [{ target: 'revolution' }], type: 'word', galaxy: 'Кругозор', subtopic: 'История', ...this.defaultCard() },
-      { id: 2, word: 'империя', translations: [{ target: 'empire' }], type: 'word', galaxy: 'Кругозор', subtopic: 'История', ...this.defaultCard() },
-      { id: 3, word: 'атом', translations: [{ target: 'atom' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Наука', ...this.defaultCard() },
-      { id: 4, word: 'эксперимент', translations: [{ target: 'experiment' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Наука', ...this.defaultCard() },
-      { id: 5, word: 'пьеса', translations: [{ target: 'play (theater)' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Искусство', ...this.defaultCard() },
-      { id: 6, word: 'палитра', translations: [{ target: 'palette' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Искусство', ...this.defaultCard() },
-      { id: 7, word: 'мыслитель', translations: [{ target: 'thinker' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Философия', ...this.defaultCard() },
-      { id: 8, word: 'вопрос бытия', translations: [{ target: 'question of being' }], type: 'expression', galaxy: 'Кругозор', subtopic: 'Философия', ...this.defaultCard() },
-      { id: 9, word: 'инновация', translations: [{ target: 'innovation' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Технологии', ...this.defaultCard() },
-      { id: 10, word: 'искусственный интеллект', translations: [{ target: 'artificial intelligence' }], type: 'expression', galaxy: 'Кругозор', subtopic: 'Технологии', ...this.defaultCard() },
-      { id: 11, word: 'наследие', translations: [{ target: 'heritage' }], type: 'word', galaxy: 'Кругозор', subtopic: 'Культура', ...this.defaultCard() },
-      { id: 12, word: 'традиции народа', translations: [{ target: 'folk traditions' }], type: 'expression', galaxy: 'Кругозор', subtopic: 'Культура', ...this.defaultCard() },
+      // CULTURE GÉNÉRALE
+      { id: 1, word: 'révolution', translations: [{ target: 'revolution' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Histoire', ...this.defaultCard() },
+      { id: 2, word: 'empire', translations: [{ target: 'empire' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Histoire', ...this.defaultCard() },
+      { id: 3, word: 'atome', translations: [{ target: 'atom' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Science', ...this.defaultCard() },
+      { id: 4, word: 'expérience', translations: [{ target: 'experiment' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Science', ...this.defaultCard() },
+      { id: 5, word: 'pièce', translations: [{ target: 'play (theater)' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Art', ...this.defaultCard() },
+      { id: 6, word: 'palette', translations: [{ target: 'palette' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Art', ...this.defaultCard() },
+      { id: 7, word: 'penseur', translations: [{ target: 'thinker' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Philosophie', ...this.defaultCard() },
+      { id: 8, word: 'question de l\'être', translations: [{ target: 'question of being' }], type: 'expression', galaxy: 'Culture générale', subtopic: 'Philosophie', ...this.defaultCard() },
+      { id: 9, word: 'innovation', translations: [{ target: 'innovation' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Technologies', ...this.defaultCard() },
+      { id: 10, word: 'intelligence artificielle', translations: [{ target: 'artificial intelligence' }], type: 'expression', galaxy: 'Culture générale', subtopic: 'Technologies', ...this.defaultCard() },
+      { id: 11, word: 'héritage', translations: [{ target: 'heritage' }], type: 'word', galaxy: 'Culture générale', subtopic: 'Culture', ...this.defaultCard() },
+      { id: 12, word: 'traditions populaires', translations: [{ target: 'folk traditions' }], type: 'expression', galaxy: 'Culture générale', subtopic: 'Culture', ...this.defaultCard() },
 
-      // СОЦИАЛЬНЫЕ СВЯЗИ
-      { id: 13, word: 'мама', translations: [{ target: 'mom' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Семья', ...this.defaultCard() },
-      { id: 14, word: 'брат', translations: [{ target: 'brother' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Семья', ...this.defaultCard() },
-      { id: 15, word: 'лучший друг', translations: [{ target: 'best friend' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Друзья', ...this.defaultCard() },
-      { id: 16, word: 'дружить', translations: [{ target: 'be friends' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Друзья', ...this.defaultCard() },
-      { id: 17, word: 'начальник', translations: [{ target: 'boss' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Работа', ...this.defaultCard() },
-      { id: 18, word: 'рабочий процесс', translations: [{ target: 'workflow' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Работа', ...this.defaultCard() },
-      { id: 19, word: 'поделиться постом', translations: [{ target: 'share a post' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
+      // LIENS SOCIAUX
+      { id: 13, word: 'maman', translations: [{ target: 'mom' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Famille', ...this.defaultCard() },
+      { id: 14, word: 'frère', translations: [{ target: 'brother' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Famille', ...this.defaultCard() },
+      { id: 15, word: 'meilleur ami', translations: [{ target: 'best friend' }], type: 'expression', galaxy: 'Liens sociaux', subtopic: 'Amis', ...this.defaultCard() },
+      { id: 16, word: 'être ami', translations: [{ target: 'be friends' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Amis', ...this.defaultCard() },
+      { id: 17, word: 'patron', translations: [{ target: 'boss' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Travail', ...this.defaultCard() },
+      { id: 18, word: 'processus de travail', translations: [{ target: 'workflow' }], type: 'expression', galaxy: 'Liens sociaux', subtopic: 'Travail', ...this.defaultCard() },
+      { id: 19, word: 'partager un post', translations: [{ target: 'share a post' }], type: 'expression', galaxy: 'Liens sociaux', subtopic: 'Réseaux sociaux', ...this.defaultCard() },
       { id: 20, word: 'подписчик', translations: [{ target: 'follower' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
       { id: 21, word: 'вести диалог', translations: [{ target: 'have a dialogue' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
       { id: 31, word: 'контакт', translations: [{ target: 'contact' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
@@ -333,12 +340,10 @@ export class VocabularyComponent implements OnInit {
 
     this.saveToLocalStorage();
 
-    // Очистка полей
-    this.newWord = '';
-    this.newTranslation = '';
-
-    this.closeAddCardModal();
-    this.newGrammarData = null;
+    // Очистка полей больше не нужна - используется Material Dialog
+    // this.newWord = '';
+    // this.newTranslation = '';
+    // this.newGrammarData = null;
 
   }
 
@@ -389,25 +394,98 @@ export class VocabularyComponent implements OnInit {
   }
 
 
-  // Выбор типа карточки (слово/выражение) — сразу отображает поля ввода
+  // Выбор типа карточки (слово/выражение) — открывает Material Dialog
   openAddCardModal(type: 'word' | 'expression'): void {
-    this.newWordType = type;
-    this.newWord = '';
-    this.newTranslation = '';
-    this.newGrammarData = null;
-    this.isManualTranslation = false;
-    this.isAutoTranslation = false;
-    this.showAddCardModal = true;
+    const dialogData: AddWordDialogData = {
+      type: type,
+      currentGalaxy: this.currentGalaxy,
+      currentSubtopic: this.currentSubtopic
+    };
+
+    const dialogRef = this.dialog.open(AddWordDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: dialogData,
+      disableClose: false,
+      autoFocus: true,
+      panelClass: 'custom-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe((result: AddWordDialogResult) => {
+      if (result) {
+        this.handleDialogResult(result);
+      }
+    });
   }
 
-  closeAddCardModal(): void {
-    this.newWord = '';
-    this.newTranslation = '';
-    this.newGrammarData = null;
-    this.isManualTranslation = false;
-    this.isAutoTranslation = false;
-    this.showAddCardModal = false;
+  private handleDialogResult(result: AddWordDialogResult): void {
+    const translations = result.translation.trim()
+      ? [{
+        id: 0, // временный id для локальной работы
+        target: result.translation.trim(),
+        examples: []
+      }]
+      : [];
+
+    const newCard: WordCard = {
+      id: 0,
+      createdAt: Date.now(),
+      word: result.word,
+      translations: translations,
+      userInput: '',
+      flipped: false,
+      hintVisible: true,
+      isCorrect: null,
+      hintIndex: 0,
+      showTranslation: result.isManual,
+      status: null,
+      type: result.type,
+      galaxy: this.currentGalaxy,
+      subtopic: this.currentSubtopic,
+      grammar: result.grammar ?? undefined,
+    };
+
+    console.log('📚 Грамматика полученная из диалога:', result.grammar);
+    console.log('🧠 Перевод введён вручную:', result.isManual);
+
+    // Пытаемся отправить на backend
+    this.lexiconService.addWord({
+      word: newCard.word,
+      translations: newCard.translations.map(t => ({
+        id: 0, // временно 0
+        lexiconId: 0, // временно 0
+        source: newCard.word,
+        target: t.target,
+        sourceLang: result.sourceLang,
+        targetLang: result.targetLang,
+        meaning: '',
+        example: t.examples?.[0] || null
+      })),
+      galaxy: newCard.galaxy!,
+      subtopic: newCard.subtopic!,
+      type: newCard.type,
+      grammar: result.grammar ?? undefined
+    }).subscribe({
+      next: (res) => {
+        console.log('✅ Слово добавлено в БД:', res);
+        newCard.id = res.id;
+      },
+      error: (err) => {
+        console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err);
+      }
+    });
+
+    // В любом случае сохраняем в localStorage и отображаем в UI
+    if (result.type === 'word') {
+      this.words.unshift(newCard);
+    } else {
+      this.expressions.unshift(newCard);
+    }
+
+    this.saveToLocalStorage();
   }
+
+  // closeAddCardModal метод больше не нужен - заменён на Material Dialog
 
 
   // Переворот карточки
@@ -639,7 +717,7 @@ export class VocabularyComponent implements OnInit {
   get wordsRangeLabel(): string {
     const start = (this.currentWordsPage - 1) * this.wordsPerPage + 1;
     const end = Math.min(this.currentWordsPage * this.wordsPerPage, this.totalWords);
-    return `Карточки: ${start}–${end} из ${this.totalWords}`;
+    return `Cartes: ${start}–${end} sur ${this.totalWords}`;
   }
 
   get hasNextWordsPage(): boolean {
@@ -654,7 +732,7 @@ export class VocabularyComponent implements OnInit {
     const total = this.expressions.length;
     const start = (this.currentExpressionsPage - 1) * this.expressionsPerPage + 1;
     const end = Math.min(start + this.expressionsPerPage - 1, total);
-    return `Выражения: ${start}–${end} из ${total}`;
+    return `Expressions: ${start}–${end} sur ${total}`;
   }
 
   get hasNextExpressionsPage(): boolean {
@@ -839,9 +917,10 @@ export class VocabularyComponent implements OnInit {
           }
 
           this.saveToLocalStorage();
-          this.newWord = '';
-          this.newTranslation = '';
-          this.closeAddCardModal(); // ✅ Закроем модалку
+          // Очистка полей больше не нужна - используется Material Dialog
+          // this.newWord = '';
+          // this.newTranslation = '';
+          // модалка закрывается автоматически в Material Dialog
         }
       },
       error: (err) => {

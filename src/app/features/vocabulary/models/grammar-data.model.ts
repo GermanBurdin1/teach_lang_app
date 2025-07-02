@@ -1,4 +1,4 @@
-// ✅ Тип части речи
+// ✅ Type de partie du discours
 export type PartOfSpeech =
   | 'noun'
   | 'verb'
@@ -10,14 +10,14 @@ export type PartOfSpeech =
   | 'interjection'
   | 'expression';
 
-// ✅ Добавим интерфейс ExpressionGrammar
+// ✅ Ajout de l'interface ExpressionGrammar
 export interface ExpressionGrammar {
   partOfSpeech: 'expression';
   expressionType?: 'idiom' | 'proverb' | 'saying' | 'collocation' | 'quote' | 'other';
-  origin?: string; // например, «французская пословица»
+  origin?: string; // par exemple, «proverbe français»
 }
 
-// ✅ Суммарный тип GrammarData
+// ✅ Type global GrammarData
 export type GrammarData =
   | NounGrammar
   | VerbGrammar
@@ -29,7 +29,7 @@ export type GrammarData =
   | InterjectionGrammar
   | ExpressionGrammar;
 
-// ✅ Для каждой части речи
+// ✅ Pour chaque partie du discours
 export interface NounGrammar {
   partOfSpeech: 'noun';
   gender?: 'masculine' | 'feminine';
@@ -48,7 +48,7 @@ export interface VerbGrammar {
 export interface AdjectiveGrammar {
     partOfSpeech: 'adjective';
     comparison?: 'positive' | 'comparative' | 'superlative'; // joli / plus joli / le plus joli
-    variable?: boolean; // изменяется ли по роду/числу (ex: "chic" — нет, "beau" — да)
+    variable?: boolean; // change-t-il selon le genre/nombre (ex: "chic" — non, "beau" — oui)
 }
 
 
@@ -79,6 +79,6 @@ export interface ConjunctionGrammar {
 
 export interface InterjectionGrammar {
   partOfSpeech: 'interjection';
-  emotionType?: string; // ах! ох! zut!
+  emotionType?: string; // ah! oh! zut!
 }
 

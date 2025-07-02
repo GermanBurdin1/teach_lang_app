@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { GrammarData } from '../features/vocabulary/models/grammar-data.model';
+import { AuthService } from './auth.service';
 
 export interface BackendWordCard {
   id?: number;
@@ -24,6 +25,7 @@ export interface BackendWordCard {
   revealed?: boolean;
   grammar?: GrammarData;
   postponed?: boolean;
+  userId?: string;
 }
 
 
@@ -34,10 +36,12 @@ export class LexiconService {
 
   private apiUrl = 'http://localhost:3000/lexicon';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   getWordsByGalaxyAndSubtopic(galaxy: string, subtopic: string): Observable<BackendWordCard[]> {
-    return this.http.get<BackendWordCard[]>(`${this.apiUrl}?galaxy=${galaxy}&subtopic=${subtopic}`);
+    const currentUser = this.authService.getCurrentUser();
+    const userId = currentUser?.id || '';
+    return this.http.get<BackendWordCard[]>(`${this.apiUrl}?galaxy=${galaxy}&subtopic=${subtopic}&userId=${userId}`);
   }
 
   updateWordStatus(id: number, status: 'learned' | 'repeat' | 'error' | null): Observable<any> {
@@ -49,7 +53,13 @@ export class LexiconService {
   }
 
   addWord(card: BackendWordCard): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, card).pipe(
+    const currentUser = this.authService.getCurrentUser();
+    const cardWithUserId = {
+      ...card,
+      userId: currentUser?.id || null
+    };
+    
+    return this.http.post(`${this.apiUrl}`, cardWithUserId).pipe(
       catchError(err => {
         console.error('❌ Ошибка при добавлении слова:', err);
         return throwError(() => err);
@@ -58,7 +68,13 @@ export class LexiconService {
   }
 
   addMultipleWords(cards: BackendWordCard[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/bulk`, cards).pipe(
+    const currentUser = this.authService.getCurrentUser();
+    const cardsWithUserId = cards.map(card => ({
+      ...card,
+      userId: currentUser?.id || null
+    }));
+    
+    return this.http.post(`${this.apiUrl}/bulk`, cardsWithUserId).pipe(
       catchError(err => {
         console.error('❌ Ошибка при множественном добавлении слов:', err);
         return throwError(() => err);
@@ -86,6 +102,18 @@ export class LexiconService {
         return throwError(() => err);
       })
     );
+  }
+
+  getLearnedWordsCount(): Observable<{ count: number }> {
+    const currentUser = this.authService.getCurrentUser();
+    const userId = currentUser?.id;
+    
+    if (!userId) {
+      console.warn('⚠️ Нет текущего пользователя для получения статистики');
+      return throwError(() => new Error('Пользователь не аутентифицирован'));
+    }
+    
+    return this.http.get<{ count: number }>(`${this.apiUrl}/learned/count/${userId}`);
   }
 
 }

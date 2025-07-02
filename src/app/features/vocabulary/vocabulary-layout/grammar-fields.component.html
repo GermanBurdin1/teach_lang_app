@@ -1,6 +1,6 @@
 <div *ngIf="grammar" class="grammar-fields">
   <div class="grammar-fields__section">
-    <label class="grammar-fields__label">Часть речи:
+    <label class="grammar-fields__label">Partie du discours :
       <select class="grammar-fields__select" [(ngModel)]="grammar!.partOfSpeech"
         (ngModelChange)="onPartOfSpeechSelect($event)">
         <option *ngFor="let option of partOfSpeechOptions" [value]="option">{{ option }}</option>
@@ -10,165 +10,165 @@
 
   <ng-container [ngSwitch]="grammar.partOfSpeech">
 
-    <!-- Существительное -->
+    <!-- Nom -->
     <ng-container *ngSwitchCase="'noun'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Род:
+        <label class="grammar-fields__label">Genre :
           <select class="grammar-fields__select" [ngModel]="noun?.gender"
             (ngModelChange)="updateField('gender', $event)">
             <option [value]="undefined">—</option>
-            <option value="masculine">мужской</option>
-            <option value="feminine">женский</option>
-            <option value="neuter">средний</option>
+            <option value="masculine">masculin</option>
+            <option value="feminine">féminin</option>
+            <option value="neuter">neutre</option>
           </select>
         </label>
-        <label class="grammar-fields__label">Число:
+        <label class="grammar-fields__label">Nombre :
           <select class="grammar-fields__select" [ngModel]="noun?.number"
             (ngModelChange)="updateField('number', $event)">
             <option [value]="undefined">—</option>
-            <option value="singular">единственное</option>
-            <option value="plural">множественное</option>
+            <option value="singular">singulier</option>
+            <option value="plural">pluriel</option>
           </select>
         </label>
         <label class="grammar-fields__checkbox-label" *ngIf="noun">
           <input class="grammar-fields__checkbox" type="checkbox" [(ngModel)]="noun.isProper"
             (ngModelChange)="updateField('isProper', $event)" />
-          Имя собственное
+          Nom propre
         </label>
       </div>
     </ng-container>
 
-    <!-- Глагол -->
+    <!-- Verbe -->
     <ng-container *ngSwitchCase="'verb'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Переходность:
+        <label class="grammar-fields__label">Transitivité :
           <select class="grammar-fields__select" [ngModel]="verb?.transitivity"
             (ngModelChange)="updateField('transitivity', $event)">
             <option [value]="undefined">—</option>
-            <option value="transitive">переходный</option>
-            <option value="intransitive">непереходный</option>
+            <option value="transitive">transitif</option>
+            <option value="intransitive">intransitif</option>
           </select>
         </label>
       </div>
     </ng-container>
 
-    <!-- Прилагательное -->
+    <!-- Adjectif -->
     <ng-container *ngSwitchCase="'adjective'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Степень сравнения:
+        <label class="grammar-fields__label">Degré de comparaison :
           <select class="grammar-fields__select" [ngModel]="adjective?.comparison"
             (ngModelChange)="updateField('comparison', $event)">
             <option [value]="undefined">—</option>
-            <option value="positive">положительная</option>
-            <option value="comparative">сравнительная</option>
-            <option value="superlative">превосходная</option>
+            <option value="positive">positif</option>
+            <option value="comparative">comparatif</option>
+            <option value="superlative">superlatif</option>
           </select>
         </label>
       </div>
     </ng-container>
 
-    <!-- Наречие -->
+    <!-- Adverbe -->
     <ng-container *ngSwitchCase="'adverb'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Степень сравнения:
+        <label class="grammar-fields__label">Degré de comparaison :
           <select class="grammar-fields__select" [ngModel]="adverb?.comparison"
             (ngModelChange)="updateField('comparison', $event)">
             <option [value]="undefined">—</option>
-            <option value="positive">положительная</option>
-            <option value="comparative">сравнительная</option>
-            <option value="superlative">превосходная</option>
+            <option value="positive">positif</option>
+            <option value="comparative">comparatif</option>
+            <option value="superlative">superlatif</option>
           </select>
         </label>
       </div>
     </ng-container>
 
-    <!-- Местоимение -->
+    <!-- Pronom -->
     <ng-container *ngSwitchCase="'pronoun'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Лицо:
+        <label class="grammar-fields__label">Personne :
           <select class="grammar-fields__select" [ngModel]="pronoun?.person"
             (ngModelChange)="updateField('person', $event)">
             <option [value]="undefined">—</option>
-            <option [value]="1">1 лицо</option>
-            <option [value]="2">2 лицо</option>
-            <option [value]="3">3 лицо</option>
+            <option [value]="1">1ère personne</option>
+            <option [value]="2">2ème personne</option>
+            <option [value]="3">3ème personne</option>
           </select>
         </label>
-        <label class="grammar-fields__label">Род:
+        <label class="grammar-fields__label">Genre :
           <select class="grammar-fields__select" [ngModel]="pronoun?.gender"
             (ngModelChange)="updateField('gender', $event)">
             <option [value]="undefined">—</option>
-            <option value="masculine">мужской</option>
-            <option value="feminine">женский</option>
-            <option value="neuter">средний</option>
+            <option value="masculine">masculin</option>
+            <option value="feminine">féminin</option>
+            <option value="neuter">neutre</option>
           </select>
         </label>
-        <label class="grammar-fields__label">Число:
+        <label class="grammar-fields__label">Nombre :
           <select class="grammar-fields__select" [ngModel]="pronoun?.number"
             (ngModelChange)="updateField('number', $event)">
             <option [value]="undefined">—</option>
-            <option value="singular">единственное</option>
-            <option value="plural">множественное</option>
+            <option value="singular">singulier</option>
+            <option value="plural">pluriel</option>
           </select>
         </label>
-        <label class="grammar-fields__label">Тип:
+        <label class="grammar-fields__label">Type :
           <select class="grammar-fields__select" [ngModel]="pronoun?.type"
             (ngModelChange)="updateField('type', $event)">
             <option [value]="undefined">—</option>
-            <option value="personal">личное</option>
-            <option value="possessive">притяжательное</option>
-            <option value="reflexive">возвратное</option>
-            <option value="demonstrative">указательное</option>
-            <option value="interrogative">вопросительное</option>
-            <option value="relative">относительное</option>
-            <option value="indefinite">неопределённое</option>
+            <option value="personal">personnel</option>
+            <option value="possessive">possessif</option>
+            <option value="reflexive">réfléchi</option>
+            <option value="demonstrative">démonstratif</option>
+            <option value="interrogative">interrogatif</option>
+            <option value="relative">relatif</option>
+            <option value="indefinite">indéfini</option>
           </select>
         </label>
       </div>
     </ng-container>
 
-    <!-- Союз -->
+    <!-- Conjonction -->
     <ng-container *ngSwitchCase="'conjunction'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Тип:
+        <label class="grammar-fields__label">Type :
           <select class="grammar-fields__select" [ngModel]="conjunction?.type"
             (ngModelChange)="updateField('type', $event)">
             <option [value]="undefined">—</option>
-            <option value="coordinating">сочинительный</option>
-            <option value="subordinating">подчинительный</option>
-            <option value="correlative">сопряжённый</option>
+            <option value="coordinating">coordination</option>
+            <option value="subordinating">subordination</option>
+            <option value="correlative">corrélative</option>
           </select>
         </label>
       </div>
     </ng-container>
 
-    <!-- Междометие -->
+    <!-- Interjection -->
     <ng-container *ngSwitchCase="'interjection'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Тип эмоции:
+        <label class="grammar-fields__label">Type d'émotion :
           <input class="grammar-fields__input" [ngModel]="interjection?.emotionType"
-            (ngModelChange)="updateField('emotionType', $event)" placeholder="например: удивление" />
+            (ngModelChange)="updateField('emotionType', $event)" placeholder="par exemple : surprise" />
         </label>
       </div>
     </ng-container>
 
-    <!-- Выражение -->
+    <!-- Expression -->
     <ng-container *ngSwitchCase="'expression'">
-      <label>Тип выражения:
+      <label>Type d'expression :
         <select [ngModel]="expression?.expressionType" (ngModelChange)="updateField('expressionType', $event)">
           <option [value]="undefined">—</option>
-          <option value="idiom">Идиома</option>
-          <option value="proverb">Пословица</option>
-          <option value="saying">Поговорка</option>
-          <option value="collocation">Устойчивое сочетание</option>
-          <option value="quote">Цитата</option>
-          <option value="other">Другое</option>
+          <option value="idiom">Idiome</option>
+          <option value="proverb">Proverbe</option>
+          <option value="saying">Dicton</option>
+          <option value="collocation">Expression figée</option>
+          <option value="quote">Citation</option>
+          <option value="other">Autre</option>
         </select>
       </label>
 
-      <label>Происхождение (необязательно):
+      <label>Origine (facultatif) :
         <input [ngModel]="expression?.origin" (ngModelChange)="updateField('origin', $event)"
-          placeholder="например: французская пословица" />
+          placeholder="par exemple : proverbe français" />
       </label>
     </ng-container>
 

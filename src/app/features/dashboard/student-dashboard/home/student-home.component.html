@@ -132,8 +132,22 @@
 
     <div class="stats-block">
       <h3>📊 Statistiques</h3>
-      <ul>
-        <li>Jours actifs: {{ stats.daysActive }}</li>
+      
+      <div *ngIf="loadingStats" class="loading-stats">
+        <mat-spinner diameter="20"></mat-spinner>
+        <span>Chargement...</span>
+      </div>
+      
+      <ul *ngIf="!loadingStats">
+        <li>
+          Jours actifs: {{ stats.daysActive }}
+          <mat-icon 
+            class="info-icon" 
+            matTooltip="Les jours actifs représentent le nombre de jours différents où vous vous êtes connecté(e) à la plateforme. Cela montre votre régularité d'apprentissage."
+            matTooltipPosition="right">
+            info_outline
+          </mat-icon>
+        </li>
         <li>Leçons terminées: {{ stats.lessonsCompleted }}</li>
         <li>Mots appris: {{ stats.wordsLearned }}</li>
       </ul>

@@ -645,3 +645,40 @@ mat-dialog-actions {
   flex-direction: column;
   gap: 12px;
 }
+
+/* ───────── STATISTICS STYLES ───────── */
+
+.loading-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  justify-content: center;
+}
+
+.loading-stats span {
+  font-size: 14px;
+  color: #666;
+}
+
+.stats-block li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.info-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #757575;
+  cursor: help;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.info-icon:hover {
+  opacity: 1;
+  color: #3f51b5;
+}
