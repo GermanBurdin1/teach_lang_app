@@ -58,34 +58,34 @@ export class WordsComponent {
   isFromGalaxyShortcut: boolean = false;
   galaxies = [
     {
-      name: 'Кругозор',
-      sanitizedName: 'Кругозор'.replace(/\s+/g, '-'), // Убираем пробелы для id
-      subtopics: this.generateSubtopics(6, ['История', 'Наука', 'Искусство', 'Философия', 'Технологии', 'Культура'])
+      name: 'Galaxie Érudition',
+      sanitizedName: 'Galaxie-Érudition'.replace(/\s+/g, '-'), // Убираем пробелы для id
+      subtopics: this.generateSubtopics(6, ['Histoire', 'Science', 'Art', 'Philosophie', 'Technologies', 'Culture'])
     },
     {
-      name: 'Социальные связи',
-      sanitizedName: 'Социальные-связи'.replace(/\s+/g, '-'),
-      subtopics: this.generateSubtopics(5, ['Семья', 'Друзья', 'Работа', 'Социальные сети', 'Коммуникация'])
+      name: 'Galaxie Relations',
+      sanitizedName: 'Galaxie-Relations'.replace(/\s+/g, '-'),
+      subtopics: this.generateSubtopics(5, ['Famille', 'Amis', 'Travail', 'Réseaux sociaux', 'Communication'])
     },
     {
-      name: 'Работа и карьера',
-      sanitizedName: 'Работа-и-карьера'.replace(/\s+/g, '-'),
-      subtopics: this.generateSubtopics(4, ['Вакансии', 'Навыки', 'Резюме', 'Собеседование'])
+      name: 'Galaxie Carrière',
+      sanitizedName: 'Galaxie-Carrière'.replace(/\s+/g, '-'),
+      subtopics: this.generateSubtopics(4, ['Emplois', 'Compétences', 'CV', 'Entretien'])
     },
     {
-      name: 'Предметы',
-      sanitizedName: 'Предметы'.replace(/\s+/g, '-'),
-      subtopics: this.generateSubtopics(6, ['Мебель', 'Техника', 'Инструменты', 'Одежда', 'Украшения', 'Игрушки'])
+      name: 'Galaxie Objets',
+      sanitizedName: 'Galaxie-Objets'.replace(/\s+/g, '-'),
+      subtopics: this.generateSubtopics(6, ['Meubles', 'Technologie', 'Outils', 'Vêtements', 'Bijoux', 'Jouets'])
     },
     {
-      name: 'Медицина и здоровье',
-      sanitizedName: 'Медицина-и-здоровье'.replace(/\s+/g, '-'),
-      subtopics: this.generateSubtopics(5, ['Болезни', 'Лечение', 'Профилактика', 'Здоровый образ жизни', 'Аптеки'])
+      name: 'Galaxie Santé',
+      sanitizedName: 'Galaxie-Santé'.replace(/\s+/g, '-'),
+      subtopics: this.generateSubtopics(5, ['Maladies', 'Traitement', 'Prévention', 'Mode de vie sain', 'Pharmacies'])
     },
     {
-      name: 'Ситуации и события',
-      sanitizedName: 'Ситуации-и-события'.replace(/\s+/g, '-'),
-      subtopics: this.generateSubtopics(4, ['Праздники', 'Катастрофы', 'Спорт', 'Политика'])
+      name: 'Galaxie Événements',
+      sanitizedName: 'Galaxie-Événements'.replace(/\s+/g, '-'),
+      subtopics: this.generateSubtopics(4, ['Fêtes', 'Catastrophes', 'Sport', 'Politique'])
     }
   ];
   zoomedGalaxy: any = null;
