@@ -49,7 +49,8 @@
   position: fixed;
   left: 0;
   top: 0;
-  height: 100vh;
+  height: 26vh;
+  border-radius: 0 16px 16px 0;
   width: 60px; /* Collapsed width - only icons */
   background: transparent;
   transition: width 0.3s ease, box-shadow 0.3s ease;
@@ -89,7 +90,7 @@
 .sidebar:not(.collapsed) .teacher-menu,
 .sidebar:not(.collapsed) .student-menu,
 .sidebar:not(.collapsed) .school-menu {
-  width: 260px; /* Full menu width when expanded */
+  width: 270px; /* Full menu width when expanded */
   padding: 1.5rem 1rem;
   border-left: 1px solid var(--sidebar-border);
   border-radius: 0 16px 16px 0;
