@@ -773,9 +773,7 @@ body.dark-theme .table-striped tbody tr:nth-of-type(odd) {
 
 /* Sidebar main container */
 body.dark-theme .sidebar {
-  background: rgba(15, 15, 35, 0.98) !important;
-  border-right: 1px solid rgba(78, 205, 196, 0.2) !important;
-  box-shadow: 4px 0 20px rgba(78, 205, 196, 0.15) !important;
+  background: transparent !important;
 }
 
 /* Menu containers */
@@ -784,20 +782,28 @@ body.dark-theme .student-menu,
 body.dark-theme .school-menu {
   background: rgba(26, 26, 46, 0.8) !important;
   border: 1px solid rgba(78, 205, 196, 0.2) !important;
-  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.15) !important;
+  border-left: none !important;
+  box-shadow: 4px 0 16px rgba(78, 205, 196, 0.15) !important;
+}
+
+/* Expanded menu state in dark theme */
+body.dark-theme .sidebar:not(.collapsed) .teacher-menu,
+body.dark-theme .sidebar:not(.collapsed) .student-menu,
+body.dark-theme .sidebar:not(.collapsed) .school-menu {
+  border-left: 1px solid rgba(78, 205, 196, 0.2) !important;
 }
 
 /* Menu role-specific borders */
 body.dark-theme .teacher-menu {
-  border-left: 4px solid #fbbf24 !important;
+  border-right: 4px solid #fbbf24 !important;
 }
 
 body.dark-theme .student-menu {
-  border-left: 4px solid #ff6b6b !important;
+  border-right: 4px solid #ff6b6b !important;
 }
 
 body.dark-theme .school-menu {
-  border-left: 4px solid #4ecdc4 !important;
+  border-right: 4px solid #4ecdc4 !important;
 }
 
 /* Tab buttons */
@@ -845,9 +851,9 @@ body.dark-theme .school-tab.router-link-active mat-icon {
   color: #45b7d1 !important;
 }
 
-/* Sidebar scrollbar */
-body.dark-theme .sidebar::-webkit-scrollbar-thumb {
-  background: #4ecdc4 !important;
+/* Tab text in dark theme */
+body.dark-theme .tab-text {
+  color: #f9fafb !important;
 }
 
 /* Legacy sidebar elements */
