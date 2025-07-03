@@ -51,7 +51,7 @@
   top: 0;
   height: 26vh;
   border-radius: 0 16px 16px 0;
-  width: 60px; /* Collapsed width - only icons */
+  width: 50px; /* Collapsed width - only icons */
   background: transparent;
   transition: width 0.3s ease, box-shadow 0.3s ease;
   z-index: 1000;
@@ -71,7 +71,7 @@
   top: 50%;
   left: 0;
   transform: translateY(-50%);
-  width: 60px; /* Collapsed: only show icon area */
+  width: 50px; /* Collapsed: only show icon area */
   display: flex;
   flex-direction: column;
   gap: 8px;
