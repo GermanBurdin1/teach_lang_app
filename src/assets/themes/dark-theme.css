@@ -767,4 +767,118 @@ body.dark-theme .table-striped tbody tr:nth-of-type(odd) {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* ===== SIDEBAR DARK THEME OVERRIDES ===== */
+
+/* Sidebar main container */
+body.dark-theme .sidebar {
+  background: rgba(15, 15, 35, 0.98) !important;
+  border-right: 1px solid rgba(78, 205, 196, 0.2) !important;
+  box-shadow: 4px 0 20px rgba(78, 205, 196, 0.15) !important;
+}
+
+/* Menu containers */
+body.dark-theme .teacher-menu,
+body.dark-theme .student-menu,
+body.dark-theme .school-menu {
+  background: rgba(26, 26, 46, 0.8) !important;
+  border: 1px solid rgba(78, 205, 196, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.15) !important;
+}
+
+/* Menu role-specific borders */
+body.dark-theme .teacher-menu {
+  border-left: 4px solid #fbbf24 !important;
+}
+
+body.dark-theme .student-menu {
+  border-left: 4px solid #ff6b6b !important;
+}
+
+body.dark-theme .school-menu {
+  border-left: 4px solid #4ecdc4 !important;
+}
+
+/* Tab buttons */
+body.dark-theme .teacher-tab,
+body.dark-theme .student-tab,
+body.dark-theme .school-tab {
+  color: #f9fafb !important;
+}
+
+body.dark-theme .teacher-tab:hover,
+body.dark-theme .student-tab:hover,
+body.dark-theme .school-tab:hover {
+  background: rgba(78, 205, 196, 0.1) !important;
+  border-color: #4ecdc4 !important;
+  color: #4ecdc4 !important;
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.15) !important;
+}
+
+body.dark-theme .teacher-tab.router-link-active,
+body.dark-theme .student-tab.router-link-active,
+body.dark-theme .school-tab.router-link-active {
+  background: rgba(78, 205, 196, 0.15) !important;
+  border-color: #4ecdc4 !important;
+  color: #4ecdc4 !important;
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.15) !important;
+}
+
+/* Tab icons */
+body.dark-theme .teacher-tab mat-icon,
+body.dark-theme .student-tab mat-icon,
+body.dark-theme .school-tab mat-icon {
+  color: #4ecdc4 !important;
+  filter: drop-shadow(0 2px 4px rgba(78, 205, 196, 0.3)) !important;
+}
+
+body.dark-theme .teacher-tab:hover mat-icon,
+body.dark-theme .student-tab:hover mat-icon,
+body.dark-theme .school-tab:hover mat-icon {
+  color: #45b7d1 !important;
+}
+
+body.dark-theme .teacher-tab.router-link-active mat-icon,
+body.dark-theme .student-tab.router-link-active mat-icon,
+body.dark-theme .school-tab.router-link-active mat-icon {
+  color: #45b7d1 !important;
+}
+
+/* Sidebar scrollbar */
+body.dark-theme .sidebar::-webkit-scrollbar-thumb {
+  background: #4ecdc4 !important;
+}
+
+/* Legacy sidebar elements */
+body.dark-theme .side-menu {
+  background-color: rgba(15, 15, 35, 0.98) !important;
+  border-right: 1px solid rgba(78, 205, 196, 0.2) !important;
+}
+
+body.dark-theme .uc-menu-item {
+  border-bottom: 1px solid rgba(78, 205, 196, 0.2) !important;
+  color: #f9fafb !important;
+}
+
+body.dark-theme .uc-menu-item:hover {
+  background: rgba(78, 205, 196, 0.1) !important;
+  color: #4ecdc4 !important;
+}
+
+body.dark-theme .uc-menu-icon {
+  color: #4ecdc4 !important;
+}
+
+body.dark-theme .soon {
+  color: #ff6b6b !important;
+}
+
+/* Sidebar tooltips in dark theme */
+body.dark-theme .mat-mdc-tooltip {
+  background: rgba(26, 26, 46, 0.9) !important;
+  color: #f9fafb !important;
+  border: 1px solid rgba(78, 205, 196, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.15) !important;
 } 
