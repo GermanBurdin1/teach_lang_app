@@ -40,6 +40,7 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  /* background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold)); */
 }
 
 .tabs button::before {
@@ -49,19 +50,18 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
-  opacity: 0;
+  opacity: 0.1;
   transition: opacity 0.3s ease;
   z-index: 0;
 }
 
 .tabs button.active {
-  color: white;
   font-weight: 600;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .tabs button.active::before {
+  color: var(--text-secondary);
   opacity: 1;
 }
 
@@ -71,6 +71,11 @@
 }
 
 .tabs button:hover:not(.active) {
+  background: var(--hover-bg);
+  color: var(--stellar-purple);
+}
+
+.tabs button:hover {
   background: var(--hover-bg);
   color: var(--stellar-purple);
 }
