@@ -1,16 +1,18 @@
 <div class="admin-users-management">
   <div class="page-header">
-    <h1 class="page-title">
-      <i class="fas fa-users galaxy-icon"></i>
-      Gestion des utilisateurs
-    </h1>
-    <p class="page-subtitle">Statistiques d'inscription des nouveaux utilisateurs</p>
+    <div class="page-title-container">
+      <i class="fas fa-user-astronaut galaxy-icon"></i>
+      <div class="title-text">
+        <h1 class="page-title">Gestion des utilisateurs</h1>
+        <p class="page-subtitle">Statistiques d'inscription des nouveaux utilisateurs</p>
+      </div>
+    </div>
   </div>
 
   <!-- Sélecteur de mois -->
   <div class="month-selector">
     <label for="monthSelect" class="selector-label">
-      <i class="fas fa-calendar-alt"></i>
+      <i class="fas fa-calendar-star"></i>
       Période d'analyse:
     </label>
     <select 
@@ -28,7 +30,7 @@
   <div class="stats-grid">
     <div class="stat-card student-card">
       <div class="stat-icon">
-        <i class="fas fa-graduation-cap"></i>
+        <i class="fas fa-rocket"></i>
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ loading ? '...' : userStats.newStudents }}</div>
@@ -40,7 +42,7 @@
 
     <div class="stat-card teacher-card">
       <div class="stat-icon">
-        <i class="fas fa-chalkboard-teacher"></i>
+        <i class="fas fa-satellite"></i>
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ loading ? '...' : userStats.newTeachers }}</div>
@@ -52,7 +54,7 @@
 
     <div class="stat-card total-card">
       <div class="stat-icon">
-        <i class="fas fa-user-plus"></i>
+        <i class="fas fa-meteor"></i>
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ loading ? '...' : userStats.totalNew }}</div>
@@ -66,14 +68,14 @@
   <!-- Section d'analyse -->
   <div class="analysis-section">
     <h2 class="section-title">
-      <i class="fas fa-chart-line"></i>
+      <i class="fas fa-chart-area"></i>
       Analyse des inscriptions
     </h2>
     
     <div class="analysis-cards">
       <div class="analysis-card">
         <div class="analysis-header">
-          <i class="fas fa-percentage"></i>
+          <i class="fas fa-pie-chart"></i>
           <span>Répartition des rôles</span>
         </div>
         <div class="ratio-display" *ngIf="userStats.totalNew > 0">
@@ -95,14 +97,14 @@
           </div>
         </div>
         <div class="no-data" *ngIf="userStats.totalNew === 0">
-          <i class="fas fa-info-circle"></i>
+          <i class="fas fa-satellite-dish"></i>
           Aucune inscription ce mois-ci
         </div>
       </div>
 
       <div class="analysis-card">
         <div class="analysis-header">
-          <i class="fas fa-trend-up"></i>
+          <i class="fas fa-space-shuttle"></i>
           <span>Tendance générale</span>
         </div>
         <div class="trend-info">
@@ -117,7 +119,7 @@
           </div>
           <div class="trend-description">
             <p *ngIf="userStats.newStudents > userStats.newTeachers * 3" class="trend-positive">
-              <i class="fas fa-arrow-up"></i>
+              <i class="fas fa-rocket"></i>
               Forte demande d'étudiants, croissance saine
             </p>
             <p *ngIf="userStats.newStudents <= userStats.newTeachers * 3 && userStats.newStudents > 0" class="trend-neutral">
@@ -137,20 +139,20 @@
   <!-- Actions rapides -->
   <div class="quick-actions">
     <h3 class="actions-title">
-      <i class="fas fa-bolt"></i>
+      <i class="fas fa-star"></i>
       Actions rapides
     </h3>
     <div class="action-buttons">
       <button class="action-btn export-btn">
-        <i class="fas fa-download"></i>
+        <i class="fas fa-satellite-dish"></i>
         Exporter les données
       </button>
       <button class="action-btn chart-btn" (click)="loadLastMonthsData()">
-        <i class="fas fa-chart-bar"></i>
+        <i class="fas fa-chart-line"></i>
         Voir l'évolution
       </button>
       <button class="action-btn refresh-btn" (click)="loadUserStats()">
-        <i class="fas fa-sync-alt"></i>
+        <i class="fas fa-redo"></i>
         Actualiser
       </button>
     </div>
