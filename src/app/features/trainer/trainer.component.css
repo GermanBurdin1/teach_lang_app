@@ -1,7 +1,9 @@
 /* ==================== MAIN CONTAINER ==================== */
 .trainer-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: 
+    linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)),
+    linear-gradient(135deg, var(--galaxy-primary) 0%, var(--stellar-purple) 100%);
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -818,11 +820,11 @@ select.form-control {
 
 .delete-btn {
   background: #fed7d7;
-  color: #e53e3e;
+  color: --nebula-pink;
 }
 
 .delete-btn:hover {
-  background: #e53e3e;
+  background: --nebula-pink;
   color: white;
 }
 
@@ -1542,9 +1544,9 @@ input[type="checkbox"]:checked + .checkmark::after {
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  background: var(--glass-bg);
   border-radius: 12px;
-  border: 1px solid #ce93d8;
+  border: 1px solid var(--border-color);
 }
 
 .audio-player {
@@ -1555,7 +1557,7 @@ input[type="checkbox"]:checked + .checkmark::after {
 }
 
 .audio-player::-webkit-media-controls-panel {
-  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+  background: var(--glass-bg);
   border-radius: 8px;
 }
 
