@@ -1,4 +1,4 @@
-<div class="sidebar">
+<div class="sidebar" [class.collapsed]="!isExpanded" (mouseenter)="expandSidebar()" (mouseleave)="collapseSidebar()">
   <!-- Приоритет: преподаватель > школа > ученик -->
   <ng-container *ngIf="isTeacherDashboard; else checkSchool">
     <ng-container *ngTemplateOutlet="teacherDashboard"></ng-container>
@@ -16,27 +16,27 @@
       <!-- 🆕 Главная вкладка -->
       <!-- <a mat-button routerLink="admin/home" class="school-tab" matTooltip="Tableau de bord">
         <mat-icon>dashboard</mat-icon>
-        <span>Accueil</span>
+        <span class="tab-text">Accueil</span>
       </a> -->
 
       <a mat-button routerLink="admin/gestion-utilisateurs" class="school-tab" matTooltip="Gestion des utilisateurs">
         <mat-icon>groups</mat-icon>
-        <span>Gestion des utilisateurs</span>
+        <span class="tab-text">Gestion des utilisateurs</span>
       </a>
 
       <a mat-button routerLink="admin/gestion-cours" class="school-tab" matTooltip="Gestion des cours et statistiques">
         <mat-icon>school</mat-icon>
-        <span>Gestion des cours</span>
+        <span class="tab-text">Gestion des cours</span>
       </a>
 
       <a mat-button routerLink="admin/analytique-plateforme" class="school-tab" matTooltip="Analytique et santé de la plateforme">
         <mat-icon>analytics</mat-icon>
-        <span>Analytique plateforme</span>
+        <span class="tab-text">Analytique plateforme</span>
       </a>
 
       <a mat-button routerLink="school/settings" class="school-tab" matTooltip="Paramètres du système">
         <mat-icon>settings</mat-icon>
-        <span>Paramètres</span>
+        <span class="tab-text">Paramètres</span>
       </a>
 
     </nav>
@@ -47,41 +47,41 @@
     <nav class="student-menu">
       <a mat-button routerLink="student/home" class="student-tab" matTooltip="Mon profil">
         <mat-icon>home</mat-icon>
-        <span>Accueil</span>
+        <span class="tab-text">Accueil</span>
       </a>
       <a mat-button routerLink="/lessons/student" class="student-tab" matTooltip="Gestion des leçons">
         <mat-icon>library_books</mat-icon>
-        <span>Leçons</span>
+        <span class="tab-text">Leçons</span>
       </a>
 
       <a mat-button routerLink="student/teachers" class="student-tab" matTooltip="Choisir un professeur">
         <mat-icon>school</mat-icon>
-        <span>Professeurs</span>
+        <span class="tab-text">Professeurs</span>
       </a>
 
       <a mat-button routerLink="student/sent-requests" class="student-tab" matTooltip="Mes demandes envoyées">
         <mat-icon>send</mat-icon>
-        <span>Mes demandes</span>
+        <span class="tab-text">Mes demandes</span>
       </a>
 
       <a mat-button routerLink="student/wordsTeaching" class="student-tab" matTooltip="Vocabulaire et expressions">
         <mat-icon>menu_book</mat-icon>
-        <span>Lexique</span>
+        <span class="tab-text">Lexique</span>
       </a>
 
       <a mat-button routerLink="/mindmap" class="student-tab" matTooltip="Carte mentale">
         <mat-icon>device_hub</mat-icon>
-        <span>Carte mentale</span>
+        <span class="tab-text">Carte mentale</span>
       </a>
 
       <a mat-button routerLink="student/trainer" class="student-tab" matTooltip="S'entraîner aux examens">
         <mat-icon>headset</mat-icon>
-        <span>Entraînement</span>
+        <span class="tab-text">Entraînement</span>
       </a>
 
-      <a mat-button routerLink="student/settings" class="student-tab" matTooltip="Paramètres de l’école">
+      <a mat-button routerLink="student/settings" class="student-tab" matTooltip="Paramètres de l'école">
         <mat-icon>settings</mat-icon>
-        <span>Paramètres</span>
+        <span class="tab-text">Paramètres</span>
       </a>
 
     </nav>
@@ -91,38 +91,38 @@
   <ng-template #teacherDashboard>
     <nav class="teacher-menu">
 
-      <a mat-button routerLink="teacher/home" class="teacher-tab" matTooltip="Page d’accueil">
+      <a mat-button routerLink="teacher/home" class="teacher-tab" matTooltip="Page d'accueil">
         <mat-icon>home</mat-icon>
-        <span>Accueil</span>
+        <span class="tab-text">Accueil</span>
       </a>
       <a mat-button routerLink="/lessons/teacher" class="teacher-tab" matTooltip="Gestion des leçons">
         <mat-icon>library_books</mat-icon>
-        <span>Leçons</span>
+        <span class="tab-text">Leçons</span>
       </a>
 
       <a mat-button routerLink="teacher/profile" class="teacher-tab" matTooltip="Gestion des étudiants">
         <mat-icon>group</mat-icon>
-        <span>Étudiants</span>
+        <span class="tab-text">Étudiants</span>
       </a>
 
       <a mat-button routerLink="teacher/wordsTeaching" class="teacher-tab" matTooltip="Vocabulaire et expressions">
         <mat-icon>school</mat-icon>
-        <span>Lexique</span>
+        <span class="tab-text">Lexique</span>
       </a>
 
       <a mat-button routerLink="/mindmap" class="teacher-tab" matTooltip="Carte mentale">
         <mat-icon>device_hub</mat-icon>
-        <span>Carte mentale</span>
+        <span class="tab-text">Carte mentale</span>
       </a>
 
       <a mat-button routerLink="teacher/settings" class="teacher-tab" matTooltip="Paramètres du compte">
         <mat-icon>settings</mat-icon>
-        <span>Paramètres</span>
+        <span class="tab-text">Paramètres</span>
       </a>
 
       <a mat-button routerLink="teacher/trainer" class="teacher-tab" matTooltip="Exercices d'entraînement">
         <mat-icon>headset</mat-icon>
-        <span>Entraînement</span>
+        <span class="tab-text">Entraînement</span>
       </a>
 
     </nav>
@@ -134,11 +134,11 @@
 <!-- pour écoles en ligne
     <a mat-button routerLink="school/tariffs" class="school-tab" matTooltip="Tarification et abonnements">
       <mat-icon>attach_money</mat-icon>
-      <span>Tarifs</span>
+      <span class="tab-text">Tarifs</span>
     </a> -->
 
 <!-- pour écoles en ligne
     <a mat-button routerLink="school/marathons" class="school-tab" matTooltip="Organisation des marathons">
       <mat-icon>directions_run</mat-icon>
-      <span>Marathons</span>
+      <span class="tab-text">Marathons</span>
     </a> -->

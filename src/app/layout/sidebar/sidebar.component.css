@@ -44,58 +44,55 @@
   padding: 0;
 }
 
+/* Main sidebar container - minimal styling, let content control size */
 .sidebar {
-  background: var(--sidebar-bg);
-  min-width: 280px;
-  width: 280px;
-  display: flex;
-  flex-direction: column;
-  backdrop-filter: blur(10px);
-  border-right: 1px solid var(--sidebar-border);
-  box-shadow: 4px 0 20px var(--sidebar-shadow);
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 1000;
-  transition: all 0.3s ease;
-  overflow-y: auto;
-  padding: 1rem;
-}
-
-/* Scrollbar styling */
-.sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-track {
+  height: 100vh;
+  width: 60px; /* Collapsed width - only icons */
   background: transparent;
+  transition: width 0.3s ease, box-shadow 0.3s ease;
+  z-index: 1000;
+  overflow: visible;
 }
 
-.sidebar::-webkit-scrollbar-thumb {
-  background: var(--sidebar-icon-color);
-  border-radius: 3px;
-  opacity: 0.6;
-}
-
-.sidebar::-webkit-scrollbar-thumb:hover {
-  opacity: 1;
+/* Expanded sidebar */
+.sidebar:not(.collapsed) {
+  width: 280px; /* Full width when expanded */
 }
 
 /* Menu base styles */
 .teacher-menu,
 .student-menu,
 .school-menu {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 60px; /* Collapsed: only show icon area */
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 1.5rem 1rem;
+  padding: 1rem 0.5rem;
   background: var(--sidebar-card-bg);
-  border-radius: 16px;
+  border-radius: 0 16px 16px 0;
   border: 1px solid var(--sidebar-border);
-  box-shadow: 0 4px 16px var(--sidebar-shadow);
+  border-left: none;
+  box-shadow: 4px 0 16px var(--sidebar-shadow);
   backdrop-filter: blur(8px);
-  position: relative;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Expanded menu state */
+.sidebar:not(.collapsed) .teacher-menu,
+.sidebar:not(.collapsed) .student-menu,
+.sidebar:not(.collapsed) .school-menu {
+  width: 260px; /* Full menu width when expanded */
+  padding: 1.5rem 1rem;
+  border-left: 1px solid var(--sidebar-border);
+  border-radius: 0 16px 16px 0;
 }
 
 /* Cosmic background pattern for menus */
@@ -113,6 +110,14 @@
     radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar:not(.collapsed) .teacher-menu::before,
+.sidebar:not(.collapsed) .student-menu::before,
+.sidebar:not(.collapsed) .school-menu::before {
+  opacity: 1;
 }
 
 .dark-theme .teacher-menu::before,
@@ -135,7 +140,7 @@
   font-weight: 500;
   border-radius: 12px;
   text-transform: none;
-  padding: 12px 16px;
+  padding: 12px;
   transition: all 0.3s ease;
   border: 1px solid transparent;
   position: relative;
@@ -143,6 +148,17 @@
   text-decoration: none;
   min-height: 48px;
   backdrop-filter: blur(4px);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Collapsed state: center icons */
+.sidebar.collapsed .teacher-tab,
+.sidebar.collapsed .student-tab,
+.sidebar.collapsed .school-tab {
+  justify-content: center;
+  padding: 12px 8px;
+  gap: 0;
 }
 
 .teacher-tab:hover,
@@ -153,6 +169,13 @@
   transform: translateX(4px);
   box-shadow: 0 4px 12px var(--sidebar-shadow);
   color: var(--sidebar-icon-color) !important;
+}
+
+/* Collapsed hover state */
+.sidebar.collapsed .teacher-tab:hover,
+.sidebar.collapsed .student-tab:hover,
+.sidebar.collapsed .school-tab:hover {
+  transform: translateX(2px);
 }
 
 /* Active/router-link-active states */
@@ -166,6 +189,13 @@
   transform: translateX(6px);
 }
 
+/* Collapsed active state */
+.sidebar.collapsed .teacher-tab.router-link-active,
+.sidebar.collapsed .student-tab.router-link-active,
+.sidebar.collapsed .school-tab.router-link-active {
+  transform: translateX(3px);
+}
+
 /* Icon styles */
 .teacher-tab mat-icon,
 .student-tab mat-icon,
@@ -176,6 +206,7 @@
   height: 20px !important;
   transition: all 0.3s ease;
   filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3));
+  flex-shrink: 0;
 }
 
 .dark-theme .teacher-tab mat-icon,
@@ -198,39 +229,47 @@
   transform: scale(1.05);
 }
 
-/* Text styles */
-.teacher-tab span,
-.student-tab span,
-.school-tab span {
+/* Text styles - hidden in collapsed state */
+.tab-text {
   font-size: 14px;
   font-weight: 500;
   color: inherit;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Hide text in collapsed state */
+.sidebar.collapsed .tab-text {
+  opacity: 0;
+  transform: translateX(-20px);
+  width: 0;
+  overflow: hidden;
 }
 
 /* Specific role styling variations */
 .teacher-menu {
-  border-left: 4px solid var(--cosmic-gold);
+  border-right: 4px solid var(--cosmic-gold);
 }
 
 .student-menu {
-  border-left: 4px solid var(--nebula-pink);
+  border-right: 4px solid var(--nebula-pink);
 }
 
 .school-menu {
-  border-left: 4px solid var(--galaxy-accent);
+  border-right: 4px solid var(--galaxy-accent);
 }
 
 .dark-theme .teacher-menu {
-  border-left-color: #fbbf24;
+  border-right-color: #fbbf24;
 }
 
 .dark-theme .student-menu {
-  border-left-color: #ff6b6b;
+  border-right-color: #ff6b6b;
 }
 
 .dark-theme .school-menu {
-  border-left-color: #4ecdc4;
+  border-right-color: #4ecdc4;
 }
 
 /* Legacy support for old styles */
@@ -298,45 +337,57 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .sidebar {
-    min-width: 260px;
-    width: 260px;
-    transform: translateX(-100%);
+    width: 50px;
   }
   
-  .sidebar.open {
-    transform: translateX(0);
+  .sidebar:not(.collapsed) {
+    width: 240px;
   }
   
-  .teacher-menu,
-  .student-menu,
-  .school-menu {
+  .sidebar:not(.collapsed) .teacher-menu,
+  .sidebar:not(.collapsed) .student-menu,
+  .sidebar:not(.collapsed) .school-menu {
+    width: 220px;
     padding: 1rem 0.75rem;
   }
   
   .teacher-tab,
   .student-tab,
   .school-tab {
-    padding: 10px 12px;
+    padding: 10px;
     gap: 10px;
   }
   
-  .teacher-tab span,
-  .student-tab span,
-  .school-tab span {
+  .sidebar.collapsed .teacher-tab,
+  .sidebar.collapsed .student-tab,
+  .sidebar.collapsed .school-tab {
+    padding: 10px 6px;
+  }
+  
+  .tab-text {
     font-size: 13px;
   }
 }
 
 @media (max-width: 480px) {
   .sidebar {
-    min-width: 240px;
-    width: 240px;
+    width: 45px;
+  }
+  
+  .sidebar:not(.collapsed) {
+    width: 220px;
   }
   
   .teacher-tab,
   .student-tab,
   .school-tab {
-    padding: 8px 10px;
+    padding: 8px;
+  }
+  
+  .sidebar.collapsed .teacher-tab,
+  .sidebar.collapsed .student-tab,
+  .sidebar.collapsed .school-tab {
+    padding: 8px 4px;
   }
 }
 

@@ -13,6 +13,9 @@ export class SidebarComponent implements OnInit {
   isTeacherDashboard = false;
   isStudentDashboard = false;
   private roleSub!: Subscription;
+  
+  // Sidebar collapse/expand functionality
+  isExpanded = false;
 
   constructor(
     private router: Router,
@@ -38,6 +41,16 @@ export class SidebarComponent implements OnInit {
 
   navigateTo(route: string): void {
     this.router.navigate([route], { relativeTo: this.route });
+  }
+
+  // Expand sidebar on hover
+  expandSidebar(): void {
+    this.isExpanded = true;
+  }
+
+  // Collapse sidebar when mouse leaves
+  collapseSidebar(): void {
+    this.isExpanded = false;
   }
 }
 
