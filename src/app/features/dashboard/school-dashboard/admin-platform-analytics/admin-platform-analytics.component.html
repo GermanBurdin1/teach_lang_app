@@ -1,7 +1,7 @@
 <div class="admin-platform-analytics">
   <!-- Header -->
   <div class="analytics-header">
-    <h1>📊 Analytique de la Plateforme</h1>
+    <h1>🚀 Analytique de la Plateforme</h1>
     <p>Vue d'ensemble de la santé et performance de votre plateforme éducative</p>
   </div>
 
@@ -10,7 +10,7 @@
     <!-- Sélecteur de mois -->
     <div class="month-selector">
       <label for="monthSelect" class="selector-label">
-        <i class="fas fa-calendar-alt"></i>
+        <i class="fas fa-calendar-star"></i>
         Période d'analyse:
       </label>
       <select 
@@ -25,7 +25,7 @@
     </div>
 
     <button class="action-button" (click)="refreshAll()">
-      <i class="fas fa-sync-alt"></i> Actualiser
+      <i class="fas fa-redo"></i> Actualiser
     </button>
   </div>
 
@@ -34,17 +34,17 @@
     <!-- Santé de la plateforme -->
     <div class="analytics-card health-card">
       <div class="card-header">
-        <i class="card-icon fas fa-heartbeat"></i>
+        <i class="card-icon fas fa-satellite"></i>
         <h3 class="card-title">Santé de la plateforme</h3>
       </div>
       <div class="health-indicator">
         <div class="health-status" [ngClass]="platformHealthClass">
           <div class="status-icon">
             <i class="fas" [ngClass]="{
-              'fa-heart': platformHealthClass === 'excellent',
-              'fa-thumbs-up': platformHealthClass === 'good',
-              'fa-hand-paper': platformHealthClass === 'average',
-              'fa-exclamation-triangle': platformHealthClass === 'poor'
+              'fa-star': platformHealthClass === 'excellent',
+              'fa-rocket': platformHealthClass === 'good',
+              'fa-satellite': platformHealthClass === 'average',
+              'fa-meteor': platformHealthClass === 'poor'
             }"></i>
           </div>
           <div class="status-text">{{ platformHealth }}</div>
@@ -65,7 +65,7 @@
     <!-- Activité mensuelle -->
     <div class="analytics-card monthly-activity-card">
       <div class="card-header">
-        <i class="card-icon fas fa-calendar-month"></i>
+        <i class="card-icon fas fa-moon"></i>
         <h3 class="card-title">Activité mensuelle</h3>
       </div>
              <div class="stats-grid">
@@ -85,7 +85,7 @@
     <!-- Engagement des utilisateurs -->
     <div class="analytics-card engagement-card">
       <div class="card-header">
-        <i class="card-icon fas fa-users-cog"></i>
+        <i class="card-icon fas fa-user-astronaut"></i>
         <h3 class="card-title">Engagement utilisateurs</h3>
       </div>
       <div class="stats-grid">
@@ -108,7 +108,7 @@
   <!-- Langues populaires -->
   <div class="insights-section">
     <h2 class="section-title">
-      <i class="fas fa-globe"></i>
+      <i class="fas fa-globe-americas"></i>
       Langues les plus étudiées
     </h2>
     <div class="insights-grid">
@@ -130,13 +130,13 @@
   <!-- Résumé des statistiques -->
   <div class="insights-section">
     <h2 class="section-title">
-      <i class="fas fa-chart-bar"></i>
+      <i class="fas fa-chart-area"></i>
       Résumé mensuel
     </h2>
     <div class="insights-grid">
       <div class="analytics-card">
         <div class="card-header">
-          <i class="card-icon fas fa-users"></i>
+          <i class="card-icon fas fa-rocket"></i>
           <h3 class="card-title">Utilisateurs</h3>
         </div>
         <div class="stats-grid">
@@ -153,7 +153,7 @@
 
       <div class="analytics-card">
         <div class="card-header">
-          <i class="card-icon fas fa-graduation-cap"></i>
+          <i class="card-icon fas fa-space-shuttle"></i>
           <h3 class="card-title">Cours</h3>
         </div>
         <div class="stats-grid">
@@ -177,7 +177,7 @@
   <!-- Recommandations intelligentes -->
   <div class="insights-section">
     <h2 class="section-title">
-      <i class="fas fa-brain"></i>
+      <i class="fas fa-satellite-dish"></i>
       Insights automatiques
     </h2>
     <div class="insights-grid">
@@ -191,7 +191,7 @@
 
        <div class="insight-item" [ngClass]="'warning'" *ngIf="combinedStats.users.totalNew < 5 && combinedStats.users.totalNew > 0">
          <div class="insight-header">
-           <i class="insight-icon fas fa-chart-line"></i>
+           <i class="insight-icon fas fa-meteor"></i>
            <h4 class="insight-title">Croissance lente</h4>
          </div>
          <p class="insight-text">La croissance d'utilisateurs ralentit en {{ selectedMonthLabel }}. Considérez des campagnes marketing.</p>
@@ -199,7 +199,7 @@
 
       <div class="insight-item" [ngClass]="'info'" *ngIf="topLanguagePair">
         <div class="insight-header">
-          <i class="insight-icon fas fa-trophy"></i>
+          <i class="insight-icon fas fa-star"></i>
           <h4 class="insight-title">Langue la plus populaire</h4>
         </div>
         <p class="insight-text">{{ topLanguagePair.pair }} est la paire de langues la plus étudiée avec {{ topLanguagePair.count }} traductions.</p>

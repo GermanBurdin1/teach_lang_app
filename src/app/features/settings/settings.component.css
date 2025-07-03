@@ -1,4 +1,16 @@
 /* Galaxy Theme Container */
+:root {
+  --galaxy-primary: #6D28D9;
+  --galaxy-secondary: #4C1D95;
+  --galaxy-accent: #8B5CF6;
+  --cosmic-gold: #FBBF24;
+  --nebula-pink: #EC4899;
+  --star-white: #F9FAFB;
+  --galaxy-dark: #10121E;
+  --galaxy-light: #C4B5FD;
+  --galaxy-glass: rgba(139, 92, 246, 0.1);
+}
+
 .admin-settings {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f0c29 0%, #24243e 50%, #2b5876 100%);
