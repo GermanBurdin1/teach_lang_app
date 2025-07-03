@@ -68,7 +68,7 @@
 .student-menu,
 .school-menu {
   position: absolute;
-  top: 50%;
+  top: 100%;
   left: 0;
   transform: translateY(-50%);
   width: 50px; /* Collapsed: only show icon area */
