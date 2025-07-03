@@ -21,7 +21,10 @@ export class HeaderComponent {
   lessonDescription$!: Observable<{ lesson: string; course: string } | null>;
   isLessonStarted$!: Observable<boolean>;
   settingsLink: string = '';
-
+  
+  // Dark mode functionality
+  isDarkMode = false;
+  private darkThemeLink: HTMLLinkElement | null = null;
 
   constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService, public authService: AuthService) { }
 
@@ -29,6 +32,10 @@ export class HeaderComponent {
 
     this.lessonDescription$ = this.lessonTabsService.lessonDescription$;
     this.isLessonStarted$ = this.lessonTabsService.lessonStarted$;
+
+    // Initialize dark mode from localStorage
+    this.isDarkMode = localStorage.getItem('darkMode') === 'true';
+    this.applyTheme();
 
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -65,6 +72,57 @@ export class HeaderComponent {
       console.log('[HeaderComponent] Role changed. settingsLink =', this.settingsLink);
     });
 
+  }
+
+  // Dark mode toggle functionality
+  toggleDarkMode(): void {
+    this.isDarkMode = !this.isDarkMode;
+    localStorage.setItem('darkMode', this.isDarkMode.toString());
+    this.applyTheme();
+  }
+
+  private applyTheme(): void {
+    const body = document.body;
+    
+    if (this.isDarkMode) {
+      // Add dark-theme class to body
+      body.classList.add('dark-theme');
+      
+      // Dynamically load dark theme CSS if not already loaded
+      if (!this.darkThemeLink) {
+        this.loadDarkThemeCSS();
+      }
+    } else {
+      // Remove dark-theme class from body
+      body.classList.remove('dark-theme');
+      
+      // Remove dark theme CSS link
+      if (this.darkThemeLink) {
+        this.removeDarkThemeCSS();
+      }
+    }
+  }
+
+  private loadDarkThemeCSS(): void {
+    this.darkThemeLink = document.createElement('link');
+    this.darkThemeLink.rel = 'stylesheet';
+    this.darkThemeLink.type = 'text/css';
+    this.darkThemeLink.href = 'assets/themes/dark-theme.css';
+    this.darkThemeLink.id = 'dark-theme-styles';
+    
+    // Add error handler for debugging
+    this.darkThemeLink.onerror = () => {
+      console.error('Failed to load dark theme CSS');
+    };
+    
+    document.head.appendChild(this.darkThemeLink);
+  }
+
+  private removeDarkThemeCSS(): void {
+    if (this.darkThemeLink) {
+      document.head.removeChild(this.darkThemeLink);
+      this.darkThemeLink = null;
+    }
   }
 
   setActiveTab(tab: 'cards' | 'lesson' | 'homework'): void {

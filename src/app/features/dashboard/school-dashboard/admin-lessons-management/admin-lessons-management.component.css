@@ -1,6 +1,38 @@
 /* Используем ту же галактическую тему с небольшими изменениями для уроков */
 @import url('../admin-users-management/admin-users-management.component.css');
 
+:root {
+  --galaxy-primary: #6D28D9;
+  --galaxy-secondary: #4C1D95;
+  --galaxy-accent: #8B5CF6;
+  --cosmic-gold: #FBBF24;
+  --nebula-pink: #EC4899;
+  --star-white: #F9FAFB;
+  --galaxy-dark: #10121E;
+  --galaxy-light: #C4B5FD;
+  --galaxy-glass: rgba(139, 92, 246, 0.1);
+  
+  /* Dark Mode Variables */
+  --dark-primary: #0f0c29;
+  --dark-secondary: #24243e;
+  --dark-tertiary: #2b5876;
+  --dark-accent: rgba(138, 43, 226, 0.3);
+  --dark-accent-secondary: rgba(255, 20, 147, 0.25);
+  --dark-text-primary: #ffffff;
+  --dark-text-secondary: #b8c6db;
+  --dark-accent-color: #4ecdc4;
+  --dark-gradient-1: #ff6b6b;
+  --dark-gradient-2: #4ecdc4;
+  --dark-gradient-3: #45b7d1;
+  --dark-gradient-4: #96ceb4;
+  --dark-glass: rgba(255, 255, 255, 0.1);
+  --dark-glass-secondary: rgba(255, 255, 255, 0.08);
+  --dark-border: rgba(255, 255, 255, 0.12);
+  --dark-border-secondary: rgba(255, 255, 255, 0.2);
+  --dark-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Light Mode Base Styles */
 .admin-lessons-management {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--galaxy-dark) 0%, var(--galaxy-secondary) 50%, var(--galaxy-dark) 100%);
@@ -9,9 +41,19 @@
   overflow-x: hidden;
 }
 
-/* Специфичные стили для уроков */
+/* Dark Mode Base Styles */
+.dark-theme .admin-lessons-management {
+  background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-secondary) 50%, var(--dark-tertiary) 100%);
+}
+
+/* Специфичные стили для уроков - Light Mode */
 .total-lessons-card .stat-icon {
   color: var(--galaxy-accent);
+}
+
+/* Dark Mode Lessons Icons */
+.dark-theme .total-lessons-card .stat-icon {
+  color: var(--dark-gradient-2);
 }
 
 .completed-card .stat-icon {
@@ -26,7 +68,11 @@
   color: var(--cosmic-gold);
 }
 
-/* Графики распределения */
+.dark-theme .success-rate-card .stat-icon {
+  color: var(--dark-accent-color);
+}
+
+/* Графики распределения - Light Mode */
 .distribution-chart {
   height: 30px;
   border-radius: 15px;
@@ -34,6 +80,13 @@
   display: flex;
   margin-bottom: 1rem;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Dark Mode Distribution Chart */
+.dark-theme .distribution-chart {
+  border: 1px solid var(--dark-border);
+  box-shadow: inset 0 2px 4px var(--dark-shadow);
 }
 
 .chart-segment {
@@ -52,6 +105,10 @@
   background: linear-gradient(45deg, var(--cosmic-gold), #F59E0B);
 }
 
+.dark-theme .pending-segment {
+  background: linear-gradient(45deg, var(--dark-accent-color), #0891B2);
+}
+
 .distribution-labels {
   display: flex;
   flex-direction: column;
@@ -63,6 +120,11 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9rem;
+  color: var(--star-white);
+}
+
+.dark-theme .label-item {
+  color: var(--dark-text-primary);
 }
 
 .label-dot {
@@ -83,6 +145,11 @@
   background: var(--cosmic-gold);
 }
 
+.dark-theme .pending-dot {
+  background: var(--dark-accent-color);
+}
+
+/* Light Mode Label Colors */
 .completed-label {
   color: #86EFAC;
 }
@@ -95,7 +162,12 @@
   color: var(--cosmic-gold);
 }
 
-/* KPI styles */
+/* Dark Mode Label Colors */
+.dark-theme .pending-label {
+  color: var(--dark-accent-color);
+}
+
+/* KPI styles - Light Mode */
 .kpi-list {
   display: flex;
   flex-direction: column;
@@ -110,11 +182,33 @@
   background: rgba(139, 92, 246, 0.1);
   border-radius: 8px;
   border-left: 3px solid var(--galaxy-accent);
+  transition: all 0.3s ease;
 }
 
+/* Dark Mode KPI Item */
+.dark-theme .kpi-item {
+  background: var(--dark-glass);
+  border-left: 3px solid var(--dark-accent-color);
+}
+
+.kpi-item:hover {
+  background: rgba(139, 92, 246, 0.15);
+  transform: translateX(5px);
+}
+
+.dark-theme .kpi-item:hover {
+  background: var(--dark-glass-secondary);
+}
+
+/* Light Mode KPI Label */
 .kpi-label {
   color: var(--galaxy-light);
   font-weight: 500;
+}
+
+/* Dark Mode KPI Label */
+.dark-theme .kpi-label {
+  color: var(--dark-text-secondary);
 }
 
 .kpi-value {
@@ -130,6 +224,10 @@
   color: var(--cosmic-gold);
 }
 
+.dark-theme .kpi-value.good {
+  color: var(--dark-accent-color);
+}
+
 .kpi-value.average {
   color: #F59E0B;
 }
@@ -138,7 +236,7 @@
   color: #EF4444;
 }
 
-/* Recommandations */
+/* Recommandations - Light Mode */
 .recommendations-section {
   margin-bottom: 3rem;
   position: relative;
@@ -152,6 +250,13 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Dark Mode Recommendations Title */
+.dark-theme .recommendations-title {
+  color: var(--dark-accent-color);
 }
 
 .recommendations-list {
@@ -160,6 +265,7 @@
   gap: 1rem;
 }
 
+/* Light Mode Recommendation Item */
 .recommendation-item {
   background: var(--galaxy-glass);
   backdrop-filter: blur(20px);
@@ -172,37 +278,60 @@
   transition: all 0.3s ease;
 }
 
+/* Dark Mode Recommendation Item */
+.dark-theme .recommendation-item {
+  background: var(--dark-glass-secondary);
+  border: 1px solid var(--dark-border);
+}
+
 .recommendation-item:hover {
   border-color: var(--cosmic-gold);
   box-shadow: 0 5px 20px rgba(251, 191, 36, 0.2);
+  transform: translateY(-2px);
+}
+
+.dark-theme .recommendation-item:hover {
+  border-color: var(--dark-accent-color);
+  box-shadow: 0 5px 20px rgba(78, 205, 196, 0.2);
 }
 
 .warning-icon {
   color: #F59E0B;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   margin-top: 0.2rem;
 }
 
 .success-icon {
   color: #22C55E;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   margin-top: 0.2rem;
 }
 
 .info-icon {
-  color: var(--galaxy-accent);
-  font-size: 1.5rem;
+  color: var(--cosmic-gold);
+  font-size: 1.2rem;
   margin-top: 0.2rem;
 }
 
+.dark-theme .info-icon {
+  color: var(--dark-accent-color);
+}
+
+/* Light Mode Recommendation Content */
 .recommendation-content {
   flex: 1;
 }
 
 .recommendation-content strong {
   color: var(--star-white);
+  font-weight: 600;
   display: block;
   margin-bottom: 0.5rem;
+}
+
+/* Dark Mode Recommendation Content */
+.dark-theme .recommendation-content strong {
+  color: var(--dark-text-primary);
 }
 
 .recommendation-content p {
@@ -211,15 +340,26 @@
   line-height: 1.5;
 }
 
-/* Boutons spécifiques */
-.trend-btn:hover {
-  background: linear-gradient(45deg, var(--galaxy-accent), var(--galaxy-light));
+.dark-theme .recommendation-content p {
+  color: var(--dark-text-secondary);
 }
 
-/* Responsive design */
+/* Trend Button Hover Effect */
+.trend-btn:hover {
+  background: var(--galaxy-glass);
+  border-color: var(--cosmic-gold);
+}
+
+.dark-theme .trend-btn:hover {
+  background: var(--dark-glass);
+  border-color: var(--dark-accent-color);
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .distribution-labels {
-    gap: 0.3rem;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
   
   .label-item {
@@ -228,10 +368,10 @@
   
   .kpi-item {
     flex-direction: column;
-    text-align: center;
+    align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .recommendation-item {
     flex-direction: column;
     text-align: center;

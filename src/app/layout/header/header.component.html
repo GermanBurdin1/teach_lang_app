@@ -20,7 +20,7 @@
         <mat-card-title class="text-center">Administrateur</mat-card-title>
         <mat-card-subtitle class="text-center text-indigo-700">Changer</mat-card-subtitle>
         <mat-card-content class="text-center">
-          <p class="text-sm text-muted">Tableau de bord administratif de l’école</p>
+          <p class="text-sm text-muted">Tableau de bord administratif de l'école</p>
         </mat-card-content>
       </mat-card>
 
@@ -221,10 +221,9 @@
         <mat-icon class="menu-icon">star</mat-icon>
         <span class="menu-label">Tarifs</span>
       </button>
-      <mat-divider></mat-divider>
-      <button mat-menu-item routerLink="/dark-mode">
-        <mat-icon class="menu-icon">dark_mode</mat-icon>
-        <span class="menu-label">Thème sombre</span>
+      <button mat-menu-item (click)="toggleDarkMode()">
+        <mat-icon class="menu-icon">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        <span class="menu-label">{{ isDarkMode ? 'Thème clair' : 'Thème sombre' }}</span>
       </button>
       <button mat-menu-item routerLink="/logout">
         <mat-icon class="menu-icon">logout</mat-icon>
@@ -324,8 +323,8 @@
             <hr class="dropdown-divider" />
           </li>
           <li>
-            <a class="dropdown-item" href="#">
-              <i class="fas fa-moon me-2"></i> Темная тема
+            <a class="dropdown-item" href="#" (click)="toggleDarkMode(); $event.preventDefault()">
+              <i class="fas {{ isDarkMode ? 'fa-sun' : 'fa-moon' }} me-2"></i> {{ isDarkMode ? 'Светлая тема' : 'Темная тема' }}
             </a>
           </li>
           <li>

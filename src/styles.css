@@ -1,5 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* ==================== CSS VARIABLES FOR LIGHT/DARK THEMES ==================== */
+
+:root {
+  /* Light mode colors */
+  --galaxy-primary: #6d28d9;
+  --cosmic-gold: #fbbf24;
+  --nebula-pink: #ec4899;
+  --space-blue: #3b82f6;
+  --stellar-purple: #8b5cf6;
+  --cosmic-white: #ffffff;
+  --space-gray: #6b7280;
+  --dark-space: #1f2937;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --border-color: rgba(255, 255, 255, 0.2);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --hover-bg: rgba(255, 255, 255, 0.2);
+}
+
+/* Dark theme styles are loaded dynamically from assets/themes/dark-theme.css */
+
 /* ==================== NOTIFICATION STYLES ==================== */
 
 /* Успешные уведомления (зеленые) */
