@@ -46,7 +46,6 @@
 
 .sidebar {
   background: var(--sidebar-bg);
-  height: 100vh;
   min-width: 280px;
   width: 280px;
   display: flex;

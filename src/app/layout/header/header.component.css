@@ -335,6 +335,24 @@ mat-icon {
   transition: color 0.3s ease;
 }
 
+/* Menu section header styles */
+.menu-section-header {
+  padding: 8px 16px 4px 16px;
+  pointer-events: none;
+  background: transparent;
+  margin-bottom: 4px;
+}
+
+.menu-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--menu-icon-color);
+  opacity: 0.8;
+  display: block;
+}
+
 /* User button */
 .user-button {
   padding: 0;

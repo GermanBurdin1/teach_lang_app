@@ -881,4 +881,29 @@ body.dark-theme .mat-mdc-tooltip {
   border: 1px solid rgba(78, 205, 196, 0.2) !important;
   backdrop-filter: blur(8px) !important;
   box-shadow: 0 4px 12px rgba(78, 205, 196, 0.15) !important;
+}
+
+/* ===== MENU SECTION HEADER STYLES ===== */
+
+/* Global menu section header styles (both light and dark) */
+.menu-section-header {
+  padding: 8px 16px 4px 16px !important;
+  pointer-events: none;
+  background: transparent !important;
+  margin-bottom: 4px !important;
+}
+
+.menu-section-title {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: #8B5CF6 !important;
+  opacity: 0.8 !important;
+  display: block !important;
+}
+
+/* Dark theme menu section header */
+body.dark-theme .menu-section-title {
+  color: #4ecdc4 !important;
 } 

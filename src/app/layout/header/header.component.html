@@ -1,55 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light" *ngIf="!isLessonMaterialRoute">
-  <div class="d-flex align-items-center">
-    <!-- Кнопка с иконкой для открытия панели -->
-    <button class="btn btn-light p-2 me-3" id="expandHeaderButton" (click)="toggleExpandHeader()"
-      style="border-radius: 8px;">
-      <i class="fas fa-th"></i> <!-- Иконка сетки -->
-    </button>
-  </div>
-
-  <!-- Панель, которая раскрывает весь header -->
-  <div class="expanded-header mat-elevation-z8" *ngIf="isHeaderExpanded"
-    style="width: 100%; position: absolute; top: 100%; left: 0; z-index: 1040; background-color: white;">
-    <div class="role-switch-container">
-
-      <!-- Administrateur -->
-      <mat-card *ngIf="shouldShowSwitchTo('admin')" class="switch-card" (click)="switchToAdmin()">
-        <mat-card-header class="justify-center">
-          <mat-icon color="primary" style="font-size: 40px;">admin_panel_settings</mat-icon>
-        </mat-card-header>
-        <mat-card-title class="text-center">Administrateur</mat-card-title>
-        <mat-card-subtitle class="text-center text-indigo-700">Changer</mat-card-subtitle>
-        <mat-card-content class="text-center">
-          <p class="text-sm text-muted">Tableau de bord administratif de l'école</p>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Élève -->
-      <mat-card *ngIf="shouldShowSwitchTo('student')" class="switch-card" (click)="switchToStudent()">
-        <mat-card-header class="justify-center">
-          <mat-icon color="primary" style="font-size: 40px;">school</mat-icon>
-        </mat-card-header>
-        <mat-card-title class="text-center">Espace Élève</mat-card-title>
-        <mat-card-subtitle class="text-center text-indigo-700">Changer</mat-card-subtitle>
-        <mat-card-content class="text-center">
-          <p class="text-sm text-muted">Apprenez dans un format interactif</p>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Enseignant -->
-      <mat-card *ngIf="shouldShowSwitchTo('teacher')" class="switch-card" (click)="switchToTeacher()">
-        <mat-card-header class="justify-center">
-          <mat-icon color="primary" style="font-size: 40px;">person</mat-icon>
-        </mat-card-header>
-        <mat-card-title class="text-center">Enseignant</mat-card-title>
-        <mat-card-subtitle class="text-center text-indigo-700">Changer</mat-card-subtitle>
-        <mat-card-content class="text-center">
-          <p class="text-sm text-muted">Vos cours et vos ressources</p>
-        </mat-card-content>
-      </mat-card>
-
-    </div>
-  </div>
+  <!-- Убрали старый раскрывающийся header - переместили в dropdown меню -->
 
 
   <div class="container-fluid d-flex justify-content-end align-items-center">
@@ -213,6 +163,31 @@
 
     <!-- Иконка пользователя -->
     <mat-menu #userMenu="matMenu">
+      <!-- Опции переключения ролей -->
+      <ng-container *ngIf="shouldShowSwitchTo('admin') || shouldShowSwitchTo('student') || shouldShowSwitchTo('teacher')">
+        <div class="menu-section-header">
+          <span class="menu-section-title">Changer de rôle</span>
+        </div>
+        
+        <button mat-menu-item *ngIf="shouldShowSwitchTo('admin')" (click)="switchToAdmin()">
+          <mat-icon class="menu-icon">admin_panel_settings</mat-icon>
+          <span class="menu-label">Administrateur</span>
+        </button>
+        
+        <button mat-menu-item *ngIf="shouldShowSwitchTo('teacher')" (click)="switchToTeacher()">
+          <mat-icon class="menu-icon">person</mat-icon>
+          <span class="menu-label">Enseignant</span>
+        </button>
+        
+        <button mat-menu-item *ngIf="shouldShowSwitchTo('student')" (click)="switchToStudent()">
+          <mat-icon class="menu-icon">school</mat-icon>
+          <span class="menu-label">Espace Élève</span>
+        </button>
+        
+        <mat-divider></mat-divider>
+      </ng-container>
+      
+      <!-- Основные опции -->
       <button mat-menu-item [routerLink]="settingsLink">
         <mat-icon class="menu-icon">settings</mat-icon>
         <span class="menu-label">Paramètres du profil</span>
