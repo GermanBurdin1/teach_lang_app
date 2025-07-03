@@ -1,0 +1,37 @@
+/* Test fix for collapsed sidebar icons */
+.sidebar.collapsed .teacher-tab,
+.sidebar.collapsed .student-tab,
+.sidebar.collapsed .school-tab {
+  min-width: 50px !important;
+  width: 50px !important;
+  height: 50px !important;
+  padding: 12px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  overflow: visible !important;
+  display: flex !important;
+}
+
+.sidebar.collapsed .teacher-tab mat-icon,
+.sidebar.collapsed .student-tab mat-icon,
+.sidebar.collapsed .school-tab mat-icon {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+  color: #8B5CF6 !important;
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+.sidebar.collapsed .teacher-menu,
+.sidebar.collapsed .student-menu,
+.sidebar.collapsed .school-menu {
+  width: 60px !important;
+  min-width: 60px !important;
+  overflow: visible !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #8B5CF6 !important;
+} 
