@@ -53,6 +53,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AdminUsersManagementComponent } from './school-dashboard/admin-users-management/admin-users-management.component';
 import { AdminLessonsManagementComponent } from './school-dashboard/admin-lessons-management/admin-lessons-management.component';
 import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
   declarations: [
@@ -111,6 +112,7 @@ import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platfo
     MatNativeDateModule,
     MatTabsModule,
     MatSnackBarModule,
+    MatPaginatorModule,
     BsDatepickerModule.forRoot()
   ],
   exports: [ReviewListComponent]

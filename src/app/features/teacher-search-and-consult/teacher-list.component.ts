@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Teacher } from './teacher.model';
 import { TeacherService } from '../../services/teacher.service';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-teacher-list',
@@ -107,6 +108,19 @@ export class TeacherListComponent implements OnInit {
     const specs = new Set<string>();
     this.allTeachers.forEach(t => t.specializations.forEach(s => specs.add(s)));
     this.availableSpecializations = Array.from(specs);
+  }
+
+  onPageChange(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.limit = event.pageSize;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { 
+        page: this.page,
+        limit: this.limit
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   nextPage() {

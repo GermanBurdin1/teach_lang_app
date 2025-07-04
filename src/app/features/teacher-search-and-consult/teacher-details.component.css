@@ -1,43 +1,72 @@
 .teacher-profile {
-  padding: 20px;
-  max-width: 600px;
+  padding: 2rem;
+  max-width: 800px;
   margin: 0 auto;
+  background: var(--card-bg);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px var(--shadow-color);
 }
 
 .avatar {
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
-  margin: 0 auto 16px;
+  margin: 0 auto 1.5rem;
+  border: 4px solid var(--space-blue-light);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: transform 0.3s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
 }
 
 h2 {
   text-align: center;
+  color: var(--text-primary);
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
 .bio {
-  margin-top: 16px;
+  margin-top: 1.5rem;
   font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 1rem;
+  background: var(--glass-bg);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(8px);
 }
 
 .actions {
-  margin-top: 24px;
+  margin-top: 2rem;
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .actions button {
-  padding: 8px 16px;
-  background-color: #007bff;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--btn-green);
   border: none;
-  color: white;
-  border-radius: 4px;
+  color: var(--btn-green-font-color__dark-green_hue);
+  border-radius: 0.5rem;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+.actions button:hover {
+  background-color: var(--hover-btn-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
 
 .modal-overlay {
   position: fixed;
@@ -45,71 +74,94 @@ h2 {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   z-index: 1050;
 }
 
 .modal-content-custom {
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
+  background: var(--card-bg);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 8px 32px var(--shadow-color);
 }
 
-/* ==================== ПРОСТЫЕ СТИЛИ ДЛЯ СТУДЕНТОВ ==================== */
-
+/* Time Grid Styles */
 .simple-time-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-  max-height: 250px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  max-height: 300px;
   overflow-y: auto;
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #fafafa;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
 }
 
 .simple-time-btn {
-  padding: 12px 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #f5f5f5;
-  color: #666;
-  font-size: 14px;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: not-allowed;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   text-align: center;
 }
 
 .simple-time-btn.available {
-  background-color: #e8f5e8;
-  color: #2d7d32;
-  border-color: #4caf50;
+  background: var(--btn-green);
+  color: var(--btn-green-font-color__dark-green_hue);
+  border-color: var(--border-color-light-mode__dark-green_hue);
   cursor: pointer;
 }
 
 .simple-time-btn.available:hover {
-  background-color: #c8e6c9;
-  border-color: #388e3c;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+  background: var(--hover-btn-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--shadow-color);
 }
 
 .simple-time-btn.unavailable {
-  background-color: #f5f5f5;
-  color: #999;
-  border-color: #ddd;
-  cursor: not-allowed;
+  background: var(--glass-bg);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
   opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .simple-time-btn.selected {
-  background-color: #4caf50 !important;
-  color: white !important;
-  border-color: #388e3c !important;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  background: var(--galaxy-primary) !important;
+  color: var(--cosmic-white) !important;
+  border-color: var(--stellar-purple) !important;
+  box-shadow: 0 4px 16px var(--shadow-color);
   transform: scale(1.05);
+}
+
+/* Scrollbar Styles */
+.simple-time-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.simple-time-grid::-webkit-scrollbar-track {
+  background: var(--glass-bg);
+  border-radius: 4px;
+}
+
+.simple-time-grid::-webkit-scrollbar-thumb {
+  background: var(--space-blue-light);
+  border-radius: 4px;
+}
+
+.simple-time-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--space-blue);
 }
 
 /* ==================== АРХИВ - ДЕТАЛЬНЫЕ СТИЛИ ДЛЯ ПРЕПОДАВАТЕЛЕЙ ====================
@@ -295,4 +347,13 @@ h2 {
 .legend-color.break {
   background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
   border-color: #ffb74d;
+}
+
+.btn-success {
+  background-color: var(--btn-green);
+  color: var(--btn-green-font-color__dark-green_hue);
+}
+
+.btn-success:hover {
+  background-color: var(--hover-btn-green);
 }
