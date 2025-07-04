@@ -19,12 +19,6 @@
 .tabs {
   display: flex;
   gap: 4px;
-  background: var(--glass-bg);
-  border-radius: 16px;
-  padding: 6px;
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 8px 32px var(--shadow-color);
 }
 
 .tabs button {
@@ -35,7 +29,7 @@
   background: transparent;
   color: var(--text-secondary);
   font-weight: 500;
-  font-size: 14px;
+  font-size: 18px;
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -188,7 +182,7 @@
   height: 120px;
   object-fit: cover;
   border-radius: 50%;
-  border: 4px solid var(--stellar-purple);
+  border: 0.4px solid var(--stellar-purple);
   box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
   transition: all 0.3s ease;
   flex-shrink: 0;
@@ -206,7 +200,7 @@
 
 .teacher-info h3 {
   margin: 0 0 8px 0;
-  color: var(--text-primary);
+  color: var(--space-blue);
   font-size: 1.5rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
