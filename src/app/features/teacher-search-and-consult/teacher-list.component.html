@@ -52,18 +52,20 @@
     <div *ngIf="!isLoading && total === 0" class="empty-state">
       Aucun enseignant trouvé.
     </div>
-    <div *ngFor="let teacher of allTeachers" class="teacher-card">
-      <img [src]="teacher.photoUrl" alt="Photo de {{ teacher.name }}" class="teacher-photo" />
-      <div class="teacher-info">
-        <h3>{{ teacher.name }}</h3>
-        <p class="specializations">{{ teacher.specializations.join(', ') }}</p>
-        <p class="price">{{ teacher.price }} €/heure</p>
-        <a [routerLink]="[teacher.id]">Voir le profil</a>
+    <div *ngIf="!isLoading && pagedTeachers.length > 0" class="teacher-list">
+      <div *ngFor="let teacher of pagedTeachers" class="teacher-card">
+        <img [src]="teacher.photoUrl" alt="Photo de {{ teacher.name }}" class="teacher-photo" />
+        <div class="teacher-info">
+          <h3>{{ teacher.name }}</h3>
+          <p class="specializations">{{ teacher.specializations.join(', ') }}</p>
+          <p class="price">{{ teacher.price }} €/heure</p>
+          <a [routerLink]="[teacher.id]">Voir le profil</a>
+        </div>
       </div>
     </div>
 
     <!-- 🔽 Pagination -->
-    <div *ngIf="!isLoading && total > limit" class="pagination mt-3 d-flex justify-content-between align-items-center">
+    <div *ngIf="!isLoading && maxPage > 1" class="pagination mt-3 d-flex justify-content-between align-items-center">
       <button class="btn btn-outline-primary" (click)="prevPage()" [disabled]="page === 1">Précédent</button>
       <span>Page {{ page }} sur {{ maxPage }}</span>
       <button class="btn btn-outline-primary" (click)="nextPage()" [disabled]="page >= maxPage">Suivant</button>

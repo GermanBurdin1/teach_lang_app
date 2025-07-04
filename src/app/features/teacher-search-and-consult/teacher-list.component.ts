@@ -22,7 +22,7 @@ export class TeacherListComponent implements OnInit {
   selectedSpecialization = '';
   sortOption = '';
   page = 1;
-  limit = 6;
+  limit = 10; // Показываем по 10 преподавателей на странице
 
   availableSpecializations: string[] = [];
   total = 0;
@@ -70,20 +70,22 @@ export class TeacherListComponent implements OnInit {
       language: this.selectedLanguage
     };
     console.log('[TeacherListComponent] loadTeachers filters', filters);
-    this.teacherService.getTeachers(this.page, 9999, filters).subscribe(response => {
+    // Загружаем всех преподавателей сразу
+    this.teacherService.getTeachers(1, 9999, filters).subscribe(response => {
       console.log('[TeacherListComponent] Полученные преподаватели:', response.data);
       let teachers = response.data;
       if (this.sortOption === 'price') {
         teachers = teachers.slice().sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
       }
       this.allTeachers = teachers;
-      this.total = response.total;
+      this.total = teachers.length; // Используем реальное количество преподавателей
       this.updateSpecializationOptions();
       this.isLoading = false;
     });
   }
 
   onFilterChange() {
+    this.page = 1; // Сброс на первую страницу при изменении фильтров
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
@@ -101,7 +103,6 @@ export class TeacherListComponent implements OnInit {
     });
   }
 
-
   updateSpecializationOptions() {
     const specs = new Set<string>();
     this.allTeachers.forEach(t => t.specializations.forEach(s => specs.add(s)));
@@ -109,7 +110,7 @@ export class TeacherListComponent implements OnInit {
   }
 
   nextPage() {
-    if ((this.page * this.limit) < this.total) {
+    if (this.page < this.maxPage) {
       this.page++;
       this.router.navigate([], {
         relativeTo: this.route,
@@ -118,7 +119,6 @@ export class TeacherListComponent implements OnInit {
       });
     }
   }
-
 
   prevPage() {
     if (this.page > 1) {
@@ -131,9 +131,15 @@ export class TeacherListComponent implements OnInit {
     }
   }
 
-
   get maxPage(): number {
-    return Math.ceil(this.total / this.limit);
+    return Math.max(1, Math.ceil(this.total / this.limit));
+  }
+
+  // Получаем преподавателей для текущей страницы
+  get pagedTeachers(): Teacher[] {
+    const start = (this.page - 1) * this.limit;
+    const end = start + this.limit;
+    return this.allTeachers.slice(start, end);
   }
 
   loadMyTeachers() {
