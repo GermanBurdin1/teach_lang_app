@@ -96,7 +96,6 @@
 .homework-zone h3,
 .notification-zone h3 {
   margin: 0 0 20px 0;
-  font-size: 1.8rem;
   background: var(--text-primary);
   background-clip: text;
   -webkit-background-clip: text;
