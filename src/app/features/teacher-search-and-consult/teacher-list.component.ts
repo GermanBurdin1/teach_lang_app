@@ -72,7 +72,11 @@ export class TeacherListComponent implements OnInit {
     console.log('[TeacherListComponent] loadTeachers filters', filters);
     this.teacherService.getTeachers(this.page, 9999, filters).subscribe(response => {
       console.log('[TeacherListComponent] Полученные преподаватели:', response.data);
-      this.allTeachers = response.data;
+      let teachers = response.data;
+      if (this.sortOption === 'price') {
+        teachers = teachers.slice().sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+      }
+      this.allTeachers = teachers;
       this.total = response.total;
       this.updateSpecializationOptions();
       this.isLoading = false;
