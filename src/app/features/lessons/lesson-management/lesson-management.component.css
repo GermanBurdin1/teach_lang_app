@@ -124,17 +124,21 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  align-items: center;
 }
 
 .filter-container mat-button-toggle-group {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 6.4vh;
+  margin-bottom: 2.4vh;
 }
 
 .filter-container mat-button-toggle {
-  color: white !important;
+  color: var(--space-blue-light) !important;
   border: none !important;
   font-weight: 500;
   padding: 12px 20px;
@@ -578,6 +582,7 @@
   color: #666;
   font-size: 11px;
 }
+
 
 @keyframes fadeInUp {
   from {
@@ -1032,6 +1037,14 @@
   padding: 16px;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.mat-filters {
+  display: flex;
+  height: 10vh;
+  gap: 0.5vw;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Адаптивность для конспектов */

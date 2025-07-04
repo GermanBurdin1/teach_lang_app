@@ -12,30 +12,32 @@
       <div *ngIf="!currentLesson">
         <!-- Filtres -->
         <div class="filter-container mat-elevation-z1">
-          <!-- 🧭 Période -->
-          <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
-            <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
-            <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
-            <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
-          </mat-button-toggle-group>
+          <div class="mat-filters">
+            <!-- 🧭 Période -->
+            <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
+              <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
+              <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
+              <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
+            </mat-button-toggle-group>
 
-          <mat-form-field appearance="fill" class="filter-item">
-            <mat-label>👨‍🏫 Professeur</mat-label>
-            <mat-select [(ngModel)]="selectedTeacher">
-              <mat-option value="">Tous les professeurs</mat-option>
-              <mat-option *ngFor="let t of uniqueTeachers" [value]="t">{{ t }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field appearance="fill" class="filter-item">
+              <mat-label>👨‍🏫 Professeur</mat-label>
+              <mat-select [(ngModel)]="selectedTeacher">
+                <mat-option value="">Tous les professeurs</mat-option>
+                <mat-option *ngFor="let t of uniqueTeachers" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
 
-          <mat-form-field appearance="fill" class="filter-item">
-            <mat-label>Date de début</mat-label>
-            <input matInput type="date" [(ngModel)]="startDate">
-          </mat-form-field>
+            <mat-form-field appearance="fill" class="filter-item">
+              <mat-label>Date de début</mat-label>
+              <input matInput type="date" [(ngModel)]="startDate">
+            </mat-form-field>
 
-          <mat-form-field appearance="fill" class="filter-item">
-            <mat-label>Date de fin</mat-label>
-            <input matInput type="date" [(ngModel)]="endDate">
-          </mat-form-field>
+            <mat-form-field appearance="fill" class="filter-item">
+              <mat-label>Date de fin</mat-label>
+              <input matInput type="date" [(ngModel)]="endDate">
+            </mat-form-field>
+          </div>
 
           <mat-form-field appearance="fill" class="filter-item keyword">
             <mat-label>Mot-clé</mat-label>

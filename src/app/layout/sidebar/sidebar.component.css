@@ -84,6 +84,7 @@
   overflow: hidden;
   transition: all 0.3s ease;
   width: 4.5vw;
+  z-index: 1000;
 }
 
 /* Expanded menu state */
