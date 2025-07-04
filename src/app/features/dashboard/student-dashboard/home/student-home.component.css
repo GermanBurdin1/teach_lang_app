@@ -193,7 +193,7 @@
 
 .calendar-zone {
   flex: 1;
-  max-width: 1200px;
+  width: 1200px;
   max-height: 500px;
   overflow-y: auto;
   background: var(--card-bg);

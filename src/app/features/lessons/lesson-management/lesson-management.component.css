@@ -40,13 +40,13 @@
   border-radius: 6px;
 }
 
-.lesson-management .lesson-list {
+/* .lesson-management .lesson-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 2rem;
   margin-top: 2rem;
-}
+} */
 
 
 
@@ -245,11 +245,13 @@
 
 .status-badge {
   padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  /* text-transform: uppercase; */
-  letter-spacing: 0.5px;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    width: 6vw;
+    display: flex;
+    justify-content: center;
 }
 
 .status-confirmed {
@@ -442,6 +444,15 @@
 }
 
 /* Вкладки Material */
+
+.mat-mdc-card-content .lesson-stats {
+  height: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+}
+
 ::ng-deep .mat-tab-group {
   background: white;
   border-radius: 8px;
@@ -613,9 +624,10 @@
 
 .lesson-card-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   flex-wrap: wrap;
+  height: 8vh;
 }
 
 .lesson-icon {

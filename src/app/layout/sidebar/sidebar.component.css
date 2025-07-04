@@ -45,18 +45,18 @@
 }
 
 /* Main sidebar container - minimal styling, let content control size */
-.sidebar {
+/* .sidebar {
   position: fixed;
   left: 0;
   top: 0;
   height: 26vh;
   border-radius: 0 16px 16px 0;
-  width: 50px; /* Collapsed width - only icons */
+  width: 50px; 
   background: transparent;
   transition: width 0.3s ease, box-shadow 0.3s ease;
   z-index: 1000;
   overflow: visible;
-}
+} */
 
 /* Expanded sidebar */
 .sidebar:not(.collapsed) {
@@ -68,10 +68,8 @@
 .student-menu,
 .school-menu {
   position: absolute;
-  top: 100%;
   left: 0;
-  transform: translateY(-50%);
-  width: 50px; /* Collapsed: only show icon area */
+  top: 9vh;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -81,9 +79,11 @@
   border: 1px solid var(--sidebar-border);
   border-left: none;
   box-shadow: 4px 0 16px var(--sidebar-shadow);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   overflow: hidden;
   transition: all 0.3s ease;
+  width: 4.5vw;
 }
 
 /* Expanded menu state */
@@ -154,13 +154,6 @@
 }
 
 /* Collapsed state: center icons */
-.sidebar.collapsed .teacher-tab,
-.sidebar.collapsed .student-tab,
-.sidebar.collapsed .school-tab {
-  justify-content: center;
-  padding: 12px 8px;
-  gap: 0;
-}
 
 .teacher-tab:hover,
 .student-tab:hover,
