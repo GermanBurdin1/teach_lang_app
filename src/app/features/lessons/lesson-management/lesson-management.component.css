@@ -249,13 +249,12 @@
 
 .status-badge {
   padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    width: 6vw;
-    display: flex;
-    justify-content: center;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  width: 16vw;
+  display: flex;
+  justify-content: center;
 }
 
 .status-confirmed {
@@ -630,6 +629,9 @@
   50% { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6); }
   100% { box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 }
+.mat-mdc-card-header{
+  display: block !important;
+}
 
 .lesson-card-header {
   display: flex;
@@ -637,6 +639,7 @@
   gap: 12px;
   flex-wrap: wrap;
   height: 8vh;
+  justify-content: space-between;
 }
 
 .lesson-icon {
