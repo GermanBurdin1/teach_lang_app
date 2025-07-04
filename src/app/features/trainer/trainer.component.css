@@ -1565,7 +1565,7 @@ input[type="checkbox"]:checked + .checkmark::after {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #7b1fa2;
+  color: var(--stellar-purple);
   font-size: 14px;
   font-weight: 500;
 }
@@ -1614,12 +1614,13 @@ input[type="checkbox"]:checked + .checkmark::after {
 }
 
 .download-btn {
-  background: #059669 !important;
+  background: var(--btn-green) !important;
   color: white !important;
 }
 
 .download-btn:hover {
-  background: #047857 !important;
+  background: var(--hover-btn-green) !important;
+  color: var(--text-primary) !important;
 }
 
 .audio-test-btn:nth-child(2) {

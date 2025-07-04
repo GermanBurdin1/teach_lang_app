@@ -19,6 +19,9 @@
   --border-color: rgba(255, 255, 255, 0.2);
   --shadow-color: rgba(0, 0, 0, 0.1);
   --hover-bg: rgba(255, 255, 255, 0.2);
+  --success-green: #4caf50;
+  --btn-green: #00C8A8;
+  --hover-btn-green: #0AFFD2;
 }
 
 /* Dark theme styles are loaded dynamically from assets/themes/dark-theme.css */
