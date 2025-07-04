@@ -11,14 +11,8 @@
 
 .lesson-management {
   padding: 24px;
-  max-width: none;
-  margin: 0;
-  margin-left: 10vw;
-  width: 90vw;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .lesson-management .filters {
@@ -122,18 +116,14 @@
 }
 
 .filter-container {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+  background: rgba(139, 92, 246, 0.15);
   padding: 20px;
   border-radius: 15px;
   margin-bottom: 24px;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  width: 90vw;
-  margin-left: -3.8vw;
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .filter-container mat-button-toggle-group {
@@ -608,9 +598,10 @@
 /* Стили для списка уроков */
 .lesson-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-top: 24px;
+  margin-bottom: 80px;
 }
 
 .lesson-card {
