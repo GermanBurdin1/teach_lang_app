@@ -62,6 +62,11 @@ export class StudentHomeComponent implements OnInit {
 
   studentHomework: Homework[] = [];
 
+  notificationsCollapsed = false;
+  goalCollapsed = false;
+  statsCollapsed = false;
+  homeworkCollapsed = false;
+
   constructor(
     private notificationService: NotificationService,
     private matNotificationService: MatNotificationService,

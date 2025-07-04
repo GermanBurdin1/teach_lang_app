@@ -21,194 +21,211 @@
     </div>
 
     <div class="notification-zone">
-      <h3>🔔 Notifications</h3>
-      
-      <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
-        <div *ngFor="let note of visibleNotifications" class="notification-card">
-          <div class="notification-content">
-            <div class="notification-text">
-              <span *ngIf="note.teacherId; else plainText" [innerHTML]="makeProfesseurLink(note.text, note.teacherId, note.teacherName)"></span>
-              <ng-template #plainText>{{ note.text }}</ng-template>
-            </div>
-            
-            <div class="notification-actions">
-              <!-- Actions for booking proposals -->
-              <ng-container *ngIf="note.type === 'booking_proposal' && note.proposedTime">
-                <ng-container *ngIf="!note.accepted && !note.refused">
-                  <button mat-raised-button color="primary" size="small" (click)="acceptProposal(note)">
-                    Accepter
-                  </button>
-                  <button mat-stroked-button color="warn" size="small" (click)="refuseProposal(note)">
-                    Refuser
-                  </button>
-                </ng-container>
-                <ng-container *ngIf="note.accepted">
-                  <span class="status-message accepted">
-                    ✅ Vous avez accepté la nouvelle heure proposée par le professeur.
-                  </span>
-                </ng-container>
-                <ng-container *ngIf="note.refused">
-                  <span class="status-message refused">
-                    ❌ Vous avez refusé la nouvelle heure proposée par le professeur.
-                  </span>
-                </ng-container>
-              </ng-container>
+      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3>🔔 Notifications</h3>
+        <button mat-icon-button (click)="notificationsCollapsed = !notificationsCollapsed">
+          <mat-icon>{{ notificationsCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+      <div *ngIf="!notificationsCollapsed">
+        <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
+          <div *ngFor="let note of visibleNotifications" class="notification-card">
+            <div class="notification-content">
+              <div class="notification-text">
+                <span *ngIf="note.teacherId; else plainText" [innerHTML]="makeProfesseurLink(note.text, note.teacherId, note.teacherName)"></span>
+                <ng-template #plainText>{{ note.text }}</ng-template>
+              </div>
               
-              <!-- Hide button -->
-              <button mat-icon-button 
-                      class="hide-button" 
-                      (click)="hideNotification(note)"
-                      matTooltip="Masquer cette notification">
-                <mat-icon>close</mat-icon>
-              </button>
+              <div class="notification-actions">
+                <!-- Actions for booking proposals -->
+                <ng-container *ngIf="note.type === 'booking_proposal' && note.proposedTime">
+                  <ng-container *ngIf="!note.accepted && !note.refused">
+                    <button mat-raised-button color="primary" size="small" (click)="acceptProposal(note)">
+                      Accepter
+                    </button>
+                    <button mat-stroked-button color="warn" size="small" (click)="refuseProposal(note)">
+                      Refuser
+                    </button>
+                  </ng-container>
+                  <ng-container *ngIf="note.accepted">
+                    <span class="status-message accepted">
+                      ✅ Vous avez accepté la nouvelle heure proposée par le professeur.
+                    </span>
+                  </ng-container>
+                  <ng-container *ngIf="note.refused">
+                    <span class="status-message refused">
+                      ❌ Vous avez refusé la nouvelle heure proposée par le professeur.
+                    </span>
+                  </ng-container>
+                </ng-container>
+                
+                <!-- Hide button -->
+                <button mat-icon-button 
+                        class="hide-button" 
+                        (click)="hideNotification(note)"
+                        matTooltip="Masquer cette notification">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </div>
+          </div>
+          
+          <!-- Show more/less button -->
+          <div *ngIf="hasMoreNotifications" class="show-more-container">
+            <button mat-stroked-button 
+                    color="accent" 
+                    (click)="toggleShowMore()">
+              {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')' }}
+              <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
           </div>
         </div>
         
-        <!-- Show more/less button -->
-        <div *ngIf="hasMoreNotifications" class="show-more-container">
-          <button mat-stroked-button 
-                  color="accent" 
-                  (click)="toggleShowMore()">
-            {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')' }}
-            <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
-          </button>
-        </div>
+        <ng-template #noNotifications>
+          <div class="no-notifications">
+            <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
+            <p>✅ Aucun nouveau message</p>
+          </div>
+        </ng-template>
       </div>
-      
-      <ng-template #noNotifications>
-        <div class="no-notifications">
-          <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
-          <p>✅ Aucun nouveau message</p>
-        </div>
-      </ng-template>
     </div>
 
     <div class="goal-block">
-      <div class="goal-header">
+      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
         <h3>🎯 Objectif</h3>
+        <button mat-icon-button (click)="goalCollapsed = !goalCollapsed">
+          <mat-icon>{{ goalCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
       </div>
-      
-      <!-- Показываем цель или сообщение о необходимости установить цель -->
-      <div *ngIf="!loadingGoals" class="goal-content">
-        <div *ngIf="currentGoal" class="goal-display">
-          <div class="goal-details">
-            <div class="goal-level">
-              <strong>{{ getExamLevelDisplayName(currentGoal.examLevel) }}</strong>
+      <div *ngIf="!goalCollapsed">
+        <!-- Показываем цель или сообщение о необходимости установить цель -->
+        <div *ngIf="!loadingGoals" class="goal-content">
+          <div *ngIf="currentGoal" class="goal-display">
+            <div class="goal-details">
+              <div class="goal-level">
+                <strong>{{ getExamLevelDisplayName(currentGoal.examLevel) }}</strong>
+              </div>
+              <div *ngIf="currentGoal.targetDate" class="goal-date">
+                📅 Avant le {{ currentGoal.targetDate | date:'dd/MM/yyyy' }}
+              </div>
+              <div *ngIf="currentGoal.description" class="goal-description">
+                💭 {{ currentGoal.description }}
+              </div>
             </div>
-            <div *ngIf="currentGoal.targetDate" class="goal-date">
-              📅 Avant le {{ currentGoal.targetDate | date:'dd/MM/yyyy' }}
-            </div>
-            <div *ngIf="currentGoal.description" class="goal-description">
-              💭 {{ currentGoal.description }}
-            </div>
+            <button mat-icon-button 
+                    color="primary" 
+                    (click)="openGoalModal()" 
+                    matTooltip="Modifier l'objectif"
+                    class="edit-goal-button">
+              <mat-icon>edit</mat-icon>
+            </button>
           </div>
-          <button mat-icon-button 
-                  color="primary" 
-                  (click)="openGoalModal()" 
-                  matTooltip="Modifier l'objectif"
-                  class="edit-goal-button">
-            <mat-icon>edit</mat-icon>
-          </button>
+          
+          <div *ngIf="!currentGoal" class="no-goal-display">
+            <span class="no-goal-message">📝 Définissez votre objectif d'apprentissage</span>
+            <button mat-icon-button 
+                    color="primary" 
+                    (click)="openGoalModal()" 
+                    matTooltip="Définir un objectif"
+                    class="edit-goal-button">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
         </div>
         
-        <div *ngIf="!currentGoal" class="no-goal-display">
-          <span class="no-goal-message">📝 Définissez votre objectif d'apprentissage</span>
-          <button mat-icon-button 
-                  color="primary" 
-                  (click)="openGoalModal()" 
-                  matTooltip="Définir un objectif"
-                  class="edit-goal-button">
-            <mat-icon>add</mat-icon>
-          </button>
+        <div *ngIf="loadingGoals" class="loading-goals">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Chargement...</span>
         </div>
-      </div>
-      
-      <div *ngIf="loadingGoals" class="loading-goals">
-        <mat-spinner diameter="20"></mat-spinner>
-        <span>Chargement...</span>
       </div>
     </div>
 
     <div class="stats-block">
-      <h3>📊 Statistiques</h3>
-      
-      <div *ngIf="loadingStats" class="loading-stats">
-        <mat-spinner diameter="20"></mat-spinner>
-        <span>Chargement...</span>
+      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3>📊 Statistiques</h3>
+        <button mat-icon-button (click)="statsCollapsed = !statsCollapsed">
+          <mat-icon>{{ statsCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
       </div>
-      
-      <ul *ngIf="!loadingStats">
-        <li>
-          Jours actifs: {{ stats.daysActive }}
-          <mat-icon 
-            class="info-icon" 
-            matTooltip="Les jours actifs représentent le nombre de jours différents où vous vous êtes connecté(e) à la plateforme. Cela montre votre régularité d'apprentissage."
-            matTooltipPosition="right">
-            info_outline
-          </mat-icon>
-        </li>
-        <li>Leçons terminées: {{ stats.lessonsCompleted }}</li>
-        <li>Mots appris: {{ stats.wordsLearned }}</li>
-      </ul>
+      <div *ngIf="!statsCollapsed">
+        <ul *ngIf="!loadingStats">
+          <li>
+            Jours actifs: {{ stats.daysActive }}
+            <mat-icon 
+              class="info-icon" 
+              matTooltip="Les jours actifs représentent le nombre de jours différents où vous vous êtes connecté(e) à la plateforme. Cela montre votre régularité d'apprentissage."
+              matTooltipPosition="right">
+              info_outline
+            </mat-icon>
+          </li>
+          <li>Leçons terminées: {{ stats.lessonsCompleted }}</li>
+          <li>Mots appris: {{ stats.wordsLearned }}</li>
+        </ul>
+      </div>
     </div>
 
     <div class="homework-zone">
-      <h3>📚 Devoirs à faire</h3>
+      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3>📚 Devoirs à faire</h3>
+        <button mat-icon-button (click)="homeworkCollapsed = !homeworkCollapsed">
+          <mat-icon>{{ homeworkCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+      <div *ngIf="!homeworkCollapsed">
+        <ng-container *ngIf="studentHomework.length > 0; else noHomework">
+          <div class="student-homework-list">
+            <mat-card *ngFor="let hw of studentHomework" class="homework-card" (click)="goToHomeworkDetails(hw)">
+              <mat-card-header>
+                <mat-card-title>
+                  <span class="homework-title">{{ hw.title }}</span>
+                  <span class="homework-status" [ngClass]="{
+                    'status-unfinished': hw.status === 'assigned',
+                    'status-completed': hw.status === 'completed',
+                    'status-overdue': hw.status === 'overdue'
+                  }">
+                    {{ hw.status === 'completed' ? '✅ Terminé' : (hw.status === 'overdue' ? '⏰ En retard' : '📝 À faire') }}
+                  </span>
+                </mat-card-title>
+                <mat-card-subtitle>
+                  Pour le {{ hw.dueDate | date:'dd/MM/yyyy' }}
+                  <span *ngIf="isHomeworkOverdue(hw)" class="overdue-warning">
+                    ⚠️ Ce devoir est en retard ! Cliquez pour le terminer rapidement.
+                  </span>
+                </mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="homework-description">{{ hw.description }}</div>
+                <div *ngIf="hw.teacherFeedback" class="homework-feedback">
+                  <strong>Feedback:</strong> {{ hw.teacherFeedback }}
+                </div>
+                <div *ngIf="hw.grade !== undefined && hw.grade !== null" class="homework-grade">
+                  <strong>Note:</strong> {{ hw.grade }}
+                </div>
+              </mat-card-content>
+              <mat-card-actions class="homework-action">
+                <button mat-raised-button 
+                        color="primary" 
+                        (click)="goToHomeworkDetails(hw); $event.stopPropagation()"
+                        *ngIf="hw.status !== 'completed'">
+                  <mat-icon>assignment</mat-icon>
+                  Faire le devoir
+                </button>
+                <button mat-stroked-button 
+                        color="accent" 
+                        (click)="goToHomeworkDetails(hw); $event.stopPropagation()"
+                        *ngIf="hw.status === 'completed'">
+                  <mat-icon>visibility</mat-icon>
+                  Voir détails
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </ng-container>
 
-      <ng-container *ngIf="studentHomework.length > 0; else noHomework">
-        <div class="student-homework-list">
-          <mat-card *ngFor="let hw of studentHomework" class="homework-card" (click)="goToHomeworkDetails(hw)">
-            <mat-card-header>
-              <mat-card-title>
-                <span class="homework-title">{{ hw.title }}</span>
-                <span class="homework-status" [ngClass]="{
-                  'status-unfinished': hw.status === 'assigned',
-                  'status-completed': hw.status === 'completed',
-                  'status-overdue': hw.status === 'overdue'
-                }">
-                  {{ hw.status === 'completed' ? '✅ Terminé' : (hw.status === 'overdue' ? '⏰ En retard' : '📝 À faire') }}
-                </span>
-              </mat-card-title>
-              <mat-card-subtitle>
-                Pour le {{ hw.dueDate | date:'dd/MM/yyyy' }}
-                <span *ngIf="isHomeworkOverdue(hw)" class="overdue-warning">
-                  ⚠️ Ce devoir est en retard ! Cliquez pour le terminer rapidement.
-                </span>
-              </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="homework-description">{{ hw.description }}</div>
-              <div *ngIf="hw.teacherFeedback" class="homework-feedback">
-                <strong>Feedback:</strong> {{ hw.teacherFeedback }}
-              </div>
-              <div *ngIf="hw.grade !== undefined && hw.grade !== null" class="homework-grade">
-                <strong>Note:</strong> {{ hw.grade }}
-              </div>
-            </mat-card-content>
-            <mat-card-actions class="homework-action">
-              <button mat-raised-button 
-                      color="primary" 
-                      (click)="goToHomeworkDetails(hw); $event.stopPropagation()"
-                      *ngIf="hw.status !== 'completed'">
-                <mat-icon>assignment</mat-icon>
-                Faire le devoir
-              </button>
-              <button mat-stroked-button 
-                      color="accent" 
-                      (click)="goToHomeworkDetails(hw); $event.stopPropagation()"
-                      *ngIf="hw.status === 'completed'">
-                <mat-icon>visibility</mat-icon>
-                Voir détails
-              </button>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-      </ng-container>
-
-      <ng-template #noHomework>
-        <p>✅ Aucun devoir en attente</p>
-      </ng-template>
+        <ng-template #noHomework>
+          <p>✅ Aucun devoir en attente</p>
+        </ng-template>
+      </div>
     </div>
   </div>
 
@@ -217,7 +234,7 @@
     <div class="calendar-zone">
       <h3>🗓️ Prochains cours</h3>
 
-      <!-- 🧩 Шаблон события -->
+      <!-- �� Шаблон события -->
       <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate"
         (eventClicked)="onLessonClick($event)">
       </app-calendar-preview>

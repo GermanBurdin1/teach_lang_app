@@ -22,45 +22,51 @@
 
     <!-- Левая колонка -->
     <div class="column left-column">
-      <h3>🔔 Notifications</h3>
-      
-      <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
-        <div *ngFor="let note of visibleNotifications" class="notification-card">
-          <div class="notification-content">
-            <div class="notification-text" 
-                 [innerHTML]="makeStudentNameClickable(note.message, note)"
-                 (click)="onNotificationClick($event, note)">
+      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3>🔔 Notifications</h3>
+        <button mat-icon-button (click)="notificationsCollapsed = !notificationsCollapsed">
+          <mat-icon>{{ notificationsCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+      <div *ngIf="!notificationsCollapsed">
+        <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
+          <div *ngFor="let note of visibleNotifications" class="notification-card">
+            <div class="notification-content">
+              <div class="notification-text" 
+                   [innerHTML]="makeStudentNameClickable(note.message, note)"
+                   (click)="onNotificationClick($event, note)">
+              </div>
+              
+              <div class="notification-actions">
+                <!-- Hide button -->
+                <button mat-icon-button 
+                        class="hide-button" 
+                        (click)="hideNotification(note)"
+                        matTooltip="Masquer cette notification">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </div>
-            
-            <div class="notification-actions">
-              <!-- Hide button -->
-              <button mat-icon-button 
-                      class="hide-button" 
-                      (click)="hideNotification(note)"
-                      matTooltip="Masquer cette notification">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
+          </div>
+          
+          <!-- Show more/less button -->
+          <div *ngIf="hasMoreNotifications" class="show-more-container">
+            <button mat-stroked-button 
+                    color="accent" 
+                    (click)="toggleShowMore()">
+              {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')' }}
+              <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
           </div>
         </div>
         
-        <!-- Show more/less button -->
-        <div *ngIf="hasMoreNotifications" class="show-more-container">
-          <button mat-stroked-button 
-                  color="accent" 
-                  (click)="toggleShowMore()">
-            {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')' }}
-            <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
-          </button>
-        </div>
+        <ng-template #noNotifications>
+          <div class="no-notifications">
+            <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
+            <p>✅ Aucun nouveau message</p>
+          </div>
+        </ng-template>
       </div>
-      
-      <ng-template #noNotifications>
-        <div class="no-notifications">
-          <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
-          <p>✅ Aucun nouveau message</p>
-        </div>
-      </ng-template>
 
       <!-- СИСТЕМА ВКЛАДОК ДЛЯ ЗАЯВОК -->
       <h3>📨 Demandes de réservation</h3>
@@ -248,125 +254,133 @@
     
     <!-- Правая колонка -->
     <div class="column right-column">
-      <h3>📋 Devoirs à corriger</h3>
-      
-      <!-- Loading state -->
-      <div *ngIf="loadingHomework" class="loading-state">
-        <div class="spinner"></div>
-        <p>Chargement des devoirs...</p>
-      </div>
-      
-      <!-- Homework to review -->
-      <div *ngIf="!loadingHomework" class="homework-section">
-        <div *ngIf="homeworksToReview.length > 0; else noHomeworkToReview" class="homework-list">
-          <div *ngFor="let hw of homeworksToReview" class="homework-item enhanced" (click)="goToHomeworkReview(hw)">
-            <div class="homework-content">
-              <div class="homework-header">
-                <h4 class="homework-title">
-                  <span class="homework-icon" [ngClass]="'status-' + hw.status">
-                    {{ hw.status === 'submitted' ? '📥' : hw.status === 'completed' ? '✅' : hw.status === 'finished' ? '🏁' : '⏰' }}
-                  </span>
-                  {{ hw.title }}
-                </h4>
-                <div class="homework-status-badges">
-                  <span class="homework-status" [ngClass]="'status-' + hw.status">
-                    {{ getHomeworkStatusText(hw.status) }}
-                  </span>
-                  <span *ngIf="isHomeworkOverdue(hw)" class="urgent-badge">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    URGENT
-                  </span>
-                </div>
-              </div>
-              
-              <div class="homework-student-info">
-                <div class="student-details">
-                  <div class="student-avatar">
-                    <i class="fas fa-user-graduate"></i>
-                  </div>
-                  <div class="student-meta">
-                    <h5 class="student-name">{{ hw.assignedToName }}</h5>
-                    <div class="student-lesson-info">
-                      <i class="fas fa-book"></i>
-                      <span>Leçon du {{ hw.assignedAt | date:'dd/MM/yyyy' }}</span>
+      <div class="homework-zone">
+        <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+          <h3>📚 Devoirs à corriger</h3>
+          <button mat-icon-button (click)="homeworkCollapsed = !homeworkCollapsed">
+            <mat-icon>{{ homeworkCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
+        <div *ngIf="!homeworkCollapsed">
+          <!-- Loading state -->
+          <div *ngIf="loadingHomework" class="loading-state">
+            <div class="spinner"></div>
+            <p>Chargement des devoirs...</p>
+          </div>
+          
+          <!-- Homework to review -->
+          <div *ngIf="!loadingHomework" class="homework-section">
+            <div *ngIf="homeworksToReview.length > 0; else noHomeworkToReview" class="homework-list">
+              <div *ngFor="let hw of homeworksToReview" class="homework-item enhanced" (click)="goToHomeworkReview(hw)">
+                <div class="homework-content">
+                  <div class="homework-header">
+                    <h4 class="homework-title">
+                      <span class="homework-icon" [ngClass]="'status-' + hw.status">
+                        {{ hw.status === 'submitted' ? '📥' : hw.status === 'completed' ? '✅' : hw.status === 'finished' ? '🏁' : '⏰' }}
+                      </span>
+                      {{ hw.title }}
+                    </h4>
+                    <div class="homework-status-badges">
+                      <span class="homework-status" [ngClass]="'status-' + hw.status">
+                        {{ getHomeworkStatusText(hw.status) }}
+                      </span>
+                      <span *ngIf="isHomeworkOverdue(hw)" class="urgent-badge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        URGENT
+                      </span>
                     </div>
+                  </div>
+                  
+                  <div class="homework-student-info">
+                    <div class="student-details">
+                      <div class="student-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                      </div>
+                      <div class="student-meta">
+                        <h5 class="student-name">{{ hw.assignedToName }}</h5>
+                        <div class="student-lesson-info">
+                          <i class="fas fa-book"></i>
+                          <span>Leçon du {{ hw.assignedAt | date:'dd/MM/yyyy' }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="dates-info">
+                      <div class="due-date-info" [ngClass]="{ 'overdue': isHomeworkOverdue(hw) }">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="date-label">Échéance</span>
+                        <span class="date-value">{{ hw.dueDate | date:'dd/MM à HH:mm' }}</span>
+                        <span *ngIf="isHomeworkOverdue(hw)" class="overdue-indicator">
+                          {{ getDaysOverdue(hw) }}j de retard
+                        </span>
+                      </div>
+                      
+                      <div *ngIf="hw.submittedAt || hw.status === 'finished'" class="submitted-date-info">
+                        <i class="fas fa-paper-plane"></i>
+                        <span class="date-label">Soumis</span>
+                        <span class="date-value">{{ (hw.submittedAt || hw.assignedAt) | date:'dd/MM à HH:mm' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div *ngIf="hw.description" class="homework-description">
+                    <h6><i class="fas fa-info-circle"></i> Description</h6>
+                    <p>{{ hw.description | slice:0:120 }}<span *ngIf="hw.description && hw.description.length > 120">...</span></p>
+                  </div>
+                  
+                  <div *ngIf="hw.studentResponse" class="student-response-preview">
+                    <h6><i class="fas fa-comment-dots"></i> Réponse de l'étudiant</h6>
+                    <p class="response-text">{{ hw.studentResponse | slice:0:100 }}<span *ngIf="hw.studentResponse && hw.studentResponse.length > 100">...</span></p>
+                  </div>
+                  
+                  <div class="homework-actions">
+                    <button mat-raised-button 
+                            color="primary" 
+                            class="review-btn"
+                            (click)="goToHomeworkReview(hw); $event.stopPropagation()">
+                      <i class="fas fa-star"></i>
+                      Évaluer et corriger
+                    </button>
+                    <button mat-stroked-button 
+                            color="accent"
+                            class="details-btn"
+                            (click)="goToHomeworkReview(hw); $event.stopPropagation()">
+                      <i class="fas fa-eye"></i>
+                      Voir détails
+                    </button>
                   </div>
                 </div>
                 
-                <div class="dates-info">
-                  <div class="due-date-info" [ngClass]="{ 'overdue': isHomeworkOverdue(hw) }">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span class="date-label">Échéance</span>
-                    <span class="date-value">{{ hw.dueDate | date:'dd/MM à HH:mm' }}</span>
-                    <span *ngIf="isHomeworkOverdue(hw)" class="overdue-indicator">
-                      {{ getDaysOverdue(hw) }}j de retard
-                    </span>
-                  </div>
-                  
-                  <div *ngIf="hw.submittedAt || hw.status === 'finished'" class="submitted-date-info">
-                    <i class="fas fa-paper-plane"></i>
-                    <span class="date-label">Soumis</span>
-                    <span class="date-value">{{ (hw.submittedAt || hw.assignedAt) | date:'dd/MM à HH:mm' }}</span>
-                  </div>
+                <div class="homework-priority-indicator" *ngIf="isHomeworkOverdue(hw)">
+                  <div class="priority-pulse"></div>
                 </div>
-              </div>
-              
-              <div *ngIf="hw.description" class="homework-description">
-                <h6><i class="fas fa-info-circle"></i> Description</h6>
-                <p>{{ hw.description | slice:0:120 }}<span *ngIf="hw.description && hw.description.length > 120">...</span></p>
-              </div>
-              
-              <div *ngIf="hw.studentResponse" class="student-response-preview">
-                <h6><i class="fas fa-comment-dots"></i> Réponse de l'étudiant</h6>
-                <p class="response-text">{{ hw.studentResponse | slice:0:100 }}<span *ngIf="hw.studentResponse && hw.studentResponse.length > 100">...</span></p>
-              </div>
-              
-              <div class="homework-actions">
-                <button mat-raised-button 
-                        color="primary" 
-                        class="review-btn"
-                        (click)="goToHomeworkReview(hw); $event.stopPropagation()">
-                  <i class="fas fa-star"></i>
-                  Évaluer et corriger
-                </button>
-                <button mat-stroked-button 
-                        color="accent"
-                        class="details-btn"
-                        (click)="goToHomeworkReview(hw); $event.stopPropagation()">
-                  <i class="fas fa-eye"></i>
-                  Voir détails
-                </button>
               </div>
             </div>
             
-            <div class="homework-priority-indicator" *ngIf="isHomeworkOverdue(hw)">
-              <div class="priority-pulse"></div>
-            </div>
-          </div>
-        </div>
-        
-        <ng-template #noHomeworkToReview>
-          <div class="no-homework">
-            <i class="fas fa-clipboard-check no-homework-icon"></i>
-            <p>✅ Aucun devoir à corriger</p>
-            <small>Les devoirs soumis ou en retard apparaîtront ici</small>
-          </div>
-        </ng-template>
-        
-        <!-- Statistics -->
-        <div *ngIf="teacherHomework.length > 0" class="homework-stats">
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-number">{{ teacherHomework.length }}</div>
-              <div class="stat-label">Total assignés</div>
-            </div>
-            <div class="stat-item urgent">
-              <div class="stat-number">{{ getOverdueCount() }}</div>
-              <div class="stat-label">En retard</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{{ getSubmittedCount() }}</div>
-              <div class="stat-label">Soumis</div>
+            <ng-template #noHomeworkToReview>
+              <div class="no-homework">
+                <i class="fas fa-clipboard-check no-homework-icon"></i>
+                <p>✅ Aucun devoir à corriger</p>
+                <small>Les devoirs soumis ou en retard apparaîtront ici</small>
+              </div>
+            </ng-template>
+            
+            <!-- Statistics -->
+            <div *ngIf="teacherHomework.length > 0" class="homework-stats">
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-number">{{ teacherHomework.length }}</div>
+                  <div class="stat-label">Total assignés</div>
+                </div>
+                <div class="stat-item urgent">
+                  <div class="stat-number">{{ getOverdueCount() }}</div>
+                  <div class="stat-label">En retard</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-number">{{ getSubmittedCount() }}</div>
+                  <div class="stat-label">Soumis</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

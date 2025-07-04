@@ -89,6 +89,9 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Текущее время для шаблонов
   now = new Date();
 
+  notificationsCollapsed = false;
+  homeworkCollapsed = false;
+
   private refreshCalendar(): void {
     const userId = this.authService.getCurrentUser()?.id;
     if (!userId) return;
