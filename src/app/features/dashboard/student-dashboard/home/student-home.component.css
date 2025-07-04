@@ -43,7 +43,7 @@
 .stats-block,
 .homework-zone,
 .notification-zone {
-  flex: 1 1 30%;
+  flex: 1 1 35%;
   min-width: 280px;
   background: var(--card-bg);
   padding: 24px;
@@ -96,12 +96,10 @@
 .homework-zone h3,
 .notification-zone h3 {
   margin: 0 0 20px 0;
-  font-size: 1.3rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
+  font-size: 1.8rem;
+  background: var(--text-primary);
   background-clip: text;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -191,7 +189,6 @@
 /* ───────── CALENDAR SECTION ───────── */
 .calendar-wrapper {
   display: flex;
-  justify-content: center;
 }
 
 .calendar-zone {
@@ -450,7 +447,7 @@
 }
 
 .edit-goal-button {
-  background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
+  background: var(--btn-light-gold);
   color: white;
   border-radius: 50%;
   width: 48px;

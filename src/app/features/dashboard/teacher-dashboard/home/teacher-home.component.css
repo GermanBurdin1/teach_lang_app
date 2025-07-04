@@ -81,12 +81,10 @@
 
 .column h3 {
   margin: 0 0 20px 0;
-  font-size: 1.3rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
+  font-size: 1.8rem;
+  background: var(--text-primary);
   background-clip: text;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   display: flex;
   align-items: center;
   gap: 8px;
