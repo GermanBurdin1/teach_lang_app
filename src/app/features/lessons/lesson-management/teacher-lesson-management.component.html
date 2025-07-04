@@ -1,645 +1,652 @@
 <!-- ОСНОВНАЯ ПАНЕЛЬ ПРЕПОДАВАТЕЛЯ (когда НЕ выбран конкретный урок) -->
-<div class="lesson-management">
-  <!-- Indicateur de chargement -->
-  <div *ngIf="loading" class="loading-container">
-    <mat-spinner></mat-spinner>
-    <p>Chargement des cours...</p>
-  </div>
 
-  <!-- Affichage de la liste des cours (quand aucun cours spécifique n'est sélectionné) -->
-  <div *ngIf="!currentLesson">
-    <!-- Filtres -->
-    <div class="filter-container mat-elevation-z1">
-      <!-- 🧭 Période -->
-      <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
-        <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
-        <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
-        <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
-      </mat-button-toggle-group>
-
-      <mat-form-field appearance="fill" class="filter-item">
-        <mat-label>👩‍🎓 Étudiant</mat-label>
-        <mat-select [(ngModel)]="selectedStudent">
-          <mat-option value="">Tous les étudiants</mat-option>
-          <mat-option *ngFor="let s of uniqueStudents" [value]="s">{{ s }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill" class="filter-item">
-        <mat-label>Date de début</mat-label>
-        <input matInput type="date" [(ngModel)]="startDate">
-      </mat-form-field>
-
-      <mat-form-field appearance="fill" class="filter-item">
-        <mat-label>Date de fin</mat-label>
-        <input matInput type="date" [(ngModel)]="endDate">
-      </mat-form-field>
-
-      <mat-form-field appearance="fill" class="filter-item keyword">
-        <mat-label>Mot-clé</mat-label>
-        <input matInput [(ngModel)]="searchTerm" placeholder="🔍 tâches, matériaux, etc.">
-      </mat-form-field>
-    </div>
-
-    <!-- Liste des cours -->
-    <div class="lesson-list">
-      <mat-card *ngFor="let lesson of filteredLessons; let i = index" 
-                class="lesson-card" 
-                [class.highlighted]="lesson.id === highlightedLessonId"
-                [ngClass]="getStatusClass(lesson.status)">
-        <mat-card-header>
-          <mat-card-title>
-            <div class="lesson-card-header">
-              <mat-icon class="lesson-icon">school</mat-icon>
-              <span class="lesson-title">Cours avec {{ lesson.studentName || 'Étudiant' }}</span>
-              <span class="status-badge" [ngClass]="getStatusClass(lesson.status)">
-                {{ getStatusText(lesson.status) }}
-              </span>
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+  <div class="dashboard-content">
+    <div class="lesson-management">
+      <!-- Indicateur de chargement -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Chargement des cours...</p>
+      </div>
+    
+      <!-- Affichage de la liste des cours (quand aucun cours spécifique n'est sélectionné) -->
+      <div *ngIf="!currentLesson">
+        <!-- Filtres -->
+        <div class="filter-container mat-elevation-z1">
+          <!-- 🧭 Période -->
+          <mat-button-toggle-group [(ngModel)]="filter" name="period" (change)="recalculateStatus()">
+            <mat-button-toggle value="future">📅 À venir</mat-button-toggle>
+            <mat-button-toggle value="past">🕓 Passés</mat-button-toggle>
+            <mat-button-toggle value="all">📚 Tous</mat-button-toggle>
+          </mat-button-toggle-group>
+    
+          <mat-form-field appearance="fill" class="filter-item">
+            <mat-label>👩‍🎓 Étudiant</mat-label>
+            <mat-select [(ngModel)]="selectedStudent">
+              <mat-option value="">Tous les étudiants</mat-option>
+              <mat-option *ngFor="let s of uniqueStudents" [value]="s">{{ s }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+    
+          <mat-form-field appearance="fill" class="filter-item">
+            <mat-label>Date de début</mat-label>
+            <input matInput type="date" [(ngModel)]="startDate">
+          </mat-form-field>
+    
+          <mat-form-field appearance="fill" class="filter-item">
+            <mat-label>Date de fin</mat-label>
+            <input matInput type="date" [(ngModel)]="endDate">
+          </mat-form-field>
+    
+          <mat-form-field appearance="fill" class="filter-item keyword">
+            <mat-label>Mot-clé</mat-label>
+            <input matInput [(ngModel)]="searchTerm" placeholder="🔍 tâches, matériaux, etc.">
+          </mat-form-field>
+        </div>
+    
+        <!-- Liste des cours -->
+        <div class="lesson-list">
+          <mat-card *ngFor="let lesson of filteredLessons; let i = index" 
+                    class="lesson-card" 
+                    [class.highlighted]="lesson.id === highlightedLessonId"
+                    [ngClass]="getStatusClass(lesson.status)">
+            <mat-card-header>
+              <mat-card-title>
+                <div class="lesson-card-header">
+                  <mat-icon class="lesson-icon">school</mat-icon>
+                  <span class="lesson-title">Cours avec {{ lesson.studentName || 'Étudiant' }}</span>
+                  <span class="status-badge" [ngClass]="getStatusClass(lesson.status)">
+                    {{ getStatusText(lesson.status) }}
+                  </span>
+                </div>
+              </mat-card-title>
+              <mat-card-subtitle>
+                📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="lesson-stats">
+                <span class="stat-item">
+                  <mat-icon>assignment</mat-icon>
+                  {{ lesson.tasks.length || 0 }} tâche(s)
+                </span>
+                <span class="stat-item">
+                  <mat-icon>quiz</mat-icon>
+                  {{ lesson.questions.length || 0 }} question(s)
+                </span>
+                <span class="stat-item">
+                  <mat-icon>folder</mat-icon>
+                  {{ lesson.materials.length || 0 }} matériau(x)
+                </span>
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="loadLesson(lesson.id)">
+                📝 Voir les détails
+              </button>
+              <button *ngIf="canEnterClass(lesson)" 
+                      mat-raised-button 
+                      color="accent" 
+                      (click)="enterVirtualClass(lesson)"
+                      class="enter-class-btn">
+                🎥 Entrer en classe
+              </button>
+            </mat-card-actions>
+          </mat-card>
+    
+          <!-- Message si aucun cours -->
+          <div *ngIf="filteredLessons.length === 0 && !loading" class="no-lessons">
+            <mat-icon>event_note</mat-icon>
+            <h3>Aucun cours trouvé</h3>
+            <p *ngIf="filter === 'future'">Vous n'avez pas de cours à venir pour le moment.</p>
+            <p *ngIf="filter === 'past'">Vous n'avez pas encore donné de cours.</p>
+            <p *ngIf="filter === 'all'">Aucun cours trouvé avec les filtres actuels.</p>
+          </div>
+    
+          <!-- Pagination -->
+          <div class="paginator-wrapper" *ngIf="fullFilteredLessons.length > pageSize">
+            <mat-paginator [length]="fullFilteredLessons.length" 
+                           [pageSize]="pageSize" 
+                           [pageIndex]="currentPage - 1"
+                           [pageSizeOptions]="[4, 8, 12]"
+                           (page)="onPageChange($event)" 
+                           [showFirstLastButtons]="true" 
+                           aria-label="Pagination des cours">
+            </mat-paginator>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Contenu principal (cours spécifique sélectionné) -->
+      <div *ngIf="!loading && currentLesson" class="lesson-details">
+        <!-- Bouton retour -->
+        <div class="back-button-container">
+          <button mat-stroked-button (click)="backToLessonList()" class="back-button">
+            <mat-icon>arrow_back</mat-icon>
+            Retour à la liste des cours
+          </button>
+        </div>
+    
+        <!-- En-tête du cours -->
+        <div class="lesson-header mat-elevation-z2">
+          <div class="lesson-header-content">
+            <div class="lesson-info">
+              <h2>👨‍🏫 Cours avec {{ currentLesson.studentName || 'Étudiant' }}</h2>
+              <p>📅 {{ currentLesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
+              <div class="status-container">
+                <span class="status-label">📊 Statut:</span>
+                <span class="status-badge" [ngClass]="getStatusClass(currentLesson.status)">
+                  {{ getStatusText(currentLesson.status) }}
+                </span>
+              </div>
             </div>
-          </mat-card-title>
-          <mat-card-subtitle>
-            📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="lesson-stats">
-            <span class="stat-item">
-              <mat-icon>assignment</mat-icon>
-              {{ lesson.tasks.length || 0 }} tâche(s)
-            </span>
-            <span class="stat-item">
-              <mat-icon>quiz</mat-icon>
-              {{ lesson.questions.length || 0 }} question(s)
-            </span>
-            <span class="stat-item">
-              <mat-icon>folder</mat-icon>
-              {{ lesson.materials.length || 0 }} matériau(x)
-            </span>
-          </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="loadLesson(lesson.id)">
-            📝 Voir les détails
-          </button>
-          <button *ngIf="canEnterClass(lesson)" 
-                  mat-raised-button 
-                  color="accent" 
-                  (click)="enterVirtualClass(lesson)"
-                  class="enter-class-btn">
-            🎥 Entrer en classe
-          </button>
-        </mat-card-actions>
-      </mat-card>
-
-      <!-- Message si aucun cours -->
-      <div *ngIf="filteredLessons.length === 0 && !loading" class="no-lessons">
-        <mat-icon>event_note</mat-icon>
-        <h3>Aucun cours trouvé</h3>
-        <p *ngIf="filter === 'future'">Vous n'avez pas de cours à venir pour le moment.</p>
-        <p *ngIf="filter === 'past'">Vous n'avez pas encore donné de cours.</p>
-        <p *ngIf="filter === 'all'">Aucun cours trouvé avec les filtres actuels.</p>
-      </div>
-
-      <!-- Pagination -->
-      <div class="paginator-wrapper" *ngIf="fullFilteredLessons.length > pageSize">
-        <mat-paginator [length]="fullFilteredLessons.length" 
-                       [pageSize]="pageSize" 
-                       [pageIndex]="currentPage - 1"
-                       [pageSizeOptions]="[4, 8, 12]"
-                       (page)="onPageChange($event)" 
-                       [showFirstLastButtons]="true" 
-                       aria-label="Pagination des cours">
-        </mat-paginator>
-      </div>
-    </div>
-  </div>
-
-  <!-- Contenu principal (cours spécifique sélectionné) -->
-  <div *ngIf="!loading && currentLesson" class="lesson-details">
-    <!-- Bouton retour -->
-    <div class="back-button-container">
-      <button mat-stroked-button (click)="backToLessonList()" class="back-button">
-        <mat-icon>arrow_back</mat-icon>
-        Retour à la liste des cours
-      </button>
-    </div>
-
-    <!-- En-tête du cours -->
-    <div class="lesson-header mat-elevation-z2">
-      <div class="lesson-header-content">
-        <div class="lesson-info">
-          <h2>👨‍🏫 Cours avec {{ currentLesson.studentName || 'Étudiant' }}</h2>
-          <p>📅 {{ currentLesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
-          <div class="status-container">
-            <span class="status-label">📊 Statut:</span>
-            <span class="status-badge" [ngClass]="getStatusClass(currentLesson.status)">
-              {{ getStatusText(currentLesson.status) }}
-            </span>
+            <div class="lesson-actions" *ngIf="canEnterClass(currentLesson)">
+              <button mat-raised-button 
+                      color="accent" 
+                      (click)="enterVirtualClass(currentLesson)"
+                      class="enter-class-btn large">
+                🎥 Entrer en classe
+              </button>
+            </div>
           </div>
         </div>
-        <div class="lesson-actions" *ngIf="canEnterClass(currentLesson)">
-          <button mat-raised-button 
-                  color="accent" 
-                  (click)="enterVirtualClass(currentLesson)"
-                  class="enter-class-btn large">
-            🎥 Entrer en classe
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Вкладки (без вкладки вопросов) -->
-    <mat-tab-group>
-      <!-- Вкладка: Задачи -->
-      <mat-tab label="📝 Tâches du cours">
-        <div class="tab-content">
-          <!-- Форма добавления задачи -->
-          <div class="add-form" *ngIf="showAddTaskForm">
-            <mat-card>
-              <mat-card-header>
-                <mat-card-title>➕ Assigner une nouvelle tâche</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <mat-form-field appearance="fill" class="full-width">
-                  <mat-label>Titre de la tâche</mat-label>
-                  <input matInput [(ngModel)]="newTaskTitle" placeholder="Ex: Analyser un poème">
-                </mat-form-field>
-                
-                <mat-form-field appearance="fill" class="full-width">
-                  <mat-label>Description (optionnel)</mat-label>
-                  <textarea matInput [(ngModel)]="newTaskDescription" rows="3" 
-                            placeholder="Instructions détaillées pour l'étudiant..."></textarea>
-                </mat-form-field>
-              </mat-card-content>
-              <mat-card-actions align="end">
-                <button mat-button (click)="clearTaskForm()">Annuler</button>
-                <button mat-raised-button color="primary" (click)="addTaskForStudent()"
-                        [disabled]="!newTaskTitle.trim()">
-                  Assigner
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          </div>
-
-          <!-- Bouton для отображения формы -->
-          <button *ngIf="!showAddTaskForm" mat-raised-button color="primary" 
-                  (click)="showAddTaskForm = true" class="add-button">
-            ➕ Assigner une tâche
-          </button>
-
-          <!-- Liste des tâches -->
-          <div class="tasks-list">
-            <mat-card *ngFor="let task of currentLesson.tasks; let i = index" 
-                      class="task-card" 
-                      [class.completed]="task.isCompleted"
-                      [class.student-task]="!isOwnContent(task.createdBy)"
-                      [class.teacher-task]="isOwnContent(task.createdBy)"
-                      [class.processed]="isItemProcessed('tasks', task.title)"
-                      [class.unprocessed]="!isItemProcessed('tasks', task.title)">
-              <mat-card-header>
-                <mat-card-title>
-                  <div class="task-header">
-                    <span class="task-number">{{ i + 1 }}.</span>
-                    <mat-icon class="role-icon" [class.student-icon]="!isOwnContent(task.createdBy)" 
-                              [class.teacher-icon]="isOwnContent(task.createdBy)">
-                      {{ isOwnContent(task.createdBy) ? 'school' : 'person' }}
-                    </mat-icon>
-                    <span class="task-title">{{ task.title }}</span>
-                    <mat-icon class="status-icon" *ngIf="task.isCompleted">check_circle</mat-icon>
-                    <mat-icon class="status-icon" *ngIf="!task.isCompleted">radio_button_unchecked</mat-icon>
-                    <!-- Статус проработки -->
-                    <span class="processing-status" [class]="getProcessingStatusClass('tasks', task.title)">
-                      {{ getProcessingStatusText('tasks', task.title) }}
-                    </span>
-                  </div>
-                </mat-card-title>
-                <mat-card-subtitle>
-                  <span class="author-badge" [class.student-badge]="!isOwnContent(task.createdBy)"
-                        [class.teacher-badge]="isOwnContent(task.createdBy)">
-                    {{ getTaskAuthorDisplay(task) }}
-                  </span>
-                  <span class="date">{{ task.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
-                </mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content *ngIf="task.description">
-                <p>{{ task.description }}</p>
-              </mat-card-content>
-              
-              <!-- Кнопка раскрытия заметок -->
-              <mat-card-actions *ngIf="isItemProcessed('tasks', task.title)" class="card-actions-with-expand">
-                <div class="spacer"></div>
-                <button mat-icon-button 
-                        (click)="toggleTaskExpansion(task.id)"
-                        [attr.aria-label]="isTaskExpanded(task.id) ? 'Masquer les notes' : 'Afficher les notes'"
-                        matTooltip="{{ isTaskExpanded(task.id) ? 'Masquer les notes' : 'Afficher les notes' }}">
-                  <mat-icon>{{ isTaskExpanded(task.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
-                </button>
-              </mat-card-actions>
-              
-              <!-- Раскрывающаяся панель с заметками -->
-              <div *ngIf="isItemProcessed('tasks', task.title) && isTaskExpanded(task.id)" 
-                   class="notes-expansion-panel">
-                <mat-divider></mat-divider>
-                <div class="notes-content">
-                  <div class="notes-header">
-                    <mat-icon class="notes-icon">note_alt</mat-icon>
-                    <h4>Notes de travail</h4>
-                  </div>
-                  <div class="note-content">
-                    {{ getNoteForItem('tasks', task.title)?.content }}
-                  </div>
-                  <div class="note-meta">
-                    <small>Dernière modification: {{ getNoteForItem('tasks', task.title)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
-                  </div>
-                </div>
+    
+        <!-- Вкладки (без вкладки вопросов) -->
+        <mat-tab-group>
+          <!-- Вкладка: Задачи -->
+          <mat-tab label="📝 Tâches du cours">
+            <div class="tab-content">
+              <!-- Форма добавления задачи -->
+              <div class="add-form" *ngIf="showAddTaskForm">
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title>➕ Assigner une nouvelle tâche</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <mat-form-field appearance="fill" class="full-width">
+                      <mat-label>Titre de la tâche</mat-label>
+                      <input matInput [(ngModel)]="newTaskTitle" placeholder="Ex: Analyser un poème">
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="fill" class="full-width">
+                      <mat-label>Description (optionnel)</mat-label>
+                      <textarea matInput [(ngModel)]="newTaskDescription" rows="3" 
+                                placeholder="Instructions détaillées pour l'étudiant..."></textarea>
+                    </mat-form-field>
+                  </mat-card-content>
+                  <mat-card-actions align="end">
+                    <button mat-button (click)="clearTaskForm()">Annuler</button>
+                    <button mat-raised-button color="primary" (click)="addTaskForStudent()"
+                            [disabled]="!newTaskTitle.trim()">
+                      Assigner
+                    </button>
+                  </mat-card-actions>
+                </mat-card>
               </div>
-            </mat-card>
-          </div>
-
-          <!-- Message si pas de tâches -->
-          <div *ngIf="currentLesson.tasks.length === 0" class="no-items">
-            <mat-icon>assignment</mat-icon>
-            <p>Aucune tâche pour ce cours</p>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Вкладка: Вопросы (только просмотр) -->
-      <mat-tab label="❓ Questions des étudiants">
-        <div class="tab-content">
-          <!-- Список вопросов -->
-          <div class="questions-list">
-            <mat-card *ngFor="let question of currentLesson.questions; let i = index" 
-                      class="question-card"
-                      [class.answered]="question.isAnswered"
-                      [class.student-question]="!isOwnContent(question.createdBy)"
-                      [class.teacher-question]="isOwnContent(question.createdBy)"
-                      [class.processed]="isItemProcessed('questions', question.question)"
-                      [class.unprocessed]="!isItemProcessed('questions', question.question)">
-              <mat-card-header>
-                <mat-card-title>
-                  <div class="question-header">
-                    <span class="question-number">{{ i + 1 }}.</span>
-                    <mat-icon class="role-icon" [class.student-icon]="!isOwnContent(question.createdBy)" 
-                              [class.teacher-icon]="isOwnContent(question.createdBy)">
-                      {{ isOwnContent(question.createdBy) ? 'school' : 'person' }}
-                    </mat-icon>
-                    <span class="question-text">{{ question.question }}</span>
-                    <mat-icon class="status-icon" *ngIf="question.isAnswered">help</mat-icon>
-                    <mat-icon class="status-icon" *ngIf="!question.isAnswered">help_outline</mat-icon>
-                    <!-- Статус проработки -->
-                    <span class="processing-status" [class]="getProcessingStatusClass('questions', question.question)">
-                      {{ getProcessingStatusText('questions', question.question) }}
-                    </span>
-                  </div>
-                </mat-card-title>
-                <mat-card-subtitle>
-                  <span class="author-badge" [class.student-badge]="!isOwnContent(question.createdBy)"
-                        [class.teacher-badge]="isOwnContent(question.createdBy)">
-                    {{ getQuestionAuthorDisplay(question) }}
-                  </span>
-                  <span class="date">{{ question.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
-                </mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content *ngIf="question.isAnswered && question.answer">
-                <div class="answer">
-                  <strong>💬 Réponse:</strong>
-                  <p>{{ question.answer }}</p>
-                  <small>Répondu le {{ question.answeredAt | date:'dd/MM/yyyy à HH:mm' }}</small>
-                </div>
-              </mat-card-content>
-              
-              <!-- Кнопка раскрытия заметок -->
-              <mat-card-actions *ngIf="isItemProcessed('questions', question.question)" class="card-actions-with-expand">
-                <div class="spacer"></div>
-                <button mat-icon-button 
-                        (click)="toggleQuestionExpansion(question.id)"
-                        [attr.aria-label]="isQuestionExpanded(question.id) ? 'Masquer les notes' : 'Afficher les notes'"
-                        matTooltip="{{ isQuestionExpanded(question.id) ? 'Masquer les notes' : 'Afficher les notes' }}">
-                  <mat-icon>{{ isQuestionExpanded(question.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
-                </button>
-              </mat-card-actions>
-              
-              <!-- Раскрывающаяся панель с заметками -->
-              <div *ngIf="isItemProcessed('questions', question.question) && isQuestionExpanded(question.id)" 
-                   class="notes-expansion-panel">
-                <mat-divider></mat-divider>
-                <div class="notes-content">
-                  <div class="notes-header">
-                    <mat-icon class="notes-icon">note_alt</mat-icon>
-                    <h4>Notes de travail</h4>
-                  </div>
-                  <div class="note-content">
-                    {{ getNoteForItem('questions', question.question)?.content }}
-                  </div>
-                  <div class="note-meta">
-                    <small>Dernière modification: {{ getNoteForItem('questions', question.question)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
-                  </div>
-                </div>
-              </div>
-            </mat-card>
-          </div>
-
-          <!-- Message si pas de questions -->
-          <div *ngIf="currentLesson.questions.length === 0" class="no-items">
-            <mat-icon>quiz</mat-icon>
-            <p>Aucune question pour ce cours</p>
-            <small>Les questions posées par l'étudiant apparaîtront ici</small>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Вкладка: Материалы -->
-      <mat-tab label="📁 Matériaux">
-        <div class="tab-content">
-          <!-- Заголовок с кнопкой обновления -->
-          <div class="materials-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="margin: 0;">Matériaux du cours</h3>
-            <button mat-icon-button 
-                    color="primary" 
-                    (click)="reloadMaterialsForCurrentLesson()"
-                    matTooltip="Actualiser les matériaux"
-                    style="margin-left: auto;">
-              <mat-icon>refresh</mat-icon>
-            </button>
-          </div>
-          
-          <!-- Список материалов -->
-          <div class="materials-list">
-            <mat-card *ngFor="let material of currentLesson.materials; let i = index" 
-                      class="material-card"
-                      [class.student-material]="!isOwnContent(material.createdBy)"
-                      [class.teacher-material]="isOwnContent(material.createdBy)"
-                      [class.processed]="isItemProcessed('materials', material.id)"
-                      [class.unprocessed]="!isItemProcessed('materials', material.id)">
-              <mat-card-header>
-                <mat-card-title>
-                  <div class="material-header">
-                    <span class="material-number">{{ i + 1 }}.</span>
-                    <mat-icon class="material-type-icon">
-                      {{ material.type === 'text' ? 'article' : 
-                         material.type === 'audio' ? 'audiotrack' :
-                         material.type === 'video' ? 'videocam' :
-                         material.type === 'pdf' ? 'picture_as_pdf' :
-                         material.type === 'image' ? 'image' : 'description' }}
-                    </mat-icon>
-                    <span class="material-title">{{ material.title }}</span>
-                    <span class="material-type-badge" [class]="'type-' + material.type">
-                      {{ material.type.toUpperCase() }}
-                    </span>
-                  </div>
-                </mat-card-title>
-                <mat-card-subtitle>
-                  <span class="author-badge" 
-                        [class.student-badge]="!isOwnContent(material.createdBy)"
-                        [class.teacher-badge]="isOwnContent(material.createdBy)">
-                    {{ getMaterialAuthorDisplay(material) }}
-                  </span>
-                  <span class="date">{{ material.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
-                </mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <p *ngIf="material.description" class="material-description">{{ material.description }}</p>
-                
-                <!-- Контент материала -->
-                <div class="material-content">
-                  <!-- Текстовый материал -->
-                  <div *ngIf="material.type === 'text'" class="text-content">
-                    <p>{{ material.content }}</p>
-                  </div>
-                  
-                  <!-- Аудио материал -->
-                  <div *ngIf="material.type === 'audio'" class="audio-content">
-                    <audio controls class="audio-player">
-                      <source [src]="material.content" type="audio/mpeg">
-                      <source [src]="material.content" type="audio/wav">
-                      Votre navigateur ne supporte pas l'élément audio.
-                    </audio>
-                  </div>
-                  
-                  <!-- Видео материал -->
-                  <div *ngIf="material.type === 'video'" class="video-content">
-                    <video controls class="video-player">
-                      <source [src]="material.content" type="video/mp4">
-                      <source [src]="material.content" type="video/webm">
-                      Votre navigateur ne supporte pas l'élément vidéo.
-                    </video>
-                  </div>
-                  
-                  <!-- PDF материал -->
-                  <div *ngIf="material.type === 'pdf'" class="pdf-content">
-                    <a [href]="material.content" target="_blank" mat-raised-button color="primary">
-                      <mat-icon>picture_as_pdf</mat-icon>
-                      Ouvrir le PDF
-                    </a>
-                  </div>
-                  
-                  <!-- Изображение -->
-                  <div *ngIf="material.type === 'image'" class="image-content">
-                    <img [src]="material.content" [alt]="material.title" class="material-image">
-                  </div>
-                </div>
-                
-                <!-- Теги -->
-                <div *ngIf="material.tags && material.tags.length > 0" class="material-tags">
-                  <span class="tag" *ngFor="let tag of material.tags">{{ tag }}</span>
-                </div>
-              </mat-card-content>
-              
-              <!-- Кнопка раскрытия заметок -->
-              <mat-card-actions *ngIf="isItemProcessed('materials', material.id)" class="card-actions-with-expand">
-                <div class="spacer"></div>
-                <button mat-icon-button 
-                        (click)="toggleMaterialExpansion(material.id)"
-                        [attr.aria-label]="isMaterialExpanded(material.id) ? 'Masquer les notes' : 'Afficher les notes'"
-                        matTooltip="{{ isMaterialExpanded(material.id) ? 'Masquer les notes' : 'Afficher les notes' }}">
-                  <mat-icon>{{ isMaterialExpanded(material.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
-                </button>
-              </mat-card-actions>
-              
-              <!-- Раскрывающаяся панель с заметками -->
-              <div *ngIf="isItemProcessed('materials', material.id) && isMaterialExpanded(material.id)" 
-                   class="notes-expansion-panel">
-                <mat-divider></mat-divider>
-                <div class="notes-content">
-                  <div class="notes-header">
-                    <mat-icon class="notes-icon">note_alt</mat-icon>
-                    <h4>Notes de travail</h4>
-                  </div>
-                  <div class="note-content">
-                    {{ getNoteForItem('materials', material.id)?.content }}
-                  </div>
-                  <div class="note-meta">
-                    <small>Dernière modification: {{ getNoteForItem('materials', material.id)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
-                  </div>
-                </div>
-              </div>
-            </mat-card>
-          </div>
-
-          <!-- Message si нет материалов -->
-          <div *ngIf="currentLesson.materials.length === 0" class="no-items">
-            <mat-icon>folder</mat-icon>
-            <p>Aucun matériau pour ce cours</p>
-            <small>Les matériaux attachés à ce cours apparaîtront ici</small>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Вкладка: Домашние задания -->
-      <mat-tab label="📋 Devoirs">
-        <div class="tab-content">
-          <div class="homework-list">
-            <mat-card *ngFor="let homework of homeworkItems; let i = index" 
-                      class="homework-card"
-                      [class]="'type-' + homework.sourceType">
-              <mat-card-header>
-                <mat-card-title>
-                  <div class="homework-header">
-                    <span class="homework-number">{{ i + 1 }}.</span>
-                    <mat-icon class="homework-type-icon">
-                      {{ homework.sourceType === 'task' ? 'assignment' : 
-                         homework.sourceType === 'question' ? 'quiz' : 'folder' }}
-                    </mat-icon>
-                    <span class="homework-title">{{ homework.title }}</span>
-                    <span class="homework-status-badge" [class]="'status-' + homework.status">
-                      {{ homework.status === 'unfinished' ? 'Non terminé' : 'Terminé' }}
-                    </span>
-                    <span *ngIf="homework.createdInClass" class="covered-badge in-class" title="Créé en classe">
-                      ✅ Créé en classe
-                    </span>
-                    <span *ngIf="!homework.createdInClass" class="covered-badge outside-class" title="Créé hors classe">
-                      🏠 Créé hors classe
-                    </span>
-                  </div>
-                </mat-card-title>
-                <mat-card-subtitle>
-                  <div class="homework-meta">
-                    <span class="homework-type">{{ homework.sourceType === 'task' ? 'Tâche' : homework.sourceType === 'question' ? 'Question' : 'Matériau' }}</span>
-                    <span class="homework-date">Créé le {{ homework.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
-                    <span class="homework-due" *ngIf="homework.dueDate">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}</span>
-                  </div>
-                </mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <p class="homework-description">{{ homework.description }}</p>
-              </mat-card-content>
-              <mat-card-actions>
-                <button mat-button color="accent">
-                  📝 Modifier
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          </div>
-
-          <!-- Message si нет домашних заданий -->
-          <div *ngIf="homeworkItems && homeworkItems.length === 0" class="no-items">
-            <mat-icon>assignment_turned_in</mat-icon>
-            <p>Aucun devoir pour ce cours</p>
-            <small>Les devoirs créés pendant le cours apparaîtront ici</small>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Вкладка: Конспект -->
-      <mat-tab label="📝 Notes de cours">
-        <div class="tab-content">
-          <div class="lesson-notes" *ngIf="lessonNotes && (hasNotesForSection('tasks') || hasNotesForSection('questions') || hasNotesForSection('materials'))">
-            
-            <!-- Раздел задач в конспекте -->
-            <div *ngIf="hasNotesForSection('tasks')" class="notes-section">
-              <div class="section-header-notes">
-                <mat-icon class="section-icon">assignment</mat-icon>
-                <h3>📝 Notes sur les tâches</h3>
-                <span class="notes-count">({{ lessonNotes.tasksNotes.length }} note(s))</span>
-              </div>
-              
-              <div class="notes-grid">
-                <mat-card *ngFor="let note of lessonNotes.tasksNotes; let i = index" class="note-card task-note">
+    
+              <!-- Bouton для отображения формы -->
+              <button *ngIf="!showAddTaskForm" mat-raised-button color="primary" 
+                      (click)="showAddTaskForm = true" class="add-button">
+                ➕ Assigner une tâche
+              </button>
+    
+              <!-- Liste des tâches -->
+              <div class="tasks-list">
+                <mat-card *ngFor="let task of currentLesson.tasks; let i = index" 
+                          class="task-card" 
+                          [class.completed]="task.isCompleted"
+                          [class.student-task]="!isOwnContent(task.createdBy)"
+                          [class.teacher-task]="isOwnContent(task.createdBy)"
+                          [class.processed]="isItemProcessed('tasks', task.title)"
+                          [class.unprocessed]="!isItemProcessed('tasks', task.title)">
                   <mat-card-header>
                     <mat-card-title>
-                      <div class="note-header">
-                        <span class="note-number">{{ i + 1 }}.</span>
-                        <span class="note-item">{{ note.itemText }}</span>
+                      <div class="task-header">
+                        <span class="task-number">{{ i + 1 }}.</span>
+                        <mat-icon class="role-icon" [class.student-icon]="!isOwnContent(task.createdBy)" 
+                                  [class.teacher-icon]="isOwnContent(task.createdBy)">
+                          {{ isOwnContent(task.createdBy) ? 'school' : 'person' }}
+                        </mat-icon>
+                        <span class="task-title">{{ task.title }}</span>
+                        <mat-icon class="status-icon" *ngIf="task.isCompleted">check_circle</mat-icon>
+                        <mat-icon class="status-icon" *ngIf="!task.isCompleted">radio_button_unchecked</mat-icon>
+                        <!-- Статус проработки -->
+                        <span class="processing-status" [class]="getProcessingStatusClass('tasks', task.title)">
+                          {{ getProcessingStatusText('tasks', task.title) }}
+                        </span>
                       </div>
                     </mat-card-title>
                     <mat-card-subtitle>
-                      <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                      <span class="author-badge" [class.student-badge]="!isOwnContent(task.createdBy)"
+                            [class.teacher-badge]="isOwnContent(task.createdBy)">
+                        {{ getTaskAuthorDisplay(task) }}
+                      </span>
+                      <span class="date">{{ task.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
                     </mat-card-subtitle>
                   </mat-card-header>
-                  <mat-card-content>
-                    <div class="note-content">{{ note.content }}</div>
+                  <mat-card-content *ngIf="task.description">
+                    <p>{{ task.description }}</p>
                   </mat-card-content>
+                  
+                  <!-- Кнопка раскрытия заметок -->
+                  <mat-card-actions *ngIf="isItemProcessed('tasks', task.title)" class="card-actions-with-expand">
+                    <div class="spacer"></div>
+                    <button mat-icon-button 
+                            (click)="toggleTaskExpansion(task.id)"
+                            [attr.aria-label]="isTaskExpanded(task.id) ? 'Masquer les notes' : 'Afficher les notes'"
+                            matTooltip="{{ isTaskExpanded(task.id) ? 'Masquer les notes' : 'Afficher les notes' }}">
+                      <mat-icon>{{ isTaskExpanded(task.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                  </mat-card-actions>
+                  
+                  <!-- Раскрывающаяся панель с заметками -->
+                  <div *ngIf="isItemProcessed('tasks', task.title) && isTaskExpanded(task.id)" 
+                       class="notes-expansion-panel">
+                    <mat-divider></mat-divider>
+                    <div class="notes-content">
+                      <div class="notes-header">
+                        <mat-icon class="notes-icon">note_alt</mat-icon>
+                        <h4>Notes de travail</h4>
+                      </div>
+                      <div class="note-content">
+                        {{ getNoteForItem('tasks', task.title)?.content }}
+                      </div>
+                      <div class="note-meta">
+                        <small>Dernière modification: {{ getNoteForItem('tasks', task.title)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+                      </div>
+                    </div>
+                  </div>
                 </mat-card>
               </div>
-            </div>
-
-            <!-- Раздел вопросов в конспекте -->
-            <div *ngIf="hasNotesForSection('questions')" class="notes-section">
-              <div class="section-header-notes">
-                <mat-icon class="section-icon">quiz</mat-icon>
-                <h3>❓ Notes sur les questions</h3>
-                <span class="notes-count">({{ lessonNotes.questionsNotes.length }} note(s))</span>
+    
+              <!-- Message si pas de tâches -->
+              <div *ngIf="currentLesson.tasks.length === 0" class="no-items">
+                <mat-icon>assignment</mat-icon>
+                <p>Aucune tâche pour ce cours</p>
               </div>
-              
-              <div class="notes-grid">
-                <mat-card *ngFor="let note of lessonNotes.questionsNotes; let i = index" class="note-card question-note">
+            </div>
+          </mat-tab>
+    
+          <!-- Вкладка: Вопросы (только просмотр) -->
+          <mat-tab label="❓ Questions des étudiants">
+            <div class="tab-content">
+              <!-- Список вопросов -->
+              <div class="questions-list">
+                <mat-card *ngFor="let question of currentLesson.questions; let i = index" 
+                          class="question-card"
+                          [class.answered]="question.isAnswered"
+                          [class.student-question]="!isOwnContent(question.createdBy)"
+                          [class.teacher-question]="isOwnContent(question.createdBy)"
+                          [class.processed]="isItemProcessed('questions', question.question)"
+                          [class.unprocessed]="!isItemProcessed('questions', question.question)">
                   <mat-card-header>
                     <mat-card-title>
-                      <div class="note-header">
-                        <span class="note-number">{{ i + 1 }}.</span>
-                        <span class="note-item">{{ note.itemText }}</span>
+                      <div class="question-header">
+                        <span class="question-number">{{ i + 1 }}.</span>
+                        <mat-icon class="role-icon" [class.student-icon]="!isOwnContent(question.createdBy)" 
+                                  [class.teacher-icon]="isOwnContent(question.createdBy)">
+                          {{ isOwnContent(question.createdBy) ? 'school' : 'person' }}
+                        </mat-icon>
+                        <span class="question-text">{{ question.question }}</span>
+                        <mat-icon class="status-icon" *ngIf="question.isAnswered">help</mat-icon>
+                        <mat-icon class="status-icon" *ngIf="!question.isAnswered">help_outline</mat-icon>
+                        <!-- Статус проработки -->
+                        <span class="processing-status" [class]="getProcessingStatusClass('questions', question.question)">
+                          {{ getProcessingStatusText('questions', question.question) }}
+                        </span>
                       </div>
                     </mat-card-title>
                     <mat-card-subtitle>
-                      <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                      <span class="author-badge" [class.student-badge]="!isOwnContent(question.createdBy)"
+                            [class.teacher-badge]="isOwnContent(question.createdBy)">
+                        {{ getQuestionAuthorDisplay(question) }}
+                      </span>
+                      <span class="date">{{ question.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
                     </mat-card-subtitle>
                   </mat-card-header>
-                  <mat-card-content>
-                    <div class="note-content">{{ note.content }}</div>
+                  <mat-card-content *ngIf="question.isAnswered && question.answer">
+                    <div class="answer">
+                      <strong>💬 Réponse:</strong>
+                      <p>{{ question.answer }}</p>
+                      <small>Répondu le {{ question.answeredAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+                    </div>
                   </mat-card-content>
+                  
+                  <!-- Кнопка раскрытия заметок -->
+                  <mat-card-actions *ngIf="isItemProcessed('questions', question.question)" class="card-actions-with-expand">
+                    <div class="spacer"></div>
+                    <button mat-icon-button 
+                            (click)="toggleQuestionExpansion(question.id)"
+                            [attr.aria-label]="isQuestionExpanded(question.id) ? 'Masquer les notes' : 'Afficher les notes'"
+                            matTooltip="{{ isQuestionExpanded(question.id) ? 'Masquer les notes' : 'Afficher les notes' }}">
+                      <mat-icon>{{ isQuestionExpanded(question.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                  </mat-card-actions>
+                  
+                  <!-- Раскрывающаяся панель с заметками -->
+                  <div *ngIf="isItemProcessed('questions', question.question) && isQuestionExpanded(question.id)" 
+                       class="notes-expansion-panel">
+                    <mat-divider></mat-divider>
+                    <div class="notes-content">
+                      <div class="notes-header">
+                        <mat-icon class="notes-icon">note_alt</mat-icon>
+                        <h4>Notes de travail</h4>
+                      </div>
+                      <div class="note-content">
+                        {{ getNoteForItem('questions', question.question)?.content }}
+                      </div>
+                      <div class="note-meta">
+                        <small>Dernière modification: {{ getNoteForItem('questions', question.question)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+                      </div>
+                    </div>
+                  </div>
                 </mat-card>
               </div>
+    
+              <!-- Message si pas de questions -->
+              <div *ngIf="currentLesson.questions.length === 0" class="no-items">
+                <mat-icon>quiz</mat-icon>
+                <p>Aucune question pour ce cours</p>
+                <small>Les questions posées par l'étudiant apparaîtront ici</small>
+              </div>
             </div>
-
-            <!-- Раздел материалов в конспекте -->
-            <div *ngIf="hasNotesForSection('materials')" class="notes-section">
-              <div class="section-header-notes">
-                <mat-icon class="section-icon">folder</mat-icon>
-                <h3>📚 Notes sur les matériaux</h3>
-                <span class="notes-count">({{ lessonNotes.materialsNotes.length }} note(s))</span>
+          </mat-tab>
+    
+          <!-- Вкладка: Материалы -->
+          <mat-tab label="📁 Matériaux">
+            <div class="tab-content">
+              <!-- Заголовок с кнопкой обновления -->
+              <div class="materials-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;">Matériaux du cours</h3>
+                <button mat-icon-button 
+                        color="primary" 
+                        (click)="reloadMaterialsForCurrentLesson()"
+                        matTooltip="Actualiser les matériaux"
+                        style="margin-left: auto;">
+                  <mat-icon>refresh</mat-icon>
+                </button>
               </div>
               
-              <div class="notes-grid">
-                <mat-card *ngFor="let note of lessonNotes.materialsNotes; let i = index" class="note-card material-note">
+              <!-- Список материалов -->
+              <div class="materials-list">
+                <mat-card *ngFor="let material of currentLesson.materials; let i = index" 
+                          class="material-card"
+                          [class.student-material]="!isOwnContent(material.createdBy)"
+                          [class.teacher-material]="isOwnContent(material.createdBy)"
+                          [class.processed]="isItemProcessed('materials', material.id)"
+                          [class.unprocessed]="!isItemProcessed('materials', material.id)">
                   <mat-card-header>
                     <mat-card-title>
-                      <div class="note-header">
-                        <span class="note-number">{{ i + 1 }}.</span>
-                        <span class="note-item">{{ note.itemText }}</span>
+                      <div class="material-header">
+                        <span class="material-number">{{ i + 1 }}.</span>
+                        <mat-icon class="material-type-icon">
+                          {{ material.type === 'text' ? 'article' : 
+                             material.type === 'audio' ? 'audiotrack' :
+                             material.type === 'video' ? 'videocam' :
+                             material.type === 'pdf' ? 'picture_as_pdf' :
+                             material.type === 'image' ? 'image' : 'description' }}
+                        </mat-icon>
+                        <span class="material-title">{{ material.title }}</span>
+                        <span class="material-type-badge" [class]="'type-' + material.type">
+                          {{ material.type.toUpperCase() }}
+                        </span>
                       </div>
                     </mat-card-title>
                     <mat-card-subtitle>
-                      <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                      <span class="author-badge" 
+                            [class.student-badge]="!isOwnContent(material.createdBy)"
+                            [class.teacher-badge]="isOwnContent(material.createdBy)">
+                        {{ getMaterialAuthorDisplay(material) }}
+                      </span>
+                      <span class="date">{{ material.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
                     </mat-card-subtitle>
                   </mat-card-header>
                   <mat-card-content>
-                    <div class="note-content">{{ note.content }}</div>
+                    <p *ngIf="material.description" class="material-description">{{ material.description }}</p>
+                    
+                    <!-- Контент материала -->
+                    <div class="material-content">
+                      <!-- Текстовый материал -->
+                      <div *ngIf="material.type === 'text'" class="text-content">
+                        <p>{{ material.content }}</p>
+                      </div>
+                      
+                      <!-- Аудио материал -->
+                      <div *ngIf="material.type === 'audio'" class="audio-content">
+                        <audio controls class="audio-player">
+                          <source [src]="material.content" type="audio/mpeg">
+                          <source [src]="material.content" type="audio/wav">
+                          Votre navigateur ne supporte pas l'élément audio.
+                        </audio>
+                      </div>
+                      
+                      <!-- Видео материал -->
+                      <div *ngIf="material.type === 'video'" class="video-content">
+                        <video controls class="video-player">
+                          <source [src]="material.content" type="video/mp4">
+                          <source [src]="material.content" type="video/webm">
+                          Votre navigateur ne supporte pas l'élément vidéo.
+                        </video>
+                      </div>
+                      
+                      <!-- PDF материал -->
+                      <div *ngIf="material.type === 'pdf'" class="pdf-content">
+                        <a [href]="material.content" target="_blank" mat-raised-button color="primary">
+                          <mat-icon>picture_as_pdf</mat-icon>
+                          Ouvrir le PDF
+                        </a>
+                      </div>
+                      
+                      <!-- Изображение -->
+                      <div *ngIf="material.type === 'image'" class="image-content">
+                        <img [src]="material.content" [alt]="material.title" class="material-image">
+                      </div>
+                    </div>
+                    
+                    <!-- Теги -->
+                    <div *ngIf="material.tags && material.tags.length > 0" class="material-tags">
+                      <span class="tag" *ngFor="let tag of material.tags">{{ tag }}</span>
+                    </div>
                   </mat-card-content>
+                  
+                  <!-- Кнопка раскрытия заметок -->
+                  <mat-card-actions *ngIf="isItemProcessed('materials', material.id)" class="card-actions-with-expand">
+                    <div class="spacer"></div>
+                    <button mat-icon-button 
+                            (click)="toggleMaterialExpansion(material.id)"
+                            [attr.aria-label]="isMaterialExpanded(material.id) ? 'Masquer les notes' : 'Afficher les notes'"
+                            matTooltip="{{ isMaterialExpanded(material.id) ? 'Masquer les notes' : 'Afficher les notes' }}">
+                      <mat-icon>{{ isMaterialExpanded(material.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                  </mat-card-actions>
+                  
+                  <!-- Раскрывающаяся панель с заметками -->
+                  <div *ngIf="isItemProcessed('materials', material.id) && isMaterialExpanded(material.id)" 
+                       class="notes-expansion-panel">
+                    <mat-divider></mat-divider>
+                    <div class="notes-content">
+                      <div class="notes-header">
+                        <mat-icon class="notes-icon">note_alt</mat-icon>
+                        <h4>Notes de travail</h4>
+                      </div>
+                      <div class="note-content">
+                        {{ getNoteForItem('materials', material.id)?.content }}
+                      </div>
+                      <div class="note-meta">
+                        <small>Dernière modification: {{ getNoteForItem('materials', material.id)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+                      </div>
+                    </div>
+                  </div>
                 </mat-card>
               </div>
+    
+              <!-- Message si нет материалов -->
+              <div *ngIf="currentLesson.materials.length === 0" class="no-items">
+                <mat-icon>folder</mat-icon>
+                <p>Aucun matériau pour ce cours</p>
+                <small>Les matériaux attachés à ce cours apparaîtront ici</small>
+              </div>
             </div>
-
-          </div>
-
-          <!-- Message si нет конспекта -->
-          <div *ngIf="!lessonNotes || (!hasNotesForSection('tasks') && !hasNotesForSection('questions') && !hasNotesForSection('materials'))" class="no-items">
-            <mat-icon>note_alt</mat-icon>
-            <p>Aucune note pour ce cours</p>
-            <small>Les notes prises pendant le cours apparaîtront ici</small>
-          </div>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+          </mat-tab>
+    
+          <!-- Вкладка: Домашние задания -->
+          <mat-tab label="📋 Devoirs">
+            <div class="tab-content">
+              <div class="homework-list">
+                <mat-card *ngFor="let homework of homeworkItems; let i = index" 
+                          class="homework-card"
+                          [class]="'type-' + homework.sourceType">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="homework-header">
+                        <span class="homework-number">{{ i + 1 }}.</span>
+                        <mat-icon class="homework-type-icon">
+                          {{ homework.sourceType === 'task' ? 'assignment' : 
+                             homework.sourceType === 'question' ? 'quiz' : 'folder' }}
+                        </mat-icon>
+                        <span class="homework-title">{{ homework.title }}</span>
+                        <span class="homework-status-badge" [class]="'status-' + homework.status">
+                          {{ homework.status === 'unfinished' ? 'Non terminé' : 'Terminé' }}
+                        </span>
+                        <span *ngIf="homework.createdInClass" class="covered-badge in-class" title="Créé en classe">
+                          ✅ Créé en classe
+                        </span>
+                        <span *ngIf="!homework.createdInClass" class="covered-badge outside-class" title="Créé hors classe">
+                          🏠 Créé hors classe
+                        </span>
+                      </div>
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                      <div class="homework-meta">
+                        <span class="homework-type">{{ homework.sourceType === 'task' ? 'Tâche' : homework.sourceType === 'question' ? 'Question' : 'Matériau' }}</span>
+                        <span class="homework-date">Créé le {{ homework.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                        <span class="homework-due" *ngIf="homework.dueDate">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}</span>
+                      </div>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <p class="homework-description">{{ homework.description }}</p>
+                  </mat-card-content>
+                  <mat-card-actions>
+                    <button mat-button color="accent">
+                      📝 Modifier
+                    </button>
+                  </mat-card-actions>
+                </mat-card>
+              </div>
+    
+              <!-- Message si нет домашних заданий -->
+              <div *ngIf="homeworkItems && homeworkItems.length === 0" class="no-items">
+                <mat-icon>assignment_turned_in</mat-icon>
+                <p>Aucun devoir pour ce cours</p>
+                <small>Les devoirs créés pendant le cours apparaîtront ici</small>
+              </div>
+            </div>
+          </mat-tab>
+    
+          <!-- Вкладка: Конспект -->
+          <mat-tab label="📝 Notes de cours">
+            <div class="tab-content">
+              <div class="lesson-notes" *ngIf="lessonNotes && (hasNotesForSection('tasks') || hasNotesForSection('questions') || hasNotesForSection('materials'))">
+                
+                <!-- Раздел задач в конспекте -->
+                <div *ngIf="hasNotesForSection('tasks')" class="notes-section">
+                  <div class="section-header-notes">
+                    <mat-icon class="section-icon">assignment</mat-icon>
+                    <h3>📝 Notes sur les tâches</h3>
+                    <span class="notes-count">({{ lessonNotes.tasksNotes.length }} note(s))</span>
+                  </div>
+                  
+                  <div class="notes-grid">
+                    <mat-card *ngFor="let note of lessonNotes.tasksNotes; let i = index" class="note-card task-note">
+                      <mat-card-header>
+                        <mat-card-title>
+                          <div class="note-header">
+                            <span class="note-number">{{ i + 1 }}.</span>
+                            <span class="note-item">{{ note.itemText }}</span>
+                          </div>
+                        </mat-card-title>
+                        <mat-card-subtitle>
+                          <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                        </mat-card-subtitle>
+                      </mat-card-header>
+                      <mat-card-content>
+                        <div class="note-content">{{ note.content }}</div>
+                      </mat-card-content>
+                    </mat-card>
+                  </div>
+                </div>
+    
+                <!-- Раздел вопросов в конспекте -->
+                <div *ngIf="hasNotesForSection('questions')" class="notes-section">
+                  <div class="section-header-notes">
+                    <mat-icon class="section-icon">quiz</mat-icon>
+                    <h3>❓ Notes sur les questions</h3>
+                    <span class="notes-count">({{ lessonNotes.questionsNotes.length }} note(s))</span>
+                  </div>
+                  
+                  <div class="notes-grid">
+                    <mat-card *ngFor="let note of lessonNotes.questionsNotes; let i = index" class="note-card question-note">
+                      <mat-card-header>
+                        <mat-card-title>
+                          <div class="note-header">
+                            <span class="note-number">{{ i + 1 }}.</span>
+                            <span class="note-item">{{ note.itemText }}</span>
+                          </div>
+                        </mat-card-title>
+                        <mat-card-subtitle>
+                          <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                        </mat-card-subtitle>
+                      </mat-card-header>
+                      <mat-card-content>
+                        <div class="note-content">{{ note.content }}</div>
+                      </mat-card-content>
+                    </mat-card>
+                  </div>
+                </div>
+    
+                <!-- Раздел материалов в конспекте -->
+                <div *ngIf="hasNotesForSection('materials')" class="notes-section">
+                  <div class="section-header-notes">
+                    <mat-icon class="section-icon">folder</mat-icon>
+                    <h3>📚 Notes sur les matériaux</h3>
+                    <span class="notes-count">({{ lessonNotes.materialsNotes.length }} note(s))</span>
+                  </div>
+                  
+                  <div class="notes-grid">
+                    <mat-card *ngFor="let note of lessonNotes.materialsNotes; let i = index" class="note-card material-note">
+                      <mat-card-header>
+                        <mat-card-title>
+                          <div class="note-header">
+                            <span class="note-number">{{ i + 1 }}.</span>
+                            <span class="note-item">{{ note.itemText }}</span>
+                          </div>
+                        </mat-card-title>
+                        <mat-card-subtitle>
+                          <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                        </mat-card-subtitle>
+                      </mat-card-header>
+                      <mat-card-content>
+                        <div class="note-content">{{ note.content }}</div>
+                      </mat-card-content>
+                    </mat-card>
+                  </div>
+                </div>
+    
+              </div>
+    
+              <!-- Message si нет конспекта -->
+              <div *ngIf="!lessonNotes || (!hasNotesForSection('tasks') && !hasNotesForSection('questions') && !hasNotesForSection('materials'))" class="no-items">
+                <mat-icon>note_alt</mat-icon>
+                <p>Aucune note pour ce cours</p>
+                <small>Les notes prises pendant le cours apparaîtront ici</small>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </div>
   </div>
 </div>
+

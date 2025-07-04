@@ -149,7 +149,7 @@ export class HeaderComponent {
       this.setSettingsLink();
     }
 
-    this.router.navigate(['student/wordsTeaching']).then(() => {
+    this.router.navigate(['student/home']).then(() => {
       this.dashboardService.switchToStudentDashboard();
     });
   }
@@ -164,7 +164,7 @@ export class HeaderComponent {
       this.setSettingsLink();
     }
 
-    this.router.navigate(['teacher/wordsTeaching']).then(() => {
+    this.router.navigate(['teacher/home']).then(() => {
       this.dashboardService.switchToTeacherDashboard();
     });
   }

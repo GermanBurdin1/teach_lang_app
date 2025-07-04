@@ -4,7 +4,7 @@
 
   <div class="container-fluid d-flex justify-content-end align-items-center">
     <!-- Dropdown для помощи -->
-    <div *ngIf="!loggedInAsAdminAccount" class="dropdown mx-2">
+    <!-- <div *ngIf="!loggedInAsAdminAccount" class="dropdown mx-2">
       <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center" type="button" id="helpDropdown"
         data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-rocket me-2"></i> Assistance
@@ -23,10 +23,10 @@
           <li><a class="dropdown-item" href="/support">Техподдержка</a></li>
         </ul>
       </div>
-    </div>
+    </div> -->
 
     <!-- Guided Tour Modal -->
-    <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isTourModalOpen }"
+    <!-- <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isTourModalOpen }"
       style="background-color: rgba(0, 0, 0, 0.5);" *ngIf="isTourModalOpen">
       <div class="modal-dialog modal-dialog-centered"
         [ngStyle]="{ position: modalPosition, top: modalTop, left: modalLeft }">
@@ -39,31 +39,27 @@
             <p>{{ tourSteps[currentStep].content }}</p>
           </div>
           <div class="modal-footer d-flex justify-content-between">
-            <div>
+            <div> -->
               <!-- Кнопка "Назад" видна только начиная со второго шага -->
-              <button *ngIf="currentStep > 0" class="btn btn-secondary" (click)="previousStep()">Назад</button>
+              <!-- <button *ngIf="currentStep > 0" class="btn btn-secondary" (click)="previousStep()">Назад</button>
             </div>
-            <div>
+            <div> -->
               <!-- Отображение текущего и общего числа шагов -->
-              <span>{{ currentStep + 1 }} из {{ tourSteps.length }}</span>
+              <!-- <span>{{ currentStep + 1 }} из {{ tourSteps.length }}</span> -->
               <!-- Кнопка "Далее" -->
-              <button *ngIf="currentStep < tourSteps.length - 1" class="btn btn-primary"
-                (click)="nextStep()">Далее</button>
+              <!-- <button *ngIf="currentStep < tourSteps.length - 1" class="btn btn-primary"
+                (click)="nextStep()">Далее</button> -->
               <!-- Кнопка "Завершить" на последнем шаге -->
-              <button *ngIf="currentStep === tourSteps.length - 1" class="btn btn-primary"
+              <!-- <button *ngIf="currentStep === tourSteps.length - 1" class="btn btn-primary"
                 (click)="closeTourModal()">Завершить</button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-
-
-
+    </div> -->
 
     <!-- Dropdown для информации о тарифе -->
-    <div *ngIf="!loggedInAsAdminAccount" class="dropdown mx-2">
+    <!-- <div *ngIf="!loggedInAsAdminAccount" class="dropdown mx-2">
       <button class="btn btn-danger d-flex align-items-center dropdown-toggle" type="button" id="tariffDropdown"
         data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 16px; padding: 5px 10px;">
         <i class="fas fa-crown me-2"></i> 0 j.
@@ -78,9 +74,9 @@
         </p>
         <a class="btn btn-primary w-100" href="/tariffs">Перейти к тарифам</a>
       </div>
-    </div>
+    </div> -->
 
-    <div *ngIf="!loggedInAsAdminAccount" class="dropdown mx-2">
+    <!-- <div *ngIf="!loggedInAsAdminAccount" class="dropdown mx-2">
       <button class="btn btn-outline-dark dropdown-toggle d-flex align-items-center" type="button" id="balanceDropdown"
         data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-wallet me-2"></i> 0 EUR
@@ -94,10 +90,10 @@
         <p class="text-muted mb-3">С баланса школы оплачиваются тарифы, учебники и т.д.</p>
         <button class="btn btn-primary w-100" (click)="openBalanceModal()">Пополнить баланс</button>
       </div>
-    </div>
+    </div> -->
 
     <!-- Модальное окно пополнения суммы -->
-    <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showBalanceModal }" role="dialog"
+    <!-- <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showBalanceModal }" role="dialog"
       style="background: rgba(0, 0, 0, 0.5);" *ngIf="showBalanceModal">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -118,18 +114,17 @@
           </div>
         </div>
       </div>
-    </div>
-
+    </div> -->
 
     <!-- Модальное окно для ввода данных карты -->
-    <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isPaymentModalOpen }"
+    <!-- <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isPaymentModalOpen }"
       style="background-color: rgba(0, 0, 0, 0.5);" *ngIf="isPaymentModalOpen">
       <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
         <div class="modal-content p-4">
           <div class="modal-header">
-            <h5 class="modal-title mt-2">Предоставление права доступа к платформе</h5>
+            <h5 class="modal-title mt-2">Предоставление права доступа к платформе</h5> -->
             <!-- Кнопка-крестик для закрытия модального окна -->
-            <button type="button" class="btn-close" aria-label="Close" (click)="closePaymentModal()"></button>
+            <!-- <button type="button" class="btn-close" aria-label="Close" (click)="closePaymentModal()"></button>
           </div>
           <div class="modal-body">
             <div class="text-center mb-3">
@@ -158,8 +153,7 @@
           </div>
         </div>
       </div>
-    </div>
-
+    </div>  -->
 
     <!-- Иконка пользователя -->
     <mat-menu #userMenu="matMenu">

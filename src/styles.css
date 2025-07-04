@@ -6,6 +6,7 @@
   /* Light mode colors */
   --galaxy-primary: #6d28d9;
   --cosmic-gold: #fbbf24;
+  --cosmic-orange: #ff9800;
   --nebula-pink: #ec4899;
   --space-blue: #3b82f6;
   --stellar-purple: #8b5cf6;
@@ -20,8 +21,23 @@
   --shadow-color: rgba(0, 0, 0, 0.1);
   --hover-bg: rgba(255, 255, 255, 0.2);
   --success-green: #4caf50;
+  /* buttons  */
   --btn-green: #00C8A8;
+  --btn-green-font-color__dark-green_hue: #063f2a;
+  --btn-red-font-color__dark-red_hue: #3f0626;
   --hover-btn-green: #0AFFD2;
+  --btn-secondary-font-color: #4a5568;
+  --btn-late-bg-light-mode: #ec4858;
+  --btn-light-gold: #ffe5a3;
+  /* icons */
+  --icon-bg-color-dark__hue: #1c1419;
+  /* cards */
+  --cosmic-gold: #fbbf24;
+  /* tabs */
+  --cosmic-gold: #fbbf24;
+  /* borders */
+  --border-color-light-mode__dark-green_hue: #063f2a;
+  --border-color-light-mode__dark-red_hue: #3f0626;
 }
 
 /* Dark theme styles are loaded dynamically from assets/themes/dark-theme.css */

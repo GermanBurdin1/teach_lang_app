@@ -76,7 +76,15 @@ export class LoginComponent implements OnInit {
         next: (user) => {
           this.authService.setUser(user);
           this.authService.setActiveRole(selectedRole);
-          this.router.navigate(['/dashboard']);
+          if (selectedRole === 'student') {
+            this.router.navigate(['/student/home']);
+          } else if (selectedRole === 'teacher') {
+            this.router.navigate(['/teacher/home']);
+          } else if (selectedRole === 'admin') {
+            this.router.navigate(['/admin/home']);
+          } else {
+            this.router.navigate(['/']);
+          }
         },
         error: (err) => {
           this.notificationService.error(err.error?.message || 'Identifiants incorrects');

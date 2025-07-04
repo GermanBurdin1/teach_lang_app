@@ -20,6 +20,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { LayoutModule } from '../../layout/layout.module';
 
 
 
@@ -29,6 +30,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     GabaritComponent // ✅ Добавь это
   ],
   imports: [
+    LayoutModule,
     CommonModule,
     DragDropModule,
     FormsModule,

@@ -58,7 +58,7 @@ export class StudentHomeComponent implements OnInit {
 
   // Новые свойства для управления уведомлениями
   showMoreNotifications = false;
-  readonly MAX_NOTIFICATIONS = 10;
+  readonly MAX_NOTIFICATIONS = 5;
 
   studentHomework: Homework[] = [];
 

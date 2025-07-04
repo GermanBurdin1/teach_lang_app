@@ -116,7 +116,7 @@
 }
 
 .filter-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--space-blue) 0%, var(--galaxy-primary) 100%);
   padding: 20px;
   border-radius: 15px;
   margin-bottom: 24px;
@@ -248,12 +248,12 @@
   border-radius: 16px;
   font-size: 0.875rem;
   font-weight: 600;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.5px;
 }
 
 .status-confirmed {
-  background-color: #4caf50;
+  background-color: var(--success-green);
   color: white;
 }
 
@@ -263,7 +263,7 @@
 }
 
 .status-rejected {
-  background-color: #f44336;
+  background-color: var(--btn-late-bg-light-mode);
   color: white;
 }
 
@@ -555,7 +555,6 @@
 }
 
 .author-badge.student-badge {
-  background: #E3F2FD;
   color: #1976D2;
 }
 
@@ -824,7 +823,7 @@
 }
 
 .homework-status-badge.status-finished {
-  background-color: #4caf50;
+  background-color: var(--success-green);
   color: white;
 }
 
@@ -881,7 +880,7 @@
 }
 
 .notes-indicator {
-  color: #673ab7 !important;
+  color: var(--galaxy-primary) !important;
 }
 
 .stat-item.homework-indicator,
@@ -1072,20 +1071,18 @@
   font-weight: 500;
   margin-left: auto;
   white-space: nowrap;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.5px;
 }
 
 .status-processed {
-  background-color: #e8f5e8;
-  color: #2e7d2e;
-  border: 1px solid #4caf50;
+  background-color: var(--success-green);
+  color: white;
 }
 
 .status-unprocessed {
-  background-color: #ffeaa7;
-  color: #d63031;
-  border: 1px solid #fab1a0;
+  background-color: var(--btn-light-gold);
+  color: var(--btn-red-font-color__dark-red_hue);
 }
 
 /* Обновляем header'ы для размещения статуса проработки */
@@ -1207,6 +1204,16 @@
 .card-actions-with-expand button[mat-icon-button]:hover {
   transform: scale(1.1);
   background-color: rgba(0, 123, 255, 0.1);
+}
+
+.mat-mdc-raised-button:not(:disabled) {
+  background-color: var(--space-blue) !important;
+}
+
+.audio-player {
+  margin-top: 20px;
+  width: 346px !important;
+  height: 40px;
 }
 
 /* ==================== АДАПТИВНЫЕ СТИЛИ ==================== */
