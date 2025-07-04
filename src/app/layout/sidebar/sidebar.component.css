@@ -244,15 +244,15 @@
 
 /* Specific role styling variations */
 .teacher-menu {
-  border-right: 4px solid var(--cosmic-gold);
+  border-right: 2px solid var(--cosmic-gold);
 }
 
 .student-menu {
-  border-right: 4px solid var(--space-blue);
+  border-right: 2px solid var(--space-blue);
 }
 
 .school-menu {
-  border-right: 4px solid var(--galaxy-accent);
+  border-right: 2px solid var(--galaxy-accent);
 }
 
 .dark-theme .teacher-menu {
