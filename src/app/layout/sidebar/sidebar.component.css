@@ -45,7 +45,7 @@
 }
 
 /* Main sidebar container - minimal styling, let content control size */
-/* .sidebar {
+.sidebar {
   position: fixed;
   left: 0;
   top: 0;
@@ -56,7 +56,7 @@
   transition: width 0.3s ease, box-shadow 0.3s ease;
   z-index: 1000;
   overflow: visible;
-} */
+}
 
 /* Expanded sidebar */
 .sidebar:not(.collapsed) {
