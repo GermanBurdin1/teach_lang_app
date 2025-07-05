@@ -6,7 +6,7 @@
   <!-- Légende des couleurs -->
   <div *ngIf="!loading && sentRequests.length > 0" class="legend">
     <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
-      <h4>Légende des statuts:</h4>
+      <h2>Légende des statuts:</h2>
       <button mat-icon-button (click)="legendCollapsed = !legendCollapsed">
         <mat-icon>{{ legendCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
       </button>
