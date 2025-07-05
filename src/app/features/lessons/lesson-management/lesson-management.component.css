@@ -330,6 +330,8 @@
 /* Контент вкладок */
 .tab-content {
   padding: 24px 0;
+  overflow-y: auto;
+  max-height: 55vh;
 }
 
 /* Кнопки добавления */
@@ -470,10 +472,22 @@
 
 }
 
-::ng-deep .mat-tab-group {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+::ng-deep .mat-mdc-tab-group, ::ng-deep .mat-tab-group {
+  height: 100%;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep .mat-mdc-tab-body, ::ng-deep .mat-tab-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.tab-content {
+  overflow-y: auto;
+  max-height: 55vh;
 }
 
 ::ng-deep .mat-tab-header {
