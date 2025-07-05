@@ -144,7 +144,14 @@
                     <strong>{{ req.title }}</strong><br />
                     <small>{{ req.message }}</small>
                     <div class="status-badge status-{{ req.status }}">
-                      Status: <strong>{{ req.status }}</strong>
+                      Statut : <strong>
+                        {{ req.status === 'accepted' ? 'Acceptée' :
+                           req.status === 'rejected' ? 'Refusée' :
+                           req.status === 'pending' ? 'En attente' :
+                           req.status === 'cancelled' ? 'Annulée' :
+                           req.status === 'confirmed' ? 'Confirmée' :
+                           req.status }}
+                      </strong>
                     </div>
                   </div>
                   
