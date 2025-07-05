@@ -721,6 +721,7 @@ select.form-control {
 /* Homework Card Specific Styles */
 .homework-card {
   border-left: 5px solid var(--space-blue);
+  margin-bottom: 2vh;
 }
 
 .homework-card.pending {

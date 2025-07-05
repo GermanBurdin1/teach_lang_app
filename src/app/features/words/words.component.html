@@ -283,7 +283,7 @@
     <!-- Языки -->
     <div class="lang-selectors">
       <label>De la langue :
-        <select [(ngModel)]="sourceLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode">
+        <select [(ngModel)]="sourceLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode" name="sourceLang">
           <option value="ru">russe</option>
           <option value="fr">français</option>
           <option value="en">anglais</option>
@@ -291,7 +291,7 @@
       </label>
 
       <label>Vers la langue :
-        <select [(ngModel)]="targetLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode">
+        <select [(ngModel)]="targetLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode" name="targetLang">
           <option value="ru">russe</option>
           <option value="fr">français</option>
           <option value="en">anglais</option>
@@ -339,13 +339,13 @@
     <!-- Если добавляем ГЛОБАЛЬНО (не через галактику) -->
     <div *ngIf="!isFromGalaxyShortcut">
       <!-- Категория -->
-      <select [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()" class="add-entry-modal__select">
+      <select [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()" class="add-entry-modal__select" name="selectedGalaxy">
         <option value="">Sans catégorie</option>
         <option *ngFor="let galaxy of galaxies" [value]="galaxy.name">{{ galaxy.name }}</option>
       </select>
 
       <!-- Подтема -->
-      <select *ngIf="availableSubtopics.length" [(ngModel)]="selectedSubtopic" class="add-entry-modal__select">
+      <select *ngIf="availableSubtopics.length" [(ngModel)]="selectedSubtopic" class="add-entry-modal__select" name="selectedSubtopic">
         <option value="" disabled selected>Choisir un sous-thème</option>
         <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
       </select>
@@ -354,7 +354,7 @@
     <!-- Если добавляем через галактику (плюсик внутри галактики) -->
     <div *ngIf="isFromGalaxyShortcut">
       <!-- Только Подтема -->
-      <select [(ngModel)]="selectedSubtopic" class="add-entry-modal__select">
+      <select [(ngModel)]="selectedSubtopic" class="add-entry-modal__select" name="selectedSubtopicShortcut">
         <option value="">Sans catégorie</option> <!-- Важно: добавляем вручную -->
         <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
       </select>
