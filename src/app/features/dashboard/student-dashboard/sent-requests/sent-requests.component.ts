@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { LessonService } from '../../../../services/lesson.service';
 import { AuthService } from '../../../../services/auth.service';
 import { PageEvent } from '@angular/material/paginator';
+import { Router } from '@angular/router';
 
 interface SentRequest {
   lessonId: string;
@@ -34,7 +35,8 @@ export class SentRequestsComponent implements OnInit {
 
   constructor(
     private lessonService: LessonService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -110,6 +112,9 @@ export class SentRequestsComponent implements OnInit {
           this.total = res.total;
         }
         this.loading = false;
+        if (this.total === 0) {
+          this.router.navigate(['/student/teachers']);
+        }
       },
       error: () => { this.loading = false; }
     });

@@ -52,9 +52,9 @@
   </div>
 
   <div *ngIf="!loading && sentRequests.length > 0" class="requests-list">
-    <mat-card *ngFor="let request of sentRequests" class="request-card" 
-              [style.border-left]="'4px solid ' + getStatusColor(request.status)">
-      
+    <mat-card *ngFor="let request of sentRequests" class="request-card"
+      [style.border-left]="'4px solid ' + getStatusColor(request.status)">
+
       <!-- En-tête de la carte -->
       <mat-card-header>
         <div class="request-header">
@@ -75,7 +75,7 @@
       <!-- Corps de la carte -->
       <mat-card-content>
         <div class="request-details">
-          
+
           <!-- Heure demandée initialement -->
           <div class="time-info original-time">
             <mat-icon>schedule</mat-icon>
@@ -112,7 +112,8 @@
       </mat-card-content>
 
       <!-- Actions (si nécessaire) -->
-      <mat-card-actions *ngIf="request.status === 'pending' && hasProposalFromTeacher(request) && request.studentConfirmed === null">
+      <mat-card-actions
+        *ngIf="request.status === 'pending' && hasProposalFromTeacher(request) && request.studentConfirmed === null">
         <button mat-raised-button color="primary">
           Accepter la proposition
         </button>
@@ -122,17 +123,12 @@
       </mat-card-actions>
 
     </mat-card>
-    
-    <mat-paginator
-      [length]="total"
-      [pageSize]="limit"
-      [pageIndex]="page - 1"
-      [pageSizeOptions]="[5, 10, 20, 50]"
-      (page)="onPageChange($event)"
-      aria-label="Pagination of requests">
+
+    <mat-paginator *ngIf="total > limit" [length]="total" [pageSize]="limit" [pageIndex]="page - 1"
+      [pageSizeOptions]="[5, 10, 20, 50]" (page)="onPageChange($event)" aria-label="Pagination of requests">
     </mat-paginator>
   </div>
 
-  
 
-</div> 
+
+</div>
