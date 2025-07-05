@@ -5,7 +5,6 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  padding: 32px;
   min-height: 100vh;
   background: linear-gradient(135deg, 
     var(--cosmic-white) 0%, 
@@ -13,6 +12,8 @@
     rgba(251, 191, 36, 0.03) 70%,
     var(--cosmic-white) 100%);
   position: relative;
+  width: 90vw;
+  margin-left: 6vw;
 }
 
 .teacher-home::before {

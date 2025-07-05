@@ -1,10 +1,12 @@
 /* Основной контейнер */
-.teacher-lesson-management {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+.lesson-management {
+  padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
   font-family: 'Roboto', sans-serif;
 }
+
+
 
 /* Индикатор загрузки */
 .loading-container {
@@ -533,7 +535,7 @@
 
 /* Стили для фильтров */
 .filter-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(139, 92, 246, 0.15);
   padding: 20px;
   border-radius: 15px;
   margin-bottom: 24px;
@@ -541,17 +543,21 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  align-items: center;
 }
 
 .filter-container mat-button-toggle-group {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 6.4vh;
+  margin-bottom: 2.4vh;
 }
 
 .filter-container mat-button-toggle {
-  color: white !important;
+  color: var(--color-primary) !important;
   border: none !important;
   font-weight: 500;
   padding: 12px 20px;
