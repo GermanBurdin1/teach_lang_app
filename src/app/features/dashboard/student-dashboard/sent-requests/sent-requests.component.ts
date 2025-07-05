@@ -24,6 +24,7 @@ export class SentRequestsComponent implements OnInit {
   sentRequests: SentRequest[] = [];
   loading = true;
   currentUserId: string = '';
+  legendCollapsed = false; // Переменная для сворачивания легенды
 
   constructor(
     private lessonService: LessonService,

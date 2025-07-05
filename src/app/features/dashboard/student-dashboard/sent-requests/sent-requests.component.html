@@ -1,31 +1,38 @@
 <div class="sent-requests-container">
-  <div class="header">
+  <!-- <div class="header">
     <h2>📋 Mes demandes envoyées</h2>
     <p class="subtitle">Historique de toutes vos demandes de cours par ordre chronologique</p>
-  </div>
+  </div> -->
   <!-- Légende des couleurs -->
   <div *ngIf="!loading && sentRequests.length > 0" class="legend">
-    <h4>Légende des statuts:</h4>
-    <div class="legend-items">
-      <div class="legend-item">
-        <div class="legend-color" style="background-color: var(--success-green);"></div>
-        <span>✅ Confirmé - Le cours est programmé</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background-color: #f44336;"></div>
-        <span>❌ Refusé - Demande rejetée par le professeur</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background-color: var(--cosmic-orange);"></div>
-        <span>⏳ En attente - En cours d'examen par le professeur</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background-color: #9e9e9e;"></div>
-        <span>🚫 Annulé (avec remboursement) - Cours annulé par l'étudiant</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background-color: #9e9e9e;"></div>
-        <span>⛔ Annulé (sans remboursement) - Cours annulé moins de 2h avant</span>
+    <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+      <h4>Légende des statuts:</h4>
+      <button mat-icon-button (click)="legendCollapsed = !legendCollapsed">
+        <mat-icon>{{ legendCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+      </button>
+    </div>
+    <div *ngIf="!legendCollapsed">
+      <div class="legend-items">
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--success-green);"></div>
+          <span>✅ Confirmé - Le cours est programmé</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #f44336;"></div>
+          <span>❌ Refusé - Demande rejetée par le professeur</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--cosmic-orange);"></div>
+          <span>⏳ En attente - En cours d'examen par le professeur</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #9e9e9e;"></div>
+          <span>🚫 Annulé (avec remboursement) - Cours annulé par l'étudiant</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #9e9e9e;"></div>
+          <span>⛔ Annulé (sans remboursement) - Cours annulé moins de 2h avant</span>
+        </div>
       </div>
     </div>
   </div>
