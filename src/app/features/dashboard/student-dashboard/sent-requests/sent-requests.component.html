@@ -122,6 +122,15 @@
       </mat-card-actions>
 
     </mat-card>
+    
+    <mat-paginator
+      [length]="total"
+      [pageSize]="limit"
+      [pageIndex]="page - 1"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      (page)="onPageChange($event)"
+      aria-label="Pagination of requests">
+    </mat-paginator>
   </div>
 
   

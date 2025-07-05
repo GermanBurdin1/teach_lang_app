@@ -93,6 +93,10 @@ export class LessonService {
     return this.http.get<any[]>(`${this.baseUrl}/student/${studentId}/sent-requests`);
   }
 
+  getStudentSentRequestsPaged(studentId: string, page = 1, limit = 10): Observable<{ data: any[], total: number }> {
+    return this.http.get<{ data: any[], total: number }>(`${this.baseUrl}/student/${studentId}/sent-requests-paged?page=${page}&limit=${limit}`);
+  }
+
   // Методы для работы с задачами и вопросами
 
   getLessonDetails(lessonId: string): Observable<any> {

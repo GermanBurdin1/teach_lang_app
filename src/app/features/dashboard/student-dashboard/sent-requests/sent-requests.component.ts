@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LessonService } from '../../../../services/lesson.service';
 import { AuthService } from '../../../../services/auth.service';
+import { PageEvent } from '@angular/material/paginator';
 
 interface SentRequest {
   lessonId: string;
@@ -25,6 +26,11 @@ export class SentRequestsComponent implements OnInit {
   loading = true;
   currentUserId: string = '';
   legendCollapsed = false; // Переменная для сворачивания легенды
+
+  // Пагинация
+  page = 1;
+  limit = 10;
+  total = 0;
 
   constructor(
     private lessonService: LessonService,
@@ -68,32 +74,51 @@ export class SentRequestsComponent implements OnInit {
   }
 
   loadSentRequests(): void {
-    console.log('[SentRequests] loadSentRequests called with userId:', this.currentUserId);
-    
     if (!this.currentUserId) {
-      console.error('[SentRequests] Cannot load requests without userId');
       this.loading = false;
       return;
     }
-
     this.loading = true;
-    this.lessonService.getStudentSentRequests(this.currentUserId).subscribe({
-      next: (requests) => {
-        this.sentRequests = requests.map(req => ({
-          ...req,
-          scheduledAt: new Date(req.scheduledAt),
-          createdAt: new Date(req.createdAt),
-          proposedTime: req.proposedTime ? new Date(req.proposedTime) : undefined,
-          proposedByTeacherAt: req.proposedByTeacherAt ? new Date(req.proposedByTeacherAt) : undefined
-        }));
+    // Попробуем универсально: если lessonService.getStudentSentRequests требует только studentId, вызываем только с ним
+    let obs$;
+    try {
+      obs$ = this.lessonService.getStudentSentRequestsPaged.length === 1
+        ? this.lessonService.getStudentSentRequestsPaged(this.currentUserId)
+        : this.lessonService.getStudentSentRequestsPaged(this.currentUserId, this.page, this.limit);
+    } catch {
+      obs$ = this.lessonService.getStudentSentRequestsPaged(this.currentUserId);
+    }
+    obs$.subscribe({
+      next: (res: any) => {
+        if (Array.isArray(res)) {
+          this.sentRequests = res.map((req: any) => ({
+            ...req,
+            scheduledAt: new Date(req.scheduledAt),
+            createdAt: new Date(req.createdAt),
+            proposedTime: req.proposedTime ? new Date(req.proposedTime) : undefined,
+            proposedByTeacherAt: req.proposedByTeacherAt ? new Date(req.proposedByTeacherAt) : undefined
+          }));
+          this.total = res.length;
+        } else {
+          this.sentRequests = res.data.map((req: any) => ({
+            ...req,
+            scheduledAt: new Date(req.scheduledAt),
+            createdAt: new Date(req.createdAt),
+            proposedTime: req.proposedTime ? new Date(req.proposedTime) : undefined,
+            proposedByTeacherAt: req.proposedByTeacherAt ? new Date(req.proposedByTeacherAt) : undefined
+          }));
+          this.total = res.total;
+        }
         this.loading = false;
-        console.log('📋 Отправленные заявки загружены:', this.sentRequests);
       },
-      error: (error) => {
-        console.error('❌ Ошибка загрузки отправленных заявок:', error);
-        this.loading = false;
-      }
+      error: () => { this.loading = false; }
     });
+  }
+
+  onPageChange(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.limit = event.pageSize;
+    this.loadSentRequests();
   }
 
   getStatusColor(status: string): string {
