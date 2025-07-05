@@ -68,7 +68,7 @@
 .student-menu,
 .school-menu {
   position: absolute;
-  left: 0;
+  left: -1vw;
   top: 9vh;
   display: flex;
   flex-direction: column;
