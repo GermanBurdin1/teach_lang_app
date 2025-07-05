@@ -111,6 +111,12 @@
   color: white;
 }
 
+.tab-content {
+  padding: 24px 0;
+  overflow-y: auto;
+  max-height: 55vh;
+}
+
 /* Вкладки */
 ::ng-deep .mat-tab-group {
   margin: 20px 0;
