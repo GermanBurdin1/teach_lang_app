@@ -14,6 +14,7 @@ export class LoginComponent implements OnInit {
   availableRoles: string[] = [];
   emailChecked = false;
   showPassword = false;
+  isDarkTheme = false;
 
   email = '';
   password = '';
@@ -26,6 +27,11 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Проверяем сохранённую тему
+    const savedTheme = localStorage.getItem('theme');
+    this.isDarkTheme = savedTheme === 'dark';
+    this.applyTheme();
+
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -67,7 +73,6 @@ export class LoginComponent implements OnInit {
     }
   }
 
-
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password, selectedRole } = this.loginForm.value;
@@ -93,4 +98,20 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  toggleTheme(): void {
+    this.isDarkTheme = !this.isDarkTheme;
+    this.applyTheme();
+    localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
+  }
+
+  private applyTheme(): void {
+    const formWrapper = document.querySelector('.form-wrapper');
+    if (formWrapper) {
+      if (this.isDarkTheme) {
+        formWrapper.classList.add('dark-theme');
+      } else {
+        formWrapper.classList.remove('dark-theme');
+      }
+    }
+  }
 }

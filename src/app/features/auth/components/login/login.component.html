@@ -1,5 +1,12 @@
 <div class="form-wrapper">
   <div class="form-container">
+    <div class="theme-toggle" (click)="toggleTheme()">
+      {{ isDarkTheme ? '☀️ Light' : '🌙 Dark' }}
+    </div>
+    <div class="logo-container">
+      <!-- Здесь можно добавить логотип -->
+      <!-- <img src="assets/logo.png" alt="GalaxyLang Logo"> -->
+    </div>
     <h2>Connexion</h2>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">

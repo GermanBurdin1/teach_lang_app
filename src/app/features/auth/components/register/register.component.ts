@@ -20,6 +20,7 @@ export class RegisterComponent implements OnInit {
   password = '';
   role = '';
   showPassword = false;
+  isDarkTheme = false;
 
   constructor(private fb: FormBuilder,
     private authService: AuthService,
@@ -29,6 +30,11 @@ export class RegisterComponent implements OnInit {
     private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    // Проверяем сохранённую тему
+    const savedTheme = localStorage.getItem('theme');
+    this.isDarkTheme = savedTheme === 'dark';
+    this.applyTheme();
+
     this.registerForm = this.fb.group(
       {
         name: ['', Validators.required],
@@ -160,5 +166,22 @@ export class RegisterComponent implements OnInit {
   showPasswordFields(): boolean {
     // Показываем поля для пароля только если email не найден в базе
     return !this.emailChecked || (this.emailChecked && this.existingRoles.length === 0);
+  }
+
+  toggleTheme(): void {
+    this.isDarkTheme = !this.isDarkTheme;
+    this.applyTheme();
+    localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
+  }
+
+  private applyTheme(): void {
+    const formWrapper = document.querySelector('.form-wrapper');
+    if (formWrapper) {
+      if (this.isDarkTheme) {
+        formWrapper.classList.add('dark-theme');
+      } else {
+        formWrapper.classList.remove('dark-theme');
+      }
+    }
   }
 }

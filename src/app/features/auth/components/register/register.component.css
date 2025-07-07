@@ -1,17 +1,107 @@
+/* Скрытие лишних подписей под полями */
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+::ng-deep .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-subscript-wrapper,
+::ng-deep .mat-mdc-form-field.ng-touched.ng-invalid .mat-mdc-form-field-subscript-wrapper {
+  display: flex;
+}
+
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 70%, #f1f5f9 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Анимированные космические элементы */
+.form-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="0.5" fill="%236d28d9" opacity="0.3"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/></circle><circle cx="80" cy="30" r="0.3" fill="%23fbbf24" opacity="0.2"><animate attributeName="opacity" values="0.2;0.6;0.2" dur="4s" repeatCount="indefinite"/></circle><circle cx="60" cy="70" r="0.4" fill="%233b82f6" opacity="0.25"><animate attributeName="opacity" values="0.25;0.7;0.25" dur="2.5s" repeatCount="indefinite"/></circle></svg>') repeat;
+  animation: float 20s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) translateX(0); }
+  100% { transform: translateY(-20px) translateX(-10px); }
+}
+
 .form-container {
   width: 100%;
-  max-width: 800px; /* ✅ ширина ограничена, но не фиксирована */
+  max-width: 480px;
   margin: 48px auto;
   padding: 32px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(109, 40, 217, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.2);
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Переключатель темы */
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--galaxy-primary);
+  border-radius: 20px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  color: var(--galaxy-primary);
+}
+
+.theme-toggle:hover {
+  background: var(--galaxy-primary);
+  color: white;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-container img {
+  max-width: 150px;
+  height: auto;
+}
+
+.form-container h2 {
+  background: linear-gradient(45deg, var(--galaxy-primary), var(--cosmic-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 4px rgba(109, 40, 217, 0.1);
 }
 
 form {
   display: flex;
   flex-direction: column;
-  width: 100%; /* ✅ добавлено */
+  width: 100%;
 }
 
 .full-width {
@@ -19,37 +109,114 @@ form {
   margin-bottom: 16px;
 }
 
-button {
-  align-self: flex-start; /* или center — если нужно по центру */
+mat-form-field {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-.form-wrapper {
-  display: flex;
-  justify-content: center;   /* по горизонтали */
-  align-items: center;       /* по вертикали */
-  background-color: #f5f5f5; /* (опционально, светлый фон) */
+/* Цвета для светлой темы */
+mat-label, input, .mat-button-toggle {
+  color: var(--text-primary) !important;
+}
+
+/* Переопределение floating label для светлой темы */
+::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label {
+  color: var(--galaxy-primary) !important;
+}
+
+/* Контрастные placeholder'ы */
+::ng-deep .mat-mdc-input-element::placeholder {
+  color: var(--galaxy-primary) !important;
+  opacity: 0.9 !important;
+  font-weight: 600 !important;
+}
+
+::ng-deep .mat-mdc-form-field-label {
+  color: var(--galaxy-primary) !important;
+  font-weight: 500 !important;
+}
+
+/* Иконка глаза */
+::ng-deep .mat-icon-button {
+  color: var(--galaxy-primary) !important;
+}
+
+::ng-deep .mat-icon {
+  color: var(--galaxy-primary) !important;
+}
+
+/* Чекбоксы контрастные */
+::ng-deep .mat-mdc-checkbox .mdc-label {
+  color: var(--galaxy-primary) !important;
+  font-weight: 500 !important;
+}
+
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  border-color: var(--galaxy-primary) !important;
+}
+
+button {
+  align-self: center;
+  background: #ffffff !important;
+  color: var(--galaxy-primary) !important;
+  border: 2px solid var(--galaxy-primary) !important;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(109, 40, 217, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(109, 40, 217, 0.3) 0%, transparent 70%);
+  transition: all 0.4s ease;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(109, 40, 217, 0.4);
+  background: rgba(109, 40, 217, 0.05) !important;
+}
+
+button:hover::before {
+  width: 200px;
+  height: 200px;
 }
 
 .auth-link {
   margin-top: 16px;
   font-size: 14px;
+  text-align: center;
 }
 
 .auth-link a {
-  color: #1976d2;
+  color: var(--galaxy-primary) !important;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600 !important;
+  transition: color 0.3s ease;
 }
 
 .auth-link a:hover {
+  color: var(--cosmic-gold);
   text-decoration: underline;
 }
 
 ::ng-deep .existing-role-hint {
   display: block;
-  color: #333;
-  background-color: #f6f8fa;
-  border-left: 4px solid #1976d2;
+  color: var(--text-primary);
+  background: linear-gradient(90deg, rgba(109, 40, 217, 0.05), rgba(251, 191, 36, 0.05));
+  border-left: 4px solid var(--cosmic-gold);
   padding: 8px 12px;
   margin-top: 8px;
   border-radius: 4px;
@@ -57,6 +224,203 @@ button {
 }
 
 ::ng-deep mat-form-field.full-width + mat-form-field.full-width {
-  margin-top: 24px; /* чуть больше пространства между полями */
+  margin-top: 24px;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+  color: rgba(109, 40, 217, 0.3);
+}
+
+::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: var(--galaxy-primary);
+}
+
+::ng-deep .mat-checkbox-checked .mat-checkbox-background {
+  background-color: var(--galaxy-primary);
+}
+
+/* Тёмная тема */
+.dark-theme .form-wrapper {
+  background: #0a0a0f;
+  position: relative;
+}
+
+/* Звёздное небо с летящими словами для тёмной темы */
+.dark-theme .form-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(1px 1px at 10px 20px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 80px 40px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 120px 80px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 200px 30px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 250px 70px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 300px 20px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 350px 90px, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 50px 90px, rgba(255, 255, 255, 0.8), transparent);
+  background-repeat: repeat;
+  background-size: 400px 120px;
+  animation: starfield 12s linear infinite;
+  z-index: 0;
+}
+
+.dark-theme .form-wrapper::after {
+  content: 'Hello • Bonjour • Hola • Ciao • Привет • こんにちは • 안녕하세요 • مرحبا • Namaste • Guten Tag';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: rgba(78, 205, 196, 0.15);
+  font-size: 12px;
+  font-weight: 300;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: comet 25s linear infinite;
+  z-index: 0;
+  line-height: 100vh;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+/* Переопределение floating label для тёмной темы */
+.dark-theme ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label {
+  color: #4ecdc4 !important;
+}
+
+@keyframes starfield {
+  0% { 
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+  }
+  50% { 
+    opacity: 0.6;
+  }
+  100% { 
+    transform: translateY(-30px) translateX(-20px);
+    opacity: 1;
+  }
+}
+
+@keyframes comet {
+  0% { 
+    transform: translateX(-100%) rotate(-15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.1;
+  }
+  100% { 
+    transform: translateX(100vw) rotate(-15deg);
+    opacity: 0;
+  }
+}
+
+.dark-theme .form-container {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(78, 205, 196, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(78, 205, 196, 0.2);
+}
+
+.dark-theme .theme-toggle {
+  background: rgba(15, 23, 42, 0.9);
+  color: #4ecdc4;
+  border-color: #4ecdc4;
+}
+
+.dark-theme .theme-toggle:hover {
+  background: #4ecdc4;
+  color: #0f172a;
+}
+
+.dark-theme mat-form-field {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.dark-theme .form-container h2 {
+  background: linear-gradient(45deg, #4ecdc4, #ff6b6b, #45b7d1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Цвета для тёмной темы */
+.dark-theme mat-label, 
+.dark-theme input, 
+.dark-theme .mat-button-toggle {
+  color: #4ecdc4 !important;
+}
+
+/* Контрастные placeholder'ы для тёмной темы */
+.dark-theme ::ng-deep .mat-mdc-input-element::placeholder {
+  color: #4ecdc4 !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 8px rgba(78, 205, 196, 0.5) !important;
+}
+
+.dark-theme ::ng-deep .mat-mdc-form-field-label {
+  color: #4ecdc4 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 4px rgba(78, 205, 196, 0.3) !important;
+}
+
+/* Иконка глаза для тёмной темы */
+.dark-theme ::ng-deep .mat-icon-button {
+  color: #4ecdc4 !important;
+}
+
+.dark-theme ::ng-deep .mat-icon {
+  color: #4ecdc4 !important;
+  filter: drop-shadow(0 0 4px rgba(78, 205, 196, 0.6));
+}
+
+/* Чекбоксы для тёмной темы */
+.dark-theme ::ng-deep .mat-mdc-checkbox .mdc-label {
+  color: #4ecdc4 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 4px rgba(78, 205, 196, 0.3) !important;
+}
+
+.dark-theme ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  border-color: #4ecdc4 !important;
+}
+
+/* Галочка чекбокса для тёмной темы */
+.dark-theme ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__checkmark-path {
+  stroke: #4ecdc4 !important;
+}
+
+.dark-theme button {
+  background: #1e293b !important;
+  color: #4ecdc4 !important;
+  border-color: #4ecdc4 !important;
+}
+
+.dark-theme button::before {
+  background: radial-gradient(circle, rgba(78, 205, 196, 0.3) 0%, transparent 70%);
+}
+
+.dark-theme button:hover {
+  background: rgba(78, 205, 196, 0.1) !important;
+  box-shadow: 0 6px 25px rgba(78, 205, 196, 0.4);
+}
+
+.dark-theme .auth-link a {
+  color: #4ecdc4 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 6px rgba(78, 205, 196, 0.4) !important;
+}
+
+.dark-theme .auth-link a:hover {
+  color: #ff6b6b !important;
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.5) !important;
 }
 
