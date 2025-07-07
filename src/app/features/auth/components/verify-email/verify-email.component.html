@@ -1,0 +1,11 @@
+<div class="verify-email-container">
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>{{ message }}</p>
+  </div>
+  <div *ngIf="!loading">
+    <p [ngClass]="{ 'success': success, 'error': !success }">{{ message }}</p>
+    <button *ngIf="success" mat-raised-button color="primary" (click)="goToLogin()">Se connecter</button>
+    <button *ngIf="!success" mat-stroked-button color="accent" (click)="goToLogin()">Aller à la page de connexion</button>
+  </div>
+</div> 

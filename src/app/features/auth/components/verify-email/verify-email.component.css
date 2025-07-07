@@ -1,0 +1,26 @@
+.verify-email-container {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 32px 24px;
+  background: var(--card-bg, #fff);
+  border-radius: 12px;
+  box-shadow: 0 2px 16px var(--shadow-color, rgba(0,0,0,0.08));
+  text-align: center;
+}
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.success {
+  color: var(--success-green, #4caf50);
+  font-weight: 600;
+}
+.error {
+  color: var(--btn-late-bg-light-mode, #ec4858);
+  font-weight: 600;
+}
+button {
+  margin-top: 24px;
+} 
