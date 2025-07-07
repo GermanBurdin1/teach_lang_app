@@ -73,6 +73,26 @@ export class RegisterComponent implements OnInit {
 
       this.api.register(email, password, roles, name, surname).subscribe({
         next: (user) => {
+          if (user.roles && user.roles.length > 1) {
+            const lastRole = roles.find(r => user.roles.includes(r));
+            let roleText = lastRole === 'teacher'
+              ? 'enseignant sur la plateforme !'
+              : 'étudiant sur la plateforme !';
+            this.snackBar.open(`Vous êtes maintenant aussi ${roleText}`, 'OK', {
+              duration: 4000,
+              panelClass: ['snackbar-success']
+            });
+            setTimeout(() => {
+              this.snackBar.open('Vous pouvez maintenant saisir vos identifiants et vous connecter.', 'OK', {
+                duration: 4000,
+                panelClass: ['snackbar-info']
+              });
+              setTimeout(() => {
+                this.router.navigate(['/login']);
+              }, 4000);
+            }, 4000);
+            return;
+          }
           this.snackBar.open('Veuillez vérifier votre boîte mail pour confirmer votre inscription.', 'Fermer', {
             duration: 6000,
             panelClass: ['snackbar-info']
@@ -81,7 +101,14 @@ export class RegisterComponent implements OnInit {
         },
         error: (err) => {
           console.error('[RegisterComponent] Registration failed:', err);
-          this.notificationService.error(err.error?.message || 'Erreur lors de la création du compte');
+          if (err.error?.message && err.error.message.includes('уже зарегистрированы с этой ролью')) {
+            this.snackBar.open('Vous êtes déjà inscrit avec ce rôle.', 'OK', {
+              duration: 6000,
+              panelClass: ['snackbar-warning']
+            });
+          } else {
+            this.notificationService.error(err.error?.message || 'Erreur lors de la création du compte');
+          }
         }
       });
     } else {
