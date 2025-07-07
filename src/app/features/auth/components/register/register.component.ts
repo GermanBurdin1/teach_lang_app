@@ -45,6 +45,20 @@ export class RegisterComponent implements OnInit {
     );
   }
 
+  private updatePasswordValidators(): void {
+    const passwordCtrl = this.registerForm.get('password');
+    const confirmPasswordCtrl = this.registerForm.get('confirmPassword');
+    if (this.emailChecked && this.existingRoles.length > 0) {
+      passwordCtrl?.clearValidators();
+      confirmPasswordCtrl?.clearValidators();
+    } else {
+      passwordCtrl?.setValidators(Validators.required);
+      confirmPasswordCtrl?.setValidators(Validators.required);
+    }
+    passwordCtrl?.updateValueAndValidity();
+    confirmPasswordCtrl?.updateValueAndValidity();
+  }
+
   exclusiveRoleValidator(form: FormGroup) {
     const isStudent = form.get('isStudent')?.value;
     const isTeacher = form.get('isTeacher')?.value;
@@ -76,20 +90,14 @@ export class RegisterComponent implements OnInit {
           if (user.roles && user.roles.length > 1) {
             const lastRole = roles.find(r => user.roles.includes(r));
             let roleText = lastRole === 'teacher'
-              ? 'enseignant sur la plateforme !'
-              : 'étudiant sur la plateforme !';
-            this.snackBar.open(`Vous êtes maintenant aussi ${roleText}`, 'OK', {
+              ? 'enseignant sur la plateforme'
+              : 'étudiant sur la plateforme';
+            this.snackBar.open(`Vous êtes maintenant aussi ${roleText} ! Vous pouvez maintenant saisir vos identifiants et vous connecter.`, 'OK', {
               duration: 4000,
               panelClass: ['snackbar-success']
             });
             setTimeout(() => {
-              this.snackBar.open('Vous pouvez maintenant saisir vos identifiants et vous connecter.', 'OK', {
-                duration: 4000,
-                panelClass: ['snackbar-info']
-              });
-              setTimeout(() => {
-                this.router.navigate(['/login']);
-              }, 4000);
+              this.router.navigate(['/login']);
             }, 4000);
             return;
           }
@@ -124,6 +132,7 @@ export class RegisterComponent implements OnInit {
       next: (res) => {
         this.emailChecked = true;
         this.existingRoles = res.roles || [];
+        this.updatePasswordValidators();
 
         // Отключаем выбор уже существующей роли
         if (this.existingRoles.includes('student')) {
@@ -146,5 +155,10 @@ export class RegisterComponent implements OnInit {
 
   loginWithProvider(provider: string) {
     window.location.href = `http://localhost:3001/auth/oauth/${provider}`;
+  }
+
+  showPasswordFields(): boolean {
+    // Показываем поля для пароля только если email не найден в базе
+    return !this.emailChecked || (this.emailChecked && this.existingRoles.length === 0);
   }
 }
