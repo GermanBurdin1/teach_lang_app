@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../../services/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../../services/notification.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-register',
@@ -24,7 +25,8 @@ export class RegisterComponent implements OnInit {
     private authService: AuthService,
     private api: AuthService,
     private router: Router,
-    private notificationService: NotificationService) { }
+    private notificationService: NotificationService,
+    private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.registerForm = this.fb.group(
@@ -69,17 +71,13 @@ export class RegisterComponent implements OnInit {
 
       console.log('[RegisterComponent] Sending registration request:', { email, roles });
 
-
       this.api.register(email, password, roles, name, surname).subscribe({
         next: (user) => {
-          console.log('[RegisterComponent] Registration successful:', user);
-          this.authService.setUser(user);
-          if (user.roles.length === 1) {
-            this.authService.setActiveRole(user.roles[0]);
-            this.router.navigate(['/dashboard']);
-          } else {
-            this.router.navigate(['/select-role']);
-          }
+          this.snackBar.open('Veuillez vérifier votre boîte mail pour confirmer votre inscription.', 'Fermer', {
+            duration: 6000,
+            panelClass: ['snackbar-info']
+          });
+          this.router.navigate(['/register']);
         },
         error: (err) => {
           console.error('[RegisterComponent] Registration failed:', err);
