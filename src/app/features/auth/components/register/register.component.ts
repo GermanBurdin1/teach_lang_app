@@ -169,19 +169,18 @@ export class RegisterComponent implements OnInit {
   }
 
   toggleTheme(): void {
+    console.log('isDarkTheme:', this.isDarkTheme);
+console.log('body classes:', document.body.className);
     this.isDarkTheme = !this.isDarkTheme;
     this.applyTheme();
     localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
   }
 
   private applyTheme(): void {
-    const formWrapper = document.querySelector('.form-wrapper');
-    if (formWrapper) {
-      if (this.isDarkTheme) {
-        formWrapper.classList.add('dark-theme');
-      } else {
-        formWrapper.classList.remove('dark-theme');
-      }
+    if (this.isDarkTheme) {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
     }
   }
 }

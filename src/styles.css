@@ -510,3 +510,151 @@ router-outlet {
     inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   transform: scale(1.1) !important;
 }
+
+/* ==================== DARK THEME STYLES FOR LOGIN & REGISTER ONLY ==================== */
+/* Эти стили нужны только для страниц логина и регистрации. Не трогают остальное приложение! */
+
+body.dark-theme .form-wrapper {
+  background: #0a0a0f;
+  position: relative;
+}
+
+body.dark-theme .form-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(1px 1px at 10px 20px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 80px 40px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 120px 80px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 200px 30px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 250px 70px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 300px 20px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 350px 90px, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 50px 90px, rgba(255, 255, 255, 0.8), transparent);
+  background-repeat: repeat;
+  background-size: 400px 120px;
+  animation: starfield 12s linear infinite;
+  z-index: 0;
+}
+
+body.dark-theme .form-wrapper::after {
+  content: 'Learn • Apprendre • Estudiar • Imparare • Учиться • 学ぶ • 배우다 • تعلم • सीखना • Lernen';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: rgba(78, 205, 196, 0.15);
+  font-size: 12px;
+  font-weight: 300;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: comet 25s linear infinite;
+  z-index: 0;
+  line-height: 100vh;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+body.dark-theme .form-container {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(78, 205, 196, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(78, 205, 196, 0.2);
+}
+
+body.dark-theme .theme-toggle {
+  background: rgba(15, 23, 42, 0.9);
+  color: #4ecdc4;
+  border-color: #4ecdc4;
+}
+
+body.dark-theme .theme-toggle:hover {
+  background: #4ecdc4;
+  color: #0f172a;
+}
+
+body.dark-theme mat-form-field {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+body.dark-theme .form-container h2 {
+  background: linear-gradient(45deg, #4ecdc4, #ff6b6b, #45b7d1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.dark-theme mat-label, 
+body.dark-theme input, 
+body.dark-theme .mat-button-toggle {
+  color: #4ecdc4 !important;
+}
+
+body.dark-theme ::ng-deep .mat-mdc-input-element::placeholder {
+  color: #4ecdc4 !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 8px rgba(78, 205, 196, 0.5) !important;
+}
+
+body.dark-theme ::ng-deep .mat-mdc-form-field-label {
+  color: #4ecdc4 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 4px rgba(78, 205, 196, 0.3) !important;
+}
+
+body.dark-theme ::ng-deep .mat-icon-button {
+  color: #4ecdc4 !important;
+}
+
+body.dark-theme ::ng-deep .mat-icon {
+  color: #4ecdc4 !important;
+  filter: drop-shadow(0 0 4px rgba(78, 205, 196, 0.6));
+}
+
+body.dark-theme ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__checkmark-path {
+  stroke: #4ecdc4 !important;
+}
+
+body.dark-theme .login-button, body.dark-theme button {
+  background: #1e293b !important;
+  color: #4ecdc4 !important;
+  border-color: #4ecdc4 !important;
+}
+
+body.dark-theme .login-button::before, body.dark-theme button::before {
+  background: radial-gradient(circle, rgba(78, 205, 196, 0.3) 0%, transparent 70%);
+}
+
+body.dark-theme .login-button:not(:disabled):hover, body.dark-theme button:hover {
+  background: rgba(78, 205, 196, 0.1) !important;
+  box-shadow: 0 6px 25px rgba(78, 205, 196, 0.4);
+}
+
+body.dark-theme .login-button:disabled, body.dark-theme button:disabled {
+  background: rgba(78, 205, 196, 0.1) !important;
+  color: rgba(78, 205, 196, 0.5) !important;
+  border-color: rgba(78, 205, 196, 0.3) !important;
+}
+
+body.dark-theme .auth-link a {
+  color: #4ecdc4 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 6px rgba(78, 205, 196, 0.4) !important;
+}
+
+body.dark-theme .auth-link a:hover {
+  color: #ff6b6b !important;
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.5) !important;
+}
+
+body.dark-theme .auth-question {
+  color: #ff6b6b !important;
+  text-shadow: 0 0 6px rgba(255, 107, 107, 0.4) !important;
+}
+
+/* ==================== END DARK THEME LOGIN/REGISTER ==================== */

@@ -247,13 +247,13 @@ button:hover::before {
 }
 
 /* Тёмная тема */
-.dark-theme .form-wrapper {
+body.dark-theme .form-wrapper {
   background: #0a0a0f;
   position: relative;
 }
 
 /* Звёздное небо с летящими словами для тёмной темы */
-.dark-theme .form-wrapper::before {
+body.dark-theme .form-wrapper::before {
   content: '';
   position: absolute;
   top: 0;
@@ -275,7 +275,7 @@ button:hover::before {
   z-index: 0;
 }
 
-.dark-theme .form-wrapper::after {
+body.dark-theme .form-wrapper::after {
   content: 'Hello • Bonjour • Hola • Ciao • Привет • こんにちは • 안녕하세요 • مرحبا • Namaste • Guten Tag';
   position: absolute;
   top: 0;
@@ -295,7 +295,7 @@ button:hover::before {
 }
 
 /* Переопределение floating label для тёмной темы */
-.dark-theme ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label {
+body.dark-theme ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label {
   color: #4ecdc4 !important;
 }
 
@@ -330,28 +330,28 @@ button:hover::before {
   }
 }
 
-.dark-theme .form-container {
+body.dark-theme .form-container {
   background: rgba(15, 23, 42, 0.95);
   border-color: rgba(78, 205, 196, 0.3);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(78, 205, 196, 0.2);
 }
 
-.dark-theme .theme-toggle {
+body.dark-theme .theme-toggle {
   background: rgba(15, 23, 42, 0.9);
   color: #4ecdc4;
   border-color: #4ecdc4;
 }
 
-.dark-theme .theme-toggle:hover {
+body.dark-theme .theme-toggle:hover {
   background: #4ecdc4;
   color: #0f172a;
 }
 
-.dark-theme mat-form-field {
+body.dark-theme mat-form-field {
   background: rgba(15, 23, 42, 0.6);
 }
 
-.dark-theme .form-container h2 {
+body.dark-theme .form-container h2 {
   background: linear-gradient(45deg, #4ecdc4, #ff6b6b, #45b7d1);
   -webkit-background-clip: text;
   background-clip: text;
@@ -359,80 +359,80 @@ button:hover::before {
 }
 
 /* Цвета для тёмной темы */
-.dark-theme mat-label, 
-.dark-theme input, 
-.dark-theme .mat-button-toggle {
+body.dark-theme mat-label, 
+body.dark-theme input, 
+body.dark-theme .mat-button-toggle {
   color: #4ecdc4 !important;
 }
 
 /* Контрастные placeholder'ы для тёмной темы */
-.dark-theme ::ng-deep .mat-mdc-input-element::placeholder {
+body.dark-theme ::ng-deep .mat-mdc-input-element::placeholder {
   color: #4ecdc4 !important;
   opacity: 1 !important;
   font-weight: 700 !important;
   text-shadow: 0 0 8px rgba(78, 205, 196, 0.5) !important;
 }
 
-.dark-theme ::ng-deep .mat-mdc-form-field-label {
+body.dark-theme ::ng-deep .mat-mdc-form-field-label {
   color: #4ecdc4 !important;
   font-weight: 600 !important;
   text-shadow: 0 0 4px rgba(78, 205, 196, 0.3) !important;
 }
 
 /* Иконка глаза для тёмной темы */
-.dark-theme ::ng-deep .mat-icon-button {
+body.dark-theme ::ng-deep .mat-icon-button {
   color: #4ecdc4 !important;
 }
 
-.dark-theme ::ng-deep .mat-icon {
+body.dark-theme ::ng-deep .mat-icon {
   color: #4ecdc4 !important;
   filter: drop-shadow(0 0 4px rgba(78, 205, 196, 0.6));
 }
 
 /* Чекбоксы для тёмной темы */
-.dark-theme ::ng-deep .mat-mdc-checkbox .mdc-label {
+body.dark-theme ::ng-deep .mat-mdc-checkbox .mdc-label {
   color: #4ecdc4 !important;
   font-weight: 600 !important;
   text-shadow: 0 0 4px rgba(78, 205, 196, 0.3) !important;
 }
 
-.dark-theme ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+body.dark-theme ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
   border-color: #4ecdc4 !important;
 }
 
 /* Галочка чекбокса для тёмной темы */
-.dark-theme ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__checkmark-path {
+body.dark-theme ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__checkmark-path {
   stroke: #4ecdc4 !important;
 }
 
-.dark-theme button {
+body.dark-theme button {
   background: #1e293b !important;
   color: #4ecdc4 !important;
   border-color: #4ecdc4 !important;
 }
 
-.dark-theme button::before {
+body.dark-theme button::before {
   background: radial-gradient(circle, rgba(78, 205, 196, 0.3) 0%, transparent 70%);
 }
 
-.dark-theme button:hover {
+body.dark-theme button:hover {
   background: rgba(78, 205, 196, 0.1) !important;
   box-shadow: 0 6px 25px rgba(78, 205, 196, 0.4);
 }
 
-.dark-theme .auth-link a {
+body.dark-theme .auth-link a {
   color: #4ecdc4 !important;
   font-weight: 700 !important;
   text-shadow: 0 0 6px rgba(78, 205, 196, 0.4) !important;
 }
 
-.dark-theme .auth-link a:hover {
+body.dark-theme .auth-link a:hover {
   color: #ff6b6b !important;
   text-shadow: 0 0 8px rgba(255, 107, 107, 0.5) !important;
 }
 
 /* Цвет вопроса в тёмной теме как при ховере ссылки */
-.dark-theme .auth-question {
+body.dark-theme .auth-question {
   color: #ff6b6b !important;
   text-shadow: 0 0 6px rgba(255, 107, 107, 0.4) !important;
 }

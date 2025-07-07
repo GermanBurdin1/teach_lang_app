@@ -105,13 +105,10 @@ export class LoginComponent implements OnInit {
   }
 
   private applyTheme(): void {
-    const formWrapper = document.querySelector('.form-wrapper');
-    if (formWrapper) {
-      if (this.isDarkTheme) {
-        formWrapper.classList.add('dark-theme');
-      } else {
-        formWrapper.classList.remove('dark-theme');
-      }
+    if (this.isDarkTheme) {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
     }
   }
 }
