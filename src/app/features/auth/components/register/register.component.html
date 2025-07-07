@@ -26,7 +26,7 @@
           Le nom de famille est requis
         </mat-error>
       </mat-form-field>
-      
+
       <!-- Email -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
@@ -88,10 +88,10 @@
         S'inscrire
       </button>
 
-      <p class="auth-link">
-        Vous avez déjà un compte ?
+      <div class="auth-link">
+        <div class="auth-question">Vous avez déjà un compte ?</div>
         <a routerLink="/login">Connectez-vous</a>
-      </p>
+      </div>
     </form>
     <!-- <div class="oauth-buttons" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
       <button mat-stroked-button color="primary" (click)="loginWithProvider('google')">

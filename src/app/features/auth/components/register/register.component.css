@@ -212,6 +212,13 @@ button:hover::before {
   text-decoration: underline;
 }
 
+/* Стилизация вопроса в auth-link */
+.auth-question {
+  display: inline;
+  color: var(--text-primary);
+  margin-right: 4px;
+}
+
 ::ng-deep .existing-role-hint {
   display: block;
   color: var(--text-primary);
@@ -422,5 +429,11 @@ button:hover::before {
 .dark-theme .auth-link a:hover {
   color: #ff6b6b !important;
   text-shadow: 0 0 8px rgba(255, 107, 107, 0.5) !important;
+}
+
+/* Цвет вопроса в тёмной теме как при ховере ссылки */
+.dark-theme .auth-question {
+  color: #ff6b6b !important;
+  text-shadow: 0 0 6px rgba(255, 107, 107, 0.4) !important;
 }
 
