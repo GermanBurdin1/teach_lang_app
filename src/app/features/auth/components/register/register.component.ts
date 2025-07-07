@@ -119,7 +119,7 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-
-
-
+  loginWithProvider(provider: string) {
+    window.location.href = `http://localhost:3001/auth/oauth/${provider}`;
+  }
 }

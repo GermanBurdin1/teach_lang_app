@@ -34,7 +34,7 @@
           L'email est requis
         </mat-error>
         <mat-error *ngIf="registerForm.get('email')?.hasError('email')">
-          Format d’email invalide
+          Format d'email invalide
         </mat-error>
       </mat-form-field>
 
@@ -84,5 +84,11 @@
         <a routerLink="/login">Connectez-vous</a>
       </p>
     </form>
+    <!-- <div class="oauth-buttons" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+      <button mat-stroked-button color="primary" (click)="loginWithProvider('google')">
+        <img src="assets/icons/google.svg" alt="Google" width="20" style="margin-right:8px;vertical-align:middle;">
+        S'inscrire avec Google
+      </button>
+    </div> -->
   </div>
 </div>
