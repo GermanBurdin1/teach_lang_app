@@ -28,6 +28,7 @@ export class LessonService {
     studentId: string;
     teacherId: string;
     scheduledAt: string;
+    paymentId?: string;
   }): Observable<any> {
     return this.http.post(`${this.baseUrl}/book`, data);
   }

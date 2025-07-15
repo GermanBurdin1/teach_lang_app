@@ -1,0 +1,111 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.payment-modal {
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  z-index: 10000;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.lesson-info {
+  border: 1px solid #e9ecef;
+  background-color: #f8f9fa !important;
+}
+
+#card-element {
+  padding: 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  background-color: #fff;
+  min-height: 60px;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+#card-element.StripeElement--focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  transform: translateY(-1px);
+}
+
+#card-element.StripeElement--invalid {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+#card-element.StripeElement--complete {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+}
+
+#card-errors {
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.btn-success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Анимация для модального окна */
+.modal-overlay {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Стили для информации о безопасности */
+.border-top {
+  border-top: 1px solid #dee2e6 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .payment-modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .lesson-info .row {
+    flex-direction: column;
+  }
+  
+  .lesson-info .col-md-6.text-end {
+    text-align: left !important;
+    margin-top: 1rem;
+  }
+} 

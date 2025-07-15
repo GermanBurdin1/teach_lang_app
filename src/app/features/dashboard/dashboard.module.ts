@@ -22,6 +22,7 @@ import { GrammarFieldsComponent } from "../vocabulary/vocabulary-layout/grammar-
 import { TeacherListComponent } from '../teacher-search-and-consult/teacher-list.component';
 import { AdminTeachersListComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teachers-list.component';
 import { TeacherDetailsComponent } from '../teacher-search-and-consult/teacher-details.component';
+import { PaymentModalComponent } from '../teacher-search-and-consult/payment-modal.component';
 import { AdminTeacherDetailsComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teacher-details.component';
 import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
 import { TeacherDashboardOverviewComponent } from '../../../../overview/teacher-dashboard-overview.component';
@@ -71,6 +72,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     TeacherListComponent,
     AdminTeachersListComponent,
     TeacherDetailsComponent,
+    PaymentModalComponent,
     AdminTeacherDetailsComponent,
     TeacherProfileComponent,
     TeacherDashboardOverviewComponent,

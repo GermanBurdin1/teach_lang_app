@@ -71,8 +71,20 @@
 
       <div class="d-flex justify-content-end gap-2">
         <button class="btn btn-secondary" (click)="closeBookingModal()">Annuler</button>
-        <button class="btn btn-success" (click)="confirmBooking()">Confirmer</button>
+        <button class="btn btn-success" (click)="confirmBooking()">Confirmer et payer</button>
       </div>
     </div>
   </div>
 </ng-container>
+
+<!-- DEBUG: showPaymentModal = {{ showPaymentModal }} -->
+<!-- Модальное окно оплаты -->
+<app-payment-modal
+  *ngIf="showPaymentModal"
+  [teacher]="teacher"
+  [selectedDate]="selectedDate"
+  [selectedTime]="selectedTime"
+  [lessonDuration]="lessonDuration"
+  (paymentSuccess)="onPaymentSuccess($event)"
+  (paymentCancel)="onPaymentCancel()">
+</app-payment-modal>
