@@ -115,7 +115,7 @@ export class AdminSettingsComponent implements OnInit {
     },
 
     integrations: {
-      stripeKey: 'sk_test_51Qb3cWGaUr31i20XKP9abzRDyZN7MvrCAddZ4SjKObnXIzA7qb8oMRTxW0jHhjjdhUhUA3xlIqZw4y5wkNez57dO009PoSYysU',
+      stripeKey: '',
       webhookUrl: 'https://api.espace.fr/webhooks/events'
     },
 
