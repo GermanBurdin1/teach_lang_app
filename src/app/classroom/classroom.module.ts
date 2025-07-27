@@ -5,7 +5,7 @@ import { LayoutModule } from '../layout/layout.module';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TabsComponent } from './lesson-material/tabs/tabs.component';
-// import { VideoCallComponent } from '../features/lessons/video-call/video-call.component'; // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
+// import { VideoCallComponent } from '../features/lessons/video-call/video-call.component'; // TODO APPELS VIDEO TEMPORAIREMENT COMMENTÉS
 import { LessonsModule } from '../features/lessons/lessons.module';
 import { InteractiveBoardComponent } from './lesson-material/interactive-board/interactive-board.component';
 import { GabaritPageComponent } from './lesson-material/gabarit-page/gabarit-page.component';
@@ -24,7 +24,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     LessonMaterialComponent,
-    // VideoCallComponent, // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
+    // VideoCallComponent, // TODO APPELS VIDEO TEMPORAIREMENT COMMENTÉS
     GabaritPageComponent,
     InteractiveBoardComponent,
     LessonNotesModalComponent,
@@ -41,9 +41,10 @@ const routes: Routes = [
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    RouterModule.forChild(routes) // Маршрут компонента
+    RouterModule.forChild(routes) // routes du composant
   ],
   providers: [DatePipe],
-  //exports: [VideoCallComponent] // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
+  //exports: [VideoCallComponent] // TODO APPELS VIDEO TEMPORAIREMENT COMMENTÉS
+  // TODO : optimiser le chargement des modules Material
 })
 export class ClassroomModule { }

@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
 })
 export class AccessControlComponent {
   showModal: boolean = false;
-  activeTab: string = 'teachers';  // Изначально открыта вкладка "Учителя"
+  activeTab: string = 'teachers';  // default tab is teachers
 
   openCreateGroupModal() {
     this.showModal = true;

@@ -26,9 +26,10 @@ export class SentRequestsComponent implements OnInit {
   sentRequests: SentRequest[] = [];
   loading = true;
   currentUserId: string = '';
-  legendCollapsed = false; // Переменная для сворачивания легенды
+  legendCollapsed = false; // variable pour réduire la légende
 
   // Пагинация
+  // pagination
   page = 1;
   limit = 10;
   total = 0;
@@ -41,12 +42,14 @@ export class SentRequestsComponent implements OnInit {
 
   ngOnInit(): void {
     // Проверяем авторизацию
+    // on vérifie l'autorisation
     const currentUser = this.authService.getCurrentUser();
     console.log('[SentRequests] ngOnInit called, currentUser:', currentUser);
     
     if (!currentUser) {
       console.warn('[SentRequests] User not authenticated, waiting...');
       // Пробуем через секунду
+      // on essaie dans une seconde
       setTimeout(() => {
         const retryUser = this.authService.getCurrentUser();
         if (retryUser) {
@@ -82,6 +85,7 @@ export class SentRequestsComponent implements OnInit {
     }
     this.loading = true;
     // Попробуем универсально: если lessonService.getStudentSentRequests требует только studentId, вызываем только с ним
+    // on essaie de façon universelle : si lessonService.getStudentSentRequests nécessite seulement studentId, on l'appelle seulement avec ça
     let obs$;
     try {
       obs$ = this.lessonService.getStudentSentRequestsPaged.length === 1
@@ -128,13 +132,13 @@ export class SentRequestsComponent implements OnInit {
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'confirmed': return '#4caf50'; // Зеленый
-      case 'rejected': return '#f44336';  // Красный
-      case 'pending': return '#ff9800';   // Желтый/оранжевый
+      case 'confirmed': return '#4caf50'; // vert
+      case 'rejected': return '#f44336';  // rouge
+      case 'pending': return '#ff9800';   // jaune/orange
       case 'cancelled_by_student':
       case 'cancelled_by_student_no_refund':
-        return '#9e9e9e';                 // Серый для отмененных
-      default: return '#9e9e9e';          // Серый
+        return '#9e9e9e';                 // gris pour les annulés
+      default: return '#9e9e9e';          // gris
     }
   }
 

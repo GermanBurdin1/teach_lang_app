@@ -25,6 +25,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     ScheduleComponent,
     CalendarPreviewComponent,
     MatSnackBarModule
-  ]
+  ],
+  // TODO : créer des composants plus génériques pour la réutilisabilité
 })
 export class SharedModule { }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StatisticsService } from '../../../../services/statistics.service';
 
+// TODO : intégrer graphiques temps réel pour les analytics
 @Component({
   selector: 'app-admin-platform-analytics',
   templateUrl: './admin-platform-analytics.component.html',
@@ -39,6 +40,7 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
     this.loadCombinedStats();
   }
 
+  // TODO : internationaliser les noms de mois
   generateMonthOptions() {
     const months = [
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -64,12 +66,13 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
         this.lastUpdated = new Date();
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des statistiques de plateforme:', err);
+        console.error('[AdminPlatformAnalytics] Erreur lors du chargement des statistiques de plateforme:', err);
         this.loading = false;
       }
     });
   }
 
+  // TODO : optimiser le chargement parallèle des statistiques
   loadCombinedStats() {
     // Charge les stats des utilisateurs et des cours pour le mois sélectionné
     Promise.all([
@@ -79,7 +82,7 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
       this.combinedStats.users = userStats;
       this.combinedStats.lessons = lessonStats;
     }).catch(err => {
-      console.error('Erreur lors du chargement des statistiques combinées:', err);
+      console.error('[AdminPlatformAnalytics] Erreur lors du chargement des statistiques combinées:', err);
     });
   }
 
@@ -87,6 +90,7 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
     this.loadCombinedStats();
   }
 
+  // TODO : ajouter intervalle de rafraîchissement automatique
   refreshAll() {
     this.loadPlatformStats();
     this.loadCombinedStats();
@@ -132,6 +136,7 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
     return this.platformStats.topLanguagePairs.length > 0 ? this.platformStats.topLanguagePairs[0] : null;
   }
 
+  // TODO : améliorer le calcul du taux d'engagement
   get engagementRate(): number {
     const { activeUsers, totalLogins } = this.platformStats.platformActivity;
     if (activeUsers === 0) return 0;

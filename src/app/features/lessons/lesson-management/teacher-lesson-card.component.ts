@@ -68,9 +68,9 @@ export class TeacherLessonCardComponent {
     return dropListId.split('-')[1];
   }
 
-  // Проверка можно ли войти в класс (только для confirmed уроков в тот же день)
+  // Vérifie si on peut entrer en classe (seulement pour les leçons confirmées le même jour)
   canEnterClass(): boolean {
-    // Проверяем статус - можно войти только в confirmed уроки (одобренные преподавателем)
+    // On vérifie le statut - on ne peut entrer que dans les leçons confirmées (approuvées par le prof)
     if (this.lesson.status !== 'confirmed') {
       return false;
     }
@@ -78,7 +78,7 @@ export class TeacherLessonCardComponent {
     const now = new Date();
     const lessonTime = new Date(this.lesson.scheduledAt || this.lesson.date);
     
-    // Проверяем что урок в тот же день
+    // On vérifie que la leçon est le même jour
     const isSameDay = now.getFullYear() === lessonTime.getFullYear() &&
                       now.getMonth() === lessonTime.getMonth() &&
                       now.getDate() === lessonTime.getDate();
@@ -86,17 +86,17 @@ export class TeacherLessonCardComponent {
     return isSameDay;
   }
 
-  // Для обратной совместимости (если используется в шаблоне)
+  // Pour compatibilité inverse (si utilisé dans le template)
   showJoinButton(): boolean {
     return this.canEnterClass();
   }
 
-  // Вход в виртуальный класс
+  // Entrée en classe virtuelle
   enterVirtualClass(): void {
     const currentUserId = this.authService.getCurrentUser()?.id;
     if (!currentUserId) return;
 
-    // Устанавливаем данные урока в VideoCallService
+    // On définit les données de la leçon dans VideoCallService
     this.videoCallService.setLessonData(this.lesson.id, currentUserId);
     
     this.router.navigate([`/classroom/${this.lesson.id}/lesson`], {

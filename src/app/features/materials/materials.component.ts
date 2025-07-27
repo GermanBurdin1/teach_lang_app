@@ -24,27 +24,27 @@ document: any;
   selectedCourseId: number | null = null;
   showDeleteModal = false;
 
-  // Функция для обработки выбора файла
+  // Fonction pour gérer la sélection de fichier
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
-      console.log('Выбранный файл:', this.selectedFile.name);
+      console.log('Fichier sélectionné :', this.selectedFile.name);
     }
   }
 
-  // Открытие модального окна удаления
+  // Ouvrir la modale de suppression
   openDeleteModal(courseId: number): void {
     this.selectedCourseId = courseId;
     this.showDeleteModal = true;
   }
 
-  // Закрытие модального окна удаления
+  // Fermer la modale de suppression
   closeDeleteModal(): void {
     this.showDeleteModal = false;
   }
 
-  // Удаление курса
+  // Supprimer le cours
   deleteCourse(): void {
     if (this.selectedCourseId !== null) {
       this.courses = this.courses.filter(course => course.id !== this.selectedCourseId);
@@ -53,22 +53,22 @@ document: any;
     }
   }
 
-  //фильтры => oсновные
+  //filtres => principaux
 
   isFilterModalOpen = false;
-  selectedFilters: any = {}; // Объект для хранения выбранных значений фильтров
+  selectedFilters: any = {}; // Objet pour stocker les valeurs sélectionnées des filtres
 
   filters = [
-    { label: 'Язык', placeholder: 'Выберите язык', type: 'language', options: ['Русский', 'Английский', 'Испанский'] },
-    { label: 'Возраст', placeholder: 'Выберите возраст', type: 'age', options: ['Дети', 'Подростки', 'Взрослые'] },
-    { label: 'Уровень', placeholder: 'Выберите уровень', type: 'level', options: ['Начальный', 'Средний', 'Продвинутый'] },
-    { label: 'Тип', placeholder: 'Выберите тип', type: 'type', options: ['Общий', 'Бизнес', 'Для путешествий'] },
-    { label: 'Навыки', placeholder: 'Выберите навык', type: 'skills', options: ['Грамматика', 'Лексика', 'Письмо'] },
-    { label: 'Время', placeholder: 'Выберите время', type: 'time', options: ['Утро', 'День', 'Вечер'] },
-    { label: 'Грамматика', placeholder: 'Введите тип', type: 'grammar', options: ['Основы', 'Продвинутый'] },
-    { label: 'Лексика', placeholder: 'Выберите лексику', type: 'vocabulary', options: ['Базовая', 'Продвинутая'] },
-    { label: 'Функции', placeholder: 'Выберите функции', type: 'functions', options: ['Разговор', 'Письмо', 'Чтение'] },
-    { label: 'Другое', placeholder: 'Выберите тег', type: 'other', options: ['Дополнительный', 'Специальный'] }
+    { label: 'Langue', placeholder: 'Choisissez la langue', type: 'language', options: ['Russe', 'Anglais', 'Espagnol'] },
+    { label: 'Âge', placeholder: 'Choisissez l\'âge', type: 'age', options: ['Enfants', 'Ados', 'Adultes'] },
+    { label: 'Niveau', placeholder: 'Choisissez le niveau', type: 'level', options: ['Débutant', 'Intermédiaire', 'Avancé'] },
+    { label: 'Type', placeholder: 'Choisissez le type', type: 'type', options: ['Général', 'Business', 'Pour les voyages'] },
+    { label: 'Compétences', placeholder: 'Choisissez la compétence', type: 'skills', options: ['Grammaire', 'Lexique', 'Écriture'] },
+    { label: 'Moment', placeholder: 'Choisissez le moment', type: 'time', options: ['Matin', 'Jour', 'Soir'] },
+    { label: 'Grammaire', placeholder: 'Entrez le type', type: 'grammar', options: ['Bases', 'Avancé'] },
+    { label: 'Lexique', placeholder: 'Choisissez le lexique', type: 'vocabulary', options: ['De base', 'Avancé'] },
+    { label: 'Fonctions', placeholder: 'Choisissez la fonction', type: 'functions', options: ['Conversation', 'Écriture', 'Lecture'] },
+    { label: 'Autre', placeholder: 'Choisissez le tag', type: 'other', options: ['Supplémentaire', 'Spécial'] }
   ];
 
 
@@ -82,26 +82,26 @@ document: any;
   }
 
   resetFilters(): void {
-    this.selectedFilters = {}; // Сбрасываем все выбранные фильтры
-    console.log('Сбросить все фильтры');
+    this.selectedFilters = {}; // Réinitialiser tous les filtres sélectionnés
+    console.log('Réinitialiser tous les filtres');
   }
 
   applyFilters(): void {
-    console.log('Применить фильтры', this.selectedFilters);
-    // Логика применения выбранных фильтров
+    console.log('Appliquer les filtres', this.selectedFilters);
+    // Logique d'application des filtres sélectionnés
   }
 
-  ///////////////////////////////// интерактивная карта
+  ///////////////////////////////// carte interactive
   isCreateBoardModalOpen = false;
 
   openCreateBoardModal(): void {
     this.isCreateBoardModalOpen = true;
-    console.log('Открытие модального окна для создания новой доски');
+    console.log('Ouverture de la modale pour créer un nouveau tableau');
   }
 
   closeCreateBoardModal(): void {
     this.isCreateBoardModalOpen = false;
-    console.log('Закрытие модального окна для создания новой доски');
+    console.log('Fermeture de la modale de création de tableau');
   }
 
   triggerFileInput(): void {

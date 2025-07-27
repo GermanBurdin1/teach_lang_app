@@ -13,7 +13,7 @@
 
   <div *ngIf="searchResults.length" class="search-results">
     <div *ngFor="let result of searchResults" class="search-result-item" (click)="navigateToWord(result)"
-      title="Перейти к слову">
+      title="Aller au mot">
       <strong>{{ result.word }}</strong> — {{ result.translation }}
       <div style="font-size: 12px; color: gray;">
         {{ result.fullPath }}
@@ -26,7 +26,7 @@
   </h2>
   <div class="main-content">
     <div class="zone-libre-panel" *ngIf="!zoomedGalaxy">
-      <!-- Зона с нераспределёнными словами - переведено на французский -->
+      <!-- Zone avec mots non catégorisés - traduit en français -->
       <div class="zone-libre-toggle" (click)="toggleZoneLibre()">
         📦 {{ showZoneLibre ? 'Masquer' : 'Mots sans catégorie' }}
       </div>
@@ -51,9 +51,9 @@
         <div class="galaxy galaxy-enhanced" (click)="zoomIntoGalaxy(galaxy)" (drop)="onDropToGalaxy($event, galaxy.name)"
           (dragover)="onDragOver($event)">
           <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg galaxy-stellar">
-            <!-- Генерируем более реалистичные градиенты галактик -->
+            <!-- Générer des gradients de galaxie plus réalistes -->
             <defs>
-              <!-- Основной градиент галактики - более тонкий и реалистичный -->
+              <!-- Gradient principal de la galaxie - plus subtil et réaliste -->
               <radialGradient [attr.id]="'galaxyGradient-' + galaxy.sanitizedName" cx="50%" cy="50%" r="50%">
                 <stop offset="0%" style="stop-color:#6366f1; stop-opacity:0.8" />
                 <stop offset="25%" style="stop-color:#4338ca; stop-opacity:0.6" />
@@ -62,7 +62,7 @@
                 <stop offset="100%" style="stop-color:#0f0f23; stop-opacity:0.1" />
               </radialGradient>
 
-              <!-- Спиральные рукава галактики -->
+              <!-- Bras spiraux de la galaxie -->
               <radialGradient [attr.id]="'spiralGradient-' + galaxy.sanitizedName" cx="30%" cy="30%" r="70%">
                 <stop offset="0%" style="stop-color:#8b5cf6; stop-opacity:0.3" />
                 <stop offset="40%" style="stop-color:#7c3aed; stop-opacity:0.2" />
@@ -70,28 +70,28 @@
                 <stop offset="100%" style="stop-color:transparent; stop-opacity:0" />
               </radialGradient>
 
-              <!-- Центральная яркость -->
+              <!-- Brillance centrale -->
               <radialGradient [attr.id]="'coreGradient-' + galaxy.sanitizedName" cx="50%" cy="50%" r="30%">
                 <stop offset="0%" style="stop-color:#fbbf24; stop-opacity:0.4" />
                 <stop offset="50%" style="stop-color:#f59e0b; stop-opacity:0.2" />
                 <stop offset="100%" style="stop-color:transparent; stop-opacity:0" />
               </radialGradient>
 
-              <!-- Звездное поле - более тонкое -->
+              <!-- Champ d'étoiles de fond - plus subtil -->
               <radialGradient id="starsGradient" cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stop-color="rgba(255,255,255,0.4)" />
                 <stop offset="70%" stop-color="rgba(255,255,255,0.1)" />
                 <stop offset="100%" stop-color="rgba(255,255,255,0.05)" />
               </radialGradient>
 
-              <!-- Планеты - более реалистичные -->
+              <!-- Planètes - plus réalistes -->
               <radialGradient id="planetGradient" cx="30%" cy="30%" r="50%">
                 <stop offset="0%" stop-color="#fcd34d" />
                 <stop offset="50%" stop-color="#f59e0b" />
                 <stop offset="100%" stop-color="#d97706" />
               </radialGradient>
 
-              <!-- Более реалистичные звездочки -->
+              <!-- Plus de petites étoiles -->
               <pattern [attr.id]="'stars-' + galaxy.sanitizedName" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
                 <circle cx="8" cy="12" r="0.3" fill="white" opacity="0.6"/>
                 <circle cx="25" cy="8" r="0.2" fill="white" opacity="0.4"/>
@@ -101,56 +101,56 @@
                 <circle cx="52" cy="5" r="0.2" fill="white" opacity="0.4"/>
                 <circle cx="5" cy="55" r="0.3" fill="white" opacity="0.5"/>
                 <circle cx="42" cy="38" r="0.2" fill="white" opacity="0.4"/>
-                <!-- Дополнительные мелкие звезды -->
+                <!-- Plus de petites étoiles -->
                 <circle cx="20" cy="25" r="0.1" fill="white" opacity="0.3"/>
                 <circle cx="38" cy="15" r="0.1" fill="white" opacity="0.3"/>
                 <circle cx="55" cy="40" r="0.1" fill="white" opacity="0.3"/>
                 <circle cx="12" cy="50" r="0.1" fill="white" opacity="0.3"/>
               </pattern>
 
-              <!-- Паттерн спиральных рукавов -->
+              <!-- Pattern des bras spiraux -->
               <pattern [attr.id]="'spiralArms-' + galaxy.sanitizedName" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
                 <path d="M10,50 Q30,20 50,50 Q70,80 90,50" stroke="rgba(139,92,246,0.2)" stroke-width="2" fill="none" opacity="0.6"/>
                 <path d="M50,10 Q80,30 50,50 Q20,70 50,90" stroke="rgba(139,92,246,0.15)" stroke-width="1.5" fill="none" opacity="0.5"/>
               </pattern>
             </defs>
 
-            <!-- Фоновое звездное поле -->
+            <!-- Fond étoilé -->
             <ellipse cx="100" cy="100" rx="98" ry="68" [attr.fill]="'url(#stars-' + galaxy.sanitizedName + ')'" opacity="0.2"/>
 
-            <!-- Спиральные рукава -->
+            <!-- Bras spiraux -->
             <ellipse cx="100" cy="100" rx="85" ry="58" 
               [attr.fill]="'url(#spiralArms-' + galaxy.sanitizedName + ')'" 
               opacity="0.3" 
               style="mix-blend-mode: screen;"/>
 
-            <!-- Основное тело галактики -->
+            <!-- Corps principal de la galaxie -->
             <ellipse cx="100" cy="100" rx="80" ry="55"
               [attr.fill]="'url(#galaxyGradient-' + galaxy.sanitizedName + ')'" 
               style="filter: drop-shadow(0 0 12px rgba(99, 102, 241, 0.3));"/>
 
-            <!-- Спиральный градиент для объема -->
+            <!-- Gradient spiralé pour le volume -->
             <ellipse cx="100" cy="100" rx="70" ry="48" 
               [attr.fill]="'url(#spiralGradient-' + galaxy.sanitizedName + ')'" 
               opacity="0.6"/>
 
-            <!-- Центральная яркая область -->
+            <!-- Centre lumineux -->
             <ellipse cx="100" cy="100" rx="25" ry="18" 
               [attr.fill]="'url(#coreGradient-' + galaxy.sanitizedName + ')'" 
               opacity="0.8"/>
 
-            <!-- Внутреннее свечение -->
+            <!-- Lueur interne -->
             <ellipse cx="100" cy="100" rx="60" ry="40" 
               fill="url(#starsGradient)" 
               opacity="0.2"/>
 
-            <!-- Название темы в центре -->
+            <!-- Nom du thème au centre -->
             <text x="100" y="105" fill="rgba(255,255,255,0.95)" font-size="15px" font-weight="600" font-family="Arial, sans-serif"
               text-anchor="middle" style="filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7)); text-shadow: 0 0 6px rgba(255,255,255,0.2);">
               {{ galaxy.name }}
             </text>
 
-            <!-- Плюсик под названием -->
+            <!-- Plus sous le nom -->
             <foreignObject x="90" y="120" width="30" height="30">
               <button class="galaxy-add-button cosmic-button" (click)="onGalaxyAddButtonClick($event, galaxy.name)"
                 title="Ajouter un mot ou une expression">
@@ -158,17 +158,17 @@
               </button>
             </foreignObject>
 
-            <!-- Подтемы (планеты) с более реалистичным стилем -->
+            <!-- Sous-thèmes (planètes) avec style plus réaliste -->
             <g *ngFor="let subtopic of galaxy.subtopics">
               <title>
                 {{ subtopic.name }} ({{ getWordAndExpressionCount(galaxy.name, subtopic.name) }})
               </title>
-              <!-- Планета -->
+              <!-- Planète -->
               <circle [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" r="7" 
                 fill="url(#planetGradient)"
                 style="filter: drop-shadow(0 0 4px rgba(252, 211, 77, 0.6));">
               </circle>
-              <!-- Кольца вокруг планет - более тонкие -->
+              <!-- Anneaux autour des planètes - plus subtils -->
               <ellipse [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" rx="10" ry="2.5" 
                 fill="none" stroke="rgba(252,211,77,0.3)" stroke-width="0.3" opacity="0.6"/>
               <ellipse [attr.cx]="subtopic.x" [attr.cy]="subtopic.y" rx="13" ry="3.2" 
@@ -182,12 +182,12 @@
   </div>
 
 
-  <!-- Зумированная галактика -->
+  <!-- Galaxie zoomée -->
   <div class="zoomed-galaxy" *ngIf="zoomedGalaxy && !isZoomingToGalaxy">
     <button class="back-btn" (click)="resetZoom()">Retourner à la page principale</button>
     <div class="zoom-container" [ngStyle]="isZoomingToPlanet ? zoomStyle : {}">
       <svg viewBox="0 0 600 600" class="galaxy-svg zoom">
-        <!-- Генерируем уникальный градиент для зума -->
+        <!-- Générer un gradient unique pour le zoom -->
         <defs>
           <radialGradient id="galaxyGradient-zoom" cx="50%" cy="50%" r="50%">
             <stop offset="0%" style="stop-color:#7d5ba6; stop-opacity:1" />
@@ -201,15 +201,15 @@
           </radialGradient>
         </defs>
 
-        <!-- Основной эллипс галактики -->
+        <!-- Ellipse principale de la galaxie -->
         <ellipse cx="300" cy="300" rx="270" ry="180" fill="url(#galaxyGradient-zoom)" />
 
-        <!-- Название темы -->
+        <!-- Nom du thème -->
         <text x="300" y="310" fill="white" font-size="42px" font-weight="bold" font-family="Arial" text-anchor="middle">
           {{ zoomedGalaxy.name }}
         </text>
 
-        <!-- Планеты-подтемы -->
+        <!-- Planètes-sous-thèmes -->
         <g *ngFor="let subtopic of zoomedGalaxy.subtopics">
           <title>
             ({{ getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) }})
@@ -263,7 +263,7 @@
 </div>
 
 
-<!-- 🌌 Модалка добавления -->
+<!-- 🌌 Modal d'ajout -->
 <div class="modal-overlay" *ngIf="showGlobalAddWordOrExpressionModal">
   <div class="add-entry-modal">
     <button class="add-entry-modal__close-btn" (click)="closeGlobalAddWordOrExpressionModal()" aria-label="Fermer">
@@ -272,7 +272,7 @@
 
     <h2 class="add-entry-modal__title">Ajouter un mot ou expression</h2>
 
-    <!-- Тип карточки -->
+    <!-- Type de carte -->
     <div class="add-entry-modal__type-toggle">
       <button (click)="toggleGlobalType()" class="add-entry-modal__toggle-type"
         [attr.aria-label]="'Type: ' + (newGlobalType === 'word' ? 'Mot' : 'Expression')">
@@ -280,7 +280,7 @@
       </button>
     </div>
 
-    <!-- Языки -->
+    <!-- Langues -->
     <div class="lang-selectors">
       <label>De la langue :
         <select [(ngModel)]="sourceLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode" name="sourceLang">
@@ -301,7 +301,7 @@
       <div *ngIf="isMultiEntryMode" class="entry-warning">⚠️ Les langues ne peuvent pas être modifiées lors d'un ajout multiple</div>
     </div>
 
-    <!-- 🔁 Множественные поля -->
+    <!-- Champs multiples -->
     <div *ngFor="let entry of entries; let i = index" class="entry-block">
       <input [(ngModel)]="entry.word" placeholder="Mot/expression" (ngModelChange)="onEntryChanged(i)"
         class="add-entry-modal__input" />
@@ -309,14 +309,14 @@
       <input [(ngModel)]="entry.translation" placeholder="Traduction" class="add-entry-modal__input"
         (ngModelChange)="onTranslationChanged(entry)" />
 
-      <!-- Показывать кнопку перевода только если нет введённого перевода -->
+      <!-- Afficher le bouton de traduction seulement si pas de traduction saisie -->
       <button *ngIf="!entry.translation?.trim()" (click)="autoTranslateWord(i)" title="Traduction automatique"
         class="translate-btn">
         🌍
       </button>
 
       <app-grammar-fields #grammarFieldsRef *ngIf="newGlobalType === 'word' || newGlobalType === 'expression'"
-        [(grammar)]="entry.grammar" [showValidateButton]="false"> <!-- 🛑 скрываем кнопку здесь -->
+        [(grammar)]="entry.grammar" [showValidateButton]="false"> <!-- 🛑 on cache le bouton ici -->
       </app-grammar-fields>
 
 
@@ -324,36 +324,36 @@
       <button *ngIf="entries.length > 1" (click)="removeEntry(i)">🗑</button>
     </div>
 
-    <!-- ➕ Добавить ещё -->
+    <!-- ➕ Ajouter encore -->
     <button *ngIf="hasStartedTypingFirstEntry && !isMultiEntryMode" (click)="enableMultiEntry()"
       class="generate-button">
       ➕ Ajouter plus
     </button>
 
-    <!-- Показываем счётчик ТОЛЬКО если включён multi-entry -->
+    <!-- Afficher le compteur SEULEMENT si multi-entry activé -->
     <div *ngIf="isMultiEntryMode" class="limit-hint">
       Reste {{ maxEntries - entries.length }} sur {{ maxEntries }}
     </div>
 
 
-    <!-- Если добавляем ГЛОБАЛЬНО (не через галактику) -->
+    <!-- Si ajout GLOBAL (pas via galaxie) -->
     <div *ngIf="!isFromGalaxyShortcut">
-      <!-- Категория -->
+      <!-- Catégorie -->
       <select [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()" class="add-entry-modal__select" name="selectedGalaxy">
         <option value="">Sans catégorie</option>
         <option *ngFor="let galaxy of galaxies" [value]="galaxy.name">{{ galaxy.name }}</option>
       </select>
 
-      <!-- Подтема -->
+      <!-- Sous-thème -->
       <select *ngIf="availableSubtopics.length" [(ngModel)]="selectedSubtopic" class="add-entry-modal__select" name="selectedSubtopic">
         <option value="" disabled selected>Choisir un sous-thème</option>
         <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
       </select>
     </div>
 
-    <!-- Если добавляем через галактику (плюсик внутри галактики) -->
+    <!-- Si ajout via galaxie (plus dans galaxie) -->
     <div *ngIf="isFromGalaxyShortcut">
-      <!-- Только Подтема -->
+      <!-- Seulement sous-thème -->
       <select [(ngModel)]="selectedSubtopic" class="add-entry-modal__select" name="selectedSubtopicShortcut">
         <option value="">Sans catégorie</option> <!-- Важно: добавляем вручную -->
         <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
@@ -361,24 +361,24 @@
     </div>
 
 
-    <!-- Подтема -->
+    <!-- Sous-thème -->
     <select *ngIf="availableSubtopics.length && !isFromGalaxyShortcut" [(ngModel)]="selectedSubtopic"
       class="add-entry-modal__select">
       <option value="" disabled selected>Choisir un sous-thème</option>
       <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
     </select>
 
-    <!-- GPT классификация -->
+    <!-- Classification GPT -->
     <button *ngIf="!isFromGalaxyShortcut" class="generate-button" (click)="generateWithGPT()">
       🤖 Classification automatique
     </button>
 
-    <!-- Сообщение об успехе -->
+    <!-- Message de succès -->
     <div *ngIf="addSuccessMessage" class="add-entry-modal__message">
       {{ addSuccessMessage }}
     </div>
 
-    <!-- Кнопки -->
+    <!-- Boutons -->
     <div class="add-entry-modal__actions">
       <button (click)="isMultiEntryMode ? saveAll() : saveGlobalWordOrExpression()" class="add-entry-modal__button"
         [disabled]="entries.length === 0 || !entries[0].word.trim()">
@@ -392,7 +392,7 @@
   </div>
 </div>
 
-<!-- Модалка после добавления без подтемы -->
+<!-- Modal après ajout sans sous-thème -->
 <div class="modal-overlay" *ngIf="showPostAddModal">
   <div class="confirmation-modal">
     <p>{{ confirmationMessage }}</p>

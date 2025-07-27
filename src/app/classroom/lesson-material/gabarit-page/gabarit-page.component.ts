@@ -10,20 +10,20 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
   @Input() readonly = true;
   @Input() lessonStarted = false;
 
-  // События для родительского компонента
+  // événements pour le composant parent
   @Output() openNotesEvent = new EventEmitter<{section: 'materials', itemId: string, itemText: string}>();
 
-  // Hover management - улучшенная логика
+  // gestion du hover - logique améliorée
   hoveredItem: string | null = null;
   hoveredPosition: 'above' | 'below' = 'below';
   
-  // Улучшенная логика для кнопок действий
+  // logique améliorée pour les boutons d'action
   private hideTimeout: any = null;
   private isHoveringActions = false;
 
   ngOnInit(): void {
     if (!this.lesson) {
-      console.warn('⚠️ [GabaritPageComponent] No lesson data received');
+      console.warn('[GabaritPage] Aucune donnée de cours reçue');
     }
   }
 
@@ -91,9 +91,9 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
     return material?.title || material?.name || 'Matériau';
   }
 
-  // Hover management - улучшенная логика
+  // gestion du hover - logique améliorée
   onHover(materialTitle: string, event: MouseEvent) {
-    // Отменяем любой существующий таймер скрытия
+    // on annule tout timer de masquage existant
     if (this.hideTimeout) {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
@@ -108,16 +108,16 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
   }
 
   onLeaveItem() {
-    // Задержка перед скрытием кнопок
+    // délai avant masquage des boutons
     this.hideTimeout = setTimeout(() => {
       if (!this.isHoveringActions) {
         this.hoveredItem = null;
       }
-    }, 300); // 300ms задержка
+    }, 300); // délai de 300ms
   }
 
   onEnterActions() {
-    // Отменяем скрытие при наведении на кнопки
+    // on annule le masquage au survol des boutons
     this.isHoveringActions = true;
     if (this.hideTimeout) {
       clearTimeout(this.hideTimeout);
@@ -126,30 +126,30 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
   }
 
   onLeaveActions() {
-    // Скрываем кнопки с небольшой задержкой при уходе с кнопок
+    // on masque les boutons avec un petit délai en sortant des boutons
     this.isHoveringActions = false;
     this.hideTimeout = setTimeout(() => {
       this.hoveredItem = null;
-    }, 100); // 100ms задержка при уходе с кнопок
+    }, 100); // délai de 100ms en sortant des boutons
   }
 
   ngOnDestroy(): void {
-    // Очищаем таймер если он существует
+    // on nettoie le timer s'il existe
     if (this.hideTimeout) {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
     }
   }
 
-
-
-  // Open notes method - передаем событие родительскому компоненту
+  // méthode d'ouverture des notes - on transmet l'événement au composant parent
   openNotes(materialId: string, materialTitle: string) {
-    console.log('📝 Opening notes for material:', { materialId, materialTitle });
+    console.log('[GabaritPage] Ouverture notes pour matériau:', { materialId, materialTitle });
     this.openNotesEvent.emit({ 
       section: 'materials', 
       itemId: materialId, 
       itemText: materialTitle 
     });
   }
+  
+  // TODO : ajouter gestion des différents types de matériaux
 }

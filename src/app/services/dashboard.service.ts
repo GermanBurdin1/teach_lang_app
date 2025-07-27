@@ -1,23 +1,24 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+// TODO : ajouter gestion d'état pour les préférences du tableau de bord
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
-  // === Кабинет школы или ученика ===
+  // === Tableau de bord école ou étudiant ===
   private isSchoolDashboard = new BehaviorSubject<boolean>(
     JSON.parse(localStorage.getItem('isSchoolDashboard') || 'true')
   );
   currentDashboard = this.isSchoolDashboard.asObservable();
 
-  // === Кабинет преподавателя ===
+  // === Tableau de bord enseignant ===
   private isTeacherDashboard = new BehaviorSubject<boolean>(
     JSON.parse(localStorage.getItem('isTeacherDashboard') || 'false')
   );
   currentTeacherDashboard = this.isTeacherDashboard.asObservable();
 
-  // === Методы переключения ===
+  // === Méthodes de basculement ===
 
   switchToSchoolDashboard(): void {
     localStorage.setItem('isSchoolDashboard', JSON.stringify(true));

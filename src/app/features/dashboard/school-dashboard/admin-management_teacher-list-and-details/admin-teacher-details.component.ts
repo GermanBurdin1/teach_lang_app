@@ -46,7 +46,7 @@ export class AdminTeacherDetailsComponent implements OnInit {
   }
 
   removeReview(id: string): void {
-    this.reviews = this.reviews.filter(r => r.id !== id);
+    this.reviews = this.reviews.filter(r => r.id !== Number(id));
     this.saveReviewsToLocalStorage();
   }
 

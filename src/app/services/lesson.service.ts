@@ -16,6 +16,7 @@ export interface TeacherTimeSlot {
   };
 }
 
+// TODO : ajouter gestion des créneaux récurrents
 @Injectable({
   providedIn: 'root'
 })
@@ -62,14 +63,14 @@ export class LessonService {
     return this.http
       .get<any[]>(`http://localhost:3004/lessons/student/${studentId}/confirmed-lessons`)
       .pipe(
-        tap(lessons => console.log('📚 Confirmed lessons received from backend:', lessons))
+        tap(lessons => console.log('[LessonService] Cours confirmés reçus du backend:', lessons))
       );
   }
 
   getConfirmedStudentsForTeacher(teacherId: string): Observable<any[]> {
-    console.log('[FRONT] getConfirmedStudentsForTeacher called with teacherId:', teacherId);
+    console.log('[LessonService] getConfirmedStudentsForTeacher appelé avec teacherId:', teacherId);
     return this.http.get<any[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-students`).pipe(
-      tap(students => console.log('[FRONT] getConfirmedStudentsForTeacher result:', students))
+      tap(students => console.log('[LessonService] Résultat getConfirmedStudentsForTeacher:', students))
     );
   }
 
@@ -78,7 +79,7 @@ export class LessonService {
   }
 
   studentRespondToProposal(data: { lessonId: string; accepted: boolean; newSuggestedTime?: string }): Observable<any> {
-    console.log('[studentRespondToProposal] data:', data);
+    console.log('[LessonService] studentRespondToProposal data:', data);
     return this.http.post(`${this.baseUrl}/student-respond`, data);
   }
 
@@ -98,7 +99,7 @@ export class LessonService {
     return this.http.get<{ data: any[], total: number }>(`${this.baseUrl}/student/${studentId}/sent-requests-paged?page=${page}&limit=${limit}`);
   }
 
-  // Методы для работы с задачами и вопросами
+  // méthodes pour travailler avec les tâches et questions
 
   getLessonDetails(lessonId: string): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/${lessonId}/details`);

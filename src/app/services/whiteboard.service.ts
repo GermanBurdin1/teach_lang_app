@@ -3,7 +3,7 @@ import { WhiteWebSdk, Room, JoinRoomParams, RoomPhase } from 'white-web-sdk';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
-
+// TODO : ajouter sauvegarde automatique des dessins
 @Injectable({
   providedIn: 'root',
 })
@@ -13,7 +13,7 @@ export class WhiteboardService {
   private roomUuid: string = '';
   private apiUrl = 'http://localhost:3000/whiteboard/create-room';
   private roomSubject = new BehaviorSubject<Room | null>(null);
-  room$ = this.roomSubject.asObservable(); // Доступ к observable
+  room$ = this.roomSubject.asObservable(); // accès à l'observable
 
   constructor(private http: HttpClient) {
     this.sdk = new WhiteWebSdk({
@@ -22,7 +22,7 @@ export class WhiteboardService {
     });
   }
 
-  /** Получает roomUuid и roomToken с бэкенда */
+  /** Obtient roomUuid et roomToken depuis le backend */
   async createRoomAndJoin(userId: string, container: HTMLDivElement): Promise<void> {
     try {
       const response = await firstValueFrom(
@@ -30,72 +30,48 @@ export class WhiteboardService {
       );
 
       if (!response || !response.roomUuid || !response.roomToken) {
-        throw new Error('❌ Ошибка: roomUuid или roomToken отсутствует!');
+        throw new Error('[WhiteboardService] Erreur: roomUuid ou roomToken manquant !');
       }
 
-      console.log('✅ Получен roomUuid:', response.roomUuid);
-      console.log('✅ Получен roomToken:', response.roomToken);
+      console.log('[WhiteboardService] roomUuid reçu:', response.roomUuid);
+      console.log('[WhiteboardService] roomToken reçu:', response.roomToken);
 
-      // Подключаемся к комнате
+      // on se connecte à la salle
       await this.joinRoom(response.roomUuid, response.roomToken, userId, container);
     } catch (error) {
-      console.error('❌ Ошибка при создании комнаты и подключении:', error);
+      console.error('[WhiteboardService] Erreur lors de la création de salle et connexion:', error);
     }
   }
 
-  /** Подключается к Whiteboard */
+  /** Se connecte au Whiteboard */
   async joinRoom(uuid: string, roomToken: string, userId: string, container: HTMLDivElement): Promise<void> {
     this.roomUuid = uuid;
 
     if (!roomToken) {
-      console.error('❌ Ошибка: Room Token отсутствует!');
-      return;
-    }
-
-    console.log("📌 Используемый токен:", roomToken);
-
-    const roomParams: JoinRoomParams = {
-      uuid,
-      roomToken,
-      uid: userId,
-      isWritable: true,
-    };
-
-    try {
-      this.room = await this.sdk.joinRoom(roomParams);
-      this.roomSubject.next(this.room);
-      console.log('✅ Подключено к Whiteboard');
-      console.log("🔍 Writable:", this.room?.isWritable);
-      console.log(this.room);
-
-      // 🔹 Привязываем доску к контейнеру
-      console.log("📌 Привязываем whiteboard...");
-      await this.bindWhiteboardToContainer(container);
-      console.log("✅ Whiteboard привязан!");
-
-    } catch (error) {
-      console.error('❌ Ошибка при подключении к доске:', error);
-    }
-  }
-
-  /** 🔹 Функция привязки whiteboard к контейнеру */
-  private async bindWhiteboardToContainer(container: HTMLDivElement): Promise<void> {
-    if (!this.room) {
-      console.error("❌ Ошибка: Комната (room) не определена, невозможно привязать контейнер!");
+      console.error('[WhiteboardService] Erreur: roomToken manquant');
       return;
     }
 
     try {
-      await this.room.bindHtmlElement(container);
-      console.log("🎨 Холст успешно привязан к контейнеру!");
-    } catch (error) {
-      console.error("❌ Ошибка при привязке холста:", error);
-    }
-  }
+      const joinRoomParams: JoinRoomParams = {
+        uuid,
+        roomToken,
+        uid: userId,
+        isWritable: true,
+      };
 
-  /** Получает текущую комнату */
-  getRoom(): Room | undefined {
-    return this.room;
+      console.log('[WhiteboardService] Connexion à la salle avec les paramètres:', joinRoomParams);
+
+      this.room = await this.sdk.joinRoom(joinRoomParams);
+      
+      console.log('[WhiteboardService] Connexion réussie à la salle !');
+
+      this.room.bindHtmlElement(container);
+      this.roomSubject.next(this.room); // on émet la salle via BehaviorSubject
+
+    } catch (error) {
+      console.error('[WhiteboardService] Erreur lors de la connexion à la salle:', error);
+    }
   }
 
 }

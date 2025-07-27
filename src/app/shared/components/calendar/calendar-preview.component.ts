@@ -30,7 +30,7 @@ export class CalendarPreviewComponent {
 
   ngOnInit(): void {
     const today = new Date();
-    today.setHours(12, 0, 0, 0); // Сброс времени — обязательно!
+    today.setHours(12, 0, 0, 0); 
     this.viewDate = today;
     console.log('[CalendarPreviewComponent] events received:', this.events);
     setTimeout(() => {

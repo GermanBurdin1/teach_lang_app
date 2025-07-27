@@ -252,7 +252,7 @@ h2 {
   line-height: 1.2;
 }
 
-/* Стили для разных типов слотов */
+/* Styles pour différents types de créneaux */
 .time-slot-btn.available {
   background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
   color: #2d7d32;
@@ -298,7 +298,7 @@ h2 {
   opacity: 0.7;
 }
 
-/* Стили для легенды */
+/* Styles pour la légende */
 .legend {
   background-color: #f8f9fa;
   border: 1px solid #e9ecef;

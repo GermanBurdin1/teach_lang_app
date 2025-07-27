@@ -134,7 +134,6 @@
   margin-right: 8px;
 }
 
-/* Стили для разделов */
 .sections-container {
   margin-top: 16px;
   flex: 1;
@@ -176,7 +175,6 @@
   color: #ccc !important;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .lesson-notes-modal {
     min-width: 95vw;
@@ -214,7 +212,6 @@
   }
 }
 
-/* Стили для новой структуры элементов */
 .items-list {
   margin-bottom: 16px;
 }
@@ -287,7 +284,6 @@
   margin-left: auto;
 }
 
-/* Улучшения для заблюренных разделов */
 .notes-section.blur .item-container {
   opacity: 0.5;
   pointer-events: none;

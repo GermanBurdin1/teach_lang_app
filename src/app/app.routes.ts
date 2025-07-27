@@ -29,7 +29,7 @@ export const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: ['student', 'teacher'] }
   },
-  //{ path: 'video-call', component: VideoCallComponent }, // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
+  //{ path: 'video-call', component: VideoCallComponent }, // TODO vidéos appels commentés temporairement pour tester le flow
   { path: 'landing', component: LandingComponent },
   { path: 'landing/preview', component: PreviewLandingComponent },
   { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule) },

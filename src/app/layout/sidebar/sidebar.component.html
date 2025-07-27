@@ -1,5 +1,5 @@
 <div class="sidebar" [class.collapsed]="!isExpanded" (mouseenter)="expandSidebar()" (mouseleave)="collapseSidebar()">
-  <!-- Приоритет: преподаватель > школа > ученик -->
+  <!-- priorité : professeur > école > élève -->
   <ng-container *ngIf="isTeacherDashboard; else checkSchool">
     <ng-container *ngTemplateOutlet="teacherDashboard"></ng-container>
   </ng-container>
@@ -13,7 +13,7 @@
   <ng-template #schoolDashboard>
     <nav class="school-menu">
 
-      <!-- 🆕 Главная вкладка -->
+      <!-- onglet principal -->
       <!-- <a mat-button routerLink="admin/home" class="school-tab" matTooltip="Tableau de bord">
         <mat-icon>dashboard</mat-icon>
         <span class="tab-text">Accueil</span>
@@ -41,7 +41,6 @@
 
     </nav>
   </ng-template>
-
 
   <ng-template #studentDashboard>
     <nav class="student-menu">
@@ -86,7 +85,6 @@
 
     </nav>
   </ng-template>
-
 
   <ng-template #teacherDashboard>
     <nav class="teacher-menu">

@@ -4,7 +4,7 @@ import { AdminTeacherDetails } from "./admin-teacher-details.model";
 export const MOCK_ADMIN_TEACHER_DETAILS: AdminTeacherDetails[] = [
   {
     id: '1',
-    name: 'Анна Дюпон',
+    name: 'Anne Dupont',
     photoUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
     specializations: ['DELF B2', 'Grammaire'],
     price: 25,
@@ -12,13 +12,13 @@ export const MOCK_ADMIN_TEACHER_DETAILS: AdminTeacherDetails[] = [
     isActive: true,
     registrationDate: '2023-09-12',
     moderated: true,
-    bio: 'Я преподаватель с 10-летним опытом подготовки к экзаменам DELF и DALF.',
+    bio: 'Enseignante avec 10 ans d\'expérience dans la préparation aux examens DELF et DALF.',
     experienceYears: 10,
     certificates: ['DALF C2', 'Alliance Française']
   },
   {
     id: '2',
-    name: 'Пьер Лафонт',
+    name: 'Pierre Lafont',
     photoUrl: 'https://randomuser.me/api/portraits/men/46.jpg',
     specializations: ['DALF C1', 'Expression orale'],
     price: 30,
@@ -26,8 +26,10 @@ export const MOCK_ADMIN_TEACHER_DETAILS: AdminTeacherDetails[] = [
     isActive: false,
     registrationDate: '2024-01-22',
     moderated: false,
-    bio: 'Работаю с учениками уровня B2–C2, фокус на разговорной практике.',
+    bio: 'Travaille avec des élèves de niveau B2–C2, focus sur la pratique orale.',
     experienceYears: 7,
     certificates: ['DALF C1', 'Phonétique Avancée']
   }
 ];
+
+// TODO : remplacer par des données dynamiques depuis l'API

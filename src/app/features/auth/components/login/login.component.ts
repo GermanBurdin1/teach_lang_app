@@ -4,6 +4,7 @@ import { AuthService } from '../../../../services/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../../services/notification.service';
 
+// TODO : ajouter authentification à deux facteurs
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -27,7 +28,7 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Проверяем сохранённую тему
+    // on vérifie le thème sauvegardé
     const savedTheme = localStorage.getItem('theme');
     this.isDarkTheme = savedTheme === 'dark';
     this.applyTheme();
@@ -38,77 +39,77 @@ export class LoginComponent implements OnInit {
       selectedRole: [null, Validators.required]
     });
 
-    // 👉 Если админ вводит логин, сразу задаём роль и снимаем валидацию
+    // si l'admin entre son login, on définit directement le rôle et on supprime la validation
     this.loginForm.get('email')?.valueChanges.subscribe(email => {
       if (email === 'admin@admin.net') {
-        this.loginForm.get('selectedRole')?.setValidators([]); // убираем required
+        this.loginForm.get('selectedRole')?.setValidators([]); // on supprime required
         this.loginForm.get('selectedRole')?.setValue('admin');
         this.loginForm.get('selectedRole')?.updateValueAndValidity();
       } else {
-        this.loginForm.get('selectedRole')?.setValidators([Validators.required]); // восстанавливаем
+        this.loginForm.get('selectedRole')?.setValidators([Validators.required]); // on remet
         this.loginForm.get('selectedRole')?.setValue(null);
         this.loginForm.get('selectedRole')?.updateValueAndValidity();
       }
     });
   }
 
-  onEmailBlur(): void {
-    const email = this.loginForm.get('email')?.value;
-    if (email) {
-      this.authService.checkEmailExists(email).subscribe({
-        next: (res) => {
-          this.emailChecked = true;
-          this.availableRoles = res.roles || [];
-
-          if (this.availableRoles.length === 1) {
-            this.loginForm.get('selectedRole')?.setValue(this.availableRoles[0]); // 💥 Автоустановка
-          } else {
-            this.loginForm.get('selectedRole')?.reset(); // сбросить, чтобы не блокировать кнопку
-          }
-        },
-        error: (err) => {
-          console.error('Erreur lors de la vérification de l\'email', err);
-        }
-      });
+  // TODO : optimiser la vérification d'email avec debounce
+  checkEmail(): void {
+    if (!this.email || !this.email.includes('@')) {
+      return;
     }
+
+    this.authService.checkEmailExists(this.email).subscribe({
+      next: (res: any) => {
+        this.emailChecked = true;
+        this.availableRoles = res.roles || [];
+        this.loginForm.get('selectedRole')?.setValue(this.availableRoles[0]); // auto-définition
+      },
+      error: (err: any) => {
+        this.loginForm.get('selectedRole')?.reset(); // on reset pour ne pas bloquer le bouton
+        this.emailChecked = true;
+        this.availableRoles = [];
+        console.error('[LoginComponent] Erreur vérification email:', err);
+      }
+    });
   }
 
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password, selectedRole } = this.loginForm.value;
-      console.log('Trying login with', this.loginForm.value);
+      
       this.authService.login(email, password).subscribe({
-        next: (user) => {
+        next: (user: any) => {
           this.authService.setUser(user);
           this.authService.setActiveRole(selectedRole);
-          if (selectedRole === 'student') {
-            this.router.navigate(['/student/home']);
-          } else if (selectedRole === 'teacher') {
-            this.router.navigate(['/teacher/home']);
-          } else if (selectedRole === 'admin') {
-            this.router.navigate(['/admin/home']);
-          } else {
-            this.router.navigate(['/']);
-          }
+          this.notificationService.success('Connexion réussie !');
+          this.router.navigate(['/dashboard']);
         },
-        error: (err) => {
-          this.notificationService.error(err.error?.message || 'Identifiants incorrects');
+        error: (err: any) => {
+          console.error('[LoginComponent] Erreur de connexion:', err);
+          this.notificationService.error(err.error?.message || 'Erreur de connexion');
         }
       });
     }
   }
 
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  // TODO : synchroniser le thème avec les autres composants
   toggleTheme(): void {
     this.isDarkTheme = !this.isDarkTheme;
-    this.applyTheme();
     localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
+    this.applyTheme();
   }
 
   private applyTheme(): void {
-    if (this.isDarkTheme) {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-    }
+    document.body.classList.toggle('dark-theme', this.isDarkTheme);
+  }
+
+  // TODO : ajouter fonctionnalité "se souvenir de moi"
+  navigateToRegister(): void {
+    this.router.navigate(['/auth/register']);
   }
 }

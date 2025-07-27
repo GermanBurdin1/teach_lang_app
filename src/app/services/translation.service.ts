@@ -10,7 +10,7 @@ interface TranslationResponse {
   sourceLang: string;
   targetLang: string;
   from: 'wiktionary' | 'api' | 'deepl';
-  grammar?: GrammarData; // <--- вот здесь добавляем!
+  grammar?: GrammarData; 
 }
 
 
@@ -18,7 +18,7 @@ interface TranslationResponse {
   providedIn: 'root'
 })
 export class TranslationService {
-  private apiUrl = 'http://localhost:3000/translation'; // твой backend путь
+  private apiUrl = 'http://localhost:3000/translation'; 
 
   constructor(private http: HttpClient) { }
 

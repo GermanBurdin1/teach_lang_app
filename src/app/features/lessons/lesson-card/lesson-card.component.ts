@@ -29,13 +29,13 @@ export class LessonCardComponent implements OnInit {
   collapsedQuestions = false;
   collapsedHomework = false;
 
-  // Новые поля для работы с реальными данными
+  // Nouveaux champs pour gérer les vraies données
   realTasks: any[] = [];
   realQuestions: any[] = [];
   currentUserId: string = '';
   currentUserRole: 'student' | 'teacher' = 'student';
 
-  // Состояние модала отмены
+  // État du modal d'annulation
   showCancelModal = false;
   cancellationReason = '';
   cancellationReasons = [
@@ -55,15 +55,15 @@ export class LessonCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Получаем текущего пользователя
+    // On récupère l'utilisateur courant
     const currentUser = this.authService.getCurrentUser();
     this.currentUserId = currentUser?.id || '';
     this.currentUserRole = (currentUser?.currentRole as 'student' | 'teacher') || 'student';
     
-    // Загружаем задачи и вопросы урока
+    // On charge les tâches et questions du cours
     this.loadLessonData();
     
-    // Допустим, lesson.materials делится на все задачи/вопросы
+    // Par exemple, lesson.materials contient toutes les tâches/questions
     const items = this.lesson?.materials || ['Grammaire: Subjonctif', 'Phonétique: Liaison'];
     this.unresolved = [...items];
     this.homeworkService.getHomeworkStream().subscribe(items => {
@@ -74,25 +74,25 @@ export class LessonCardComponent implements OnInit {
   loadLessonData(): void {
     if (!this.lesson?.id) return;
 
-    // Загружаем задачи урока
+    // Charger les tâches du cours
     this.homeworkService.getTasksForLesson(this.lesson.id).subscribe({
       next: (tasks) => {
         this.realTasks = tasks;
-        console.log('📝 Задачи загружены:', tasks);
+        console.log('Tâches chargées:', tasks);
       },
       error: (error) => {
-        console.error('❌ Ошибка загрузки задач:', error);
+        console.error('Erreur lors du chargement des tâches:', error);
       }
     });
 
-    // Загружаем вопросы урока
+    // Charger les questions du cours
     this.homeworkService.getQuestionsForLesson(this.lesson.id).subscribe({
       next: (questions) => {
         this.realQuestions = questions;
-        console.log('❓ Вопросы загружены:', questions);
+        console.log('Questions chargées:', questions);
       },
       error: (error) => {
-        console.error('❌ Ошибка загрузки вопросов:', error);
+        console.error('Erreur lors du chargement des questions:', error);
       }
     });
   }
@@ -100,9 +100,8 @@ export class LessonCardComponent implements OnInit {
   enterVirtualClass(): void {
     const lessonId = this.lesson?.id;
     if (lessonId) {
-      // Устанавливаем данные урока в VideoCallService
+      // On définit les données du cours dans VideoCallService
       this.videoCallService.setLessonData(lessonId, this.currentUserId);
-      
       this.router.navigate([`/classroom/${lessonId}/lesson`], {
         queryParams: { startCall: true }
       });
@@ -135,7 +134,7 @@ export class LessonCardComponent implements OnInit {
       return;
     }
 
-    // ✅ Только эмитим и родитель сам добавит
+    // ✅ On émet uniquement et le parent ajoutera
     this.itemDropped.emit({
       from: sourceId,
       to: targetId,
@@ -181,7 +180,7 @@ export class LessonCardComponent implements OnInit {
   }
 
   private extractLessonIdFromDropListId(dropListId: string): number {
-    // dropListId в формате 'tasks-1' или 'questions-6'
+    // dropListId au format 'tasks-1' ou 'questions-6'
     const parts = dropListId.split('-');
     return +parts[1];
   }
@@ -209,10 +208,10 @@ export class LessonCardComponent implements OnInit {
       next: (task) => {
         this.realTasks.push(task);
         this.newTask = '';
-        console.log('✅ Задача добавлена:', task);
+        console.log('Tâche ajoutée:', task);
       },
       error: (error) => {
-        console.error('❌ Ошибка добавления задачи:', error);
+        console.error('Erreur lors de l\'ajout de la tâche:', error);
       }
     });
   }
@@ -229,10 +228,10 @@ export class LessonCardComponent implements OnInit {
       next: (questionData) => {
         this.realQuestions.push(questionData);
         this.newQuestion = '';
-        console.log('✅ Вопрос добавлен:', questionData);
+        console.log('Question ajoutée:', questionData);
       },
       error: (error) => {
-        console.error('❌ Ошибка добавления вопроса:', error);
+        console.error('Erreur lors de l\'ajout de la question:', error);
       }
     });
   }
@@ -255,16 +254,15 @@ export class LessonCardComponent implements OnInit {
 
     this.lessonService.cancelLesson(this.lesson.id, this.cancellationReason).subscribe({
       next: (response) => {
-        console.log('✅ Урок отменен:', response);
+        console.log('Cours annulé:', response);
         this.lesson.status = response.status;
         this.closeCancelModal();
-        
-        // Показываем сообщение пользователю
+        // On affiche un message à l'utilisateur
         alert(response.message);
       },
       error: (error) => {
-        console.error('❌ Ошибка отмены урока:', error);
-        alert('Ошибка при отмене урока. Попробуйте еще раз.');
+        console.error('Erreur lors de l\'annulation du cours:', error);
+        alert('Erreur lors de l\'annulation du cours. Veuillez réessayer.');
       }
     });
   }
@@ -272,15 +270,15 @@ export class LessonCardComponent implements OnInit {
   completeTask(taskId: string): void {
     this.homeworkService.completeTask(taskId, this.currentUserId).subscribe({
       next: (task) => {
-        // Обновляем задачу в локальном массиве
+        // On met à jour la tâche dans le tableau local
         const taskIndex = this.realTasks.findIndex(t => t.id === taskId);
         if (taskIndex !== -1) {
           this.realTasks[taskIndex] = task;
         }
-        console.log('✅ Задача отмечена как выполненная:', task);
+        console.log('Tâche marquée comme terminée:', task);
       },
       error: (error) => {
-        console.error('❌ Ошибка при отметке задачи:', error);
+        console.error('Erreur lors de la validation de la tâche:', error);
       }
     });
   }

@@ -1,7 +1,7 @@
 <div class="student-profile" style="max-width: 800px; margin: 0 auto;">
-  <!-- Profile Header -->
+  <!-- En-tête du profil -->
   <div class="mb-4">
-    <!-- Back Button -->
+    <!-- Bouton retour -->
     <div class="d-flex align-items-center">
       <button class="btn btn-light me-3" (click)="navigateBack()">
         <i class="bi bi-arrow-left"></i>
@@ -13,7 +13,7 @@
         <span class="text-uppercase">{{ studentData?.name[0] }}</span>
       </div>
 
-      <!-- Profile Information -->
+      <!-- Informations du profil -->
       <div>
         <h2 class="mb-1">{{ studentData?.name }}</h2>
         <div class="d-flex align-items-center">
@@ -25,10 +25,10 @@
           </span>
         </div>
 
-        <!-- Actions - Moved under Profile Information -->
+        <!-- Actions sous les infos du profil -->
         <div class="mt-2">
           <button class="btn btn-outline-secondary me-2" id="dropdownMenuButton"
-            (click)="openEditModal()">Редактировать</button>
+            (click)="openEditModal()">Modifier</button>
           <div class="dropdown d-inline-block" tabindex="0">
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
               data-bs-toggle="dropdown" aria-expanded="false">
@@ -37,7 +37,7 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <li>
                 <button class="dropdown-item" (click)="downloadStatistics()">
-                  <i class="bi bi-download"></i> Скачать статистику
+                  <i class="bi bi-download"></i> Télécharger les statistiques
                 </button>
               </li>
             </ul>
@@ -46,111 +46,109 @@
       </div>
     </div>
   </div>
-  <!-- Контейнер для статуса учителя и кнопки деактивации -->
+  <!-- Conteneur pour le statut de l'enseignant et le bouton de désactivation -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <!-- Статус и подсказка -->
+    <!-- Statut et info-bulle -->
     <div class="d-flex align-items-center">
-      <p class="mb-0">Статус учителя в онлайн-уроках:
-        <span class="text-success">Активирован</span>
+      <p class="mb-0">Statut de l'enseignant dans les cours en ligne :
+        <span class="text-success">Activé</span>
       </p>
       <div class="ms-2 position-relative" (mouseenter)="showTooltip('teacherStatus')" (mouseleave)="hideTooltip()">
         <i class="fas fa-question-circle text-info"></i>
         <div *ngIf="tooltipVisible === 'teacherStatus'" class="simple-tooltip bg-dark text-light p-2 rounded"
           style="white-space: normal; max-width: 600px;">
-          <i class="fas fa-info-circle me-4"></i> При деактивации преподаватель перестанет выводиться в списке
-          доступных
-          для новых учеников. Но сможет проводить уроки с уже добавленными учениками.
+          <i class="fas fa-info-circle me-4"></i> Lors de la désactivation, l'enseignant ne sera plus affiché dans la liste des nouveaux élèves. Mais il pourra donner des cours aux élèves déjà ajoutés.
         </div>
       </div>
     </div>
 
-    <!-- Кнопка деактивации -->
-    <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Деактивировать</button>
+    <!-- Bouton de désactivation -->
+    <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Désactiver</button>
   </div>
 
   <div class="container mt-4">
-    <!-- Button to add class -->
+    <!-- Bouton pour ajouter une classe -->
     <button class="btn btn-primary mt-3" (click)="isTariffPaid ? openAddClassModal() : openAccessModal()">
-      Добавить класс
+      Ajouter une classe
     </button>
   </div>
 
 
-  <!-- Modal for restricted access -->
+  <!-- Modale d'accès restreint -->
   <div *ngIf="showAccessModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="accessModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
         <div class="modal-header">
-          <h5 class="modal-title" id="accessModalTitle">Доступ ограничен</h5>
+          <h5 class="modal-title" id="accessModalTitle">Accès restreint</h5>
           <button type="button" class="btn-close" aria-label="Close" (click)="closeAccessModal()"></button>
         </div>
         <div class="modal-body">
-          <p>Доступ в виртуальный класс заблокирован для вас и ваших учеников. Оплатите выбранный тариф, чтобы продолжить использование платформы.</p>
+          <p>L'accès à la classe virtuelle est bloqué pour vous et vos élèves. Veuillez payer le tarif choisi pour continuer à utiliser la plateforme.</p>
         </div>
         <div class="modal-footer justify-content-center">
-          <button type="button" class="btn btn-secondary" (click)="closeAccessModal()">Позже</button>
-          <button class="btn btn-primary" (click)="openTariffModal()">Добавить</button>
+          <button type="button" class="btn btn-secondary" (click)="closeAccessModal()">Plus tard</button>
+          <button class="btn btn-primary" (click)="openTariffModal()">Ajouter</button>
           <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal" (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal for Adding Class -->
+  <!-- Modale pour ajouter une classe -->
 <div *ngIf="showAddClassModal" class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content" style="border-radius: 12px; padding: 1rem;">
       <div class="modal-header">
-        <h5 class="modal-title">Добавить класс</h5>
+        <h5 class="modal-title">Ajouter une classe</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeAddClassModal()"></button>
       </div>
       <div class="modal-body">
-        <!-- Вкладки -->
+        <!-- Onglets -->
         <div class="d-flex justify-content-between">
-          <button class="btn" [class.active]="selectedTab === 'individual'" (click)="setTab('individual')">Индивидуальный</button>
-          <button class="btn" [class.active]="selectedTab === 'group'" (click)="setTab('group')">Групповой</button>
-          <button class="btn" [class.active]="selectedTab === 'marathon'" (click)="setTab('marathon')">Марафон</button>
+          <button class="btn" [class.active]="selectedTab === 'individual'" (click)="setTab('individual')">Individuel</button>
+          <button class="btn" [class.active]="selectedTab === 'group'" (click)="setTab('group')">Groupe</button>
+          <button class="btn" [class.active]="selectedTab === 'marathon'" (click)="setTab('marathon')">Marathon</button>
         </div>
 
-        <!-- Содержимое вкладки -->
+        <!-- Contenu de l'onglet -->
         <div *ngIf="selectedTab === 'individual'" class="mt-3">
-          <label>Обложка</label>
+          <label>Couverture</label>
           <input type="file" (change)="onFileSelected($event)" class="form-control" />
           <div class="mt-3">
-            <label>Название класса</label>
-            <input type="text" class="form-control" [(ngModel)]="className" placeholder="Введите название класса" />
+            <label>Nom de la classe</label>
+            <input type="text" class="form-control" [(ngModel)]="className" placeholder="Entrez le nom de la classe" />
           </div>
         </div>
 
         <div *ngIf="selectedTab === 'group'" class="mt-3">
-          <label>Поиск групп</label>
-          <input type="text" class="form-control" placeholder="Поиск групп" />
+          <label>Recherche de groupes</label>
+          <input type="text" class="form-control" placeholder="Recherche de groupes" />
           <div class="mt-3">
-            <button class="btn btn-outline-primary">+ Новый класс</button>
+            <button class="btn btn-outline-primary">+ Nouvelle classe</button>
           </div>
         </div>
 
         <div *ngIf="selectedTab === 'marathon'" class="mt-3">
-          <label>Название марафона</label>
-          <input type="text" class="form-control" placeholder="Введите название марафона" />
+          <label>Nom du marathon</label>
+          <input type="text" class="form-control" placeholder="Entrez le nom du marathon" />
           <div class="mt-3">
-            <label>Дата начала</label>
+            <label>Date de début</label>
             <input type="date" class="form-control" />
           </div>
           <div class="mt-3">
-            <label>Дата окончания</label>
+            <label>Date de fin</label>
             <input type="date" class="form-control" />
           </div>
           <div class="mt-3">
-            <label>Описание</label>
-            <textarea class="form-control" rows="3" placeholder="Введите описание марафона"></textarea>
+            <label>Description</label>
+            <textarea class="form-control" rows="3" placeholder="Entrez la description du marathon"></textarea>
           </div>
         </div>
       </div>
 
       <div class="modal-footer justify-content-center">
-        <button class="btn btn-secondary" (click)="closeAddClassModal()">Отмена</button>
-        <button class="btn btn-primary" (click)="saveClass()">Добавить</button>
+        <button class="btn btn-secondary" (click)="closeAddClassModal()">Annuler</button>
+        <button class="btn btn-primary" (click)="saveClass()">Ajouter</button>
       </div>
     </div>
   </div>
@@ -165,59 +163,59 @@
   <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
     <div class="modal-content p-4">
       <div class="modal-header">
-        <h5 class="modal-title">Создать ученика</h5>
+        <h5 class="modal-title">Créer un élève</h5>
         <button type="button" class="btn-close" (click)="closeEditModal()"></button>
       </div>
 
       <div class="modal-body">
         <form>
-          <!-- Avatar Upload -->
+          <!-- Upload de l'avatar -->
           <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-3">Аватарка</label>
+            <label class="form-label me-3">Avatar</label>
             <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;"></div>
             <input type="file" id="avatarUpload" class="d-none" (change)="onFileSelected($event)">
-            <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Télécharger</button>
           </div>
 
-          <!-- Basic Info -->
+          <!-- Informations de base -->
           <div class="mb-3">
-            <label class="form-label">Почта</label>
-            <input type="email" class="form-control" placeholder="Почта" [(ngModel)]="newStudent.email"
+            <label class="form-label">E-mail</label>
+            <input type="email" class="form-control" placeholder="E-mail" [(ngModel)]="newStudent.email"
               name="teacherEmail">
           </div>
           <div class="mb-3">
-            <label class="form-label">Пароль</label>
-            <input type="password" class="form-control" placeholder="Пароль" [(ngModel)]="newStudent.password"
+            <label class="form-label">Mot de passe</label>
+            <input type="password" class="form-control" placeholder="Mot de passe" [(ngModel)]="newStudent.password"
               name="studentPassword">
           </div>
           <div class="mb-3">
-            <label class="form-label">Имя</label>
-            <input type="text" class="form-control" placeholder="Имя" [(ngModel)]="newStudent.name" name="teacherName">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" placeholder="Nom" [(ngModel)]="newStudent.name" name="teacherName">
           </div>
           <div class="mb-3">
-            <label class="form-label">Телефон</label>
-            <input type="tel" class="form-control" placeholder="Телефон">
+            <label class="form-label">Téléphone</label>
+            <input type="tel" class="form-control" placeholder="Téléphone">
           </div>
           <div class="mb-3">
-            <label class="form-label">Родной язык</label>
+            <label class="form-label">Langue maternelle</label>
             <select class="form-select" [(ngModel)]="newStudent.nativeLanguage" name="teacherNativeLanguage">
-              <option value="Russian">Russian</option>
-              <option value="English">English</option>
+              <option value="Russian">Russe</option>
+              <option value="English">Anglais</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Часовой пояс</label>
+            <label class="form-label">Fuseau horaire</label>
             <select class="form-select">
               <option *ngFor="let timezone of timezones">{{ timezone }}</option>
             </select>
           </div>
 
-          <!-- Button to Trigger Delete Modal -->
+          <!-- Bouton pour ouvrir la modale de suppression -->
           <div class="mb-3">
-            <button type="button" class="btn btn-danger" (click)="openDeleteStudentModal()">Удалить ученика</button>
+            <button type="button" class="btn btn-danger" (click)="openDeleteStudentModal()">Supprimer l'élève</button>
           </div>
 
-          <!-- Delete Confirmation Modal -->
+          <!-- Modale de confirmation de suppression -->
           <div *ngIf="showDeleteStudentModal" class="modal fade show d-block" tabindex="-1" role="dialog"
             aria-labelledby="deleteStudentModalTitle" aria-hidden="true"
             style="background: rgba(0, 0, 0, 0.5); z-index: 1050;">
@@ -231,29 +229,29 @@
                     aria-label="Close" (click)="closeDeleteStudentModal()"></button>
                 </div>
                 <div class="modal-body">
-                  <h5 class="modal-title mb-3" id="deleteStudentModalTitle">Удалить ученика</h5>
-                  <p>Вы действительно хотите удалить этого ученика?</p>
+                  <h5 class="modal-title mb-3" id="deleteStudentModalTitle">Supprimer l'élève</h5>
+                  <p>Voulez-vous vraiment supprimer cet élève ?</p>
                   <div class="alert alert-danger">
-                    <i class="bi bi-info-circle"></i> Это действие невозможно отменить.
+                    <i class="bi bi-info-circle"></i> Cette action est irréversible.
                   </div>
                 </div>
                 <div class="modal-footer justify-content-center border-0">
                   <button type="button" class="btn btn-secondary me-3"
-                    (click)="closeDeleteStudentModal()">Отмена</button>
-                  <button type="button" class="btn btn-danger" (click)="confirmDeleteStudent()">Удалить</button>
+                    (click)="closeDeleteStudentModal()">Annuler</button>
+                  <button type="button" class="btn btn-danger" (click)="confirmDeleteStudent()">Supprimer</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Additional Information -->
+          <!-- Informations supplémentaires -->
           <div *ngIf="showAdditionalInfo">
             <div class="separator mb-2">
-              <span>Дополнительная информация</span>
+              <span>Informations supplémentaires</span>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Ссылка для связи</label>
+              <label class="form-label">Lien de contact</label>
               <div class="input-group">
                 <ng-select [(ngModel)]="selectedPlatform" name="selectedPlatform" (change)="updateLinkPlaceholder()"
                   [clearable]="false" [searchable]="false" bindLabel="label" bindValue="value" class="form-select">
@@ -267,30 +265,30 @@
               </div>
             </div>
 
-            <!-- Периодичность обучения -->
+            <!-- Fréquence d'apprentissage -->
             <div class="mb-3">
-              <label class="form-label">Периодичность обучения</label>
+              <label class="form-label">Fréquence d'apprentissage</label>
               <select class="form-select" [(ngModel)]="selectedFrequency">
                 <option *ngFor="let frequency of frequencies">{{ frequency }}</option>
               </select>
             </div>
 
-            <!-- Цель изучения -->
+            <!-- Objectif d'apprentissage -->
             <div class="mb-3">
-              <label class="form-label">Цель изучения</label>
-              <textarea class="form-control" rows="3" placeholder="Напишите цель изучения"
+              <label class="form-label">Objectif d'apprentissage</label>
+              <textarea class="form-control" rows="3" placeholder="Écrivez l'objectif d'apprentissage"
                 [(ngModel)]="studyGoal"></textarea>
             </div>
 
-            <!-- Заметка -->
+            <!-- Note -->
             <div class="mb-3">
-              <label class="form-label">Заметка</label>
-              <textarea class="form-control" rows="3" placeholder="Напишите заметку" [(ngModel)]="note"></textarea>
+              <label class="form-label">Note</label>
+              <textarea class="form-control" rows="3" placeholder="Écrivez une note" [(ngModel)]="note"></textarea>
             </div>
           </div>
 
           <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
-            {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
+            {{ showAdditionalInfo ? 'Masquer les informations supplémentaires' : 'Afficher les informations supplémentaires' }}
           </button>
 
           <div *ngIf="showAdditionalInfo" class="mt-3">
@@ -299,8 +297,8 @@
         </form>
       </div>
       <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
-        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Отмена</button>
-        <button type="button" class="btn btn-primary" (click)="editInfo()">Создать</button>
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="editInfo()">Créer</button>
       </div>
     </div>
   </div>
@@ -311,51 +309,51 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
       <div class="modal-header">
-        <h5 class="modal-title" id="statisticsModalTitle">Статистика</h5>
+        <h5 class="modal-title" id="statisticsModalTitle">Statistiques</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeStatisticsModal()"></button>
       </div>
       <div class="modal-body">
-        <p class="text-info">Выберите период, за который нужна статистика</p>
-        <!-- Начало периода -->
+        <p class="text-info">Sélectionnez la période pour laquelle vous souhaitez les statistiques</p>
+        <!-- Début de la période -->
         <div class="mb-3">
-          <label for="startDate" class="form-label">Начало</label>
+          <label for="startDate" class="form-label">Début</label>
           <div class="d-flex gap-2">
             <select id="startDateDay" class="form-select">
               <option>10</option>
-              <!-- Добавь другие значения дней -->
+              <!-- Ajoutez d'autres valeurs de jours -->
             </select>
             <select id="startDateMonth" class="form-select">
-              <option>Ноябрь</option>
-              <!-- Добавь другие месяцы -->
+              <option>Novembre</option>
+              <!-- Ajoutez d'autres mois -->
             </select>
             <select id="startDateYear" class="form-select">
               <option>2024</option>
-              <!-- Добавь другие годы -->
+              <!-- Ajoutez d'autres années -->
             </select>
           </div>
         </div>
-        <!-- Конец периода -->
+        <!-- Fin de la période -->
         <div class="mb-3">
-          <label for="endDate" class="form-label">Конец</label>
+          <label for="endDate" class="form-label">Fin</label>
           <div class="d-flex gap-2">
             <select id="endDateDay" class="form-select">
               <option>11</option>
-              <!-- Добавь другие значения дней -->
+              <!-- Ajoutez d'autres valeurs de jours -->
             </select>
             <select id="endDateMonth" class="form-select">
-              <option>Ноябрь</option>
-              <!-- Добавь другие месяцы -->
+              <option>Novembre</option>
+              <!-- Ajoutez d'autres mois -->
             </select>
             <select id="endDateYear" class="form-select">
               <option>2024</option>
-              <!-- Добавь другие годы -->
+              <!-- Ajoutez d'autres années -->
             </select>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeStatisticsModal()">Отмена</button>
-        <button type="button" class="btn btn-primary">Скачать</button>
+        <button type="button" class="btn btn-secondary" (click)="closeStatisticsModal()">Annuler</button>
+        <button type="button" class="btn btn-primary">Télécharger</button>
       </div>
     </div>
   </div>
@@ -373,20 +371,18 @@
           (click)="closeDeactivateModal()"></button>
       </div>
       <div class="modal-body">
-        <h5 class="modal-title mb-3" id="deactivateTeacherModalTitle">Деактивировать учителя</h5>
-        <p>Вы действительно хотите деактивировать этого учителя?</p>
+        <h5 class="modal-title mb-3" id="deactivateTeacherModalTitle">Désactiver l'enseignant</h5>
+        <p>Voulez-vous vraiment désactiver cet enseignant ?</p>
         <div class="alert alert-info mb-2">
-          <i class="bi bi-info-circle"></i> Деактивированный учитель перестанет выводиться в списке для назначения в
-          классах
+          <i class="bi bi-info-circle"></i> L'enseignant désactivé ne sera plus affiché dans la liste pour l'affectation aux classes
         </div>
         <div class="alert alert-info">
-          <i class="bi bi-info-circle"></i> Деактивированный учитель сможет продолжить проводить уроки в класса, в
-          которые он уже добавлен
+          <i class="bi bi-info-circle"></i> L'enseignant désactivé pourra continuer à donner des cours dans les classes où il est déjà ajouté
         </div>
       </div>
       <div class="modal-footer justify-content-center border-0">
-        <button type="button" class="btn btn-secondary me-3" (click)="closeDeactivateModal()">Отмена</button>
-        <button type="button" class="btn btn-primary" (click)="confirmDeactivation()">Деактивировать</button>
+        <button type="button" class="btn btn-secondary me-3" (click)="closeDeactivateModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="confirmDeactivation()">Désactiver</button>
       </div>
     </div>
   </div>

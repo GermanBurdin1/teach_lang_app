@@ -13,7 +13,7 @@ export class UsersComponent implements OnInit {
   showAdditionalInfo = false;
   selectedFile: File | null = null;
   selectedPlatform = 'Skype';
-  linkPlaceholder = 'Введите ссылку для Skype';
+  linkPlaceholder = 'Entrez le lien pour Skype';
   linkInput: string | undefined;
   teachers: Array<{ name: string; id: number; email: string; nativeLanguage: string }> = [];
   tooltipVisible: string | null = null;
@@ -77,14 +77,14 @@ export class UsersComponent implements OnInit {
   ];
 
   frequencies = [
-    '1 раз в неделю', '2 раза в неделю', '3 раза в неделю', '4 раза в неделю',
-    '5 раз в неделю', '6 раз в неделю', '7 раз в неделю'
+    '1 fois par semaine', '2 fois par semaine', '3 fois par semaine', '4 fois par semaine',
+    '5 fois par semaine', '6 fois par semaine', '7 fois par semaine'
   ];
 
   possibilities = [
     {
-      title: 'Учитель онлайн-уроков',
-      description: 'Сотрудник сможет проводить онлайн-уроки',
+      title: 'Enseignant des cours en ligne',
+      description: 'L\'employé pourra donner des cours en ligne',
       icon: 'bi bi-person-video3',
       role: 'teacher',
       enabled: false,
@@ -92,8 +92,8 @@ export class UsersComponent implements OnInit {
       isFeatureEnabled: false,
     },
     {
-      title: 'Куратор марафонов',
-      description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
+      title: 'Curateur des marathons',
+      description: 'L\'employé pourra superviser les marathons et les cours en ligne',
       icon: 'bi bi-award',
       role: 'teacher',
       enabled: false,
@@ -101,8 +101,8 @@ export class UsersComponent implements OnInit {
       isFeatureEnabled: false,
     },
     {
-      title: 'Администратор',
-      description: 'Сотрудник сможет администрировать учебный процесс',
+      title: 'Administrateur',
+      description: 'L\'employé pourra administrer le processus éducatif',
       icon: 'bi bi-gear',
       role: 'admin',
       enabled: false,
@@ -112,16 +112,15 @@ export class UsersComponent implements OnInit {
   ];
 
   sections = [
-    { name: 'Показатели', icon: 'bi bi-grid', enabled: false },
-    { name: 'Выручка и платежи', icon: 'bi bi-currency-dollar', enabled: false },
-    { name: 'Пользователи', icon: 'bi bi-people', enabled: false },
-    { name: 'Онлайн-уроки', icon: 'bi bi-mortarboard', enabled: false },
-    { name: 'Марафоны', icon: 'bi bi-activity', enabled: false },
-    { name: 'Материалы', icon: 'bi bi-journal', enabled: false }
+    { name: 'Indicateurs', icon: 'bi bi-grid', enabled: false },
+    { name: 'Revenus et paiements', icon: 'bi bi-currency-dollar', enabled: false },
+    { name: 'Utilisateurs', icon: 'bi bi-people', enabled: false },
+    { name: 'Cours en ligne', icon: 'bi bi-mortarboard', enabled: false },
+    { name: 'Marathons', icon: 'bi bi-activity', enabled: false },
+    { name: 'Matériaux', icon: 'bi bi-journal', enabled: false }
   ];
-
-  selectedLanguages: string = 'Английский';
-  availableLanguages = ['Русский', 'Английский', 'Французский'];
+  selectedLanguages: string = 'Anglais';
+  availableLanguages = ['Russe', 'Anglais', 'Français'];
   teacherWillFill: boolean = false;
   daysWithDates: string[] = [];
   hours: string[] = Array.from({ length: 24 }, (_, i) => `${i}:00`);
@@ -192,12 +191,12 @@ export class UsersComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
-      console.log('Выбранный файл:', this.selectedFile.name);
+      console.log('Fichier sélectionné:', this.selectedFile.name);
     }
   }
 
   updateLinkPlaceholder(): void {
-    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
+    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Entrez le lien pour Skype' : 'Entrez le lien pour Zoom';
   }
 
   togglePossibility(possibility: any) {
@@ -206,13 +205,13 @@ export class UsersComponent implements OnInit {
 
   toggleFeature(possibility: any) {
     if (possibility.role === 'admin') {
-      // Логика для администратора
+      // Logique pour l'administrateur
       possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
-      // Дополнительные действия для администратора
+      // Actions supplémentaires pour l'administrateur
     } else if (possibility.role === 'teacher') {
-      // Логика для учителя
+      // Logique pour l'enseignant
       possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
-      // Дополнительные действия для учителя
+      // Actions supplémentaires pour l'enseignant
     }
   }
 

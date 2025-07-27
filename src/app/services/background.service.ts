@@ -5,15 +5,15 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class BackgroundService {
-  private backgroundSubject = new BehaviorSubject<string>(''); // Изначально пустой фон
-  background$ = this.backgroundSubject.asObservable(); // Экспортируем как Observable
+  private backgroundSubject = new BehaviorSubject<string>(''); 
+  background$ = this.backgroundSubject.asObservable(); 
 
   setBackground(imageUrl: string): void {
     const backgroundStyle = `url(${imageUrl})`;
-    this.backgroundSubject.next(backgroundStyle); // Уведомляем подписчиков об изменении
+    this.backgroundSubject.next(backgroundStyle); 
   }
 
   getBackground(): string {
-    return this.backgroundSubject.getValue(); // Возвращаем текущее значение
+    return this.backgroundSubject.getValue(); 
   }
 }

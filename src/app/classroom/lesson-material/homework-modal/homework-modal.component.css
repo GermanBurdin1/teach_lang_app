@@ -149,7 +149,7 @@
   margin-right: 8px;
 }
 
-/* Анимация спиннера */
+/* animation de spinner */
 .spin {
   animation: spin 1s linear infinite;
 }
@@ -159,7 +159,7 @@
   to { transform: rotate(360deg); }
 }
 
-/* Адаптивность */
+/* adaptivité */
 @media (max-width: 768px) {
   .homework-modal {
     min-width: 95vw;

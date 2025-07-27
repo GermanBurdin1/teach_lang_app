@@ -3,7 +3,7 @@
   <mat-tab-group mat-align-tabs="center" class="mb-4">
     <mat-tab label="Tous les professeurs">
       <div class="mt-4">
-        <!-- 🔽 Filtres -->
+        <!-- Filtres -->
         <mat-card class="filters-card mb-4">
           <mat-card-content>
             <mat-form-field appearance="outline" class="w-100 mb-3">
@@ -72,7 +72,7 @@
           </mat-card-content>
         </mat-card>
 
-        <!-- 🔽 Liste des enseignants -->
+        <!-- Liste des enseignants -->
         <div *ngIf="isLoading" class="loading-container">
           <mat-spinner diameter="50"></mat-spinner>
           <p class="mt-3">Chargement...</p>
@@ -116,7 +116,7 @@
           </mat-card>
         </div>
 
-        <!-- 🔽 Pagination -->
+        <!-- Pagination -->
         <div *ngIf="!isLoading && maxPage > 1" class="pagination-container">
           <mat-paginator 
             [length]="total"

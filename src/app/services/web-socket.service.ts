@@ -9,7 +9,7 @@ export class WebSocketService {
   //private socket: Socket;
 
   constructor() {
-    //this.socket = io('http://localhost:3000'); // Подключаемся к серверу NestJS
+    //this.socket = io('http://localhost:3000'); // on se connecte au serveur NestJS
   }
 
   // sendMessage(event: string, data: any) {

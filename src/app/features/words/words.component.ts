@@ -59,7 +59,7 @@ export class WordsComponent {
   galaxies = [
     {
       name: 'Galaxie Érudition',
-      sanitizedName: 'Galaxie-Érudition'.replace(/\s+/g, '-'), // Убираем пробелы для id
+      sanitizedName: 'Galaxie-Érudition'.replace(/\s+/g, '-'), // On enlève les espaces pour l'id
       subtopics: this.generateSubtopics(6, ['Histoire', 'Science', 'Art', 'Philosophie', 'Technologies', 'Culture'])
     },
     {
@@ -106,7 +106,7 @@ export class WordsComponent {
   activePendingWord?: WordCard;
   collapsedPostponedList: { [galaxy: string]: boolean } = {};
 
-  //множественное добавление слов
+  //ajout multiple de mots
   entries: WordEntry[] = [{ word: '', translation: '', grammar: undefined }];
   maxEntries = 10;
   hasStartedTypingFirstEntry: boolean = false;
@@ -114,7 +114,7 @@ export class WordsComponent {
 
   confirmationMessage: string = '';
   showPostAddModal: boolean = false;
-  targetGalaxyForPostponed?: any; // запоминаем, в какую галактику потом зумировать
+  targetGalaxyForPostponed?: any; // on mémorise dans quelle galaxie zoomer ensuite
 
   private loadPostponedWords() {
     const raw = localStorage.getItem('postponed_words');
@@ -142,17 +142,17 @@ export class WordsComponent {
   constructor(private router: Router, private gptService: VocabularyGptService, private translationService: TranslationService, private lexiconService: LexiconService) { }
 
   hoverGalaxy(galaxy: any) {
-    // Можно добавить анимацию
+    // On peut ajouter une animation
   }
 
   hoverSubtopic(subtopic: any) {
-    // Можно добавить эффект при наведении
+    // On peut ajouter un effet au survol
   }
 
   zoomIntoGalaxy(galaxy: any) {
     this.zoomedGalaxy = galaxy;
-    this.isZoomingToPlanet = false; // <-- обязательно!
-    this.zoomStyle = {}; // сброс
+    this.isZoomingToPlanet = false; // <-- obligatoire!
+    this.zoomStyle = {}; // reset
   }
 
   resetZoom() {
@@ -168,8 +168,8 @@ export class WordsComponent {
     let subtopics: Subtopic[] = [];
     for (let i = 0; i < count; i++) {
       let angle = (i / count) * Math.PI * 2;
-      let x = 100 + Math.cos(angle) * 90; // Используем радиус RX эллипса
-      let y = 100 + Math.sin(angle) * 60; // Используем радиус RY эллипса
+      let x = 100 + Math.cos(angle) * 90; // On utilise le rayon RX de l'ellipse
+      let y = 100 + Math.sin(angle) * 60; // On utilise le rayon RY de l'ellipse
 
       subtopics.push({
         x,
@@ -181,10 +181,10 @@ export class WordsComponent {
   }
 
   onSubtopicClick(galaxyName: string, subtopicName: string) {
-    this.router.navigate(['/student/wordsTeaching', galaxyName, subtopicName]); // <-- Редирект на страницу карточек
+    this.router.navigate(['/student/wordsTeaching', galaxyName, subtopicName]); // <-- Redirection vers la page des cartes
   }
 
-  ////////////////////////////////поиск слов
+  ////////////////////////////////recherche de mots
 
   searchWord() {
     if (!this.searchQuery.trim()) {
@@ -193,10 +193,10 @@ export class WordsComponent {
     }
 
     const raw = localStorage.getItem('vocabulary_cards');
-    console.log('📦 Из localStorage:', raw);
+    console.log('📦 À partir de localStorage:', raw);
 
     const allWords: WordCard[] = JSON.parse(raw || '[]');
-    console.log('📄 Всего слов:', allWords.length);
+    console.log('📄 Nombre total de mots:', allWords.length);
 
     this.searchResults = allWords
       .filter(card =>
@@ -209,7 +209,7 @@ export class WordsComponent {
         fullPath: `${card.subtopic} → ${card.galaxy}`
       }));
 
-    console.log('🔎 Найдено результатов:', this.searchResults.length);
+    console.log('🔎 Nombre de résultats trouvés:', this.searchResults.length);
   }
 
   navigateToWord(result: any) {
@@ -220,7 +220,7 @@ export class WordsComponent {
     const galaxyElement = this.galaxyWrappers.get(galaxyIndex)?.nativeElement;
     if (!galaxyElement) return;
 
-    // Получаем координаты галактики
+    // On obtient les coordonnées de la galaxie
     const galaxyRect = galaxyElement.getBoundingClientRect();
     const centerX = galaxyRect.left + galaxyRect.width / 2;
     const centerY = galaxyRect.top + galaxyRect.height / 2;
@@ -233,15 +233,15 @@ export class WordsComponent {
 
     this.isZoomingToGalaxy = true;
 
-    // Применяем transform к .galaxies через родительскую обёртку
+    // On applique la transformation à .galaxies via l'enveloppe parent
     const galaxiesContainer = document.querySelector('.galaxies') as HTMLElement;
     galaxiesContainer.style.transition = 'transform 1.8s ease';
     galaxiesContainer.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(2)`;
 
-    // Через 2 секунды — показываем zoomedGalaxy
+    // Après 2 secondes - on affiche zoomedGalaxy
     setTimeout(() => {
       this.isZoomingToGalaxy = false;
-      galaxiesContainer.style.transform = ''; // сброс
+      galaxiesContainer.style.transform = ''; // reset
       this.zoomedGalaxy = galaxy;
       this.isZoomingToPlanet = true;
 
@@ -267,9 +267,9 @@ export class WordsComponent {
     }, 2000);
   }
 
-  //добавление слова или выражения на глобальном уровне
+  //ajout d'un mot ou d'une expression au niveau global
   openGlobalAddWordOrExpressionModal(): void {
-    this.isFromGalaxyShortcut = false; // глобальное добавление
+    this.isFromGalaxyShortcut = false; // ajout global
     this.showGlobalAddWordOrExpressionModal = true;
     this.newGlobalWord = '';
     this.newGlobalTranslation = '';
@@ -312,14 +312,14 @@ export class WordsComponent {
     const firstEntry = this.entries[0];
 
     if (!firstEntry.word.trim()) {
-      console.warn('🚫 Пустое слово!');
+      console.warn('🚫 Mot vide!');
       return;
     }
 
-    console.log('💡 Слово:', firstEntry.word);
+    console.log('💡 Mot:', firstEntry.word);
 
-    const previousSelectedGalaxy = this.selectedGalaxy; // 🛑 СОХРАНЯЕМ ПЕРЕД ОБНУЛЕНИЕМ
-    const previousSelectedSubtopic = this.selectedSubtopic; // 🛑 И подтему тоже
+    const previousSelectedGalaxy = this.selectedGalaxy; // 🛑 On conserve la galaxie précédente
+    const previousSelectedSubtopic = this.selectedSubtopic; // 🛑 Et la sous-thème aussi
 
     const newCard: WordCard = {
       id: Date.now(),
@@ -332,11 +332,11 @@ export class WordsComponent {
       grammar: firstEntry.grammar ?? undefined,
     };
 
-    // 🛠 Создаём сразу перевод
+    // 🛠 On crée déjà la traduction
     const translations = firstEntry.translation.trim()
       ? [{
-        id: 0, // временно
-        lexiconId: 0, // временно
+        id: 0, // temporaire
+        lexiconId: 0, // temporaire
         source: firstEntry.word.trim(),
         target: firstEntry.translation.trim(),
         sourceLang: this.sourceLang,
@@ -347,7 +347,7 @@ export class WordsComponent {
       : [];
 
 
-    // 👉 Сначала пытаемся отправить на backend
+    // 👉 On essaie d'abord d'envoyer au backend
     try {
       this.lexiconService.addWord({
         word: newCard.word,
@@ -358,21 +358,21 @@ export class WordsComponent {
         grammar: firstEntry.grammar
       }).subscribe({
         next: (res) => {
-          console.log('✅ Слово добавлено на backend:', res);
+          console.log('✅ Mot ajouté au backend:', res);
         },
         error: (err) => {
-          console.error('❌ Ошибка при добавлении слова:', err);
+          console.error('❌ Erreur lors de l\'ajout du mot:', err);
         }
       });
     } catch (e) {
-      console.error('❌ Ошибка выполнения запроса:', e);
+      console.error('❌ Erreur d\'exécution de la requête:', e);
     }
 
-    // ⛑ А пока сразу добавим и в localStorage для UI
+    // ⛑ Pendant ce temps, on l'ajoute déjà dans localStorage pour l'UI
     this.saveLocally(newCard);
     this.getOrphanWords();
 
-    // Сброс полей
+    // Reset des champs
     this.newGlobalWord = '';
     this.newGlobalTranslation = '';
     this.selectedGalaxy = '';
@@ -383,7 +383,7 @@ export class WordsComponent {
     if ((this.isFromGalaxyShortcut || !previousSelectedGalaxy) && !previousSelectedSubtopic) {
       const galaxy = this.galaxies.find(g => g.name === previousSelectedGalaxy);
       if (galaxy) {
-        // ДОБАВЛЯЕМ ОТЛОЖЕННОЕ СЛОВО
+        // On ajoute le mot postposé
         if (!this.postponedWordsByGalaxy[previousSelectedGalaxy]) {
           this.postponedWordsByGalaxy[previousSelectedGalaxy] = [];
         }
@@ -391,7 +391,7 @@ export class WordsComponent {
         this.savePostponedWords();
 
         this.targetGalaxyForPostponed = galaxy;
-        this.confirmationMessage = `✅ Слово перемещено в некатегоризированные слова галактики "${galaxy.name}", вы можете добавить его в нужную подтему как только этого захотите.`;
+        this.confirmationMessage = `✅ Mot déplacé dans les mots sans catégorie de la galaxie "${galaxy.name}", vous pouvez l'ajouter à la sous-thème de votre choix dès que vous le souhaitez.`;
 
         this.closeGlobalAddWordOrExpressionModal();
 
@@ -408,7 +408,7 @@ export class WordsComponent {
       this.showNavigateToSubtopicModal(card as WordCard);
       this.closeGlobalAddWordOrExpressionModal();
     } else {
-      this.addSuccessMessage = '✅ Слово сохранено!';
+      this.addSuccessMessage = '✅ Mot sauvegardé!';
       setTimeout(() => {
         this.addSuccessMessage = '';
         this.closeGlobalAddWordOrExpressionModal();
@@ -416,7 +416,7 @@ export class WordsComponent {
     }
 
 
-    // Обновим orphanWords если нужно
+    // On met à jour orphanWords si nécessaire
     if (!newCard.galaxy && !newCard.subtopic) {
       this.orphanWords.unshift(newCard);
     }
@@ -439,13 +439,13 @@ export class WordsComponent {
     const galaxy = this.galaxies.find(g => g.name === this.selectedGalaxy);
     if (galaxy) {
       this.availableSubtopics = galaxy.subtopics.map((s: any) => s.name);
-      this.selectedSubtopic = ''; // сброс предыдущего выбора
+      this.selectedSubtopic = ''; // reset du choix précédent
     } else {
       this.availableSubtopics = [];
     }
   }
 
-  // классификации слов
+  // classifications de mots
   generateWithGPT(): void {
     const firstWord = this.entries[0].word.trim();
     if (!firstWord) return;
@@ -453,16 +453,16 @@ export class WordsComponent {
     this.gptService.classifyWord(this.newGlobalWord, 'user123').subscribe({
       next: (res) => {
         this.selectedGalaxy = res.theme;
-        this.onGalaxySelected(); // обновим подтемы
+        this.onGalaxySelected(); // on met à jour les sous-thèmes
         this.selectedSubtopic = res.subtheme;
       },
       error: (err) => {
-        console.error('Ошибка при классификации GPT:', err);
+        console.error('Erreur lors de la classification GPT:', err);
       }
     });
   }
 
-  // перевод
+  // traduction
   autoTranslateWord(index: number): void {
     const entry = this.entries[index];
     const word = entry.word.trim();
@@ -470,9 +470,9 @@ export class WordsComponent {
 
     const detectedLang = this.detectLang(word);
     if (detectedLang !== this.sourceLang) {
-      const langNames: any = { ru: 'русский', fr: 'французский', en: 'английский' };
+      const langNames: any = { ru: 'russe', fr: 'français', en: 'anglais' };
       const confirmSwitch = confirm(
-        `Введённое слово похоже на слово на языке "${langNames[detectedLang]}", а вы выбрали "${langNames[this.sourceLang]}". Переключиться?`
+        `Le mot entré semble être un mot en "${langNames[detectedLang]}", mais vous avez choisi "${langNames[this.sourceLang]}". Voulez-vous basculer?`
       );
       if (confirmSwitch) {
         this.sourceLang = detectedLang;
@@ -487,14 +487,14 @@ export class WordsComponent {
           entry.translation = res.translations[0];
           entry.grammar = res.grammar ?? { partOfSpeech: 'noun' };
           this.showConfetti();
-          alert(`✅ Перевод: ${res.translations[0]}`);
+          alert(`✅ Traduction: ${res.translations[0]}`);
         } else {
-          alert('⚠️ Перевод не найден.');
+          alert('⚠️ Traduction non trouvée.');
         }
       },
       error: (err) => {
-        alert('❌ Ошибка при попытке перевода.');
-        console.error('❌ Ошибка перевода:', err);
+        alert('❌ Erreur lors de la tentative de traduction.');
+        console.error('❌ Erreur de traduction:', err);
       }
     });
   }
@@ -558,7 +558,7 @@ export class WordsComponent {
       } else if (this.newGlobalType === 'expression') {
         this.grammarData = {
           partOfSpeech: 'expression',
-          expressionType: 'other' // или по умолчанию 'выражение'
+          expressionType: 'other' // ou par défaut 'expression'
         };
       }
     } else {
@@ -574,7 +574,7 @@ export class WordsComponent {
   toggleZoneLibre() {
     this.showZoneLibre = !this.showZoneLibre;
 
-    // получаем заново при каждом открытии
+    // on récupère à nouveau à chaque ouverture
     if (this.showZoneLibre) {
       this.getOrphanWords();
     }
@@ -614,7 +614,7 @@ export class WordsComponent {
       allCards[index] = word;
       localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
 
-      // ✅ ДОБАВЛЯЕМ в список ожидающих подтему
+      // ✅ On ajoute à la liste des mots en attente de sous-thème
       this.pendingSubtopicWords.push(word);
       this.activePendingWord = word;
       this.orphanWords = this.orphanWords.filter(w => w.id !== word.id);
@@ -626,19 +626,19 @@ export class WordsComponent {
 
       this.selectedGalaxyForSubtopic = galaxyName;
 
-      alert(`✅ Добавлено в галактику "${galaxyName}"`);
+      alert(`✅ Ajouté à la galaxie "${galaxyName}"`);
 
-      // Обновим список слов без категории
+      // On met à jour la liste des mots sans catégorie
       this.getOrphanWords();
 
-      // Зумируемся в выбранную галактику
+      // On zoome dans la galaxie sélectionnée
       this.zoomIntoGalaxy(this.galaxies.find(g => g.name === galaxyName));
     }
   }
 
 
   onDragOver(event: DragEvent): void {
-    event.preventDefault(); // Разрешаем drop
+    event.preventDefault(); // On autorise le drop
   }
 
   onDragStart(event: DragEvent, word: WordCard): void {
@@ -657,7 +657,7 @@ export class WordsComponent {
     all.unshift(word);
     localStorage.setItem('vocabulary_cards', JSON.stringify(all));
 
-    this.addSuccessMessage = `✅ "${word.word}" добавлено в подтему "${subtopicName}"`;
+    this.addSuccessMessage = `✅ "${word.word}" ajouté à la sous-thème "${subtopicName}"`;
 
     setTimeout(() => {
       this.addSuccessMessage = '';
@@ -677,7 +677,7 @@ export class WordsComponent {
 
     this.postponedWordsByGalaxy[this.selectedGalaxyForSubtopic].push(word);
 
-    // 💡 Слово должно остаться доступным для drag-and-drop — добавим обратно в localStorage
+    // 💡 Le mot doit rester disponible pour le drag-and-drop - on l'ajoute à nouveau dans localStorage
     const raw = localStorage.getItem('vocabulary_cards');
     const all: WordCard[] = raw ? JSON.parse(raw) : [];
 
@@ -685,7 +685,7 @@ export class WordsComponent {
     if (index !== -1) {
       all[index] = word;
     } else {
-      all.push(word); // если вдруг не найдено — добавим
+      all.push(word); // si jamais non trouvé - on l'ajoute
     }
 
     localStorage.setItem('vocabulary_cards', JSON.stringify(all));
@@ -716,7 +716,7 @@ export class WordsComponent {
     if (index !== -1) {
       allCards[index] = word;
       localStorage.setItem('vocabulary_cards', JSON.stringify(allCards));
-      alert(`✅ Добавлено в подтему "${subtopicName}"`);
+      alert(`✅ Ajouté à la sous-thème "${subtopicName}"`);
 
       this.pendingSubtopicWords = this.pendingSubtopicWords.filter(w => w.id !== word.id);
     }
@@ -734,11 +734,11 @@ export class WordsComponent {
 
       this.hasStartedTypingFirstEntry = isFilled;
 
-      // Если пользователь стёр всё — выйти из multiEntry режима
+      // Si l'utilisateur efface tout - on sort du mode multiEntry
       if (!isFilled) {
         this.isMultiEntryMode = false;
 
-        // Удалить все кроме первого
+        // Supprimer tous sauf le premier
         this.entries = [this.entries[0]];
       }
     }
@@ -762,7 +762,7 @@ export class WordsComponent {
       translations: [],
       galaxy: '',
       subtopic: '',
-      type: this.newGlobalType, // 🟢 используем актуальный тип
+      type: this.newGlobalType, // 🟢 on utilise le type actuel
       createdAt: Date.now(),
       grammar: entry.grammar ?? undefined,
     }));
@@ -770,18 +770,18 @@ export class WordsComponent {
     try {
       this.lexiconService.addMultipleWords(backendCards).subscribe({
         next: (res) => {
-          console.log('✅ Все слова добавлены в БД:', res);
+          console.log('✅ Tous les mots ajoutés à la base de données:', res);
           this.saveAllLocally(validEntries, backendCards, now);
           this.resetEntryModal(true, validEntries.length);
         },
         error: (err) => {
-          console.error('❌ Ошибка при сохранении слов. Сохраняем локально:', err);
+          console.error('❌ Erreur lors de la sauvegarde des mots. On sauvegarde localement:', err);
           this.saveAllLocally(validEntries, backendCards, now);
           this.resetEntryModal(false, validEntries.length);
         }
       });
     } catch (e) {
-      console.error('❌ Ошибка до отправки на сервер:', e);
+      console.error('❌ Erreur avant l\'envoi au serveur:', e);
       this.saveAllLocally(validEntries, backendCards, now);
       this.resetEntryModal(false, validEntries.length);
     }
@@ -817,15 +817,15 @@ export class WordsComponent {
     this.entries = [{ word: '', translation: '', grammar: undefined }];
     this.showGlobalAddWordOrExpressionModal = false;
     const message = success
-      ? `✅ Добавлено в БД: ${count} элементов`
-      : `⚠️ Слова не отправлены в БД. Сохранено локально: ${count}`;
+      ? `✅ Ajouté à la base de données: ${count} éléments`
+      : `⚠️ Les mots n'ont pas été envoyés à la base de données. Sauvegardés localement: ${count}`;
     alert(message);
   }
 
 
   onLangChangeAttempt(): void {
     if (this.isMultiEntryMode) {
-      alert('⚠️ Нельзя менять язык при множественном добавлении слов.');
+      alert('⚠️ Vous ne pouvez pas changer de langue lors de l\'ajout multiple de mots.');
     }
   }
 
@@ -857,20 +857,20 @@ export class WordsComponent {
   onGrammarValidate(updatedGrammar: GrammarData, entry: WordEntry) {
     console.log('✅ Grammar validated:', updatedGrammar);
 
-    // Обновляем грамматику для конкретной записи
+    // On met à jour la grammaire pour l'enregistrement spécifique
     entry.grammar = updatedGrammar;
 
-    // Здесь можно сразу отправить на сервер, если хочешь
-    // Например: this.saveGrammarImmediately(entry);
+    // Vous pouvez envoyer directement au serveur si vous voulez
+    // Par exemple: this.saveGrammarImmediately(entry);
   }
 
   showNavigateToSubtopicModal(card: WordCard) {
-    const goToSubtopic = confirm(`✅ Слово "${card.word}" добавлено в подтему "${card.subtopic}".\nПерейти к подтеме?`);
+    const goToSubtopic = confirm(`✅ Mot "${card.word}" ajouté à la sous-thème "${card.subtopic}".\nVoulez-vous aller à la sous-thème?`);
 
     if (goToSubtopic) {
       this.router.navigate(['/student/wordsTeaching', card.galaxy, card.subtopic]);
     } else {
-      // ничего не делаем, пользователь остаётся в галактиках
+      // on ne fait rien, l'utilisateur reste dans les galaxies
     }
   }
 
@@ -886,7 +886,7 @@ export class WordsComponent {
 
     this.zoomIntoGalaxy(this.targetGalaxyForPostponed);
 
-    // Открываем список отложенных слов сразу
+    // On ouvre la liste des mots postposés directement
     setTimeout(() => {
       this.collapsedPostponedList[this.targetGalaxyForPostponed.name] = false;
     }, 500);
@@ -894,8 +894,8 @@ export class WordsComponent {
 
   updatePostponedStatus(wordId: number, postponed: boolean): void {
     this.lexiconService.updateWord(wordId, { postponed }).subscribe({
-      next: () => console.log(`✅ Статус postponed обновлён для слова id=${wordId}: ${postponed}`),
-      error: (err) => console.error('❌ Ошибка при обновлении postponed:', err)
+      next: () => console.log(`✅ Statut postponed mis à jour pour le mot id=${wordId}: ${postponed}`),
+      error: (err) => console.error('❌ Erreur lors de la mise à jour du postponed:', err)
     });
   }
 

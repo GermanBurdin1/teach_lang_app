@@ -162,8 +162,8 @@ canvas {
 
 .floating-video app-video-call {
   width: 100%;
-  height: auto; /* Автоматическая высота */
-  aspect-ratio: 16/9; /* Поддержание соотношения сторон */
+  height: auto; 
+  aspect-ratio: 16/9; 
   object-fit: contain;
 }
 

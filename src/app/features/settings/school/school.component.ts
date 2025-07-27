@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./school.component.css']
 })
 export class SchoolComponent {
-  activeSchoolTab: string = 'general-settings'; // Начальная активная вкладка для школы
+  activeSchoolTab: string = 'general-settings'; // default tab is general-settings
 }

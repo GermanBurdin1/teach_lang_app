@@ -15,6 +15,7 @@ export class RoleGuard implements CanActivate {
       return true;
     }
 
+    // TODO : rediriger vers une page d'erreur plus spécifique selon le rôle manquant
     this.router.navigate(['/login']);
     return false;
   }

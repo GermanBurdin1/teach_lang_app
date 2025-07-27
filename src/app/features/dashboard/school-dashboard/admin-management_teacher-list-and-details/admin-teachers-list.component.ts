@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AdminTeacher } from './admin-teacher.model';
 import { AdminTeacherService } from './admin-teacher.service';
 
+// TODO : ajouter filtres et recherche pour la liste des enseignants
 @Component({
   selector: 'app-admin-teachers-list',
   templateUrl: './admin-teachers-list.component.html',
@@ -20,15 +21,19 @@ export class AdminTeachersListComponent implements OnInit {
     this.loadTeachers();
   }
 
+  // TODO : optimiser le chargement avec virtualisation
   loadTeachers() {
     this.isLoading = true;
     this.adminTeacherService.getTeachers(this.page, this.limit).subscribe({
-      next: (res) => {
+      next: (res: { data: AdminTeacher[], total: number }) => {
         this.teachers = res.data;
         this.total = res.total;
         this.isLoading = false;
       },
-      error: () => this.isLoading = false
+      error: (err: any) => {
+        console.error('[AdminTeachersList] Erreur lors du chargement:', err);
+        this.isLoading = false;
+      }
     });
   }
 

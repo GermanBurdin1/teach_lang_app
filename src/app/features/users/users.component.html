@@ -1,159 +1,159 @@
 <div class="container mt-4" style="max-width: 900px;">
-  <h2 class="mb-4">Пользователи</h2>
+  <h2 class="mb-4">Utilisateurs</h2>
 
   <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
     <li class="nav-item">
       <a class="nav-link active" id="students-tab" data-bs-toggle="tab" href="#students" role="tab"
-        aria-controls="students" aria-selected="true">Ученики</a>
+        aria-controls="students" aria-selected="true">Élèves</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" id="teachers-tab" data-bs-toggle="tab" href="#teachers" role="tab" aria-controls="teachers"
-        aria-selected="false">Учителя</a>
+        aria-selected="false">Enseignants</a>
     </li>
   </ul>
 
   <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show active" id="students" role="tabpanel" aria-labelledby="students-tab">
       <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Поиск учеников..." aria-label="Поиск учеников">
+        <input type="text" class="form-control" placeholder="Recherche d'élèves..." aria-label="Recherche d'élèves">
       </div>
 
-      <p class="mb-3">Ученики: <strong>1</strong></p>
+      <p class="mb-3">Élèves : <strong>1</strong></p>
 
       <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center"
         (click)="openCreateStudentModal()">
-        <i class="fas fa-user-plus mr-2"></i> Добавить нового ученика
+        <i class="fas fa-user-plus mr-2"></i> Ajouter un nouvel élève
       </button>
 
-      <!-- Карточки учеников -->
+      <!-- Cartes des élèves -->
       <div class="student-card card mb-3" *ngFor="let student of students">
         <div class="card-body d-flex justify-content-between align-items-center">
-          <!-- Левая часть с информацией о студенте -->
+          <!-- Partie gauche avec infos sur l'élève -->
           <div>
-            <!-- Имя и значок профиля с подсказкой -->
+            <!-- Nom et icône de profil avec tooltip -->
             <div class="d-flex align-items-center mb-2">
               <h5 class="me-2">{{ student.name }}</h5>
               <div class="position-relative" (mouseenter)="showTooltip('profile')" (mouseleave)="hideTooltip()">
                 <i class="fas fa-check-circle text-primary"></i>
                 <div *ngIf="tooltipVisible === 'profile'" class="simple-tooltip">
-                  Профиль ученика
+                  Profil de l'élève
                 </div>
               </div>
             </div>
 
-            <!-- ID и Email в одной строке с вертикальной чертой -->
+            <!-- ID et Email sur une ligne avec séparateur -->
             <div class="d-flex align-items-center mb-2">
               <i class="fas fa-id-badge text-muted me-1"></i> {{ student.id }}
               <span class="mx-2 text-muted">|</span>
               <i class="fas fa-envelope text-muted me-1"></i> {{ student.email }}
             </div>
 
-            <!-- Иконки ролей (можно заменить на соответствующие для учеников) -->
+            <!-- Icônes de rôles (peuvent être adaptées pour les élèves) -->
             <div class="d-flex">
               <div class="me-3 position-relative" (mouseenter)="showTooltip('online')" (mouseleave)="hideTooltip()">
                 <i class="fas fa-chalkboard-user fa-lg text-info"></i>
                 <div *ngIf="tooltipVisible === 'online'" class="simple-tooltip">
-                  <strong>Уроки</strong><br />
-                  Краткая информация
+                  <strong>Cours</strong><br />
+                  Infos brèves
                 </div>
               </div>
 
               <div class="me-3 position-relative" (mouseenter)="showTooltip('marathon')" (mouseleave)="hideTooltip()">
                 <i class="fas fa-person-running fa-lg text-info"></i>
                 <div *ngIf="tooltipVisible === 'marathon'" class="simple-tooltip">
-                  <strong>Курсы</strong><br />
-                  Краткая информация
+                  <strong>Cours</strong><br />
+                  Infos brèves
                 </div>
               </div>
 
               <div class="position-relative" (mouseenter)="showTooltip('support')" (mouseleave)="hideTooltip()">
                 <i class="fas fa-user-shield fa-lg text-info"></i>
                 <div *ngIf="tooltipVisible === 'support'" class="simple-tooltip">
-                  <strong>Поддержка</strong><br />
-                  Краткая информация
+                  <strong>Support</strong><br />
+                  Infos brèves
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Кнопка Профиль, выровненная вертикально -->
+          <!-- Bouton Profil aligné verticalement -->
           <button class="btn btn-outline-primary align-self-start" (click)="openStudentProfile(student.id)">
-            Профиль
+            Profil
           </button>
         </div>
       </div>
 
     </div>
 
-    <!-- Вкладка учителей -->
+    <!-- Onglet enseignants -->
     <div class="tab-pane fade" id="teachers" role="tabpanel" aria-labelledby="teachers-tab">
       <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Поиск учителей..." aria-label="Поиск учителей">
+        <input type="text" class="form-control" placeholder="Recherche d'enseignants..." aria-label="Recherche d'enseignants">
       </div>
 
-      <p class="mb-3">Учителей: <strong>{{ teachers.length }}</strong></p>
+      <p class="mb-3">Enseignants : <strong>{{ teachers.length }}</strong></p>
 
       <button class="btn btn-primary mb-4 w-100 d-flex align-items-center justify-content-center"
         (click)="openCreateTeacherModal()">
-        <i class="fas fa-user-plus mr-2"></i> Добавить нового учителя
+        <i class="fas fa-user-plus mr-2"></i> Ajouter un nouvel enseignant
       </button>
 
-      <!-- Карточки учителей -->
+      <!-- Cartes des enseignants -->
       <div class="teacher-card card mb-3" *ngFor="let teacher of teachers">
         <div class="card-body d-flex justify-content-between align-items-center">
-          <!-- Левая часть с информацией о преподавателе -->
+          <!-- Partie gauche avec infos sur l'enseignant -->
           <div>
-            <!-- Имя и значок профиля с подсказкой -->
+            <!-- Nom et icône de profil avec tooltip -->
             <div class="d-flex align-items-center mb-2">
               <h5 class="me-2">{{ teacher.name }}</h5>
               <div class="position-relative" (mouseenter)="showTooltip('profile')" (mouseleave)="hideTooltip()">
                 <i class="fas fa-check-circle text-primary"></i>
                 <div *ngIf="tooltipVisible === 'profile'" class="simple-tooltip">
-                  Ваш профиль пользователя
+                  Votre profil utilisateur
                 </div>
               </div>
             </div>
 
-            <!-- ID и Email в одной строке с вертикальной чертой -->
+            <!-- ID et Email sur une ligne avec séparateur -->
             <div class="d-flex align-items-center mb-2">
               <i class="fas fa-id-badge text-muted me-1"></i> {{ teacher.id }}
               <span class="mx-2 text-muted">|</span>
               <i class="fas fa-envelope text-muted me-1"></i> {{ teacher.email }}
             </div>
 
-            <!-- Иконки ролей (Онлайн-уроки, Марафоны, Администратор) -->
+            <!-- Icônes de rôles (Cours en ligne, Marathons, Administrateur) -->
             <div class="d-flex">
               <div class="me-3 position-relative" (mouseenter)="showTooltip('online')" (mouseleave)="hideTooltip()">
                 <i class="fas fa-chalkboard-user fa-lg text-info"></i>
                 <div *ngIf="tooltipVisible === 'online'" class="simple-tooltip">
-                  <strong>Онлайн-уроки</strong><br />
-                  Статус учителя: <span class="text-success">Активирован</span><br />
-                  Удовлетворенность: <span class="text-danger">0</span><br />
-                  Загруженность: <span class="text-primary">0%</span>
+                  <strong>Cours en ligne</strong><br />
+                  Statut enseignant : <span class="text-success">Activé</span><br />
+                  Satisfaction : <span class="text-danger">0</span><br />
+                  Charge : <span class="text-primary">0%</span>
                 </div>
               </div>
 
               <div class="me-3 position-relative" (mouseenter)="showTooltip('marathon')" (mouseleave)="hideTooltip()">
                 <i class="fas fa-person-running fa-lg text-info"></i>
                 <div *ngIf="tooltipVisible === 'marathon'" class="simple-tooltip">
-                  <strong>Марафоны</strong><br />
-                  Краткая информация
+                  <strong>Marathons</strong><br />
+                  Infos brèves
                 </div>
               </div>
 
               <div class="position-relative" (mouseenter)="showTooltip('admin')" (mouseleave)="hideTooltip()">
                 <i class="fas fa-user-shield fa-lg text-info"></i>
                 <div *ngIf="tooltipVisible === 'admin'" class="simple-tooltip">
-                  <strong>Администратор</strong><br />
-                  Краткая информация
+                  <strong>Administrateur</strong><br />
+                  Infos brèves
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Кнопка Профиль, выровненная вертикально -->
+          <!-- Bouton Profil aligné verticalement -->
           <button class="btn btn-outline-primary align-self-start" (click)="openTeacherProfile(teacher.id)">
-            Профиль
+            Profil
           </button>
         </div>
       </div>
@@ -161,99 +161,99 @@
 
 
 
-    <!-- Модальное окно добавления ученика -->
+    <!-- Modal d'ajout d'élève -->
     <div *ngIf="isCreateStudentModalOpen" class="modal fade show d-block" tabindex="-1"
       style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateStudentModal($event)">
       <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
         <div class="modal-content p-4">
           <div class="modal-header">
-            <h5 class="modal-title">Создать ученика</h5>
+            <h5 class="modal-title">Créer un élève</h5>
             <button type="button" class="btn-close" (click)="closeCreateStudentModal()"></button>
           </div>
 
           <div class="modal-body">
             <form>
-              <!-- Основные поля -->
+              <!-- Champs principaux -->
               <div class="mb-3">
-                <label class="form-label">Почта</label>
-                <input type="email" class="form-control" placeholder="Эл. почта ученика">
+                <label class="form-label">E-mail</label>
+                <input type="email" class="form-control" placeholder="E-mail de l'élève">
               </div>
               <div class="mb-3">
-                <label class="form-label">Телефон</label>
-                <input type="tel" class="form-control" placeholder="Номер телефона ученика">
+                <label class="form-label">Téléphone</label>
+                <input type="tel" class="form-control" placeholder="Numéro de téléphone de l'élève">
               </div>
               <div class="mb-3">
-                <label class="form-label">Имя</label>
-                <input type="text" class="form-control" placeholder="Имя ученика">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-control" placeholder="Nom de l'élève">
               </div>
               <div class="mb-3">
-                <label class="form-label">Родной язык</label>
+                <label class="form-label">Langue maternelle</label>
                 <select class="form-select">
-                  <option>Russian</option>
-                  <option>English</option>
+                  <option>Russe</option>
+                  <option>Anglais</option>
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Часовой пояс</label>
+                <label class="form-label">Fuseau horaire</label>
                 <select class="form-select">
                   <option *ngFor="let timezone of timezones">{{ timezone }}</option>
                 </select>
               </div>
 
-              <!-- Дополнительная информация -->
+              <!-- Infos supplémentaires -->
               <div *ngIf="showAdditionalInfo">
                 <div class="separator mb-2">
-                  <span>Дополнительная информация</span>
+                  <span>Informations supplémentaires</span>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Ссылка для связи</label>
-                  <input type="text" class="form-control" placeholder="Ссылка для связи">
+                  <label class="form-label">Lien de contact</label>
+                  <input type="text" class="form-control" placeholder="Lien de contact">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Skype</label>
-                  <input type="text" class="form-control" placeholder="Логин ученика в Skype">
+                  <input type="text" class="form-control" placeholder="Login Skype de l'élève">
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Направление</label>
-                  <input type="text" class="form-control" placeholder="Выберите направление обучения">
+                  <label class="form-label">Domaine</label>
+                  <input type="text" class="form-control" placeholder="Choisissez le domaine d'apprentissage">
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Периодичность обучения</label>
+                  <label class="form-label">Fréquence d'apprentissage</label>
                   <select class="form-select">
                     <option *ngFor="let frequency of frequencies">{{ frequency }}</option>
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Цель изучения</label>
-                  <textarea class="form-control" rows="3" placeholder="Напишите цель изучения"></textarea>
+                  <label class="form-label">Objectif d'apprentissage</label>
+                  <textarea class="form-control" rows="3" placeholder="Écrivez l'objectif d'apprentissage"></textarea>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Заметка</label>
-                  <textarea class="form-control" rows="3" placeholder="Напишите заметку"></textarea>
+                  <label class="form-label">Note</label>
+                  <textarea class="form-control" rows="3" placeholder="Écrivez une note"></textarea>
                 </div>
               </div>
 
               <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
-                {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
+                {{ showAdditionalInfo ? 'Masquer les informations supplémentaires' : 'Afficher les informations supplémentaires' }}
               </button>
             </form>
           </div>
 
           <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
-            <button type="button" class="btn btn-secondary" (click)="closeCreateStudentModal()">Отмена</button>
-            <button type="button" class="btn btn-primary" (click)="addStudent()">Создать</button>
+            <button type="button" class="btn btn-secondary" (click)="closeCreateStudentModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" (click)="addStudent()">Créer</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <!-- Modal for Adding a New Teacher -->
+  <!-- Modal d'ajout d'enseignant -->
   <div *ngIf="isCreateTeacherModalOpen" class="modal fade show d-block" tabindex="-1"
     style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeCreateTeacherModal($event)">
     <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
       <div class="modal-content p-4">
         <div class="modal-header">
-          <h5 class="modal-title">Создать сотрудника</h5>
+          <h5 class="modal-title">Créer un employé</h5>
           <button type="button" class="btn-close" (click)="closeCreateTeacherModal()"></button>
         </div>
 
@@ -261,52 +261,52 @@
           <form>
             <!-- Avatar Upload -->
             <div class="mb-3 d-flex align-items-center">
-              <label class="form-label me-3">Аватарка</label>
+              <label class="form-label me-3">Avatar</label>
               <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;"></div>
               <input type="file" id="avatarUpload" class="d-none" (change)="onFileSelected($event)">
-              <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+              <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Télécharger</button>
             </div>
 
-            <!-- Basic Info -->
+            <!-- Infos de base -->
             <div class="mb-3">
-              <label class="form-label">Почта</label>
-              <input type="email" class="form-control" placeholder="Почта" [(ngModel)]="newTeacher.email"
+              <label class="form-label">E-mail</label>
+              <input type="email" class="form-control" placeholder="E-mail" [(ngModel)]="newTeacher.email"
                 name="teacherEmail">
             </div>
             <div class="mb-3">
-              <label class="form-label">Имя</label>
-              <input type="text" class="form-control" placeholder="Имя" [(ngModel)]="newTeacher.name"
+              <label class="form-label">Nom</label>
+              <input type="text" class="form-control" placeholder="Nom" [(ngModel)]="newTeacher.name"
                 name="teacherName">
             </div>
             <div class="mb-3">
-              <label class="form-label">Родной язык</label>
+              <label class="form-label">Langue maternelle</label>
               <select class="form-select" [(ngModel)]="newTeacher.nativeLanguage" name="teacherNativeLanguage">
-                <option value="Russian">Russian</option>
-                <option value="English">English</option>
+                <option value="Russe">Russe</option>
+                <option value="Anglais">Anglais</option>
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Часовой пояс</label>
+              <label class="form-label">Fuseau horaire</label>
               <select class="form-select">
                 <option *ngFor="let timezone of timezones">{{ timezone }}</option>
               </select>
             </div>
 
-            <!-- Additional Information -->
+            <!-- Informations supplémentaires -->
             <div class="separator mb-2">
-              <span>Дополнительная информация</span>
+              <span>Informations supplémentaires</span>
             </div>
             <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
-              {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
+              {{ showAdditionalInfo ? 'Masquer les informations supplémentaires' : 'Afficher les informations supplémentaires' }}
             </button>
 
             <div *ngIf="showAdditionalInfo" class="mt-3">
               <div class="mb-3">
-                <label class="form-label">Телефон</label>
-                <input type="tel" class="form-control" placeholder="Телефон">
+                <label class="form-label">Téléphone</label>
+                <input type="tel" class="form-control" placeholder="Téléphone">
               </div>
               <div class="mb-3">
-                <label class="form-label">Ссылка для связи</label>
+                <label class="form-label">Lien de contact</label>
                 <div class="input-group">
                   <ng-select [(ngModel)]="selectedPlatform" name="selectedPlatform" (change)="updateLinkPlaceholder()"
                     [clearable]="false" [searchable]="false" bindLabel="label" bindValue="value" class="form-select">
@@ -324,9 +324,9 @@
           </form>
         </div>
         <div class="possibilities-section mt-3">
-          <h6 class="fw-bold">Возможности</h6>
+          <h6 class="fw-bold">Fonctionnalités</h6>
           <div *ngFor="let possibility of possibilities" class="possibility-item">
-            <!-- Заголовок возможности -->
+            <!-- Titre de la fonctionnalité -->
             <div class="possibility-header d-flex align-items-center justify-content-between"
               (click)="togglePossibility(possibility)">
               <div class="d-flex align-items-center">
@@ -337,26 +337,26 @@
                 </div>
               </div>
               <span class="badge" [ngClass]="possibility.enabled ? 'badge-enabled' : 'badge-disabled'">
-                {{ possibility.enabled ? 'Включено' : 'Отключено' }}
+                {{ possibility.enabled ? 'Activé' : 'Désactivé' }}
               </span>
               <i class="bi" [ngClass]="possibility.expanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
             </div>
 
-            <!-- Разворачиваемая информация -->
+            <!-- Informations dépliables -->
             <div *ngIf="possibility.expanded" class="possibility-content mt-3">
-              <!-- Общий переключатель для активации возможности -->
+              <!-- Interrupteur général pour activer la fonctionnalité -->
               <div class="mb-3">
-                <label class="form-label">Активация возможности</label>
+                <label class="form-label">Activation de la fonctionnalité</label>
                 <div class="form-check form-switch">
                   <input type="checkbox" [(ngModel)]="possibility.enabled" class="form-check-input" id="send-mails"
                     (change)="toggleFeature(possibility)">
                 </div>
               </div>
 
-              <!-- Дополнительные настройки для роли "Администратор" -->
+              <!-- Paramètres supplémentaires pour le rôle "Administrateur" -->
               <ng-container *ngIf="possibility.role === 'admin' && possibility.enabled">
                 <div class="mb-3">
-                  <label class="form-label">Доступ к разделам</label>
+                  <label class="form-label">Accès aux sections</label>
                 </div>
 
                 <div *ngFor="let section of sections" class="d-flex align-items-center justify-content-between mb-2">
@@ -369,16 +369,16 @@
                   </div>
                 </div>
 
-                <!-- Сепаратор -->
+                <!-- Séparateur -->
                 <div class="separator mt-4 mb-2">
-                  <span>Дополнительные возможности</span>
+                  <span>Fonctionnalités supplémentaires</span>
                 </div>
 
-                <!-- Сквозной вход -->
+                <!-- Connexion directe -->
                 <div class="d-flex align-items-center justify-content-between mb-2">
                   <div class="d-flex align-items-center">
                     <i class="bi bi-door-open me-2"></i>
-                    <label class="form-check-label" for="cross-entry">Сквозной вход</label>
+                    <label class="form-check-label" for="cross-entry">Connexion directe</label>
                   </div>
                   <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" [(ngModel)]="crossEntryEnabled" id="cross-entry">
@@ -386,11 +386,11 @@
                 </div>
               </ng-container>
 
-              <!-- Дополнительные настройки для роли "Учитель онлайн-уроков" -->
+              <!-- Paramètres supplémentaires pour le rôle "Enseignant des cours en ligne" -->
               <ng-container *ngIf="possibility.role === 'teacher' && possibility.enabled">
-                <!-- Выпадающий список для выбора языков -->
+                <!-- Liste déroulante pour la sélection des langues -->
                 <div class="mb-3 row align-items-center">
-                  <label class="col-form-label col-3 text-end">Преподаваемые языки</label>
+                  <label class="col-form-label col-3 text-end">Langues enseignées</label>
                   <div class="col-9">
                     <select class="form-select" [(ngModel)]="selectedLanguages">
                       <option *ngFor="let language of availableLanguages" [ngValue]="language">{{ language }}</option>
@@ -398,30 +398,30 @@
                   </div>
                 </div>
 
-                <!-- Рабочий график -->
+                <!-- Emploi du temps -->
                 <div class="mb-3">
-                  <label class="form-label">Рабочий график</label>
+                  <label class="form-label">Emploi du temps</label>
                   <div class="d-flex mb-2">
-                    <button class="btn btn-outline-primary me-2" (click)="fillSchedule()">Заполнить</button>
-                    <button class="btn btn-outline-secondary" (click)="fillTeacherSchedule()">Заполнит учитель</button>
+                    <button class="btn btn-outline-primary me-2" (click)="fillSchedule()">Remplir</button>
+                    <button class="btn btn-outline-secondary" (click)="fillTeacherSchedule()">L'enseignant remplit</button>
                   </div>
                   <table *ngIf="!teacherWillFill" class="table table-bordered schedule-table">
                     <thead>
                       <tr>
-                        <th></th> <!-- Пустой заголовок для столбца времени -->
+                        <th></th> <!-- En-tête vide pour la colonne des heures -->
                         <th *ngFor="let day of daysWithDates">{{ day }}</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr *ngFor="let hour of hours">
-                        <td class="time-label">{{ hour }}</td> <!-- Столбец с часами -->
+                        <td class="time-label">{{ hour }}</td> <!-- Colonne des heures -->
                         <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
                           (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
                           [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
                           <ng-container *ngIf="!isTimeSlotActive(day, hour)">
                             <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
                               (click)="selectSlot(day, hour); $event.stopPropagation()">
-                              Выбрать
+                              Choisir
                             </button>
                           </ng-container>
                           <ng-container *ngIf="isTimeSlotActive(day, hour)">
@@ -441,8 +441,8 @@
 
 
         <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
-          <button type="button" class="btn btn-secondary" (click)="closeCreateTeacherModal()">Отмена</button>
-          <button type="button" class="btn btn-primary" (click)="addTeacher()">Создать</button>
+          <button type="button" class="btn btn-secondary" (click)="closeCreateTeacherModal()">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="addTeacher()">Créer</button>
         </div>
       </div>
     </div>

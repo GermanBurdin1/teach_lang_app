@@ -17,6 +17,7 @@ export interface LessonNotesModalData {
   };
 }
 
+// TODO : ajouter support pour les fichiers joints aux notes
 @Component({
   selector: 'app-lesson-notes-modal',
   templateUrl: './lesson-notes-modal.component.html',
@@ -26,7 +27,7 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private contentChanges$ = new Subject<string>();
   
-  // Содержимое для каждого раздела
+  // contenu pour chaque section
   tasksContent = '';
   questionsContent = '';
   materialsContent = '';
@@ -41,19 +42,19 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Инициализируем заметки для урока
+    // on initialise les notes pour le cours
     this.lessonNotesService.initNotesForLesson(this.data.lessonId);
     
-    // Подписываемся на все заметки урока
+    // on s'abonne à toutes les notes du cours
     this.lessonNotesService.notes$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(notes => {
       this.loadAccumulatedNotes(notes);
     });
 
-    // Автосохранение при изменении содержимого
+    // auto-sauvegarde lors des changements de contenu
     this.contentChanges$.pipe(
-      debounceTime(2000), // Ждем 2 секунды после последнего изменения
+      debounceTime(2000), // on attend 2 secondes après le dernier changement
       distinctUntilChanged(),
       takeUntil(this.destroy$)
     ).subscribe(content => {
@@ -62,12 +63,12 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   }
 
   private loadAccumulatedNotes(notes: any) {
-    // Загружаем накопленные заметки для каждого раздела
+    // on charge les notes accumulées pour chaque section
     this.tasksContent = this.buildAccumulatedContent(notes.tasks, 'tasks');
     this.questionsContent = this.buildAccumulatedContent(notes.questions, 'questions');
     this.materialsContent = this.buildAccumulatedContent(notes.materials, 'materials');
     
-    // Определяем последнее время сохранения
+    // on détermine la dernière heure de sauvegarde
     const allNotes = [...notes.tasks, ...notes.questions, ...notes.materials];
     if (allNotes.length > 0) {
       this.lastSaved = allNotes.reduce((latest, note) => 
@@ -80,16 +81,16 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
       return '';
     }
 
-    // Сортируем заметки по времени создания
+    // on trie les notes par heure de création
     const sortedNotes = sectionNotes.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
     
-    // Если это активный раздел, показываем только заметку для текущего элемента
+    // si c'est la section active, on affiche seulement la note pour l'élément actuel
     if (section === this.data.section) {
       const currentNote = sortedNotes.find(note => note.itemId === this.data.itemId);
       return currentNote ? currentNote.content : '';
     }
     
-    // Для неактивных разделов объединяем все заметки
+    // pour les sections inactives on combine toutes les notes
     return sortedNotes.map(note => {
       const timestamp = note.updatedAt.toLocaleString('fr-FR', { 
         day: '2-digit', 
@@ -106,9 +107,9 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Методы для обработки изменений в каждом разделе
+  // méthodes pour traiter les changements dans chaque section
   onTasksContentChange(content: string) {
-    // Обновляем содержимое только если это активный раздел
+    // on met à jour le contenu seulement si c'est la section active
     if (this.data.section === 'tasks') {
       this.tasksContent = content;
       this.contentChanges$.next(content);
@@ -116,7 +117,7 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   }
 
   onQuestionsContentChange(content: string) {
-    // Обновляем содержимое только если это активный раздел
+    // on met à jour le contenu seulement si c'est la section active
     if (this.data.section === 'questions') {
       this.questionsContent = content;
       this.contentChanges$.next(content);
@@ -124,7 +125,7 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   }
 
   onMaterialsContentChange(content: string) {
-    // Обновляем содержимое только если это активный раздел
+    // on met à jour le contenu seulement si c'est la section active
     if (this.data.section === 'materials') {
       this.materialsContent = content;
       this.contentChanges$.next(content);
@@ -147,10 +148,10 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
     
     this.isSaving = true;
     
-    // Сохраняем только новый контент для текущего элемента
+    // on sauvegarde seulement le nouveau contenu pour l'élément actuel
     const currentSectionContent = this.getCurrentSectionEditableContent();
     
-    // Имитируем асинхронное сохранение
+    // on simule une sauvegarde asynchrone
     setTimeout(() => {
       this.lessonNotesService.addOrUpdateNote(
         this.data.section,
@@ -165,7 +166,7 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   }
 
   private getCurrentSectionEditableContent(): string {
-    // Возвращаем содержимое только для активного раздела
+    // on retourne le contenu seulement pour la section active
     switch (this.data.section) {
       case 'tasks': return this.tasksContent;
       case 'questions': return this.questionsContent; 
@@ -177,7 +178,7 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   private saveAllNotes() {
     this.isSaving = true;
     
-    // Сохраняем только активный раздел для текущего элемента
+    // on sauvegarde seulement la section active pour l'élément actuel
     const currentContent = this.getCurrentSectionEditableContent();
     
     if (currentContent.trim()) {
@@ -206,34 +207,34 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Методы для работы с новой структурой элементов
+  // méthodes pour travailler avec la nouvelle structure d'éléments
   isCurrentItem(itemIdentifier: string): boolean {
-    // Для простых строковых элементов (задачи и вопросы)
-    // Сравниваем с текстом самого элемента, так как itemId содержит текст задачи/вопроса
+    // pour les éléments de chaîne simples (tâches et questions)
+    // on compare avec le texte de l'élément lui-même, car itemId contient le texte de la tâche/question
     if (this.data.itemId === this.data.itemText) {
-      // Если это текущий элемент, проверяем соответствие
+      // si c'est l'élément actuel, on vérifie la correspondance
       const currentItemIndex = this.getCurrentItemIndex();
       return itemIdentifier === currentItemIndex;
     }
     
-    // Для материалов
+    // pour les matériaux
     if (this.data.section === 'materials') {
       return this.data.itemId === itemIdentifier;
     }
     
-    // Fallback для совместимости
+    // fallback pour compatibilité
     return this.data.itemId === itemIdentifier;
   }
 
   private getCurrentItemIndex(): string {
     if (this.data.section === 'tasks') {
-      // Ищем индекс в задачах студента
+      // on cherche l'index dans les tâches étudiant
       const studentIndex = this.data.lessonData?.studentTasks?.findIndex(task => task === this.data.itemText);
       if (studentIndex !== undefined && studentIndex >= 0) {
         return 'student-task-' + studentIndex;
       }
       
-      // Ищем индекс в задачах преподавателя
+      // on cherche l'index dans les tâches professeur
       const teacherIndex = this.data.lessonData?.teacherTasks?.findIndex(task => task === this.data.itemText);
       if (teacherIndex !== undefined && teacherIndex >= 0) {
         return 'teacher-task-' + teacherIndex;
@@ -241,20 +242,20 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
     }
     
     if (this.data.section === 'questions') {
-      // Ищем индекс в вопросах студента
+      // on cherche l'index dans les questions étudiant
       const studentIndex = this.data.lessonData?.studentQuestions?.findIndex(question => question === this.data.itemText);
       if (studentIndex !== undefined && studentIndex >= 0) {
         return 'student-question-' + studentIndex;
       }
       
-      // Ищем индекс в вопросах преподавателя
+      // on cherche l'index dans les questions professeur
       const teacherIndex = this.data.lessonData?.teacherQuestions?.findIndex(question => question === this.data.itemText);
       if (teacherIndex !== undefined && teacherIndex >= 0) {
         return 'teacher-question-' + teacherIndex;
       }
     }
     
-    return this.data.itemId; // Fallback
+    return this.data.itemId; // fallback
   }
 
   getMaterialId(material: any): string {
@@ -284,7 +285,7 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   onSave() {
     this.saveAllNotes();
     
-    // Возвращаем текущее состояние заметок урока
+    // on retourne l'état actuel des notes du cours
     const currentNotes = this.lessonNotesService.exportNotes();
     this.dialogRef.close({
       section: this.data.section,
@@ -294,7 +295,7 @@ export class LessonNotesModalComponent implements OnInit, OnDestroy {
   }
 
   onClose() {
-    // Сохраняем активный раздел при закрытии, если есть содержимое
+    // on sauvegarde la section active à la fermeture, s'il y a du contenu
     const currentContent = this.getCurrentSectionEditableContent();
     if (currentContent.trim()) {
       this.saveAllNotes();

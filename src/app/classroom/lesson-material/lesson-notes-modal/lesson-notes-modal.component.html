@@ -15,16 +15,16 @@
       <small class="text-muted">{{ getSectionTitle() }}</small>
     </div>
 
-    <!-- Всегда показываем 3 раздела -->
+    <!-- on affiche toujours 3 sections -->
     <div class="sections-container">
       
-      <!-- Раздел задач -->
+      <!-- section des tâches -->
       <div class="notes-section" [class.blur]="data.section !== 'tasks'">
         <h5 class="section-header" [class.active]="data.section === 'tasks'">
           📝 Tâches
         </h5>
         
-        <!-- Список задач студента -->
+        <!-- liste des tâches étudiant -->
         <div class="items-list" *ngIf="data.lessonData?.studentTasks?.length">
           <h6 class="subsection-title">👩‍🎓 Tâches de l'étudiant</h6>
           <div class="item-container" *ngFor="let task of (data.lessonData?.studentTasks || []); let i = index"
@@ -43,7 +43,7 @@
           </div>
         </div>
 
-        <!-- Список задач преподавателя -->
+        <!-- liste des tâches professeur -->
         <div class="items-list" *ngIf="data.lessonData?.teacherTasks?.length">
           <h6 class="subsection-title">👩‍🏫 Tâches du professeur</h6>
           <div class="item-container" *ngFor="let task of (data.lessonData?.teacherTasks || []); let i = index"
@@ -62,7 +62,7 @@
           </div>
         </div>
 
-        <!-- Fallback для общих заметок по задачам -->
+        <!-- fallback pour notes générales sur les tâches -->
         <mat-form-field class="full-width" appearance="outline" *ngIf="data.section !== 'tasks' || (!data.lessonData?.studentTasks?.length && !data.lessonData?.teacherTasks?.length)">
           <mat-label>Notes générales sur les tâches</mat-label>
           <textarea 
@@ -75,13 +75,13 @@
         </mat-form-field>
       </div>
 
-      <!-- Раздел вопросов -->
+      <!-- section des questions -->
       <div class="notes-section" [class.blur]="data.section !== 'questions'">
         <h5 class="section-header" [class.active]="data.section === 'questions'">
           ❓ Questions
         </h5>
         
-        <!-- Список вопросов студента -->
+        <!-- liste des questions étudiant -->
         <div class="items-list" *ngIf="data.lessonData?.studentQuestions?.length">
           <h6 class="subsection-title">👩‍🎓 Questions de l'étudiant</h6>
           <div class="item-container" *ngFor="let question of (data.lessonData?.studentQuestions || []); let i = index"
@@ -100,7 +100,7 @@
           </div>
         </div>
 
-        <!-- Список вопросов преподавателя -->
+        <!-- liste des questions professeur -->
         <div class="items-list" *ngIf="data.lessonData?.teacherQuestions?.length">
           <h6 class="subsection-title">👩‍🏫 Questions du professeur</h6>
           <div class="item-container" *ngFor="let question of (data.lessonData?.teacherQuestions || []); let i = index"
@@ -119,7 +119,7 @@
           </div>
         </div>
 
-        <!-- Fallback для общих заметок по вопросам -->
+        <!-- fallback pour notes générales sur les questions -->
         <mat-form-field class="full-width" appearance="outline" *ngIf="data.section !== 'questions' || (!data.lessonData?.studentQuestions?.length && !data.lessonData?.teacherQuestions?.length)">
           <mat-label>Notes générales sur les questions</mat-label>
           <textarea 
@@ -132,13 +132,13 @@
         </mat-form-field>
       </div>
 
-      <!-- Раздел материалов -->
+      <!-- section des matériaux -->
       <div class="notes-section" [class.blur]="data.section !== 'materials'">
         <h5 class="section-header" [class.active]="data.section === 'materials'">
           📚 Matériaux
         </h5>
         
-        <!-- Список материалов -->
+        <!-- liste des matériaux -->
         <div class="items-list" *ngIf="data.lessonData?.materials?.length">
           <div class="item-container" *ngFor="let material of (data.lessonData?.materials || []); let i = index"
                [class.highlighted]="data.section === 'materials' && isCurrentItem(getMaterialId(material))">
@@ -160,7 +160,7 @@
           </div>
         </div>
 
-        <!-- Fallback для общих заметок по материалам -->
+        <!-- fallback pour notes générales sur les matériaux -->
         <mat-form-field class="full-width" appearance="outline" *ngIf="data.section !== 'materials' || !data.lessonData?.materials?.length">
           <mat-label>Notes générales sur les matériaux</mat-label>
         <textarea 

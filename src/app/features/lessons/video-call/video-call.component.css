@@ -3,11 +3,11 @@
   max-width: 640px;
   margin-top: 20px;
   display: flex;
-  flex-direction: column; /* Элементы идут вертикально */
-  align-items: center; /* Центрируем */
+  flex-direction: column; /* Les éléments sont en colonne */
+  align-items: center; /* Centrage */
 }
 
-/* Разные размеры видео */
+/* Différentes tailles de vidéo */
 .video-call-container.small .local-video-container {
   max-width: 320px;
 }
@@ -27,9 +27,9 @@
 }
 
 .video-controls {
-  margin-top: 10px; /* Отступ между видео и кнопкой */
+  margin-top: 10px; /* Espace entre la vidéo et le bouton */
   display: flex;
-  justify-content: center; /* Центрируем кнопки */
+  justify-content: center; /* Centrage des boutons */
   gap: 10px;
   width: 100%;
 }
@@ -97,7 +97,7 @@
   bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7); /* Затемнение */
+  background: rgba(0, 0, 0, 0.7); /* Assombrissement */
   color: white;
   font-size: 14px;
   padding: 8px 14px;
@@ -208,16 +208,16 @@
   }
 }
 
-/* Центрируем обе control-кнопки рядом, как в Teams */
+/* Centrage des deux boutons de contrôle côte à côte, comme dans Teams */
 .control-btn {
   bottom: 10px;
   transform: none;
 }
 
 .control-btn:first-of-type {
-  left: calc(50% - 30px); /* Первая кнопка левее центра */
+  left: calc(50% - 30px); /* Premier bouton à gauche du centre */
 }
 
 .control-btn.share-screen-btn {
-  left: calc(50% + 30px); /* Вторая кнопка правее центра */
+  left: calc(50% + 30px); /* Deuxième bouton à droite du centre */
 }

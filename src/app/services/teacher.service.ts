@@ -6,12 +6,12 @@ import { AuthService } from './auth.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Review } from '../features/dashboard/shared/models/review.model';
 
+// TODO : ajouter cache pour les données enseignants
 @Injectable({
   providedIn: 'root'
 })
 export class TeacherService {
   constructor(private http: HttpClient, private authService: AuthService) { }
-
 
   getTeachers(
     page = 1,
@@ -33,18 +33,18 @@ export class TeacherService {
       { params }
     ).pipe(
       map(response => {
-        console.log('🔥 RAW from backend', response.data); // DEBUG
+        console.log('[TeacherService] Données brutes du backend', response.data);
         return {
           data: response.data.map(user => ({
             id: user.id,
             name: user.email,
-            photoUrl: user.photoUrl, // ❗️не перезаписывать на дефолт
+            photoUrl: user.photoUrl, // ne pas écraser avec la valeur par défaut
             price: user.price,
             experienceYears: user.experienceYears,
             rating: user.rating,
             reviewCount: user.reviewCount,
             specializations: user.specializations ?? [],
-            certificates: user.certificates ?? [],              // ✅ добавлено
+            certificates: user.certificates ?? [],              // ajouté
             bio: user.bio ?? '',
             teachingLanguages: user.teachingLanguages ?? []
           })),
@@ -99,7 +99,7 @@ export class TeacherService {
     const studentId = this.authService.user?.id;
     console.log('[TeacherService] getMyTeachersFromLessonService studentId:', studentId);
     if (!studentId) {
-      throw new Error('Не найден id студента');
+      throw new Error('ID étudiant non trouvé');
     }
     return this.http.get<Teacher[]>(`http://localhost:3004/lessons/student/${studentId}/teachers`).pipe(
       map(result => {

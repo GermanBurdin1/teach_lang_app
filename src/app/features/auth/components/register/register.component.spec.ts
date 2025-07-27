@@ -232,7 +232,7 @@ describe('RegisterComponent', () => {
 
   it('should handle registration error for existing role', fakeAsync(() => {
     const errorResponse = { 
-      error: { message: 'уже зарегистрированы с этой ролью' } 
+              error: { message: 'déjà inscrit avec ce rôle' } 
     };
     authService.register.and.returnValue(throwError(() => errorResponse));
     

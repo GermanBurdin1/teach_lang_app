@@ -15,9 +15,9 @@
 //   constructor(public videoCallService: VideoCallService, private wsService: WebSocketService) { }
 
 //   ngOnInit(): void {
-//     console.log('📹 VideoCallComponent загружен в ngOnInit', { isFloatingMode: this.isFloatingMode });
-//     console.log("🎥 video-call.component.ts → ngOnInit() сработал!");
-//     console.log(`🎥 video-call.component.ts → Создан ${new Date().toISOString()}`);
+//     console.log('VideoCallComponent загружен в ngOnInit', { isFloatingMode: this.isFloatingMode });
+//     console.log("video-call.component.ts → ngOnInit() сработал!");
+//     console.log(`video-call.component.ts → Создан ${new Date().toISOString()}`);
 //     this.videoCallService.joinChannel().then(() => {
 //       if (this.videoCallService.localTracks.videoTrack) {
 //         this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
@@ -33,9 +33,9 @@
 //     });
 
 //     this.wsService.listen('call_invite').subscribe((data: any) => {
-//       console.log(`📞 Входящий вызов от ${data.from}`);
+//       console.log(`Входящий вызов от ${data.from}`);
 
-//       const acceptCall = confirm(`📞 Входящий вызов от ${data.from}. Принять?`);
+//       const acceptCall = confirm(`Входящий вызов от ${data.from}. Принять?`);
 //       if (acceptCall) {
 //         this.videoCallService.acceptCall(data.from);
 //       } else {
@@ -44,48 +44,48 @@
 //     });
 
 //     this.wsService.listen('call_reject').subscribe((data: any) => {
-//       console.log(`📵 Пользователь ${data.from} отклонил вызов.`);
-//       alert(`📵 Пользователь ${data.from} отклонил вызов.`);
+//       console.log(`Пользователь ${data.from} отклонил вызов.`);
+//       alert(` Пользователь ${data.from} отклонил вызов.`);
 //     });
 
 //     this.wsService.listen('call_accept').subscribe((data: any) => {
-//       console.log(`✅ Пользователь ${data.from} принял вызов.`);
+//       console.log(`Пользователь ${data.from} принял вызов.`);
 //       this.videoCallService.startVideoCall();
 //     });
 //   }
 
 //   ngAfterViewInit(): void {
-//     console.log("📹 VideoCallComponent загружен!");
+//     console.log("VideoCallComponent загружен!");
 
 //     // Проверяем, есть ли localVideo
 //     if (!this.localVideo || !this.localVideo.nativeElement) {
-//       console.warn("⚠ localVideo отсутствует! Ожидание 500ms...");
+//       console.warn("localVideo отсутствует! Ожидание 500ms...");
 //       setTimeout(() => this.initLocalVideo(), 500);
 //       return;
 //     }
 
 //     this.initLocalVideo();
-//     console.log("🎥 video-call.component.ts → ngAfterViewInit() сработал!");
+//     console.log("video-call.component.ts → ngAfterViewInit() сработал!");
 //   }
 
 //   ngOnDestroy() {
-//     console.log("❌ video-call.component.ts → Компонент уничтожен!");
+//     console.log("video-call.component.ts → Компонент уничтожен!");
 //   }
 
 
 //   private initLocalVideo(): void {
 //     if (!this.videoCallService.localTracks.videoTrack) {
-//       console.warn("⚠ Видеотрек отсутствует, повторный запрос через 500ms...");
+//       console.warn("Видеотрек отсутствует, повторный запрос через 500ms...");
 //       setTimeout(() => this.initLocalVideo(), 500);
 //       return;
 //     }
 
 //     if (!this.localVideo || !this.localVideo.nativeElement) {
-//       console.error("❌ localVideo НЕ найден после ожидания!");
+//       console.error("localVideo НЕ найден после ожидания!");
 //       return;
 //     }
 
-//     console.log("✅ Видеотрек найден, отображаем локальное видео!");
+//     console.log("Видеотрек найден, отображаем локальное видео!");
 //     this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
 
 //   }
@@ -127,7 +127,7 @@
 //   startResize(event: MouseEvent): void {
 //     event.preventDefault();
 
-//     console.log("🔄 Начало изменения размера видео");
+//     console.log("Начало изменения размера видео");
 
 //     const startX = event.clientX;
 //     const startY = event.clientY;
@@ -194,7 +194,7 @@
 //       const maxLeft = window.innerWidth - videoWidth;
 //       const maxTop = window.innerHeight - videoHeight;
 
-//       // 🔒 Ограничиваем перемещение
+//       // Ограничиваем перемещение
 //       newLeft = Math.max(0, Math.min(newLeft, maxLeft));
 //       newTop = Math.max(0, Math.min(newTop, maxTop));
 

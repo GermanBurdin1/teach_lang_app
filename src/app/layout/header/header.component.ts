@@ -7,7 +7,7 @@ import { LessonTabsService } from '../../services/lesson-tabs.service';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 
-
+// TODO : refactoriser ce composant header qui est devenu très volumineux
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -43,20 +43,20 @@ export class HeaderComponent {
         this.checkLessonMaterialRoute();
       });
 
-    // Проверяем текущий маршрут при загрузке компонента
+    // on vérifie la route actuelle au chargement du composant
     this.checkLessonMaterialRoute();
 
-    // Загружаем обложку из localStorage
+    // on charge la couverture depuis localStorage
     const savedCover = localStorage.getItem('classCover');
     if (savedCover) {
-      this.classCover = savedCover; // Устанавливаем обложку
+      this.classCover = savedCover; // on définit la couverture
     }
 
-    // Загружаем фон из localStorage
+    // on charge le fond depuis localStorage
     const savedBackground = localStorage.getItem('selectedBackground');
     if (savedBackground) {
-      this.selectedBackground = savedBackground; // Устанавливаем фон
-      this.backgroundService.setBackground(this.selectedBackground); // Применяем фон
+      this.selectedBackground = savedBackground; // on définit le fond
+      this.backgroundService.setBackground(this.selectedBackground); // on applique le fond
     }
 
     this.lessonTabsService.tabsVisible$.subscribe((isVisible) => {
@@ -69,7 +69,7 @@ export class HeaderComponent {
 
     this.authService.currentRole$.subscribe(role => {
       this.setSettingsLink();
-      console.log('[HeaderComponent] Role changed. settingsLink =', this.settingsLink);
+      console.log('[Header] Changement de rôle. settingsLink =', this.settingsLink);
     });
 
   }
@@ -130,9 +130,9 @@ export class HeaderComponent {
   }
 
   private checkLessonMaterialRoute(): void {
-    const currentUrl = this.router.url; // Получаем текущий URL
-    const lessonRegex = /^\/classroom\/\d+\/lesson$/; // Регулярное выражение для маршрута classroom/:id/lesson
-    this.isLessonMaterialRoute = lessonRegex.test(currentUrl); // Проверяем соответствие
+    const currentUrl = this.router.url; // on récupère l'URL actuelle
+    const lessonRegex = /^\/classroom\/\d+\/lesson$/; // expression régulière pour la route classroom/:id/lesson
+    this.isLessonMaterialRoute = lessonRegex.test(currentUrl); // on vérifie la correspondance
   }
 
   toggleExpandHeader(): void {
@@ -207,7 +207,7 @@ export class HeaderComponent {
     this.isPaymentModalOpen = false;
   }
 
-  // демо-тур
+  // tour de démonstration
   isTourModalOpen = false;
   currentStep = 0;
   modalPosition = 'relative';
@@ -216,54 +216,54 @@ export class HeaderComponent {
 
   tourSteps = [
     {
-      title: 'Добро пожаловать на ProgressMe!',
-      content: 'ProgressMe - это интерактивная платформа для преподавания. Здесь можно проводить онлайн-уроки вживую или создавать курсы для асинхронной работы. В этой короткой демонстрации вы познакомитесь с основными возможностями и разделами платформы.',
+      title: 'Bienvenue sur ProgressMe!',
+      content: 'ProgressMe est une plateforme interactive d\'enseignement. Ici vous pouvez donner des cours en ligne en direct ou créer des cours pour un apprentissage asynchrone. Dans cette courte démonstration, vous découvrirez les principales fonctionnalités et sections de la plateforme.',
     },
     {
-      title: 'Разделы личного кабинета',
-      content: 'Здесь находятся активированные модули платформы...',
-      position: { top: '250px', left: '10px' }, // Корректировка положения
-      highlightElementId: 'sidebar' // ID элемента для подсветки
+      title: 'Sections du tableau de bord',
+      content: 'Ici se trouvent les modules activés de la plateforme...',
+      position: { top: '250px', left: '10px' }, // ajustement de la position
+      highlightElementId: 'sidebar' // ID de l'élément à mettre en surbrillance
     },
     {
-      title: 'Настройки платформы',
-      content: 'В Настройках расположено редактирование личного профиля...',
-      position: { top: '200px', left: '10px' }, // Позиция может быть скорректирована при необходимости
-      highlightElementId: 'settings' // ID элемента для подсветки (если необходимо)
+      title: 'Paramètres de la plateforme',
+      content: 'Dans les Paramètres se trouve l\'édition du profil personnel...',
+      position: { top: '200px', left: '10px' }, // la position peut être ajustée si nécessaire
+      highlightElementId: 'settings' // ID de l'élément à mettre en surbrillance (si nécessaire)
     },
     {
-      title: 'Тарифы, история оплат и промокоды',
-      content: 'Перейдите в этот раздел чтобы выбрать подходящий тарифный план, посмотреть историю оплат или ввести промокод.',
-      position: { top: '255px', left: '10px' }, // Позиция может быть скорректирована при необходимости
-      highlightElementId: 'tariffs' // ID элемента для подсветки (если необходимо)
+      title: 'Tarifs, historique des paiements et codes promo',
+      content: 'Allez dans cette section pour choisir un plan tarifaire adapté, voir l\'historique des paiements ou entrer un code promo.',
+      position: { top: '255px', left: '10px' }, // la position peut être ajustée si nécessaire
+      highlightElementId: 'tariffs' // ID de l'élément à mettre en surbrillance (si nécessaire)
     },
     {
-      title: 'Онлайн-уроки в реальном времени',
-      content: 'В этом разделе вы сможете проводить индивидуальные или групповые уроки в режиме реального времени. Приглашайте учеников и создавайте для них онлайн-классы с интерактивными учебными материалами, видесвязью, чатом и виртуальной доской. Все действия в классе будут мгновенно синхронизироваться между вами и учениками. Добавляйте уроки в расписание, чтобы ученики знали, когда будет следующий урок..',
-      position: { top: '70px', left: '10px' }, // Позиция может быть скорректирована при необходимости
-      highlightElementId: 'online-courses' // ID элемента для подсветки (если необходимо)
+      title: 'Cours en ligne en temps réel',
+      content: 'Dans cette section, vous pourrez donner des cours individuels ou de groupe en temps réel. Invitez les étudiants et créez pour eux des classes en ligne avec du matériel pédagogique interactif, appel vidéo, chat et tableau virtuel. Toutes les actions en classe seront instantanément synchronisées entre vous et les étudiants. Ajoutez des cours au planning pour que les étudiants sachent quand aura lieu le prochain cours.',
+      position: { top: '70px', left: '10px' }, // la position peut être ajustée si nécessaire
+      highlightElementId: 'online-courses' // ID de l'élément à mettre en surbrillance (si nécessaire)
     },
     {
-      title: 'Онлайн-курсы для асинхронного обучения',
-      content: 'Здесь создаются и проводятся  авторские онлайн-курсы для самостоятельного обучения.Более 25 видов интерактивных заданий с автопроверкой, 5 режимов прохождения, подсчёт баллов и таблица лидеров. Участники смогут проходить курсы в удобное время, а вы сможете давать обратную связь для каждого урока и упражнения.',
+      title: 'Cours en ligne pour l\'apprentissage asynchrone',
+      content: 'Ici sont créés et dispensés des cours en ligne d\'auteur pour l\'apprentissage autonome. Plus de 25 types d\'exercices interactifs avec vérification automatique, 5 modes de progression, comptage des points et tableau des leaders. Les participants pourront suivre les cours au moment qui leur convient, et vous pourrez donner des retours pour chaque leçon et exercice.',
       position: { top: '30px', left: '10px' },
       highlightElementId: 'online-courses'
     },
     {
-      title: 'Учебные материалы',
-      content: 'Здесь хранятся интерактивные учебники и готовые уроки от методистов платформы или ваших  коллег, которые вы можете использовать на занятиях. А если подходящего урока нет в каталоге, создать собственные материалы поможет конструктор уроков с 25+ шаблонами упражнений и AI-ассистентом. ',
+      title: 'Matériel pédagogique',
+      content: 'Ici sont stockés les manuels interactifs et leçons prêtes des méthodologistes de la plateforme ou de vos collègues, que vous pouvez utiliser en cours. Et s\'il n\'y a pas de leçon appropriée dans le catalogue, le constructeur de leçons avec 25+ modèles d\'exercices et assistant IA vous aidera à créer votre propre matériel.',
       position: { top: '130px', left: '10px' },
       highlightElementId: 'online-courses'
     },
     {
-      title: 'Подробнее о платформе',
-      content: 'В нашей базе знаний вы найдёте обучающие статьи с подробными инструкциями для работы на платформе.',
+      title: 'En savoir plus sur la plateforme',
+      content: 'Dans notre base de connaissances, vous trouverez des articles éducatifs avec des instructions détaillées pour travailler sur la plateforme.',
       position: { top: '-200px', left: '650px' },
       highlightElementId: 'online-courses'
     },
     {
-      title: 'Если понадобится помощь',
-      content: 'Напишите нам в поддержку, нажав на эту иконку. Мы на связи с с 9:00 до 21:00 (GMT+3).',
+      title: 'Si vous avez besoin d\'aide',
+      content: 'Écrivez-nous au support en cliquant sur cette icône. Nous sommes disponibles de 9h00 à 21h00 (GMT+3).',
       position: { top: '-200px', left: '650px' },
       highlightElementId: 'online-courses'
     }
@@ -278,22 +278,22 @@ export class HeaderComponent {
 
   closeTourModal(): void {
     this.isTourModalOpen = false;
-    this.removeHighlight(); // Удаляем overlay при закрытии
+    this.removeHighlight(); // on supprime l'overlay à la fermeture
   }
 
   nextStep(): void {
     const modalElements = document.querySelectorAll('.modal.show.d-block, .modal.fade');
     modalElements.forEach(modal => {
-      // Приведение к типу HTMLElement для доступа к свойству 'style'
+      // conversion vers le type HTMLElement pour l'accès à la propriété 'style'
       if (modal instanceof HTMLElement) {
         const currentBgColor = window.getComputedStyle(modal).backgroundColor;
         if (currentBgColor === 'rgba(0, 0, 0, 0.5)') {
-          // Если уже есть, удаляем его
+          // s'il existe déjà, on le supprime
           modal.style.backgroundColor = 'transparent';
         }
       }
     });
-    // Переход на следующий шаг
+    // passage à l'étape suivante
     this.currentStep++;
     if (this.currentStep < this.tourSteps.length) {
       this.updateModalPosition();
@@ -315,22 +315,22 @@ export class HeaderComponent {
     const modalDialog = document.querySelector('.modal-dialog') as HTMLElement;
     if (modalDialog) {
       if (this.currentStep === 0) {
-        // На первом шаге модалка остается по умолчанию
+        // à la première étape la modale reste par défaut
         modalDialog.style.position = '';
         modalDialog.style.top = '';
         modalDialog.style.left = '';
-        modalDialog.style.transform = ''; // Удаляем любые трансформации
+        modalDialog.style.transform = ''; // on supprime toute transformation
 
-        // Не удаляем вуаль, а обновляем её положение
+        // on ne supprime pas le voile, on met à jour sa position
         this.addHighlightOverlay();
       } else {
-        // Применяем позицию на втором и следующих шагах
+        // on applique la position à la deuxième étape et suivantes
         modalDialog.style.position = 'absolute';
-        modalDialog.style.top = step.position?.top || '0px'; // Используем координаты из шага, если есть
+        modalDialog.style.top = step.position?.top || '0px'; // on utilise les coordonnées de l'étape, si elles existent
         modalDialog.style.left = step.position?.left || '0px';
-        modalDialog.style.transform = ''; // Применяем любые другие трансформации, если нужно
+        modalDialog.style.transform = ''; // on applique toute autre transformation, si nécessaire
 
-        // Подсветка выделенного элемента
+        // mise en surbrillance de l'élément sélectionné
         if (step.highlightElementId) {
           this.addHighlightOverlay(step.position);
         } else {
@@ -340,15 +340,14 @@ export class HeaderComponent {
     }
   }
 
-
   addHighlightOverlay(position?: { top: string; left: string }): void {
-    // Удаляем существующий highlightOverlay, если он есть
+    // on supprime l'highlightOverlay existant, s'il y en a un
     let existingHighlightOverlay = document.getElementById('highlight-overlay');
     if (existingHighlightOverlay) {
       existingHighlightOverlay.remove();
     }
 
-    // Создаем новый highlightOverlay
+    // on crée un nouveau highlightOverlay
     const highlightOverlay = document.createElement('div');
     highlightOverlay.id = 'highlight-overlay';
     highlightOverlay.style.position = 'fixed';
@@ -356,18 +355,18 @@ export class HeaderComponent {
     highlightOverlay.style.left = '0';
     highlightOverlay.style.width = '100vw';
     highlightOverlay.style.height = '100vh';
-    highlightOverlay.style.background = 'rgba(0, 0, 0, 0.5)'; // Постоянный цвет фона
-    highlightOverlay.style.zIndex = '1040'; // Убедитесь, что это выше других элементов
-    highlightOverlay.style.pointerEvents = 'none'; // Пропускаем клики
+    highlightOverlay.style.background = 'rgba(0, 0, 0, 0.5)'; // couleur de fond permanente
+    highlightOverlay.style.zIndex = '1040'; // on s'assure que c'est au-dessus des autres éléments
+    highlightOverlay.style.pointerEvents = 'none'; // on laisse passer les clics
     document.body.appendChild(highlightOverlay);
 
-    if (position) {// Рассчитываем размеры и позицию "дырки"
+    if (position) {// on calcule les dimensions et la position du "trou"
       let top = parseInt(position.top.replace('px', ''), 10) - 150;
       let left = parseInt(position.left.replace('px', ''), 5);
-      let width = 64; // Ширина области
-      let height = 418; // Высота области
+      let width = 64; // largeur de la zone
+      let height = 418; // hauteur de la zone
 
-      // Изменение высоты на третьем шаге
+      // changement de hauteur à la troisième étape
       if (this.currentStep === 2) {
         top = parseInt(position.top.replace('px', ''), 0) + 210;
         height = 50;

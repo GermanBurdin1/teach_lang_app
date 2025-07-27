@@ -34,6 +34,7 @@ export interface BackendLessonNotes {
   updatedAt: Date;
 }
 
+// TODO : ajouter synchronisation en temps réel des notes entre participants
 @Injectable({
   providedIn: 'root'
 })
@@ -56,16 +57,16 @@ export class LessonNotesService {
 
   async initNotesForLesson(lessonId: string) {
     try {
-      // Загружаем заметки из базы данных
+      // on charge les notes depuis la base de données
       const backendNotes = await this.loadNotesFromDatabase(lessonId);
       
       if (backendNotes) {
-        // Конвертируем backend формат в frontend формат
+        // on convertit le format backend en format frontend
         const frontendNotes = this.convertBackendToFrontend(backendNotes);
         this.notesSubject.next(frontendNotes);
-        console.log('📝 Заметки загружены из базы данных:', frontendNotes);
+        console.log('[LessonNotes] Notes chargées depuis la base de données:', frontendNotes);
       } else {
-        // Если в базе нет, пробуем загрузить из localStorage как fallback
+        // si rien en base, on essaie de charger depuis localStorage comme fallback
         const existingNotes = this.getNotesFromStorage(lessonId);
         this.notesSubject.next({
           lessonId,
@@ -73,11 +74,11 @@ export class LessonNotesService {
           questions: existingNotes.questions || [],
           materials: existingNotes.materials || []
         });
-        console.log('📝 Заметки загружены из localStorage (fallback)');
+        console.log('[LessonNotes] Notes chargées depuis localStorage (fallback)');
       }
     } catch (error) {
-      console.error('❌ Ошибка при загрузке заметок из базы:', error);
-      // Fallback к localStorage при ошибке
+      console.error('[LessonNotes] Erreur lors du chargement des notes depuis la base:', error);
+      // fallback vers localStorage en cas d'erreur
       const existingNotes = this.getNotesFromStorage(lessonId);
       this.notesSubject.next({
         lessonId,
@@ -111,15 +112,15 @@ export class LessonNotesService {
 
     this.notesSubject.next(currentNotes);
     
-    // Сохраняем в localStorage для мгновенного доступа
+    // on sauvegarde dans localStorage pour un accès instantané
     this.saveNotesToStorage(currentNotes);
     
-    // Сохраняем в базу данных асинхронно
+    // on sauvegarde dans la base de données de manière asynchrone
     try {
       await this.saveNotesToDatabase(currentNotes);
-      console.log('✅ Заметки сохранены в базу данных');
+      console.log('[LessonNotes] Notes sauvegardées dans la base de données');
     } catch (error) {
-      console.error('❌ Ошибка при сохранении заметок в базу:', error);
+      console.error('[LessonNotes] Erreur lors de la sauvegarde des notes en base:', error);
     }
   }
 
@@ -128,38 +129,38 @@ export class LessonNotesService {
     return currentNotes[section].find(note => note.itemId === itemId);
   }
 
-  // Загрузка заметок из базы данных
+  // chargement des notes depuis la base de données
   private async loadNotesFromDatabase(lessonId: string): Promise<BackendLessonNotes | null> {
     try {
       const response = await this.http.get<BackendLessonNotes>(`${this.baseUrl}/${lessonId}/notes`).toPromise();
       return response || null;
     } catch (error) {
-      console.error('❌ Ошибка при загрузке заметок из API:', error);
+      console.error('[LessonNotes] Erreur lors du chargement des notes depuis l\'API:', error);
       return null;
     }
   }
 
-  // Сохранение заметок в базу данных
+  // sauvegarde des notes dans la base de données
   private async saveNotesToDatabase(notes: LessonNotesData): Promise<void> {
     const currentUser = this.authService.getCurrentUser();
     const userRole = this.authService.currentRole;
     
     if (!currentUser || !userRole) {
-      throw new Error('Пользователь не авторизован');
+      throw new Error('Utilisateur non autorisé');
     }
 
-    // Конвертируем frontend формат в backend формат
+    // on convertit le format frontend en format backend
     const backendFormat = this.convertFrontendToBackend(notes, currentUser.id, userRole as 'student' | 'teacher');
     
     try {
       await this.http.post(`${this.baseUrl}/${notes.lessonId}/notes`, backendFormat).toPromise();
     } catch (error) {
-      console.error('❌ Ошибка при сохранении заметок в API:', error);
+      console.error('[LessonNotes] Erreur lors de la sauvegarde des notes en API:', error);
       throw error;
     }
   }
 
-  // Конвертация из backend формата в frontend формат
+  // on convertit le format backend en format frontend
   private convertBackendToFrontend(backendNotes: BackendLessonNotes): LessonNotesData {
     const frontendNotes: LessonNotesData = {
       lessonId: backendNotes.lessonId,
@@ -168,7 +169,7 @@ export class LessonNotesService {
       materials: []
     };
 
-    // Конвертируем tasksContent
+    // on convertit tasksContent
     if (backendNotes.tasksContent) {
       try {
         const tasksData = JSON.parse(backendNotes.tasksContent);
@@ -180,11 +181,11 @@ export class LessonNotesService {
           }));
         }
       } catch (error) {
-        console.error('❌ Ошибка при парсинге tasksContent:', error);
+        console.error('[LessonNotes] Erreur lors du parsing de tasksContent:', error);
       }
     }
 
-    // Конвертируем questionsContent
+    // on convertit questionsContent
     if (backendNotes.questionsContent) {
       try {
         const questionsData = JSON.parse(backendNotes.questionsContent);
@@ -196,11 +197,11 @@ export class LessonNotesService {
           }));
         }
       } catch (error) {
-        console.error('❌ Ошибка при парсинге questionsContent:', error);
+        console.error('[LessonNotes] Erreur lors du parsing de questionsContent:', error);
       }
     }
 
-    // Конвертируем materialsContent
+    // on convertit materialsContent
     if (backendNotes.materialsContent) {
       try {
         const materialsData = JSON.parse(backendNotes.materialsContent);
@@ -212,14 +213,14 @@ export class LessonNotesService {
           }));
         }
       } catch (error) {
-        console.error('❌ Ошибка при парсинге materialsContent:', error);
+        console.error('[LessonNotes] Erreur lors du parsing de materialsContent:', error);
       }
     }
 
     return frontendNotes;
   }
 
-  // Конвертация из frontend формата в backend формат
+  // on convertit le format frontend en format backend
   private convertFrontendToBackend(notes: LessonNotesData, createdBy: string, createdByRole: 'student' | 'teacher'): any {
     return {
       tasksContent: notes.tasks.length > 0 ? JSON.stringify(notes.tasks) : null,
@@ -239,7 +240,7 @@ export class LessonNotesService {
     const stored = localStorage.getItem(`lesson_notes_${lessonId}`);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Convert date strings back to Date objects
+      // on convertit les chaînes de date en objets Date
       ['tasks', 'questions', 'materials'].forEach(section => {
         if (parsed[section]) {
           parsed[section].forEach((note: any) => {
@@ -262,10 +263,10 @@ export class LessonNotesService {
   }
 
   async clearNotes(lessonId: string) {
-    // Очищаем localStorage
+    // on vide le localStorage
     localStorage.removeItem(`lesson_notes_${lessonId}`);
     
-    // Очищаем состояние
+    // on vide l'état
     this.notesSubject.next({
       lessonId: '',
       tasks: [],
@@ -273,7 +274,7 @@ export class LessonNotesService {
       materials: []
     });
 
-    // Очищаем в базе данных
+    // on vide dans la base de données
     try {
       const currentUser = this.authService.getCurrentUser();
       const userRole = this.authService.currentRole;
@@ -288,7 +289,7 @@ export class LessonNotesService {
         }).toPromise();
       }
     } catch (error) {
-      console.error('❌ Ошибка при очистке заметок в базе:', error);
+      console.error('[LessonNotes] Erreur lors de la suppression des notes en base:', error);
     }
   }
 } 

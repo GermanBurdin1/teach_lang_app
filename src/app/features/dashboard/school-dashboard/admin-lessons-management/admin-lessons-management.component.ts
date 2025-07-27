@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StatisticsService } from '../../../../services/statistics.service';
 
+// TODO : ajouter filtres avancés pour les statistiques de cours
 @Component({
   selector: 'app-admin-lessons-management',
   templateUrl: './admin-lessons-management.component.html',
@@ -31,6 +32,7 @@ export class AdminLessonsManagementComponent implements OnInit {
     this.loadLessonsStats();
   }
 
+  // TODO : internationaliser les noms de mois
   generateMonthOptions() {
     const months = [
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -55,7 +57,7 @@ export class AdminLessonsManagementComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des statistiques de cours:', err);
+        console.error('[AdminLessonsManagement] Erreur lors du chargement des statistiques de cours:', err);
         this.loading = false;
       }
     });
@@ -65,6 +67,7 @@ export class AdminLessonsManagementComponent implements OnInit {
     this.loadLessonsStats();
   }
 
+  // TODO : optimiser le chargement des données avec cache
   loadLastMonthsData() {
     // Charge les données des 6 derniers mois pour affichage graphique
     const promises = [];
@@ -78,7 +81,7 @@ export class AdminLessonsManagementComponent implements OnInit {
     Promise.all(promises).then(results => {
       this.monthlyData = results.reverse(); // Plus ancien en premier
     }).catch(err => {
-      console.error('Erreur lors du chargement des données mensuelles:', err);
+      console.error('[AdminLessonsManagement] Erreur lors du chargement des données mensuelles:', err);
     });
   }
 
@@ -91,6 +94,7 @@ export class AdminLessonsManagementComponent implements OnInit {
     return this.lessonsStats.totalLessons - this.lessonsStats.completedLessons - this.lessonsStats.cancelledLessons;
   }
 
+  // TODO : ajouter plus de niveaux d'efficacité
   get lessonsEfficiency(): string {
     if (this.lessonsStats.totalLessons === 0) return 'Aucune donnée';
     

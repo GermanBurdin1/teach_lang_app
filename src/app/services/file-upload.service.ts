@@ -15,7 +15,7 @@ export interface UploadedFile {
   providedIn: 'root'
 })
 export class FileUploadService {
-  private apiUrl = 'http://localhost:3008/files/upload'; // URL API на бэкенде
+  private apiUrl = 'http://localhost:3008/files/upload';
   private materialsUrl = `http://localhost:3008/files/materials`;
 
   constructor(private http: HttpClient) {}
@@ -25,7 +25,7 @@ export class FileUploadService {
     formData.append('file', file);
 
     return this.http.post<{ id: number; url: string; createdAt: string }>(
-      `${this.apiUrl}?courseId=${encodeURIComponent(courseId)}`, // ✅ Передаем courseId как строку
+      `${this.apiUrl}?courseId=${encodeURIComponent(courseId)}`, 
       formData
     );
   }

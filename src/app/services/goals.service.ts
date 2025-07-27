@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { StudentGoal, CreateGoalDto, ExamLevel } from '../models/student-goal.model';
 import { environment } from '../../../environment';
 
+// TODO : ajouter système de rappels pour les objectifs
 @Injectable({
   providedIn: 'root'
 })
@@ -36,7 +37,7 @@ export class GoalsService {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${goalId}`);
   }
 
-  // Метод для получения локализованного названия уровня экзамена
+  // méthode pour obtenir le nom d'affichage localisé du niveau d'examen
   getExamLevelDisplayName(level: ExamLevel): string {
     const displayNames: { [key in ExamLevel]: string } = {
       [ExamLevel.A1]: 'A1 - Débutant',

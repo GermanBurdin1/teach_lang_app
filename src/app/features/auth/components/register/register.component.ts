@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { NotificationService } from '../../../../services/notification.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+// TODO : ajouter validation en temps réel des mots de passe
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -30,7 +31,7 @@ export class RegisterComponent implements OnInit {
     private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
-    // Проверяем сохранённую тему
+    // on vérifie le thème sauvegardé
     const savedTheme = localStorage.getItem('theme');
     this.isDarkTheme = savedTheme === 'dark';
     this.applyTheme();
@@ -51,136 +52,102 @@ export class RegisterComponent implements OnInit {
     );
   }
 
-  private updatePasswordValidators(): void {
-    const passwordCtrl = this.registerForm.get('password');
-    const confirmPasswordCtrl = this.registerForm.get('confirmPassword');
-    if (this.emailChecked && this.existingRoles.length > 0) {
-      passwordCtrl?.clearValidators();
-      confirmPasswordCtrl?.clearValidators();
-    } else {
-      passwordCtrl?.setValidators(Validators.required);
-      confirmPasswordCtrl?.setValidators(Validators.required);
-    }
-    passwordCtrl?.updateValueAndValidity();
-    confirmPasswordCtrl?.updateValueAndValidity();
-  }
-
+  // TODO : améliorer la validation des rôles exclusifs
   exclusiveRoleValidator(form: FormGroup) {
     const isStudent = form.get('isStudent')?.value;
     const isTeacher = form.get('isTeacher')?.value;
-
-    const selectedRoles = [isStudent, isTeacher].filter(Boolean).length;
-    return selectedRoles === 1 ? null : { roleSelectionInvalid: true };
+    
+    if (!isStudent && !isTeacher) {
+      return { roleRequired: true };
+    }
+    
+    if (isStudent && isTeacher) {
+      return { exclusiveRole: true };
+    }
+    
+    return null;
   }
-
 
   passwordsMatchValidator(form: FormGroup) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { passwordsMismatch: true };
+    return password === confirmPassword ? null : { passwordMismatch: true };
   }
-
 
   onSubmit(): void {
     if (this.registerForm.valid) {
-      const { email, password, isStudent, isTeacher, name, surname } = this.registerForm.value;
+      const formData = this.registerForm.value;
+      const roles = [];
+      
+      if (formData.isStudent) roles.push('student');
+      if (formData.isTeacher) roles.push('teacher');
 
-      const roles: string[] = [];
-      if (isStudent) roles.push('student');
-      if (isTeacher) roles.push('teacher');
-
-      console.log('[RegisterComponent] Sending registration request:', { email, roles });
-
-      this.api.register(email, password, roles, name, surname).subscribe({
-        next: (user) => {
-          if (user.roles && user.roles.length > 1) {
-            const lastRole = roles.find(r => user.roles.includes(r));
-            let roleText = lastRole === 'teacher'
-              ? 'enseignant sur la plateforme'
-              : 'étudiant sur la plateforme';
-            this.snackBar.open(`Vous êtes maintenant aussi ${roleText} ! Vous pouvez maintenant saisir vos identifiants et vous connecter.`, 'OK', {
-              duration: 4000,
-              panelClass: ['snackbar-success']
-            });
-            setTimeout(() => {
-              this.router.navigate(['/login']);
-            }, 4000);
-            return;
-          }
-          this.snackBar.open('Veuillez vérifier votre boîte mail pour confirmer votre inscription.', 'Fermer', {
-            duration: 6000,
-            panelClass: ['snackbar-info']
-          });
-          this.router.navigate(['/register']);
+      this.authService.register(formData.email, formData.password, roles, formData.name, formData.surname).subscribe({
+        next: (response: any) => {
+          this.notificationService.success('Inscription réussie ! Vérifiez votre email.');
+          this.router.navigate(['/auth/verify-email']);
         },
-        error: (err) => {
-          console.error('[RegisterComponent] Registration failed:', err);
-          if (err.error?.message && err.error.message.includes('уже зарегистрированы с этой ролью')) {
-            this.snackBar.open('Vous êtes déjà inscrit avec ce rôle.', 'OK', {
-              duration: 6000,
-              panelClass: ['snackbar-warning']
-            });
+        error: (err: any) => {
+          console.error('[RegisterComponent] Erreur d\'inscription:', err);
+          
+          if (err.error?.message && err.error.message.includes('déjà inscrit avec ce rôle')) {
+            this.notificationService.error('Vous êtes déjà inscrit avec ce rôle. Connectez-vous à la place.');
           } else {
-            this.notificationService.error(err.error?.message || 'Erreur lors de la création du compte');
+            this.notificationService.error(err.error?.message || 'Erreur lors de l\'inscription');
           }
         }
       });
-    } else {
-      console.warn('[RegisterComponent] Form is invalid:', this.registerForm.errors);
     }
   }
 
-  onEmailBlur(): void {
-    const email = this.registerForm.get('email')?.value;
-    if (!email || !this.registerForm.get('email')?.valid) return;
+  // TODO : optimiser la vérification d'email avec debounce
+  checkEmail(): void {
+    if (!this.email || !this.email.includes('@')) {
+      return;
+    }
 
-    this.authService.checkEmailExists(email).subscribe({
-      next: (res) => {
+    this.authService.checkEmailExists(this.email).subscribe({
+      next: (response: any) => {
         this.emailChecked = true;
-        this.existingRoles = res.roles || [];
-        this.updatePasswordValidators();
-
-        // Отключаем выбор уже существующей роли
-        if (this.existingRoles.includes('student')) {
-          this.registerForm.get('isStudent')?.disable();
-          this.registerForm.get('isTeacher')?.enable();
-        } else if (this.existingRoles.includes('teacher')) {
-          this.registerForm.get('isTeacher')?.disable();
-          this.registerForm.get('isStudent')?.enable();
-        } else {
-          this.registerForm.get('isStudent')?.enable();
-          this.registerForm.get('isTeacher')?.enable();
-        }
+        this.existingRoles = response.roles || [];
+        this.updateFormValidation();
       },
-      error: (err) => {
-        console.warn('[RegisterComponent] Email check failed', err);
+      error: (err: any) => {
+        console.error('[RegisterComponent] Erreur vérification email:', err);
+        this.emailChecked = true;
         this.existingRoles = [];
+        this.updateFormValidation();
       }
     });
   }
 
-  loginWithProvider(provider: string) {
-    window.location.href = `http://localhost:3001/auth/oauth/${provider}`;
+  private updateFormValidation(): void {
+    // on désactive la sélection des rôles déjà existants
+    if (this.existingRoles.includes('student')) {
+      this.registerForm.get('isStudent')?.disable();
+    }
+    if (this.existingRoles.includes('teacher')) {
+      this.registerForm.get('isTeacher')?.disable();
+    }
   }
 
-  showPasswordFields(): boolean {
-    // Показываем поля для пароля только если email не найден в базе
-    return !this.emailChecked || (this.emailChecked && this.existingRoles.length === 0);
+  get isPasswordFieldsVisible(): boolean {
+    // on affiche les champs de mot de passe seulement si l'email n'est pas trouvé en base
+    return this.emailChecked && this.existingRoles.length === 0;
   }
 
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  // TODO : ajouter plus de thèmes disponibles
   toggleTheme(): void {
-    console.log('isDarkTheme:', this.isDarkTheme);
-console.log('body classes:', document.body.className);
     this.isDarkTheme = !this.isDarkTheme;
-    this.applyTheme();
     localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
+    this.applyTheme();
   }
 
   private applyTheme(): void {
-    if (this.isDarkTheme) {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-    }
+    document.body.classList.toggle('dark-theme', this.isDarkTheme);
   }
 }

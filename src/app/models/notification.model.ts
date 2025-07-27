@@ -17,6 +17,8 @@ export interface Notification {
     studentName?: string;
     refundAvailable?: boolean;
     reason?: string;
-    [key: string]: any; // на случай других полей
+    [key: string]: any; // pour d'autres champs éventuels
   };
 }
+
+// TODO : créer des types spécifiques pour chaque type de notification

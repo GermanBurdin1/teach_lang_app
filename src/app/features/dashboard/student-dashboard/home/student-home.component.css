@@ -626,7 +626,7 @@
   }
 }
 
-/* ======================== КАЛЕНДАРЬ ПОВЕРХ МОДАЛКИ ======================== */
+/* ======================== Calendar Modal ======================== */
 ::ng-deep .mat-datepicker-popup,
 ::ng-deep .mat-datepicker-content,
 ::ng-deep .cdk-overlay-container,
@@ -642,7 +642,7 @@
   z-index: 1001 !important;
 }
 
-/* ======================== МОДАЛЬНЫЕ ОКНА ======================== */
+/* ======================== Les modales ======================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -737,7 +737,6 @@
   margin-bottom: 0;
 }
 
-/* Улучшаем отображение календаря */
 .goal-modal__content .mat-datepicker-toggle {
   color: var(--primary-color);
 }

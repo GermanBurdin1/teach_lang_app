@@ -30,4 +30,6 @@ export interface CreateGoalDto {
   examLevel: ExamLevel;
   targetDate?: string;
   description?: string;
-} 
+}
+
+// TODO : ajouter validation pour les dates cibles et description 

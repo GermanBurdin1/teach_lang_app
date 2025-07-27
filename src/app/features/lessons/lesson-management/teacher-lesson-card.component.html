@@ -4,7 +4,7 @@
       👩‍🏫 {{ lesson.teacher || lesson.studentName || 'Étudiant' }} — {{ lesson.date || lesson.scheduledAt | date: 'dd/MM/yyyy' }}
     </div>
     
-    <!-- Статистика урока -->
+    <!-- Statistiques du cours -->
     <div class="lesson-stats">
       <span class="stat-item">
         <mat-icon>assignment</mat-icon>
@@ -25,7 +25,7 @@
         ➕ Ajouter du matériel
       </button>
 
-      <!-- 🎥 Кнопка входа в виртуальный класс -->
+      <!-- Bouton d'entrée dans la classe virtuelle -->
       <button *ngIf="canEnterClass()" 
               mat-raised-button 
               color="accent" 

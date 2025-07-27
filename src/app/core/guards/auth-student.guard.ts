@@ -14,8 +14,8 @@ export class AuthStudentGuard implements CanActivate {
     return true;
   }
 
+  // TODO : sauvegarder la route demandée pour redirection après connexion
   this.router.navigate(['/select-role']);
   return false;
 }
-
 }

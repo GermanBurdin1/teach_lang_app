@@ -1,4 +1,4 @@
-/* Основной контейнер */
+/* Conteneur principal */
 .lesson-management {
   padding: 24px;
     max-width: 1200px;
@@ -8,7 +8,7 @@
 
 
 
-/* Индикатор загрузки */
+/* Indicateur de chargement */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -22,7 +22,7 @@
   margin-bottom: 20px;
 }
 
-/* Заголовок урока */
+/* Titre du cours */
 .lesson-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -117,7 +117,7 @@
   max-height: 55vh;
 }
 
-/* Вкладки */
+/* Onglets */
 ::ng-deep .mat-tab-group {
   margin: 20px 0;
 }
@@ -141,7 +141,7 @@
   height: 3px;
 }
 
-/* Контент вкладок */
+/* Contenu des onglets */
 .tab-content {
   padding: 30px 0;
 }
@@ -158,7 +158,7 @@
   border-bottom: 2px solid #e0e0e0;
 }
 
-/* Список задач и вопросов */
+/* Liste des tâches et questions */
 .tasks-list,
 .questions-list {
   display: grid;
@@ -166,7 +166,7 @@
   margin-top: 20px;
 }
 
-/* Карточки задач */
+/* Cartes de tâches */
 .task-card {
   transition: all 0.3s ease;
   border-radius: 12px;
@@ -203,7 +203,7 @@
   font-weight: 500;
 }
 
-/* Карточки вопросов */
+/* Cartes de questions */
 .question-card {
   transition: all 0.3s ease;
   border-radius: 12px;
@@ -225,7 +225,7 @@
   border-left: 5px solid #ff9800;
 }
 
-/* Ответы */
+/* Réponses */
 .answer {
   background: #f7fafc;
   padding: 16px;
@@ -250,7 +250,7 @@
   font-style: italic;
 }
 
-/* Формы */
+/* Formulaires */
 .add-form {
   margin: 20px 0;
 }
@@ -279,7 +279,7 @@
   margin-top: 15px;
 }
 
-/* Кнопки */
+/* Boutons */
 .add-button {
   margin: 20px 0;
   padding: 12px 24px;
@@ -308,7 +308,7 @@
   text-transform: none;
 }
 
-/* Пустые состояния */
+/* États vides */
 .no-items,
 .no-lesson {
   text-align: center;
@@ -339,7 +339,7 @@
   font-weight: 400;
 }
 
-/* Анимации */
+/* Animations */
 @keyframes slideInUp {
   from {
     opacity: 0;
@@ -356,7 +356,7 @@
   animation: slideInUp 0.5s ease;
 }
 
-/* Адаптивность */
+/* Adaptabilité */
 @media (max-width: 768px) {
   .teacher-lesson-management {
     padding: 15px;
@@ -399,7 +399,7 @@
   }
 }
 
-/* Стили для разделения по ролям */
+/* Styles pour la séparation par rôles */
 .task-card.student-task {
   border-left: 4px solid #2196F3;
   background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%);
@@ -420,7 +420,7 @@
   background: linear-gradient(135deg, #FFF3E0 0%, #FFFFFF 100%);
 }
 
-/* Заголовки задач и вопросов */
+/* Titres des tâches et questions */
 .task-header, .question-header {
   display: flex;
   align-items: center;
@@ -447,7 +447,7 @@
   color: #2d3748;
 }
 
-/* Иконки ролей */
+/* Icônes de rôles */
 .role-icon {
   color: #667eea;
   font-size: 20px;
@@ -466,7 +466,7 @@
   font-size: 20px;
 }
 
-/* Бейджи авторов */
+/* Badges d'auteur */
 .author-badge {
   padding: 4px 8px;
   border-radius: 12px;
@@ -502,7 +502,7 @@
   border-left: 4px solid #ed8936;
 }
 
-/* Стили для кнопок входа в класс */
+/* Styles pour les boutons de connexion à la classe */
 .enter-class-btn {
   margin-left: 0.5rem;
   font-weight: 600;
@@ -521,7 +521,7 @@
   font-weight: 600;
 }
 
-/* Стили для заголовка урока с кнопкой */
+/* Styles pour le titre du cours avec le bouton */
 .lesson-header-content {
   display: flex;
   justify-content: space-between;
@@ -539,7 +539,7 @@
   align-items: center;
 }
 
-/* Стили для фильтров */
+/* Styles pour les filtres */
 .filter-container {
   background: rgba(139, 92, 246, 0.15);
   padding: 20px;
@@ -589,7 +589,7 @@
   flex: 2;
 }
 
-/* Стили для списка уроков */
+/* Styles pour la liste des cours */
 .lesson-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -598,28 +598,28 @@
   align-items: start;
 }
 
-/* Для больших экранов - 4 колонки */
+/* Pour les écrans plus grands - 4 colonnes */
 @media (min-width: 1200px) {
   .lesson-list {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* Для средних экранов - 3 колонки */
+/* Pour les écrans moyens - 3 colonnes */
 @media (min-width: 900px) and (max-width: 1199px) {
   .lesson-list {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Для планшетов - 2 колонки */
+/* Pour les tablettes - 2 colonnes */
 @media (min-width: 600px) and (max-width: 899px) {
   .lesson-list {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Для мобильных - 1 колонка */
+/* Pour les mobiles - 1 colonne */
 @media (max-width: 599px) {
   .lesson-list {
     grid-template-columns: 1fr;
@@ -688,7 +688,7 @@
   height: 18px;
 }
 
-/* Сообщение об отсутствии уроков */
+/* Message d'absence de cours */
 .no-lessons {
   text-align: center;
   padding: 60px 20px;
@@ -715,7 +715,7 @@
   font-size: 14px;
 }
 
-/* Пагинация */
+/* Pagination */
 .paginator-wrapper {
   position: fixed;
   bottom: 0;
@@ -729,7 +729,7 @@
   justify-content: center;
 }
 
-/* Кнопка возврата */
+/* Bouton de retour */
 .back-button-container {
   margin-bottom: 20px;
 }
@@ -755,7 +755,7 @@
   height: 20px;
 }
 
-/* Стили для материалов */
+/* Styles pour les matériaux */
 .materials-list {
   display: grid;
   gap: 20px;
@@ -876,7 +876,7 @@
   font-weight: 500;
 }
 
-/* Адаптивность для мобильных устройств */
+/* Adaptabilité pour les appareils mobiles */
 @media (max-width: 768px) {
   .filter-container {
     flex-direction: column;
@@ -1205,7 +1205,7 @@
   }
 }
 
-/* ==================== СТИЛИ ДЛЯ СТАТУСА ПРОРАБОТКИ ==================== */
+/* ==================== Stylings pour le statut de traitement ==================== */
 
 .processing-status {
   font-size: 12px;
@@ -1230,7 +1230,7 @@
   border: 1px solid #fab1a0;
 }
 
-/* Обновляем header'ы для размещения статуса проработки */
+/* We update header's to accommodate the processing status */
 .task-header, .question-header, .material-header {
   display: flex;
   align-items: center;
@@ -1245,7 +1245,7 @@
   flex-wrap: wrap;
 }
 
-/* ==================== СТИЛИ ДЛЯ РАСКРЫВАЮЩИХСЯ ПАНЕЛЕЙ ==================== */
+/* ==================== Stylings pour les panneaux déroulants ==================== */
 
 .card-actions-with-expand {
   display: flex;
@@ -1325,7 +1325,7 @@
   font-size: 11px;
 }
 
-/* ==================== СТИЛИ ДЛЯ КАРТОЧЕК С ПРОРАБОТКОЙ ==================== */
+/* ==================== Stylings pour les cartes de traitement ==================== */
 
 .task-card.processed,
 .question-card.processed,
@@ -1341,7 +1341,7 @@
   background: linear-gradient(135deg, #fffcf0 0%, #ffffff 100%);
 }
 
-/* Анимация для кнопки раскрытия */
+/* Animation pour le bouton de développement */
 .card-actions-with-expand button[mat-icon-button] {
   transition: transform 0.3s ease;
 }
@@ -1351,7 +1351,7 @@
   background-color: rgba(0, 123, 255, 0.1);
 }
 
-/* ==================== АДАПТИВНЫЕ СТИЛИ ==================== */
+/* ==================== Stylings adaptatifs ==================== */
 
 @media (max-width: 768px) {
   .processing-status {
@@ -1378,7 +1378,7 @@
   }
 }
 
-/* ==================== ТЕМНАЯ ТЕМА ==================== */
+/* ==================== Thème sombre ==================== */
 
 @media (prefers-color-scheme: dark) {
   .status-processed {

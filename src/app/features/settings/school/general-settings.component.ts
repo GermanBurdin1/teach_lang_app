@@ -14,7 +14,7 @@ export class GeneralSettingsComponent {
   @ViewChild('fileInput') fileInput!: ElementRef;
   showPasswordChange: boolean = false;
 
-  // Список доступных языков и выбранных языков
+  // langues disponibles et sélectionnées
   availableLanguages: Language[] = [
     { name: 'Russian', flag: 'path_to_russian_flag.png' },
     { name: 'English', flag: 'path_to_english_flag.png' },
@@ -24,12 +24,10 @@ export class GeneralSettingsComponent {
   selectedLanguages: Language[] = [];
   selectedLanguage: Language | null = null;
 
-  // Метод для открытия диалога выбора файла
   triggerFileUpload() {
     this.fileInput.nativeElement.click();
   }
 
-  // Метод, который вызывается при выборе файла
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
@@ -38,12 +36,10 @@ export class GeneralSettingsComponent {
     }
   }
 
-  // Метод для переключения видимости полей изменения пароля
   togglePasswordChange() {
     this.showPasswordChange = !this.showPasswordChange;
   }
 
-  // Метод для добавления языка
   addLanguage() {
     if (this.selectedLanguage && !this.selectedLanguages.some(lang => lang.name === this.selectedLanguage!.name)) {
       this.selectedLanguages.push(this.selectedLanguage);
@@ -51,7 +47,6 @@ export class GeneralSettingsComponent {
     }
   }
 
-  // Метод для удаления языка
   removeLanguage(language: Language) {
     this.selectedLanguages = this.selectedLanguages.filter(lang => lang !== language);
   }

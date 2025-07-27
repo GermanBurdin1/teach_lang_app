@@ -1,13 +1,13 @@
 <div class="teacher-home">
 
-  <!-- 🔼 ВЕРХНЯЯ ЧАСТЬ -->
+  <!-- PARTIE SUPÉRIEURE -->
   <div class="top-section">
-    <!-- Кнопка входа в класс для ближайшего урока -->
+    <!-- Bouton d'entrée en classe pour le prochain cours -->
     <div *ngIf="getNextLesson() && canEnterClass(getNextLesson()!)" 
          class="next-lesson-entry-zone">
       <div class="next-lesson-card">
         <div class="lesson-info">
-                     <h3>🎥 Prochain cours dans {{ getMinutesUntilLesson(getNextLesson()!) }} minutes</h3>
+          <h3>🎥 Prochain cours dans {{ getMinutesUntilLesson(getNextLesson()!) }} minutes</h3>
           <p>{{ getNextLesson()!.title }}</p>
           <p>{{ getNextLesson()!.start | date:'HH:mm' }} - {{ getNextLesson()!.end | date:'HH:mm' }}</p>
         </div>
@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <!-- Левая колонка -->
+    <!-- Colonne de gauche -->
     <div class="column left-column">
       <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
         <h3>🔔 Notifications</h3>
@@ -68,7 +68,7 @@
         </ng-template>
       </div>
 
-      <!-- СИСТЕМА ВКЛАДОК ДЛЯ ЗАЯВОК -->
+      <!-- SYSTÈME D'ONGLETS POUR LES DEMANDES -->
       <h3>📨 Demandes de réservation</h3>
       
       <mat-tab-group class="requests-tabs" animationDuration="300ms">
@@ -253,7 +253,7 @@
 
     </div>
     
-    <!-- Правая колонка -->
+    <!-- Colonne de droite -->
     <div class="column right-column">
       <div class="homework-zone">
         <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
@@ -389,7 +389,7 @@
     </div>
   </div>
 
-    <!-- 🔽 НИЖНЯЯ ЧАСТЬ -->
+    <!-- PARTIE INFÉRIEURE -->
     <div class="bottom-section">
       <h3>🗓️ Prochains cours</h3>
       <div class="calendar-wrapper">
@@ -421,7 +421,7 @@
 
   </div>
 
-  <!-- Модалка информации о студенте -->
+  <!-- Modal d'information sur l'étudiant -->
   <div *ngIf="showStudentModal" class="modal-overlay" (click)="closeStudentModal()">
     <div class="student-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">

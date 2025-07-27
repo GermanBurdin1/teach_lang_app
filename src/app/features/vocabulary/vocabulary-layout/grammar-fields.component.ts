@@ -14,7 +14,7 @@ export class GrammarFieldsComponent {
   @Input() grammar: GrammarData | undefined;
   @Input() onChange: (g: GrammarData) => void = () => {};
   @Output() grammarChange = new EventEmitter<GrammarData>();
-  @Output() grammarValidate = new EventEmitter<GrammarData>(); // 👈 ДОБАВЬ ЭТО
+  @Output() grammarValidate = new EventEmitter<GrammarData>(); 
   @Input() showValidateButton = true;
 
 
@@ -25,13 +25,13 @@ export class GrammarFieldsComponent {
 
   onPartOfSpeechSelect(partOfSpeech: PartOfSpeech) {
     const newGrammar: GrammarData = { partOfSpeech };
-    this.grammarChange.emit(newGrammar); // ✅
+    this.grammarChange.emit(newGrammar); 
   }
 
   updateField(key: string, value: any) {
     if (!this.grammar) return;
     (this.grammar as any)[key] = value;
-    this.grammarChange.emit(this.grammar); // ✅
+    this.grammarChange.emit(this.grammar);
   }
 
 
@@ -69,11 +69,11 @@ export class GrammarFieldsComponent {
 
   validate() {
     if (this.grammar) {
-      console.log('✅ validate called'); // ← ты уже видишь это
-      console.log('📤 emit grammarChange with:', this.grammar);
+      console.log('validate called');
+      console.log('emit grammarChange with:', this.grammar);
       this.grammarValidate.emit(this.grammar);
     } else {
-      console.warn('⚠️ validate called but grammar is undefined');
+      console.warn('validate called but grammar is undefined');
     }
   }
 

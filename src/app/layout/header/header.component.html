@@ -1,9 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light" *ngIf="!isLessonMaterialRoute">
-  <!-- Убрали старый раскрывающийся header - переместили в dropdown меню -->
-
+  <!-- supprimé l'ancien header déroulant - déplacé dans le menu dropdown -->
 
   <div class="container-fluid d-flex justify-content-end align-items-center">
-    <!-- Dropdown для помощи -->
+    <!-- Dropdown pour l'aide -->
     <!-- <div *ngIf="!loggedInAsAdminAccount" class="dropdown mx-2">
       <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center" type="button" id="helpDropdown"
         data-bs-toggle="dropdown" aria-expanded="false">
@@ -25,7 +24,7 @@
       </div>
     </div> -->
 
-    <!-- Guided Tour Modal -->
+    <!-- Modal du tour guidé -->
     <!-- <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isTourModalOpen }"
       style="background-color: rgba(0, 0, 0, 0.5);" *ngIf="isTourModalOpen">
       <div class="modal-dialog modal-dialog-centered"
@@ -39,17 +38,17 @@
             <p>{{ tourSteps[currentStep].content }}</p>
           </div>
           <div class="modal-footer d-flex justify-content-between">
-            <div> -->
-              <!-- Кнопка "Назад" видна только начиная со второго шага -->
+            <div>
+              <!-- Bouton "Retour" visible seulement à partir de la deuxième étape -->
               <!-- <button *ngIf="currentStep > 0" class="btn btn-secondary" (click)="previousStep()">Назад</button>
             </div>
-            <div> -->
-              <!-- Отображение текущего и общего числа шагов -->
-              <!-- <span>{{ currentStep + 1 }} из {{ tourSteps.length }}</span> -->
-              <!-- Кнопка "Далее" -->
+            <div>
+              <!-- Affichage de l'étape actuelle et du nombre total d'étapes -->
+              <!-- <span>{{ currentStep + 1 }} из {{ tourSteps.length }}</span>
+              <!-- Bouton "Suivant" -->
               <!-- <button *ngIf="currentStep < tourSteps.length - 1" class="btn btn-primary"
-                (click)="nextStep()">Далее</button> -->
-              <!-- Кнопка "Завершить" на последнем шаге -->
+                (click)="nextStep()">Далее</button>
+              <!-- Bouton "Terminer" à la dernière étape -->
               <!-- <button *ngIf="currentStep === tourSteps.length - 1" class="btn btn-primary"
                 (click)="closeTourModal()">Завершить</button>
             </div>
@@ -58,7 +57,7 @@
       </div>
     </div> -->
 
-    <!-- Dropdown для информации о тарифе -->
+    <!-- Dropdown pour les informations sur le tarif -->
     <!-- <div *ngIf="!loggedInAsAdminAccount" class="dropdown mx-2">
       <button class="btn btn-danger d-flex align-items-center dropdown-toggle" type="button" id="tariffDropdown"
         data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 16px; padding: 5px 10px;">
@@ -92,7 +91,7 @@
       </div>
     </div> -->
 
-    <!-- Модальное окно пополнения суммы -->
+    <!-- Modal de rechargement de solde -->
     <!-- <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showBalanceModal }" role="dialog"
       style="background: rgba(0, 0, 0, 0.5);" *ngIf="showBalanceModal">
       <div class="modal-dialog" role="document">
@@ -116,14 +115,14 @@
       </div>
     </div> -->
 
-    <!-- Модальное окно для ввода данных карты -->
+    <!-- Modal pour l'entrée des données de la carte -->
     <!-- <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isPaymentModalOpen }"
       style="background-color: rgba(0, 0, 0, 0.5);" *ngIf="isPaymentModalOpen">
       <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
         <div class="modal-content p-4">
           <div class="modal-header">
             <h5 class="modal-title mt-2">Предоставление права доступа к платформе</h5> -->
-            <!-- Кнопка-крестик для закрытия модального окна -->
+            <!-- Bouton-croix pour fermer la fenêtre modale -->
             <!-- <button type="button" class="btn-close" aria-label="Close" (click)="closePaymentModal()"></button>
           </div>
           <div class="modal-body">
@@ -155,9 +154,9 @@
       </div>
     </div>  -->
 
-    <!-- Иконка пользователя -->
+    <!-- Icône de l'utilisateur -->
     <mat-menu #userMenu="matMenu">
-      <!-- Опции переключения ролей -->
+      <!-- Options de changement de rôle -->
       <ng-container *ngIf="shouldShowSwitchTo('admin') || shouldShowSwitchTo('student') || shouldShowSwitchTo('teacher')">
         <div class="menu-section-header">
           <span class="menu-section-title">Changer de rôle</span>
@@ -181,7 +180,7 @@
         <mat-divider></mat-divider>
       </ng-container>
       
-      <!-- Основные опции -->
+      <!-- Options principales -->
       <button mat-menu-item [routerLink]="settingsLink">
         <mat-icon class="menu-icon">settings</mat-icon>
         <span class="menu-label">Paramètres du profil</span>
@@ -211,17 +210,17 @@
 </nav>
 
 
-<!-- Хедер для LessonMaterialComponent -->
+<!-- Header pour LessonMaterialComponent -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light" *ngIf="isLessonMaterialRoute">
   <div class="container-fluid">
-    <!-- Кнопка "Другой урок" -->
+    <!-- Bouton "Autre leçon" -->
     <div class="d-flex align-items-center">
-      <button class="btn btn-primary me-3" (click)="navigateToLesson()">Другой урок</button>
+      <button class="btn btn-primary me-3" (click)="navigateToLesson()">Autre leçon</button>
     </div>
 
     <nav class="navbar">
       <div class="navbar-nav">
-        <!-- Dropdown для информации об уроке -->
+        <!-- Dropdown pour les informations sur l'étape -->
         <div class="dropdown me-3" *ngIf="isLessonStarted$ | async">
           <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
             data-bs-toggle="dropdown" aria-expanded="false">
@@ -229,63 +228,63 @@
           </button>
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <li class="dropdown-item">
-              <strong>Урок:</strong> {{ (lessonDescription$ | async)?.lesson }}
+              <strong>Leçon:</strong> {{ (lessonDescription$ | async)?.lesson }}
             </li>
             <li class="dropdown-item">
-              <strong>Курс:</strong> {{ (lessonDescription$ | async)?.course }}
+              <strong>Cours:</strong> {{ (lessonDescription$ | async)?.course }}
             </li>
           </ul>
         </div>
-        <!-- Ссылка "Урок" -->
+        <!-- Lien "Leçon" -->
         <a *ngIf="showTabs" href="javascript:void(0)" class="nav-link" [class.active]="activeTab === 'lesson'"
           (click)="setActiveTab('lesson')">
-          Урок
+          Leçon
         </a>
 
-        <!-- Ссылка "Домашняя работа" -->
+        <!-- Lien "Devoir à la maison" -->
         <a *ngIf="showTabs" href="javascript:void(0)" class="nav-link" [class.active]="activeTab === 'homework'"
           (click)="setActiveTab('homework')">
-          Домашняя работа
+          Devoir à la maison
         </a>
       </div>
     </nav>
 
 
-    <!-- Блок кнопок и дропдаунов -->
+    <!-- Bloc des boutons et des dropdowns -->
     <div class="d-flex align-items-center justify-content-end">
-      <!-- Кнопка "Добавить учеников" -->
-      <button class="btn btn-outline-primary me-2" (click)="openStudentTabsModal()">Добавить учеников</button>
+      <!-- Bouton "Ajouter des élèves" -->
+      <button class="btn btn-outline-primary me-2" (click)="openStudentTabsModal()">Ajouter des élèves</button>
 
 
-      <!-- Кнопка "Пользователи" -->
-      <button class="btn btn-outline-secondary me-2" (click)="openUserModal()">Пользователи</button>
+      <!-- Bouton "Utilisateurs" -->
+      <button class="btn btn-outline-secondary me-2" (click)="openUserModal()">Utilisateurs</button>
 
-      <!-- Dropdown для настроек -->
+      <!-- Dropdown pour les paramètres -->
       <div class="dropdown">
         <button class="btn btn-outline-primary dropdown-toggle" id="settingsDropdown" data-bs-toggle="dropdown"
           aria-expanded="false">
-          <img [src]="classCover || 'https://via.placeholder.com/150'" alt="Настройки"
+          <img [src]="classCover || 'https://via.placeholder.com/150'" alt="Paramètres"
             style="height: 32px; width: 32px; object-fit: cover;">
         </button>
         <ul class="dropdown-menu dropdown-menu-end text-start" aria-labelledby="settingsDropdown">
           <li>
             <a class="dropdown-item" href="#" (click)="openStudentListModal(); $event.preventDefault()">
-              <i class="fas fa-users me-2"></i> Ученики класса
+              <i class="fas fa-users me-2"></i> Élèves de la classe
             </a>
           </li>
           <li>
             <a class="dropdown-item" href="#" (click)="openScheduleModal(); $event.preventDefault()">
-              <i class="fas fa-calendar-alt me-2"></i> Расписание уроков
+              <i class="fas fa-calendar-alt me-2"></i> Planification des cours
             </a>
           </li>
           <li>
             <a class="dropdown-item" href="#">
-              <i class="fas fa-chart-bar me-2"></i> Статистика класса
+              <i class="fas fa-chart-bar me-2"></i> Statistiques de la classe
             </a>
           </li>
           <li>
             <a class="dropdown-item" href="#" (click)="openClassSettingsModal(); $event.preventDefault()">
-              <i class="fas fa-cogs me-2"></i> Настройки класса
+              <i class="fas fa-cogs me-2"></i> Paramètres de la classe
             </a>
           </li>
           <li>
@@ -293,12 +292,12 @@
           </li>
           <li>
             <a class="dropdown-item" href="#" (click)="toggleDarkMode(); $event.preventDefault()">
-              <i class="fas {{ isDarkMode ? 'fa-sun' : 'fa-moon' }} me-2"></i> {{ isDarkMode ? 'Светлая тема' : 'Темная тема' }}
+              <i class="fas {{ isDarkMode ? 'fa-sun' : 'fa-moon' }} me-2"></i> {{ isDarkMode ? 'Thème clair' : 'Thème sombre' }}
             </a>
           </li>
           <li>
             <a class="dropdown-item text-danger" (click)="openLeaveClassModal()">
-              <i class="fas fa-sign-out-alt me-2"></i> Выйти из класса
+              <i class="fas fa-sign-out-alt me-2"></i> Quitter la classe
             </a>
           </li>
         </ul>
@@ -311,18 +310,18 @@
   </div>
 </nav>
 
-<!-- Модальное окно для пользователей -->
+<!-- Modal pour les utilisateurs -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': isUserModalOpen }" *ngIf="isUserModalOpen"
   style="background-color: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Пользователи</h5>
+        <h5 class="modal-title">Utilisateurs</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeUserModal()"></button>
       </div>
       <div class="modal-body">
         <div *ngFor="let user of users" class="user-card d-flex align-items-center mb-3 position-relative">
-          <!-- Иконка пользователя -->
+          <!-- Icône de l'utilisateur -->
           <div class="position-relative me-3">
             <div
               class="user-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center">
@@ -330,16 +329,16 @@
             </div>
             <div class="online-indicator" (mouseenter)="showTooltip(user.role)" (mouseleave)="hideTooltip()">
               <i class="fas fa-circle text-success"></i>
-              <div class="tooltip" *ngIf="tooltipVisible === user.role">Ученик в классе</div>
+              <div class="tooltip" *ngIf="tooltipVisible === user.role">Élève dans la classe</div>
             </div>
           </div>
 
-          <!-- Подсказка -->
+          <!-- Infobulle -->
           <div *ngIf="tooltipVisible === user.role" class="tooltip-container position-absolute">
             {{ getTooltipText(user.role) }}
           </div>
 
-          <!-- Информация о пользователе -->
+          <!-- Informations sur l'utilisateur -->
           <div>
             <p class="mb-0 fw-bold">{{ user.name }}</p>
             <p class="mb-0 text-muted small">
@@ -352,20 +351,20 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary" (click)="openStudentListModal()">Посмотреть всех учеников</button>
+        <button class="btn btn-primary" (click)="openStudentListModal()">Voir tous les élèves</button>
       </div>
     </div>
   </div>
 </div>
 
 
-<!-- Модальное окно "Посмотреть всех учеников" -->
+<!-- Modal "Voir tous les élèves" -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showStudentListModal }" *ngIf="showStudentListModal"
   style="background-color: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Список учеников</h5>
+        <h5 class="modal-title">Liste des élèves</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeStudentListModal()"></button>
       </div>
       <div class="modal-body">
@@ -378,7 +377,7 @@
             <div class="online-indicator" *ngIf="student.online" (mouseenter)="showTooltip(student.name)"
               (mouseleave)="hideTooltip()">
               <i class="fas fa-circle text-success"></i>
-              <div class="tooltip" *ngIf="tooltipVisible === student.name">Ученик онлайн</div>
+              <div class="tooltip" *ngIf="tooltipVisible === student.name">Élève en ligne</div>
             </div>
           </div>
           <div>
@@ -394,7 +393,7 @@
         </div>
       </div>
       <button class="btn btn-outline-primary w-100" (click)="openAddAdditionalStudentModal()">
-        <i class="fas fa-plus me-2"></i> Добавить ученика
+        <i class="fas fa-plus me-2"></i> Ajouter un élève
       </button>
     </div>
   </div>
@@ -404,19 +403,19 @@
   *ngIf="showAddAdditionalStudentModal" style="background-color: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-4">
-      <!-- Заголовок -->
+      <!-- En-tête -->
       <div class="modal-header border-0">
-        <!-- Кнопка "Назад", если активен второй экран -->
+        <!-- Bouton "Retour", si l'écran actif est le deuxième -->
         <button *ngIf="currentModalView === 'link'" class="btn btn-outline-secondary"
           (click)="switchModalView('default')">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <!-- Кнопка "Закрыть" -->
+        <!-- Bouton "Fermer" -->
         <button type="button" class="btn-close" aria-label="Close" (click)="closeAddAdditionalStudentModal()"></button>
       </div>
 
       <div class="modal-body text-center">
-        <!-- Отображение по умолчанию -->
+        <!-- Affichage par défaut -->
         <ng-container *ngIf="currentModalView === 'default'">
           <div class="circle mx-auto mb-3" style="
               background-image: url('https://cdn.cloudstori.com/shells/words_shell/words_shell_3.1.5.15/img/Emoji-138.2e600385.png');
@@ -426,20 +425,20 @@
               background-position: center;
               border-radius: 50%;
             "></div>
-          <h5 class="modal-title fw-bold">Добавить ученика</h5>
+          <h5 class="modal-title fw-bold">Ajouter un élève</h5>
           <div class="d-grid gap-3 mt-4">
             <button class="btn btn-light py-2" (click)="switchModalView('link')">
-              <i class="fas fa-link me-2"></i> Добавить по ссылке
+              <i class="fas fa-link me-2"></i> Ajouter par lien
             </button>
             <button class="btn btn-light py-2" (click)="switchModalView('email')">
-              <i class="fas fa-envelope me-2"></i> Добавить по эл. почте
+              <i class="fas fa-envelope me-2"></i> Ajouter par e-mail
             </button>
-            <button (click)="switchModalView('existing')"><i class="fas fa-users me-2"></i> Выбрать из
-              существующих</button>
+            <button (click)="switchModalView('existing')"><i class="fas fa-users me-2"></i> Choisir parmi
+              existants</button>
           </div>
         </ng-container>
 
-        <!-- Отображение "Добавить по ссылке" -->
+        <!-- Affichage "Ajouter par lien" -->
         <ng-container *ngIf="currentModalView === 'link'">
           <div class="circle mx-auto mb-3" style="
               background-image: url('https://cdn-icons-png.flaticon.com/512/847/847969.png');
@@ -450,17 +449,16 @@
               background-position: center;
               border-radius: 50%;
             "></div>
-          <h5 class="modal-title fw-bold">Добавить по ссылке</h5>
+          <h5 class="modal-title fw-bold">Ajouter par lien</h5>
           <div class="form-group mt-3">
             <input type="text" class="form-control text-center" readonly [value]="inviteLink" />
           </div>
           <button class="btn btn-primary mt-3" (click)="copyLink()">
-            Скопировать ссылку
+            Copier le lien
           </button>
           <div class="alert alert-info mt-3 text-start" role="alert">
             <i class="fas fa-info-circle me-2"></i>
-            Отправьте эту ссылку ученику — он сможет зарегистрироваться или войти
-            в свой аккаунт и автоматически присоединиться к этому классу.
+            Envoyez ce lien à l'élève — il pourra s'inscrire ou se connecter à son compte et s'auto-inscrire à cette classe.
           </div>
         </ng-container>
 
@@ -478,34 +476,34 @@
               background-position: center;
               border-radius: 50%;
             "></div>
-          <h5 class="modal-title fw-bold">Добавить по эл. почте</h5>
+          <h5 class="modal-title fw-bold">Ajouter par e-mail</h5>
           <form>
             <div class="form-group mb-3">
-              <label for="studentName" class="form-label">Имя</label>
-              <input type="text" class="form-control" id="studentName" placeholder="Имя ученика" />
+              <label for="studentName" class="form-label">Nom</label>
+              <input type="text" class="form-control" id="studentName" placeholder="Nom de l'élève" />
             </div>
             <div class="form-group mb-3">
-              <label for="studentEmail" class="form-label">Почта</label>
-              <input type="email" class="form-control" id="studentEmail" placeholder="Email ученика" />
+              <label for="studentEmail" class="form-label">E-mail</label>
+              <input type="email" class="form-control" id="studentEmail" placeholder="E-mail de l'élève" />
             </div>
             <div class="form-group mb-3">
-              <label for="studentPhone" class="form-label">Телефон</label>
-              <input type="tel" class="form-control" id="studentPhone" placeholder="Телефон ученика" />
+              <label for="studentPhone" class="form-label">Téléphone</label>
+              <input type="tel" class="form-control" id="studentPhone" placeholder="Téléphone de l'élève" />
             </div>
             <div class="form-group mb-3">
-              <label for="studentLanguage" class="form-label">Язык</label>
+              <label for="studentLanguage" class="form-label">Langue</label>
               <select class="form-control" id="studentLanguage">
-                <option>Выберите язык</option>
-                <option>Русский</option>
-                <option>Английский</option>
-                <option>Французский</option>
+                <option>Choisissez une langue</option>
+                <option>Russe</option>
+                <option>Anglais</option>
+                <option>Français</option>
               </select>
             </div>
             <div class="form-group mb-3">
-              <label for="studentTimezone" class="form-label">Час. пояс</label>
+              <label for="studentTimezone" class="form-label">Fuseau horaire</label>
               <input type="text" class="form-control" id="studentTimezone" placeholder="07:42 (UTC-2)" />
             </div>
-            <button class="btn btn-primary w-100">Добавить</button>
+            <button class="btn btn-primary w-100">Ajouter</button>
           </form>
         </ng-container>
         <ng-container *ngIf="currentModalView === 'existing'">
@@ -522,13 +520,13 @@
               background-position: center;
               border-radius: 50%;
             "></div>
-          <h5 class="modal-title fw-bold text-center">Выбрать из существующих</h5>
+          <h5 class="modal-title fw-bold text-center">Choisir parmi existants</h5>
           <div class="list-group">
             <tr *ngFor="let student of getAvailableStudents()" (click)="selectStudent(student)"
               [class.selected]="selectedStudent?.id === student.id">
               <td>{{ student.name }}</td>
               <td>
-                <!-- Отображение значка только для выбранного студента -->
+                <!-- Affichage de l'icône uniquement pour l'élève sélectionné -->
                 <i class="fas fa-check-circle" *ngIf="selectedStudent?.id === student.id" style="color: green;"></i>
               </td>
             </tr>
@@ -536,7 +534,7 @@
 
           <div class="mt-3">
             <button class="btn btn-primary w-100" [disabled]="!selectedStudent" (click)="addSelectedStudent()">
-              Добавить ученика
+              Ajouter l'élève
             </button>
           </div>
         </ng-container>
@@ -552,27 +550,27 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-4">
       <div class="modal-header border-0">
-        <h5 class="modal-title">Добавить ученика</h5>
+        <h5 class="modal-title">Ajouter un élève</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeStudentTabsModal()"></button>
       </div>
 
-      <!-- Вкладки -->
+      <!-- Onglets -->
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link" [ngClass]="{ active: activeTab === 'link' }" (click)="switchTab('link')">По ссылке</a>
+          <a class="nav-link" [ngClass]="{ active: activeTab === 'link' }" (click)="switchTab('link')">Par lien</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" [ngClass]="{ active: activeTab === 'email' }" (click)="switchTab('email')">Вручную</a>
+          <a class="nav-link" [ngClass]="{ active: activeTab === 'email' }" (click)="switchTab('email')">Manuellement</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" [ngClass]="{ active: activeTab === 'existing' }"
-            (click)="switchTab('existing')">Существующего</a>
+            (click)="switchTab('existing')">Existant</a>
         </li>
       </ul>
 
-      <!-- Содержимое вкладок -->
+      <!-- Contenu des onglets -->
       <div class="modal-body">
-        <!-- Вкладка "По ссылке" -->
+        <!-- Onglet "Par lien" -->
         <div *ngIf="activeTab === 'link'">
           <div class="circle mx-auto mb-3" style="
               background-image: url('https://cdn-icons-png.flaticon.com/512/847/847969.png');
@@ -583,17 +581,16 @@
               background-position: center;
               border-radius: 50%;
             "></div>
-          <h5 class="modal-title fw-bold">Добавить по ссылке</h5>
+          <h5 class="modal-title fw-bold">Ajouter par lien</h5>
           <input type="text" class="form-control text-center mt-3" readonly [value]="inviteLink" />
-          <button class="btn btn-primary mt-3" (click)="copyLink()">Скопировать ссылку</button>
+          <button class="btn btn-primary mt-3" (click)="copyLink()">Copier le lien</button>
           <div class="alert alert-info mt-3" role="alert">
             <i class="fas fa-info-circle me-2"></i>
-            Отправьте эту ссылку ученику — он сможет зарегистрироваться или войти в свой аккаунт и автоматически
-            присоединиться к этому классу.
+            Envoyez ce lien à l'élève — il pourra s'inscrire ou se connecter à son compte et s'auto-inscrire à cette classe.
           </div>
         </div>
 
-        <!-- Вкладка "Вручную" -->
+        <!-- Onglet "Manuellement" -->
         <div *ngIf="activeTab === 'email'">
           <div class="circle mx-auto mb-3" style="
               background-image: url('https://cdn-icons-png.flaticon.com/512/561/561127.png');
@@ -604,21 +601,21 @@
               background-position: center;
               border-radius: 50%;
             "></div>
-          <h5 class="modal-title fw-bold">Добавить вручную</h5>
+          <h5 class="modal-title fw-bold">Ajouter manuellement</h5>
           <form>
             <div class="mb-3">
-              <label class="form-label">Имя</label>
-              <input type="text" class="form-control" placeholder="Имя ученика" />
+              <label class="form-label">Nom</label>
+              <input type="text" class="form-control" placeholder="Nom de l'élève" />
             </div>
             <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" placeholder="Email ученика" />
+              <label class="form-label">E-mail</label>
+              <input type="email" class="form-control" placeholder="E-mail de l'élève" />
             </div>
-            <button class="btn btn-primary w-100">Добавить</button>
+            <button class="btn btn-primary w-100">Ajouter</button>
           </form>
         </div>
 
-        <!-- Вкладка "Существующего" -->
+        <!-- Onglet "Existant" -->
         <div *ngIf="activeTab === 'existing'">
           <div class="circle mx-auto mb-3" style="
               background-image: url('https://cdn-icons-png.flaticon.com/512/4086/4086679.png');
@@ -629,7 +626,7 @@
               background-position: center;
               border-radius: 50%;
             "></div>
-          <h5 class="modal-title fw-bold text-center">Выбрать из существующих</h5>
+          <h5 class="modal-title fw-bold text-center">Choisir parmi existants</h5>
           <ul class="list-group">
             <li *ngFor="let student of getAvailableStudents()"
               class="list-group-item d-flex justify-content-between align-items-center" (click)="selectStudent(student)"
@@ -639,7 +636,7 @@
             </li>
           </ul>
           <button class="btn btn-primary w-100 mt-3" [disabled]="!selectedStudent"
-            (click)="addSelectedStudent()">Добавить ученика</button>
+            (click)="addSelectedStudent()">Ajouter l'élève</button>
         </div>
       </div>
     </div>
@@ -651,7 +648,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title text-center">Выйти из класса</h5>
+        <h5 class="modal-title text-center">Quitter la classe</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeLeaveClassModal()"></button>
       </div>
       <div class="modal-body text-center">
@@ -667,11 +664,11 @@
             ">
           <i class="fas fa-info-circle" style="font-size: 36px;"></i>
         </div>
-        <p>Вы действительно хотите выйти из класса?</p>
+        <p>Voulez-vous vraiment quitter la classe?</p>
       </div>
       <div class="modal-footer justify-content-between">
-        <button class="btn btn-outline-secondary" (click)="closeLeaveClassModal()">Отмена</button>
-        <button class="btn btn-danger" (click)="confirmLeaveClass()">Выйти</button>
+        <button class="btn btn-outline-secondary" (click)="closeLeaveClassModal()">Annuler</button>
+        <button class="btn btn-danger" (click)="confirmLeaveClass()">Quitter</button>
       </div>
     </div>
   </div>
@@ -686,36 +683,36 @@
       </div>
       <div class="modal-header">
         <div class="modal-header d-flex justify-content-between align-items-center">
-          <!-- Картинка вместо текста "Настройки" -->
-          <img [src]="classCover || 'https://via.placeholder.com/150'" alt="Обложка класса" style="height: 100px;">
+          <!-- Image à la place du texte "Paramètres" -->
+          <img [src]="classCover || 'https://via.placeholder.com/150'" alt="Couverture de la classe" style="height: 100px;">
           <button type="button" class="btn-close" aria-label="Close" (click)="closeClassSettingsModal()"></button>
         </div>
       </div>
       <div class="modal-body">
         <form>
-          <!-- Обложка -->
+          <!-- Couverture -->
           <div class="row mb-3">
-            <label for="classCover" class="col-4 col-form-label text-end">Обложка</label>
+            <label for="classCover" class="col-4 col-form-label text-end">Couverture</label>
             <div class="col-8">
-              <button class="btn btn-light" (click)="uploadFile('uploadCover')">Загрузить</button>
+              <button class="btn btn-light" (click)="uploadFile('uploadCover')">Télécharger</button>
               <input type="file" id="uploadCover" class="d-none" (change)="onFileUpload($event, 'cover')" />
-              <small class="text-muted d-block">PNG или JPEG, до 500x500px</small>
+              <small class="text-muted d-block">PNG ou JPEG, jusqu'à 500x500px</small>
             </div>
           </div>
 
 
-          <!-- Название класса -->
+          <!-- Nom de la classe -->
           <div class="row mb-3 align-items-center">
-            <label for="className" class="col-4 col-form-label text-end">Название класса</label>
+            <label for="className" class="col-4 col-form-label text-end">Nom de la classe</label>
             <div class="col-8">
-              <input type="text" id="className" class="form-control" placeholder="Введите название класса" />
+              <input type="text" id="className" class="form-control" placeholder="Entrez le nom de la classe" />
             </div>
           </div>
 
-          <!-- Быстрый перевод -->
+          <!-- Traduction rapide -->
           <div class="row mb-3 align-items-center">
             <label for="quickTranslation" class="col-4 col-form-label text-end">
-              Быстрый перевод
+              Traduction rapide
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('quickTranslation', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
                 <i class="fas fa-info-circle"></i>
@@ -729,10 +726,10 @@
             </div>
           </div>
 
-          <!-- Длительность урока -->
+          <!-- Durée de la leçon -->
           <div class="row mb-3 align-items-center">
             <label for="lessonDuration" class="col-4 col-form-label text-end">
-              Длительность урока
+              Durée de la leçon
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('lessonDuration', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
                 <i class="fas fa-info-circle"></i>
@@ -740,20 +737,20 @@
             </label>
             <div class="col-8">
               <select id="lessonDuration" class="form-select">
-                <option>Выберите время</option>
-                <option>30 минут</option>
-                <option>60 минут</option>
+                <option>Choisissez le temps</option>
+                <option>30 minutes</option>
+                <option>60 minutes</option>
               </select>
             </div>
           </div>
 
           <div class="row mb-3">
             <label for="classBackground" class="col-4 col-form-label text-end">
-              Фон в классе
+              Fond de classe
             </label>
             <div class="col-8">
               <div class="d-flex gap-2 flex-wrap">
-                <!-- Изображение 1 -->
+                <!-- Image 1 -->
                 <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/7a150821-adc2-405e-a328-24997ef5814d.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
@@ -761,7 +758,7 @@
                   <img src="https://media.docstorio.com/files/Groups/7a150821-adc2-405e-a328-24997ef5814d.png"
                     alt="Image Li 7" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <!-- Изображение 2 -->
+                <!-- Image 2 -->
                 <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/f6cac5a6-6dcd-48ff-98ad-34217e5c93fd.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
@@ -769,7 +766,7 @@
                   <img src="https://media.docstorio.com/files/Groups/f6cac5a6-6dcd-48ff-98ad-34217e5c93fd.png"
                     alt="Image Li 6" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <!-- Изображение 3 -->
+                <!-- Image 3 -->
                 <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/fb4af339-6f53-4fcc-80c9-71988e27011e.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
@@ -777,7 +774,7 @@
                   <img src="https://media.docstorio.com/files/Groups/fb4af339-6f53-4fcc-80c9-71988e27011e.png"
                     alt="Image Li 4" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <!-- Изображение 4 -->
+                <!-- Image 4 -->
                 <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/0cfa4cac-26e7-4910-a03f-0ed879522e87.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
@@ -785,7 +782,7 @@
                   <img src="https://media.docstorio.com/files/Groups/0cfa4cac-26e7-4910-a03f-0ed879522e87.png"
                     alt="Image Li 3" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <!-- Изображение 5 -->
+                <!-- Image 5 -->
                 <div class="border p-1"
                   [ngClass]="{'selected-border': selectedBackground === 'https://media.docstorio.com/files/Groups/a6da79a9-bae8-4f8d-a44f-1e75452217b8.png'}"
                   style="width: 70px; height: 70px; cursor: pointer;"
@@ -794,15 +791,15 @@
                     alt="Image Li 5" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
               </div>
-              <button class="btn btn-light mt-2" (click)="uploadFile('uploadBackground')">Загрузить свой фон</button>
+              <button class="btn btn-light mt-2" (click)="uploadFile('uploadBackground')">Télécharger votre fond</button>
               <input type="file" id="uploadBackground" class="d-none" (change)="onFileUpload($event, 'background')" />
             </div>
           </div>
 
-          <!-- Статистика -->
+          <!-- Statistiques -->
           <div class="row mb-3 align-items-center">
             <label for="enableStats" class="col-4 col-form-label text-end">
-              Статистика
+              Statistiques
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('statistics', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
                 <i class="fas fa-info-circle"></i>
@@ -818,7 +815,7 @@
 
           <div class="row mb-3">
             <label for="studentRating" class="col-4 col-form-label text-end">
-              Рейтинг ученика
+              Note de l'élève
               <span class="ms-2" (mouseenter)="showClassSettingsTooltip('studentRating', $event)"
                 (mouseleave)="hideClassSettingsTooltip()">
                 <i class="fas fa-info-circle"></i>
@@ -831,23 +828,23 @@
               </div>
               <div class="row">
                 <div class="col-4 d-flex align-items-center">
-                  <label for="displayOption" class="col-form-label">Отображать</label>
+                  <label for="displayOption" class="col-form-label">Afficher</label>
                 </div>
                 <div class="col-8">
                   <select id="displayOption" class="form-select">
-                    <option>Первых 3-х учеников</option>
-                    <option>Всех учеников</option>
+                    <option>Les 3 premiers élèves</option>
+                    <option>Tous les élèves</option>
                   </select>
                 </div>
               </div>
               <div class="row mt-2">
                 <div class="col-4 d-flex align-items-center">
-                  <label for="placeOption" class="col-form-label">Место ученика</label>
+                  <label for="placeOption" class="col-form-label">Place de l'élève</label>
                 </div>
                 <div class="col-8">
                   <select id="placeOption" class="form-select">
-                    <option>Показывать</option>
-                    <option>Не показывать</option>
+                    <option>Afficher</option>
+                    <option>Ne pas afficher</option>
                   </select>
                 </div>
               </div>
@@ -857,28 +854,28 @@
         </form>
       </div>
       <div class="modal-footer d-flex justify-content-center">
-        <button type="button" class="btn btn-secondary" (click)="closeClassSettingsModal()">Отмена</button>
-        <!-- Кнопка сохранить -->
-        <button type="button" class="btn btn-primary" (click)="saveSettings()">Сохранить</button>
+        <button type="button" class="btn btn-secondary" (click)="closeClassSettingsModal()">Annuler</button>
+        <!-- Bouton de sauvegarde -->
+        <button type="button" class="btn btn-primary" (click)="saveSettings()">Sauvegarder</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Модалка -->
+<!-- Modal -->
 <div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showScheduleModal }" *ngIf="showScheduleModal"
   style="background-color: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Расписание уроков</h5>
+        <h5 class="modal-title">Planification des cours</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeScheduleModal()"></button>
       </div>
       <div class="modal-body">
         <app-schedule></app-schedule>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeScheduleModal()">Закрыть</button>
+        <button type="button" class="btn btn-secondary" (click)="closeScheduleModal()">Fermer</button>
       </div>
     </div>
   </div>

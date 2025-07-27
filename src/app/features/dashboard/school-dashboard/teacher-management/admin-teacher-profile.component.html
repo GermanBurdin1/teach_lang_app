@@ -1,7 +1,7 @@
 <div class="teacher-profile" style="max-width: 800px; margin: 0 auto;">
-  <!-- Profile Header -->
+  <!-- En-tête du profil -->
   <div class="mb-4">
-    <!-- Back Button -->
+    <!-- Bouton retour -->
     <div *ngIf="teacherData as teacher" class="teacher-profile" style="max-width: 800px; margin: 0 auto;">
     <div class="d-flex align-items-center">
       <button class="btn btn-light me-3" (click)="navigateBack()">
@@ -14,7 +14,7 @@
         <span class="text-uppercase">{{ teacherData.name[0] }}</span>
       </div>
 
-      <!-- Profile Information -->
+      <!-- Informations du profil -->
       <div>
         <h2 class="mb-1">{{ teacherData.name }}</h2>
         <div class="d-flex align-items-center">
@@ -26,10 +26,10 @@
           </span>
         </div>
 
-        <!-- Actions - Moved under Profile Information -->
+        <!-- Actions - sous les infos du profil -->
         <div class="mt-2">
           <button class="btn btn-outline-secondary me-2" id="dropdownMenuButton"
-            (click)="openEditModal()">Редактировать</button>
+            (click)="openEditModal()">Modifier</button>
           <div class="dropdown d-inline-block" tabindex="0">
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
               data-bs-toggle="dropdown" aria-expanded="false">
@@ -38,7 +38,7 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <li>
                 <button class="dropdown-item" (click)="downloadStatistics()">
-                  <i class="bi bi-download"></i> Скачать статистику
+                  Télécharger les statistiques
                 </button>
               </li>
             </ul>
@@ -50,7 +50,7 @@
   </div>
 
 
-  <!-- Основные вкладки (Онлайн-уроки, Марафоны, Администратор) -->
+  <!-- Onglets principaux (Cours en ligne, Marathons, Administrateur) -->
   <ul class="nav nav-tabs justify-content-center nav-justified mb-3">
     <li *ngFor="let tab of tabs" class="nav-item">
       <a class="nav-link" [class.active]="tab === activeTab" (click)="switchTab(tab)">
@@ -59,9 +59,9 @@
     </li>
   </ul>
 
-  <!-- Вкладка "Онлайн-уроки" -->
+  <!-- Onglet "Cours en ligne" -->
   <div *ngIf="activeTab === 'Онлайн-уроки'">
-    <!-- Подвкладки (Учитель, Классы, Личные материалы) -->
+    <!-- Sous-onglets (Enseignant, Classes, Matériel perso) -->
     <ul class="nav nav-tabs mb-3">
       <li *ngFor="let subTab of subTabs" class="nav-item">
         <a class="nav-link" [class.active]="subTab === activeSubTab" (click)="switchSubTab(subTab)">
@@ -69,84 +69,83 @@
         </a>
       </li>
     </ul>
-    <!-- Содержимое подвкладки "Учитель" -->
+    <!-- Contenu du sous-onglet "Enseignant" -->
     <div *ngIf="activeSubTab === 'Учитель'">
-      <!-- Контейнер для статуса учителя и кнопки деактивации -->
-      <!-- Блок с информацией о преподавателе -->
+      <!-- Bloc d'infos sur l'enseignant -->
       <div class="card mb-4">
         <div class="card-body">
-          <h5 class="card-title">О преподавателе</h5>
-          <p><strong>Биография:</strong> {{ teacherData?.bio || 'Не указана' }}</p>
-          <p><strong>Опыт:</strong> {{ teacherData?.experienceYears || 0 }} лет</p>
-          <p><strong>Сертификаты:</strong>
-            {{ teacherData?.certificates?.length ? teacherData?.certificates?.join(', ') : 'Не указаны' }}
+          <h5 class="card-title">À propos de l'enseignant</h5>
+          <p><strong>Biographie :</strong> {{ teacherData?.bio || 'Non renseignée' }}</p>
+          <p><strong>Expérience :</strong> {{ teacherData?.experienceYears || 0 }} ans</p>
+          <p><strong>Certificats :</strong>
+            {{ teacherData?.certificates?.length ? teacherData?.certificates?.join(', ') : 'Non renseignés' }}
           </p>
           <p>
-            <strong>Статус:</strong>
+            <strong>Statut :</strong>
             <span [ngClass]="teacherData?.isActive ? 'text-success' : 'text-danger'">
-              {{ teacherData?.isActive ? 'Активен' : 'Неактивен' }}
+              {{ teacherData?.isActive ? 'Actif' : 'Inactif' }}
             </span>
           </p>
           <p>
-            <strong>Модерация:</strong>
+            <strong>Modération :</strong>
             <span [ngClass]="teacherData?.moderated ? 'text-success' : 'text-warning'">
-              {{ teacherData?.moderated ? 'Пройдена' : 'Не пройдена' }}
+              {{ teacherData?.moderated ? 'Validée' : 'Non validée' }}
             </span>
           </p>
         </div>
       </div>
 
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <!-- Статус и подсказка -->
+        <!-- Statut et aide -->
         <div class="d-flex align-items-center">
-          <p class="mb-0">Статус учителя в онлайн-уроках:
-            <span class="text-success">Активирован</span>
+          <p class="mb-0">Statut de l'enseignant dans les cours en ligne :
+            <span class="text-success">Activé</span>
           </p>
           <div class="ms-2 position-relative" (mouseenter)="showTooltip('teacherStatus')" (mouseleave)="hideTooltip()">
             <i class="fas fa-question-circle text-info"></i>
             <div *ngIf="tooltipVisible === 'teacherStatus'" class="simple-tooltip bg-dark text-light p-2 rounded"
               style="white-space: normal; max-width: 600px;">
-              <i class="fas fa-info-circle me-4"></i> При деактивации преподаватель перестанет выводиться в списке
-              доступных
-              для новых учеников. Но сможет проводить уроки с уже добавленными учениками.
+              <i class="fas fa-info-circle me-4"></i> Lors de la désactivation, l'enseignant ne sera plus affiché dans la liste
+              des
+              nouveaux élèves. Mais il pourra donner des cours aux élèves déjà ajoutés.
             </div>
           </div>
         </div>
 
-        <!-- Кнопка деактивации -->
-        <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Деактивировать</button>
+        <!-- Bouton de désactivation -->
+        <button class="btn btn-outline-secondary" (click)="openDeactivateModal()">Désactiver</button>
       </div>
 
-      <!-- Счетчики -->
+      <!-- Compteurs -->
       <div class="d-flex justify-content-between mb-3">
         <div class="p-3 border rounded d-flex align-items-center">
           <i class="bi bi-person-circle me-2" style="font-size: 32px;"></i>
           <div>
-            <p class="mb-0">Провед. уроков</p>
+            <p class="mb-0">Leçons effectuées</p>
             <span>{{ conductedLessonsCount }}</span>
           </div>
         </div>
         <div class="p-3 border rounded d-flex align-items-center">
           <i class="bi bi-lightning me-2" style="font-size: 32px; color: orange;"></i>
           <div>
-            <p class="mb-0">Загруженность</p>
+            <p class="mb-0">Chargement</p>
             <span>{{ workloadPercentage }}%</span>
           </div>
         </div>
       </div>
-      <p>Расписание уроков</p>
+      <p>Emploi du temps des cours</p>
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <!-- Блок управления неделями -->
+        <!-- Bloc de gestion des semaines -->
         <div class="d-flex align-items-center">
           <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
           <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
           <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
         </div>
 
-        <!-- Блок выбора часового пояса и настроек -->
+        <!-- Bloc de sélection du fuseau horaire et des paramètres -->
         <div class="d-flex align-items-center mb-3">
           <div class="me-3">
-            <label class="form-label">Часовой пояс</label>
+            <label class="form-label">Fuseau horaire</label>
             <select class="form-select">
               <option *ngFor="let timezone of timezones">{{ timezone }}</option>
             </select>
@@ -156,12 +155,12 @@
               <i class="bi bi-gear"></i>
             </button>
             <div *ngIf="settingsMenuOpen" class="position-absolute bg-white border p-3" style="right: 0;">
-              <label for="start-hour" class="form-label">Отображаемые часы</label>
+              <label for="start-hour" class="form-label">Heures affichées</label>
               <div class="d-flex align-items-center">
                 <select id="start-hour" class="form-select w-auto" (change)="onStartHourChange($event)">
                   <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
                 </select>
-                <span class="mx-2">до</span>
+                <span class="mx-2">à</span>
                 <select id="end-hour" class="form-select w-auto" (change)="onEndHourChange($event)">
                   <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
                 </select>
@@ -171,11 +170,11 @@
         </div>
       </div>
 
-      <!-- Таблица расписания -->
+      <!-- Tableau du planning -->
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>Время</th>
+            <th>Heure</th>
             <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
           </tr>
         </thead>
@@ -188,7 +187,7 @@
               <ng-container *ngIf="!isTimeSlotActive(day, hour)">
                 <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
                   (click)="selectSlot(day, hour); $event.stopPropagation()">
-                  Выбрать
+                  Choisir
                 </button>
               </ng-container>
             </td>
@@ -198,173 +197,172 @@
 
     </div>
   </div>
-  <!-- Контент для вкладки "Марафоны" -->
+  <!-- Contenu pour l'onglet "Marathons" -->
   <div *ngIf="activeTab === 'Марафоны'" class="text-center">
     <div class="mb-4">
-      <img src="assets/images/runner-icon.png" alt="Марафоны" width="50" />
-      <p>У вас не подключены марафоны. Чтобы подключить, перейдите в тарифы.</p>
-      <button class="btn btn-primary" (click)="openMarathonModal()">Подключить</button>
+      <img src="assets/images/runner-icon.png" alt="Marathons" width="50" />
+      <p>Vous n'avez pas de marathons connectés. Pour en ajouter, allez dans les tarifs.</p>
+      <button class="btn btn-primary" (click)="openMarathonModal()">Connecter</button>
     </div>
   </div>
 
-  <!-- Модальное окно для подключения марафона -->
+  <!-- Fenêtre modale pour la connexion des marathons -->
   <div *ngIf="showMarathonModal" class="modal fade show d-block" tabindex="-1" role="dialog"
     aria-labelledby="marathonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5); z-index: 1040;">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
-        <!-- Содержимое модалки -->
+        <!-- Contenu de la fenêtre -->
         <div class="modal-header border-0 justify-content-center position-relative">
-          <h5 class="modal-title" id="marathonModalTitle">Марафоны</h5>
+          <h5 class="modal-title" id="marathonModalTitle">Marathons</h5>
           <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close"
             (click)="closeMarathonModal()"></button>
         </div>
         <div class="modal-body">
           <p class="text-warning">Pro (beta)</p>
           <div class="price-box mb-3">
-            <p>Разовая стоимость за 1 ученика</p>
+            <p>Coût unique par élève</p>
             <h4>120 RUB</h4>
-            <p>+ 750 RUB в месяц</p>
+            <p>+ 750 RUB par mois</p>
           </div>
-          <button class="btn btn-primary mb-3" (click)="openProductSelectionModal()">Подключить</button>
+          <button class="btn btn-primary mb-3" (click)="openProductSelectionModal()">Connecter</button>
           <div>
-            <h6>На тарифе Pro доступно</h6>
+            <h6>Disponible avec l'offre Pro</h6>
             <div class="features-grid">
               <div *ngFor="let feature of proFeatures" class="feature-item">
                 <i [class]="feature.icon"></i>
                 <p>{{ feature.description }}</p>
               </div>
             </div>
-            <a href="#" class="text-info" (click)="openAdditionalModal(); $event.preventDefault()">Посмотреть все
-              возможности</a>
+            <a href="#" class="text-info" (click)="openAdditionalModal(); $event.preventDefault()">Voir toutes les fonctionnalités</a>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Дополнительное модальное окно -->
+  <!-- Fenêtre modale supplémentaire -->
   <div *ngIf="showAdditionalModal" class="modal fade show d-block" tabindex="-1" role="dialog"
     aria-labelledby="additionalModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.7); z-index: 1050;">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
         <div class="modal-header">
-          <h5 class="modal-title" id="additionalModalTitle">Все возможности</h5>
+          <h5 class="modal-title" id="additionalModalTitle">Toutes les fonctionnalités</h5>
           <button type="button" class="btn-close" aria-label="Close" (click)="closeAdditionalModal()"></button>
         </div>
         <div class="modal-body">
-          <!-- Полный список возможностей -->
+          <!-- Liste complète des fonctionnalités -->
           <ul class="list-unstyled">
-            <li><strong>Общие</strong></li>
-            <li>Сотрудники</li>
-            <li>Контроль доступа</li>
-            <li>Правила платежей на платформе</li>
-            <li>Показатели и отчёты</li>
+            <li><strong>Général</strong></li>
+            <li>Employés</li>
+            <li>Contrôle d'accès</li>
+            <li>Règles de paiement sur la plateforme</li>
+            <li>Indicateurs et rapports</li>
             <li>API</li>
-            <li>Оплата от юр. лица</li>
+            <li>Paiement par entreprise</li>
 
-            <li class="mt-3"><strong>Продвижение</strong></li>
-            <li>Брендирование</li>
-            <li>Рекламный баннер</li>
+            <li class="mt-3"><strong>Promotion</strong></li>
+            <li>Branding</li>
+            <li>Bannière publicitaire</li>
 
-            <li class="mt-3"><strong>Онлайн-уроки</strong></li>
-            <li>Индивидуальные и групповые классы</li>
-            <li>Синхронизация действий в реальном времени</li>
-            <li>Видеосвязь и чат</li>
-            <li>Готовые уроки</li>
-            <li>Конструктор уроков</li>
-            <li>25+ шаблонов интерактивных упражнений</li>
-            <li>Алгоритмы для создания уроков</li>
-            <li>Учет индивидуальных баллов и рейтинга учеников</li>
-            <li>Словарь и примечания</li>
-            <li>Тренажёр слов</li>
-            <li>Репетиционные уроки</li>
-            <li>Домашние задания</li>
-            <li>Оповещения учеников</li>
-            <li>Личный сайт и заявки от учеников</li>
-            <li>Интерактивные комплекты учеников</li>
-            <li>Учителя классов</li>
+            <li class="mt-3"><strong>Cours en ligne</strong></li>
+            <li>Classes individuelles et de groupe</li>
+            <li>Synchronisation en temps réel</li>
+            <li>Visioconférence et chat</li>
+            <li>Leçons prêtes à l'emploi</li>
+            <li>Créateur de leçons</li>
+            <li>25+ modèles d'exercices interactifs</li>
+            <li>Algorithmes pour créer des leçons</li>
+            <li>Suivi des points et du classement des élèves</li>
+            <li>Dictionnaire et notes</li>
+            <li>Entraîneur de mots</li>
+            <li>Leçons de répétition</li>
+            <li>Devoirs</li>
+            <li>Notifications aux élèves</li>
+            <li>Site personnel et demandes des élèves</li>
+            <li>Kits interactifs pour élèves</li>
+            <li>Enseignants de classes</li>
 
-            <li class="mt-3"><strong>Марафоны</strong></li>
-            <li>Автоматический доступ и ограничение</li>
-            <li>5 режимов доступа для учеников</li>
-            <li>Синхронизация этапов</li>
-            <li>Автоматизация открытия и ручная торговля марафонов</li>
-            <li>Обратная связь для учеников</li>
-            <li>Конструктор курсов</li>
-            <li>25+ шаблонов интерактивных упражнений</li>
-            <li>Алгоритмы для создания уроков</li>
-            <li>Учет индивидуальных баллов и рейтинга учеников</li>
-            <li>Словарь и примечания</li>
-            <li>Тренажёр слов</li>
-            <li>Курсы марафонов</li>
-            <li>Уровни доступа</li>
+            <li class="mt-3"><strong>Marathons</strong></li>
+            <li>Accès automatique et limitation</li>
+            <li>5 modes d'accès pour les élèves</li>
+            <li>Synchronisation des étapes</li>
+            <li>Automatisation de l'ouverture et gestion manuelle des marathons</li>
+            <li>Feedback pour les élèves</li>
+            <li>Créateur de cours</li>
+            <li>25+ modèles d'exercices interactifs</li>
+            <li>Algorithmes pour créer des leçons</li>
+            <li>Suivi des points et du classement des élèves</li>
+            <li>Dictionnaire et notes</li>
+            <li>Entraîneur de mots</li>
+            <li>Cours de marathons</li>
+            <li>Niveaux d'accès</li>
           </ul>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Модальное окно для выбора продуктов -->
+  <!-- Fenêtre modale pour la sélection des produits -->
   <div *ngIf="showProductSelectionModal" class="modal fade show d-block" tabindex="-1" role="dialog"
     style="background: rgba(0, 0, 0, 0.5);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content text-center">
         <div class="modal-header">
-          <h5 class="modal-title">Выбор продуктов</h5>
+          <h5 class="modal-title">Sélection de produits</h5>
           <button type="button" class="btn-close" aria-label="Close" (click)="closeProductSelectionModal()"></button>
         </div>
         <div class="modal-body">
-          <p>Выберите продукты, которые хотите использовать</p>
+          <p>Sélectionnez les produits que vous souhaitez utiliser</p>
           <div class="product-item mb-3 d-flex justify-content-between align-items-center">
-            <div>Онлайн-уроки</div>
-            <button class="btn btn-link" (click)="openTariffModal()">Добавить</button>
+            <div>Cours en ligne</div>
+            <button class="btn btn-link" (click)="openTariffModal()">Ajouter</button>
             <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal"
               (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
           </div>
           <div class="product-item d-flex justify-content-between align-items-center">
-            <div>Марафоны</div>
-            <span class="badge bg-success">Подключено</span>
+            <div>Marathons</div>
+            <span class="badge bg-success">Connecté</span>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" (click)="closeProductSelectionModal()">Отмена</button>
-          <button type="button" class="btn btn-primary" (click)="proceedToPayment()">Продолжить</button>
+          <button type="button" class="btn btn-secondary" (click)="closeProductSelectionModal()">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="proceedToPayment()">Continuer</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Модальное окно для подтверждения оплаты -->
+  <!-- Fenêtre modale pour la confirmation du paiement -->
   <div *ngIf="showPaymentConfirmationModal" class="modal fade show d-block" tabindex="-1" role="dialog"
     style="background: rgba(0, 0, 0, 0.5);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content text-center">
         <div class="modal-header">
-          <h5 class="modal-title">Подтвердите оплату</h5>
+          <h5 class="modal-title">Confirmer le paiement</h5>
           <button type="button" class="btn-close" aria-label="Close" (click)="closePaymentConfirmationModal()"></button>
         </div>
         <div class="modal-body">
-          <p>Тариф: Pro (beta)</p>
-          <p>Период: 30 дн.</p>
-          <p>Марафоны: 750.00 RUB</p>
-          <p class="text-muted small">* Ученики оплачиваются отдельно...</p>
-          <p>Итоговая стоимость: <strong>750.00 RUB</strong></p>
+          <p>Offre : Pro (beta)</p>
+          <p>Période : 30 jours</p>
+          <p>Marathons : 750.00 RUB</p>
+          <p class="text-muted small">* Les élèves sont facturés séparément...</p>
+          <p>Coût total : <strong>750.00 RUB</strong></p>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" (click)="closePaymentConfirmationModal()">Отмена</button>
-          <button type="button" class="btn btn-primary">Оплатить</button>
+          <button type="button" class="btn btn-secondary" (click)="closePaymentConfirmationModal()">Annuler</button>
+          <button type="button" class="btn btn-primary">Payer</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Контент для вкладки "Администратор" -->
+  <!-- Contenu pour l'onglet "Administrateur" -->
   <div *ngIf="activeTab === 'Администратор'">
-    <p>Информация о правах администратора</p>
+    <p>Informations sur les droits d'administrateur</p>
   </div>
 </div>
 
-<!-- Модальное окно -->
+<!-- Fenêtre modale -->
 <div *ngIf="showModal" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="modalTitle"
   aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -377,58 +375,58 @@
           (click)="closeModal()"></button>
       </div>
       <div class="modal-body">
-        <h5 class="modal-title mb-3" id="modalTitle">Добавление урока</h5>
-        <p>Это время отмечено как нерабочее время преподавателя. Продолжить постановку урока на это время?</p>
+        <h5 class="modal-title mb-3" id="modalTitle">Ajouter une leçon</h5>
+        <p>Ce créneau est marqué comme indisponible pour l'enseignant. Continuer la planification de la leçon à cette heure ?</p>
       </div>
       <div class="modal-footer justify-content-center border-0">
-        <button type="button" class="btn btn-outline-secondary me-3" (click)="closeModal()">Отмена</button>
-        <button type="button" class="btn btn-primary" (click)="openNewLessonModal()">Продолжить</button>
+        <button type="button" class="btn btn-outline-secondary me-3" (click)="closeModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="openNewLessonModal()">Continuer</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Модальное окно с вкладками -->
+<!-- Fenêtre modale avec onglets -->
 <div *ngIf="showNewLessonModal" class="modal fade show d-block" tabindex="-1" role="dialog"
   aria-labelledby="newLessonModalTitle" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
       <div class="modal-header border-0 justify-content-between align-items-center">
-        <h5 class="modal-title" id="newLessonModalTitle">Новый урок</h5>
+        <h5 class="modal-title" id="newLessonModalTitle">Nouvelle leçon</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeNewLessonModal()"></button>
       </div>
       <div class="modal-body">
-        <!-- Вкладки -->
+        <!-- Onglets -->
         <ul class="nav nav-tabs mb-3 justify-content-center">
           <li class="nav-item">
             <a class="nav-link" [class.active]="activeLessonTab === 'individual'"
-              (click)="switchLessonTab('individual')">Индивидуальный</a>
+              (click)="switchLessonTab('individual')">Individuel</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" [class.active]="activeLessonTab === 'group'"
-              (click)="switchLessonTab('group')">Групповой</a>
+              (click)="switchLessonTab('group')">Groupe</a>
           </li>
         </ul>
 
-        <!-- Содержимое для индивидуального урока -->
+        <!-- Contenu pour l'élève individuel -->
         <div *ngIf="activeLessonTab === 'individual'">
-          <input type="text" class="form-control mb-3" placeholder="Поиск учеников" />
+          <input type="text" class="form-control mb-3" placeholder="Recherche d'élèves" />
           <div class="p-4 border rounded d-flex flex-column align-items-center">
             <div class="mb-3" style="font-size: 64px;">👋</div>
-            <p>Для планирования уроков сначала создайте класс</p>
-            <!-- Кнопка для перехода к ученикам -->
-            <button class="btn btn-primary" (click)="goToOnlineLessons()">Перейти к ученикам</button>
+            <p>Pour planifier des leçons, créez d'abord une classe</p>
+            <!-- Bouton pour aller aux élèves -->
+            <button class="btn btn-primary" (click)="goToOnlineLessons()">Aller aux élèves</button>
 
           </div>
         </div>
 
-        <!-- Содержимое для группового урока -->
+        <!-- Contenu pour l'élève de groupe -->
         <div *ngIf="activeLessonTab === 'group'">
-          <input type="text" class="form-control mb-3" placeholder="Поиск групп" />
+          <input type="text" class="form-control mb-3" placeholder="Recherche de groupes" />
           <div class="p-4 border rounded d-flex flex-column align-items-center">
             <div class="mb-3" style="font-size: 64px;">👥</div>
-            <p>Для планирования уроков сначала создайте класс</p>
-            <button class="btn btn-primary">Перейти к группам</button>
+            <p>Pour planifier des leçons, créez d'abord une classe</p>
+            <button class="btn btn-primary">Aller aux groupes</button>
           </div>
         </div>
       </div>
@@ -441,59 +439,59 @@
   <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
     <div class="modal-content p-4">
       <div class="modal-header">
-        <h5 class="modal-title">Создать сотрудника</h5>
+        <h5 class="modal-title">Créer un employé</h5>
         <button type="button" class="btn-close" (click)="closeEditModal()"></button>
       </div>
 
       <div class="modal-body">
         <form>
-          <!-- Avatar Upload -->
+          <!-- Upload de l'avatar -->
           <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-3">Аватарка</label>
+            <label class="form-label me-3">Avatar</label>
             <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;"></div>
             <input type="file" id="avatarUpload" class="d-none" (change)="onFileSelected($event)">
-            <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Télécharger</button>
           </div>
 
-          <!-- Basic Info -->
+          <!-- Informations de base -->
           <div class="mb-3">
-            <label class="form-label">Почта</label>
-            <input type="email" class="form-control" placeholder="Почта" [(ngModel)]="newTeacher.email"
+            <label class="form-label">E-mail</label>
+            <input type="email" class="form-control" placeholder="E-mail" [(ngModel)]="newTeacher.email"
               name="teacherEmail">
           </div>
           <div class="mb-3">
-            <label class="form-label">Имя</label>
-            <input type="text" class="form-control" placeholder="Имя" [(ngModel)]="newTeacher.name" name="teacherName">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" placeholder="Nom" [(ngModel)]="newTeacher.name" name="teacherName">
           </div>
           <div class="mb-3">
-            <label class="form-label">Родной язык</label>
+            <label class="form-label">Langue maternelle</label>
             <select class="form-select" [(ngModel)]="newTeacher.nativeLanguage" name="teacherNativeLanguage">
-              <option value="Russian">Russian</option>
-              <option value="English">English</option>
+              <option value="Russian">Russe</option>
+              <option value="English">Anglais</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Часовой пояс</label>
+            <label class="form-label">Fuseau horaire</label>
             <select class="form-select">
               <option *ngFor="let timezone of timezones">{{ timezone }}</option>
             </select>
           </div>
 
-          <!-- Additional Information -->
+          <!-- Informations supplémentaires -->
           <div class="separator mb-2">
-            <span>Дополнительная информация</span>
+            <span>Informations supplémentaires</span>
           </div>
           <button type="button" class="btn btn-link" (click)="toggleAdditionalInfo()">
-            {{ showAdditionalInfo ? 'Скрыть дополнительную информацию' : 'Показать дополнительную информацию' }}
+            {{ showAdditionalInfo ? 'Masquer les informations supplémentaires' : 'Afficher les informations supplémentaires' }}
           </button>
 
           <div *ngIf="showAdditionalInfo" class="mt-3">
             <div class="mb-3">
-              <label class="form-label">Телефон</label>
-              <input type="tel" class="form-control" placeholder="Телефон">
+              <label class="form-label">Téléphone</label>
+              <input type="tel" class="form-control" placeholder="Téléphone">
             </div>
             <div class="mb-3">
-              <label class="form-label">Ссылка для связи</label>
+              <label class="form-label">Lien de contact</label>
               <div class="input-group">
                 <ng-select [(ngModel)]="selectedPlatform" name="selectedPlatform" (change)="updateLinkPlaceholder()"
                   [clearable]="false" [searchable]="false" bindLabel="label" bindValue="value" class="form-select">
@@ -511,9 +509,9 @@
         </form>
       </div>
       <div class="possibilities-section mt-3">
-        <h6 class="fw-bold">Возможности</h6>
+        <h6 class="fw-bold">Fonctionnalités</h6>
         <div *ngFor="let possibility of possibilities" class="possibility-item">
-          <!-- Заголовок возможности -->
+          <!-- En-tête de la fonctionnalité -->
           <div class="possibility-header d-flex align-items-center justify-content-between"
             (click)="togglePossibility(possibility)">
             <div class="d-flex align-items-center">
@@ -524,26 +522,26 @@
               </div>
             </div>
             <span class="badge" [ngClass]="possibility.enabled ? 'badge-enabled' : 'badge-disabled'">
-              {{ possibility.enabled ? 'Включено' : 'Отключено' }}
+              {{ possibility.enabled ? 'Activé' : 'Désactivé' }}
             </span>
             <i class="bi" [ngClass]="possibility.expanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
           </div>
 
-          <!-- Разворачиваемая информация -->
+          <!-- Information développable -->
           <div *ngIf="possibility.expanded" class="possibility-content mt-3">
-            <!-- Общий переключатель для активации возможности -->
+            <!-- Interrupteur général pour l'activation de la fonctionnalité -->
             <div class="mb-3">
-              <label class="form-label">Активация возможности</label>
+              <label class="form-label">Activation de la fonctionnalité</label>
               <div class="form-check form-switch">
                 <input type="checkbox" [(ngModel)]="possibility.enabled" class="form-check-input" id="send-mails"
                   (change)="toggleFeature(possibility)">
               </div>
             </div>
 
-            <!-- Дополнительные настройки для роли "Администратор" -->
+            <!-- Paramètres supplémentaires pour le rôle "Administrateur" -->
             <ng-container *ngIf="possibility.role === 'admin' && possibility.enabled">
               <div class="mb-3">
-                <label class="form-label">Доступ к разделам</label>
+                <label class="form-label">Accès aux sections</label>
               </div>
 
               <div *ngFor="let section of sections" class="d-flex align-items-center justify-content-between mb-2">
@@ -556,16 +554,16 @@
                 </div>
               </div>
 
-              <!-- Сепаратор -->
+              <!-- Séparateur -->
               <div class="separator mt-4 mb-2">
-                <span>Дополнительные возможности</span>
+                <span>Fonctionnalités supplémentaires</span>
               </div>
 
-              <!-- Сквозной вход -->
+              <!-- Connexion directe -->
               <div class="d-flex align-items-center justify-content-between mb-2">
                 <div class="d-flex align-items-center">
                   <i class="bi bi-door-open me-2"></i>
-                  <label class="form-check-label" for="cross-entry">Сквозной вход</label>
+                  <label class="form-check-label" for="cross-entry">Connexion directe</label>
                 </div>
                 <div class="form-check form-switch">
                   <input type="checkbox" class="form-check-input" [(ngModel)]="crossEntryEnabled" id="cross-entry">
@@ -573,11 +571,11 @@
               </div>
             </ng-container>
 
-            <!-- Дополнительные настройки для роли "Учитель онлайн-уроков" -->
+            <!-- Paramètres supplémentaires pour le rôle "Enseignant en ligne" -->
             <ng-container *ngIf="possibility.role === 'teacher' && possibility.enabled">
-              <!-- Выпадающий список для выбора языков -->
+              <!-- Liste déroulante pour la sélection des langues -->
               <div class="mb-3 row align-items-center">
-                <label class="col-form-label col-3 text-end">Преподаваемые языки</label>
+                <label class="col-form-label col-3 text-end">Langues enseignées</label>
                 <div class="col-9">
                   <select class="form-select" [(ngModel)]="selectedLanguages">
                     <option *ngFor="let language of availableLanguages" [ngValue]="language">{{ language }}</option>
@@ -585,30 +583,30 @@
                 </div>
               </div>
 
-              <!-- Рабочий график -->
+              <!-- Emploi du temps -->
               <div class="mb-3">
-                <label class="form-label">Рабочий график</label>
+                <label class="form-label">Emploi du temps</label>
                 <div class="d-flex mb-2">
-                  <button class="btn btn-outline-primary me-2" (click)="fillSchedule()">Заполнить</button>
-                  <button class="btn btn-outline-secondary" (click)="fillTeacherSchedule()">Заполнит учитель</button>
+                  <button class="btn btn-outline-primary me-2" (click)="fillSchedule()">Remplir</button>
+                  <button class="btn btn-outline-secondary" (click)="fillTeacherSchedule()">L'enseignant remplit</button>
                 </div>
                 <table *ngIf="!teacherWillFill" class="table table-bordered schedule-table">
                   <thead>
                     <tr>
-                      <th></th> <!-- Пустой заголовок для столбца времени -->
+                      <th></th> <!-- En-tête vide pour la colonne des heures -->
                       <th *ngFor="let day of daysWithDates">{{ day }}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr *ngFor="let hour of hours">
-                      <td class="time-label">{{ hour }}</td> <!-- Столбец с часами -->
+                      <td class="time-label">{{ hour }}</td> <!-- Colonne des heures -->
                       <td *ngFor="let day of daysWithDates" (mouseenter)="showSelectButton(day, hour)"
                         (mouseleave)="hideSelectButton(day, hour)" (click)="toggleTimeSlot(day, hour)"
                         [ngClass]="{'active-slot': isTimeSlotActive(day, hour), 'current-time': isCurrentTime(day, hour)}">
                         <ng-container *ngIf="!isTimeSlotActive(day, hour)">
                           <button *ngIf="showButton[day + '-' + hour]" class="btn btn-primary btn-sm"
                             (click)="selectSlot(day, hour); $event.stopPropagation()">
-                            Выбрать
+                            Choisir
                           </button>
                         </ng-container>
                         <ng-container *ngIf="isTimeSlotActive(day, hour)">
@@ -628,8 +626,8 @@
 
 
       <div class="modal-footer d-flex justify-content-center align-items-center gap-2">
-        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Отмена</button>
-        <button type="button" class="btn btn-primary" (click)="editInfo()">Создать</button>
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="editInfo()">Créer</button>
       </div>
     </div>
   </div>
@@ -640,51 +638,51 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content text-center" style="border-radius: 12px; padding: 1rem;">
       <div class="modal-header">
-        <h5 class="modal-title" id="statisticsModalTitle">Статистика</h5>
+        <h5 class="modal-title" id="statisticsModalTitle">Statistiques</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="closeStatisticsModal()"></button>
       </div>
       <div class="modal-body">
-        <p class="text-info">Выберите период, за который нужна статистика</p>
-        <!-- Начало периода -->
+        <p class="text-info">Sélectionnez la période pour laquelle vous souhaitez les statistiques</p>
+        <!-- Début de la période -->
         <div class="mb-3">
-          <label for="startDate" class="form-label">Начало</label>
+          <label for="startDate" class="form-label">Début</label>
           <div class="d-flex gap-2">
             <select id="startDateDay" class="form-select">
               <option>10</option>
-              <!-- Добавь другие значения дней -->
+              <!-- Ajoutez d'autres valeurs de jours -->
             </select>
             <select id="startDateMonth" class="form-select">
-              <option>Ноябрь</option>
-              <!-- Добавь другие месяцы -->
+              <option>Novembre</option>
+              <!-- Ajoutez d'autres mois -->
             </select>
             <select id="startDateYear" class="form-select">
               <option>2024</option>
-              <!-- Добавь другие годы -->
+              <!-- Ajoutez d'autres années -->
             </select>
           </div>
         </div>
-        <!-- Конец периода -->
+        <!-- Fin de la période -->
         <div class="mb-3">
-          <label for="endDate" class="form-label">Конец</label>
+          <label for="endDate" class="form-label">Fin</label>
           <div class="d-flex gap-2">
             <select id="endDateDay" class="form-select">
               <option>11</option>
-              <!-- Добавь другие значения дней -->
+              <!-- Ajoutez d'autres valeurs de jours -->
             </select>
             <select id="endDateMonth" class="form-select">
-              <option>Ноябрь</option>
-              <!-- Добавь другие месяцы -->
+              <option>Novembre</option>
+              <!-- Ajoutez d'autres mois -->
             </select>
             <select id="endDateYear" class="form-select">
               <option>2024</option>
-              <!-- Добавь другие годы -->
+              <!-- Ajoutez d'autres années -->
             </select>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeStatisticsModal()">Отмена</button>
-        <button type="button" class="btn btn-primary">Скачать</button>
+        <button type="button" class="btn btn-secondary" (click)="closeStatisticsModal()">Annuler</button>
+        <button type="button" class="btn btn-primary">Télécharger</button>
       </div>
     </div>
   </div>
@@ -702,20 +700,18 @@
           (click)="closeDeactivateModal()"></button>
       </div>
       <div class="modal-body">
-        <h5 class="modal-title mb-3" id="deactivateTeacherModalTitle">Деактивировать учителя</h5>
-        <p>Вы действительно хотите деактивировать этого учителя?</p>
+        <h5 class="modal-title mb-3" id="deactivateTeacherModalTitle">Désactiver l'enseignant</h5>
+        <p>Voulez-vous vraiment désactiver cet enseignant ?</p>
         <div class="alert alert-info mb-2">
-          <i class="bi bi-info-circle"></i> Деактивированный учитель перестанет выводиться в списке для назначения в
-          классах
+          L'enseignant désactivé ne sera plus affiché dans la liste pour l'affectation aux classes
         </div>
         <div class="alert alert-info">
-          <i class="bi bi-info-circle"></i> Деактивированный учитель сможет продолжить проводить уроки в класса, в
-          которые он уже добавлен
+          L'enseignant désactivé pourra continuer à donner des cours dans les classes où il est déjà ajouté
         </div>
       </div>
       <div class="modal-footer justify-content-center border-0">
-        <button type="button" class="btn btn-secondary me-3" (click)="closeDeactivateModal()">Отмена</button>
-        <button type="button" class="btn btn-primary" (click)="confirmDeactivation()">Деактивировать</button>
+        <button type="button" class="btn btn-secondary me-3" (click)="closeDeactivateModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="confirmDeactivation()">Désactiver</button>
       </div>
     </div>
   </div>

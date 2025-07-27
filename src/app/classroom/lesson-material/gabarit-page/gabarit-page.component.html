@@ -1,7 +1,7 @@
 <div class="gabarit-page px-3 py-2">
   <h3>📚 Matériel du cours ({{ lesson.date | date: 'dd/MM/yyyy' }})</h3>
 
-  <!-- 📄 Textes -->
+  <!-- Textes -->
   <div class="zone text-zone mt-3">
     <h5>📝 Textes</h5>
     <div *ngFor="let t of texts" class="material-item position-relative" 
@@ -30,7 +30,7 @@
     </div>
   </div>
 
-  <!-- 🎧 Audios -->
+  <!-- Audios -->
   <div class="zone audio-zone mt-3">
     <h5>🔊 Audios</h5>
     <div *ngFor="let a of audios" class="material-item position-relative" 
@@ -71,12 +71,12 @@
             <source [src]="a.content" type="audio/ogg">
             Votre navigateur ne supporte pas l'audio HTML5.
           </audio>
-          <!-- Текстовое содержимое, если это не URL -->
+          <!-- texte si ce n'est pas un URL -->
           <div *ngIf="!a.url && a.content && !isAudioUrl(a.content)" class="content">{{ a.content }}</div>
         </div>
       </ng-template>
       
-      <!-- Action buttons on hover -->
+      <!-- boutons d'action au survol -->
       <div *ngIf="hoveredItem === getMaterialTitle(a)" class="item-actions" [ngClass]="{
         'drop-above': hoveredPosition === 'above',
         'drop-below': hoveredPosition === 'below'
@@ -89,7 +89,7 @@
     </div>
   </div>
 
-  <!-- 🎬 Vidéos -->
+  <!-- Vidéos -->
   <div class="zone video-zone mt-3">
     <h5>🎬 Vidéos</h5>
     <div *ngFor="let v of videos" class="material-item position-relative" 
@@ -116,26 +116,26 @@
               <p *ngIf="v.description" class="description mb-0">{{ v.description }}</p>
             </div>
           </div>
-          <!-- Плеер для URL -->
+          <!--player pour URL -->
           <video *ngIf="v.url" controls class="w-100 mt-2">
             <source [src]="v.url" type="video/mp4">
             <source [src]="v.url" type="video/webm">
             <source [src]="v.url" type="video/ogg">
             Votre navigateur ne supporte pas la vidéo HTML5.
           </video>
-          <!-- Плеер для content (если content содержит URL видео) -->
+          <!-- pour le contenu si ce n'est pas un URL -->
           <video *ngIf="!v.url && v.content && isVideoUrl(v.content)" controls class="w-100 mt-2">
             <source [src]="v.content" type="video/mp4">
             <source [src]="v.content" type="video/webm">
             <source [src]="v.content" type="video/ogg">
             Votre navigateur ne supporte pas la vidéo HTML5.
           </video>
-          <!-- Текстовое содержимое, если это не URL -->
+          <!-- texte si c'est pas un URL -->
           <div *ngIf="!v.url && v.content && !isVideoUrl(v.content)" class="content">{{ v.content }}</div>
         </div>
       </ng-template>
       
-      <!-- Action buttons on hover -->
+      <!-- boutons d'action au survol -->
       <div *ngIf="hoveredItem === getMaterialTitle(v)" class="item-actions" [ngClass]="{
         'drop-above': hoveredPosition === 'above',
         'drop-below': hoveredPosition === 'below'

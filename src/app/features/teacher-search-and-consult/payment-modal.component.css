@@ -70,7 +70,7 @@
   height: 1rem;
 }
 
-/* Анимация для модального окна */
+/* Animation pour la modale */
 .modal-overlay {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -84,7 +84,7 @@
   }
 }
 
-/* Стили для информации о безопасности */
+/* Styles pour les informations de sécurité */
 .border-top {
   border-top: 1px solid #dee2e6 !important;
 }
@@ -93,7 +93,7 @@
   color: #6c757d !important;
 }
 
-/* Адаптивность */
+/* Responsive */
 @media (max-width: 768px) {
   .payment-modal {
     width: 95%;

@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 
+// TODO : ajouter gestion de la barre latérale mobile et icônes personnalisées
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
@@ -14,7 +15,7 @@ export class SidebarComponent implements OnInit {
   isStudentDashboard = false;
   private roleSub!: Subscription;
   
-  // Sidebar collapse/expand functionality
+  // fonctionnalité de réduction/expansion de la barre latérale
   isExpanded = false;
 
   constructor(
@@ -25,13 +26,13 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit(): void {
     this.roleSub = this.authService.currentRole$.subscribe(role => {
-      console.log(`[Sidebar] Role changed to: ${role}`);
+      console.log(`[Sidebar] Changement de rôle vers: ${role}`);
 
       this.isTeacherDashboard = role === 'teacher';
       this.isSchoolDashboard = role === 'admin';
       this.isStudentDashboard = role === 'student' || !role;
 
-      console.log(`[Sidebar] Flags — isTeacher: ${this.isTeacherDashboard}, isSchool: ${this.isSchoolDashboard}, isStudent: ${this.isStudentDashboard}`);
+      console.log(`[Sidebar] Indicateurs — isTeacher: ${this.isTeacherDashboard}, isSchool: ${this.isSchoolDashboard}, isStudent: ${this.isStudentDashboard}`);
     });
   }
 
@@ -43,12 +44,12 @@ export class SidebarComponent implements OnInit {
     this.router.navigate([route], { relativeTo: this.route });
   }
 
-  // Expand sidebar on hover
+  // étendre la barre latérale au survol
   expandSidebar(): void {
     this.isExpanded = true;
   }
 
-  // Collapse sidebar when mouse leaves
+  // réduire la barre latérale quand la souris quitte
   collapseSidebar(): void {
     this.isExpanded = false;
   }

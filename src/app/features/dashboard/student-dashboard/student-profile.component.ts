@@ -22,7 +22,7 @@ export class StudentProfileComponent {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.studentId = Number(id); // Сохраните id, если нужно
+      this.studentId = Number(id); // Enregistre l'id si besoin
       this.loadStudentData();
     }
   }
@@ -75,8 +75,8 @@ export class StudentProfileComponent {
   }
 
   confirmDeactivation() {
-    // Логика деактивации
-    console.log('Учитель деактивирован');
+    // Logique de désactivation
+    console.log('Enseignant désactivé');
     this.closeDeactivateModal();
   }
 
@@ -134,7 +134,7 @@ export class StudentProfileComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
-      console.log('Выбранный файл:', this.selectedFile.name);
+      console.log('Fichier sélectionné :', this.selectedFile.name);
     }
   }
 
@@ -150,7 +150,7 @@ export class StudentProfileComponent {
   ];
 
   updateLinkPlaceholder(): void {
-    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
+    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Entrez le lien Skype' : 'Entrez le lien Zoom';
   }
 
   showDeleteStudentModal = false;
@@ -164,16 +164,16 @@ export class StudentProfileComponent {
   }
 
   confirmDeleteStudent(): void {
-    // Логика для удаления ученика
-    console.log('Ученик удален');
+    // Logique pour supprimer l'élève
+    console.log('Élève supprimé');
     this.closeDeleteStudentModal();
   }
 
   frequencies = [
-    '1 раз в неделю', '2 раза в неделю', '3 раза в неделю',
-    '4 раза в неделю', '5 раз в неделю', '6 раз в неделю', '7 раз в неделю'
+    '1 fois par semaine', '2 fois par semaine', '3 fois par semaine',
+    '4 fois par semaine', '5 fois par semaine', '6 fois par semaine', '7 fois par semaine'
   ];
-  selectedFrequency: string = '1 раз в неделю';
+  selectedFrequency: string = '1 fois par semaine';
   studyGoal: string = '';
   note: string = '';
 
@@ -187,23 +187,22 @@ export class StudentProfileComponent {
     this.showAccessModal = false;
   }
 
-  showTariffModal: boolean = false; // Управляет отображением <app-tariff-status>
-
+  showTariffModal: boolean = false; 
   openTariffModal(): void {
-    this.showTariffModal = true; // Открыть модалку
+    this.showTariffModal = true; 
   }
 
   closeTariffModal(): void {
-    this.showTariffModal = false; // Закрыть модалку
+    this.showTariffModal = false; 
   }
 
   // si payé
 
   openAddClassModal(): void {
     if (this.isTariffPaid) {
-      this.showAddClassModal = true; // Показываем интерфейс добавления класса
+      this.showAddClassModal = true; 
     } else {
-      this.openAccessModal(); // Показываем модалку оплаты тарифа
+      this.openAccessModal(); 
     }
   }
 
@@ -221,12 +220,12 @@ export class StudentProfileComponent {
   }
 
   saveClass(): void {
-    // Логика сохранения класса
-    console.log('Класс добавлен:', { type: this.classType, name: this.className, cover: this.selectedFile });
+    // Logique de sauvegarde de la classe
+    console.log('Classe ajoutée :', { type: this.classType, name: this.className, cover: this.selectedFile });
     this.closeAddClassModal();
   }
 
-  selectedTab: string = 'individual'; // По умолчанию выбран "Индивидуальный"
+  selectedTab: string = 'individual'; // Par défaut, "Individuel" est sélectionné
   setTab(tab: string): void {
     this.selectedTab = tab;
   }

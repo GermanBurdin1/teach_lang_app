@@ -1,4 +1,4 @@
-// ✅ Type de partie du discours
+// Type de partie du discours
 export type PartOfSpeech =
   | 'noun'
   | 'verb'
@@ -10,14 +10,14 @@ export type PartOfSpeech =
   | 'interjection'
   | 'expression';
 
-// ✅ Ajout de l'interface ExpressionGrammar
+// Ajout de l'interface ExpressionGrammar
 export interface ExpressionGrammar {
   partOfSpeech: 'expression';
   expressionType?: 'idiom' | 'proverb' | 'saying' | 'collocation' | 'quote' | 'other';
   origin?: string; // par exemple, «proverbe français»
 }
 
-// ✅ Type global GrammarData
+// Type global GrammarData
 export type GrammarData =
   | NounGrammar
   | VerbGrammar
@@ -29,7 +29,7 @@ export type GrammarData =
   | InterjectionGrammar
   | ExpressionGrammar;
 
-// ✅ Pour chaque partie du discours
+// Pour chaque partie du discours
 export interface NounGrammar {
   partOfSpeech: 'noun';
   gender?: 'masculine' | 'feminine';

@@ -8,6 +8,7 @@ export interface HomeworkModalData {
   itemId: string;
 }
 
+// TODO : ajouter validation des données et gestion d'erreurs
 @Component({
   selector: 'app-homework-modal',
   templateUrl: './homework-modal.component.html',
@@ -26,10 +27,10 @@ export class HomeworkModalComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Définir le titre par défaut
+    // on définit le titre par défaut
     this.homeworkTitle = this.data.title;
     
-    // Définir l'échéance à demain par défaut
+    // on définit l'échéance à demain par défaut
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     this.dueDate = tomorrow.toISOString().split('T')[0];
@@ -70,11 +71,11 @@ export class HomeworkModalComponent implements OnInit {
       createdAt: new Date()
     };
 
-    // Simulation de la sauvegarde
+    // simulation de la sauvegarde
     setTimeout(() => {
-      console.log('💾 Sauvegarde du devoir:', homeworkData);
+      console.log('[HomeworkModal] Sauvegarde du devoir:', homeworkData);
       
-      // TODO: Sauvegarde réelle via HomeworkService
+      // TODO: sauvegarde réelle via HomeworkService
       // this.homeworkService.createHomework(homeworkData).subscribe(...)
       
       this.isSaving = false;

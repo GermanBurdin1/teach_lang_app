@@ -4,7 +4,7 @@
       {{ isDarkTheme ? '☀️ Light' : '🌙 Dark' }}
     </div>
     <div class="logo-container">
-      <!-- Здесь можно добавить логотип -->
+      <!-- Ici on peut ajouter le logo -->
       <!-- <img src="assets/logo.png" alt="GalaxyLang Logo"> -->
     </div>
     <h2>Connexion</h2>
@@ -13,10 +13,10 @@
       <!-- Email -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" required (blur)="onEmailBlur()" />
+        <input matInput formControlName="email" type="email" required (blur)="checkEmail()" />
       </mat-form-field>
 
-      <!-- Выбор роли, если доступно больше одной -->
+      <!-- Choix du rôle, si plus d'un est disponible -->
       <div *ngIf="emailChecked && availableRoles.length > 1" class="role-selection mt-3">
         <p class="mb-2">Choisissez un rôle :</p>
         <mat-button-toggle-group formControlName="selectedRole" class="w-100" appearance="legacy">
@@ -38,17 +38,12 @@
         </button>
       </mat-form-field>
 
-
-
       <!-- Submit -->
       <div class="mt-3">
         <button mat-raised-button type="submit" class="login-button"
           [ngClass]="{ 'disabled-button': loginForm.invalid }" [disabled]="loginForm.invalid">
           Se connecter
         </button>
-
-
-
       </div>
 
       <!-- Link to register -->

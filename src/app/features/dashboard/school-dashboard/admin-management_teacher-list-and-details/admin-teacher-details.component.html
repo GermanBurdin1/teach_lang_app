@@ -1,11 +1,11 @@
 <div *ngIf="teacher" class="admin-teacher-details">
   <img [src]="teacher.photoUrl" alt="{{ teacher.name }}" class="avatar" />
   <h2>{{ teacher.name }}</h2>
-  <p><strong>Специализации:</strong> {{ teacher.specializations.join(', ') }}</p>
-  <p><strong>Цена:</strong> {{ teacher.price }} €/ч</p>
-  <p><strong>Рейтинг:</strong> ★ {{ teacher.rating }}</p>
-  <h4 class="mt-5">Отзывы студентов</h4>
-  <div *ngIf="reviews.length === 0">Пока нет отзывов.</div>
+  <p><strong>Spécialisations :</strong> {{ teacher.specializations.join(', ') }}</p>
+  <p><strong>Tarif :</strong> {{ teacher.price }} €/h</p>
+  <p><strong>Note :</strong> ★ {{ teacher.rating }}</p>
+  <h4 class="mt-5">Avis des étudiants</h4>
+  <div *ngIf="reviews.length === 0">Pas encore d'avis.</div>
 
   <div *ngFor="let review of reviews" class="review-item mb-3">
     <strong>{{ review.studentName }}</strong>
@@ -16,27 +16,27 @@
     </div>
     <p class="mt-1 mb-1">{{ review.comment }}</p>
 
-    <button class="btn btn-sm btn-outline-danger" (click)="removeReview(review.id)">Удалить</button>
+    <button class="btn btn-sm btn-outline-danger" (click)="removeReview(review.id)">Supprimer</button>
   </div>
 
 
   <p>
-    <strong>Активность:</strong>
+    <strong>Activité :</strong>
     <span [class.active]="teacher.isActive" [class.inactive]="!teacher.isActive">
-      {{ teacher.isActive ? 'Активен' : 'Неактивен' }}
+      {{ teacher.isActive ? 'Actif' : 'Inactif' }}
     </span>
   </p>
 
-  <p><strong>Дата регистрации:</strong> {{ getFormattedDate(teacher.registrationDate) }}</p>
+  <p><strong>Date d'inscription :</strong> {{ getFormattedDate(teacher.registrationDate) }}</p>
 
   <p>
-    <strong>Модерация:</strong>
+    <strong>Modération :</strong>
     <span [class.moderated]="teacher.moderated" [class.not-moderated]="!teacher.moderated">
-      {{ teacher.moderated ? 'Пройдена' : 'Не пройдена' }}
+      {{ teacher.moderated ? 'Validée' : 'Non validée' }}
     </span>
   </p>
 </div>
 
 <div *ngIf="!teacher" class="not-found">
-  Преподаватель не найден.
+  Enseignant non trouvé.
 </div>

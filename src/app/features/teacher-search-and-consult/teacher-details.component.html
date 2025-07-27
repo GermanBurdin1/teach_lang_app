@@ -22,7 +22,7 @@
 <ng-container *ngIf="showMessageModal">
   <div class="modal-overlay d-flex align-items-center justify-content-center">
     <div class="bg-white p-4 rounded shadow modal-content-custom">
-      <h5 class="mb-3">Message à l’enseignant</h5>
+      <h5 class="mb-3">Message à l'enseignant</h5>
       <textarea [(ngModel)]="messageText" class="form-control mb-3" rows="4"
         placeholder="Écrivez votre message..."></textarea>
       <div class="d-flex justify-content-end gap-2">
@@ -49,7 +49,7 @@
           Chargement des créneaux...
         </div>
         
-        <!-- Simple grid pour étudiants - juste disponible/indisponible -->
+        <!-- Grille simple pour étudiants - juste disponible/indisponible -->
         <div class="simple-time-grid">
           <button 
             *ngFor="let slot of teacherSchedule" 
@@ -65,7 +65,7 @@
         </div>
         
         <div *ngIf="hasNoAvailableSlots()" class="text-warning mt-2">
-          ⚠️ Aucun créneau disponible pour cette date
+          Aucun créneau disponible pour cette date
         </div>
       </div>
 
@@ -78,7 +78,7 @@
 </ng-container>
 
 <!-- DEBUG: showPaymentModal = {{ showPaymentModal }} -->
-<!-- Модальное окно оплаты -->
+<!-- Modale de paiement -->
 <app-payment-modal
   *ngIf="showPaymentModal"
   [teacher]="teacher"

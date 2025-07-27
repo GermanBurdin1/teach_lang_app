@@ -1,26 +1,31 @@
 import { Review } from '../shared/models/review.model';
 
-export const MOCK_REVIEWS: Review[] = [
+export const MOCK_REVIEWS = [
   {
-    id: 'r1',
-    studentName: 'Анна Иванова',
+    id: 1,
+    studentName: 'Anna Dubois',
     rating: 5,
-    comment: 'Превосходный преподаватель. Спасибо за помощь!',
-    date: '2024-11-10'
+    comment: 'Excellent professeur. Merci pour votre aide !',
+    date: new Date('2024-01-15'),
+    verified: true
   },
   {
-    id: 'r2',
-    studentName: 'Михаил Смирнов',
+    id: 2,
+    studentName: 'Michel Martin',
     rating: 4,
-    comment: 'Занятия очень полезные, но хотелось бы больше практики.',
-    date: '2025-01-15'
+    comment: 'Très bon cours, méthodologie claire.',
+    date: new Date('2024-01-10'),
+    verified: true
   },
   {
-    id: 'r3',
-    studentName: 'Елена Кузнецова',
+    id: 3,
+    studentName: 'Sophie Leclerc',
     rating: 5,
-    comment: 'Успешно сдала DELF B1 благодаря этим занятиям!',
-    date: '2025-03-02'
+    comment: 'Je recommande vivement ce professeur !',
+    date: new Date('2024-01-05'),
+    verified: false
   }
 ];
+
+// TODO : remplacer par des données dynamiques depuis l'API
 

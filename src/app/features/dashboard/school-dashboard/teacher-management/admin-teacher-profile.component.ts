@@ -5,10 +5,11 @@ import { TawkService } from '../../../../services/support-chat.service';
 import { MOCK_TEACHER_PROFILE } from './mock-teacher-profile';
 import { TeacherProfile } from './teacher-profile.model';
 
+// TODO : ajouter interface pour les leçons
 interface Lesson {
   day: string;
   hour: string;
-  topic?: string; // Дополнительные свойства урока, если нужны
+  topic?: string; // propriétés supplémentaires de la leçon si nécessaire
 }
 
 @Component({
@@ -19,8 +20,8 @@ interface Lesson {
 export class AdminTeacherProfileComponent implements OnInit {
   teacherId: number | null = null;
   teacherData: TeacherProfile | null = null;
-  tabs = ['Онлайн-уроки', 'Марафоны', 'Администратор'];
-  subTabs = ['Учитель', 'Классы', 'Личные материалы'];
+  tabs = ['Cours en ligne', 'Marathons', 'Administrateur'];
+  subTabs = ['Enseignant', 'Classes', 'Matériels personnels'];
   activeTab: string = this.tabs[0];
   activeSubTab: string = this.subTabs[0];
 
@@ -44,7 +45,6 @@ export class AdminTeacherProfileComponent implements OnInit {
   showModal = false;
   showNewLessonModal = false;
   activeLessonTab: string = 'individual';
-
 
   constructor(private route: ActivatedRoute, private router: Router, private tawkService: TawkService) {
     this.currentWeekStart = this.getStartOfWeek(new Date());
@@ -73,7 +73,7 @@ export class AdminTeacherProfileComponent implements OnInit {
   getStartOfWeek(date: Date): Date {
     const start = new Date(date);
     const day = start.getDay();
-    const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Начало недели - понедельник
+    const diff = start.getDate() - day + (day === 0 ? -6 : 1); // début de semaine - lundi
     return new Date(start.setDate(diff));
   }
 
@@ -95,6 +95,7 @@ export class AdminTeacherProfileComponent implements OnInit {
     this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
   }
 
+  // TODO : optimiser la gestion des créneaux temporels
   toggleTimeSlot(day: string, hour: string) {
     const slotKey = `${day}-${hour}`;
     this.activeSlots[slotKey] = !this.activeSlots[slotKey];
@@ -167,8 +168,8 @@ export class AdminTeacherProfileComponent implements OnInit {
   workloadPercentage: number = 0;
 
   openNewLessonModal(): void {
-    this.showModal = false; // Закрываем первую модалку
-    this.showNewLessonModal = true; // Открываем модалку с вкладками
+    this.showModal = false; // on ferme la première modale
+    this.showNewLessonModal = true; // on ouvre la modale avec onglets
   }
 
   closeNewLessonModal(): void {
@@ -184,7 +185,7 @@ export class AdminTeacherProfileComponent implements OnInit {
   }
 
   goToOnlineLessons(): void {
-    this.router.navigate(['/online-lessons'], { queryParams: { activeTab: 'Ученики' } });
+    this.router.navigate(['/online-lessons'], { queryParams: { activeTab: 'Élèves' } });
   }
 
   navigateBack() {
@@ -193,6 +194,7 @@ export class AdminTeacherProfileComponent implements OnInit {
 
   showStatisticsModal = false;
 
+  // TODO : intégrer le téléchargement de statistiques réelles
   downloadStatistics() {
     this.showStatisticsModal = true;
   }
@@ -203,8 +205,8 @@ export class AdminTeacherProfileComponent implements OnInit {
 
   possibilities = [
     {
-      title: 'Учитель онлайн-уроков',
-      description: 'Сотрудник сможет проводить онлайн-уроки',
+      title: 'Enseignant de cours en ligne',
+      description: 'L\'employé pourra donner des cours en ligne',
       icon: 'bi bi-person-video3',
       role: 'teacher',
       enabled: false,
@@ -212,8 +214,8 @@ export class AdminTeacherProfileComponent implements OnInit {
       isFeatureEnabled: false,
     },
     {
-      title: 'Куратор марафонов',
-      description: 'Сотрудник сможет курировать марафоны и онлайн-курсы',
+      title: 'Superviseur de marathons',
+      description: 'L\'employé pourra superviser les marathons et cours en ligne',
       icon: 'bi bi-award',
       role: 'teacher',
       enabled: false,
@@ -221,8 +223,8 @@ export class AdminTeacherProfileComponent implements OnInit {
       isFeatureEnabled: false,
     },
     {
-      title: 'Администратор',
-      description: 'Сотрудник сможет администрировать учебный процесс',
+      title: 'Administrateur',
+      description: 'L\'employé pourra administrer le processus d\'apprentissage',
       icon: 'bi bi-gear',
       role: 'admin',
       enabled: false,
@@ -232,12 +234,12 @@ export class AdminTeacherProfileComponent implements OnInit {
   ];
 
   sections = [
-    { name: 'Показатели', icon: 'bi bi-grid', enabled: false },
-    { name: 'Выручка и платежи', icon: 'bi bi-currency-dollar', enabled: false },
-    { name: 'Пользователи', icon: 'bi bi-people', enabled: false },
-    { name: 'Онлайн-уроки', icon: 'bi bi-mortarboard', enabled: false },
-    { name: 'Марафоны', icon: 'bi bi-activity', enabled: false },
-    { name: 'Материалы', icon: 'bi bi-journal', enabled: false }
+    { name: 'Indicateurs', icon: 'bi bi-grid', enabled: false },
+    { name: 'Revenus et paiements', icon: 'bi bi-currency-dollar', enabled: false },
+    { name: 'Utilisateurs', icon: 'bi bi-people', enabled: false },
+    { name: 'Cours en ligne', icon: 'bi bi-mortarboard', enabled: false },
+    { name: 'Marathons', icon: 'bi bi-activity', enabled: false },
+    { name: 'Matériels', icon: 'bi bi-journal', enabled: false }
   ];
 
   platforms = [
@@ -274,13 +276,14 @@ export class AdminTeacherProfileComponent implements OnInit {
   showAdditionalInfo = false;
   selectedFile: File | null = null;
   selectedPlatform = 'Skype';
-  linkPlaceholder = 'Введите ссылку для Skype';
+  linkPlaceholder = 'Entrez le lien pour Skype';
   linkInput: string | undefined;
   teacherWillFill: boolean = false;
-  selectedLanguages: string = 'Английский';
-  availableLanguages = ['Русский', 'Английский', 'Французский'];
+  selectedLanguages: string = 'Anglais';
+  availableLanguages = ['Français', 'Anglais', 'Espagnol'];
   crossEntryEnabled: boolean = false;
 
+  // TODO : améliorer la gestion des modales
   openEditModal(): void {
     this.isEditModalOpen = true;
   }
@@ -303,12 +306,12 @@ export class AdminTeacherProfileComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
-      console.log('Выбранный файл:', this.selectedFile.name);
+      console.log('[AdminTeacherProfile] Fichier sélectionné:', this.selectedFile.name);
     }
   }
 
   updateLinkPlaceholder(): void {
-    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
+    this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Entrez le lien pour Skype' : 'Entrez le lien pour Zoom';
   }
 
   togglePossibility(possibility: any) {
@@ -317,16 +320,15 @@ export class AdminTeacherProfileComponent implements OnInit {
 
   toggleFeature(possibility: any) {
     if (possibility.role === 'admin') {
-      // Логика для администратора
+      // logique pour l'administrateur
       possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
-      // Дополнительные действия для администратора
+      // actions supplémentaires pour l'administrateur
     } else if (possibility.role === 'teacher') {
-      // Логика для учителя
+      // logique pour l'enseignant
       possibility.isFeatureEnabled = !possibility.isFeatureEnabled;
-      // Дополнительные действия для учителя
+      // actions supplémentaires pour l'enseignant
     }
   }
-
 
   fillSchedule() {
     this.teacherWillFill = false;
@@ -337,7 +339,7 @@ export class AdminTeacherProfileComponent implements OnInit {
   }
 
   showTooltip(role: string): void {
-    console.log("hello");
+    console.log("[AdminTeacherProfile] Affichage tooltip");
     this.tooltipVisible = role;
   }
 
@@ -357,21 +359,22 @@ export class AdminTeacherProfileComponent implements OnInit {
     this.showDeactivateModal = false;
   }
 
+  // TODO : intégrer l'API de désactivation
   confirmDeactivation() {
-    // Логика деактивации
-    console.log('Учитель деактивирован');
+    // logique de désactivation
+    console.log('[AdminTeacherProfile] Enseignant désactivé');
     this.closeDeactivateModal();
   }
 
   // marathon
   showMarathonModal: boolean = false;
   proFeatures = [
-    { icon: 'bi bi-star', description: 'Включены все возможности тарифа "Стандарт"' },
-    { icon: 'bi bi-people', description: 'Возможность назначения кураторов' },
-    { icon: 'bi bi-cash', description: 'Приём оплат от учеников внутри платформы' },
-    { icon: 'bi bi-gear', description: 'Автоматизация открытия доступа к марафонам' },
-    { icon: 'bi bi-badge', description: 'Возможность подключить White Label и Рекламный блок' },
-    { icon: 'bi bi-bar-chart', description: 'Контроль процесса обучения' }
+    { icon: 'bi bi-star', description: 'Toutes les fonctionnalités du tarif "Standard" incluses' },
+    { icon: 'bi bi-people', description: 'Possibilité d\'assigner des superviseurs' },
+    { icon: 'bi bi-cash', description: 'Accepter les paiements des élèves sur la plateforme' },
+    { icon: 'bi bi-gear', description: 'Automatisation d\'ouverture d\'accès aux marathons' },
+    { icon: 'bi bi-badge', description: 'Possibilité de connecter White Label et bloc publicitaire' },
+    { icon: 'bi bi-bar-chart', description: 'Contrôle du processus d\'apprentissage' }
   ];
 
   openMarathonModal() {
@@ -396,16 +399,16 @@ export class AdminTeacherProfileComponent implements OnInit {
     this.showMarathonModal = false;
   }
 
-  showProductSelectionModal: boolean = false; // Модальное окно для выбора продукта
-  showPaymentConfirmationModal: boolean = false; // Модальное окно для подтверждения оплаты
+  showProductSelectionModal: boolean = false; // modale pour sélection de produit
+  showPaymentConfirmationModal: boolean = false; // modale pour confirmation de paiement
 
-  // Открыть модальное окно выбора продукта
+  // ouvrir la modale de sélection de produit
   openProductSelectionModal(): void {
     this.showMarathonModal = false;
     this.showProductSelectionModal = true;
   }
 
-  // Перейти к модальному окну подтверждения оплаты
+  // aller vers la modale de confirmation de paiement
   proceedToPayment(): void {
     this.showProductSelectionModal = false;
     this.showPaymentConfirmationModal = true;
@@ -414,18 +417,18 @@ export class AdminTeacherProfileComponent implements OnInit {
   closeProductSelectionModal(): void {
     this.showProductSelectionModal = false;
   }
+  
   closePaymentConfirmationModal(): void {
     this.showPaymentConfirmationModal = false;
   }
 
-  showTariffModal: boolean = false; // Управляет отображением <app-tariff-status>
+  showTariffModal: boolean = false; // contrôle l'affichage de <app-tariff-status>
 
   openTariffModal(): void {
-    this.showTariffModal = true; // Открыть модалку
+    this.showTariffModal = true; // ouvrir la modale
   }
 
   closeTariffModal(): void {
-    this.showTariffModal = false; // Закрыть модалку
+    this.showTariffModal = false; // fermer la modale
   }
-
 }

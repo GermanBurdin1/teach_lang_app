@@ -28,7 +28,7 @@ export interface BackendWordCard {
   userId?: string;
 }
 
-
+// TODO : ajouter synchronisation hors ligne pour le lexique
 @Injectable({
   providedIn: 'root'
 })
@@ -61,7 +61,7 @@ export class LexiconService {
     
     return this.http.post(`${this.apiUrl}`, cardWithUserId).pipe(
       catchError(err => {
-        console.error('❌ Ошибка при добавлении слова:', err);
+        console.error('[LexiconService] Erreur lors de l\'ajout du mot:', err);
         return throwError(() => err);
       })
     );
@@ -76,7 +76,7 @@ export class LexiconService {
     
     return this.http.post(`${this.apiUrl}/bulk`, cardsWithUserId).pipe(
       catchError(err => {
-        console.error('❌ Ошибка при множественном добавлении слов:', err);
+        console.error('[LexiconService] Erreur lors de l\'ajout multiple de mots:', err);
         return throwError(() => err);
       })
     );
@@ -85,7 +85,7 @@ export class LexiconService {
   updateGrammar(id: number, grammar: GrammarData): Observable<any> {
     return this.http.patch(`http://localhost:3000/grammar/${id}`, grammar).pipe(
       catchError(err => {
-        console.error('❌ Ошибка при обновлении грамматики:', err);
+        console.error('[LexiconService] Erreur lors de la mise à jour de la grammaire:', err);
         return throwError(() => err);
       })
     );
@@ -98,7 +98,7 @@ export class LexiconService {
   deleteWord(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`).pipe(
       catchError(err => {
-        console.error('❌ Ошибка при удалении слова:', err);
+        console.error('[LexiconService] Erreur lors de la suppression du mot:', err);
         return throwError(() => err);
       })
     );
@@ -109,8 +109,8 @@ export class LexiconService {
     const userId = currentUser?.id;
     
     if (!userId) {
-      console.warn('⚠️ Нет текущего пользователя для получения статистики');
-      return throwError(() => new Error('Пользователь не аутентифицирован'));
+      console.warn('[LexiconService] Aucun utilisateur actuel pour obtenir les statistiques');
+      return throwError(() => new Error('Utilisateur non authentifié'));
     }
     
     return this.http.get<{ count: number }>(`${this.apiUrl}/learned/count/${userId}`);

@@ -12,7 +12,7 @@
       <option value="hardest"><i class="fas fa-fire"></i> Erreurs</option>
     </select>
 
-    <!-- Toggle-переключатель -->
+    <!-- Toggle-switch -->
     <div class="view-toggle-switch">
       <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'" aria-label="Cartes">
         📇
@@ -24,19 +24,17 @@
   </div>
 
 
-  <!-- Фильтрация слов/выражений -->
   <div class="filter-toggle">
     <button (click)="filterType = 'all'" [class.active]="filterType === 'all'">Tous</button>
     <button (click)="filterType = 'word'" [class.active]="filterType === 'word'">Mots seulement</button>
     <button (click)="filterType = 'expression'" [class.active]="filterType === 'expression'">Expressions seulement</button>
   </div>
 
-  <!-- Карточки -->
   <div class="cards-container" [ngClass]="{
     'single-column': filterType !== 'all',
     'two-columns': filterType === 'all'
   }">
-    <!-- Колонка для слов -->
+    <!-- Колонка pour les mots -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'word'">
       <div class="controls-row">
         <button class="add-icon-btn" (click)="openAddCardModal('word')" title="Ajouter un mot">
@@ -179,8 +177,8 @@
                   {{ getHint(card) }}
                 </p>
 
-                <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
-                <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+                <span *ngIf="card.isCorrect === true" class="correct"></span>
+                <span *ngIf="card.isCorrect === false" class="wrong"></span>
 
                 <!-- Грамматические поля (только если карточка зумирована и это слово, не выражение) -->
                 <app-grammar-fields *ngIf="card.type === 'word' && enlargedCardId === card.id" [grammar]="card.grammar"
@@ -207,15 +205,15 @@
         </ul>
       </ng-template>
 
-      <!-- Пагинация для слов -->
+      <!-- Пагинация pour les mots -->
       <div class="pagination-controls">
-        <button (click)="changeWordsPage(-1)" [disabled]="!hasPrevWordsPage">⬅</button>
+        <button (click)="changeWordsPage(-1)" [disabled]="!hasPrevWordsPage"></button>
         <span>Page {{ currentWordsPage }}</span>
-        <button (click)="changeWordsPage(1)" [disabled]="!hasNextWordsPage">➡</button>
+        <button (click)="changeWordsPage(1)" [disabled]="!hasNextWordsPage"></button>
       </div>
 
     </div>
-    <!-- Колонка для выражений -->
+    <!-- Колонка pour les expressions -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'expression'">
       <div class="controls-row">
         <button class="add-icon-btn" (click)="openAddCardModal('expression')" title="Ajouter une expression"
@@ -362,8 +360,8 @@
                   {{ getHint(card) }}
                 </p>
 
-                <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
-                <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
+                <span *ngIf="card.isCorrect === true" class="correct"></span>
+                <span *ngIf="card.isCorrect === false" class="wrong"></span>
 
                 <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i>
@@ -385,11 +383,11 @@
         </ul>
       </ng-template>
 
-      <!-- Пагинация для выражений -->
+      <!-- Пагинация pour les expressions -->
       <div class="pagination-controls">
-        <button (click)="changeExpressionsPage(-1)" [disabled]="!hasPrevExpressionsPage">⬅</button>
+        <button (click)="changeExpressionsPage(-1)" [disabled]="!hasPrevExpressionsPage"></button>
         <span>Page {{ currentExpressionsPage }}</span>
-        <button (click)="changeExpressionsPage(1)" [disabled]="!hasNextExpressionsPage">➡</button>
+        <button (click)="changeExpressionsPage(1)" [disabled]="!hasNextExpressionsPage"></button>
       </div>
 
 
@@ -398,9 +396,9 @@
 
 </div>
 
-<!-- Старое модальное окно заменено на Material Dialog в добавить-слово-диалог компоненте -->
+<!-- Старое модальное окно заменено на Material Dialog dans le composant de dialogue d'ajout de mot -->
 
-<!-- Модалка перевода для непереведённой карточки -->
+<!-- Модалка перевода pour la carte non traduite -->
 <div class="translation-modal-overlay"
   *ngIf="editingCard && manualTranslation !== '' && !showExtraModal && !showExtraTranslationModal">
   <div class="translation-modal">

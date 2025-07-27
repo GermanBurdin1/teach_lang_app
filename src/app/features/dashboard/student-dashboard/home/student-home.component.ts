@@ -24,7 +24,7 @@ import { LexiconService } from '../../../../services/lexicon.service';
 export class StudentHomeComponent implements OnInit {
   goal = 'DALF C1 avant le 15 juillet 2025';
   
-  // Свойства для целей
+  // Propriétés pour les objectifs
   currentGoal: StudentGoal | null = null;
   showGoalModal = false;
   availableExamLevels: ExamLevel[] = [];
@@ -56,7 +56,7 @@ export class StudentHomeComponent implements OnInit {
   selectedDateOnly: Date | null = null;
   selectedTimeOnly: string = '';
 
-  // Новые свойства для управления уведомлениями
+  // Nouvelles propriétés pour la gestion des notifications
   showMoreNotifications = false;
   readonly MAX_NOTIFICATIONS = 5;
 
@@ -84,28 +84,28 @@ export class StudentHomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Обновляем время каждую минуту
+    // Met à jour l'heure chaque minute
     setInterval(() => {
       this.now = new Date();
     }, 60000);
 
-    // Проверяем авторизацию
+    // Vérifie l'authentification
     const currentUser = this.authService.getCurrentUser();
     const studentId = currentUser?.id;
     
-    console.log('[StudentHome] ngOnInit called, currentUser:', currentUser, 'studentId:', studentId);
+    console.log('[StudentHome] ngOnInit appelé, utilisateur courant:', currentUser, 'studentId:', studentId);
     
     if (!studentId) {
-      console.warn('[StudentHome] No studentId available, waiting for authentication...');
-      // Пробуем через секунду
+      console.warn('[StudentHome] Aucun studentId disponible, en attente d\'authentification...');
+      // On réessaie dans une seconde
       setTimeout(() => {
         const retryUser = this.authService.getCurrentUser();
         const retryStudentId = retryUser?.id;
         if (retryStudentId) {
-          console.log('[StudentHome] User loaded on retry:', retryUser);
+          console.log('[StudentHome] Utilisateur chargé lors du retry:', retryUser);
           this.initializeComponent(retryStudentId);
         } else {
-          console.error('[StudentHome] Still no user after retry');
+          console.error('[StudentHome] Toujours pas d\'utilisateur après retry');
         }
       }, 1000);
       return;
@@ -115,28 +115,28 @@ export class StudentHomeComponent implements OnInit {
   }
 
   private initializeComponent(studentId: string): void {
-    console.log('[StudentHome] Initializing with studentId:', studentId);
+    console.log('[StudentHome] Initialisation avec studentId:', studentId);
 
-    // Записываем вход пользователя для статистики активных дней
+    // Enregistre la connexion de l'utilisateur pour les stats de jours actifs
     this.statisticsService.recordUserLogin(studentId).subscribe({
-      next: () => console.log('[StudentHome] User login recorded'),
-      error: (err) => console.error('[StudentHome] Failed to record login:', err)
+      next: () => console.log('[StudentHome] Connexion utilisateur enregistrée'),
+      error: (err) => console.error('[StudentHome] Échec de l\'enregistrement de la connexion:', err)
     });
 
-    // Загружаем цели студента
+    // Charge les objectifs de l'étudiant
     this.loadStudentGoal(studentId);
     this.loadAvailableExamLevels();
     
-    // Загружаем статистику студента
+    // Charge les stats de l'étudiant
     this.loadStudentStats(studentId);
 
     this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
-      console.log('[StudentHomeComponent] RAW notifications from backend:', res);
+      console.log('[StudentHomeComponent] Notifications brutes du backend:', res);
       this.notifications = res
         .filter(n => n.type === 'booking_response' || n.type === 'booking_proposal')
         .map((n: any) => {
           if (n.type === 'booking_proposal') {
-            console.log('[StudentHomeComponent] Processing booking_proposal:', n);
+            console.log('[StudentHomeComponent] Traitement de booking_proposal:', n);
             const teacherName = n.data?.teacherName;
             const displayText = teacherName 
               ? `Votre professeur ${teacherName} vous propose ${n.data?.proposedTime ? (new Date(n.data.proposedTime)).toLocaleString('fr-FR') : ''}` 
@@ -162,38 +162,38 @@ export class StudentHomeComponent implements OnInit {
             notification: n
           };
         });
-      console.log('[StudentHomeComponent] notifications for template:', this.notifications);
+      console.log('[StudentHomeComponent] notifications pour le template:', this.notifications);
     });
 
     // ==================== ЗАГРУЗКА ВСЕХ ЗАЯВОК ДЛЯ КАЛЕНДАРЯ ====================
     this.loadAllLessonsForCalendar(studentId);
 
-    // Загрузка реальных домашних заданий
+    // Charge les devoirs réels
     this.homeworkService.getHomeworkForStudent(studentId).subscribe({
       next: (homework) => {
-        // Фильтруем только невыполненные домашние задания для отображения в "Devoirs à faire"
+        // Filtrage des devoirs non terminés pour l'affichage dans "Devoirs à faire"
         this.studentHomework = homework.filter(hw => 
           hw.status !== 'completed' && 
           hw.status !== 'submitted' && 
-          hw.status !== 'finished'  // Добавляем фильтр для статуса 'finished'
+          hw.status !== 'finished'  // on ajoute le filtre pour le statut 'finished'
         );
-        console.log('[StudentHome] Загружены невыполненные домашние задания:', this.studentHomework);
+        console.log('[StudentHome] Devoirs non terminés chargés:', this.studentHomework);
       },
       error: (err) => {
-        console.error('[StudentHome] Ошибка загрузки домашних заданий:', err);
+        console.error('[StudentHome] Erreur de chargement des devoirs:', err);
         this.studentHomework = [];
       }
     });
 
-    // Подписываемся на обновления домашних заданий
+    // S'abonne aux mises à jour des devoirs
     this.homeworkService.onHomeworkUpdated().subscribe(() => {
-      console.log('[StudentHome] Получено уведомление об обновлении домашних заданий');
+      console.log('[StudentHome] Notification de mise à jour des devoirs reçue');
       this.refreshHomework(studentId);
     });
   }
 
   onLessonClick(event: CalendarEvent): void {
-    // Если урок подтвержден, переходим к lesson-management
+    // Si le cours est confirmé, va à lesson-management
     if (event.meta?.status === 'confirmed' && event.meta?.lessonId) {
       this.router.navigate(['/lessons/student'], { 
         queryParams: { 
@@ -204,9 +204,9 @@ export class StudentHomeComponent implements OnInit {
       return;
     }
     
-    // Для других статусов показываем модалку с деталями
+    // Pour les autres statuts, affiche la modale avec les détails
     this.selectedLesson = event;
-    this.now = new Date(); // обновляем текущий момент
+    this.now = new Date(); // on met à jour le moment actuel
     this.showModal = true;
   }
 
@@ -228,7 +228,7 @@ export class StudentHomeComponent implements OnInit {
   confirmReschedule(): void {
     if (this.selectedNewDate) {
       // здесь можно отправить запрос на бэкенд
-      console.log('Reschedule requested:', this.selectedNewDate);
+      console.log('Replanification demandée:', this.selectedNewDate);
       this.showRescheduleModal = false;
       this.selectedNewDate = null;
       this.rescheduleConfirmed = true;
@@ -270,7 +270,7 @@ export class StudentHomeComponent implements OnInit {
     } else if (this.actionType === 'cancel') {
       const reason = this.cancelReason === 'autre' ? this.customCancelReason : this.cancelReason;
       if (!reason || !this.selectedLesson?.meta?.lessonId) {
-        console.error('❌ Raison manquante ou ID de leçon manquant');
+        console.error('Raison manquante ou ID de cours manquant');
         return;
       }
       this.cancelLesson(this.selectedLesson.meta.lessonId, reason);
@@ -282,12 +282,12 @@ export class StudentHomeComponent implements OnInit {
       return false;
     }
 
-    // Можно отменить только подтвержденные уроки
+    // Peut annuler seulement les cours confirmés
     if (this.selectedLesson.meta.status !== 'confirmed') {
       return false;
     }
 
-    // Проверяем, что урок в будущем
+    // Vérifie que le cours est dans le futur
     return this.selectedLesson.start > this.now;
   }
 
@@ -302,9 +302,9 @@ export class StudentHomeComponent implements OnInit {
   }
 
   cancelLesson(lessonId: string, reason: string): void {
-    // Проверяем, является ли это мок-уроком
+    // Mock pour tester
     if (lessonId.startsWith('mock-lesson-')) {
-      // Мок-имплементация для тестирования
+      // Mock implementation for testing
       const isWithinTwoHours = this.isCancellationTooLate();
       const mockResponse = {
         success: true,
@@ -316,10 +316,10 @@ export class StudentHomeComponent implements OnInit {
       };
       
       setTimeout(() => {
-        console.log('✅ [MOCK] Урок отменен:', mockResponse);
+        console.log('[MOCK] Cours annulé:', mockResponse);
         this.matNotificationService.info(mockResponse.message);
         
-        // Удаляем урок из календаря
+        // Supprime le cours du calendrier
         this.upcomingLessons = this.upcomingLessons.filter(
           lesson => lesson.meta?.lessonId !== lessonId
         );
@@ -330,15 +330,15 @@ export class StudentHomeComponent implements OnInit {
       return;
     }
 
-    // Реальный API вызов
+    // Appel API réel
     this.lessonService.cancelLesson(lessonId, reason).subscribe({
       next: (response) => {
         console.log('✅ Урок отменен:', response);
         
-        // Показываем сообщение пользователю
+        // Affiche le message à l'utilisateur
         this.matNotificationService.success(response.message || 'Урок успешно отменен');
         
-        // Обновляем календарь
+        // Met à jour le calendrier
         const studentId = this.authService.getCurrentUser()?.id;
         if (studentId) {
           this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
@@ -399,11 +399,11 @@ export class StudentHomeComponent implements OnInit {
   }
 
   makeProfesseurLink(text: string, teacherId: string, teacherName?: string): string {
-    // Заменяем 'Le professeur' или 'Votre professeur ИМЯ' на ссылку с именем
+    // Remplace 'Le professeur' ou 'Votre professeur NOM' par un lien
     const displayName = teacherName ? `Votre professeur ${teacherName}` : 'Votre professeur';
     const link = `<a href="/student/teachers/${teacherId}" title="voir l'information" style="text-decoration: underline; cursor: pointer;">${displayName}</a>`;
     
-    // Сначала заменяем полное совпадение "Votre professeur ИМЯ"
+    // D'abord, remplace la correspondance complète
     if (teacherName) {
       const fullMatch = `Votre professeur ${teacherName}`;
       if (text.includes(fullMatch)) {
@@ -411,7 +411,7 @@ export class StudentHomeComponent implements OnInit {
       }
     }
     
-    // Затем заменяем базовые варианты
+    // Puis remplace les variantes de base
     return text.replace('Votre professeur', link).replace('Le professeur', link);
   }
 
@@ -424,7 +424,7 @@ export class StudentHomeComponent implements OnInit {
       console.log('[acceptProposal] ответ от сервера:', res);
       notif.accepted = true;
       notif.refused = false;
-      // Не вызываем ngOnInit для мгновенного эффекта
+      // Ne pas appeler ngOnInit pour effet instantané
     });
   }
 
@@ -436,14 +436,14 @@ export class StudentHomeComponent implements OnInit {
       console.log('[refuseProposal] ответ от сервера:', res);
       notif.accepted = false;
       notif.refused = true;
-      // Не вызываем ngOnInit для мгновенного эффекта
+      // Ne pas appeler ngOnInit pour effet instantané
     });
   }
 
   hideNotification(notification: any) {
     if (notification.notification?.id) {
       this.notificationService.hideNotification(notification.notification.id).subscribe(() => {
-        // Удаляем уведомление из локального массива
+        // Supprime la notification du tableau local
         this.notifications = this.notifications.filter(n => n.notification?.id !== notification.notification.id);
       });
     }
@@ -466,9 +466,9 @@ export class StudentHomeComponent implements OnInit {
   // ==================== ЗАГРУЗКА ВСЕХ ЗАЯВОК ДЛЯ КАЛЕНДАРЯ ====================
   
   private loadAllLessonsForCalendar(studentId: string): void {
-    // Загружаем отправленные заявки студента для отображения в календаре
+    // Charge toutes les demandes envoyées par l'étudiant pour le calendrier
     this.lessonService.getStudentSentRequests(studentId).subscribe(requests => {
-      console.log('📅 Загружаем все заявки для календаря:', requests);
+      console.log('📅 Charge toutes les demandes pour le calendrier:', requests);
       
       this.upcomingLessons = requests.map(request => {
         const lessonTime = new Date(request.scheduledAt);
@@ -623,7 +623,7 @@ export class StudentHomeComponent implements OnInit {
     return this.goalsService.getExamLevelDisplayName(level);
   }
 
-  // Получить ближайший урок
+  // Obtenir le prochain cours
   getNextLesson(): CalendarEvent | null {
     const now = new Date();
     const confirmedLessons = this.upcomingLessons.filter(lesson => 
@@ -638,7 +638,7 @@ export class StudentHomeComponent implements OnInit {
     )[0];
   }
 
-  // Проверка можно ли войти в класс (в день занятия)
+  // Vérifie si on peut entrer en classe (le jour du cours)
   canEnterClass(event: CalendarEvent): boolean {
     const status = event.meta?.status;
     if (status === 'confirmed') {
@@ -653,7 +653,7 @@ export class StudentHomeComponent implements OnInit {
     return status === 'in_progress';
   }
 
-  // Вход в виртуальный класс
+  // Entrée dans la classe virtuelle
   async enterVirtualClass(event: CalendarEvent): Promise<void> {
     const currentUserId = this.authService.getCurrentUser()?.id;
     if (!currentUserId || !event.meta?.lessonId) return;
@@ -661,14 +661,14 @@ export class StudentHomeComponent implements OnInit {
     // Устанавливаем данные урока в VideoCallService
     this.videoCallService.setLessonData(event.meta.lessonId, currentUserId);
 
-    // Загружаем задачи, вопросы и материалы для урока
+    // Charge les tâches, questions et matériaux pour le cours
     const [tasks, questions, materials] = await Promise.all([
       this.lessonService.getTasksForLesson(event.meta.lessonId).toPromise(),
       this.lessonService.getQuestionsForLesson(event.meta.lessonId).toPromise(),
       this.getMaterialsForLesson(event.meta.lessonId)
     ]);
 
-    // Разделяем задачи и вопросы по ролям
+    // Sépare les tâches et questions par rôle
     const studentTasks = (tasks || []).filter((t: any) => t.createdByRole === 'student').map((t: any) => ({ id: t.id, title: t.title }));
     const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => ({ id: t.id, title: t.title }));
     const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => ({ id: q.id, question: q.question }));
@@ -701,14 +701,14 @@ export class StudentHomeComponent implements OnInit {
     });
   }
 
-  // Получить количество минут до урока
+  // Obtenir le nombre de minutes avant le cours
   getMinutesUntilLesson(event: CalendarEvent): number {
     if (!event.start) return 0;
     const diffMs = event.start.getTime() - this.now.getTime();
     return Math.floor(diffMs / (1000 * 60));
   }
 
-  // Методы для работы с домашними заданиями
+  // Méthodes pour les devoirs
   goToHomeworkDetails(homework: Homework): void {
     // Переход в TrainingComponent на вкладку домашних заданий
     this.router.navigate(['/student/trainer'], { 
@@ -733,7 +733,7 @@ export class StudentHomeComponent implements OnInit {
       console.log('📦 [StudentHome] Все материалы получены:', allMaterials);
       
       if (!allMaterials || allMaterials.length === 0) {
-        console.warn('⚠️ [StudentHome] Материалы не найдены или список пуст. Возможно file-service не запущен?');
+        console.warn('[StudentHome] Matériaux non trouvés ou liste vide. Le file-service est-il lancé ?');
         return [];
       }
       
@@ -742,48 +742,48 @@ export class StudentHomeComponent implements OnInit {
         return isAttached;
       });
       
-      console.log('✅ [StudentHome] Отфильтрованные материалы для урока:', filteredMaterials);
+      console.log('[StudentHome] Matériaux filtrés pour le cours:', filteredMaterials);
       return filteredMaterials;
     } catch (error) {
-      console.error('❌ [StudentHome] Ошибка загрузки материалов для урока:', error);
+      console.error('[StudentHome] Erreur de chargement des matériaux pour le cours:', error);
       return [];
     }
   }
 
   private refreshHomework(studentId: string): void {
-    // Загрузка реальных домашних заданий
+    // Recharge les devoirs réels
     this.homeworkService.getHomeworkForStudent(studentId).subscribe({
       next: (homework) => {
-        // Фильтруем только невыполненные домашние задания для отображения в "Devoirs à faire"
+        // Filtrage des devoirs non terminés pour l'affichage dans "Devoirs à faire"
         this.studentHomework = homework.filter(hw => 
           hw.status !== 'completed' && 
           hw.status !== 'submitted' && 
-          hw.status !== 'finished'  // Добавляем фильтр для статуса 'finished'
+          hw.status !== 'finished'  // on ajoute le filtre pour le statut 'finished'
         );
-        console.log('[StudentHome] Перезагружены невыполненные домашние задания:', this.studentHomework);
+        console.log('[StudentHome] Devoirs non terminés rechargés:', this.studentHomework);
       },
       error: (err) => {
-        console.error('[StudentHome] Ошибка перезагрузки домашних заданий:', err);
+        console.error('[StudentHome] Erreur de rechargement des devoirs:', err);
         this.studentHomework = [];
       }
     });
   }
 
   /**
-   * Загрузить статистику студента
+   * Charger les statistiques de l'étudiant
    */
   private loadStudentStats(studentId: string): void {
     this.loadingStats = true;
-    console.log('[StudentHome] Загружаем статистику для студента:', studentId);
+    console.log('[StudentHome] Chargement des statistiques pour l\'étudiant:', studentId);
     
-    // Загружаем статистику напрямую используя разные сервисы
+    // Charge les stats directement via différents services
     const activeDaysPromise = this.statisticsService.getActiveDaysCount(studentId).toPromise();
     const lessonsCompletedPromise = this.statisticsService.getCompletedLessonsCount(studentId).toPromise();
     const wordsLearnedPromise = this.lexiconService.getLearnedWordsCount().toPromise();
     
     Promise.all([activeDaysPromise, lessonsCompletedPromise, wordsLearnedPromise])
       .then(([activeDaysResult, lessonsResult, wordsResult]) => {
-        console.log('[StudentHome] Получена статистика:', {
+        console.log('[StudentHome] Statistiques reçues:', {
           activeDays: activeDaysResult?.count || 0,
           lessons: lessonsResult?.count || 0,
           words: wordsResult?.count || 0
@@ -797,9 +797,9 @@ export class StudentHomeComponent implements OnInit {
         this.loadingStats = false;
       })
       .catch((error) => {
-        console.error('[StudentHome] Ошибка загрузки статистики:', error);
+        console.error('[StudentHome] Erreur de chargement des statistiques:', error);
         this.loadingStats = false;
-        // Оставляем значения по умолчанию (0)
+        // Laisse les valeurs par défaut (0)
         this.stats = {
           daysActive: 0,
           lessonsCompleted: 0,

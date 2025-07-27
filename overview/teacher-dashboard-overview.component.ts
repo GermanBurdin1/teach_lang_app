@@ -12,7 +12,7 @@ import { NotificationService } from '../src/app/services/notifications.service';
 import { TeacherService } from '../src/app/services/teacher.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-
+// TODO : diviser ce composant en plus petits composants pour améliorer la maintenabilité
 @Component({
   selector: 'app-teacher-dashboard-overview',
   templateUrl: './overview.component.html',
@@ -73,11 +73,11 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
   calendarEvents: CalendarEvent[] = [
     {
-      start: new Date(), // пример — сегодня
+      start: new Date(), // exemple — aujourd'hui
       title: 'Cours avec Alice Dupont'
     },
     {
-      start: new Date(new Date().setDate(new Date().getDate() + 2)), // через 2 дня
+      start: new Date(new Date().setDate(new Date().getDate() + 2)), // dans 2 jours
       title: 'Cours avec Thomas Moreau'
     }
   ];
@@ -107,7 +107,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
-      // Загружаем все подтверждённые занятия для календаря с цветовой индикацией
+      // on charge tous les cours confirmés pour le calendrier avec indication colorée
       this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
         this.calendarEvents = lessons.map(lesson => ({
           start: new Date(lesson.scheduledAt),
@@ -122,15 +122,15 @@ export class TeacherDashboardOverviewComponent implements OnInit {
         }));
       });
 
-      // Загружаем заявки (demandes) как в teacher-home.component
+      // on charge les demandes comme dans teacher-home.component
       this.notificationService.getNotificationsForUser(teacherId).subscribe({
         next: (all: any[]) => {
           this.pendingRequests = all.filter((n: any) => n.type === 'booking_request' && n.status === 'pending');
           this.treatedRequests = all.filter((n: any) => n.type === 'booking_request' && n.status !== 'pending');
-          console.log('[OVERVIEW] pendingRequests:', this.pendingRequests);
+          console.log('[TeacherOverview] Demandes en attente:', this.pendingRequests);
         },
         error: (err: any) => {
-          console.error('[OVERVIEW] Ошибка при получении заявок:', err);
+          console.error('[TeacherOverview] Erreur lors de la récupération des demandes:', err);
         }
       });
 
@@ -148,24 +148,24 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   openPublicProfileModal(): void {
     this.showPublicProfilePreview = true;
     const userId = this.authService.getCurrentUser()?.id;
-    console.log('[Overview] Открытие публичного профиля для userId:', userId);
+    console.log('[TeacherOverview] Ouverture du profil public pour userId:', userId);
     if (userId) {
       this.teacherService.getTeacherById(userId).subscribe({
         next: data => {
-          console.log('[Overview] teacherService.getTeacherById ответ:', data);
+          console.log('[TeacherOverview] Réponse teacherService.getTeacherById:', data);
           this.teacher = data || null;
         },
         error: err => {
-          console.error('[Overview] Ошибка при загрузке teacher:', err);
+          console.error('[TeacherOverview] Erreur lors du chargement du teacher:', err);
         }
       });
       this.teacherService.getReviewsByTeacher(userId).subscribe({
         next: reviews => {
-          console.log('[Overview] teacherService.getReviewsByTeacher ответ:', reviews);
+          console.log('[TeacherOverview] Réponse teacherService.getReviewsByTeacher:', reviews);
           this.teacherReviews = reviews;
         },
         error: err => {
-          console.error('[Overview] Ошибка при загрузке отзывов:', err);
+          console.error('[TeacherOverview] Erreur lors du chargement des avis:', err);
         }
       });
     }
@@ -191,7 +191,6 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       panelClass: 'teacher-preview-modal'
     });
   }
-
 
   addSpecialization(newSpec: string) {
     if (newSpec && !this.profile?.specializations.includes(newSpec)) {
@@ -259,10 +258,10 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   refreshConfirmedStudents(): void {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
-      console.log('[OVERVIEW] Обновляем подтверждённых студентов для teacherId:', teacherId);
+      console.log('[TeacherOverview] Mise à jour des étudiants confirmés pour teacherId:', teacherId);
       this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
         this.confirmedStudents = students;
-        console.log('[OVERVIEW] confirmedStudents (refresh):', students);
+        console.log('[TeacherOverview] confirmedStudents (refresh):', students);
       });
     }
   }
@@ -272,41 +271,41 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     if (!teacherId) return;
     this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
       const now = new Date();
-      console.log('[DEBUG] Загруженные уроки для учителя:', lessons);
-      // Группируем занятия по studentId
+      console.log('[TeacherOverview] Cours chargés pour l\'enseignant:', lessons);
+      // on groupe les cours par studentId
       const studentsMap: { [studentId: string]: any } = {};
       lessons.forEach((lesson: any) => {
         if (!studentsMap[lesson.studentId]) {
           studentsMap[lesson.studentId] = {
             studentId: lesson.studentId,
             name: lesson.studentName,
-            photoUrl: lesson.studentPhotoUrl, // если есть
+            photoUrl: lesson.studentPhotoUrl, // si disponible
             lessons: []
           };
         }
         studentsMap[lesson.studentId].lessons.push(lesson);
       });
-      console.log('[DEBUG] Сгруппированные по студентам уроки:', studentsMap);
-      // Для каждого студента ищем ближайшее будущее занятие
+      console.log('[TeacherOverview] Cours groupés par étudiant:', studentsMap);
+      // pour chaque étudiant on cherche le prochain cours futur
       this.confirmedStudents = Object.values(studentsMap).map((student: any) => {
         const futureLessons = student.lessons
           .map((l: any) => new Date(l.scheduledAt))
           .filter((date: Date) => date > now)
           .sort((a: Date, b: Date) => a.getTime() - b.getTime());
-        console.log(`[DEBUG] Студент ${student.name} (${student.studentId}): futureLessons =`, futureLessons);
+        console.log(`[TeacherOverview] Étudiant ${student.name} (${student.studentId}): futureLessons =`, futureLessons);
         return {
           ...student,
           nextLessonDate: futureLessons.length > 0 ? futureLessons[0] : null
         };
       });
-      console.log('[Overview] Обновлён список confirmedStudents:', this.confirmedStudents);
+      console.log('[TeacherOverview] Liste confirmedStudents mise à jour:', this.confirmedStudents);
     });
   }
 
   respondToRequest(request: any, accepted: boolean): void {
     const metadata = (request as any).data;
     if (!metadata?.lessonId) {
-      console.error('❌ Données de requête invalides (lessonId manquant)');
+      console.error('[TeacherOverview] Données de requête invalides (lessonId manquant)');
       return;
     }
 
@@ -341,33 +340,33 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     if (!metadata) return;
 
     this.lessonService.respondToBooking(metadata.lessonId, false, reason).subscribe(() => {
-      console.log('📤 [OVERVIEW] Rejet envoyé avec raison:', reason);
+      console.log('[TeacherOverview] Rejet envoyé avec raison:', reason);
       this.pendingRequests = this.pendingRequests.filter(r => r.id !== this.selectedRequest!.id);
       this.selectedRequest = null;
       this.showRefuseDialog = false;
       this.refreshConfirmedStudents();
       this.refreshStudents();
-      this.snackBar.open('Студенту отправлено уведомление об отказе', 'OK', { duration: 3000 });
+      this.snackBar.open('Notification de refus envoyée à l\'étudiant', 'OK', { duration: 3000 });
     });
   }
 
   private getCalendarColor(status: string): { primary: string, secondary: string } {
     switch (status) {
       case 'confirmed': 
-        return { primary: '#4caf50', secondary: '#e8f5e9' }; // Зеленый
+        return { primary: '#4caf50', secondary: '#e8f5e9' }; // vert
       case 'rejected': 
-        return { primary: '#f44336', secondary: '#ffebee' }; // Красный
+        return { primary: '#f44336', secondary: '#ffebee' }; // rouge
       case 'pending': 
-        return { primary: '#ff9800', secondary: '#fff3e0' }; // Желтый/оранжевый
+        return { primary: '#ff9800', secondary: '#fff3e0' }; // jaune/orange
       case 'cancelled_by_student':
       case 'cancelled_by_student_no_refund':
-        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый для отмененных
+        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // gris pour annulés
       case 'in_progress':
-        return { primary: '#2196f3', secondary: '#e3f2fd' }; // Синий
+        return { primary: '#2196f3', secondary: '#e3f2fd' }; // bleu
       case 'completed':
-        return { primary: '#9c27b0', secondary: '#f3e5f5' }; // Фиолетовый
+        return { primary: '#9c27b0', secondary: '#f3e5f5' }; // violet
       default: 
-        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый
+        return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // gris
     }
   }
 

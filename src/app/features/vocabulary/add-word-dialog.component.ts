@@ -40,6 +40,7 @@ export interface AddWordDialogResult {
         </mat-form-field>
 
         <!-- Грамматические поля для слов -->
+        <!-- Champs grammaticaux pour les mots -->
         <app-grammar-fields 
           *ngIf="data.type === 'word' && isManualTranslation && newGrammarData"
           [grammar]="newGrammarData"
@@ -47,6 +48,7 @@ export interface AddWordDialogResult {
         </app-grammar-fields>
 
         <!-- Кнопка автоперевода -->
+        <!-- Bouton de traduction automatique -->
         <div class="auto-translate-section" *ngIf="!isManualTranslation">
           <button mat-raised-button 
                   color="primary" 
@@ -60,6 +62,7 @@ export interface AddWordDialogResult {
         </div>
 
         <!-- Поле для ручного ввода перевода -->
+        <!-- Champ pour la saisie manuelle de la traduction -->
         <mat-form-field appearance="outline" class="full-width" *ngIf="!isAutoTranslation">
           <mat-label>Traduction</mat-label>
           <input matInput 
@@ -71,6 +74,7 @@ export interface AddWordDialogResult {
         </mat-form-field>
 
         <!-- Селекторы языков -->
+        <!-- Sélecteurs de langues -->
         <div class="lang-selectors">
           <mat-form-field appearance="outline">
             <mat-label>Depuis la langue</mat-label>
@@ -171,6 +175,7 @@ export interface AddWordDialogResult {
     }
 
     /* Стили для полей ввода - контрастные цвета */
+    /* Styles pour les champs de saisie - couleurs contrastées */
     ::ng-deep .mat-mdc-form-field {
       .mat-mdc-text-field-wrapper {
         background-color: rgba(255, 255, 255, 0.95) !important;
@@ -194,7 +199,8 @@ export interface AddWordDialogResult {
       }
     }
 
-    /* Стили для селектов */
+    /* Стили для селекторов */
+    /* Styles pour les sélecteurs */
     ::ng-deep .mat-mdc-select {
       .mat-mdc-select-value {
         color: #1a1a1a !important;
@@ -206,6 +212,7 @@ export interface AddWordDialogResult {
     }
 
     /* Добавляем переменные к существующему :host */
+    /* Ajout de variables à :host existant */
   `]
 })
 export class AddWordDialogComponent implements OnInit {
@@ -225,6 +232,7 @@ export class AddWordDialogComponent implements OnInit {
 
   ngOnInit(): void {
     // Можно добавить инициализацию если нужно
+    // On peut ajouter une initialisation si besoin
   }
 
   onManualTranslationInput(): void {
@@ -248,12 +256,13 @@ export class AddWordDialogComponent implements OnInit {
           }
           this.isAutoTranslation = true;
           this.isManualTranslation = false;
-          console.log('✅ Перевод получен:', res.translations);
+          console.log('la traduction est:', res.translations);
         }
       },
       error: (err: any) => {
-        console.error('❌ Ошибка перевода:', err);
+        console.error('erreur de traduction:', err);
         // Можно добавить уведомление об ошибке
+        // On peut ajouter une notification d'erreur
       }
     });
   }

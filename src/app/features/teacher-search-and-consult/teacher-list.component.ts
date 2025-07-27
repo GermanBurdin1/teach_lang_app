@@ -18,12 +18,12 @@ export class TeacherListComponent implements OnInit {
   selectedLanguage: string = '';
   availableLanguages: string[] = [];
   reviewMin: number | null = null;
-  // Фильтры
+  // Filtres
   searchQuery = '';
   selectedSpecialization = '';
   sortOption = '';
   page = 1;
-  limit = 10; // Показываем по 10 преподавателей на странице
+  limit = 10; // Afficher 10 enseignants par page
 
   availableSpecializations: string[] = [];
   total = 0;
@@ -60,7 +60,7 @@ export class TeacherListComponent implements OnInit {
 
   loadTeachers() {
     this.isLoading = true;
-    console.log('[TeacherListComponent] loadTeachers called');
+    console.log('[TeacherListComponent] loadTeachers appelé');
     const filters = {
       search: this.searchQuery,
       specialization: this.selectedSpecialization,
@@ -70,23 +70,23 @@ export class TeacherListComponent implements OnInit {
       experienceMax: this.experienceMax ?? undefined,
       language: this.selectedLanguage
     };
-    console.log('[TeacherListComponent] loadTeachers filters', filters);
-    // Загружаем всех преподавателей сразу
+    console.log('[TeacherListComponent] loadTeachers filtres', filters);
+    // Charger tous les enseignants d'un coup
     this.teacherService.getTeachers(1, 9999, filters).subscribe(response => {
-      console.log('[TeacherListComponent] Полученные преподаватели:', response.data);
+      console.log('[TeacherListComponent] Enseignants reçus:', response.data);
       let teachers = response.data;
       if (this.sortOption === 'price') {
         teachers = teachers.slice().sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
       }
       this.allTeachers = teachers;
-      this.total = teachers.length; // Используем реальное количество преподавателей
+      this.total = teachers.length; // Utiliser le nombre réel d'enseignants
       this.updateSpecializationOptions();
       this.isLoading = false;
     });
   }
 
   onFilterChange() {
-    this.page = 1; // Сброс на первую страницу при изменении фильтров
+    this.page = 1; // Remise à la première page lors du changement de filtres
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
@@ -149,7 +149,7 @@ export class TeacherListComponent implements OnInit {
     return Math.max(1, Math.ceil(this.total / this.limit));
   }
 
-  // Получаем преподавателей для текущей страницы
+  // Obtenir les enseignants pour la page actuelle
   get pagedTeachers(): Teacher[] {
     const start = (this.page - 1) * this.limit;
     const end = start + this.limit;
@@ -157,9 +157,9 @@ export class TeacherListComponent implements OnInit {
   }
 
   loadMyTeachers() {
-    console.log('[TeacherListComponent] loadMyTeachers called');
+    console.log('[TeacherListComponent] loadMyTeachers appelé');
     this.teacherService.getMyTeachersFromLessonService().subscribe(teachers => {
-      console.log('[TeacherListComponent] Получены мои преподаватели:', teachers);
+      console.log('[TeacherListComponent] Mes enseignants reçus:', teachers);
       this.myTeachers = teachers;
     });
   }

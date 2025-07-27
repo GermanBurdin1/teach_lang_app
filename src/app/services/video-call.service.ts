@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 // import { WebSocketService } from './web-socket.service';
 import { HomeworkService } from './homework.service';
 
-
+// TODO : implémenter la fonctionnalité d'appel vidéo complète
 @Injectable({
   providedIn: 'root'
 })
@@ -13,7 +13,7 @@ export class VideoCallService {
   public isFloatingVideoSubject = new BehaviorSubject<boolean>(false);
   private _videoSize = { width: 640, height: 360 };
   
-  // Добавляем поля для отслеживания урока
+  // on ajoute des champs pour suivre le cours
   private currentLessonId: string | null = null;
   private currentUserId: string | null = null;
   
@@ -41,42 +41,40 @@ export class VideoCallService {
   // token = '';
   callActive: boolean = false;
   showControls = false;
-  controlTimeout: any; // Объявляем свойство rtmClient
-  userId!: string; // Добавляем userId, если его нет
-
+  controlTimeout: any; // on déclare la propriété rtmClient
+  userId!: string; // on ajoute userId, s'il n'existe pas
 
   // constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
   constructor(private homeworkService: HomeworkService) {
-    console.log('⚡ VideoCallService создан');
-    // this.setupEventListeners();
+    console.log('[VideoCallService] Service créé');
   }
 
-  // Новый метод для установки данных урока
+  // nouvelle méthode pour définir les données de la leçon
   setLessonData(lessonId: string, userId: string) {
     this.currentLessonId = lessonId;
     this.currentUserId = userId;
-    console.log(`📚 Урок установлен: lessonId=${lessonId}, userId=${userId}`);
+    console.log(`📚 Leçon définie: lessonId=${lessonId}, userId=${userId}`);
   }
 
   startVideoCall(): void {
-    console.log('🎥 Запуск видеозвонка');
+    console.log('🎥 Démarrage de l\'appel vidéo');
 
     this.showVideoCallSubject.next(true);
-    console.log('✅ showVideoCall$ изменён:', this.showVideoCallSubject.getValue());
+    console.log('✅ showVideoCall$ modifié:', this.showVideoCallSubject.getValue());
 
     // this.joinChannel().then(() => {
-    //   console.log('✅ Успешно подключились к каналу!');
+    //   console.log('✅ Connexion réussie au canal!');
       
-    //   // НЕ начинаем урок автоматически при подключении к каналу
-    //   // Урок начнется только при реальном запуске видео
-    //   console.log('📝 Урок НЕ начат автоматически - ждем реального запуска видео');
+    //   // On ne démarre pas automatiquement le cours lors de la connexion au canal
+    //   // Le cours ne démarrera que lorsqu'une vidéo est réellement démarrée
+    //   console.log('📝 Le cours n\'a pas été démarré automatiquement - on attend le démarrage réel de la vidéo');
     // }).catch(error => {
-    //   console.error('❌ Ошибка при подключении к каналу:', error);
+    //   console.error('❌ Erreur lors de la connexion au canal:', error);
     // });
   }
 
   stopVideoCall(): void {
-    console.log('🔴 Завершение видеозвонка');
+    console.log('🔴 Arrêt de l\'appel vidéo');
 
     this.showVideoCallSubject.next(false);
     this.isFloatingVideoSubject.next(false);
@@ -86,19 +84,19 @@ export class VideoCallService {
   }
 
   toggleFloatingVideo(state: boolean): void {
-    console.log(`🟡 toggleFloatingVideo(${state}) вызван`);
-    console.log(`🧐 До изменения: isFloatingVideo =`, this.isFloatingVideoSubject.getValue());
+    console.log(`🟡 toggleFloatingVideo(${state}) appelé`);
+    console.log(`🧐 Avant changement: isFloatingVideo =`, this.isFloatingVideoSubject.getValue());
 
     // if (!this.showVideoCallSubject.getValue()) {
-    //     console.log('⚠ Видео не запущено, плавающее видео не создаём');
+    //     console.log('⚠ La vidéo n\'est pas démarrée, le vidéo flottant n\'est pas créé');
     //     return;
     // }
 
     this.isFloatingVideoSubject.next(state);
-    console.log(`🎥 toggleFloatingVideo вызван с состоянием: ${state}`);
+    console.log(`🎥 toggleFloatingVideo appelé avec l'état: ${state}`);
   }
 
   // ...
-  // Все методы, связанные с AgoraRTC и WebSocketService, закомментированы ниже
+  // Tous les méthodes liées à AgoraRTC et WebSocketService sont commentées ci-dessous
   // ...
 }

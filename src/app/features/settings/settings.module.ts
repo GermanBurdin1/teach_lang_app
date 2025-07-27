@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { SettingsComponent } from './settings.component';
 
-// Важные компоненты для вкладок школы
+//components for school tab
 import { SchoolComponent } from './school/school.component';
 import { GeneralSettingsComponent } from './school/general-settings.component';
 import { ContactsComponent } from './school/contacts.component';
@@ -13,7 +13,7 @@ import { PaymentsComponent } from './school/payments.component';
 import { AccessControlComponent } from './school/access-control.component';
 import { ReportsComponent } from './school/reports.component';
 
-// Важные компоненты для вкладок онлайн-уроков
+// composants pour les onglets en ligne
 import { OnlineLessonsComponent } from './online-courses/online-lessons.component';
 import { OnlineCoursesComponent } from './online-courses/online-courses.component';
 import { GeneralSettingsOnlineComponent } from './online-courses/general-settings-online.component';
@@ -29,7 +29,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     SettingsComponent,
-    // Вкладки школы
+    // onglets school
     SchoolComponent,
     GeneralSettingsComponent,
     ContactsComponent,
@@ -38,7 +38,7 @@ const routes: Routes = [
     AccessControlComponent,
     ReportsComponent,
 
-    // Вкладки онлайн-уроков
+    // onglets en ligne
     OnlineLessonsComponent,
     OnlineCoursesComponent,
     GeneralSettingsOnlineComponent,

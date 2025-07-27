@@ -15,6 +15,7 @@ export class AuthTeacherGuard implements CanActivate {
       return true;
     }
 
+    // TODO : rediriger vers une page spécifique pour les enseignants
     this.router.navigate(['/select-role']);
     return false;
   }

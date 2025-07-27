@@ -1,16 +1,16 @@
 <div class="overview-layout">
-  <!-- ЛЕВАЯ ЧАСТЬ — СТУДЕНТЫ -->
+  <!-- PARTIE GAUCHE — ÉLÈVES -->
   <div class="students-panel">
     <h3>Mes élèves</h3>
 
-    <!-- Фильтр -->
+    <!-- Filtre -->
     <mat-button-toggle-group [(ngModel)]="studentViewFilter" aria-label="Filtrer">
       <mat-button-toggle value="all">Tous</mat-button-toggle>
       <mat-button-toggle value="students">Élèves</mat-button-toggle>
       <mat-button-toggle value="pending">Demandes</mat-button-toggle>
     </mat-button-toggle-group>
 
-    <!-- Список -->
+    <!-- Liste -->
     <div class="student-cards">
       <mat-card class="student-card" *ngFor="let student of paginatedStudents">
         <img *ngIf="student.photoUrl" [src]="student.photoUrl" class="student-photo" />
@@ -68,7 +68,7 @@
     </div>
   </div>
 
-  <!-- ПРАВАЯ ЧАСТЬ — СТАТИСТИКА -->
+  <!-- PARTIE DROITE — STATISTIQUES -->
   <div class="stats-panel">
     <button mat-stroked-button color="primary" (click)="openPublicProfileModal()" style="margin-bottom: 16px; width: 100%;">
       <mat-icon>visibility</mat-icon> Voir ma fiche publique
@@ -92,7 +92,7 @@
 <ng-template #publicProfile let-data>
   <div class="dialog-scrollable-content">
     <ng-container *ngIf="showPublicProfilePreview; else editableProfile">
-      <!-- Публичный вид (teacher) -->
+      <!-- Vue publique (enseignant) -->
       <div *ngIf="teacher" class="teacher-overview-container">
         <mat-card>
           <div class="profile-header">
@@ -111,7 +111,7 @@
               <div class="details">
                 <p>Expérience: {{ teacher.experienceYears }} ans</p>
                 <p>Tarif: {{ teacher.price }} €</p>
-                <p>⭐ Рейтинг: {{ teacher.rating }}</p>
+                <p>⭐ Note: {{ teacher.rating }}</p>
               </div>
             </div>
           </div>
@@ -139,7 +139,7 @@
       </div>
     </ng-container>
     <ng-template #editableProfile>
-      <!-- Оставляю всю старую разметку для profile (редактирование) -->
+      <!-- je laisse tout l'ancien markup pour profile (édition) -->
       <div *ngIf="profile" class="teacher-overview-container">
         <mat-card>
           <div class="profile-header">
@@ -172,7 +172,7 @@
                   <mat-label>Tarif (€)</mat-label>
                   <input matInput type="number" [(ngModel)]="profile.price" (ngModelChange)="updateProfileField()" />
                 </mat-form-field>
-                <p>⭐ Рейтинг: {{ profile.rating }}</p>
+                <p>⭐ Note: {{ profile.rating }}</p>
               </div>
             </div>
           </div>

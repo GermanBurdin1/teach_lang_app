@@ -1,8 +1,8 @@
 :root {
   --color-primary: #3f51b5; /* Indigo */
   --color-primary-dark: #303f9f;
-  --color-accent: #ff4081; /* Розовый акцент */
-  --color-bg: #0d1117; /* Темно-космический фон */
+  --color-accent: #ff4081; /* Accent rose */
+  --color-bg: #0d1117; /* Fond sombre */
   --color-surface: #1f2937;
   --color-text: #e4e4e4;
   --color-muted: #9ca3af;

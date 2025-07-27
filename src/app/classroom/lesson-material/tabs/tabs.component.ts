@@ -15,7 +15,7 @@ export class TabsComponent implements OnInit {
   constructor(public lessonTabsService: LessonTabsService) {}
 
   ngOnInit(): void {
-    // Для отладки, чтобы видеть изменения активной вкладки
+    // pour le debug, afin de voir les changements d'onglet actif
     this.lessonTabsService.activeTab$.subscribe((tab) => {
       console.log('Active tab changed to:', tab);
     });
@@ -24,5 +24,7 @@ export class TabsComponent implements OnInit {
   setActiveTab(tab: 'cards' | 'lesson' | 'homework'): void {
     this.lessonTabsService.setActiveTab(tab);
   }
+  
+  // TODO : ajouter des animations de transition entre les onglets
 }
 

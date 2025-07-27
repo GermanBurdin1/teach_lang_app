@@ -18,35 +18,35 @@ export class StatisticsService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Получить полную статистику для студента
+   * stats pour un étudiant
    */
   getStudentDashboardStats(studentId: string): Observable<StudentStats> {
     return this.http.get<StudentStats>(`${this.baseUrl}/student/${studentId}/dashboard`);
   }
 
   /**
-   * Записать вход пользователя в систему
+   * logger l'entrée dans le système
    */
   recordUserLogin(userId: string): Observable<{success: boolean}> {
     return this.http.post<{success: boolean}>(`${this.baseUrl}/login`, { userId });
   }
 
   /**
-   * Получить количество завершенных уроков
+   * avoir la qté de cours complets
    */
   getCompletedLessonsCount(studentId: string): Observable<{count: number}> {
     return this.http.get<{count: number}>(`${this.baseUrl}/student/${studentId}/lessons/completed`);
   }
 
   /**
-   * Получить количество активных дней
+   * qté de jours actifs
    */
   getActiveDaysCount(studentId: string): Observable<{count: number}> {
     return this.http.get<{count: number}>(`${this.baseUrl}/student/${studentId}/active-days`);
   }
 
   /**
-   * Получить количество изученных слов
+   * qté de mots appris
    */
   getLearnedWordsCount(studentId: string): Observable<{count: number}> {
     return this.http.get<{count: number}>(`${this.baseUrl}/student/${studentId}/words/learned`);
@@ -55,7 +55,7 @@ export class StatisticsService {
   // ==================== ADMIN METHODS ====================
 
   /**
-   * Получить статистику регистрации пользователей по месяцам
+   * stats d'inscription des utilisateurs par mois
    */
   getAdminUserStats(month?: string): Observable<any> {
     const url = month ? `${this.baseUrl}/admin/users/${month}` : `${this.baseUrl}/admin/users`;
@@ -63,7 +63,7 @@ export class StatisticsService {
   }
 
   /**
-   * Получить статистику уроков по месяцам
+   * stats des cours par mois pour l'admin
    */
   getAdminLessonsStats(month?: string): Observable<any> {
     const url = month ? `${this.baseUrl}/admin/lessons/${month}` : `${this.baseUrl}/admin/lessons`;
@@ -71,7 +71,7 @@ export class StatisticsService {
   }
 
   /**
-   * Получить общую статистику платформы
+   * stats de la plateforme pour l'admin
    */
   getAdminPlatformStats(): Observable<any> {
     return this.http.get(`${this.baseUrl}/admin/platform`);

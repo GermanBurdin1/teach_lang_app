@@ -1,19 +1,20 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+// TODO : ajouter transitions animées entre les onglets
 @Injectable({
   providedIn: 'root',
 })
 export class LessonTabsService {
-  private activeTabSource = new BehaviorSubject<'cards' | 'lesson' | 'homework'>('cards'); // Активная вкладка
-  private tabsVisibleSource = new BehaviorSubject<boolean>(false); // Видимость вкладок
-  private contentViewSource = new BehaviorSubject<'default' | 'lessonView' | 'homeworkView'>('default'); // Отображение контента
+  private activeTabSource = new BehaviorSubject<'cards' | 'lesson' | 'homework'>('cards'); // onglet actif
+  private tabsVisibleSource = new BehaviorSubject<boolean>(false); // visibilité des onglets
+  private contentViewSource = new BehaviorSubject<'default' | 'lessonView' | 'homeworkView'>('default'); // affichage du contenu
   private rightPanelVisibleSource = new BehaviorSubject<boolean>(false);
   private lessonStartedSource = new BehaviorSubject<boolean>(false);
   public lessonDescriptionSource = new BehaviorSubject<{ lesson: string; course: string }>({
     lesson: 'Lesson 1',
     course: 'Course 1',
-  }); // Название урока и курса
+  }); // nom du cours et de la leçon
   private currentLessonIdSource = new BehaviorSubject<string>('1');
 
   activeTab$ = this.activeTabSource.asObservable();
@@ -27,7 +28,7 @@ export class LessonTabsService {
   setActiveTab(tab: 'cards' | 'lesson' | 'homework'): void {
     this.activeTabSource.next(tab);
 
-    // Автоматически переключаем contentView в зависимости от activeTab
+    // on bascule automatiquement contentView selon activeTab
     if (tab === 'lesson') {
       this.setContentView('lessonView');
     } else if (tab === 'homework') {
@@ -64,7 +65,7 @@ export class LessonTabsService {
   }
 
   setCurrentLessonId(id: string): void {
-    console.log(`📌 Устанавливаем ID урока: ${id}`);
+    console.log(`id de la leçon: ${id}`);
     this.currentLessonIdSource.next(id);
   }
 
@@ -72,12 +73,12 @@ export class LessonTabsService {
     return this.currentLessonIdSource.value;
   }
 
-  //для lesson-material.component.ts
+  //pour lesson-material.component.ts
   private currentLessonDataSource = new BehaviorSubject<any | null>(null);
   currentLessonData$ = this.currentLessonDataSource.asObservable();
 
   setCurrentLessonData(data: any): void {
-    console.log('📚 Установлен урок:', data);
+    console.log('leçon:', data);
     this.currentLessonDataSource.next(data);
   }
 

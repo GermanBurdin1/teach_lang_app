@@ -1,57 +1,57 @@
 <div class="container mt-4">
-  <!-- Заголовок страницы -->
-  <h2 class="mb-4">Материалы</h2>
+  <!-- Titre de la page -->
+  <h2 class="mb-4">Matériaux</h2>
 
-  <!-- Вкладки навигации -->
+  <!-- Onglets de navigation -->
   <ul class="nav nav-tabs" id="materialsTabs" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="catalog-tab" data-bs-toggle="tab" data-bs-target="#catalog" type="button"
-        role="tab" aria-controls="catalog" aria-selected="true">Каталог</button>
+        role="tab" aria-controls="catalog" aria-selected="true">Catalogue</button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button"
-        role="tab" aria-controls="personal" aria-selected="false">Личные</button>
+        role="tab" aria-controls="personal" aria-selected="false">Perso</button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="interactive-tab" data-bs-toggle="tab" data-bs-target="#interactive" type="button"
-        role="tab" aria-controls="interactive" aria-selected="false">Интерактивные доски</button>
+        role="tab" aria-controls="interactive" aria-selected="false">Tableaux interactifs</button>
     </li>
   </ul>
 
-  <!-- Содержимое вкладок -->
+  <!-- Contenu des onglets -->
   <div class="tab-content mt-4" id="materialsTabsContent">
-    <!-- Вкладка "Каталог" -->
+    <!-- Onglet "Catalogue" -->
     <div class="tab-pane fade show active" id="catalog" role="tabpanel" aria-labelledby="catalog-tab">
-      <p>Содержимое для вкладки "Каталог" здесь...</p>
+      <p>Contenu pour l'onglet "Catalogue" ici...</p>
     </div>
 
-    <!-- Вкладка "Личные" -->
+    <!-- Onglet "Perso" -->
     <div class="tab-pane fade" id="personal" role="tabpanel" aria-labelledby="personal-tab">
       <div class="d-flex justify-content-between mb-3">
-        <input type="text" class="form-control w-75" placeholder="Поиск материалов и уроков">
+        <input type="text" class="form-control w-75" placeholder="Recherche de matériaux et de cours">
         <button class="btn btn-outline-secondary ms-2" (click)="openFilterModal()">
-          <i class="bi bi-funnel"></i> Фильтр
+          <i class="bi bi-funnel"></i> Filtrer
         </button>
       </div>
-      <p>Кол-во материалов: {{ courses.length }}</p>
+      <p>Nombre de matériaux : {{ courses.length }}</p>
 
       <div class="row">
-        <!-- Карточка для создания нового курса -->
+        <!-- Carte pour créer un nouveau cours -->
         <div class="col-3">
           <div class="card text-center" data-bs-toggle="modal" data-bs-target="#createMaterialModal">
             <div class="card-body">
               <div class="text-primary fs-3">+</div>
-              <p class="card-text">Создать новый курс</p>
+              <p class="card-text">Créer un nouveau cours</p>
             </div>
           </div>
         </div>
 
-        <!-- Перебор существующих курсов -->
+        <!-- Parcours des cours existants -->
         <div class="col-3" *ngFor="let course of courses">
           <div class="card text-center">
             <div class="card-header">
               <button (click)="openDeleteModal(course.id)" class="btn btn-sm btn-danger"
-                aria-label="Удалить курс">×</button>
+                aria-label="Supprimer le cours">×</button>
             </div>
             <div class="card-body">
               <div class="display-4">{{ course.letter }}</div>
@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <!-- Вкладка "Интерактивные доски" -->
+    <!-- Onglet "Tableaux interactifs" -->
     <div class="tab-pane fade" id="interactive" role="tabpanel" aria-labelledby="interactive-tab">
       <div class="tir-info"
         style="min-height: 368px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
@@ -70,63 +70,63 @@
         <i class="bi bi-card-text" style="font-size: 3rem; color: #999;"></i>
 
         <!-- Текстовое сообщение -->
-        <p class="text-muted mt-3">Интерактивные доски не найдены</p>
+        <p class="text-muted mt-3">Aucun tableau interactif trouvé</p>
 
         <!-- Кнопка для создания новой доски -->
         <button class="btn btn-primary mt-3" (click)="openCreateBoardModal()">
-          Создать новую доску
+          Créer un nouveau tableau
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Модальное окно для подтверждения удаления -->
+  <!-- Modal de confirmation de suppression -->
   <div *ngIf="showDeleteModal" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5);"
     tabindex="-1" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Подтвердите удаление</h5>
+          <h5 class="modal-title">Confirmer la suppression</h5>
           <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
         </div>
         <div class="modal-body">
-          <p>Вы уверены, что хотите удалить курс?</p>
+          <p>Êtes-vous sûr de vouloir supprimer ce cours ?</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Отмена</button>
-          <button type="button" class="btn btn-danger" (click)="deleteCourse()">Удалить</button>
+          <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
+          <button type="button" class="btn btn-danger" (click)="deleteCourse()">Supprimer</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Модальное окно создания материала -->
+  <!-- Modal de création de matériel -->
   <div class="modal fade" id="createMaterialModal" tabindex="-1" aria-labelledby="createMaterialModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="createMaterialModalLabel">Создать материал</h5>
+          <h5 class="modal-title" id="createMaterialModalLabel">Créer un matériel</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
-          <!-- Вкладки модального окна -->
+          <!-- Onglets du modal -->
           <ul class="nav nav-tabs">
             <li class="nav-item">
-              <a class="nav-link active" data-bs-toggle="tab" href="#main">Основные</a>
+              <a class="nav-link active" data-bs-toggle="tab" href="#main">Principal</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#tags">Теги</a>
+              <a class="nav-link" data-bs-toggle="tab" href="#tags">Tags</a>
             </li>
           </ul>
 
           <div class="tab-content mt-3">
-            <!-- Основная вкладка -->
+            <!-- Onglet principal -->
             <div class="tab-pane fade show active" id="main">
               <form>
                 <div class="mb-3">
-                  <label class="form-label">Обложка</label>
+                  <label class="form-label">Couverture</label>
                   <div class="d-flex align-items-center">
                     <div class="me-3"
                       style="width: 50px; height: 50px; background-color: #e6f7d4; text-align: center; line-height: 50px; font-size: 1.5em; border-radius: 5px;">
@@ -134,31 +134,31 @@
                     </div>
                     <input type="file" id="fileInput" class="d-none" (change)="onFileSelected($event)">
                     <button type="button" class="btn btn-outline-secondary"
-                      onclick="document.getElementById('fileInput').click()">Загрузить</button>
+                      onclick="document.getElementById('fileInput').click()">Télécharger</button>
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Название</label>
-                  <input type="text" class="form-control" placeholder="Введите название">
+                  <label class="form-label">Nom</label>
+                  <input type="text" class="form-control" placeholder="Entrez le nom">
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Описание</label>
-                  <textarea class="form-control" rows="3" placeholder="Введите описание"></textarea>
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control" rows="3" placeholder="Entrez la description"></textarea>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Язык</label>
+                  <label class="form-label">Langue</label>
                   <select class="form-select">
-                    <option selected>Выберите язык</option>
-                    <option value="ru">Русский</option>
-                    <option value="en">Английский</option>
+                    <option selected>Choisissez la langue</option>
+                    <option value="ru">Russe</option>
+                    <option value="en">Anglais</option>
                   </select>
                 </div>
                 <div class="mb-3 d-flex align-items-center">
-                  <label class="form-label mb-0 me-2">Разделы</label>
+                  <label class="form-label mb-0 me-2">Sections</label>
 
                   <!-- Tooltip icon with question mark -->
                   <i class="bi bi-question-circle ms-1 text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="Включив эту опцию, вы сможете группировать уроки по разделам"></i>
+                    title="En activant cette option, vous pourrez regrouper les cours par sections"></i>
 
                   <!-- Toggle switch -->
                   <div class="form-check form-switch ms-auto">
@@ -169,23 +169,23 @@
               </form>
             </div>
 
-            <!-- Вкладка Теги -->
+            <!-- Onglet Tags -->
             <div class="tab-pane fade" id="tags">
               <form>
                 <div class="mb-3">
-                  <label for="ageSelect" class="form-label">Возраст</label>
+                  <label for="ageSelect" class="form-label">Âge</label>
                   <select id="ageSelect" class="form-select">
-                    <option selected>Выберите возраст</option>
-                    <option value="children">Дети</option>
-                    <option value="teens">Подростки</option>
-                    <option value="adults">Взрослые</option>
+                    <option selected>Choisissez l'âge</option>
+                    <option value="children">Enfants</option>
+                    <option value="teens">Ados</option>
+                    <option value="adults">Adultes</option>
                   </select>
                 </div>
 
                 <div class="mb-3">
-                  <label for="levelSelect" class="form-label">Уровень</label>
+                  <label for="levelSelect" class="form-label">Niveau</label>
                   <select id="levelSelect" class="form-select">
-                    <option selected>Выберите уровень</option>
+                    <option selected>Choisissez le niveau</option>
                     <option value="beginner">Beginner</option>
                     <option value="elementary">Elementary</option>
                     <option value="preIntermediate">Pre-intermediate</option>
@@ -197,18 +197,18 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="typeSelect" class="form-label">Тип</label>
+                  <label for="typeSelect" class="form-label">Type</label>
                   <select id="typeSelect" class="form-select">
-                    <option selected>Выберите тип</option>
-                    <option value="general">Общий</option>
-                    <option value="business">Бизнес</option>
-                    <option value="examPreparation">Подготовка к экзаменам</option>
-                    <option value="travel">Для путешествий</option>
-                    <option value="songs">По песням</option>
-                    <option value="movies">По фильмам и сериалам</option>
-                    <option value="cartoons">По мультфильмам</option>
-                    <option value="speeches">Речи и интервью</option>
-                    <option value="other">Другое</option>
+                    <option selected>Choisissez le type</option>
+                    <option value="general">Général</option>
+                    <option value="business">Business</option>
+                    <option value="examPreparation">Préparation aux examens</option>
+                    <option value="travel">Pour les voyages</option>
+                    <option value="songs">Par chansons</option>
+                    <option value="movies">Par films et séries</option>
+                    <option value="cartoons">Par dessins animés</option>
+                    <option value="speeches">Discours et interviews</option>
+                    <option value="other">Autre</option>
                   </select>
                 </div>
               </form>
@@ -217,13 +217,13 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="button" class="btn btn-primary">Создать</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary">Créer</button>
         </div>
       </div>
     </div>
   </div>
-  <!-- Модальное окно для фильтра -->
+  <!-- Modal de filtre -->
 
   <div *ngIf="isFilterModalOpen" class="modal fade show d-block" tabindex="-1" role="dialog"
     aria-labelledby="filterModalLabel" aria-hidden="true" style="background-color: rgba(0, 0, 0, 0.5);">
@@ -236,11 +236,11 @@
           </div>
           <!-- Заголовок модального окна -->
           <div class="head">
-            <div class="title left">Фильтр</div>
+            <div class="title left">Filtre</div>
           </div>
           <!-- Тело модального окна -->
           <div class="body mt-3">
-            <button class="tir-button is-fill gray is-medium w-100 mb-3" (click)="resetFilters()">Сбросить все</button>
+            <button class="tir-button is-fill gray is-medium w-100 mb-3" (click)="resetFilters()">Réinitialiser tout</button>
 
             <!-- Фильтры с использованием <select> -->
             <div class="tir-label mb-3" *ngFor="let filter of filters">
@@ -253,14 +253,14 @@
 
           <!-- Подвал модального окна -->
           <div class="footer mt-3 d-flex justify-content-end">
-            <button class="tir-button is-fill gray is-medium me-2" (click)="closeFilterModal()">Отмена</button>
-            <button class="tir-button is-fill blue is-medium" (click)="applyFilters()">Применить</button>
+            <button class="tir-button is-fill gray is-medium me-2" (click)="closeFilterModal()">Annuler</button>
+            <button class="tir-button is-fill blue is-medium" (click)="applyFilters()">Appliquer</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <!-- Модальное окно для создания доски -->
+  <!-- Modal de création de tableau -->
   <div *ngIf="isCreateBoardModalOpen" class="modal fade show d-block" tabindex="-1"
     style="background-color: rgba(0, 0, 0, 0.5);">
     <div class="modal-dialog modal-dialog-centered">
@@ -269,34 +269,34 @@
         <div class="text-center mb-3">
           <!-- Простая замена иконки, можно кастомизировать -->
           <i class="bi bi-card-text" style="font-size: 3rem; color: #999;"></i>
-          <h5 class="modal-title mt-2">Создать доску</h5>
+          <h5 class="modal-title mt-2">Créer un tableau</h5>
         </div>
 
         <!-- Тело модального окна -->
         <div class="modal-body">
           <!-- Обложка -->
           <div class="d-flex align-items-center mb-3">
-            <label class="form-label me-3" style="width: 80px;">Обложка</label>
+            <label class="form-label me-3" style="width: 80px;">Couverture</label>
             <div class="me-2" style="width: 40px; height: 40px; background-color: #e6f7d4; border-radius: 5px;"></div>
             <!-- Скрытое поле для загрузки файла -->
             <input type="file" id="coverUpload" class="d-none" (change)="onFileSelected($event)">
 
             <!-- Кнопка для открытия диалога выбора файла -->
-            <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Загрузить</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="triggerFileInput()">Télécharger</button>
 
           </div>
 
           <!-- Название доски -->
           <div class="mb-3">
-            <label for="boardName" class="form-label">Название</label>
-            <input type="text" id="boardName" class="form-control" placeholder="Введите название">
+            <label for="boardName" class="form-label">Nom</label>
+            <input type="text" id="boardName" class="form-control" placeholder="Entrez le nom">
           </div>
         </div>
 
         <!-- Кнопки в подвале модального окна -->
         <div class="modal-footer d-flex justify-content-end">
-          <button type="button" class="btn btn-secondary" (click)="closeCreateBoardModal()">Отмена</button>
-          <button type="button" class="btn btn-primary">Создать</button>
+          <button type="button" class="btn btn-secondary" (click)="closeCreateBoardModal()">Annuler</button>
+          <button type="button" class="btn btn-primary">Créer</button>
         </div>
       </div>
     </div>

@@ -33,7 +33,7 @@ export class TeacherDetailsComponent implements OnInit {
   showMessageModal = false;
   showBookingModal = false;
   showPaymentModal = false;
-  lessonDuration: number = 60; // в минутах
+  lessonDuration: number = 60; // en minutes
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -57,8 +57,8 @@ export class TeacherDetailsComponent implements OnInit {
   }
 
   sendMessage(message: string) {
-    // Тут будет отправка на backend
-    console.log('Message sent:', message);
+    // Ici sera l'envoi vers le backend
+    console.log('Message envoyé:', message);
     this.closeMessageModal();
   }
 
@@ -79,13 +79,13 @@ export class TeacherDetailsComponent implements OnInit {
     const dateStr = this.selectedDate.toISOString().split('T')[0];
     this.lessonService.getAvailableSlots(this.teacher.id, dateStr).subscribe({
       next: (slots) => {
-        // Фильтруем прошедшие слоты
+        // Filtrer les créneaux passés
         const now = new Date();
         const currentDate = this.selectedDate.toDateString();
         const todayDate = now.toDateString();
         
         if (currentDate === todayDate) {
-          // Если выбран сегодняшний день, фильтруем прошедшие часы
+          // Si le jour sélectionné est aujourd'hui, filtrer les heures passées
           this.teacherSchedule = slots.filter(slot => {
             const [hours, minutes] = slot.time.split(':').map(Number);
             const slotDateTime = new Date(
@@ -98,14 +98,14 @@ export class TeacherDetailsComponent implements OnInit {
             return slotDateTime > now;
           });
         } else {
-          // Если выбран не сегодняшний день, показываем все слоты
+          // Si le jour sélectionné n'est pas aujourd'hui, afficher tous les créneaux
           this.teacherSchedule = slots;
         }
         
-        console.log('✅ Planning du professeur chargé (filtré):', this.teacherSchedule);
+        console.log('Planning du professeur chargé (filtré):', this.teacherSchedule);
       },
       error: (error) => {
-        console.error('❌ Erreur lors du chargement du planning:', error);
+        console.error('Erreur lors du chargement du planning:', error);
         this.teacherSchedule = [];
       }
     });
@@ -115,7 +115,7 @@ export class TeacherDetailsComponent implements OnInit {
     this.selectedTime = time;
   }
 
-  // Методы для шаблона
+  // Méthodes pour le template
   hasAvailableSlots(): boolean {
     return this.teacherSchedule.length > 0 && this.teacherSchedule.some(s => s.available);
   }
@@ -137,9 +137,9 @@ export class TeacherDetailsComponent implements OnInit {
   }
 
   confirmBooking() {
-    console.log('🔍 confirmBooking() вызван');
-    console.log('🔍 selectedTime:', this.selectedTime);
-    console.log('🔍 selectedDate:', this.selectedDate);
+    console.log('confirmBooking() appelé');
+    console.log('selectedTime:', this.selectedTime);
+    console.log('selectedDate:', this.selectedDate);
     
     if (!this.selectedTime) {
       this.notificationService.warning('Veuillez sélectionner un créneau horaire.');
@@ -155,23 +155,23 @@ export class TeacherDetailsComponent implements OnInit {
       minutes
     );
 
-    // Проверка, что время не в прошлом
+    // Vérifier que l'heure n'est pas dans le passé
     const now = new Date();
     if (bookedDateTime <= now) {
       this.notificationService.warning('Impossible de réserver un créneau dans le passé. Veuillez choisir un horaire futur.');
       return;
     }
 
-    // Вместо прямой отправки запроса на бронирование, открываем модальное окно оплаты
-    console.log('🔍 Закрываем модальное окно бронирования');
+    // Au lieu d'envoyer directement la demande de réservation, ouvrir la modale de paiement
+    console.log('Fermeture de la modale de réservation');
     this.closeBookingModal();
-    console.log('🔍 Открываем модальное окно оплаты');
+    console.log('Ouverture de la modale de paiement');
     this.showPaymentModal = true;
-    console.log('🔍 showPaymentModal =', this.showPaymentModal);
+    console.log('showPaymentModal =', this.showPaymentModal);
   }
 
   onPaymentSuccess(paymentData: any) {
-    // После успешной оплаты создаем бронирование
+    // Après le paiement réussi, créer la réservation
     const studentId = this.authService.getCurrentUser()?.id;
     const teacherId = this.teacher?.id;
 
@@ -190,14 +190,14 @@ export class TeacherDetailsComponent implements OnInit {
       studentId: studentId,
       teacherId: teacherId,
       scheduledAt: bookedDateTime.toISOString(),
-      paymentId: paymentData.paymentId // Добавляем ID платежа
+      paymentId: paymentData.paymentId // Ajouter l'ID du paiement
     }).subscribe({
       next: () => {
         this.notificationService.success('Votre réservation a été confirmée et payée avec succès!');
         this.showPaymentModal = false;
       },
       error: (error) => {
-        console.error('❌ Erreur lors de la réservation après paiement:', error);
+        console.error('Erreur lors de la réservation après paiement:', error);
         let errorMessage = 'Une erreur est survenue lors de la confirmation de votre réservation.';
         
         if (error.error?.message) {

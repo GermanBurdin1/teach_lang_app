@@ -34,41 +34,41 @@ interface HomeworkDisplay {
   styleUrls: ['./student-training.component.css']
 })
 export class StudentTrainingComponent implements OnInit {
-  // Tab management
+  // Gestion des onglets
   activeTab = 'materials';
-  activeHomeworkTab = 'pending'; // 'pending' для невыполненных, 'completed' для выполненных
+  activeHomeworkTab = 'pending'; // 'pending' pour non terminés, 'completed' pour terminés
   
-  // Materials
+  // Matériaux
   materials: Material[] = [];
   filteredMaterials: Material[] = [];
   
-  // Homework
+  // Devoirs
   homeworks: HomeworkDisplay[] = [];
   filteredHomeworks: HomeworkDisplay[] = [];
   groupedHomeworks: { [lessonId: string]: HomeworkDisplay[] } = {};
   
-  // Homework filtering by status
+  // Filtrage des devoirs par statut
   pendingHomeworks: HomeworkDisplay[] = [];
   completedHomeworks: HomeworkDisplay[] = [];
   overdueHomeworks: HomeworkDisplay[] = [];
   
-  // Filters
+  // Filtres
   selectedTeacher = '';
   selectedMaterialType = '';
   selectedHomeworkStatus = '';
   dateFilter = '';
   
-  // Available teachers
+  // Enseignants disponibles
   teachers: { id: string; name: string }[] = [];
   
-  // Current user
+  // Utilisateur actuel
   currentUser: any = null;
   
-  // Loading states
+  // États de chargement
   loadingMaterials = false;
   loadingHomeworks = false;
 
-  // Homework creation
+  // Création de devoirs
   showCreateHomeworkForm = false;
   newHomework = {
     title: '',
@@ -78,11 +78,11 @@ export class StudentTrainingComponent implements OnInit {
     materialIds: [] as string[]
   };
   
-  // Available lessons for homework assignment
+  // Leçons disponibles pour l'affectation des devoirs
   availableLessons: any[] = [];
   loadingLessons = false;
 
-  // Homework completion modal
+  // Modale de complétion de devoir
   showHomeworkModal = false;
   selectedHomework: HomeworkDisplay | null = null;
   homeworkResponse = '';
@@ -99,31 +99,31 @@ export class StudentTrainingComponent implements OnInit {
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
-    console.log('👤 Current user:', this.currentUser);
-    console.log('🎭 User role - isStudent():', this.isStudent(), 'isTeacher():', this.isTeacher());
+    console.log('Utilisateur actuel:', this.currentUser);
+    console.log('Rôle de l\'utilisateur - isStudent():', this.isStudent(), 'isTeacher():', this.isTeacher());
     this.loadMaterials();
     this.loadHomeworks();
-    this.loadAvailableLessons(); // Загружаем уроки для отображения названий
+    this.loadAvailableLessons(); // Charge les leçons pour l'affichage des titres
     
-    // Обработка параметров URL
+    // Gestion des paramètres d'URL
     this.route.queryParams.subscribe(params => {
-      console.log('🔄 Query params received:', params);
+      console.log('Paramètres de requête reçus:', params);
       if (params['tab']) {
         this.activeTab = params['tab'];
-        console.log('📌 Set activeTab to:', this.activeTab);
+        console.log('activeTab défini à:', this.activeTab);
       }
       if (params['homeworkId']) {
-        // Если передан ID домашнего задания, переходим на вкладку домашних заданий
+        // Si un ID de devoir est passé, aller à l'onglet devoirs
         this.activeTab = 'homework';
-        console.log('📌 Set activeTab to homework, homeworkId:', params['homeworkId']);
+        console.log('activeTab défini à homework, homeworkId:', params['homeworkId']);
         setTimeout(() => {
           this.highlightHomework(params['homeworkId']);
-        }, 1000); // Увеличиваем задержку чтобы данные успели загрузиться
+        }, 1000); // Augmente le délai pour laisser le temps aux données de charger
       }
     });
   }
 
-  // ==================== MATERIALS SECTION ====================
+  // ==================== SECTION MATÉRIAUX ====================
   
   loadMaterials() {
     if (!this.currentUser?.id) return;
@@ -137,36 +137,36 @@ export class StudentTrainingComponent implements OnInit {
         this.loadingMaterials = false;
       },
       error: (error: Error) => {
-        console.error('❌ Erreur lors du chargement des matériaux:', error);
+        console.error('Erreur lors du chargement des matériaux:', error);
         this.loadingMaterials = false;
       }
     });
   }
 
-  // ==================== HOMEWORK SECTION ====================
+  // ==================== SECTION DEVOIRS ====================
   
   loadHomeworks() {
-    console.log('🚀 loadHomeworks() called');
+    console.log('loadHomeworks() appelé');
     if (!this.currentUser?.id) {
-      console.log('❌ Нет текущего пользователя, пропускаем загрузку домашних заданий');
+      console.log('Aucun utilisateur actuel, passage au chargement des devoirs');
       return;
     }
     
     this.loadingHomeworks = true;
-    console.log('🔄 Начинаем загрузку домашних заданий для пользователя:', this.currentUser);
-    console.log('👤 User role check - isTeacher():', this.isTeacher(), 'isStudent():', this.isStudent());
+    console.log('Démarrage du chargement des devoirs pour l\'utilisateur:', this.currentUser);
+    console.log('Vérification du rôle de l\'utilisateur - isTeacher():', this.isTeacher(), 'isStudent():', this.isStudent());
     
-    // Определяем роль пользователя для корректной загрузки домашних заданий
+    // Détermine le rôle de l'utilisateur pour charger les devoirs correctement
     if (this.isTeacher()) {
-      console.log('👨‍🏫 Loading homework for teacher');
-      // Для преподавателя загружаем домашние задания, которые он создал
+      console.log('Chargement des devoirs pour l\'enseignant');
+      // Pour l'enseignant, charge les devoirs qu'il a créés
       this.homeworkService.getHomeworkForTeacher(this.currentUser.id).subscribe({
         next: (homeworkFromDB) => {
-          console.log('👨‍🏫 Загружены домашние задания преподавателя:', homeworkFromDB);
+          console.log('Devoirs de l\'enseignant chargés:', homeworkFromDB);
           this.processHomeworkItems(homeworkFromDB);
         },
         error: (error: Error) => {
-          console.error('❌ Ошибка загрузки домашних заданий преподавателя:', error);
+          console.error('Erreur lors du chargement des devoirs de l\'enseignant:', error);
           this.homeworks = [];
           this.filteredHomeworks = [];
           this.groupedHomeworks = {};
@@ -174,15 +174,15 @@ export class StudentTrainingComponent implements OnInit {
         }
       });
     } else {
-      console.log('👨‍🎓 Loading homework for student');
-      // Для студента загружаем домашние задания, назначенные ему
+      console.log('Chargement des devoirs pour l\'étudiant');
+      // Pour l'étudiant, charge les devoirs qui lui sont assignés
       this.homeworkService.getHomeworkForStudent(this.currentUser.id).subscribe({
         next: (homeworkFromDB) => {
-          console.log('👨‍🎓 Загружены домашние задания студента:', homeworkFromDB);
+          console.log('Devoirs de l\'étudiant chargés:', homeworkFromDB);
           this.processHomeworkItems(homeworkFromDB);
         },
         error: (error: Error) => {
-          console.error('❌ Ошибка загрузки домашних заданий студента:', error);
+          console.error('Erreur lors du chargement des devoirs de l\'étudiant:', error);
           this.homeworks = [];
           this.filteredHomeworks = [];
           this.groupedHomeworks = {};
@@ -192,10 +192,10 @@ export class StudentTrainingComponent implements OnInit {
     }
   }
 
-  // Обработка полученных домашних заданий
+  // Traitement des devoirs reçus
   private processHomeworkItems(homeworkFromDB: Homework[]) {
-    console.log('🔧 processHomeworkItems() called with:', homeworkFromDB.length, 'items');
-    // Преобразуем в формат для отображения
+    console.log('processHomeworkItems() appelé avec:', homeworkFromDB.length, 'éléments');
+    // Transforme en format d'affichage
     const homeworkItems = homeworkFromDB.map(homework => ({
       id: homework.id,
       sourceType: homework.sourceType || '',
@@ -220,17 +220,17 @@ export class StudentTrainingComponent implements OnInit {
 
     this.homeworks = homeworkItems;
     this.filteredHomeworks = this.homeworks;
-    console.log('📋 Final homeworks array:', this.homeworks);
+    console.log('Array final des devoirs:', this.homeworks);
     this.filterHomeworksByStatus();
     this.groupHomeworksByLesson();
     this.extractTeachers();
     this.loadingHomeworks = false;
-    console.log('✅ Homework loading completed');
+    console.log('Chargement des devoirs terminé');
   }
 
-  // Фильтрация домашних заданий по статусу
+  // Filtrage des devoirs par statut
   private filterHomeworksByStatus(): void {
-    console.log('🔄 Filtering homeworks by status');
+    console.log('Filtrage des devoirs par statut');
     const now = new Date();
     
     this.pendingHomeworks = this.homeworks.filter(hw => 
@@ -246,22 +246,22 @@ export class StudentTrainingComponent implements OnInit {
       return now > dueDate && (hw.status === 'assigned' || hw.status === 'unfinished');
     });
     
-    console.log('📊 Homework filtered by status:');
-    console.log('📝 Pending:', this.pendingHomeworks);
-    console.log('✅ Completed:', this.completedHomeworks);
-    console.log('⏰ Overdue:', this.overdueHomeworks);
+    console.log('Devoirs filtrés par statut:');
+    console.log('Non terminés:', this.pendingHomeworks);
+    console.log('Terminés:', this.completedHomeworks);
+    console.log('En retard:', this.overdueHomeworks);
   }
 
-  // Подсветка конкретного домашнего задания
+  // Met en surbrillance un devoir spécifique
   private highlightHomework(homeworkId: string): void {
-    console.log('🎯 Highlighting homework:', homeworkId);
-    console.log('📝 Available homeworks:', this.homeworks.map(h => h.id));
+    console.log('Mise en surbrillance du devoir:', homeworkId);
+    console.log('Devoirs disponibles:', this.homeworks.map(h => h.id));
     
     const homework = this.homeworks.find(hw => hw.id === homeworkId);
     if (homework) {
-      console.log('✅ Found homework:', homework);
+      console.log('Devoir trouvé:', homework);
       
-      // Определяем, на какую подвкладку перейти
+      // Détermine sur quel sous-onglet aller
       if (homework.status === 'completed' || homework.status === 'submitted') {
         this.activeHomeworkTab = 'completed';
       } else if (this.isOverdue(homework.dueDate)) {
@@ -270,15 +270,15 @@ export class StudentTrainingComponent implements OnInit {
         this.activeHomeworkTab = 'pending';
       }
       
-      console.log('📌 Set activeHomeworkTab to:', this.activeHomeworkTab);
+      console.log('activeHomeworkTab défini à:', this.activeHomeworkTab);
       
-      // Автоматически открываем модалку для выполнения домашнего задания
+      // Ouvre automatiquement la modale pour faire le devoir
       if (homework.status !== 'completed' && homework.status !== 'submitted') {
         this.openHomeworkModal(homework);
-        console.log('🚀 Opened homework modal');
+        console.log('Modale de devoir ouverte');
       }
       
-      // Прокручиваем к элементу
+      // Fait défiler jusqu'à l'élément
       setTimeout(() => {
         const element = document.getElementById(`homework-${homeworkId}`);
         if (element) {
@@ -288,23 +288,23 @@ export class StudentTrainingComponent implements OnInit {
         }
       }, 100);
     } else {
-      console.warn('⚠️ Homework not found:', homeworkId);
+      console.warn('Devoir non trouvé:', homeworkId);
     }
   }
 
-  // ==================== FILTER METHODS ====================
+  // ==================== MÉTHODES DE FILTRAGE ====================
   
   extractTeachers() {
     const teacherSet = new Set<string>();
     
-    // Extract from materials
+    // Extraire depuis les matériaux
     this.materials.forEach(material => {
       if (material.createdByName) {
         teacherSet.add(material.createdByName);
       }
     });
     
-    // Extract from homework
+    // Extraire depuis les devoirs
     this.homeworks.forEach(homework => {
       if (homework.assignedByName) {
         teacherSet.add(homework.assignedByName);
@@ -359,7 +359,7 @@ export class StudentTrainingComponent implements OnInit {
     this.groupHomeworksByLesson();
   }
 
-  // Группировка домашних заданий по урокам
+  // Regroupe les devoirs par leçon
   groupHomeworksByLesson() {
     this.groupedHomeworks = {};
     
@@ -372,7 +372,7 @@ export class StudentTrainingComponent implements OnInit {
     });
   }
 
-  // Получение заголовков уроков для группировки
+  // Obtient les titres des leçons pour le regroupement
   getGroupedHomeworksArray(): { lessonId: string; lessonTitle: string; homeworks: HomeworkDisplay[] }[] {
     const result = Object.keys(this.groupedHomeworks).map(lessonId => ({
       lessonId,
@@ -380,11 +380,11 @@ export class StudentTrainingComponent implements OnInit {
       homeworks: this.groupedHomeworks[lessonId]
     }));
     
-    // Сортируем по дате первого домашнего задания в группе
+    // Trie par date du premier devoir du groupe
     return result.sort((a, b) => {
       const aDate = new Date(a.homeworks[0]?.assignedAt || 0);
       const bDate = new Date(b.homeworks[0]?.assignedAt || 0);
-      return bDate.getTime() - aDate.getTime(); // Сначала новые
+      return bDate.getTime() - aDate.getTime(); // D'abord les plus récents
     });
   }
 
@@ -414,28 +414,28 @@ export class StudentTrainingComponent implements OnInit {
     this.filteredHomeworks = [...this.homeworks];
   }
 
-  // ==================== HOMEWORK ACTIONS ====================
+  // ==================== ACTIONS SUR LES DEVOIRS ====================
   
   submitHomework(homeworkId: string) {
     this.homeworkService.updateHomeworkStatus(homeworkId, 'submitted').subscribe({
       next: (response) => {
-        console.log('✅ Домашнее задание отправлено:', response);
-        this.loadHomeworks(); // Перезагружаем список
+        console.log('Devoir soumis:', response);
+        this.loadHomeworks(); // Recharge la liste
       },
       error: (error: Error) => {
-        console.error('❌ Ошибка при отправке домашнего задания:', error);
+        console.error('Erreur lors de la soumission du devoir:', error);
       }
     });
   }
 
-  // Открытие модали для выполнения домашнего задания
+  // Ouvre la modale pour faire le devoir
   openHomeworkModal(homework: HomeworkDisplay): void {
     this.selectedHomework = homework;
     this.homeworkResponse = '';
     this.showHomeworkModal = true;
   }
 
-  // Закрытие модали
+  // Ferme la modale
   closeHomeworkModal(): void {
     this.showHomeworkModal = false;
     this.selectedHomework = null;
@@ -443,7 +443,7 @@ export class StudentTrainingComponent implements OnInit {
     this.isSubmittingHomework = false;
   }
 
-  // Завершение домашнего задания
+  // Termine le devoir
   completeHomework(): void {
     if (!this.selectedHomework || !this.homeworkResponse.trim()) {
       return;
@@ -451,42 +451,42 @@ export class StudentTrainingComponent implements OnInit {
 
     this.isSubmittingHomework = true;
 
-    // Обновляем статус домашнего задания на "completed"
+    // Met à jour le statut du devoir à "completed"
     this.homeworkService.updateHomeworkStatus(this.selectedHomework.id, 'completed').subscribe({
       next: (response) => {
-        console.log('✅ Домашнее задание завершено:', response);
+        console.log('Devoir terminé:', response);
         this.closeHomeworkModal();
-        this.loadHomeworks(); // Перезагружаем список для обновления статуса
+        this.loadHomeworks(); // Recharge la liste pour mettre à jour le statut
         
-        // Уведомляем об обновлении домашнего задания
+        // Notifie la mise à jour du devoir
         this.homeworkService.notifyHomeworkUpdated();
         
-        // Показываем уведомление об успехе
+        // Affiche une notification de succès
         // this.notificationService.success('Devoir terminé avec succès !');
       },
       error: (error: Error) => {
-        console.error('❌ Ошибка при завершении домашнего задания:', error);
+        console.error('Erreur lors de la soumission du devoir:', error);
         this.isSubmittingHomework = false;
         // this.notificationService.error('Erreur lors de la soumission du devoir');
       }
     });
   }
 
-  // ==================== HOMEWORK CREATION ====================
+  // ==================== CRÉATION DE DEVOIRS ====================
   
   loadAvailableLessons() {
     if (!this.currentUser?.id) return;
     
     this.loadingLessons = true;
     
-    // Определяем роль пользователя и загружаем соответствующие уроки
+    // Détermine le rôle de l'utilisateur et charge les leçons correspondantes
     const userRole = this.currentUser.role || 'student';
     
     if (userRole === 'teacher') {
-      // Для преподавателя загружаем все подтвержденные уроки
+      // Pour l'enseignant, charge toutes les leçons confirmées
       this.lessonService.getAllConfirmedLessonsForTeacher(this.currentUser.id).subscribe({
         next: (lessons) => {
-          console.log('👨‍🏫 Загружены уроки преподавателя:', lessons);
+          console.log('Leçons de l\'enseignant chargées:', lessons);
           this.availableLessons = lessons.map(lesson => ({
             id: lesson.id,
             title: lesson.title || `Cours avec ${lesson.studentName}`,
@@ -499,16 +499,16 @@ export class StudentTrainingComponent implements OnInit {
           this.loadingLessons = false;
         },
         error: (error) => {
-          console.error('❌ Ошибка загрузки уроков преподавателя:', error);
+          console.error('Erreur lors du chargement des leçons de l\'enseignant:', error);
           this.availableLessons = [];
           this.loadingLessons = false;
         }
       });
     } else {
-      // Для студента загружаем подтвержденные уроки
+      // Pour l'étudiant, charge les leçons confirmées
       this.lessonService.getConfirmedLessons(this.currentUser.id).subscribe({
         next: (lessons) => {
-          console.log('👨‍🎓 Загружены уроки студента:', lessons);
+          console.log('Leçons de l\'étudiant chargées:', lessons);
           this.availableLessons = lessons.map(lesson => ({
             id: lesson.id,
             title: lesson.title || `Cours avec ${lesson.teacherName}`,
@@ -521,7 +521,7 @@ export class StudentTrainingComponent implements OnInit {
           this.loadingLessons = false;
         },
         error: (error) => {
-          console.error('❌ Ошибка загрузки уроков студента:', error);
+          console.error('Erreur lors du chargement des leçons de l\'étudiant:', error);
           this.availableLessons = [];
           this.loadingLessons = false;
         }
@@ -533,23 +533,23 @@ export class StudentTrainingComponent implements OnInit {
     this.showCreateHomeworkForm = true;
     this.loadAvailableLessons();
     
-    // Set default due date to tomorrow
+    // Définit la date d'échéance par défaut à demain
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     this.newHomework.dueDate = tomorrow;
   }
 
-  // Добавление материала в домашнее задание
+  // Ajoute un matériau au devoir
   addToHomework(material: Material) {
     if (!this.newHomework.materialIds.includes(material.id)) {
       this.newHomework.materialIds.push(material.id);
     }
   }
 
-  // Создание нового домашнего задания
+  // Crée un nouveau devoir
   createHomework() {
     if (!this.currentUser?.id || !this.newHomework.lessonId) {
-      console.error('❌ Не хватает данных для создания домашнего задания');
+      console.error('Manque de données pour créer le devoir');
       return;
     }
 
@@ -558,7 +558,7 @@ export class StudentTrainingComponent implements OnInit {
       description: this.newHomework.description,
       dueDate: this.newHomework.dueDate,
       assignedBy: this.currentUser.id,
-      assignedTo: '', // Будет заполнено на бэкенде
+      assignedTo: '', // Rempli sur le backend
       status: 'assigned',
       materialIds: this.newHomework.materialIds,
       createdInClass: false
@@ -566,12 +566,12 @@ export class StudentTrainingComponent implements OnInit {
 
     this.homeworkService.createHomework(this.newHomework.lessonId, homework).subscribe({
       next: (response) => {
-        console.log('✅ Домашнее задание создано:', response);
+        console.log('Devoir créé:', response);
         this.clearHomeworkForm();
         this.loadHomeworks();
       },
       error: (error: Error) => {
-        console.error('❌ Ошибка при создании домашнего задания:', error);
+        console.error('Erreur lors de la création du devoir:', error);
       }
     });
   }
@@ -598,11 +598,13 @@ export class StudentTrainingComponent implements OnInit {
     }
   }
 
+  // Obtient le titre du matériau
   getMaterialTitle(materialId: string): string {
     const material = this.materials.find(m => m.id === materialId);
     return material ? material.title : 'Matériau inconnu';
   }
 
+  // Obtient le titre de la leçon
   getLessonTitle(lessonId: string): string {
     if (lessonId === 'no-lesson') {
       return 'Devoirs personnels';
@@ -610,15 +612,15 @@ export class StudentTrainingComponent implements OnInit {
     
     const lesson = this.availableLessons.find(l => l.id === lessonId);
     if (!lesson) {
-      console.log(`⚠️ Урок с ID ${lessonId} не найден в списке доступных уроков`);
-      console.log('📋 Доступные уроки:', this.availableLessons.map(l => ({ id: l.id, title: l.title })));
+      console.log(`Leçon avec ID ${lessonId} non trouvée dans la liste des leçons disponibles`);
+      console.log('Leçons disponibles:', this.availableLessons.map(l => ({ id: l.id, title: l.title })));
       return 'Cours inconnu';
     }
     
     return lesson.title || `Cours du ${new Date(lesson.date).toLocaleDateString('fr-FR')}`;
   }
 
-  // Определение роли пользователя для корректного отображения
+  // Détermine le rôle de l'utilisateur pour l'affichage
   isTeacher(): boolean {
     return this.currentUser?.role === 'teacher';
   }
@@ -627,7 +629,7 @@ export class StudentTrainingComponent implements OnInit {
     return this.currentUser?.role === 'student' || !this.currentUser?.role;
   }
 
-  // ==================== UTILITY METHODS ====================
+  // ==================== MÉTHODES UTILITAIRES ====================
   
   getHomeworkStatusText(status: string): string {
     const statusTexts = {
@@ -671,32 +673,32 @@ export class StudentTrainingComponent implements OnInit {
   }
 
   openMaterial(material: Material) {
-    // Implementation for opening material content
+    // Implémentation pour ouvrir le contenu du matériau
     if (material.type === 'text') {
-      // Open in modal or new page
+      // Ouvrir en modal ou nouvelle page
       alert(`Contenu du matériau:\n\n${material.content}`);
     } else {
-      // Handle other file types
+      // Gérer les autres types de fichiers
       window.open(material.content, '_blank');
     }
   }
 
-  // Debug method for templates
+  // Méthode de debug pour les templates
   debugLog(message: string) {
     console.log(message);
   }
 
-  // Method to set homework tab
+  // Méthode pour définir l'onglet devoirs
   setHomeworkTab() {
-    console.log('🖱️ Clicked homework tab - method called!');
+    console.log('Onglet devoirs cliqué - méthode appelée!');
     this.activeTab = 'homework';
-    console.log('📌 activeTab set to:', this.activeTab);
+    console.log('activeTab défini à:', this.activeTab);
   }
 
-  // Method to set materials tab
+  // Méthode pour définir l'onglet matériaux
   setMaterialsTab() {
-    console.log('🖱️ Clicked materials tab - method called!');
+    console.log('Onglet matériaux cliqué - méthode appelée!');
     this.activeTab = 'materials';
-    console.log('📌 activeTab set to:', this.activeTab);
+    console.log('activeTab défini à:', this.activeTab);
   }
 } 

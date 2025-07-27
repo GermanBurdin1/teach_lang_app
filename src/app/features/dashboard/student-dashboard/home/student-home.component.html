@@ -1,8 +1,7 @@
 <div class="student-home">
 
-  <!-- 🔼 Верхняя часть -->
   <div class="top-section">
-    <!-- Кнопка входа в класс для ближайшего урока -->
+    <!-- Bouton d'entrée dans la classe pour le prochain cours -->
     <div *ngIf="getNextLesson() && canEnterClass(getNextLesson()!)" 
          class="next-lesson-entry-zone">
       <div class="next-lesson-card">
@@ -37,7 +36,7 @@
               </div>
               
               <div class="notification-actions">
-                <!-- Actions for booking proposals -->
+                <!-- Actions pour les propositions de réservation -->
                 <ng-container *ngIf="note.type === 'booking_proposal' && note.proposedTime">
                   <ng-container *ngIf="!note.accepted && !note.refused">
                     <button mat-raised-button color="primary" size="small" (click)="acceptProposal(note)">
@@ -59,7 +58,7 @@
                   </ng-container>
                 </ng-container>
                 
-                <!-- Hide button -->
+                <!-- Bouton de masquage -->
                 <button mat-icon-button 
                         class="hide-button" 
                         (click)="hideNotification(note)"
@@ -70,7 +69,7 @@
             </div>
           </div>
           
-          <!-- Show more/less button -->
+          <!-- Bouton pour voir plus/moins -->
           <div *ngIf="hasMoreNotifications" class="show-more-container">
             <button mat-stroked-button 
                     color="accent" 
@@ -98,7 +97,7 @@
         </button>
       </div>
       <div *ngIf="!goalCollapsed">
-        <!-- Показываем цель или сообщение о необходимости установить цель -->
+        <!-- Afficher l'objectif ou un message pour définir l'objectif -->
         <div *ngIf="!loadingGoals" class="goal-content">
           <div *ngIf="currentGoal" class="goal-display">
             <div class="goal-details">
@@ -229,12 +228,12 @@
     </div>
   </div>
 
-  <!-- 🔽 Нижняя часть -->
+  <!-- 🔽 Partie basse -->
   <div class="calendar-wrapper">
     <div class="calendar-zone">
       <h3>🗓️ Prochains cours</h3>
 
-      <!-- �� Шаблон события -->
+      <!-- Gabarit d'événement -->
       <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate"
         (eventClicked)="onLessonClick($event)">
       </app-calendar-preview>
@@ -269,7 +268,7 @@
   <div class="modal-overlay" (click)="closeModal()"></div>
   <div class="mat-modal-content details-modal" (click)="$event.stopPropagation()">
 
-    <!-- Заголовок с кнопкой закрытия справа -->
+    <!-- En-tête avec bouton de fermeture à droite -->
     <div class="details-modal__header">
       <h2 class="details-modal__title">Détails du cours</h2>
       <button mat-icon-button (click)="closeModal()" aria-label="Fermer" class="details-modal__close">
@@ -277,7 +276,7 @@
       </button>
     </div>
 
-    <!-- Контент -->
+    <!-- Contenu -->
     <div mat-dialog-content class="details-modal__content">
       <p><strong>Titre :</strong> {{ selectedLesson?.title }}</p>
       <p><strong>Début :</strong> {{ selectedLesson?.start | date: 'full' }}</p>
@@ -285,7 +284,7 @@
       <p><strong>Statut :</strong> {{ selectedLesson?.meta?.status }}</p>
     </div>
 
-    <!-- Центрированная кнопка -->
+    <!-- Bouton centré -->
     <div class="details-modal__actions" *ngIf="canCancelLesson()">
       <button mat-raised-button color="primary" (click)="openModifyModal()">Modifier ou annuler</button>
     </div>
@@ -299,7 +298,7 @@
   <div class="modal-overlay" (click)="closeModifyModal()"></div>
   <div class="mat-modal-content modify-modal" (click)="$event.stopPropagation()">
 
-    <!-- Верхняя панель управления -->
+    <!-- En-tête de gestion -->
     <div class="modify-modal__header">
       <button mat-icon-button (click)="onBackFromModify()" aria-label="Retour">
         <mat-icon>arrow_back</mat-icon>
@@ -312,7 +311,7 @@
 
     <div mat-dialog-content class="modify-modal__content">
 
-      <!-- Écran выбора действия -->
+      <!-- Écran de choix d'action -->
       <div *ngIf="!actionType" class="modify-choice">
         <p class="mb-2">Que souhaitez-vous faire ?</p>
         <div class="action-buttons">
@@ -324,20 +323,20 @@
       <!-- Reporter -->
       <div *ngIf="actionType === 'reschedule'" class="mt-3">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Дата</mat-label>
+          <mat-label>Date</mat-label>
           <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDateOnly" />
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Время</mat-label>
+          <mat-label>Heure</mat-label>
           <input matInput type="time" [(ngModel)]="selectedTimeOnly" />
         </mat-form-field>
       </div>
 
       <!-- Annuler -->
       <div *ngIf="actionType === 'cancel'" class="mt-3">
-        <!-- Предупреждение о времени отмены -->
+        <!-- Avertissement sur l'heure d'annulation -->
         <div *ngIf="isCancellationTooLate()" class="cancellation-warning" 
              style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
           <mat-icon style="color: #856404; margin-right: 8px;">warning</mat-icon>
@@ -373,7 +372,7 @@
 
     </div>
 
-    <!-- Boutоны -->
+    <!-- Boutons -->
     <div mat-dialog-actions align="end" class="mt-3" *ngIf="actionType">
       <button mat-flat-button color="accent" (click)="submitModification()">Soumettre</button>
     </div>
@@ -389,12 +388,12 @@
   </div>
 </ng-template>
 
-<!-- ======================== МОДАЛЬНОЕ ОКНО ДЛЯ ЦЕЛЕЙ ======================== -->
+<!-- ======================== MODALE POUR OBJECTIFS ======================== -->
 <ng-template [ngIf]="showGoalModal">
   <div class="modal-overlay" (click)="closeGoalModal()"></div>
   <div class="mat-modal-content goal-modal" (click)="$event.stopPropagation()">
     
-    <!-- Заголовок -->
+    <!-- En-tête -->
     <div class="goal-modal__header">
       <h2 class="goal-modal__title">🎯 Définir votre objectif</h2>
       <button mat-icon-button (click)="closeGoalModal()" aria-label="Fermer" class="goal-modal__close">
@@ -402,10 +401,10 @@
       </button>
     </div>
 
-    <!-- Контент -->
+    <!-- Contenu -->
     <div class="goal-modal__content">
       
-      <!-- Выбор уровня экзамена -->
+      <!-- Sélection du niveau d'examen -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Niveau d'examen souhaité</mat-label>
         <mat-select [(ngModel)]="selectedExamLevel" required>
@@ -416,7 +415,7 @@
         <mat-hint>Choisissez le niveau que vous souhaitez atteindre</mat-hint>
       </mat-form-field>
 
-      <!-- Дата-цель (опционально) -->
+      <!-- Date cible (optionnel) -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Date cible (optionnel)</mat-label>
         <input matInput [matDatepicker]="goalPicker" [(ngModel)]="selectedTargetDate" />
@@ -425,7 +424,7 @@
         <mat-hint>Quand souhaitez-vous atteindre ce niveau ?</mat-hint>
       </mat-form-field>
 
-      <!-- Описание (опционально) -->
+      <!-- Description (optionnel) -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Description (optionnel)</mat-label>
         <textarea matInput 

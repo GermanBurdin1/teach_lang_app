@@ -14,6 +14,7 @@ export class AuthAdminGuard implements CanActivate {
       return true;
     }
 
+    // TODO : logger les tentatives d'accès non autorisées
     this.router.navigate(['/select-role']);
     return false;
   }

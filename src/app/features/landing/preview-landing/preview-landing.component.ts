@@ -1,43 +1,35 @@
-import { Component, OnInit } from '@angular/core';
-import { LandingDataService } from '../landing-service/landing-data.service';
+import { Component, Input, OnInit } from '@angular/core';
 
-const defaultData = [
-  {
-    id: 'block1',
-    title: 'Место для заголовка',
-    subtitle: 'Место для подзаголовка',
-    image: '', // или путь к изображению по умолчанию
-    buttonText: 'Оставьте заявку',
-    callToAction: 'Оставьте заявку на обучение',
-  },
-  {
-    id: 'block2',
-    title: 'Обо мне',
-    subtitle: 'Краткое описание',
-    links: {
-      vk: 'http://vk.com/',
-      facebook: 'http://fb.com/',
-      instagram: 'http://instagram.com/',
-      youtube: 'http://youtube.com/',
-    },
-  },
-  // добавьте другие блоки по аналогии
-];
-
-@Component({
-  selector: 'app-preview-landing',
-  templateUrl: './preview-landing.component.html',
-  styleUrls: ['./preview-landing.component.css']
-})
+// TODO : ajouter templates prédéfinis pour différents types de landing
 export class PreviewLandingComponent implements OnInit {
-  data: any[] = defaultData;
+  @Input() data = {
+    title: 'Espace pour le titre',
+    subtitle: 'Espace pour le sous-titre',
+    image: '', // ou chemin vers image par défaut
+    buttonText: 'Laissez une demande',
+    callToAction: 'Laissez une demande de formation',
+  };
 
-  constructor(private landingDataService: LandingDataService) {}
+  defaultBlocks = [
+    {
+      title: 'À propos de moi',
+      subtitle: 'Description courte',
+      content: '',
+      image: ''
+    }
+  ];
+
+  constructor() { }
 
   ngOnInit(): void {
-    const filledData = this.landingDataService.getAllData();
-    if (filledData && filledData.length > 0) {
-      this.data = filledData; // Заменяем дефолтные данные заполненными
-    }
+    // TODO : charger les données depuis l'API
+    // on ajoute d'autres blocs par analogie
+    const filledData = {
+      ...this.data,
+      blocks: this.defaultBlocks
+    };
+
+    this.data = filledData; // on remplace les données par défaut par celles remplies
   }
+
 }

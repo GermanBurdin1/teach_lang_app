@@ -32,6 +32,7 @@ import { MatDividerModule } from '@angular/material/divider';
   exports: [
     SidebarComponent,
     HeaderComponent
-  ]
+  ],
+  // TODO : optimiser les imports Material et ajouter le footer component
 })
 export class LayoutModule { }

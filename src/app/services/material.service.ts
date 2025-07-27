@@ -22,6 +22,7 @@ export interface AttachMaterialRequest {
   studentId: string;
 }
 
+// TODO : ajouter système de catégories pour les matériaux
 @Injectable({
   providedIn: 'root'
 })
@@ -31,37 +32,37 @@ export class MaterialService {
   private materials$ = new BehaviorSubject<Material[]>([]);
   private studentMaterials$ = new BehaviorSubject<Material[]>([]);
   
-  // Subject для уведомления о прикреплении материалов к урокам
+  // Subject pour notifications d'attachement de matériaux aux cours
   private materialAttached$ = new Subject<{ materialId: string, lessonId: string }>();
 
   constructor(private http: HttpClient) {}
 
-  // Получение всех материалов
+  // obtention de tous les matériaux
   getMaterials(): Observable<Material[]> {
     return this.http.get<Material[]>(this.baseUrl);
   }
 
-  // Получение всех материалов преподавателя
+  // obtention de tous les matériaux du professeur
   getMaterialsForTeacher(teacherId: string): Observable<Material[]> {
     return this.http.get<Material[]>(`${this.baseUrl}/teacher/${teacherId}`);
   }
 
-  // Получение материалов студента (прикрепленных к урокам)
+  // obtention des matériaux étudiant (attachés aux cours)
   getMaterialsForStudent(studentId: string): Observable<Material[]> {
     return this.http.get<Material[]>(`${this.baseUrl}/student/${studentId}`);
   }
 
-  // Получение материалов для уроков (прикрепленных к урокам)
+  // obtention des matériaux pour les cours (attachés aux cours)
   getLessonMaterials(userId: string): Observable<Material[]> {
     return this.http.get<Material[]>(`${this.baseUrl}/lesson-materials/${userId}`);
   }
 
-  // Получение материалов конкретного урока
+  // obtention des matériaux d'un cours spécifique
   getMaterialsByLessonId(lessonId: string): Observable<Material[]> {
     return this.http.get<Material[]>(`${this.baseUrl}/lesson/${lessonId}`);
   }
 
-  // Создание нового материала
+  // création d'un nouveau matériau
   createMaterial(material: Omit<Material, 'id' | 'createdAt' | 'attachedLessons'>): Observable<Material> {
     return this.http.post<Material>(this.baseUrl, {
       ...material,
@@ -70,43 +71,43 @@ export class MaterialService {
     });
   }
 
-  // Прикрепление материала к уроку
+  // attachement d'un matériau à un cours
   attachMaterialToLesson(request: AttachMaterialRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/attach`, request);
   }
 
-  // Уведомление о прикреплении материала (вызывается после успешного прикрепления)
+  // notification d'attachement de matériau (appelée après un attachement réussi)
   notifyMaterialAttached(materialId: string, lessonId: string): void {
     this.materialAttached$.next({ materialId, lessonId });
   }
 
-  // Подписка на уведомления о прикреплении материалов
+  // souscription aux notifications d'attachement de matériaux
   onMaterialAttached(): Observable<{ materialId: string, lessonId: string }> {
     return this.materialAttached$.asObservable();
   }
 
-  // Открепление материала от урока
+  // détachement d'un matériau du cours
   detachMaterialFromLesson(materialId: string, lessonId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${materialId}/lessons/${lessonId}`);
   }
 
-  // Удаление материала
+  // suppression d'un matériau
   deleteMaterial(materialId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${materialId}`);
   }
 
-  // Обновление материала
+  // mise à jour d'un matériau
   updateMaterial(materialId: string, updates: Partial<Material>): Observable<Material> {
     return this.http.patch<Material>(`${this.baseUrl}/${materialId}`, updates);
   }
 
-  // Поиск материалов
+  // recherche de matériaux
   searchMaterials(query: string, type?: string): Observable<Material[]> {
     const params = type ? `?query=${query}&type=${type}` : `?query=${query}`;
     return this.http.get<Material[]>(`${this.baseUrl}/search${params}`);
   }
 
-  // Local state management
+  // Gestion de l'état local
   getMaterialsStream(): Observable<Material[]> {
     return this.materials$.asObservable();
   }

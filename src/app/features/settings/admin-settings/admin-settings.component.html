@@ -1,6 +1,6 @@
 <form [formGroup]="adminForm" (ngSubmit)="onSubmit()" class="admin-form">
 
-  <!-- Section: Informations -->
+  <!-- Section : Informations -->
   <h2><mat-icon class="section-icon">admin_panel_settings</mat-icon> Informations de la plateforme</h2>
   <mat-form-field class="full-width">
     <mat-label>Nom de la plateforme</mat-label>
@@ -39,7 +39,7 @@
 
   <mat-divider></mat-divider>
 
-  <!-- Section: Paiements -->
+  <!-- Section : Paiements -->
   <h3><mat-icon class="section-icon">payments</mat-icon> Gestion des paiements</h3>
   <div formGroupName="payments">
     <mat-form-field class="full-width">
@@ -68,7 +68,7 @@
 
   <mat-divider></mat-divider>
 
-  <!-- Section: Modération -->
+  <!-- Section : Modération -->
   <h3><mat-icon class="section-icon">gavel</mat-icon> Modération</h3>
   <div formGroupName="moderation">
     <mat-slide-toggle formControlName="enableReports">Activer les signalements</mat-slide-toggle>
@@ -83,7 +83,7 @@
 
   <mat-divider></mat-divider>
 
-  <!-- Section: Notifications -->
+  <!-- Section : Notifications -->
   <h3><mat-icon class="section-icon">notifications</mat-icon> Notifications</h3>
   <div formGroupName="notifications">
     <mat-slide-toggle formControlName="emailEnabled">Emails activés</mat-slide-toggle>
@@ -97,7 +97,7 @@
 
   <mat-divider></mat-divider>
 
-  <!-- Section: Intégrations -->
+  <!-- Section : Intégrations -->
   <h3><mat-icon class="section-icon">hub</mat-icon> Intégrations</h3>
   <div formGroupName="integrations">
     <mat-form-field class="full-width">
@@ -113,7 +113,7 @@
 
   <mat-divider></mat-divider>
 
-  <!-- Section: Préférences -->
+  <!-- Section : Préférences -->
   <h3><mat-icon class="section-icon">palette</mat-icon> Préférences</h3>
   <div formGroupName="preferences">
     <mat-form-field class="full-width">

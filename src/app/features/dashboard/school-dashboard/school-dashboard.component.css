@@ -1,4 +1,4 @@
-/* Обёртка для основного контейнера */
+/* Wrapper pour le conteneur principal */
 .dashboard-layout {
   display: flex;
   flex-direction: row;

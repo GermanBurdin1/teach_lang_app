@@ -1,14 +1,14 @@
-<p>Расписание уроков</p>
+<p>Calendrier des cours</p>
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <!-- Блок управления неделями -->
+  <!-- Bloc de gestion des semaines -->
   <div class="d-flex align-items-center">
     <button class="btn btn-outline-secondary ms-2" (click)="previousWeek()">&lt;</button>
     <span>{{ currentWeekStart | date: 'd MMM' }} - {{ getWeekDates()[6] | date: 'd MMM' }}</span>
     <button class="btn btn-outline-secondary ms-2" (click)="nextWeek()">&gt;</button>
   </div>
-  <!-- Часовой пояс -->
+  <!-- Fuseau horaire -->
   <div class="me-3">
-    <label class="form-label">Часовой пояс</label>
+    <label class="form-label">Fuseau horaire</label>
     <select class="form-select">
       <option *ngFor="let timezone of timezones">{{ timezone }}</option>
     </select>
@@ -17,7 +17,7 @@
 <table class="table table-bordered">
   <thead>
     <tr>
-      <th>Время</th>
+      <th>Heure</th>
       <th *ngFor="let day of getWeekDates()">{{ day | date: 'EEEE, d MMMM' }}</th>
     </tr>
   </thead>

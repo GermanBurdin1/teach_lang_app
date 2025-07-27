@@ -65,7 +65,7 @@ interface Lesson {
   styleUrls: ['./lesson-management.component.css']
 })
 export class LessonManagementComponent implements OnInit, OnDestroy {
-  // UI состояние
+  // état de l'UI
   filter: string = 'future';
   selectedTeacher: string | null = null;
   highlightedLessonId: string | null = null;
@@ -79,28 +79,28 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   showMoreNotifications = false;
   readonly MAX_NOTIFICATIONS = 10;
 
-  // Данные
+  // Données
   lessons: Lesson[] = [];
   currentLesson: Lesson | null = null;
   
-  // Домашние задания и конспекты
+  // Devoirs et notes de cours
   homeworkItems: any[] = [];
   lessonNotes: any = null;
   
-  // Формы для добавления
+  // Formulaires d'ajout
   showAddTaskForm = false;
   showAddQuestionForm = false;
   newTaskTitle = '';
   newTaskDescription = '';
   newQuestionText = '';
   
-  // Загрузка
+  // Chargement
   loading = false;
   
-  // Параметры URL
+  // Paramètres d'URL
   highlightedLessonIdFromUrl: string | null = null;
 
-  // Управление раскрывающимися панелями
+  // Gestion des panneaux déroulants
   expandedTasks: Set<string> = new Set();
   expandedQuestions: Set<string> = new Set();
   expandedMaterials: Set<string> = new Set();
@@ -126,7 +126,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     });
 
     this.route.queryParams.subscribe(params => {
-      // Если есть lessonId в query params, используем его
+      // Si il y a un lessonId dans les query params, on l'utilise
       if (params['lessonId']) {
         this.highlightedLessonIdFromUrl = params['lessonId'];
         console.log('📋 LessonManagement: Получен lessonId из query params:', this.highlightedLessonIdFromUrl);
@@ -135,27 +135,27 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
 
     this.loadStudentLessons();
 
-    // Если есть выделенный урок из URL, загружаем его
+    // Si une leçon est sélectionnée (via le calendrier), on la charge
     if (this.highlightedLessonIdFromUrl) {
       setTimeout(() => {
         this.loadLesson(this.highlightedLessonIdFromUrl!);
       }, 500);
     }
     
-    // Подписка на уведомления о прикреплении материалов
+    // Souscription aux notifications de matériaux attachés
     const materialAttachedSubscription = this.materialService.onMaterialAttached().subscribe(({ materialId, lessonId }) => {
       console.log('🔗 Получено уведомление о прикреплении материала:', { materialId, lessonId });
       
-      // Если материал прикреплен к текущему уроку, перезагружаем материалы
+      // Si le matériau est attaché à la leçon actuelle, on recharge les matériaux
       if (this.currentLesson && this.currentLesson.id === lessonId) {
-        console.log('🔄 Перезагружаем материалы для текущего урока');
+        console.log('🔄 On recharge les matériaux pour la leçon actuelle');
         this.reloadMaterialsForCurrentLesson();
       }
       
-      // Также обновляем материалы в списке уроков
+      // On met aussi à jour les matériaux dans la liste des leçons
       const lessonInList = this.lessons.find(l => l.id === lessonId);
       if (lessonInList) {
-        console.log('🔄 Перезагружаем материалы для урока в списке');
+        console.log('🔄 On recharge les matériaux pour la leçon dans la liste');
         this.getMaterialsForLesson(lessonId).then(materials => {
           lessonInList.materials = materials;
         });
@@ -164,7 +164,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(materialAttachedSubscription);
     
-    // Подписка на обновления домашних заданий
+    // Souscription aux mises à jour des devoirs
     const homeworkUpdatedSubscription = this.homeworkService.onHomeworkUpdated().subscribe(() => {
       console.log('📋 Получено уведомление об обновлении домашних заданий');
       if (this.currentLesson) {
@@ -181,7 +181,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  // Загрузка уроков студента
+  // Chargement des leçons de l'étudiant
   loadStudentLessons(): void {
     const studentId = this.authService.getCurrentUser()?.id;
     if (!studentId) return;
@@ -189,9 +189,9 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.lessonService.getStudentSentRequests(studentId).subscribe({
       next: (requests) => {
-        console.log('📚 Загружены все заявки студента:', requests);
+        console.log('📚 Les demandes de l\'étudiant ont été chargées:', requests);
         
-        // Преобразуем заявки в формат уроков
+        // On transforme les demandes en format leçon
         this.lessons = requests.map(request => ({
           id: request.lessonId || request.id,
           teacherId: request.teacherId,
@@ -206,28 +206,28 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         
         this.updateLessonStatuses();
         
-        // Загружаем задачи и вопросы для всех уроков
+        // On charge les tâches et questions pour toutes les leçons
         this.loadTasksAndQuestionsForAllLessons();
         
-        console.log('📚 Уроки обработаны:', this.lessons);
+        console.log('📚 Les leçons ont été traitées:', this.lessons);
       },
       error: (error) => {
-        console.error('Ошибка загрузки уроков:', error);
+        console.error('Ошибка chargement des leçons:', error);
         this.loading = false;
       }
     });
   }
 
-  // Загрузка домашних заданий для урока
+  // Chargement des devoirs pour la leçon
   loadHomeworkItems(lessonId: string): void {
-    console.log('📋 Начинаем загрузку домашних заданий для урока:', lessonId);
+    console.log('📋 On commence le chargement des devoirs pour la leçon:', lessonId);
     
-    // Загружаем домашние задания из БД через HomeworkService
+    // On charge les devoirs depuis la BDD via HomeworkService
     this.homeworkService.getHomeworkForLesson(lessonId).subscribe({
       next: (homeworkFromDB) => {
-        console.log('📋 Домашние задания загружены из БД:', homeworkFromDB);
+        console.log('📋 Les devoirs ont été chargés depuis la BDD:', homeworkFromDB);
         
-        // Преобразуем в формат для отображения
+        // On transforme pour l'affichage
         const homeworkItems = homeworkFromDB.map(homework => ({
           id: homework.id,
           type: homework.sourceType,
@@ -244,18 +244,18 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
           teacherFeedback: homework.teacherFeedback
         }));
         
-        // Загружаем также из localStorage для совместимости со старыми данными
+        // On charge aussi depuis le localStorage pour compatibilité
         const savedHomework = localStorage.getItem(`homework_${lessonId}`);
         let localHomework: any[] = [];
         if (savedHomework) {
           localHomework = JSON.parse(savedHomework);
-          console.log('📋 Домашние задания загружены из localStorage:', localHomework);
+          console.log('📋 Les devoirs ont été chargés depuis le localStorage:', localHomework);
         }
         
-        // Объединяем данные из БД и localStorage, избегая дублирования
+        // On fusionne les données de la BDD et du localStorage, sans doublons
         const combinedHomework = [...homeworkItems];
         
-        // Добавляем домашние задания из localStorage которых нет в БД
+        // On ajoute les devoirs du localStorage qui ne sont pas dans la BDD
         localHomework.forEach(localItem => {
           const existsInDB = homeworkItems.some(dbItem => 
             dbItem.itemId === localItem.itemId && 
@@ -263,29 +263,29 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
           );
           
           if (!existsInDB) {
-            // Добавляем поле createdInClass для совместимости
+            // On ajoute le champ createdInClass pour compatibilité
             localItem.createdInClass = localItem.createdInClass !== undefined ? localItem.createdInClass : true;
             combinedHomework.push(localItem);
           }
         });
         
         this.homeworkItems = combinedHomework;
-        console.log('📋 Итоговые домашние задания для урока:', lessonId, this.homeworkItems);
+        console.log('📋 Les devoirs finaux pour la leçon:', lessonId, this.homeworkItems);
       },
       error: (error) => {
-        console.warn('⚠️ Ошибка загрузки домашних заданий из БД, используем localStorage:', error);
+        console.warn('⚠️ Ошибка chargement des devoirs depuis la BDD, on utilise le localStorage:', error);
         
-        // Fallback: загружаем только из localStorage
+        // Fallback : on charge seulement depuis le localStorage
         const savedHomework = localStorage.getItem(`homework_${lessonId}`);
         if (savedHomework) {
           this.homeworkItems = JSON.parse(savedHomework);
-          // Добавляем поле createdInClass для совместимости
+          // On ajoute le champ createdInClass pour compatibilité
           this.homeworkItems.forEach(item => {
             if (item.createdInClass === undefined) {
-              item.createdInClass = true; // по умолчанию считаем что создано в классе
+              item.createdInClass = true; // par défaut on considère que c'est créé en classe
             }
           });
-          console.log('📋 Домашние задания загружены из localStorage (fallback):', this.homeworkItems);
+          console.log('📋 Les devoirs ont été chargés depuis le localStorage (fallback):', this.homeworkItems);
         } else {
           this.homeworkItems = [];
         }
@@ -293,38 +293,38 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Загрузка конспекта урока
+  // Chargement des notes de cours
   async loadLessonNotes(lessonId: string): Promise<void> {
     try {
-      console.log('📝 Загрузка конспекта для урока из базы данных:', lessonId);
+      console.log('📝 On charge les notes de cours pour la leçon depuis la base de données:', lessonId);
       
-      // Инициализируем заметки из базы данных
+      // On initialise les notes depuis la BDD
       await this.lessonNotesService.initNotesForLesson(lessonId);
       
-      // Подписываемся на заметки
+      // On s'abonne aux notes
       this.lessonNotesService.notes$.subscribe(notesData => {
         if (notesData && notesData.lessonId === lessonId) {
-          console.log('📝 Загружен конспект для урока из базы данных:', lessonId, notesData);
+          console.log('📝 Les notes de cours ont été chargées depuis la base de données pour la leçon:', lessonId, notesData);
           
-          // Преобразуем данные из LessonNotesService в формат, ожидаемый HTML
+          // On transforme les données du service en format attendu par le HTML
           this.lessonNotes = {
             tasksNotes: this.extractStructuredNotes(notesData.tasks || []),
             questionsNotes: this.extractStructuredNotes(notesData.questions || []),
             materialsNotes: this.extractStructuredNotes(notesData.materials || []),
-            // Сохраняем старый формат для совместимости
+            // On garde l'ancien format pour compatibilité
             tasksContent: this.extractNotesContent(notesData.tasks || []),
             questionsContent: this.extractNotesContent(notesData.questions || []),
             materialsContent: this.extractNotesContent(notesData.materials || [])
           };
           
-          console.log('📝 Конспект преобразован для отображения:', this.lessonNotes);
+          console.log('📝 Les notes ont été transformées pour l\'affichage:', this.lessonNotes);
         }
       });
       
     } catch (error) {
-      console.error('❌ Ошибка загрузки конспекта из базы данных:', error);
+      console.error('❌ Ошибка chargement des notes depuis la base de données:', error);
       this.lessonNotes = null;
-      console.log('📝 Конспект не найден для урока:', lessonId);
+      console.log('📝 Les notes n\'ont pas été trouvées pour la leçon:', lessonId);
     }
   }
 
@@ -342,7 +342,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     }).filter(content => content.length > 0).join('\n\n');
   }
 
-  // Новый метод для структурированных заметок
+  // Nouveau méthode pour les notes structurées
   private extractStructuredNotes(notes: LessonNote[]): any[] {
     if (!notes || notes.length === 0) {
       return [];
@@ -356,18 +356,18 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     }));
   }
 
-  // Проверка, есть ли домашние задания для урока
+  // Vérifie s'il y a des devoirs pour la leçon
   hasHomeworkItems(lessonId: string): boolean {
     const savedHomework = localStorage.getItem(`homework_${lessonId}`);
     return !!(savedHomework && JSON.parse(savedHomework).length > 0);
   }
 
-  // Проверка, есть ли конспект для урока
+  // Vérifie s'il y a des notes pour la leçon
   hasLessonNotes(lessonId: string): boolean {
-    // Проверяем в текущих заметках из сервиса
+    // On vérifie dans les notes actuelles du service
     const currentNotes = this.lessonNotesService.exportNotes();
     if (currentNotes && currentNotes.lessonId === lessonId) {
-      // Проверяем, есть ли хотя бы одна заметка с содержимым
+      // On vérifie s'il y a au moins une note avec du contenu
       const hasTasks = currentNotes.tasks && currentNotes.tasks.some(note => note.content && note.content.trim());
       const hasQuestions = currentNotes.questions && currentNotes.questions.some(note => note.content && note.content.trim());
       const hasMaterials = currentNotes.materials && currentNotes.materials.some(note => note.content && note.content.trim());
@@ -375,26 +375,26 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       return hasTasks || hasQuestions || hasMaterials;
     }
     
-    // Fallback к localStorage для совместимости
+    // Fallback au localStorage pour compatibilité
     const savedNotes = localStorage.getItem(`lesson_notes_${lessonId}`);
     if (!savedNotes) return false;
     
     try {
       const notesData: LessonNotesData = JSON.parse(savedNotes);
       
-      // Проверяем, есть ли хотя бы одна заметка с содержимым
+      // On vérifie s'il y a au moins une note avec du contenu
       const hasTasks = notesData.tasks && notesData.tasks.some(note => note.content && note.content.trim());
       const hasQuestions = notesData.questions && notesData.questions.some(note => note.content && note.content.trim());
       const hasMaterials = notesData.materials && notesData.materials.some(note => note.content && note.content.trim());
       
       return hasTasks || hasQuestions || hasMaterials;
     } catch (error) {
-      console.error('Ошибка при проверке конспекта:', error);
+      console.error('Ошибка lors de la vérification des notes:', error);
       return false;
     }
   }
 
-  // Проверка наличия заметок для конкретного раздела
+  // Vérifie s'il y a des notes pour une section donnée
   hasNotesForSection(section: 'tasks' | 'questions' | 'materials'): boolean {
     if (!this.lessonNotes) return false;
     
@@ -402,20 +402,20 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     return sectionNotes && sectionNotes.length > 0;
   }
 
-  // Загрузка конкретного урока с задачами и вопросами
+  // Chargement d'une leçon spécifique avec tâches et questions
   loadLesson(lessonId: string): void {
     this.loading = true;
     
-    // Загружаем урок
+    // On charge la leçon
     this.lessonService.getLessonDetails(lessonId).subscribe({
       next: (lesson) => {
         this.currentLesson = lesson;
         this.highlightedLessonId = lessonId;
         
-        // Загружаем задачи и вопросы
+        // On charge les tâches et questions
         this.loadTasksAndQuestions(lessonId);
         
-        // Загружаем домашние задания и конспекты
+        // On charge les devoirs et notes de cours
         this.loadHomeworkItems(lessonId);
         this.loadLessonNotes(lessonId);
         
@@ -424,13 +424,13 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         }, 5000);
       },
       error: (error) => {
-        console.error('Ошибка загрузки урока:', error);
+        console.error('Ошибка chargement de la leçon:', error);
         this.loading = false;
       }
     });
   }
 
-  // Загрузка задач, вопросов и материалов для урока
+  // Chargement des tâches, questions et matériaux pour la leçon
   loadTasksAndQuestions(lessonId: string): void {
     Promise.all([
       this.lessonService.getTasksForLesson(lessonId).toPromise(),
@@ -444,37 +444,37 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       }
       this.loading = false;
     }).catch(error => {
-      console.error('Ошибка загрузки задач, вопросов и материалов:', error);
+      console.error('Ошибка chargement des tâches, questions et matériaux:', error);
       this.loading = false;
     });
   }
 
-  // Получение материалов для урока
+  // Récupération des matériaux pour la leçon
   private async getMaterialsForLesson(lessonId: string): Promise<Material[]> {
     try {
-      console.log('🔍 Загружаем материалы для урока:', lessonId);
+      console.log('🔍 On charge les matériaux pour la leçon:', lessonId);
       const allMaterials = await this.materialService.getMaterials().toPromise();
-      console.log('📦 Все материалы получены:', allMaterials);
+      console.log('📦 Tous les matériaux ont été obtenus:', allMaterials);
       
       if (!allMaterials || allMaterials.length === 0) {
-        console.warn('⚠️ Материалы не найдены или список пуст. Возможно file-service не запущен?');
+        console.warn('⚠️ Les matériaux n\'ont pas été trouvés ou la liste est vide. File-service peut ne pas être démarré?');
         return [];
       }
       
       const filteredMaterials = allMaterials.filter(material => {
         const isAttached = material.attachedLessons && material.attachedLessons.includes(lessonId);
-        //console.log(`📎 Материал "${material.title}" прикреплен к урокам:`, material.attachedLessons, 'включает урок', lessonId, '?', isAttached);
+        //console.log(`📎 Le matériel "${material.title}" est attaché aux leçons:`, material.attachedLessons, 'inclut la leçon', lessonId, '?', isAttached);
         return isAttached;
       });
       
-      console.log('✅ Отфильтрованные материалы для урока:', filteredMaterials);
+      console.log('✅ Les matériaux filtrés pour la leçon:', filteredMaterials);
       return filteredMaterials;
     } catch (error) {
-      console.error('❌ Ошибка загрузки материалов для урока:', error);
-      console.error('❌ Возможные причины:');
-      console.error('   1. File-service не запущен на порту 3008');
-      console.error('   2. Проблемы с подключением к API');
-      console.error('   3. Ошибка в структуре данных материалов');
+      console.error('❌ Ошибка chargement des matériaux pour la leçon:', error);
+      console.error('❌ Les raisons possibles sont:');
+      console.error('   1. File-service n\'est pas démarré sur le port 3008');
+      console.error('   2. Problèmes de connexion à l\'API');
+      console.error('   3. Erreur dans la structure des données des matériaux');
       return [];
     }
   }
@@ -487,19 +487,19 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       const materials = await this.getMaterialsForLesson(this.currentLesson.id);
       this.currentLesson.materials = materials;
       
-      // Обновляем материалы и в списке уроков
+      // On met à jour les matériaux dans la leçon courante
       const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
       if (lessonInList) {
         lessonInList.materials = materials;
       }
       
-      console.log('✅ Материалы урока перезагружены:', materials);
+      console.log('✅ Les matériaux de la leçon ont été rechargés:', materials);
     } catch (error) {
-      console.error('❌ Ошибка перезагрузки материалов:', error);
+      console.error('❌ Ошибка rechargement des matériaux:', error);
     }
   }
 
-  // Загрузка задач, вопросов и материалов для всех уроков
+  // Chargement des tâches, questions et matériaux pour toutes les leçons
   loadTasksAndQuestionsForAllLessons(): void {
     if (this.lessons.length === 0) {
       this.loading = false;
@@ -520,21 +520,21 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
 
     Promise.all(loadPromises).then(() => {
       this.loading = false;
-      console.log('📚 Задачи, вопросы и материалы загружены для всех уроков');
+      console.log('📚 Les tâches, questions et matériaux ont été chargés pour toutes les leçons');
     }).catch(error => {
-      console.error('Ошибка загрузки задач, вопросов и материалов для уроков:', error);
+      console.error('Ошибка chargement des tâches, questions et matériaux pour les leçons:', error);
       this.loading = false;
     });
   }
 
-  // Обновление статусов уроков (прошедшие/будущие)
+  // Mise à jour des statuts des leçons (passées/à venir)
   updateLessonStatuses(): void {
-    // Сохраняем оригинальные статусы из API, не изменяем их
-    // Фильтрация будет основана на дате и статусе в методе matchesCurrentFilter
-    console.log('📊 Статусы уроков сохранены:', this.lessons.map(l => ({id: l.id, status: l.status, date: l.scheduledAt})));
+    // On garde les statuts originaux de l'API, on ne les modifie pas
+    // La filtration sera basée sur la date et le statut dans la méthode matchesCurrentFilter
+    console.log('📊 Les statuts des leçons ont été sauvegardés:', this.lessons.map(l => ({id: l.id, status: l.status, date: l.scheduledAt})));
   }
 
-  // Добавление новой задачи
+  // Ajout d'une nouvelle tâche
   addTask(): void {
     if (!this.newTaskTitle.trim() || !this.currentLesson) return;
 
@@ -554,22 +554,22 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         if (this.currentLesson) {
           this.currentLesson.tasks.push(newTask);
           
-          // Обновляем задачи и в списке уроков
+          // On met à jour les tâches dans la liste des leçons
           const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
           if (lessonInList) {
             lessonInList.tasks.push(newTask);
           }
         }
         this.clearTaskForm();
-        console.log('Задача добавлена:', newTask);
+        console.log('La tâche a été ajoutée:', newTask);
       },
       error: (error) => {
-        console.error('Ошибка добавления задачи:', error);
+        console.error('Ошибка ajout de la tâche:', error);
       }
     });
   }
 
-  // Добавление нового вопроса
+  // Ajout d'une nouvelle question
   addQuestion(): void {
     if (!this.newQuestionText.trim() || !this.currentLesson) return;
 
@@ -588,29 +588,29 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         if (this.currentLesson) {
           this.currentLesson.questions.push(newQuestion);
           
-          // Обновляем вопросы и в списке уроков
+          // On met à jour les questions dans la liste des leçons
           const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
           if (lessonInList) {
             lessonInList.questions.push(newQuestion);
           }
         }
         this.clearQuestionForm();
-        console.log('Вопрос добавлен:', newQuestion);
+        console.log('La question a été ajoutée:', newQuestion);
       },
       error: (error) => {
-        console.error('Ошибка добавления вопроса:', error);
+        console.error('Ошибка ajout de la question:', error);
       }
     });
   }
 
-  // Очистка формы задачи
+  // Nettoyage du formulaire de tâche
   clearTaskForm(): void {
     this.newTaskTitle = '';
     this.newTaskDescription = '';
     this.showAddTaskForm = false;
   }
 
-  // Очистка формы вопроса
+  // Nettoyage du formulaire de question
   clearQuestionForm(): void {
     this.newQuestionText = '';
     this.showAddQuestionForm = false;
@@ -618,17 +618,17 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
 
 
 
-  // Геттеры для совместимости с шаблоном
+  // Getters pour compatibilité avec le template
   get filteredLessons() {
     if (this.currentLesson) {
-      // Когда выбран конкретный урок через calendar, показываем его первым, затем остальные
+      // Quand une leçon spécifique est sélectionnée via le calendrier, on l'affiche en premier
       const otherLessons = this.lessons.filter(lesson => 
         lesson.id !== this.currentLesson!.id && this.matchesCurrentFilter(lesson)
       );
       return [this.currentLesson, ...otherLessons];
     }
     
-    // Когда заходим на вкладку напрямую, применяем пагинацию
+    // Quand on accède à l'onglet directement, on applique la pagination
     const allFiltered = this.fullFilteredLessons;
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
@@ -636,18 +636,18 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   }
 
   get fullFilteredLessons() {
-    //console.log(`📊 Применяем фильтр "${this.filter}" к ${this.lessons.length} урокам`);
+    //console.log(`📊 On applique le filtre "${this.filter}" à ${this.lessons.length} leçons`);
     
     const result = this.lessons.filter(lesson => this.matchesCurrentFilter(lesson));
     
-    // console.log(`📊 После фильтрации: ${result.length} уроков`, result.map(l => ({
+    // console.log(`📊 Après filtrage: ${result.length} leçons`, result.map(l => ({
     //   id: l.id, 
     //   date: l.scheduledAt, 
     //   status: l.status,
     //   teacherName: l.teacherName
     // })));
 
-    // Если есть выделенный урок (через calendar), ставим его первым
+    // Si une leçon est sélectionnée (via le calendrier), on la met en premier
     if (this.highlightedLessonIdFromUrl) {
       const highlightedLesson = result.find(l => l.id === this.highlightedLessonIdFromUrl);
       const otherLessons = result.filter(l => l.id !== this.highlightedLessonIdFromUrl);
@@ -657,7 +657,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Сортируем по дате: предстоящие по возрастанию, прошедшие по убыванию
+    // On trie par date : à venir en premier, passées en dernier
     const sorted = result.sort((a, b) => {
       const dateA = new Date(a.scheduledAt);
       const dateB = new Date(b.scheduledAt);
@@ -667,15 +667,15 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       const bIsFuture = dateB > now;
       
       if (aIsFuture && bIsFuture) {
-        return dateA.getTime() - dateB.getTime(); // Предстоящие: ближайшие первыми
+        return dateA.getTime() - dateB.getTime(); // À venir : les plus proches en premier
       } else if (!aIsFuture && !bIsFuture) {
-        return dateB.getTime() - dateA.getTime(); // Прошедшие: последние первыми
+        return dateB.getTime() - dateA.getTime(); // Passées : les dernières en premier
       } else {
-        return aIsFuture ? -1 : 1; // Предстоящие перед прошедшими
+        return aIsFuture ? -1 : 1; // À venir avant les passées
       }
     });
     
-    // console.log(`📊 После сортировки: ${sorted.length} уроков`);
+    // console.log(`📊 Après tri: ${sorted.length} leçons`);
     return sorted;
   }
 
@@ -683,12 +683,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     const now = new Date();
     const lessonDate = new Date(lesson.scheduledAt);
     
-    // Фильтр по времени
+    // Filtrage par temps
     if (this.filter === 'future') {
-      // À venir: ТОЛЬКО предстоящие уроки по времени
+      // À venir : SEULEMENT les leçons à venir par temps
       const isFutureTime = lessonDate > now;
       
-      // console.log(`🔍 Фильтр Future для урока ${lesson.id}:`, {
+      // console.log(`🔍 Filtre Future pour la leçon ${lesson.id}:`, {
       //   lessonDate: lessonDate.toISOString(),
       //   now: now.toISOString(), 
       //   status: lesson.status,
@@ -698,10 +698,10 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       
       if (!isFutureTime) return false;
     } else if (this.filter === 'past') {
-      // Passés: ТОЛЬКО прошедшие по времени
+      // Passés : SEULEMENT les leçons passées par temps
       const isPastTime = lessonDate <= now;
       
-      // console.log(`🕐 Фильтр Past для урока ${lesson.id}:`, {
+      // console.log(`🕐 Filtre Past pour la leçon ${lesson.id}:`, {
       //   lessonDate: lessonDate.toISOString(),
       //   now: now.toISOString(),
       //   status: lesson.status,
@@ -711,27 +711,27 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       
       if (!isPastTime) return false;
     }
-    // 'all' - показываем все (предстоящие, прошедшие, отмененные, ожидающие подтверждения)
+    // 'all' - on affiche tout (à venir, passé, annulé, en attente de confirmation)
 
-    // Фильтр по преподавателю
+    // Filtrage par enseignant
     if (this.selectedTeacher && lesson.teacherName !== this.selectedTeacher) {
       return false;
     }
 
-    // Фильтр по дате начала
+    // Filtrage par date de début
     if (this.startDate) {
       const filterDate = new Date(this.startDate);
       if (lessonDate < filterDate) return false;
     }
 
-    // Фильтр по дате окончания
+    // Filtrage par date de fin
     if (this.endDate) {
       const filterDate = new Date(this.endDate);
-      filterDate.setHours(23, 59, 59, 999); // Конец дня
+      filterDate.setHours(23, 59, 59, 999); // Fin de la journée
       if (lessonDate > filterDate) return false;
     }
 
-    // Фильтр по поисковому запросу
+    // Filtrage par terme de recherche
     if (this.searchTerm) {
       const searchLower = this.searchTerm.toLowerCase();
       const hasMatchInTasks = lesson.tasks.some(task => 
@@ -775,7 +775,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     };
   }
 
-  // Методы для отображения статуса
+  // Méthodes pour l'affichage du statut
   getStatusText(status: string): string {
     const statusMap: { [key: string]: string } = {
       'pending': 'En attente',
@@ -806,38 +806,38 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     return classMap[status] || 'status-default';
   }
 
-  // Возврат к списку уроков
+  // Retour à la liste des leçons
   backToLessonList(): void {
     this.currentLesson = null;
     this.highlightedLessonId = null;
     this.highlightedLessonIdFromUrl = null;
     
-    // Обновляем URL, убирая параметры урока
+    // On met à jour l'URL, on retire les paramètres de la leçon
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {},
       replaceUrl: true
     });
     
-    // Загружаем список уроков если он пустой
+    // On charge la liste des leçons si elle est vide
     if (this.lessons.length === 0) {
       this.loadStudentLessons();
     }
   }
 
-  // Методы-заглушки для совместимости
+  // Méthodes stub pour compatibilité
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex + 1;
   }
 
   addToHomework(item: any) {
-    // Реализовать при nécessité
+    // Implémenter si nécessaire
   }
 
-  // Проверка можно ли войти в класс (только для confirmed уроков в тот же день)
+  // Vérifie si on peut entrer en classe (seulement pour les leçons confirmées le même jour)
   canEnterClass(lesson: Lesson): boolean {
-    // Проверяем статус - можно войти только в confirmed уроки (одобренные преподавателем)
+    // On vérifie le statut - on ne peut entrer que dans les leçons confirmées
     if (lesson.status !== 'confirmed') {
       return false;
     }
@@ -845,7 +845,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     const now = new Date();
     const lessonTime = new Date(lesson.scheduledAt);
     
-    // Проверяем что урок в тот же день
+    // On vérifie que la leçon est le même jour
     const isSameDay = now.getFullYear() === lessonTime.getFullYear() &&
                       now.getMonth() === lessonTime.getMonth() &&
                       now.getDate() === lessonTime.getDate();
@@ -853,28 +853,28 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     return isSameDay;
   }
 
-  // Вход в виртуальный класс
+  // Entrée en classe virtuelle
   async enterVirtualClass(lesson: Lesson): Promise<void> {
     const currentUserId = this.authService.getCurrentUser()?.id;
     if (!currentUserId) return;
 
-    // Устанавливаем данные урока в VideoCallService
+    // On définit les données de la leçon dans VideoCallService
     this.videoCallService.setLessonData(lesson.id, currentUserId);
     
-    // ВСЕГДА ПЕРЕЗАГРУЖАЕМ МАТЕРИАЛЫ ПЕРЕД ВХОДОМ В КЛАСС
-    console.log('🔄 Перезагружаем материалы перед входом в класс');
+    // On RECHARGE TOUJOURS LES MATÉRIAUX AVANT D'ENTRER EN CLASSE
+    console.log('🔄 On recharge les matériaux avant d\'entrer en classe');
     const freshMaterials = await this.getMaterialsForLesson(lesson.id);
     
-    // Обновляем материалы в уроке
+    // On met à jour les matériaux dans la leçon
     lesson.materials = freshMaterials;
     
-    // Также обновляем материалы в списке уроков
+    // On met aussi à jour les matériaux dans la liste des leçons
     const lessonInList = this.lessons.find(l => l.id === lesson.id);
     if (lessonInList) {
       lessonInList.materials = freshMaterials;
     }
     
-    // ПЕРЕДАЕМ РЕАЛЬНЫЕ ДАННЫЕ УРОКА В LESSON-MATERIAL КОМПОНЕНТ
+    // On transmet les vraies données de la leçon au composant lesson-material
     const studentTasks = lesson.tasks.filter(t => t.createdByRole === 'student').map(t => ({ id: t.id, title: t.title }));
     const teacherTasks = lesson.tasks.filter(t => t.createdByRole === 'teacher').map(t => ({ id: t.id, title: t.title }));
     const studentQuestions = lesson.questions.filter(q => q.createdByRole === 'student').map(q => ({ id: q.id, question: q.question }));
@@ -894,7 +894,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       homework: []
     });
     
-    console.log('✅ Реальные данные урока переданы в classroom:', {
+    console.log('✅ Les vraies données de la leçon ont été transmises à classroom:', {
       studentTasks,
       teacherTasks,
       studentQuestions,
@@ -909,17 +909,17 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
 
   recalculateStatus() {
     this.updateLessonStatuses();
-    this.currentPage = 1; // Сброс на первую страницу при смене фильтра
+    this.currentPage = 1; // On réinitialise sur la première page lors du changement de filtre
   }
 
-  // ==================== МЕТОДЫ ДЛЯ ОТОБРАЖЕНИЯ АВТОРСТВА ====================
+  // ==================== MÉTHODES POUR AFFICHER L'AUTEUR ====================
   
   getTaskAuthorDisplay(task: Task): string {
     const currentUserId = this.authService.getCurrentUser()?.id;
     if (task.createdBy === currentUserId) {
       return 'Mes tâches';
     } else {
-      // Если задача создана преподавателем, показываем имя преподавателя
+      // Si la tâche a été créée par le prof, on affiche son nom
       return this.currentLesson?.teacherName || 'Professeur';
     }
   }
@@ -929,7 +929,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     if (question.createdBy === currentUserId) {
       return 'Mes questions';
     } else {
-      // Если вопрос создан преподавателем, показываем имя преподавателя
+      // Si la question a été créée par le prof, on affiche son nom
       return this.currentLesson?.teacherName || 'Professeur';
     }
   }
@@ -939,7 +939,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     if (material.createdBy === currentUserId) {
       return 'Mes matériaux';
     } else {
-      // Если материал создан преподавателем, показываем имя преподавателя
+      // Si le matériel a été créé par le prof, on affiche son nom
       return material.createdByName || 'Professeur';
     }
   }
@@ -949,32 +949,31 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     return createdBy === currentUserId;
   }
 
-  // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С СТАТУСОМ ПРОРАБОТКИ ====================
+  // ==================== MÉTHODES POUR LE STATUT DE TRAITEMENT ====================
   
-  // Проверка проработан ли элемент (есть ли для него заметки)
+  // Pour les tâches et questions, on utilise le contenu comme identifiant (compatibilité avec lesson-material)
+  // Pour les matériaux, on utilise l'ID
   isItemProcessed(section: 'tasks' | 'questions' | 'materials', itemIdentifier: string): boolean {
-    // Для задач и вопросов используем содержимое как идентификатор (совместимость с lesson-material)
-    // Для материалов используем ID
     let itemId: string;
     if (section === 'tasks') {
-      // Ищем задачу по содержимому (title)
+      // On cherche la tâche par contenu (title)
       const task = this.currentLesson?.tasks.find(t => t.title === itemIdentifier);
-      itemId = task ? task.title : itemIdentifier; // Используем title как itemId для совместимости
+      itemId = task ? task.title : itemIdentifier; // On utilise le title comme itemId pour la compatibilité
     } else if (section === 'questions') {
-      // Ищем вопрос по содержимому
+      // On cherche la question par contenu
       const question = this.currentLesson?.questions.find(q => q.question === itemIdentifier);
-      itemId = question ? question.question : itemIdentifier; // Используем question как itemId для совместимости
+      itemId = question ? question.question : itemIdentifier; // On utilise la question comme itemId pour la compatibilité
     } else {
-      itemId = itemIdentifier; // Для материалов используем ID
+      itemId = itemIdentifier; // Pour les matériaux, on utilise l'ID
     }
     
     const note = this.lessonNotesService.getNoteForItem(section, itemId);
     return note !== undefined && note.content.trim().length > 0;
   }
 
-  // Получение заметки для элемента
+  // Récupération de la note pour un élément
   getNoteForItem(section: 'tasks' | 'questions' | 'materials', itemIdentifier: string): any {
-    // Аналогично с isItemProcessed
+    // Même logique que isItemProcessed
     let itemId: string;
     if (section === 'tasks') {
       const task = this.currentLesson?.tasks.find(t => t.title === itemIdentifier);
@@ -989,19 +988,19 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     return this.lessonNotesService.getNoteForItem(section, itemId);
   }
 
-  // Получение статуса проработки в текстовом виде
+  // Récupération du statut de traitement en texte
   getProcessingStatusText(section: 'tasks' | 'questions' | 'materials', itemId: string): string {
     return this.isItemProcessed(section, itemId) ? 'Travaillé' : 'Non travaillé';
   }
 
-  // Получение CSS класса для статуса проработки
+  // Récupération de la classe CSS pour le statut de traitement
   getProcessingStatusClass(section: 'tasks' | 'questions' | 'materials', itemId: string): string {
     return this.isItemProcessed(section, itemId) ? 'status-processed' : 'status-unprocessed';
   }
 
-  // ==================== УПРАВЛЕНИЕ РАСКРЫВАЮЩИМИСЯ ПАНЕЛЯМИ ====================
+  // ==================== GESTION DES PANNEAUX DÉROULANTS ====================
   
-  // Переключение состояния панели задач
+  // Toggle l'état du panneau des tâches
   toggleTaskExpansion(taskId: string): void {
     if (this.expandedTasks.has(taskId)) {
       this.expandedTasks.delete(taskId);
@@ -1010,7 +1009,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Переключение состояния панели вопросов
+  // Toggle l'état du panneau des questions
   toggleQuestionExpansion(questionId: string): void {
     if (this.expandedQuestions.has(questionId)) {
       this.expandedQuestions.delete(questionId);
@@ -1019,7 +1018,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Переключение состояния панели материалов
+  // Toggle l'état du panneau des matériaux
   toggleMaterialExpansion(materialId: string): void {
     if (this.expandedMaterials.has(materialId)) {
       this.expandedMaterials.delete(materialId);
@@ -1028,17 +1027,17 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Проверка раскрыта ли панель задач
+  // Vérifie si le panneau des tâches est ouvert
   isTaskExpanded(taskId: string): boolean {
     return this.expandedTasks.has(taskId);
   }
 
-  // Проверка раскрыта ли панель вопросов
+  // Vérifie si le panneau des questions est ouvert
   isQuestionExpanded(questionId: string): boolean {
     return this.expandedQuestions.has(questionId);
   }
 
-  // Проверка раскрыта ли панель материалов
+  // Vérifie si le panneau des matériaux est ouvert
   isMaterialExpanded(materialId: string): boolean {
     return this.expandedMaterials.has(materialId);
   }

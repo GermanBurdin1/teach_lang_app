@@ -128,13 +128,13 @@
   max-width: 1000px;
   max-height: 90vh;
   padding: 0;
-  overflow: hidden; /* убираем тут скролл, переносим его ниже */
+  overflow: hidden; /* on supprime le scroll ici, on le déplace plus bas */
 }
 
 .dialog-scrollable-content {
   max-height: 90vh;
   overflow-y: auto;
-  padding: 24px; /* переносим сюда */
+  padding: 24px; /* on le déplace ici */
 }
 
 .teacher-overview-container {

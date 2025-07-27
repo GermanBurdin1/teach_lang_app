@@ -3,6 +3,7 @@ import { User } from '../features/auth/models/user.model';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+// TODO : ajouter gestion de la session et timeout automatique
 @Injectable({
   providedIn: 'root'
 })
@@ -13,7 +14,7 @@ export class AuthService {
   currentRole$ = this.currentRoleSubject.asObservable();
 
   constructor(private http: HttpClient) { 
-    // Восстанавливаем пользователя из localStorage при инициализации
+    // on restaure l'utilisateur depuis localStorage lors de l'initialisation
     this.loadUserFromStorage();
   }
 
@@ -24,11 +25,11 @@ export class AuthService {
         const user = JSON.parse(savedUser);
         this._user = user;
         this.currentRoleSubject.next(user.currentRole || null);
-        console.log('[AuthService] User restored from localStorage:', user);
+        console.log('[AuthService] Utilisateur restauré depuis localStorage:', user);
       }
     } catch (error) {
-      console.error('[AuthService] Failed to restore user from localStorage:', error);
-      localStorage.removeItem('currentUser'); // Очищаем поврежденные данные
+      console.error('[AuthService] Échec de la restauration utilisateur depuis localStorage:', error);
+      localStorage.removeItem('currentUser'); // on nettoie les données corrompues
     }
   }
 
@@ -36,13 +37,13 @@ export class AuthService {
     try {
       if (this._user) {
         localStorage.setItem('currentUser', JSON.stringify(this._user));
-        console.log('[AuthService] User saved to localStorage');
+        console.log('[AuthService] Utilisateur sauvegardé dans localStorage');
       } else {
         localStorage.removeItem('currentUser');
-        console.log('[AuthService] User removed from localStorage');
+        console.log('[AuthService] Utilisateur supprimé de localStorage');
       }
     } catch (error) {
-      console.error('[AuthService] Failed to save user to localStorage:', error);
+      console.error('[AuthService] Échec de la sauvegarde utilisateur dans localStorage:', error);
     }
   }
 
@@ -74,19 +75,19 @@ export class AuthService {
       this._user.currentRole = this._user.roles[0];
     }
 
-    console.log('[AuthService] User set:', this._user);
+    console.log('[AuthService] Utilisateur défini:', this._user);
     this.currentRoleSubject.next(this._user.currentRole ?? null);
-    this.saveUserToStorage(); // Сохраняем в localStorage
+    this.saveUserToStorage(); // on sauvegarde dans localStorage
   }
 
   setActiveRole(role: string) {
     if (this._user?.roles.includes(role)) {
-      console.log(`[AuthService] Setting active role: ${role}`);
+      console.log(`[AuthService] Définition du rôle actif: ${role}`);
       this._user.currentRole = role;
       this.currentRoleSubject.next(role);
-      this.saveUserToStorage(); // Сохраняем изменения
+      this.saveUserToStorage(); // on sauvegarde les modifications
     } else {
-      console.warn(`[AuthService] Attempted to set unknown role: ${role}`);
+      console.warn(`[AuthService] Tentative de définition d'un rôle inconnu: ${role}`);
     }
   }
 
@@ -101,14 +102,14 @@ export class AuthService {
   logout(): void {
     this._user = null;
     this.currentRoleSubject.next(null);
-    this.saveUserToStorage(); // Очищаем localStorage
-    console.log('[AuthService] User logged out');
+    this.saveUserToStorage(); // on nettoie localStorage
+    console.log('[AuthService] Utilisateur déconnecté');
   }
 
   getUserInitial(): string {
     const email = this._user?.email || '';
-    const namePart = email.split('@')[0]; // до собаки
-    return namePart.charAt(0).toUpperCase(); // первая буква заглавная
+    const namePart = email.split('@')[0]; 
+    return namePart.charAt(0).toUpperCase(); 
   }
 
   checkEmailExists(email: string): Observable<{ exists: boolean; roles?: string[] }> {

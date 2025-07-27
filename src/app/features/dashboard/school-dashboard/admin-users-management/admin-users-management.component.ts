@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StatisticsService } from '../../../../services/statistics.service';
 
+// TODO : ajouter filtres et recherche pour la gestion des utilisateurs
 @Component({
   selector: 'app-admin-users-management',
   templateUrl: './admin-users-management.component.html',
@@ -30,6 +31,7 @@ export class AdminUsersManagementComponent implements OnInit {
     this.loadUserStats();
   }
 
+  // TODO : internationaliser les noms de mois
   generateMonthOptions() {
     const months = [
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -54,7 +56,7 @@ export class AdminUsersManagementComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des statistiques utilisateurs:', err);
+        console.error('[AdminUsersManagement] Erreur lors du chargement des statistiques utilisateurs:', err);
         this.loading = false;
       }
     });
@@ -64,6 +66,7 @@ export class AdminUsersManagementComponent implements OnInit {
     this.loadUserStats();
   }
 
+  // TODO : optimiser le chargement des données avec cache
   loadLastMonthsData() {
     // Charge les données des 6 derniers mois pour affichage graphique
     const promises = [];
@@ -77,7 +80,7 @@ export class AdminUsersManagementComponent implements OnInit {
     Promise.all(promises).then(results => {
       this.monthlyData = results.reverse(); // Plus ancien en premier
     }).catch(err => {
-      console.error('Erreur lors du chargement des données mensuelles:', err);
+      console.error('[AdminUsersManagement] Erreur lors du chargement des données mensuelles:', err);
     });
   }
 

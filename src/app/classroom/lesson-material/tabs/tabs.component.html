@@ -1,15 +1,15 @@
 <div class="tabs-content mt-4">
-  <!-- Вкладка "Карточки" -->
+  <!-- Onglet "Cartes" -->
   <ng-container *ngIf="(lessonTabsService.activeTab$ | async) === 'cards'">
     <ng-content select="[tab-content-cards]"></ng-content>
   </ng-container>
 
-  <!-- Вкладка "Урок" -->
+  <!-- Onglet "Cours" -->
   <ng-container *ngIf="(lessonTabsService.activeTab$ | async) === 'lesson'">
     <ng-content select="[tab-content-lesson]"></ng-content>
   </ng-container>
 
-  <!-- Вкладка "Домашняя работа" -->
+  <!-- Onglet "Devoirs" -->
   <ng-container *ngIf="(lessonTabsService.activeTab$ | async) === 'homework'">
     <ng-content select="[tab-content-homework]"></ng-content>
   </ng-container>

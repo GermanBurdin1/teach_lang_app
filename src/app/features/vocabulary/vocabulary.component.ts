@@ -90,15 +90,15 @@ export class VocabularyComponent implements OnInit {
       this.currentGalaxy = params.get('galaxy') || '';
       this.currentSubtopic = params.get('subtopic') || '';
 
-      console.log('📌 Galaxy from route:', this.currentGalaxy);
-      console.log('📌 Subtopic from route:', this.currentSubtopic);
+      console.log('Galaxy from route:', this.currentGalaxy);
+      console.log('Subtopic from route:', this.currentSubtopic);
 
       // 🔁 Essai de chargement depuis le backend
       this.lexiconService.getWordsByGalaxyAndSubtopic(this.currentGalaxy, this.currentSubtopic)
         .subscribe({
 
           next: (data) => {
-            console.log('📦 Données du backend:', data);
+            console.log('Données du backend:', data);
             const enriched = data.map(card => {
               const translations = (card.translations ?? []).map(t => ({
                 id: t.id,
@@ -128,10 +128,10 @@ export class VocabularyComponent implements OnInit {
             // ✅ Sauvegarde de secours
             this.saveToLocalStorage(enriched);
 
-            console.log('✅ Cartes chargées depuis le backend:', enriched);
+            console.log('Cartes chargées depuis le backend:', enriched);
           },
           error: (err) => {
-            console.error('❌ Erreur lors du chargement depuis le backend. Tentative localStorage:', err);
+            console.error('Erreur lors du chargement depuis le backend. Tentative localStorage:', err);
 
             const updated = this.loadFromLocalStorage();
             if (!updated) return;
@@ -142,7 +142,7 @@ export class VocabularyComponent implements OnInit {
             this.words = relevant.filter(item => item.type === 'word');
             this.expressions = relevant.filter(item => item.type === 'expression');
 
-            console.log('✅ Chargé depuis localStorage:', relevant);
+            console.log('Chargé depuis localStorage:', relevant);
           }
         });
     });
@@ -205,20 +205,20 @@ export class VocabularyComponent implements OnInit {
       { id: 17, word: 'patron', translations: [{ target: 'boss' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Travail', ...this.defaultCard() },
       { id: 18, word: 'processus de travail', translations: [{ target: 'workflow' }], type: 'expression', galaxy: 'Liens sociaux', subtopic: 'Travail', ...this.defaultCard() },
       { id: 19, word: 'partager un post', translations: [{ target: 'share a post' }], type: 'expression', galaxy: 'Liens sociaux', subtopic: 'Réseaux sociaux', ...this.defaultCard() },
-      { id: 20, word: 'подписчик', translations: [{ target: 'follower' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Социальные сети', ...this.defaultCard() },
-      { id: 21, word: 'вести диалог', translations: [{ target: 'have a dialogue' }], type: 'expression', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 31, word: 'контакт', translations: [{ target: 'contact' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 32, word: 'диалог', translations: [{ target: 'dialogue' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 33, word: 'общение', translations: [{ target: 'communication' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 34, word: 'разговор', translations: [{ target: 'conversation' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 35, word: 'вопрос', translations: [{ target: 'question' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 36, word: 'ответ', translations: [{ target: 'answer' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 37, word: 'обсуждение', translations: [{ target: 'discussion' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 38, word: 'высказывание', translations: [{ target: 'statement' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 39, word: 'недопонимание', translations: [{ target: 'misunderstanding' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 40, word: 'аргумент', translations: [{ target: 'argument' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 41, word: 'мнение', translations: [{ target: 'opinion' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
-      { id: 42, word: 'переписка', translations: [{ target: 'correspondence' }], type: 'word', galaxy: 'Социальные связи', subtopic: 'Коммуникация', ...this.defaultCard() },
+      { id: 20, word: 'подписчик', translations: [{ target: 'follower' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Réseaux sociaux', ...this.defaultCard() },
+      { id: 21, word: 'вести диалог', translations: [{ target: 'have a dialogue' }], type: 'expression', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 31, word: 'контакт', translations: [{ target: 'contact' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 32, word: 'диалог', translations: [{ target: 'dialogue' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 33, word: 'общение', translations: [{ target: 'communication' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 34, word: 'разговор', translations: [{ target: 'conversation' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 35, word: 'вопрос', translations: [{ target: 'question' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 36, word: 'ответ', translations: [{ target: 'answer' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 37, word: 'обсуждение', translations: [{ target: 'discussion' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 38, word: 'высказывание', translations: [{ target: 'statement' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 39, word: 'недопонимание', translations: [{ target: 'misunderstanding' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 40, word: 'аргумент', translations: [{ target: 'argument' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 41, word: 'мнение', translations: [{ target: 'opinion' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
+      { id: 42, word: 'переписка', translations: [{ target: 'correspondence' }], type: 'word', galaxy: 'Liens sociaux', subtopic: 'Communication', ...this.defaultCard() },
 
       // РАБОТА И КАРЬЕРА
       { id: 23, word: 'вакансия', translations: [{ target: 'job opening' }], type: 'word', galaxy: 'Работа и карьера', subtopic: 'Вакансии', ...this.defaultCard() },
@@ -266,14 +266,14 @@ export class VocabularyComponent implements OnInit {
     };
   }
 
-  // Метод добавления слова или выражения
+  // Метод добавления слова ou expression
   addItem(): void {
     if (!this.newWord.trim()) return;
     const hasManualTranslation = this.isManualTranslation && this.newTranslation.trim().length > 0;
 
     const translations = this.newTranslation.trim()
       ? [{
-        id: 0, // временный id для локальной работы
+        id: 0, // временный id pour le travail local
         source: this.newWord.trim(),
         target: this.newTranslation.trim(),
         sourceLang: this.sourceLang,
@@ -301,15 +301,15 @@ export class VocabularyComponent implements OnInit {
       grammar: this.newGrammarData ?? undefined,
     };
 
-    console.log('📚 Грамматика, которую отправляем в БД (ручной ввод):', this.newGrammarData);
-    console.log('🧠 Перевод введён вручную:', hasManualTranslation);
+    console.log('Grammaire que nous envoyons à la base de données (saisie manuelle):', this.newGrammarData);
+    console.log('Traduction saisie manuellement:', hasManualTranslation);
 
-    // Пытаемся отправить на backend
+    // Tentons d'envoyer au backend
     this.lexiconService.addWord({
       word: newCard.word,
       translations: newCard.translations.map(t => ({
-        id: 0, // временно 0
-        lexiconId: 0, // временно 0
+        id: 0, // temporaire 0
+        lexiconId: 0, // temporaire 0
         source: newCard.word,
         target: t.target,
         sourceLang: this.sourceLang,
@@ -323,15 +323,15 @@ export class VocabularyComponent implements OnInit {
       grammar: this.newGrammarData ?? undefined
     }).subscribe({
       next: (res) => {
-        console.log('✅ Слово добавлено в БД:', res);
+        console.log('Mot ajouté à la base de données:', res);
         newCard.id = res.id;
       },
       error: (err) => {
-        console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err);
+        console.warn('Erreur lors de l\'envoi à la base de données. Sauvegardons localement:', err);
       }
     });
 
-    // В любом случае сохраняем в localStorage и отображаем в UI
+    // Dans tous les cas, nous sauvegardons dans localStorage et nous l'affichons dans l'UI
     if (this.newWordType === 'word') {
       this.words.unshift(newCard);
     } else {
@@ -340,7 +340,7 @@ export class VocabularyComponent implements OnInit {
 
     this.saveToLocalStorage();
 
-    // Очистка полей больше не нужна - используется Material Dialog
+    // Le nettoyage des champs n'est plus nécessaire - Material Dialog est utilisé
     // this.newWord = '';
     // this.newTranslation = '';
     // this.newGrammarData = null;
@@ -350,7 +350,7 @@ export class VocabularyComponent implements OnInit {
   updateGrammar(cardId: number, grammar: GrammarData): void {
     this.lexiconService.updateGrammar(cardId, grammar).subscribe({
       next: () => {
-        console.log(`✅ Грамматика обновлена в БД для id=${cardId}:`, grammar);
+        console.log(`Grammaire mise à jour dans la base de données pour id=${cardId}:`, grammar);
         const all = [...this.words, ...this.expressions];
         const target = all.find(card => card.id === cardId);
         if (target) {
@@ -358,20 +358,20 @@ export class VocabularyComponent implements OnInit {
           this.saveToLocalStorage();
         }
 
-        // ➡️ Закрываем увеличение карточки
+        // ➡️ Fermons l'augmentation de la carte
         this.enlargedCardId = null;
 
-        // ➡️ Закрываем все открытые модалки
+        // ➡️ Fermons toutes les modales ouvertes
         this.resetModals();
 
-        // ➡️ Показываем фейерверк 🎉
+        // Montrons le feu d'artifice 🎉
         this.showConfetti();
       },
-      error: (err) => console.error(`❌ Ошибка при обновлении грамматики для id=${cardId}:`, err)
+      error: (err) => console.error(`Erreur lors de la mise à jour de la grammaire pour id=${cardId}:`, err)
     });
   }
 
-  // Удаление карточки
+  // Suppression de la carte
   deleteWord(id: number): void {
     this.words = this.words.filter(word => word.id !== id);
   }
@@ -385,16 +385,16 @@ export class VocabularyComponent implements OnInit {
           this.expressions = this.expressions.filter(expression => expression.id !== id);
         }
         this.saveToLocalStorage();
-        console.log(`✅ Карточка удалена и на сервере, и на фронте, id=${id}`);
+        console.log(`Carte supprimée et sur le serveur, et sur le front, id=${id}`);
       },
       error: (err) => {
-        console.error('❌ Ошибка при удалении карточки на сервере:', err);
+        console.error('Erreur lors de la suppression de la carte sur le serveur:', err);
       }
     });
   }
 
 
-  // Выбор типа карточки (слово/выражение) — открывает Material Dialog
+  // Sélection du type de carte (mot/expression) - ouvre Material Dialog
   openAddCardModal(type: 'word' | 'expression'): void {
     const dialogData: AddWordDialogData = {
       type: type,
@@ -421,7 +421,7 @@ export class VocabularyComponent implements OnInit {
   private handleDialogResult(result: AddWordDialogResult): void {
     const translations = result.translation.trim()
       ? [{
-        id: 0, // временный id для локальной работы
+        id: 0, // id temporaire pour le travail local
         target: result.translation.trim(),
         examples: []
       }]
@@ -445,15 +445,15 @@ export class VocabularyComponent implements OnInit {
       grammar: result.grammar ?? undefined,
     };
 
-    console.log('📚 Грамматика полученная из диалога:', result.grammar);
-    console.log('🧠 Перевод введён вручную:', result.isManual);
+    console.log('Grammaire obtenue du dialogue:', result.grammar);
+    console.log('Traduction saisie manuellement:', result.isManual);
 
-    // Пытаемся отправить на backend
+    // Tentons d'envoyer au backend
     this.lexiconService.addWord({
       word: newCard.word,
       translations: newCard.translations.map(t => ({
-        id: 0, // временно 0
-        lexiconId: 0, // временно 0
+        id: 0, // temporaire 0
+        lexiconId: 0, // temporaire 0
         source: newCard.word,
         target: t.target,
         sourceLang: result.sourceLang,
@@ -467,15 +467,15 @@ export class VocabularyComponent implements OnInit {
       grammar: result.grammar ?? undefined
     }).subscribe({
       next: (res) => {
-        console.log('✅ Слово добавлено в БД:', res);
+        console.log('Mot ajouté à la base de données:', res);
         newCard.id = res.id;
       },
       error: (err) => {
-        console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err);
+        console.warn('Erreur lors de l\'envoi à la base de données. Sauvegardons localement:', err);
       }
     });
 
-    // В любом случае сохраняем в localStorage и отображаем в UI
+    // Dans tous les cas, nous sauvegardons dans localStorage et nous l'affichons dans l'UI
     if (result.type === 'word') {
       this.words.unshift(newCard);
     } else {
@@ -485,13 +485,13 @@ export class VocabularyComponent implements OnInit {
     this.saveToLocalStorage();
   }
 
-  // closeAddCardModal метод больше не нужен - заменён на Material Dialog
+  // closeAddCardModal méthode plus nécessaire - remplacé par Material Dialog
 
 
-  // Переворот карточки
+  // Retournement de la carte
   flipCard(card: WordCard): void {
     if (!card.translations[0] || card.translations[0].target === '...') {
-      this.openTranslationForm(card); // <-- покажем форму
+      this.openTranslationForm(card); // <-- affichons le formulaire
       return;
     }
 
@@ -499,7 +499,7 @@ export class VocabularyComponent implements OnInit {
     card.hintVisible = false;
   }
 
-  // Проверка перевода
+  // Vérification de la traduction
   checkTranslation(card: WordCard): void {
     const userAnswer = card.userInput.trim().toLowerCase();
     const correctAnswer = card.translations[0]?.target?.toLowerCase();
@@ -509,8 +509,8 @@ export class VocabularyComponent implements OnInit {
       card.status = 'learned';
 
       this.lexiconService.updateWordStatus(card.id, 'learned').subscribe({
-        next: () => console.log(`✅ Статус "learned" успешно отправлен для id=${card.id}`),
-        error: (err) => console.error(`❌ Ошибка при отправке "learned" для id=${card.id}:`, err)
+        next: () => console.log(`Statut "learned" envoyé avec succès pour id=${card.id}`),
+        error: (err) => console.error(`Erreur lors de l'envoi "learned" pour id=${card.id}:`, err)
       });
 
     } else {
@@ -518,8 +518,8 @@ export class VocabularyComponent implements OnInit {
       card.status = 'error';
 
       this.lexiconService.updateWordStatus(card.id, 'error').subscribe({
-        next: () => console.log(`⚠️ Статус "error" успешно отправлен для id=${card.id}`),
-        error: (err) => console.error(`❌ Ошибка при отправке "error" для id=${card.id}:`, err)
+        next: () => console.log(`Statut "error" envoyé avec succès pour id=${card.id}`),
+        error: (err) => console.error(`Erreur lors de l'envoi "error" pour id=${card.id}:`, err)
       });
     }
 
@@ -527,7 +527,7 @@ export class VocabularyComponent implements OnInit {
   }
 
 
-  // Сортировка карточек
+  // Tri des cartes
   sortWords(): void {
     const allItems = this.loadFromLocalStorage() || [];
 
@@ -554,7 +554,7 @@ export class VocabularyComponent implements OnInit {
         break;
       case 'all':
       default:
-        // ничего не фильтруем
+        // rien ne filtre
         break;
     }
 
@@ -602,7 +602,7 @@ export class VocabularyComponent implements OnInit {
 
   getHint(card: WordCard): string {
     if (!card.translations[0] || card.translations[0].target === '...') {
-      return 'Добавить перевод';
+      return 'Ajouter une traduction';
     }
 
     const full = card.translations[0].target;
@@ -625,8 +625,8 @@ export class VocabularyComponent implements OnInit {
     } else {
       card.showTranslation = true;
       this.lexiconService.revealWord(card.id).subscribe({
-        next: () => console.log('📘 Перевод показан (revealed = true)'),
-        error: (err) => console.error('❌ Ошибка при вызове revealWord:', err)
+        next: () => console.log('Traduction affichée (revealed = true)'),
+        error: (err) => console.error('Erreur lors de l\'appel revealWord:', err)
       });
     }
     this.saveToLocalStorage();
@@ -636,8 +636,8 @@ export class VocabularyComponent implements OnInit {
     card.showTranslation = true;
 
     this.lexiconService.revealWord(card.id).subscribe({
-      next: () => console.log('📘 Перевод показан (revealed = true)'),
-      error: (err) => console.error('❌ Ошибка при вызове revealWord:', err)
+      next: () => console.log('Traduction affichée (revealed = true)'),
+      error: (err) => console.error('Erreur lors de l\'appel revealWord:', err)
     });
     this.saveToLocalStorage();
   }
@@ -645,19 +645,19 @@ export class VocabularyComponent implements OnInit {
   // showFullTranslation(card: WordCard): void {
   //   card.showTranslation = true;
   //   this.lexiconService.markAsRevealed(card.id).subscribe({
-  //     next: () => console.log('👁 Отправили revealed=true'),
-  //     error: err => console.error('❌ Ошибка при отправке revealed:', err)
+  //     next: () => console.log('Nous avons envoyé revealed=true'),
+  //     error: err => console.error('Erreur lors de l\'envoi revealed:', err)
   //   });
   // }
 
-  ///////////////////////////////////////////обработка слов
+  ///////////////////////////////////////////traitement des mots
 
   markAsLearned(card: WordCard): void {
     card.status = 'learned';
 
     this.lexiconService.updateWordStatus(card.id, 'learned').subscribe({
-      next: () => console.log(`✅ Статус "learned" обновлён в БД для id=${card.id}`),
-      error: (err) => console.error(`❌ Ошибка при обновлении "learned" для id=${card.id}:`, err)
+      next: () => console.log(`Statut "learned" mis à jour dans la base de données pour id=${card.id}`),
+      error: (err) => console.error(`Erreur lors de la mise à jour "learned" pour id=${card.id}:`, err)
     });
 
     this.saveToLocalStorage();
@@ -668,8 +668,8 @@ export class VocabularyComponent implements OnInit {
     card.status = 'repeat';
 
     this.lexiconService.updateWordStatus(card.id, 'repeat').subscribe({
-      next: () => console.log(`🔁 Статус "repeat" обновлён в БД для id=${card.id}`),
-      error: (err) => console.error(`❌ Ошибка при обновлении "repeat" для id=${card.id}:`, err)
+      next: () => console.log(`Statut "repeat" mis à jour dans la base de données pour id=${card.id}`),
+      error: (err) => console.error(`Erreur lors de la mise à jour "repeat" pour id=${card.id}:`, err)
     });
 
     this.saveToLocalStorage();
@@ -680,7 +680,7 @@ export class VocabularyComponent implements OnInit {
   saveToLocalStorage(cards?: WordCard[]): void {
     const allItems = cards ?? [...this.words, ...this.expressions];
     localStorage.setItem('vocabulary_cards', JSON.stringify(allItems));
-    console.log('💾 Сохранили в localStorage:', allItems); // <--- добавь это!
+    console.log('Sauvegardons dans localStorage:', allItems); // <--- ajoutez cela!
   }
 
   loadFromLocalStorage(): WordCard[] | null {
@@ -690,7 +690,7 @@ export class VocabularyComponent implements OnInit {
     const parsed = JSON.parse(data);
     return parsed.map((item: any) => ({
       ...item,
-      createdAt: item.createdAt || Date.now() // <-- добавим дату, если не было
+      createdAt: item.createdAt || Date.now() // <-- ajoutons la date, si elle n'était pas
     }));
   }
 
@@ -775,12 +775,12 @@ export class VocabularyComponent implements OnInit {
     card.isCorrect = null;
     card.hintIndex = 0;
     card.showTranslation = false;
-    card.flipped = false; // опционально: вернуть карточку на лицевую сторону
-    card.hintVisible = true; // снова показать «Кликни, чтобы увидеть перевод»
+    card.flipped = false; // optionnel : retourner la carte vers le côté frontal
+    card.hintVisible = true; // réafficher "Cliquez pour voir la traduction"
     this.saveToLocalStorage();
   }
 
-  //подсчет слов и/или выражений
+  //compteur de mots et/ou expressions
   getWordAndExpressionCount(): string {
     const raw = localStorage.getItem('vocabulary_cards');
     const all: WordCard[] = raw ? JSON.parse(raw) : [];
@@ -793,10 +793,10 @@ export class VocabularyComponent implements OnInit {
     const wordCount = relevant.filter(item => item.type === 'word').length;
     const exprCount = relevant.filter(item => item.type === 'expression').length;
 
-    return `${wordCount} слов / ${exprCount} выражений`;
+    return `${wordCount} mots / ${exprCount} expressions`;
   }
 
-  //для непереведенных
+  //pour les non traduits
   openTranslationForm(card: WordCard, forceShow = false): void {
     this.editingCard = card;
     this.manualTranslation = ' ';
@@ -806,7 +806,7 @@ export class VocabularyComponent implements OnInit {
   saveManualTranslation(): void {
     if (this.editingCard && this.manualTranslation.trim()) {
       const translationText = this.manualTranslation.trim();
-      // ✅ Отправка перевода в backend
+      // ✅ Envoi de la traduction au backend
       this.translationService.saveTranslation({
         source: "manual",
         sourceText: this.editingCard.word,
@@ -816,7 +816,7 @@ export class VocabularyComponent implements OnInit {
         wordId: this.editingCard.id,
       }).subscribe({
         next: (res) => {
-          console.log('✅ Перевод сохранён в БД (ручной):', res);
+          console.log('Traduction sauvegardée dans la base de données (manuelle):', res);
           this.editingCard!.translations[0].target = translationText;
           this.editingCard!.showTranslation = true;
           this.editingCard!.hintVisible = false;
@@ -827,8 +827,8 @@ export class VocabularyComponent implements OnInit {
           this.manualTranslation = '';
         },
         error: (err) => {
-          console.error('❌ Ошибка при сохранении ручного перевода:', err);
-          alert('Упс 😓 Не удалось сохранить перевод. Повторите попытку.');
+          console.error('Erreur lors de la sauvegarde de la traduction manuelle:', err);
+          alert('Impossible de sauvegarder la traduction. Veuillez réessayer.');
         }
       });
     }
@@ -846,7 +846,7 @@ export class VocabularyComponent implements OnInit {
     if (/^[а-яё\s]+$/i.test(word)) return 'ru';
     if (/^[a-z\s]+$/i.test(word)) return 'en';
     if (/^[a-zàâçéèêëîïôûùüÿñæœ\s\-']+$/i.test(word)) return 'fr';
-    return 'en'; // по умолчанию
+    return 'en'; // par défaut
   }
 
   requestTranslation(card: WordCard | null = null): void {
@@ -855,9 +855,9 @@ export class VocabularyComponent implements OnInit {
     const detectedLang = this.detectLanguage(this.newWord);
 
     if (detectedLang !== this.sourceLang) {
-      const langNames = { ru: 'русский', fr: 'французский', en: 'английский' };
+      const langNames = { ru: 'russe', fr: 'français', en: 'anglais' };
       const confirmed = confirm(
-        `Вы выбрали перевод с языка: ${langNames[this.sourceLang]}, но слово "${this.newWord}" выглядит как на ${langNames[detectedLang]}. Переключить язык на ${langNames[detectedLang]}?`
+        `Vous avez choisi une traduction en ${langNames[this.sourceLang]}, mais le mot "${this.newWord}" semble être en ${langNames[detectedLang]}. Voulez-vous basculer sur ${langNames[detectedLang]}?`
       );
       if (confirmed) {
         this.sourceLang = detectedLang;
@@ -878,9 +878,9 @@ export class VocabularyComponent implements OnInit {
 
           this.showConfetti();
 
-          console.log(`✅ Перевод получен из ${res.from}:`, res.translations);
+          console.log(`Traduction obtenue de ${res.from}:`, res.translations);
 
-          // 👉 Добавим карточку
+          // 👉 Ajoutons la carte
           const newCard: WordCard = {
             id: Date.now(),
             createdAt: Date.now(),
@@ -898,7 +898,7 @@ export class VocabularyComponent implements OnInit {
             subtopic: this.currentSubtopic
           };
 
-          // Попробуем отправить на backend
+          // Tentons d'envoyer au backend
           this.lexiconService.addWord({
             word: newCard.word,
             galaxy: newCard.galaxy!,
@@ -906,8 +906,8 @@ export class VocabularyComponent implements OnInit {
             type: newCard.type,
             grammar: this.newGrammarData ?? undefined
           }).subscribe({
-            next: (res) => console.log('✅ Слово добавлено в БД:', res),
-            error: (err) => console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err)
+            next: (res) => console.log('Mot ajouté à la base de données:', res),
+            error: (err) => console.warn('Erreur lors de l\'envoi à la base de données. Sauvegardons localement:', err)
           });
 
           if (this.newWordType === 'word') {
@@ -917,14 +917,14 @@ export class VocabularyComponent implements OnInit {
           }
 
           this.saveToLocalStorage();
-          // Очистка полей больше не нужна - используется Material Dialog
+          // Le nettoyage des champs n'est plus nécessaire - Material Dialog
           // this.newWord = '';
           // this.newTranslation = '';
-          // модалка закрывается автоматически в Material Dialog
+          // la modale se ferme automatiquement dans Material Dialog
         }
       },
       error: (err) => {
-        console.error('❌ Ошибка при переводе:', err);
+        console.error('Erreur lors de la traduction:', err);
       }
     });
   }
@@ -947,9 +947,9 @@ export class VocabularyComponent implements OnInit {
       this.isManualTranslation = true;
       this.isAutoTranslation = false;
 
-      // если нет грамматики — добавим дефолтную
+      // si aucune grammaire — ajoutons la grammaire par défaut
       if (!this.newGrammarData && this.newWordType === 'word') {
-        this.onPartOfSpeechChange('noun'); // или другой дефолт
+        this.onPartOfSpeechChange('noun'); // ou autre par défaut
       }
 
     } else {
@@ -963,7 +963,7 @@ export class VocabularyComponent implements OnInit {
     this.editingCard = card;
     this.selectedTranslationIndex = index;
     this.newExample = '';
-    this.resetModals(); // добавь этот вызов
+    this.resetModals(); // ajoutez ce appel
   }
 
   closeExtraModal(): void {
@@ -1016,18 +1016,18 @@ export class VocabularyComponent implements OnInit {
     translation.examples = translation.examples || [];
     translation.examples.push(example);
 
-    // Обновляем на backend:
+    // Mettons à jour sur le backend:
     if (!translation?.id) return;
     this.translationService.updateTranslationExample({
       translationId: translation.id,
       examples: translation.examples
     }).subscribe({
       next: () => {
-        console.log('✅ Пример добавлен');
+        console.log('Exemple ajouté');
         this.saveToLocalStorage();
         this.newExample = '';
       },
-      error: (err) => console.error('❌ Ошибка при добавлении примера', err)
+      error: (err) => console.error('Erreur lors de l\'ajout de l\'exemple', err)
     });
   }
 
@@ -1051,7 +1051,7 @@ export class VocabularyComponent implements OnInit {
     }
   }
 
-  // код связаный с частями речи
+  // code lié aux parties du discours
   onPartOfSpeechChange(partOfSpeech: Grammar.PartOfSpeech): void {
     switch (partOfSpeech) {
       case 'noun':
@@ -1084,11 +1084,11 @@ export class VocabularyComponent implements OnInit {
   }
 
   onGrammarValidate(card: WordCard): void {
-    console.log("вызов метода")
+    console.log("appel de la méthode")
     if (card.grammar) {
       this.updateGrammar(card.id, card.grammar);
     } else {
-      console.warn('❗ Грамматика не указана. Нечего отправлять.');
+      console.warn('❗ Grammaire non spécifiée. Rien à envoyer.');
     }
   }
 
@@ -1144,7 +1144,7 @@ export class VocabularyComponent implements OnInit {
       } else if (this.newWordType === 'expression') {
         this.newGrammarData = {
           partOfSpeech: 'expression',
-          expressionType: 'other' // или 'выражение'
+          expressionType: 'other' // ou 'expression'
         };
       }
     } else {
@@ -1152,7 +1152,7 @@ export class VocabularyComponent implements OnInit {
     }
   }
 
-  //добавление значений
+  //ajout de valeurs
   showAddMeaningModal = false;
   selectedCard: WordCard | null = null;
 
@@ -1160,13 +1160,13 @@ export class VocabularyComponent implements OnInit {
   newMeaningGalaxy = '';
   newMeaningSubtopic = '';
 
-  availableGalaxies: string[] = []; // все галактики
-  availableSubtopics: string[] = []; // подтемы выбранной галактики
+  availableGalaxies: string[] = []; // toutes les galaxies
+  availableSubtopics: string[] = []; // sous-thèmes de la galaxie sélectionnée
 
 
   openAddMeaningModal(card: WordCard) {
     this.selectedCard = card;
-    this.newMeaningWord = card.word; // ← текст слова оставляем тем же
+    this.newMeaningWord = card.word; // ← le texte du mot reste le même
     this.showAddMeaningModal = true;
   }
 
@@ -1179,13 +1179,13 @@ export class VocabularyComponent implements OnInit {
   }
 
   onMeaningGalaxyChange() {
-    // при смене галактики — обновить список подтем
+    // lors du changement de galaxie — mettre à jour la liste des sous-thèmes
     this.availableSubtopics = this.getSubtopicsForGalaxy(this.newMeaningGalaxy);
   }
 
   saveNewMeaning() {
     if (!this.selectedCard || !this.newMeaningGalaxy || !this.newMeaningSubtopic) {
-      alert('Заполните все поля');
+      alert('Remplissez tous les champs');
       return;
     }
 
@@ -1193,11 +1193,11 @@ export class VocabularyComponent implements OnInit {
       word: this.newMeaningWord,
       galaxy: this.newMeaningGalaxy,
       subtopic: this.newMeaningSubtopic,
-      type: this.selectedCard.type, // слово или выражение
-      grammar: this.selectedCard.grammar // можно также копировать грамматику
+      type: this.selectedCard.type, // mot ou expression
+      grammar: this.selectedCard.grammar // vous pouvez également copier la grammaire
     }).subscribe({
       next: (res) => {
-        console.log('✅ Новое значение добавлено:', res);
+        console.log('Nouvelle valeur ajoutée:', res);
         this.showAddMeaningModal = false;
         this.selectedCard = null;
         this.newMeaningWord = '';
@@ -1205,7 +1205,7 @@ export class VocabularyComponent implements OnInit {
         this.newMeaningSubtopic = '';
       },
       error: (err) => {
-        console.error('❌ Ошибка при добавлении значения:', err);
+        console.error('Erreur lors de l\'ajout de la valeur:', err);
       }
     });
   }

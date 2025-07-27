@@ -7,7 +7,7 @@ form {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Заголовки секций */
+/* Titres des sections */
 h2, h3 {
   margin-top: 32px;
   margin-bottom: 16px;
@@ -15,26 +15,26 @@ h2, h3 {
   color: #303f9f; /* Indigo dark */
 }
 
-/* Отступы для form field */
+/* Marges pour les champs de formulaire */
 mat-form-field.full-width {
   width: 100%;
   margin-bottom: 16px;
 }
 
-/* Группы с переключателями */
+/* Groupes avec interrupteurs */
 mat-slide-toggle {
   display: block;
   margin-bottom: 12px;
 }
 
-/* Отступы между группами */
+/* Marges entre les groupes */
 div[formGroupName] {
   padding-left: 8px;
   margin-bottom: 24px;
   border-left: 4px solid #e0e0e0;
 }
 
-/* Кнопки */
+/* Boutons */
 button {
   margin-top: 24px;
   margin-right: 12px;

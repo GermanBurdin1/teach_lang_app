@@ -2,25 +2,25 @@
   <div class="header-container" *ngIf="data && data.length > 0">
     <div class="rounded-element"></div>
     <div class="text-container">
-      <h1>{{ data[0].title || 'Место для заголовка' }}</h1>
-      <p>{{ data[0].subtitle || 'Место для подзаголовка' }}</p>
-      <button class="cta-button">{{ data[0].buttonText || 'Оставьте заявку' }}</button>
-      <p class="note">{{ data[0].callToAction || 'Оставьте заявку на обучение' }}</p>
+      <h1>{{ data[0].title || 'Titre de la page' }}</h1>
+      <p>{{ data[0].subtitle || 'Sous-titre de la page' }}</p>
+      <button class="cta-button">{{ data[0].buttonText || 'Laisser une demande' }}</button>
+      <p class="note">{{ data[0].callToAction || 'Laissez une demande pour la formation' }}</p>
     </div>
   </div>
 </header>
 <main>
   <section class="form-section">
-    <h2>Оставьте заявку на обучение прямо сейчас</h2>
+    <h2>Laissez une demande de formation dès maintenant</h2>
     <form>
-      <input type="text" placeholder="Введите имя">
-      <input type="email" placeholder="Введите email">
-      <input type="tel" placeholder="Введите номер телефона">
-      <button type="submit">Отправить</button>
+      <input type="text" placeholder="Entrez votre nom">
+      <input type="email" placeholder="Entrez votre email">
+      <input type="tel" placeholder="Entrez votre numéro de téléphone">
+      <button type="submit">Envoyer</button>
     </form>
   </section>
 </main>
 <footer>
-  <p class="footer-note">© Ваша компания</p>
+  <p class="footer-note">© Votre entreprise</p>
 </footer>
 

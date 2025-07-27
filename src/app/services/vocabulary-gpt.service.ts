@@ -6,8 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class VocabularyGptService {
-  private readonly API_URL = 'http://localhost:3000/gpt/classify'; // Настрой под свой бэкенд
-
+  private readonly API_URL = 'http://localhost:3000/gpt/classify'; 
   constructor(private http: HttpClient) {}
 
   classifyWord(word: string, userId: string): Observable<{ theme: string; subtheme: string }> {

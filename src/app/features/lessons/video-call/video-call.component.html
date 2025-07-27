@@ -5,13 +5,13 @@
 
     <video #localVideo autoplay playsinline class="video-stream"></video>
 
-    <!-- Кнопки управления звонком -->
+    <!-- Boutons de contrôle de l'appel -->
     <button class="control-btn" *ngIf="showControls" (click)="toggleCall()"
       title="{{ callActive ? 'Terminer l\'appel' : 'Reprendre l\'appel' }}">
       <i [class]="callActive ? 'fas fa-phone-slash' : 'fas fa-phone'"></i>
     </button>
 
-    <!-- Кнопка "Поделиться экраном" -->
+    <!-- bouton partager l'écran -->
     <button class="control-btn share-screen-btn" *ngIf="showControls" (click)="toggleScreenSharing()"
       title="{{ isScreenSharing ? 'Arrêter le partage d\'écran' : 'Partager l\'écran' }}">
       <i [class]="isScreenSharing ? 'fas fa-stop-circle' : 'fas fa-desktop'"></i>
@@ -19,7 +19,7 @@
 
 
 
-    <!-- Область для изменения размера -->
+    <!-- Zone pour changer la taille -->
     <div class="resize-handle" (mousedown)="startResize($event)"></div>
   </div>
 
