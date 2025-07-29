@@ -625,8 +625,6 @@
   border-radius: 20px;
   width: 90%;
   max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
   position: relative;
   backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
@@ -1023,17 +1021,34 @@
   border: 2px solid var(--stellar-purple);
 }
 
-/* Utility classes */
+/* Контейнер для поля перевода и кнопки */
+.translation-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.translation-row input {
+  flex: 1;
+}
+
 .translate-btn {
-  margin-left: 8px;
-  padding: 6px 12px;
+  margin: 0;
+  padding: 8px;
+  width: 36px;
+  height: 36px;
   font-size: 16px;
-  background: var(--glass-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
+  border: none;
+  border-radius: 50%;
   cursor: pointer;
-  color: var(--text-primary);
+  color: white;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  flex-shrink: 0;
 }
 
 .translate-btn:hover {
