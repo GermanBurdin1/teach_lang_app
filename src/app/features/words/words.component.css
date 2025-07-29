@@ -678,7 +678,8 @@
 
 /* Enhanced modal inputs */
 .add-entry-modal__input,
-.add-entry-modal__textarea {
+.add-entry-modal__textarea,
+.add-entry-modal__select {
   width: 100%;
   padding: 16px 20px;
   border: 2px solid var(--border-color);
@@ -692,13 +693,99 @@
   backdrop-filter: blur(8px);
 }
 
-.add-entry-modal__input:focus,
+/* Специальные стили для селектов - КОСМИЧЕСКИЙ ДИЗАЙН */
+.add-entry-modal__select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  
+  /* Космический градиентный фон */
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.95) 0%, 
+    rgba(15, 15, 35, 0.98) 100%) !important;
+  
+  /* Космическая стрелочка */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c1abf4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 16px center !important;
+  background-size: 18px !important;
+  
+  /* Границы и эффекты */
+  border: 1px solid rgba(139, 92, 246, 0.4) !important;
+  border-radius: 12px !important;
+  padding: 16px 48px 16px 20px !important;
+  color: rgba(50, 50, 50, 0.9) !important; /* Темный текст для видимости */
+  
+  /* Космические эффекты */
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(16px) !important;
+  
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  font-weight: 500 !important;
+  text-shadow: 0 0 4px rgba(139, 92, 246, 0.3) !important;
+  font-size: 14px !important;
+}
+
+/* .add-entry-modal__select:hover {
+  border-color: rgba(139, 92, 246, 0.7) !important;
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 1) 0%, 
+    rgba(15, 15, 35, 1) 100%) !important;
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(139, 92, 246, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px) !important;
+} */
+
+/* .add-entry-modal__select:focus {
+  outline: none !important;
+  border-color: rgba(139, 92, 246, 0.8) !important;
+  box-shadow: 
+    0 0 0 4px rgba(139, 92, 246, 0.3),
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(139, 92, 246, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 1) 0%, 
+    rgba(15, 15, 35, 1) 100%) !important;
+  transform: translateY(-1px) !important;
+} */
+
+/* Стили для опций селектов - КОСМИЧЕСКИЙ ДИЗАЙН */
+.add-entry-modal__select option {
+  background: white !important;
+  color: rgba(50, 50, 50, 0.9) !important; /* Темный текст для браузерного списка */
+  padding: 14px 20px !important; /* Больше padding */
+  border: none !important;
+  border-radius: 8px !important; /* Закругленные края */
+  margin: 2px !important; /* Отступы между опциями */
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  text-shadow: 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+.add-entry-modal__select option:hover,
+.add-entry-modal__select option:focus,
+.add-entry-modal__select option:checked {
+  background: rgba(139, 92, 246, 0.8) !important;
+  color: white !important;
+  border-radius: 8px !important; 
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.5) !important;
+  font-weight: 600 !important;
+}
+
+/* .add-entry-modal__input:focus,
 .add-entry-modal__textarea:focus {
   outline: none;
   border-color: var(--stellar-purple);
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
   background: rgba(255, 255, 255, 0.95);
-}
+} */
 
 /* Enhanced modal buttons */
 .add-entry-modal__button {
@@ -716,10 +803,14 @@
 }
 
 .add-entry-modal__button:hover {
+  border: 2px solid rgba(139, 92, 246, 0.8);
+}
+
+/* .add-entry-modal__button:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
   background: linear-gradient(135deg, var(--space-blue), var(--stellar-purple));
-}
+} */
 
 .add-entry-modal__button.active {
   background: linear-gradient(135deg, var(--cosmic-gold), var(--stellar-purple));
@@ -758,11 +849,11 @@
   justify-content: center;
 }
 
-.add-entry-modal__close-btn:hover {
+/* .add-entry-modal__close-btn:hover {
   color: var(--stellar-purple);
   background: var(--hover-bg);
   transform: scale(1.1);
-}
+} */
 
 /* Enhanced message styling */
 .add-entry-modal__message {
@@ -823,22 +914,75 @@
   flex: 1;
 }
 
+/* Космические стили для селектов языков */
 .lang-selectors select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  
+  /* Космический градиентный фон */
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.95) 0%, 
+    rgba(15, 15, 35, 0.98) 100%) !important;
+  
+  /* Космическая стрелочка */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c1abf4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px !important;
+  
   margin-top: 8px;
-  padding: 12px 16px;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 14px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(8px);
+  padding: 12px 40px 12px 16px !important; /* Место для стрелочки */
+  border: 1px solid rgba(139, 92, 246, 0.4) !important;
+  border-radius: 12px !important;
+  color: rgba(50, 50, 50, 0.9) !important; /* Темный текст */
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  
+  /* Космические эффекты */
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(16px) !important;
+  text-shadow: 0 0 4px rgba(139, 92, 246, 0.3) !important;
+  
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.lang-selectors select:hover {
+  border: 2px solid rgba(139, 92, 246, 0.8) !important;
 }
 
 .lang-selectors select:focus {
-  outline: none;
-  border-color: var(--stellar-purple);
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+  outline: none !important;
+  border: 2px solid rgba(139, 92, 246, 0.8) !important;
+}
+
+/* Стили для опций селектов языков */
+.lang-selectors select option {
+  background: white !important;
+  color: rgba(50, 50, 50, 0.9) !important;
+  padding: 14px 20px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  margin: 2px !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  text-shadow: 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+.lang-selectors select option:hover,
+.lang-selectors select option:focus,
+.lang-selectors select option:checked {
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.9) 0%, 
+    rgba(236, 72, 153, 0.7) 100%) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.5) !important;
+  font-weight: 600 !important;
 }
 
 /* Enhanced postponed lists */
@@ -1055,9 +1199,62 @@
   box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
 }
 
-.dark-theme .add-entry-modal__toggle-type:hover {
+/* Селекты в темной теме */
+.dark-theme .add-entry-modal__select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ecdc4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
   border-color: #4ecdc4;
   color: #4ecdc4;
+}
+
+.dark-theme .add-entry-modal__select:hover {
+  border-color: rgba(139, 92, 246, 0.7) !important;
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 1) 0%, 
+    rgba(15, 15, 35, 1) 100%) !important;
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(139, 92, 246, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.dark-theme .add-entry-modal__select:focus {
+  outline: none !important;
+  border-color: rgba(139, 92, 246, 0.8) !important;
+  box-shadow: 
+    0 0 0 4px rgba(139, 92, 246, 0.3),
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(139, 92, 246, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 1) 0%, 
+    rgba(15, 15, 35, 1) 100%) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Стили для опций селектов языков */
+.lang-selectors select option {
+  background: white !important;
+  color: rgba(50, 50, 50, 0.9) !important;
+  padding: 14px 20px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  margin: 2px !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  text-shadow: 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+.lang-selectors select option:hover,
+.lang-selectors select option:focus,
+.lang-selectors select option:checked {
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.9) 0%, 
+    rgba(236, 72, 153, 0.7) 100%) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.5) !important;
+  font-weight: 600 !important;
 }
 
 .dark-theme .zone-libre-container h3 {
@@ -1081,8 +1278,7 @@
 }
 
 .dark-theme .lang-selectors select:focus {
-  border-color: #4ecdc4;
-  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.2);
+  border: 2px solid rgba(139, 92, 246, 0.8) !important;
 }
 
 /* ==================== RESPONSIVE DESIGN ==================== */
@@ -1226,7 +1422,7 @@ foreignObject {
 /* Глобальные стили для mat-tooltip */
 ::ng-deep .mat-mdc-tooltip {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 15, 35, 0.98)) !important;
-  color: rgba(255, 255, 255, 0.95) !important;
+  color: rgba(50, 50, 50, 0.9) !important;
   border-radius: 12px !important;
   padding: 8px 12px !important;
   font-size: 12px !important;
