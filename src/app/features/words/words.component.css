@@ -234,8 +234,11 @@
 
 /* Enhanced zone libre panel */
 .zone-libre-panel {
+  position: absolute;
+  top: 0;
+  left: 20px;
   width: 320px;
-  flex-shrink: 0;
+  z-index: 1000;
 }
 
 .zone-libre-toggle {
@@ -304,7 +307,7 @@
 .galaxies, .cosmic-galaxies {
   display: grid;
   grid-template-columns: repeat(3, 280px); /* Exactement 3 colonnes de 280px */
-  column-gap: 160px; /* Горизонтальное расстояние */
+  column-gap: 120px; /* Уменьшаем горизонтальное расстояние */
   row-gap: 80px; /* Вертикальное расстояние уменьшено в 2 раза */
   justify-content: center; /* Centrer la grille */
   padding: 40px;
@@ -1314,13 +1317,18 @@
   }
   
   .zone-libre-panel {
+    position: relative;
+    top: auto;
+    left: auto;
     width: 100%;
     margin-bottom: 32px;
+    z-index: auto;
   }
   
   .galaxies {
     grid-template-columns: repeat(3, 260px); /* Exactement 3 colonnes sur tablette */
-    gap: 120px;
+    column-gap: 100px; /* Уменьшаем gap для планшетов */
+    row-gap: 60px;
   }
   
   .galaxy-wrapper {
@@ -1343,10 +1351,20 @@
     width: 100%;
   }
   
+  .zone-libre-panel {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    margin-bottom: 20px;
+    z-index: auto;
+  }
+  
   .galaxies {
     grid-template-columns: repeat(2, 220px); /* Exactement 2 colonnes sur tablette portrait */
-    gap: 80px;
-    padding: 24px 16px;
+    column-gap: 80px; /* Уменьшаем gap для мобильных */
+    row-gap: 50px;
+    padding: 20px;
   }
   
   .galaxy-wrapper {
