@@ -319,7 +319,10 @@
   position: relative;
   width: 280px;
   height: 280px;
-  transition: all 0.2s ease; /* Accéléré de 0.4s à 0.2s */
+  transition: none; /* Убираем все transitions для wrapper */
+  /* Предотвращение размытия */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .galaxy-wrapper::before {
@@ -357,19 +360,20 @@
   align-items: center;
   position: relative;
   cursor: pointer;
-  transition: transform 0.15s ease, filter 0.1s ease; /* Transitions séparées pour plus de contrôle */
+  transition: transform 0.15s ease, filter 0.1s ease;
   overflow: visible;
   /* Ombre portée cosmique */
   filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3)) drop-shadow(0 0 40px rgba(139, 92, 246, 0.1));
   /* Optimisations de rendu */
-  will-change: transform, filter;
+  will-change: filter;
   backface-visibility: hidden;
   perspective: 1000px;
 }
 
 .galaxy:hover, .galaxy-enhanced:hover {
-  transform: scale(1.05) scaleX(1.45);
-  filter: brightness(1.2) drop-shadow(0 0 30px rgba(139, 92, 246, 0.5)) drop-shadow(0 0 60px rgba(139, 92, 246, 0.2));
+  /* Убираем scale, оставляем только исходный scaleX и усиливаем эффекты свечения */
+  transform: scaleX(1.4); /* Без дополнительного scale */
+  filter: brightness(1.3) drop-shadow(0 0 35px rgba(139, 92, 246, 0.7)) drop-shadow(0 0 70px rgba(139, 92, 246, 0.3));
 }
 
 /* Enhanced SVG galaxy elements */
@@ -379,15 +383,34 @@
   border-radius: 50%;
   overflow: visible;
   filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.2));
-  transition: filter 0.1s ease; /* Transition uniquement sur le filtre */
+  transition: filter 0.1s ease;
   /* Optimisations de rendu pour SVG */
   shape-rendering: geometricPrecision;
   text-rendering: optimizeLegibility;
   will-change: filter;
+  /* Убираем image-rendering которые могут вызвать проблемы */
+  image-rendering: auto;
+  /* Фиксация для четкости */
+  transform: translateZ(0);
 }
 
 .galaxy-svg:hover {
   filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.4)) drop-shadow(0 0 50px rgba(139, 92, 246, 0.2));
+}
+
+/* Optimisations spéciales pour le SVG en mode zoom */
+.galaxy-svg.zoom {
+  width: 80vw;
+  height: 60vh;
+  max-width: 800px;
+  max-height: 600px;
+  image-rendering: auto; /* Restaurer le rendu normal pour le zoom */
+  image-rendering: high-quality;
+  image-rendering: -webkit-optimize-contrast;
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
+  /* Force la qualité maximale */
+  filter: contrast(1.1) brightness(1.05);
 }
 
 /* Enhanced galaxy text - more subtle */
@@ -878,22 +901,26 @@
   font-weight: 600;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(139, 92, 246, 0.3) !important;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9));
-  transition: none !important; /* Suppression de toute transition pour un effet instantané */
+  transition: none !important;
   /* Optimisations de rendu du texte */
   text-rendering: optimizeLegibility !important;
   font-smooth: always !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
   will-change: auto;
+  /* Netteté vectorielle */
+  shape-rendering: geometricPrecision !important;
+  dominant-baseline: middle !important;
+  /* Фиксируем позицию текста */
+  transform: translateZ(0) translate3d(0, 0, 0);
 }
 
-/* Amélioration spéciale pour le texte au survol - effet instantané */
+/* Amélioration spéciale pour le texte au survol - БЕЗ transform */
 .galaxy:hover text, .galaxy-enhanced:hover text {
   fill: rgba(255, 255, 255, 1) !important;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 1)) drop-shadow(0 0 8px rgba(139, 92, 246, 0.6)) !important;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(139, 92, 246, 0.5) !important;
-  /* Force le rendu immédiat */
-  transform: translateZ(0);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 1)) drop-shadow(0 0 12px rgba(139, 92, 246, 0.8)) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 12px rgba(139, 92, 246, 0.7) !important;
+  /* Убираем все transform чтобы избежать размытия */
 }
 
 /* ==================== DARK THEME SUPPORT ==================== */

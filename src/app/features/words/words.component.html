@@ -50,7 +50,10 @@
       <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper galaxy-cosmic" #galaxyWrapper>
         <div class="galaxy galaxy-enhanced" (click)="zoomIntoGalaxy(galaxy)" (drop)="onDropToGalaxy($event, galaxy.name)"
           (dragover)="onDragOver($event)">
-          <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg galaxy-stellar">
+          <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg galaxy-stellar" 
+               preserveAspectRatio="xMidYMid meet"
+               shape-rendering="geometricPrecision"
+               text-rendering="optimizeLegibility">
             <!-- Генерируем более реалистичные градиенты галактик -->
             <defs>
               <!-- Основной градиент галактики - более тонкий и реалистичный -->
@@ -145,8 +148,16 @@
               opacity="0.2"/>
 
             <!-- Название темы в центре -->
-            <text x="100" y="105" fill="rgba(255,255,255,0.95)" font-size="15px" font-weight="600" font-family="Arial, sans-serif"
-              text-anchor="middle" style="filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7)); text-shadow: 0 0 6px rgba(255,255,255,0.2);">
+            <text x="100" y="105" fill="rgba(255,255,255,0.95)" font-size="15px" font-weight="600" 
+                  font-family="Arial, sans-serif"
+                  text-anchor="middle" 
+                  dominant-baseline="middle"
+                  text-rendering="optimizeLegibility"
+                  shape-rendering="geometricPrecision"
+                  style="filter: drop-shadow(0 1px 3px rgba(0,0,0,0.9)); 
+                         text-shadow: 0 0 6px rgba(255,255,255,0.3);
+                         -webkit-font-smoothing: antialiased;
+                         -moz-osx-font-smoothing: grayscale;">
               {{ galaxy.name }}
             </text>
 
@@ -186,7 +197,10 @@
   <div class="zoomed-galaxy" *ngIf="zoomedGalaxy && !isZoomingToGalaxy">
     <button class="back-btn" (click)="resetZoom()">Retourner à la page principale</button>
     <div class="zoom-container" [ngStyle]="isZoomingToPlanet ? zoomStyle : {}">
-      <svg viewBox="0 0 600 600" class="galaxy-svg zoom">
+      <svg viewBox="0 0 600 600" class="galaxy-svg zoom"
+           preserveAspectRatio="xMidYMid meet"
+           shape-rendering="geometricPrecision"
+           text-rendering="optimizeLegibility">
         <!-- Генерируем уникальный градиент для зума -->
         <defs>
           <radialGradient id="galaxyGradient-zoom" cx="50%" cy="50%" r="50%">
