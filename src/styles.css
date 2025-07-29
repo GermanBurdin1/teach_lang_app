@@ -412,7 +412,8 @@ router-outlet {
 }
 
 .words-container .galaxies {
-  gap: 200px !important; /* Увеличено с 60px до 200px */
+  column-gap: 200px !important; /* Горизонтальное расстояние остается */
+  row-gap: 100px !important; /* Вертикальное расстояние уменьшено в 2 раза */
   padding: 20px !important;
   width: 100% !important;
   max-width: 100vw !important;
@@ -430,7 +431,8 @@ router-outlet {
 /* Mobile responsiveness for galaxies */
 @media (max-width: 768px) {
   .words-container .galaxies {
-    gap: 100px !important; /* Увеличено с 30px до 100px */
+    column-gap: 100px !important; /* Горизонтальное для мобильных */
+    row-gap: 50px !important; /* Вертикальное уменьшено в 2 раза */
     padding: 15px !important;
   }
   

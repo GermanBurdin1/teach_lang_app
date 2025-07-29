@@ -51,6 +51,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-requests.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminUsersManagementComponent } from './school-dashboard/admin-users-management/admin-users-management.component';
 import { AdminLessonsManagementComponent } from './school-dashboard/admin-lessons-management/admin-lessons-management.component';
 import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
@@ -114,6 +115,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     MatNativeDateModule,
     MatTabsModule,
     MatSnackBarModule,
+    MatTooltipModule,
     MatPaginatorModule,
     BsDatepickerModule.forRoot()
   ],

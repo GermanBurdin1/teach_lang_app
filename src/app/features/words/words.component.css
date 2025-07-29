@@ -132,8 +132,10 @@
 }
 
 .search-bar input::placeholder {
-  color: rgba(226, 232, 240, 0.6);
-  opacity: 0.8;
+  color: rgba(193, 171, 244, 0.9); /* Неоновый фиолетовый цвет */
+  opacity: 1;
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.5); /* Неоновое свечение */
+  font-weight: 500;
 }
 
 /* Enhanced add word button */
@@ -302,7 +304,8 @@
 .galaxies, .cosmic-galaxies {
   display: grid;
   grid-template-columns: repeat(3, 280px); /* Exactement 3 colonnes de 280px */
-  gap: 160px; /* Espacement entre les galaxies */
+  column-gap: 160px; /* Горизонтальное расстояние */
+  row-gap: 80px; /* Вертикальное расстояние уменьшено в 2 раза */
   justify-content: center; /* Centrer la grille */
   padding: 40px;
   width: 100%;
@@ -314,9 +317,9 @@
 }
 
 /* Enhanced galaxy wrapper */
-.galaxy-wrapper, .galaxy-cosmic {
-  overflow: visible;
-  position: relative;
+.galaxy-wrapper,
+.galaxy-cosmic {
+  position: relative !important; /* Для абсолютного позиционирования кнопки */
   width: 280px;
   height: 280px;
   transition: all 0.2s ease; /* Accéléré de 0.4s à 0.2s */
@@ -410,43 +413,42 @@
 }
 
 /* Enhanced galaxy add button */
-.galaxy-add-button, .cosmic-button {
-  width: 24px;
-  height: 24px;
-  font-size: 14px;
-  border-radius: 50%;
+.galaxy-add-button,
+.cosmic-button {
+  position: absolute !important;
+  top: 60% !important; /* Позиционируем под названием галактики */
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
   border: none !important;
-  background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-  /* Агрессивно убираем все браузерные эффекты */
   outline: none !important;
-  border: none !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(236, 72, 153, 0.9)) !important;
+  color: white !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  
+  /* Убираем все браузерные стили */
+  appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
-  appearance: none !important;
   -webkit-tap-highlight-color: transparent !important;
   -webkit-focus-ring-color: transparent !important;
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
   user-select: none !important;
+  
+  /* Убираем все возможные outline'ы и рамки */
+  box-shadow: none !important;
+  text-shadow: none !important;
 }
 
-.galaxy-add-button:hover, .cosmic-button:hover {
-  /* Убираем scale - оставляем только смену цвета */
-  background: linear-gradient(135deg, var(--cosmic-gold), var(--stellar-purple));
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.6);
-  /* Убираем любые эффекты при hover */
-  outline: none !important;
-  border: none !important;
-  transform: none !important;
+.galaxy-add-button:hover,
+.cosmic-button:hover {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.9), rgba(139, 92, 246, 0.9)) !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.6) !important;
+  /* НЕ изменяем transform - никакого зума */
 }
 
 /* Убираем outline для всех состояний */
@@ -1201,4 +1203,55 @@ foreignObject {
   opacity: 1 !important;
   stroke: none !important;
   fill: none !important;
+}
+
+/* ==================== PLANET TOOLTIP OVERLAYS ==================== */
+
+.planet-tooltip-overlay {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.planet-tooltip-overlay.large {
+  pointer-events: none; /* Не блокируем клики на больших планетах */
+}
+
+/* ==================== ANGULAR MATERIAL TOOLTIP КОСМИЧЕСКИЙ СТИЛЬ ==================== */
+
+/* Глобальные стили для mat-tooltip */
+::ng-deep .mat-mdc-tooltip {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 15, 35, 0.98)) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 12px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(139, 92, 246, 0.2) !important;
+  text-shadow: 0 0 6px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Специальные стили для tooltip'ов кнопок галактик */
+::ng-deep .galaxy-tooltip.mat-mdc-tooltip {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(236, 72, 153, 0.95)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 
+    0 8px 24px rgba(139, 92, 246, 0.4),
+    0 0 16px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Анимация появления */
+::ng-deep .mat-mdc-tooltip {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
 }
