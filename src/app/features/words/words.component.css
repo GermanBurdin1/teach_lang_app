@@ -369,11 +369,10 @@
 }
 
 .galaxy:hover, .galaxy-enhanced:hover {
-  /* БЕЗ scale - только плавное размывание */
+  /* БЕЗ scale - убираем blur чтобы текст оставался четким */
   transform: scaleX(1.4); /* Оставляем только исходный scaleX */
   filter: 
     brightness(1.2)
-    blur(0.5px)
     drop-shadow(0 0 30px rgba(139, 92, 246, 0.6))
     drop-shadow(0 0 60px rgba(139, 92, 246, 0.3));
 }
@@ -394,10 +393,9 @@
 }
 
 .galaxy-svg:hover {
-  /* Плавное размывание без колец */
+  /* Плавное свечение без размывания */
   filter: 
-    drop-shadow(0 0 20px rgba(139, 92, 246, 0.4))
-    blur(0.3px);
+    drop-shadow(0 0 20px rgba(139, 92, 246, 0.4));
 }
 
 /* Enhanced galaxy text - more subtle */
