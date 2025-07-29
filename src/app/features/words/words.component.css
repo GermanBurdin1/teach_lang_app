@@ -319,10 +319,7 @@
   position: relative;
   width: 280px;
   height: 280px;
-  transition: none; /* Убираем все transitions для wrapper */
-  /* Предотвращение размытия */
-  transform: translateZ(0);
-  backface-visibility: hidden;
+  transition: all 0.2s ease; /* Accéléré de 0.4s à 0.2s */
 }
 
 .galaxy-wrapper::before {
@@ -360,10 +357,11 @@
   align-items: center;
   position: relative;
   cursor: pointer;
-  transition: transform 0.15s ease, filter 0.1s ease;
+  /* Плавные переходы только для размывания */
+  transition: filter 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   overflow: visible;
-  /* Ombre portée cosmique */
-  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3)) drop-shadow(0 0 40px rgba(139, 92, 246, 0.1));
+  /* Простое базовое свечение */
+  filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.2));
   /* Optimisations de rendu */
   will-change: filter;
   backface-visibility: hidden;
@@ -371,9 +369,13 @@
 }
 
 .galaxy:hover, .galaxy-enhanced:hover {
-  /* Убираем scale, оставляем только исходный scaleX и усиливаем эффекты свечения */
-  transform: scaleX(1.4); /* Без дополнительного scale */
-  filter: brightness(1.3) drop-shadow(0 0 35px rgba(139, 92, 246, 0.7)) drop-shadow(0 0 70px rgba(139, 92, 246, 0.3));
+  /* БЕЗ scale - только плавное размывание */
+  transform: scaleX(1.4); /* Оставляем только исходный scaleX */
+  filter: 
+    brightness(1.2)
+    blur(0.5px)
+    drop-shadow(0 0 30px rgba(139, 92, 246, 0.6))
+    drop-shadow(0 0 60px rgba(139, 92, 246, 0.3));
 }
 
 /* Enhanced SVG galaxy elements */
@@ -382,35 +384,20 @@
   height: 100%;
   border-radius: 50%;
   overflow: visible;
-  filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.2));
-  transition: filter 0.1s ease;
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.1));
+  /* Плавный переход для SVG */
+  transition: filter 0.6s cubic-bezier(0.23, 1, 0.32, 1);
   /* Optimisations de rendu pour SVG */
   shape-rendering: geometricPrecision;
   text-rendering: optimizeLegibility;
   will-change: filter;
-  /* Убираем image-rendering которые могут вызвать проблемы */
-  image-rendering: auto;
-  /* Фиксация для четкости */
-  transform: translateZ(0);
 }
 
 .galaxy-svg:hover {
-  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.4)) drop-shadow(0 0 50px rgba(139, 92, 246, 0.2));
-}
-
-/* Optimisations spéciales pour le SVG en mode zoom */
-.galaxy-svg.zoom {
-  width: 80vw;
-  height: 60vh;
-  max-width: 800px;
-  max-height: 600px;
-  image-rendering: auto; /* Restaurer le rendu normal pour le zoom */
-  image-rendering: high-quality;
-  image-rendering: -webkit-optimize-contrast;
-  shape-rendering: geometricPrecision;
-  text-rendering: optimizeLegibility;
-  /* Force la qualité maximale */
-  filter: contrast(1.1) brightness(1.05);
+  /* Плавное размывание без колец */
+  filter: 
+    drop-shadow(0 0 20px rgba(139, 92, 246, 0.4))
+    blur(0.3px);
 }
 
 /* Enhanced galaxy text - more subtle */
@@ -430,7 +417,7 @@
   height: 24px;
   font-size: 14px;
   border-radius: 50%;
-  border: none;
+  border: none !important;
   background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
   color: white;
   cursor: pointer;
@@ -441,12 +428,52 @@
   font-weight: 700;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  /* Агрессивно убираем все браузерные эффекты */
+  outline: none !important;
+  border: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-focus-ring-color: transparent !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  user-select: none !important;
 }
 
 .galaxy-add-button:hover, .cosmic-button:hover {
-  transform: scale(1.2);
+  /* Убираем scale - оставляем только смену цвета */
   background: linear-gradient(135deg, var(--cosmic-gold), var(--stellar-purple));
   box-shadow: 0 6px 16px rgba(139, 92, 246, 0.6);
+  /* Убираем любые эффекты при hover */
+  outline: none !important;
+  border: none !important;
+  transform: none !important;
+}
+
+/* Убираем outline для всех состояний */
+.galaxy-add-button:focus, .cosmic-button:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4) !important;
+}
+
+.galaxy-add-button:active, .cosmic-button:active {
+  outline: none !important;
+  border: none !important;
+  transform: none !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4) !important;
+}
+
+/* Убираем все возможные браузерные эффекты */
+.galaxy-add-button::-moz-focus-inner, .cosmic-button::-moz-focus-inner {
+  border: 0 !important;
+  outline: none !important;
+}
+
+.galaxy-add-button::before, .cosmic-button::before,
+.galaxy-add-button::after, .cosmic-button::after {
+  display: none !important;
 }
 
 /* Enhanced zoomed galaxy */
@@ -901,26 +928,22 @@
   font-weight: 600;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(139, 92, 246, 0.3) !important;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9));
-  transition: none !important;
+  transition: none !important; /* Suppression de toute transition pour un effet instantané */
   /* Optimisations de rendu du texte */
   text-rendering: optimizeLegibility !important;
   font-smooth: always !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
   will-change: auto;
-  /* Netteté vectorielle */
-  shape-rendering: geometricPrecision !important;
-  dominant-baseline: middle !important;
-  /* Фиксируем позицию текста */
-  transform: translateZ(0) translate3d(0, 0, 0);
 }
 
-/* Amélioration spéciale pour le texte au survol - БЕЗ transform */
+/* Amélioration spéciale pour le texte au survol - effet instantané */
 .galaxy:hover text, .galaxy-enhanced:hover text {
   fill: rgba(255, 255, 255, 1) !important;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 1)) drop-shadow(0 0 12px rgba(139, 92, 246, 0.8)) !important;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 12px rgba(139, 92, 246, 0.7) !important;
-  /* Убираем все transform чтобы избежать размытия */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 1)) drop-shadow(0 0 8px rgba(139, 92, 246, 0.6)) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(139, 92, 246, 0.5) !important;
+  /* Force le rendu immédiat */
+  transform: translateZ(0);
 }
 
 /* ==================== DARK THEME SUPPORT ==================== */
@@ -1160,4 +1183,24 @@
     flex-direction: column;
     gap: 12px;
   }
+}
+
+/* Скрываем прямоугольник foreignObject */
+foreignObject {
+  outline: none !important;
+  border: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+/* Более специфично для SVG галактик */
+.galaxy-svg foreignObject,
+.galaxy-stellar foreignObject {
+  outline: none !important;
+  border: none !important;
+  background: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  stroke: none !important;
+  fill: none !important;
 }
