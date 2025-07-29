@@ -305,21 +305,29 @@
 
     <!-- Языки -->
     <div class="lang-selectors">
-      <label>De la langue :
-        <select [(ngModel)]="sourceLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode" name="sourceLang">
-          <option value="ru">russe</option>
-          <option value="fr">français</option>
-          <option value="en">anglais</option>
-        </select>
-      </label>
+      <div class="lang-field">
+        <label>De la langue :</label>
+        <mat-form-field class="cosmic-form-field" appearance="outline">
+          <mat-select [(ngModel)]="sourceLang" (selectionChange)="onLangChangeAttempt()" 
+                      [disabled]="isMultiEntryMode" name="sourceLang">
+            <mat-option value="ru">russe</mat-option>
+            <mat-option value="fr">français</mat-option>
+            <mat-option value="en">anglais</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-      <label>Vers la langue :
-        <select [(ngModel)]="targetLang" (change)="onLangChangeAttempt()" [disabled]="isMultiEntryMode" name="targetLang">
-          <option value="ru">russe</option>
-          <option value="fr">français</option>
-          <option value="en">anglais</option>
-        </select>
-      </label>
+      <div class="lang-field">
+        <label>Vers la langue :</label>
+        <mat-form-field class="cosmic-form-field" appearance="outline">
+          <mat-select [(ngModel)]="targetLang" (selectionChange)="onLangChangeAttempt()" 
+                      [disabled]="isMultiEntryMode" name="targetLang">
+            <mat-option value="ru">russe</mat-option>
+            <mat-option value="fr">français</mat-option>
+            <mat-option value="en">anglais</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
       <div *ngIf="isMultiEntryMode" class="entry-warning">⚠️ Les langues ne peuvent pas être modifiées lors d'un ajout multiple</div>
     </div>
@@ -362,25 +370,33 @@
     <!-- Если добавляем ГЛОБАЛЬНО (не через галактику) -->
     <div *ngIf="!isFromGalaxyShortcut">
       <!-- Категория -->
-      <select [(ngModel)]="selectedGalaxy" (change)="onGalaxySelected()" class="add-entry-modal__select" name="selectedGalaxy">
-        <option value="">Sans catégorie</option>
-        <option *ngFor="let galaxy of galaxies" [value]="galaxy.name">{{ galaxy.name }}</option>
-      </select>
+      <mat-form-field class="cosmic-form-field" appearance="outline">
+        <mat-select [(ngModel)]="selectedGalaxy" (selectionChange)="onGalaxySelected()" 
+                    placeholder="Sans catégorie" name="selectedGalaxy">
+          <mat-option value="">Sans catégorie</mat-option>
+          <mat-option *ngFor="let galaxy of galaxies" [value]="galaxy.name">{{ galaxy.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
       <!-- Подтема -->
-      <select *ngIf="availableSubtopics.length" [(ngModel)]="selectedSubtopic" class="add-entry-modal__select" name="selectedSubtopic">
-        <option value="" disabled selected>Choisir un sous-thème</option>
-        <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
-      </select>
+      <mat-form-field *ngIf="availableSubtopics.length" class="cosmic-form-field" appearance="outline">
+        <mat-select [(ngModel)]="selectedSubtopic" 
+                    placeholder="Choisir un sous-thème" name="selectedSubtopic">
+          <mat-option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
 
     <!-- Если добавляем через галактику (плюсик внутри галактики) -->
     <div *ngIf="isFromGalaxyShortcut">
       <!-- Только Подтема -->
-      <select [(ngModel)]="selectedSubtopic" class="add-entry-modal__select" name="selectedSubtopicShortcut">
-        <option value="">Sans catégorie</option> <!-- Важно: добавляем вручную -->
-        <option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</option>
-      </select>
+      <mat-form-field class="cosmic-form-field" appearance="outline">
+        <mat-select [(ngModel)]="selectedSubtopic" 
+                    placeholder="Sans catégorie" name="selectedSubtopicShortcut">
+          <mat-option value="">Sans catégorie</mat-option>
+          <mat-option *ngFor="let subtopic of availableSubtopics" [value]="subtopic">{{ subtopic }}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
 
 

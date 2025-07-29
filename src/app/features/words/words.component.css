@@ -762,11 +762,21 @@
   color: rgba(50, 50, 50, 0.9) !important; /* Темный текст для браузерного списка */
   padding: 14px 20px !important; /* Больше padding */
   border: none !important;
-  border-radius: 8px !important; /* Закругленные края */
+  border-radius: 16px !important; /* Более округлые края */
   margin: 2px !important; /* Отступы между опциями */
   font-weight: 500 !important;
   font-size: 14px !important;
   text-shadow: 0 0 4px rgba(139, 92, 246, 0.2) !important;
+  
+  /* Дополнительные попытки стилизации */
+  -webkit-border-radius: 16px !important;
+  -moz-border-radius: 16px !important;
+  border-top-left-radius: 16px !important;
+  border-top-right-radius: 16px !important;
+  border-bottom-left-radius: 16px !important;
+  border-bottom-right-radius: 16px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 
 .add-entry-modal__select option:hover,
@@ -774,7 +784,7 @@
 .add-entry-modal__select option:checked {
   background: rgba(139, 92, 246, 0.8) !important;
   color: white !important;
-  border-radius: 8px !important; 
+  border-radius: 16px !important; 
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.5) !important;
   font-weight: 600 !important;
 }
@@ -966,7 +976,7 @@
   color: rgba(50, 50, 50, 0.9) !important;
   padding: 14px 20px !important;
   border: none !important;
-  border-radius: 8px !important;
+  border-radius: 16px !important;
   margin: 2px !important;
   font-weight: 500 !important;
   font-size: 14px !important;
@@ -980,7 +990,7 @@
     rgba(139, 92, 246, 0.9) 0%, 
     rgba(236, 72, 153, 0.7) 100%) !important;
   color: white !important;
-  border-radius: 8px !important;
+  border-radius: 16px !important;
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.5) !important;
   font-weight: 600 !important;
 }
@@ -1238,7 +1248,7 @@
   color: rgba(50, 50, 50, 0.9) !important;
   padding: 14px 20px !important;
   border: none !important;
-  border-radius: 8px !important;
+  border-radius: 16px !important;
   margin: 2px !important;
   font-weight: 500 !important;
   font-size: 14px !important;
@@ -1252,7 +1262,7 @@
     rgba(139, 92, 246, 0.9) 0%, 
     rgba(236, 72, 153, 0.7) 100%) !important;
   color: white !important;
-  border-radius: 8px !important;
+  border-radius: 16px !important;
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.5) !important;
   font-weight: 600 !important;
 }
@@ -1450,4 +1460,100 @@ foreignObject {
 /* Анимация появления */
 ::ng-deep .mat-mdc-tooltip {
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+/* Попытка стилизации всего выпадающего списка */
+.add-entry-modal__select[size] {
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+
+.add-entry-modal__select:focus,
+.add-entry-modal__select:active {
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+
+/* ==================== ANGULAR MATERIAL SELECT КОСМИЧЕСКИЙ СТИЛЬ ==================== */
+
+/* Основные стили для mat-form-field */
+.cosmic-form-field {
+  width: 100% !important;
+  margin-bottom: 16px !important;
+}
+
+/* Стили для mat-select */
+::ng-deep .cosmic-form-field .mat-mdc-form-field-outline {
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.95) 0%, 
+    rgba(15, 15, 35, 0.98) 100%) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(139, 92, 246, 0.4) !important;
+}
+
+::ng-deep .cosmic-form-field .mat-mdc-select {
+  color: rgba(50, 50, 50, 0.9) !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+::ng-deep .cosmic-form-field .mat-mdc-select-arrow {
+  color: rgba(139, 92, 246, 0.8) !important;
+}
+
+/* Стили для выпадающей панели */
+::ng-deep .mat-mdc-select-panel {
+  background: white !important;
+  border-radius: 20px !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 12px rgba(139, 92, 246, 0.2) !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  max-height: 300px !important;
+  overflow: hidden !important;
+}
+
+/* Стили для опций - ОКРУГЛЫЕ! */
+::ng-deep .mat-mdc-option {
+  background: white !important;
+  color: rgba(50, 50, 50, 0.9) !important;
+  padding: 14px 20px !important;
+  margin: 4px 8px !important;
+  border-radius: 16px !important; /* ОКРУГЛЫЕ ОПЦИИ! */
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Стили для выбранной и hover опций */
+::ng-deep .mat-mdc-option:hover,
+::ng-deep .mat-mdc-option.mdc-list-item--selected {
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.8) 0%, 
+    rgba(236, 72, 153, 0.6) 100%) !important;
+  color: white !important;
+  border-radius: 16px !important; /* ОКРУГЛЫЕ ОПЦИИ! */
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+  font-weight: 600 !important;
+}
+
+/* Стили для лейблов языковых полей */
+.lang-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lang-field label {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.lang-selectors {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 20px 0;
 }
