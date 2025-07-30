@@ -1,16 +1,24 @@
-/* Galactic Grammar Fields CSS with Material Design */
+/* === GRAMMAR FIELDS THÈMES INTÉGRÉS === */
+
+/* Grammar Fields CSS - Light mode par défaut */
 .grammar-fields {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   margin-top: 1.5rem;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(30, 27, 75, 0.3));
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.95));
   backdrop-filter: blur(15px);
-  border: 2px solid rgba(139, 92, 246, 0.3);
+  border: 2px solid rgba(203, 213, 225, 0.8);
   border-radius: 20px;
   padding: 2rem;
   position: relative;
   overflow: hidden;
+}
+
+/* Dark theme pour grammar fields */
+body.dark-theme .grammar-fields {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  border: 2px solid rgba(71, 85, 105, 0.5);
 }
 
 .grammar-fields::before {
@@ -45,12 +53,124 @@
   z-index: 1;
 }
 
-/* Styles sérieux pour les mat-form-fields avec bon contraste */
+/* Styles pour les mat-form-fields - Light mode par défaut */
 .grammar-fields__mat-field {
   width: 100%;
 }
 
 ::ng-deep .grammar-fields .mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: #cbd5e1;
+  --mdc-outlined-text-field-focus-outline-color: #2563eb;
+  --mdc-outlined-text-field-hover-outline-color: #3b82f6;
+  --mdc-outlined-text-field-label-text-color: #475569;
+  --mdc-outlined-text-field-focus-label-text-color: #2563eb;
+  --mdc-outlined-text-field-input-text-color: #1e293b;
+  --mdc-outlined-text-field-container-color: rgba(255, 255, 255, 0.9);
+}
+
+::ng-deep .grammar-fields .mat-mdc-form-field-outline {
+  border-radius: 8px !important;
+}
+
+::ng-deep .grammar-fields .mat-mdc-text-field-wrapper {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+::ng-deep .grammar-fields .mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
+  opacity: 0.95;
+}
+
+::ng-deep .grammar-fields .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Styles pour mat-select - Light mode */
+::ng-deep .grammar-fields .mat-mdc-select {
+  color: #1e293b;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+::ng-deep .grammar-fields .mat-mdc-select-value {
+  color: #1e293b;
+}
+
+::ng-deep .grammar-fields .mat-mdc-select-arrow {
+  color: #475569;
+}
+
+/* Panel des options - Light mode avec Z-INDEX CORRIGÉ */
+::ng-deep .mat-mdc-select-panel {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 1000 !important; /* Z-index normal pour les options */
+}
+
+::ng-deep .mat-mdc-option {
+  color: #374151 !important;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.15s ease;
+  background: transparent !important;
+}
+
+::ng-deep .mat-mdc-option:hover {
+  background: rgba(59, 130, 246, 0.08) !important;
+  color: #1e293b !important;
+}
+
+::ng-deep .mat-mdc-option.mdc-list-item--selected {
+  background: rgba(59, 130, 246, 0.12) !important;
+  color: #2563eb !important;
+  font-weight: 500;
+}
+
+/* Styles pour mat-input - Light mode */
+::ng-deep .grammar-fields .mat-mdc-input-element {
+  color: #1e293b;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+::ng-deep .grammar-fields .mat-mdc-input-element::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Checkbox wrapper - Light mode */
+.grammar-fields__checkbox-wrapper {
+  background: rgba(248, 250, 252, 0.8);
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  transition: all 0.2s ease;
+}
+
+.grammar-fields__checkbox-wrapper:hover {
+  background: rgba(241, 245, 249, 0.9);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+::ng-deep .grammar-fields .mat-mdc-checkbox {
+  --mdc-checkbox-unselected-icon-color: #9ca3af;
+  --mdc-checkbox-selected-icon-color: #2563eb;
+  --mdc-checkbox-unselected-hover-icon-color: #3b82f6;
+  --mdc-checkbox-selected-hover-icon-color: #3b82f6;
+  --mdc-checkbox-selected-checkmark-color: #ffffff;
+}
+
+::ng-deep .grammar-fields .mat-mdc-checkbox .mdc-form-field > label {
+  color: #374151;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+}
+
+/* === DARK THEME OVERRIDES === */
+
+/* Mat form fields - Dark theme */
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-form-field {
   --mdc-outlined-text-field-outline-color: #64748b;
   --mdc-outlined-text-field-focus-outline-color: #3b82f6;
   --mdc-outlined-text-field-hover-outline-color: #6366f1;
@@ -60,91 +180,69 @@
   --mdc-outlined-text-field-container-color: rgba(30, 41, 59, 0.9);
 }
 
-::ng-deep .grammar-fields .mat-mdc-form-field-outline {
-  border-radius: 8px !important;
-}
-
-::ng-deep .grammar-fields .mat-mdc-text-field-wrapper {
-  border-radius: 8px;
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-text-field-wrapper {
   background: rgba(30, 41, 59, 0.9);
-  transition: all 0.2s ease;
 }
 
-::ng-deep .grammar-fields .mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
-  background: rgba(30, 41, 59, 0.95);
-}
-
-::ng-deep .grammar-fields .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
-  background: rgba(30, 41, 59, 1);
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
-/* Styles pour mat-select avec contraste approprié */
-::ng-deep .grammar-fields .mat-mdc-select {
-  color: #f1f5f9;
-  font-family: 'Space Grotesk', sans-serif;
-}
-
-::ng-deep .grammar-fields .mat-mdc-select-value {
+/* Mat select - Dark theme */
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-select {
   color: #f1f5f9;
 }
 
-::ng-deep .grammar-fields .mat-mdc-select-arrow {
-  color: #94a3b8;
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-select-value {
+  color: #f1f5f9;
 }
 
-/* Panel des options avec design sérieux */
-::ng-deep .mat-mdc-select-panel {
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-select-arrow {
+  color: #e2e8f0;
+}
+
+/* Panel des options - Dark theme */
+body.dark-theme ::ng-deep .mat-mdc-select-panel {
   background: #1e293b !important;
-  border: 1px solid #475569;
-  border-radius: 8px;
+  border: 1px solid #64748b;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
-::ng-deep .mat-mdc-option {
+body.dark-theme ::ng-deep .mat-mdc-option {
   color: #e2e8f0 !important;
-  font-family: 'Space Grotesk', sans-serif;
-  transition: all 0.15s ease;
-  background: transparent !important;
 }
 
-::ng-deep .mat-mdc-option:hover {
+body.dark-theme ::ng-deep .mat-mdc-option:hover {
   background: rgba(59, 130, 246, 0.15) !important;
   color: #f1f5f9 !important;
 }
 
-::ng-deep .mat-mdc-option.mdc-list-item--selected {
+body.dark-theme ::ng-deep .mat-mdc-option.mdc-list-item--selected {
   background: rgba(59, 130, 246, 0.2) !important;
   color: #93c5fd !important;
-  font-weight: 500;
 }
 
-/* Styles pour mat-input */
-::ng-deep .grammar-fields .mat-mdc-input-element {
+/* Mat input - Dark theme */
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-input-element {
   color: #f1f5f9;
-  font-family: 'Space Grotesk', sans-serif;
 }
 
-::ng-deep .grammar-fields .mat-mdc-input-element::placeholder {
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-input-element::placeholder {
   color: #94a3b8;
-  font-style: italic;
 }
 
-/* Checkbox wrapper sérieux */
-.grammar-fields__checkbox-wrapper {
+/* Checkbox - Dark theme */
+body.dark-theme .grammar-fields__checkbox-wrapper {
   background: rgba(30, 41, 59, 0.6);
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
   border: 1px solid rgba(71, 85, 105, 0.5);
-  transition: all 0.2s ease;
 }
 
-.grammar-fields__checkbox-wrapper:hover {
+body.dark-theme .grammar-fields__checkbox-wrapper:hover {
   background: rgba(30, 41, 59, 0.8);
   border-color: rgba(99, 102, 241, 0.6);
 }
 
-::ng-deep .grammar-fields .mat-mdc-checkbox {
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-checkbox {
   --mdc-checkbox-unselected-icon-color: #64748b;
   --mdc-checkbox-selected-icon-color: #3b82f6;
   --mdc-checkbox-unselected-hover-icon-color: #6366f1;
@@ -152,10 +250,8 @@
   --mdc-checkbox-selected-checkmark-color: #ffffff;
 }
 
-::ng-deep .grammar-fields .mat-mdc-checkbox .mdc-form-field > label {
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-checkbox .mdc-form-field > label {
   color: #e2e8f0;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 500;
 }
 
 .grammar-fields__label {
@@ -163,9 +259,14 @@
   flex-direction: column;
   font-weight: 600;
   font-size: 1rem;
-  color: #e2e8f0;
+  color: #1e293b; /* Light mode par défaut */
   font-family: 'Space Grotesk', sans-serif;
   gap: 0.5rem;
+}
+
+/* Dark theme pour label */
+body.dark-theme .grammar-fields__label {
+  color: #e2e8f0;
 }
 
 .grammar-fields__select,
@@ -290,9 +391,9 @@
   z-index: 1;
 }
 
-/* Bouton sérieux avec style cosmique */
+/* Bouton - Light mode par défaut */
 ::ng-deep .grammar-fields .mat-mdc-raised-button {
-  background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+  background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
   border-radius: 8px !important;
   color: #ffffff !important;
   font-weight: 600;
@@ -300,20 +401,35 @@
   font-family: 'Space Grotesk', sans-serif;
   padding: 0.875rem 1.5rem !important;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border: none;
 }
 
 ::ng-deep .grammar-fields .mat-mdc-raised-button:hover {
-  background: linear-gradient(135deg, #1d4ed8, #60a5fa) !important;
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4) !important;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3) !important;
   transform: translateY(-1px);
 }
 
 ::ng-deep .grammar-fields .mat-mdc-raised-button:active {
   transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* Dark theme pour bouton */
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-raised-button {
+  background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+}
+
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-raised-button:hover {
+  background: linear-gradient(135deg, #1d4ed8, #60a5fa) !important;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4) !important;
+}
+
+body.dark-theme ::ng-deep .grammar-fields .mat-mdc-raised-button:active {
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
 }
 

@@ -1079,6 +1079,24 @@ export class VocabularyComponent implements OnInit {
     this.grammarModalCard = null;
   }
 
+  // Méthodes pour test du thème global
+  toggleTheme(): void {
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    if (isDarkTheme) {
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('theme', 'light');
+      console.log('🌞 Basculé vers Light theme');
+    } else {
+      document.body.classList.add('dark-theme');
+      localStorage.setItem('theme', 'dark');
+      console.log('🌙 Basculé vers Dark theme');
+    }
+  }
+
+  get isDarkTheme(): boolean {
+    return document.body.classList.contains('dark-theme');
+  }
+
   // код связаный с частями речи
   onPartOfSpeechChange(partOfSpeech: Grammar.PartOfSpeech): void {
     switch (partOfSpeech) {

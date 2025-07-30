@@ -1495,26 +1495,28 @@ app-grammar-fields {
   font-size: 0.85rem;
 }
 
-/* Modalka pour les champs grammaticaux */
+/* === GRAMMAR MODAL THÈMES INTÉGRÉS === */
+
+/* Modalka pour les champs grammaticaux - Light mode par défaut */
 .grammar-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 999; /* Z-index modéré pour la modal */
   backdrop-filter: blur(3px);
 }
 
 .grammar-modal-content {
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
@@ -1522,6 +1524,17 @@ app-grammar-fields {
   display: flex;
   flex-direction: column;
   animation: modalFadeIn 0.3s ease-out;
+}
+
+/* Dark theme pour la modalka */
+body.dark-theme .grammar-modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+body.dark-theme .grammar-modal-content {
+  background: #0f172a;
+  border: 1px solid #334155;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes modalFadeIn {
@@ -1535,15 +1548,16 @@ app-grammar-fields {
   }
 }
 
+/* Header modalka - Light mode par défaut */
 .grammar-modal-header {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  color: white;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #1e293b;
   padding: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  border-bottom: 1px solid rgba(203, 213, 225, 0.6);
 }
 
 .grammar-modal-title {
@@ -1554,7 +1568,7 @@ app-grammar-fields {
 
 .grammar-modal-icon {
   font-size: 2rem;
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.1);
   padding: 0.5rem;
   border-radius: 8px;
   backdrop-filter: blur(10px);
@@ -1564,28 +1578,52 @@ app-grammar-fields {
   margin: 0;
   font-size: 1.3rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #1e293b;
   font-family: 'Space Grotesk', sans-serif;
 }
 
 .grammar-modal-text h3 {
   margin: 0.25rem 0 0 0;
   font-size: 1rem;
-  color: #cbd5e1;
+  color: #475569;
   font-weight: 400;
   font-family: 'Space Grotesk', sans-serif;
 }
 
 .highlighted-word {
-  color: #60a5fa;
+  color: #2563eb;
   font-weight: 600;
   font-style: italic;
 }
 
+/* Dark theme pour le header */
+body.dark-theme .grammar-modal-header {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: #f1f5f9;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+body.dark-theme .grammar-modal-icon {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+body.dark-theme .grammar-modal-text h2 {
+  color: #f1f5f9;
+}
+
+body.dark-theme .grammar-modal-text h3 {
+  color: #cbd5e1;
+}
+
+body.dark-theme .highlighted-word {
+  color: #60a5fa;
+}
+
+/* Close button - Light mode par défaut */
 .close-btn {
-  background: rgba(71, 85, 105, 0.3);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: #475569;
   font-size: 1.1rem;
   padding: 0.5rem;
   border-radius: 6px;
@@ -1600,22 +1638,36 @@ app-grammar-fields {
 }
 
 .close-btn:hover {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: #dc2626;
+}
+
+/* Dark theme pour close button */
+body.dark-theme .close-btn {
+  background: rgba(71, 85, 105, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #e2e8f0;
+}
+
+body.dark-theme .close-btn:hover {
   background: rgba(248, 113, 113, 0.2);
   border-color: rgba(248, 113, 113, 0.4);
   color: #fca5a5;
 }
 
+/* Body et Footer modalka - Light mode par défaut */
 .grammar-modal-body {
   padding: 2rem;
   flex: 1;
   overflow-y: auto;
-  background: #0f172a;
+  background: #ffffff;
 }
 
 .expression-info {
   text-align: center;
   padding: 2rem;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .expression-info p {
@@ -1625,16 +1677,16 @@ app-grammar-fields {
 
 .grammar-modal-footer {
   padding: 1rem 2rem;
-  background: #1e293b;
-  border-top: 1px solid rgba(71, 85, 105, 0.3);
+  background: #f8fafc;
+  border-top: 1px solid rgba(203, 213, 225, 0.6);
   display: flex;
   justify-content: flex-end;
 }
 
 .btn-secondary {
-  background: #374151;
-  color: #e5e7eb;
-  border: 1px solid #4b5563;
+  background: #f1f5f9;
+  color: #374151;
+  border: 1px solid #d1d5db;
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
   cursor: pointer;
@@ -1645,6 +1697,32 @@ app-grammar-fields {
 }
 
 .btn-secondary:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  color: #1f2937;
+}
+
+/* Dark theme pour body et footer */
+body.dark-theme .grammar-modal-body {
+  background: #0f172a;
+}
+
+body.dark-theme .expression-info {
+  color: #94a3b8;
+}
+
+body.dark-theme .grammar-modal-footer {
+  background: #1e293b;
+  border-top: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+body.dark-theme .btn-secondary {
+  background: #374151;
+  color: #e5e7eb;
+  border: 1px solid #4b5563;
+}
+
+body.dark-theme .btn-secondary:hover {
   background: #4b5563;
   border-color: #6b7280;
   color: #f9fafb;
