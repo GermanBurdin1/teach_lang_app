@@ -1240,7 +1240,16 @@ export class VocabularyComponent implements OnInit {
   newMeaningGalaxy = '';
   newMeaningSubtopic = '';
 
-  availableGalaxies: string[] = []; // все галактики
+  availableGalaxies: string[] = [
+    'Galaxie de la Technologie', 
+    'Galaxie de l\'Art', 
+    'Galaxie de la Science',
+    'Galaxie du Sport',
+    'Galaxie de la Cuisine',
+    'Galaxie de l\'Éducation',
+    'Galaxie des Voyages',
+    'Galaxie de la Musique'
+  ];
   availableSubtopics: string[] = []; // подтемы выбранной галактики
 
 
@@ -1261,6 +1270,22 @@ export class VocabularyComponent implements OnInit {
   onMeaningGalaxyChange() {
     // при смене галактики — обновить список подтем
     this.availableSubtopics = this.getSubtopicsForGalaxy(this.newMeaningGalaxy);
+    this.newMeaningSubtopic = ''; // Réinitialiser le sous-thème sélectionné
+  }
+
+  getSubtopicsForGalaxy(galaxy: string): string[] {
+    const subtopicsMap: { [key: string]: string[] } = {
+      'Galaxie de la Technologie': ['Applications', 'Intelligence Artificielle', 'Réseaux', 'Programmation', 'Hardware'],
+      'Galaxie de l\'Art': ['Peinture', 'Sculpture', 'Photographie', 'Design', 'Architecture'],
+      'Galaxie de la Science': ['Physique', 'Chimie', 'Biologie', 'Astronomie', 'Mathématiques'],
+      'Galaxie du Sport': ['Football', 'Tennis', 'Natation', 'Athlétisme', 'Sports d\'hiver'],
+      'Galaxie de la Cuisine': ['Recettes', 'Techniques', 'Ingrédients', 'Cuisines du monde', 'Pâtisserie'],
+      'Galaxie de l\'Éducation': ['Méthodes', 'Disciplines', 'Évaluation', 'Technologies éducatives', 'Psychologie'],
+      'Galaxie des Voyages': ['Destinations', 'Transport', 'Hébergement', 'Culture locale', 'Aventure'],
+      'Galaxie de la Musique': ['Instruments', 'Genres', 'Théorie musicale', 'Compositeurs', 'Production']
+    };
+
+    return subtopicsMap[galaxy] || [];
   }
 
   saveNewMeaning() {
@@ -1290,12 +1315,7 @@ export class VocabularyComponent implements OnInit {
     });
   }
 
-  getSubtopicsForGalaxy(galaxy: string): string[] {
-    const allItems = [...this.words, ...this.expressions];
-    const matching = allItems.filter(item => item.galaxy === galaxy);
-    const uniqueSubtopics = [...new Set(matching.map(item => item.subtopic))];
-    return uniqueSubtopics;
-  }
+
 
 
 }
