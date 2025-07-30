@@ -83,8 +83,7 @@
         <div *ngFor="let card of paginatedWords" class="card-wrapper" [ngClass]="{
           'card-wrapper--repeat': sortBy === 'repeat' && card.status === 'repeat',
           'card-wrapper--learned': sortBy === 'learned' && card.status === 'learned',
-          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translations[0] || card.translations[0].target === '...'),
-          'card-wrapper--enlarged': enlargedCardId === card.id
+          'card-wrapper--untranslated': sortBy === 'untranslated' && (!card.translations[0] || card.translations[0].target === '...')
 
         }">
           <div class="card">
@@ -176,42 +175,47 @@
 
                   <div class="translation-entry" *ngFor="let t of card.translations; let i = index">
                     <p>{{ t.target }}</p>
-                    <button class="translation-entry__more-button"
-                      (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
-                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'actions' }}
-                    </button>
                     
-                    <button *ngIf="card.type === 'word'" class="translation-entry__grammar-button"
-                      (click)="openGrammarModal(card); $event.stopPropagation()">
-                      📝
-                    </button>
+                    <div class="translation-entry__button-row">
+                      <!-- Boutons d'actions à gauche du bouton grammaire -->
+                      <div class="translation-entry__actions" *ngIf="enlargedCardId === card.id">
+                        <button class="more-info-tooltip-btn" *ngIf="editingCard" (click)="openAddMeaningModal(editingCard); $event.stopPropagation()">
+                          <i class="fas fa-plus-circle"></i>
+                          <span class="tooltip-text">Ajouter une signification</span>
+                        </button>
+                        <button class="more-info-tooltip-btn" (click)="openExampleModal(); $event.stopPropagation()">
+                          <i class="fas fa-plus"></i>
+                          <span class="tooltip-text">Exemple</span>
+                        </button>
+                        <button class="more-info-tooltip-btn" (click)="openExtraTranslationModal(); $event.stopPropagation()">
+                          <i class="fas fa-language"></i>
+                          <span class="tooltip-text">Traduction</span>
+                        </button>
+                        <button class="more-info-tooltip-btn" (click)="viewExamples(); $event.stopPropagation()">
+                          <i class="fas fa-eye"></i>
+                          <span class="tooltip-text">Exemples</span>
+                        </button>
+                        <button class="more-info-tooltip-btn" (click)="viewTranslations(); $event.stopPropagation()">
+                          <i class="fas fa-eye"></i>
+                          <span class="tooltip-text">Traductions</span>
+                        </button>
+                      </div>
+                      
+                      <div class="translation-entry__controls">
+                        <button class="translation-entry__more-button"
+                          (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
+                          {{ enlargedCardId === card.id ? '↩ mode normal' : 'actions' }}
+                        </button>
+                        
+                        <button *ngIf="card.type === 'word'" class="translation-entry__grammar-button"
+                          (click)="openGrammarModal(card); $event.stopPropagation()">
+                          📝
+                        </button>
+                      </div>
+                    </div>
 
                   </div>
 
-                </div>
-
-                <div *ngIf="enlargedCardId === card.id" class="card-actions-bottom">
-                  <div class="translation-modal__actions" *ngIf="editingCard">
-                    <button class="more-info-tooltip-btn" (click)="openAddMeaningModal(editingCard); $event.stopPropagation()">
-                      <i class="fas fa-plus-circle"></i>
-                      <span class="tooltip-text">Ajouter une signification</span>
-                    </button>
-                  </div>
-                  <button class="more-info-tooltip-btn" (click)="openExampleModal(); $event.stopPropagation()"><i
-                      class="fas fa-plus"></i>
-                    <span class="tooltip-text">Exemple</span></button>
-                  <button class="more-info-tooltip-btn"
-                    (click)="openExtraTranslationModal(); $event.stopPropagation()"><i class="fas fa-language"></i>
-                    <span class="tooltip-text">Traduction</span></button>
-                  <button class="more-info-tooltip-btn" (click)="viewExamples(); $event.stopPropagation()"><i
-                      class="fas fa-eye"></i>
-                    <span class="tooltip-text">Exemples</span></button>
-                  <button class="more-info-tooltip-btn" (click)="viewTranslations(); $event.stopPropagation()"><i
-                      class="fas fa-eye"></i>
-                    <span class="tooltip-text">Traductions</span></button>
-                  <button class="more-info-tooltip-btn" (click)="closeEnlargedCard(); $event.stopPropagation()"><i
-                      class="fas fa-times"></i>
-                    <span class="tooltip-text">Fermer</span></button>
                 </div>
 
                 <p *ngIf="!card.showTranslation && (card.hintIndex ?? 0) > 0" class="hint-display">
@@ -306,15 +310,44 @@
                 <div class="card-show-translation" *ngIf="card.showTranslation">
                   <div class="translation-entry" *ngFor="let t of card.translations; let i = index">
                     <p>{{ t.target }}</p>
-                    <button class="translation-entry__more-button"
-                      (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
-                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'actions' }}
-                    </button>
                     
-                    <button *ngIf="card.type === 'word'" class="translation-entry__grammar-button"
-                      (click)="openGrammarModal(card); $event.stopPropagation()">
-                      📝
-                    </button>
+                    <div class="translation-entry__button-row">
+                      <!-- Boutons d'actions à gauche du bouton grammaire -->
+                      <div class="translation-entry__actions" *ngIf="enlargedCardId === card.id">
+                        <button class="more-info-tooltip-btn" *ngIf="editingCard" (click)="openAddMeaningModal(editingCard); $event.stopPropagation()">
+                          <i class="fas fa-plus-circle"></i>
+                          <span class="tooltip-text">Ajouter une signification</span>
+                        </button>
+                        <button class="more-info-tooltip-btn" (click)="openExampleModal(); $event.stopPropagation()">
+                          <i class="fas fa-plus"></i>
+                          <span class="tooltip-text">Exemple</span>
+                        </button>
+                        <button class="more-info-tooltip-btn" (click)="openExtraTranslationModal(); $event.stopPropagation()">
+                          <i class="fas fa-language"></i>
+                          <span class="tooltip-text">Traduction</span>
+                        </button>
+                        <button class="more-info-tooltip-btn" (click)="viewExamples(); $event.stopPropagation()">
+                          <i class="fas fa-eye"></i>
+                          <span class="tooltip-text">Exemples</span>
+                        </button>
+                        <button class="more-info-tooltip-btn" (click)="viewTranslations(); $event.stopPropagation()">
+                          <i class="fas fa-eye"></i>
+                          <span class="tooltip-text">Traductions</span>
+                        </button>
+                      </div>
+                      
+                      <div class="translation-entry__controls">
+                        <button class="translation-entry__more-button"
+                          (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
+                          {{ enlargedCardId === card.id ? '↩ mode normal' : 'actions' }}
+                        </button>
+                        
+                        <button *ngIf="card.type === 'word'" class="translation-entry__grammar-button"
+                          (click)="openGrammarModal(card); $event.stopPropagation()">
+                          📝
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <!-- ГРАММАТИЧЕСКИЕ ДАННЫЕ -->
@@ -406,15 +439,7 @@
                   <button (click)="markForRepetition(card); $event.stopPropagation()">Réviser plus tard</button>
                 </div>
 
-                <div *ngIf="card.showTranslation">
-                  <div *ngFor="let t of card.translations; let i = index">
-                    <p>{{ t.target }}</p>
-                    <button class="translation-entry__more-button"
-                      (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
-                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'détails' }}
-                    </button>
-                  </div>
-                </div>
+
                 <p *ngIf="!card.showTranslation && (card.hintIndex ?? 0) > 0" class="hint-display">
                   {{ getHint(card) }}
                 </p>
