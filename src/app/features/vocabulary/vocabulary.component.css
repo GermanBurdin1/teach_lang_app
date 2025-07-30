@@ -444,6 +444,8 @@
   background: linear-gradient(135deg, rgba(248, 248, 255, 0.9), rgba(218, 196, 255, 0.7));
   justify-content: flex-start;
   padding: 1.5rem;
+  padding-bottom: 80px; /* Место для flip-btn */
+  position: relative;
 }
 
 /* Card Status Variants */
@@ -563,11 +565,26 @@
   cursor: pointer;
   align-self: center;
   box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+  transition: all 0.3s ease;
 }
 
 .flip-btn:hover {
   transform: scale(1.1) rotate(180deg);
   box-shadow: 0 10px 25px rgba(139, 92, 246, 0.6);
+}
+
+/* Flip Button на back стороне - всегда внизу */
+.card-back .flip-btn {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  align-self: unset;
+  z-index: 10;
+}
+
+.card-back .flip-btn:hover {
+  transform: translateX(-50%) scale(1.1) rotate(180deg);
 }
 
 /* Card Back Content */
@@ -1286,9 +1303,13 @@
 
 /* Grammar Fields Integration */
 app-grammar-fields {
-  display: block;
+  display: block !important;
   margin: 1rem 0;
   animation: fadeInUp 0.5s ease-out;
+  position: relative;
+  z-index: 5;
+  pointer-events: auto !important;
+  width: 100%;
 }
 
 @keyframes fadeInUp {
@@ -1305,19 +1326,101 @@ app-grammar-fields {
 /* Enhanced card enlargement for grammar fields */
 .card-wrapper--enlarged app-grammar-fields {
   margin: 0.5rem 0;
-  background: rgba(15, 12, 41, 0.4);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(139, 92, 246, 0.15)) !important;
   border-radius: 15px;
-  padding: 0.8rem;
-  border: 1px solid var(--galaxy-accent);
+  padding: 1.2rem;
+  border: 2px solid var(--cosmic-gold) !important;
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3) !important;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 10;
 }
 
 /* Grammar fields in regular cards */
 .card-back app-grammar-fields {
   margin: 0.8rem 0;
-  padding: 0.8rem;
-  background: rgba(15, 12, 41, 0.3);
-  border-radius: 10px;
-  border: 1px solid var(--galaxy-accent);
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(75, 29, 149, 0.2)) !important;
+  border-radius: 12px;
+  border: 2px solid var(--galaxy-accent) !important;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+  backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 5;
+}
+
+/* Убеждаемся что все элементы внутри доступны для взаимодействия */
+app-grammar-fields * {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: inherit;
+}
+
+/* Стили для полей ввода внутри grammar-fields */
+app-grammar-fields input,
+app-grammar-fields select,
+app-grammar-fields button {
+  background: rgba(30, 27, 75, 0.8) !important;
+  border: 2px solid var(--galaxy-accent) !important;
+  border-radius: 8px !important;
+  color: var(--star-white) !important;
+  padding: 0.6rem !important;
+  margin: 0.3rem 0 !important;
+  transition: all 0.3s ease !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+app-grammar-fields input:focus,
+app-grammar-fields select:focus {
+  outline: none !important;
+  border-color: var(--cosmic-gold) !important;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.4) !important;
+  background: rgba(30, 27, 75, 0.9) !important;
+}
+
+app-grammar-fields button:hover {
+  background: var(--galaxy-accent) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Кнопка для доступа к грамматическим деталям */
+.grammar-details-btn {
+  background: linear-gradient(45deg, var(--cosmic-gold), var(--nebula-pink)) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  color: var(--space-black) !important;
+  padding: 0.8rem 1rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+  margin: 0.2rem 0 !important;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3) !important;
+}
+
+.grammar-details-btn:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.5) !important;
+  background: linear-gradient(45deg, var(--nebula-pink), var(--cosmic-gold)) !important;
+}
+
+.grammar-details-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.grammar-details-btn:hover::before {
+  left: 100%;
 }
 
 /* Text alignment adjustments */

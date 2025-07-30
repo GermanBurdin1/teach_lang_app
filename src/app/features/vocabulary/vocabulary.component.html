@@ -141,10 +141,17 @@
                     {{ card.hintIndex ? 'Encore un indice' : 'Obtenir un indice' }}
                   </button>
 
-
                   <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card); $event.stopPropagation()">
                     Montrer le mot
                   </button>
+
+                  <!-- Кнопка для доступа к грамматическим полям -->
+                  <button *ngIf="card.type === 'word'" 
+                    (click)="ensureCardGrammar(card); toggleEnlargedCard(card, 0); $event.stopPropagation()"
+                    class="grammar-details-btn">
+                    {{ enlargedCardId === card.id ? '↩ Fermer détails' : '📝 Détails grammaticaux' }}
+                  </button>
+
                   <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Saisir la traduction"
                     class="input-field" />
                 </div>
@@ -204,8 +211,9 @@
                 <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
                 <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
 
-                <!-- Грамматические поля (только если карточка зумирована и это слово, не выражение) -->
-                <app-grammar-fields *ngIf="card.type === 'word' && enlargedCardId === card.id" [grammar]="card.grammar"
+                <!-- Грамматические поля (если карточка зумирована и это слово, не выражение) -->
+                <app-grammar-fields *ngIf="card.type === 'word' && enlargedCardId === card.id" 
+                [grammar]="card.grammar"
                 (grammarValidate)="onGrammarValidate(card)">
                 </app-grammar-fields>
 
@@ -363,6 +371,14 @@
                   <button *ngIf="!card.showTranslation" (click)="showFullTranslation(card); $event.stopPropagation()">
                     Montrer le mot
                   </button>
+
+                  <!-- Кнопка для доступа к грамматическим полям (только для слов) -->
+                  <button *ngIf="card.type === 'word'" 
+                    (click)="ensureCardGrammar(card); toggleEnlargedCard(card, 0); $event.stopPropagation()"
+                    class="grammar-details-btn">
+                    {{ enlargedCardId === card.id ? '↩ Fermer détails' : '📝 Détails grammaticaux' }}
+                  </button>
+
                   <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Saisir la traduction"
                     class="input-field" />
                 </div>
