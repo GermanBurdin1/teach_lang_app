@@ -1,11 +1,13 @@
 <div *ngIf="grammar" class="grammar-fields">
   <div class="grammar-fields__section">
-    <label class="grammar-fields__label">Partie du discours :
-      <select class="grammar-fields__select" [(ngModel)]="grammar!.partOfSpeech"
-        (ngModelChange)="onPartOfSpeechSelect($event)">
-        <option *ngFor="let option of partOfSpeechOptions" [value]="option">{{ option }}</option>
-      </select>
-    </label>
+    <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+      <mat-label>Partie du discours</mat-label>
+      <mat-select [(ngModel)]="grammar!.partOfSpeech" (ngModelChange)="onPartOfSpeechSelect($event)">
+        <mat-option *ngFor="let option of partOfSpeechOptions" [value]="option">
+          {{ option }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
 
   <ng-container [ngSwitch]="grammar.partOfSpeech">
@@ -13,168 +15,180 @@
     <!-- Nom -->
     <ng-container *ngSwitchCase="'noun'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Genre :
-          <select class="grammar-fields__select" [ngModel]="noun?.gender"
-            (ngModelChange)="updateField('gender', $event)">
-            <option [value]="undefined">—</option>
-            <option value="masculine">masculin</option>
-            <option value="feminine">féminin</option>
-            <option value="neuter">neutre</option>
-          </select>
-        </label>
-        <label class="grammar-fields__label">Nombre :
-          <select class="grammar-fields__select" [ngModel]="noun?.number"
-            (ngModelChange)="updateField('number', $event)">
-            <option [value]="undefined">—</option>
-            <option value="singular">singulier</option>
-            <option value="plural">pluriel</option>
-          </select>
-        </label>
-        <label class="grammar-fields__checkbox-label" *ngIf="noun">
-          <input class="grammar-fields__checkbox" type="checkbox" [(ngModel)]="noun.isProper"
-            (ngModelChange)="updateField('isProper', $event)" />
-          Nom propre
-        </label>
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Genre</mat-label>
+          <mat-select [ngModel]="noun?.gender" (ngModelChange)="updateField('gender', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="masculine">masculin</mat-option>
+            <mat-option value="feminine">féminin</mat-option>
+            <mat-option value="neuter">neutre</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Nombre</mat-label>
+          <mat-select [ngModel]="noun?.number" (ngModelChange)="updateField('number', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="singular">singulier</mat-option>
+            <mat-option value="plural">pluriel</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <div class="grammar-fields__checkbox-wrapper" *ngIf="noun">
+          <mat-checkbox [(ngModel)]="noun.isProper" (ngModelChange)="updateField('isProper', $event)">
+            Nom propre
+          </mat-checkbox>
+        </div>
       </div>
     </ng-container>
 
     <!-- Verbe -->
     <ng-container *ngSwitchCase="'verb'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Transitivité :
-          <select class="grammar-fields__select" [ngModel]="verb?.transitivity"
-            (ngModelChange)="updateField('transitivity', $event)">
-            <option [value]="undefined">—</option>
-            <option value="transitive">transitif</option>
-            <option value="intransitive">intransitif</option>
-          </select>
-        </label>
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Transitivité</mat-label>
+          <mat-select [ngModel]="verb?.transitivity" (ngModelChange)="updateField('transitivity', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="transitive">transitif</mat-option>
+            <mat-option value="intransitive">intransitif</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
     </ng-container>
 
     <!-- Adjectif -->
     <ng-container *ngSwitchCase="'adjective'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Degré de comparaison :
-          <select class="grammar-fields__select" [ngModel]="adjective?.comparison"
-            (ngModelChange)="updateField('comparison', $event)">
-            <option [value]="undefined">—</option>
-            <option value="positive">positif</option>
-            <option value="comparative">comparatif</option>
-            <option value="superlative">superlatif</option>
-          </select>
-        </label>
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Degré de comparaison</mat-label>
+          <mat-select [ngModel]="adjective?.comparison" (ngModelChange)="updateField('comparison', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="positive">positif</mat-option>
+            <mat-option value="comparative">comparatif</mat-option>
+            <mat-option value="superlative">superlatif</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
     </ng-container>
 
     <!-- Adverbe -->
     <ng-container *ngSwitchCase="'adverb'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Degré de comparaison :
-          <select class="grammar-fields__select" [ngModel]="adverb?.comparison"
-            (ngModelChange)="updateField('comparison', $event)">
-            <option [value]="undefined">—</option>
-            <option value="positive">positif</option>
-            <option value="comparative">comparatif</option>
-            <option value="superlative">superlatif</option>
-          </select>
-        </label>
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Degré de comparaison</mat-label>
+          <mat-select [ngModel]="adverb?.comparison" (ngModelChange)="updateField('comparison', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="positive">positif</mat-option>
+            <mat-option value="comparative">comparatif</mat-option>
+            <mat-option value="superlative">superlatif</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
     </ng-container>
 
     <!-- Pronom -->
     <ng-container *ngSwitchCase="'pronoun'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Personne :
-          <select class="grammar-fields__select" [ngModel]="pronoun?.person"
-            (ngModelChange)="updateField('person', $event)">
-            <option [value]="undefined">—</option>
-            <option [value]="1">1ère personne</option>
-            <option [value]="2">2ème personne</option>
-            <option [value]="3">3ème personne</option>
-          </select>
-        </label>
-        <label class="grammar-fields__label">Genre :
-          <select class="grammar-fields__select" [ngModel]="pronoun?.gender"
-            (ngModelChange)="updateField('gender', $event)">
-            <option [value]="undefined">—</option>
-            <option value="masculine">masculin</option>
-            <option value="feminine">féminin</option>
-            <option value="neuter">neutre</option>
-          </select>
-        </label>
-        <label class="grammar-fields__label">Nombre :
-          <select class="grammar-fields__select" [ngModel]="pronoun?.number"
-            (ngModelChange)="updateField('number', $event)">
-            <option [value]="undefined">—</option>
-            <option value="singular">singulier</option>
-            <option value="plural">pluriel</option>
-          </select>
-        </label>
-        <label class="grammar-fields__label">Type :
-          <select class="grammar-fields__select" [ngModel]="pronoun?.type"
-            (ngModelChange)="updateField('type', $event)">
-            <option [value]="undefined">—</option>
-            <option value="personal">personnel</option>
-            <option value="possessive">possessif</option>
-            <option value="reflexive">réfléchi</option>
-            <option value="demonstrative">démonstratif</option>
-            <option value="interrogative">interrogatif</option>
-            <option value="relative">relatif</option>
-            <option value="indefinite">indéfini</option>
-          </select>
-        </label>
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Personne</mat-label>
+          <mat-select [ngModel]="pronoun?.person" (ngModelChange)="updateField('person', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option [value]="1">1ère personne</mat-option>
+            <mat-option [value]="2">2ème personne</mat-option>
+            <mat-option [value]="3">3ème personne</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Genre</mat-label>
+          <mat-select [ngModel]="pronoun?.gender" (ngModelChange)="updateField('gender', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="masculine">masculin</mat-option>
+            <mat-option value="feminine">féminin</mat-option>
+            <mat-option value="neuter">neutre</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Nombre</mat-label>
+          <mat-select [ngModel]="pronoun?.number" (ngModelChange)="updateField('number', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="singular">singulier</mat-option>
+            <mat-option value="plural">pluriel</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Type</mat-label>
+          <mat-select [ngModel]="pronoun?.type" (ngModelChange)="updateField('type', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="personal">personnel</mat-option>
+            <mat-option value="possessive">possessif</mat-option>
+            <mat-option value="reflexive">réfléchi</mat-option>
+            <mat-option value="demonstrative">démonstratif</mat-option>
+            <mat-option value="interrogative">interrogatif</mat-option>
+            <mat-option value="relative">relatif</mat-option>
+            <mat-option value="indefinite">indéfini</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
     </ng-container>
 
     <!-- Conjonction -->
     <ng-container *ngSwitchCase="'conjunction'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Type :
-          <select class="grammar-fields__select" [ngModel]="conjunction?.type"
-            (ngModelChange)="updateField('type', $event)">
-            <option [value]="undefined">—</option>
-            <option value="coordinating">coordination</option>
-            <option value="subordinating">subordination</option>
-            <option value="correlative">corrélative</option>
-          </select>
-        </label>
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Type</mat-label>
+          <mat-select [ngModel]="conjunction?.type" (ngModelChange)="updateField('type', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="coordinating">coordination</mat-option>
+            <mat-option value="subordinating">subordination</mat-option>
+            <mat-option value="correlative">corrélative</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
     </ng-container>
 
     <!-- Interjection -->
     <ng-container *ngSwitchCase="'interjection'">
       <div class="grammar-fields__section">
-        <label class="grammar-fields__label">Type d'émotion :
-          <input class="grammar-fields__input" [ngModel]="interjection?.emotionType"
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Type d'émotion</mat-label>
+          <input matInput [ngModel]="interjection?.emotionType"
             (ngModelChange)="updateField('emotionType', $event)" placeholder="par exemple : surprise" />
-        </label>
+        </mat-form-field>
       </div>
     </ng-container>
 
     <!-- Expression -->
     <ng-container *ngSwitchCase="'expression'">
-      <label>Type d'expression :
-        <select [ngModel]="expression?.expressionType" (ngModelChange)="updateField('expressionType', $event)">
-          <option [value]="undefined">—</option>
-          <option value="idiom">Idiome</option>
-          <option value="proverb">Proverbe</option>
-          <option value="saying">Dicton</option>
-          <option value="collocation">Expression figée</option>
-          <option value="quote">Citation</option>
-          <option value="other">Autre</option>
-        </select>
-      </label>
+      <div class="grammar-fields__section">
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Type d'expression</mat-label>
+          <mat-select [ngModel]="expression?.expressionType" (ngModelChange)="updateField('expressionType', $event)">
+            <mat-option [value]="undefined">—</mat-option>
+            <mat-option value="idiom">Idiome</mat-option>
+            <mat-option value="proverb">Proverbe</mat-option>
+            <mat-option value="saying">Dicton</mat-option>
+            <mat-option value="collocation">Expression figée</mat-option>
+            <mat-option value="quote">Citation</mat-option>
+            <mat-option value="other">Autre</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <label>Origine (facultatif) :
-        <input [ngModel]="expression?.origin" (ngModelChange)="updateField('origin', $event)"
-          placeholder="par exemple : proverbe français" />
-      </label>
+        <mat-form-field appearance="outline" class="grammar-fields__mat-field">
+          <mat-label>Origine (facultatif)</mat-label>
+          <input matInput [ngModel]="expression?.origin" (ngModelChange)="updateField('origin', $event)"
+            placeholder="par exemple : proverbe français" />
+        </mat-form-field>
+      </div>
     </ng-container>
 
   </ng-container>
 
   <div class="grammar-fields__save" *ngIf="showValidateButton">
-    <button class="grammar-fields__button" (click)="validate()">Valider</button>
+    <button mat-raised-button color="primary" class="grammar-fields__button" (click)="validate()">
+      Valider
+    </button>
   </div>
 </div>

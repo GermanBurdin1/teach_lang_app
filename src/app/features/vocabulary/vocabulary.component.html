@@ -514,8 +514,13 @@
 <div *ngIf="showGrammarModal" class="grammar-modal-overlay" (click)="closeGrammarModal()">
   <div class="grammar-modal-content" (click)="$event.stopPropagation()">
     <div class="grammar-modal-header">
-      <h2>📝 Informations grammaticales</h2>
-      <h3 *ngIf="grammarModalCard">{{ grammarModalCard.word }}</h3>
+      <div class="grammar-modal-title">
+        <div class="grammar-modal-icon">⚗️</div>
+        <div class="grammar-modal-text">
+          <h2>Informations grammaticales</h2>
+          <h3 *ngIf="grammarModalCard">du mot <span class="highlighted-word">{{ grammarModalCard.word }}</span></h3>
+        </div>
+      </div>
       <button class="close-btn" (click)="closeGrammarModal()">✖</button>
     </div>
     

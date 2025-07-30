@@ -1,13 +1,28 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
 import { AdjectiveGrammar, AdverbGrammar, ConjunctionGrammar, ExpressionGrammar, GrammarData, InterjectionGrammar, NounGrammar, PartOfSpeech, PrepositionGrammar, PronounGrammar, VerbGrammar } from '../models/grammar-data.model';
 
 @Component({
   selector: 'app-grammar-fields',
   standalone: true,
   templateUrl: './grammar-fields.component.html',
-  imports: [FormsModule, CommonModule],
+  imports: [
+    FormsModule, 
+    CommonModule, 
+    MatSelectModule, 
+    MatOptionModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatCheckboxModule, 
+    MatButtonModule
+  ],
   styleUrls: ['./grammar-fields.component.css']
 })
 export class GrammarFieldsComponent {
