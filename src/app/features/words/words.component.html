@@ -293,15 +293,13 @@
       <i class="fas fa-times"></i>
     </button>
 
-    <h2 class="add-entry-modal__title">Ajouter un mot ou expression</h2>
-
-    <!-- Тип карточки -->
-    <div class="add-entry-modal__type-toggle">
-      <button (click)="toggleGlobalType()" class="add-entry-modal__toggle-type"
+    <h2 class="add-entry-modal__title">
+      Ajouter 
+      <button (click)="toggleGlobalType()" class="add-entry-modal__title-toggle"
         [attr.aria-label]="'Type: ' + (newGlobalType === 'word' ? 'Mot' : 'Expression')">
-        {{ newGlobalType === 'word' ? '➤ Mot' : '➤ Expression' }}
+        {{ newGlobalType === 'word' ? 'un mot' : 'une expression' }}
       </button>
-    </div>
+    </h2>
 
     <!-- Языки -->
     <div class="lang-selectors">

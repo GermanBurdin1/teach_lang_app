@@ -675,6 +675,43 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-entry-modal__title-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 4px 8px;
+  border-radius: 8px;
+  position: relative;
+  
+  /* Same gradient as title */
+  background: linear-gradient(135deg, var(--stellar-purple), var(--cosmic-gold));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  /* Subtle underline effect */
+  text-decoration: underline;
+  text-decoration-color: rgba(139, 92, 246, 0.4);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.add-entry-modal__title-toggle:hover {
+  transform: scale(1.05);
+  text-decoration-color: rgba(139, 92, 246, 0.8);
+  background: rgba(139, 92, 246, 0.15);
+  -webkit-text-fill-color: white;
+  color: white;
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
 }
 
 /* Enhanced modal inputs */
@@ -881,32 +918,7 @@
   margin-top: 24px;
 }
 
-/* Enhanced type toggle */
-.add-entry-modal__type-toggle {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  justify-content: center;
-}
 
-.add-entry-modal__toggle-type {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  background: var(--glass-bg);
-  color: var(--text-primary);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(8px);
-}
-
-.add-entry-modal__toggle-type:hover {
-  background: var(--hover-bg);
-  border-color: var(--stellar-purple);
-  color: var(--stellar-purple);
-}
 
 /* Language selectors */
 .lang-selectors {
