@@ -147,9 +147,16 @@
 
                   <!-- Кнопка для доступа к грамматическим полям -->
                   <button *ngIf="card.type === 'word'" 
-                    (click)="ensureCardGrammar(card); toggleEnlargedCard(card, 0); $event.stopPropagation()"
+                    (click)="openGrammarModal(card); $event.stopPropagation()"
                     class="grammar-details-btn">
-                    {{ enlargedCardId === card.id ? '↩ Fermer détails' : '📝 Détails grammaticaux' }}
+                    📝 Grammaire
+                  </button>
+                  
+                  <!-- Кнопка для расширения карточки с действиями -->
+                  <button 
+                    (click)="toggleEnlargedCard(card, 0); $event.stopPropagation()"
+                    class="expand-details-btn">
+                    {{ enlargedCardId === card.id ? '↩ Fermer actions' : '⚙️ Actions' }}
                   </button>
 
                   <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Saisir la traduction"
@@ -170,11 +177,14 @@
                   <div class="translation-entry" *ngFor="let t of card.translations; let i = index">
                     <p>{{ t.target }}</p>
                     <button class="translation-entry__more-button"
-                      (click)="ensureCardGrammar(card); toggleEnlargedCard(card, i); $event.stopPropagation()">
-                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'détails' }}
+                      (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
+                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'actions' }}
                     </button>
-
-
+                    
+                    <button *ngIf="card.type === 'word'" class="translation-entry__grammar-button"
+                      (click)="openGrammarModal(card); $event.stopPropagation()">
+                      📝
+                    </button>
 
                   </div>
 
@@ -211,11 +221,7 @@
                 <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
                 <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
 
-                <!-- Грамматические поля (если карточка зумирована и это слово, не выражение) -->
-                <app-grammar-fields *ngIf="card.type === 'word' && enlargedCardId === card.id" 
-                [grammar]="card.grammar"
-                (grammarValidate)="onGrammarValidate(card)">
-                </app-grammar-fields>
+                <!-- Les champs grammaticaux sont maintenant dans une modalka séparée -->
 
                 <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i>
@@ -301,8 +307,13 @@
                   <div class="translation-entry" *ngFor="let t of card.translations; let i = index">
                     <p>{{ t.target }}</p>
                     <button class="translation-entry__more-button"
-                      (click)="ensureCardGrammar(card); toggleEnlargedCard(card, i); $event.stopPropagation()">
-                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'détails' }}
+                      (click)="toggleEnlargedCard(card, i); $event.stopPropagation()">
+                      {{ enlargedCardId === card.id ? '↩ mode normal' : 'actions' }}
+                    </button>
+                    
+                    <button *ngIf="card.type === 'word'" class="translation-entry__grammar-button"
+                      (click)="openGrammarModal(card); $event.stopPropagation()">
+                      📝
                     </button>
                   </div>
                 </div>
@@ -374,9 +385,16 @@
 
                   <!-- Кнопка для доступа к грамматическим полям (только для слов) -->
                   <button *ngIf="card.type === 'word'" 
-                    (click)="ensureCardGrammar(card); toggleEnlargedCard(card, 0); $event.stopPropagation()"
+                    (click)="openGrammarModal(card); $event.stopPropagation()"
                     class="grammar-details-btn">
-                    {{ enlargedCardId === card.id ? '↩ Fermer détails' : '📝 Détails grammaticaux' }}
+                    📝 Grammaire
+                  </button>
+                  
+                  <!-- Кнопка для расширения карточки с действиями -->
+                  <button 
+                    (click)="toggleEnlargedCard(card, 0); $event.stopPropagation()"
+                    class="expand-details-btn">
+                    {{ enlargedCardId === card.id ? '↩ Fermer actions' : '⚙️ Actions' }}
                   </button>
 
                   <input [(ngModel)]="card.userInput" (keyup.enter)="checkTranslation(card)" placeholder="Saisir la traduction"
@@ -490,4 +508,32 @@
 
   <button (click)="saveNewMeaning()">Sauvegarder</button>
   <button (click)="cancelAddMeaning()">Annuler</button>
+</div>
+
+<!-- Modalka pour les champs grammaticaux -->
+<div *ngIf="showGrammarModal" class="grammar-modal-overlay" (click)="closeGrammarModal()">
+  <div class="grammar-modal-content" (click)="$event.stopPropagation()">
+    <div class="grammar-modal-header">
+      <h2>📝 Informations grammaticales</h2>
+      <h3 *ngIf="grammarModalCard">{{ grammarModalCard.word }}</h3>
+      <button class="close-btn" (click)="closeGrammarModal()">✖</button>
+    </div>
+    
+    <div class="grammar-modal-body">
+      <app-grammar-fields 
+        *ngIf="grammarModalCard && grammarModalCard.type === 'word'"
+        [grammar]="grammarModalCard.grammar"
+        (grammarValidate)="onGrammarValidate(grammarModalCard)">
+      </app-grammar-fields>
+      
+      <div *ngIf="grammarModalCard && grammarModalCard.type === 'expression'" class="expression-info">
+        <p>🗣️ Les expressions n'ont pas de champs grammaticaux spécifiques.</p>
+        <p>Type: Expression</p>
+      </div>
+    </div>
+    
+    <div class="grammar-modal-footer">
+      <button class="btn-secondary" (click)="closeGrammarModal()">Fermer</button>
+    </div>
+  </div>
 </div>

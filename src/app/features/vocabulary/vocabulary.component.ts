@@ -73,6 +73,8 @@ export class VocabularyComponent implements OnInit {
   showExamplesView: boolean = false;
   showTranslationsView: boolean = false;
   enlargedCardId: number | null = null;
+  showGrammarModal: boolean = false;
+  grammarModalCard: WordCard | null = null;
   newGrammarData: Grammar.GrammarData | null = null;
   newTranslationGrammar: Grammar.GrammarData | null = null;
   showTranslationInputForm: boolean = false;
@@ -1005,6 +1007,8 @@ export class VocabularyComponent implements OnInit {
     this.showExtraTranslationModal = false;
     this.showExamplesView = false;
     this.showTranslationsView = false;
+    this.showGrammarModal = false;
+    this.grammarModalCard = null;
   }
 
   addExample(): void {
@@ -1032,6 +1036,12 @@ export class VocabularyComponent implements OnInit {
   }
 
   enlargeCard(card: WordCard): void {
+    console.log('🔍 Agrandissement de la carte:', {
+      cardId: card.id,
+      cardType: card.type,
+      cardWord: card.word,
+      hasGrammar: !!card.grammar
+    });
     this.enlargedCardId = card.id;
     this.editingCard = card;
   }
@@ -1049,6 +1059,24 @@ export class VocabularyComponent implements OnInit {
       this.enlargeCard(card);
       this.selectedTranslationIndex = index;
     }
+  }
+
+  openGrammarModal(card: WordCard): void {
+    console.log('🚀 Ouverture de la modalka de grammaire pour:', {
+      cardType: card.type,
+      cardWord: card.word,
+      hasGrammar: !!card.grammar
+    });
+    
+    this.ensureCardGrammar(card);
+    this.grammarModalCard = card;
+    this.showGrammarModal = true;
+  }
+
+  closeGrammarModal(): void {
+    console.log('❌ Fermeture de la modalka de grammaire');
+    this.showGrammarModal = false;
+    this.grammarModalCard = null;
   }
 
   // код связаный с частями речи
@@ -1093,8 +1121,14 @@ export class VocabularyComponent implements OnInit {
   }
 
   ensureCardGrammar(card: WordCard): void {
+    console.log('📝 Vérification de la grammaire pour la carte:', {
+      cardType: card.type,
+      cardWord: card.word,
+      hasGrammar: !!card.grammar
+    });
     if (!card.grammar) {
       card.grammar = { partOfSpeech: '' as Grammar.PartOfSpeech };
+      console.log('➕ Grammaire ajoutée pour la carte');
     }
   }
 
