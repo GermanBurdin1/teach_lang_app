@@ -614,7 +614,6 @@
 }
 
 .input-field {
-  background: rgba(30, 27, 75, 0.8);
   border: 2px solid var(--galaxy-accent);
   border-radius: 12px;
   color: var(--star-white);
@@ -644,10 +643,10 @@
 }
 
 .after-guess-btns button {
-  background: linear-gradient(45deg, var(--cosmic-gold), var(--nebula-pink));
+  background: var(--stellar-purple);
   border: none;
   border-radius: 12px;
-  color: var(--space-black);
+  color: whitesmoke;
   padding: 0.8rem 1rem;
   font-size: 0.9rem;
   font-weight: 600;
