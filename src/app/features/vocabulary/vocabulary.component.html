@@ -2,33 +2,54 @@
   <h1>{{ currentSubtopic }}
   </h1>
 
-  <div class="view-sort-toggle">
-    <label>Trier par :</label>
-    <select [(ngModel)]="sortBy" (change)="sortWords()">
-      <option value="all"><i class="fas fa-layer-group"></i> Tous</option>
-      <option value="repeat"><i class="fas fa-sync-alt"></i> Réviser</option>
-      <option value="learned"><i class="fas fa-check-circle"></i> Appris</option>
-      <option value="untranslated"><i class="fas fa-question-circle"></i> Sans traduction</option>
-      <option value="hardest"><i class="fas fa-fire"></i> Erreurs</option>
-    </select>
-
-    <!-- Toggle-переключатель -->
-    <div class="view-toggle-switch">
-      <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'" aria-label="Cartes">
-        📇
-      </button>
-      <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'" aria-label="En liste">
-        📋
-      </button>
+  <!-- Объединенная секция фильтров и сортировки -->
+  <div class="filters-controls-section">
+    <!-- Фильтрация по типу -->
+    <div class="filter-group">
+      <label>Type :</label>
+      <div class="filter-type-buttons">
+        <button (click)="filterType = 'all'" [class.active]="filterType === 'all'">Tous</button>
+        <button (click)="filterType = 'word'" [class.active]="filterType === 'word'">Mots</button>
+        <button (click)="filterType = 'expression'" [class.active]="filterType === 'expression'">Expressions</button>
+      </div>
     </div>
-  </div>
 
+    <!-- Сортировка -->
+    <div class="filter-group">
+      <label>Trier par :</label>
+      <mat-form-field class="sort-select-field" appearance="outline">
+        <mat-select [(ngModel)]="sortBy" (selectionChange)="sortWords()" name="sortBy">
+          <mat-option value="all">
+            <i class="fas fa-layer-group"></i> Tous
+          </mat-option>
+          <mat-option value="repeat">
+            <i class="fas fa-sync-alt"></i> Réviser
+          </mat-option>
+          <mat-option value="learned">
+            <i class="fas fa-check-circle"></i> Appris
+          </mat-option>
+          <mat-option value="untranslated">
+            <i class="fas fa-question-circle"></i> Sans traduction
+          </mat-option>
+          <mat-option value="hardest">
+            <i class="fas fa-fire"></i> Erreurs
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
 
-  <!-- Фильтрация слов/выражений -->
-  <div class="filter-toggle">
-    <button (click)="filterType = 'all'" [class.active]="filterType === 'all'">Tous</button>
-    <button (click)="filterType = 'word'" [class.active]="filterType === 'word'">Mots seulement</button>
-    <button (click)="filterType = 'expression'" [class.active]="filterType === 'expression'">Expressions seulement</button>
+    <!-- Переключатель вида -->
+    <div class="filter-group">
+      <label>Vue :</label>
+      <div class="view-toggle-switch">
+        <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'" aria-label="Cartes">
+          📇
+        </button>
+        <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'" aria-label="En liste">
+          📋
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Карточки -->

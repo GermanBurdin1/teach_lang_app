@@ -70,7 +70,12 @@
   font-weight: 900;
   text-align: center;
   margin-bottom: 2rem;
-  background: linear-gradient(45deg, var(--cosmic-gold), var(--nebula-pink), var(--galaxy-light));
+  /* Fallback color for better visibility */
+  color: #fbbf24;
+  background: linear-gradient(45deg, 
+    #fbbf24, 
+    #ec4899, 
+    #a78bfa);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -85,144 +90,139 @@
   100% { background-position: 100% 50%; }
 }
 
-/* Controls Section */
-.view-sort-toggle {
-  background: var(--galaxy-glass);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--galaxy-light);
-  border-radius: 20px;
+/* Unified Filters and Controls Section */
+.filters-controls-section {
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  flex-wrap: wrap;
+  align-items: start;
   position: relative;
   z-index: 1;
-  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(139, 92, 246, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
-.view-sort-toggle label {
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.filter-group label {
   font-weight: 600;
   color: var(--cosmic-gold);
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
 }
 
-.view-sort-toggle select {
-  background: rgba(30, 27, 75, 0.8);
-  border: 2px solid var(--galaxy-accent);
+/* Filter Type Buttons */
+.filter-type-buttons {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(30, 41, 59, 0.5);
   border-radius: 12px;
-  color: var(--star-white);
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
+  padding: 0.25rem;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.filter-type-buttons button {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(5px);
+  border-radius: 8px;
+  position: relative;
+  white-space: nowrap;
 }
 
-.view-sort-toggle select:hover {
-  border-color: var(--cosmic-gold);
-  box-shadow: 0 0 20px var(--galaxy-accent);
+.filter-type-buttons button:hover {
+  background: rgba(139, 92, 246, 0.2);
+  color: white;
 }
 
-.view-sort-toggle select:focus {
-  outline: none;
-  border-color: var(--nebula-pink);
-  box-shadow: 0 0 25px var(--nebula-pink);
+.filter-type-buttons button.active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(124, 58, 237, 0.8));
+  color: white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
 }
 
+/* Mat-Select Styling */
+.sort-select-field {
+  width: 100%;
+  min-width: 200px;
+}
+
+.sort-select-field .mat-mdc-form-field-wrapper {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+}
+
+.sort-select-field .mat-mdc-text-field-wrapper {
+  background: transparent !important;
+  border-radius: 12px !important;
+}
+
+.sort-select-field .mat-mdc-form-field-outline {
+  display: none !important;
+}
+
+.sort-select-field .mat-mdc-select-value {
+  color: white !important;
+  font-size: 0.9rem !important;
+}
+
+.sort-select-field .mat-mdc-select-arrow {
+  color: var(--cosmic-gold) !important;
+}
+
+/* View Toggle Switch */
 .view-toggle-switch {
   display: flex;
   gap: 0.5rem;
-  background: rgba(15, 12, 41, 0.6);
-  border-radius: 15px;
-  padding: 0.5rem;
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 12px;
+  padding: 0.25rem;
+  border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 .view-toggle-switch button {
   background: transparent;
-  border: 2px solid transparent;
-  border-radius: 10px;
-  color: var(--galaxy-light);
-  padding: 0.75rem 1rem;
-  font-size: 1.2rem;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.6rem 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  border-radius: 8px;
   position: relative;
-  overflow: hidden;
 }
 
-.view-toggle-switch button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, var(--stardust), transparent);
-  transition: left 0.5s;
-}
-
-.view-toggle-switch button:hover::before {
-  left: 100%;
+.view-toggle-switch button:hover {
+  background: rgba(139, 92, 246, 0.2);
+  color: white;
 }
 
 .view-toggle-switch button.active {
-  background: linear-gradient(45deg, var(--galaxy-primary), var(--galaxy-accent));
-  border-color: var(--cosmic-gold);
-  color: var(--star-white);
-  box-shadow: 0 0 20px var(--galaxy-accent);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(124, 58, 237, 0.8));
+  color: white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
 }
 
-/* Filter Toggle */
-.filter-toggle {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-bottom: 2rem;
-  position: relative;
-  z-index: 1;
-}
 
-.filter-toggle button {
-  background: var(--galaxy-glass);
-  backdrop-filter: blur(10px);
-  border: 2px solid var(--galaxy-accent);
-  border-radius: 25px;
-  color: var(--star-white);
-  padding: 1rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.filter-toggle button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, var(--nebula-pink), var(--galaxy-primary));
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: all 0.4s ease;
-  z-index: -1;
-}
-
-.filter-toggle button:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.filter-toggle button.active {
-  background: linear-gradient(45deg, var(--nebula-pink), var(--galaxy-primary));
-  border-color: var(--cosmic-gold);
-  box-shadow: 0 0 30px var(--nebula-pink);
-  transform: translateY(-2px);
-}
 
 /* Cards Container */
 .cards-container {
