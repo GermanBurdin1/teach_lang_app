@@ -377,6 +377,8 @@
   width: 420px;
   height: 300px;
   perspective: 1000px;
+  border: none !important;
+  outline: none !important;
 }
 
 .card-inner {
@@ -390,7 +392,7 @@
 }
 
 .card-inner.flipped {
-  transform: rotateY(180deg);
+  transform: rotateY(140deg);
 }
 
 .card-front, .card-back {
