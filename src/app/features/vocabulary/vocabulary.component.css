@@ -1481,7 +1481,7 @@ app-grammar-fields {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* Z-index modéré pour la modal */
+  z-index: 1000; /* Z-index élevé pour la modal */
   backdrop-filter: blur(3px);
 }
 
@@ -1833,8 +1833,8 @@ body.dark-theme .btn-secondary:hover {
   padding: 0.75rem;
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 8px;
-  background: rgba(30, 27, 75, 0.6);
-  color: var(--star-white);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--space-black);
   font-size: 0.9rem;
   margin-bottom: 1rem;
   transition: all 0.3s ease;
@@ -1844,35 +1844,85 @@ body.dark-theme .btn-secondary:hover {
   outline: none;
   border-color: var(--galaxy-accent);
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .grammar-modal-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.6);
 }
 
-.grammar-modal-select {
+/* Fix pour les dropdowns qui ne s'ouvrent pas dans les modales */
+.grammar-modal-content {
+  z-index: 1001 !important;
+}
+
+/* S'assurer que les selects et leurs options sont visibles */
+.grammar-modal-body {
+  position: relative;
+  overflow: visible;
+}
+
+/* Styles pour les mat-form-field dans les modales */
+.grammar-modal-field {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  border-radius: 8px;
-  background: rgba(30, 27, 75, 0.6);
-  color: var(--star-white);
-  font-size: 0.9rem;
   margin-bottom: 1rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
 }
 
-.grammar-modal-select:focus {
-  outline: none;
-  border-color: var(--galaxy-accent);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+.grammar-modal-field .mat-mdc-form-field-wrapper {
+  width: 100%;
 }
 
-.grammar-modal-select option {
-  background: var(--galaxy-dark);
-  color: var(--star-white);
-  padding: 0.5rem;
+.grammar-modal-field .mat-mdc-text-field-wrapper {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+}
+
+.grammar-modal-field .mat-mdc-form-field-focus-overlay {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.grammar-modal-field .mat-mdc-select-arrow {
+  color: var(--galaxy-accent);
+}
+
+/* Override pour les dropdowns Material dans les modales */
+.cdk-overlay-pane {
+  z-index: 1003 !important;
+}
+
+.mat-mdc-select-panel {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* S'assurer que les options sont visibles */
+.mat-mdc-option {
+  background: transparent !important;
+  color: var(--space-black) !important;
+}
+
+.mat-mdc-option:hover {
+  background: rgba(139, 92, 246, 0.1) !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  background: rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Labels des mat-form-field */
+.grammar-modal-field .mat-mdc-floating-label {
+  color: var(--galaxy-accent) !important;
+}
+
+.grammar-modal-field .mat-mdc-form-field-outline {
+  color: rgba(139, 92, 246, 0.3) !important;
+}
+
+.grammar-modal-field .mat-mdc-form-field-outline-thick {
+  color: var(--galaxy-accent) !important;
 }
 
 .examples-list {

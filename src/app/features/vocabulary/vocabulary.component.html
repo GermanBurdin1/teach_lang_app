@@ -548,13 +548,19 @@
     <div class="grammar-modal-body">
       <input class="grammar-modal-input" [(ngModel)]="newMeaningWord" placeholder="Nouvelle signification du mot">
 
-      <select class="grammar-modal-select" [(ngModel)]="newMeaningGalaxy" (change)="onMeaningGalaxyChange()">
-        <option *ngFor="let galaxy of availableGalaxies" [value]="galaxy">{{ galaxy }}</option>
-      </select>
+      <mat-form-field class="grammar-modal-field" appearance="outline">
+        <mat-label>Galaxie</mat-label>
+        <mat-select [(ngModel)]="newMeaningGalaxy" (selectionChange)="onMeaningGalaxyChange()">
+          <mat-option *ngFor="let galaxy of availableGalaxies" [value]="galaxy">{{ galaxy }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-      <select class="grammar-modal-select" [(ngModel)]="newMeaningSubtopic">
-        <option *ngFor="let sub of availableSubtopics" [value]="sub">{{ sub }}</option>
-      </select>
+      <mat-form-field class="grammar-modal-field" appearance="outline">
+        <mat-label>Sous-thème</mat-label>
+        <mat-select [(ngModel)]="newMeaningSubtopic">
+          <mat-option *ngFor="let sub of availableSubtopics" [value]="sub">{{ sub }}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
     
     <div class="grammar-modal-footer">
