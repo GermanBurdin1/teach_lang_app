@@ -68,9 +68,9 @@
           matTooltipClass="galaxy-tooltip">
           <i class="fas" [ngClass]="sortOrderWords === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
-        <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
+        <button class="lang-sort-btn" (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
           matTooltip="Trier par langue" matTooltipClass="galaxy-tooltip">
-          <i class="fas fa-language"></i>
+          🌍
         </button>
       </div>
 
@@ -249,9 +249,9 @@
           matTooltipClass="galaxy-tooltip">
           <i class="fas" [ngClass]="sortOrderExpressions === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
-        <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
+        <button class="lang-sort-btn" (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
           matTooltip="Trier par langue" matTooltipClass="galaxy-tooltip">
-          <i class="fas fa-language"></i>
+          🌍
         </button>
       </div>
       <h3>
