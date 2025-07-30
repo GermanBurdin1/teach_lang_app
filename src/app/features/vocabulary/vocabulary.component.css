@@ -1121,47 +1121,7 @@
   border-bottom: 1px solid var(--galaxy-accent);
 }
 
-.add-meaning-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(135deg, var(--galaxy-dark), var(--galaxy-secondary));
-  border-radius: 20px;
-  padding: 2rem;
-  border: 2px solid var(--galaxy-accent);
-  box-shadow: 0 20px 60px rgba(139, 92, 246, 0.4);
-  z-index: 1000;
-  min-width: 400px;
-}
 
-.add-meaning-modal h3 {
-  font-family: 'Orbitron', monospace;
-  color: var(--cosmic-gold);
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.add-meaning-modal input, .add-meaning-modal select {
-  background: rgba(30, 27, 75, 0.8);
-  border: 2px solid var(--galaxy-accent);
-  border-radius: 12px;
-  color: var(--star-white);
-  padding: 1rem;
-  width: 100%;
-  margin-bottom: 1rem;
-}
-
-.add-meaning-modal button {
-  background: linear-gradient(45deg, var(--galaxy-primary), var(--galaxy-accent));
-  border: none;
-  border-radius: 12px;
-  color: var(--star-white);
-  padding: 1rem 1.5rem;
-  margin: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
 
 /* Word List View */
 .word-list {
@@ -1865,4 +1825,104 @@ body.dark-theme .btn-secondary:hover {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+/* Styles pour les éléments spécifiques des modales stylisées comme grammar-modal */
+.grammar-modal-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+  background: rgba(30, 27, 75, 0.6);
+  color: var(--star-white);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.grammar-modal-input:focus {
+  outline: none;
+  border-color: var(--galaxy-accent);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.grammar-modal-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.grammar-modal-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+  background: rgba(30, 27, 75, 0.6);
+  color: var(--star-white);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.grammar-modal-select:focus {
+  outline: none;
+  border-color: var(--galaxy-accent);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.grammar-modal-select option {
+  background: var(--galaxy-dark);
+  color: var(--star-white);
+  padding: 0.5rem;
+}
+
+.examples-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.examples-list li {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--galaxy-light);
+  font-size: 0.85rem;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, var(--galaxy-accent), var(--nebula-purple));
+  border: none;
+  color: var(--star-white);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.translations-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.translations-list li {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--nebula-blue);
+  font-size: 0.85rem;
 }

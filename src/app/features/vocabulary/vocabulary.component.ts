@@ -1097,6 +1097,34 @@ export class VocabularyComponent implements OnInit {
     return document.body.classList.contains('dark-theme');
   }
 
+  closeExtraTranslationModal(): void {
+    console.log('❌ Fermeture de la modale de traduction supplémentaire');
+    this.showExtraTranslationModal = false;
+    this.newTranslation = '';
+  }
+
+  addExtraTranslation(): void {
+    if (!this.newTranslation.trim() || !this.editingCard) {
+      console.warn('⚠️ Pas de traduction à ajouter ou aucune carte sélectionnée');
+      return;
+    }
+
+    console.log('➕ Ajout d\'une nouvelle traduction:', this.newTranslation.trim());
+    
+    // Créer une nouvelle traduction pour la carte sélectionnée
+    this.editingCard.translations.push({
+      target: this.newTranslation.trim()
+    });
+    
+    console.log('✅ Traduction ajoutée à la carte');
+    this.saveToLocalStorage();
+
+    this.newTranslation = '';
+    this.showExtraTranslationModal = false;
+  }
+
+
+
   // код связаный с частями речи
   onPartOfSpeechChange(partOfSpeech: Grammar.PartOfSpeech): void {
     switch (partOfSpeech) {

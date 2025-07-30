@@ -503,36 +503,93 @@
   </div>
 </div>
 
-<div *ngIf="showExtraModal" class="translation-modal">
-  <h3 class="translation-modal__title">Ajouter un exemple</h3>
-
-  <input class="translation-modal__input" [(ngModel)]="newExample" placeholder="Entrer un exemple" />
-
-  <div class="translation-modal__button-group">
-    <button class="translation-modal__button" (click)="addExample()">Ajouter</button>
-    <button class="translation-modal__button" (click)="closeExtraModal()">Fermer</button>
+<!-- Modale d'exemple avec style de grammaire -->
+<div *ngIf="showExtraModal" class="grammar-modal-overlay" (click)="closeExtraModal()">
+  <div class="grammar-modal-content" (click)="$event.stopPropagation()">
+    <div class="grammar-modal-header">
+      <div class="grammar-modal-title">
+        <div class="grammar-modal-icon">📝</div>
+        <div class="grammar-modal-text">
+          <h2>Ajouter un exemple</h2>
+        </div>
+      </div>
+      <button class="close-btn" (click)="closeExtraModal()">✖</button>
+    </div>
+    
+    <div class="grammar-modal-body">
+      <input class="grammar-modal-input" [(ngModel)]="newExample" placeholder="Entrer un exemple" />
+      
+      <ul *ngIf="selectedTranslation" class="examples-list">
+        <li *ngFor="let e of selectedTranslation.examples || []">{{ e }}</li>
+      </ul>
+    </div>
+    
+    <div class="grammar-modal-footer">
+      <button class="btn-primary" (click)="addExample()">Ajouter</button>
+      <button class="btn-secondary" (click)="closeExtraModal()">Fermer</button>
+    </div>
   </div>
-
-  <ul *ngIf="selectedTranslation" class="translation-modal__examples">
-    <li *ngFor="let e of selectedTranslation.examples || []">{{ e }}</li>
-  </ul>
 </div>
 
-<div *ngIf="showAddMeaningModal" class="add-meaning-modal">
-  <h3 *ngIf="selectedCard">Ajouter une nouvelle signification pour "{{ selectedCard.word }}"</h3>
+<!-- Modale d'ajout de signification avec style de grammaire -->
+<div *ngIf="showAddMeaningModal" class="grammar-modal-overlay" (click)="cancelAddMeaning()">
+  <div class="grammar-modal-content" (click)="$event.stopPropagation()">
+    <div class="grammar-modal-header">
+      <div class="grammar-modal-title">
+        <div class="grammar-modal-icon">✨</div>
+        <div class="grammar-modal-text">
+          <h2>Ajouter une signification</h2>
+          <h3 *ngIf="selectedCard">pour "{{ selectedCard.word }}"</h3>
+        </div>
+      </div>
+      <button class="close-btn" (click)="cancelAddMeaning()">✖</button>
+    </div>
+    
+    <div class="grammar-modal-body">
+      <input class="grammar-modal-input" [(ngModel)]="newMeaningWord" placeholder="Nouvelle signification du mot">
 
-  <input [(ngModel)]="newMeaningWord" placeholder="Nouvelle signification du mot">
+      <select class="grammar-modal-select" [(ngModel)]="newMeaningGalaxy" (change)="onMeaningGalaxyChange()">
+        <option *ngFor="let galaxy of availableGalaxies" [value]="galaxy">{{ galaxy }}</option>
+      </select>
 
-  <select [(ngModel)]="newMeaningGalaxy" (change)="onMeaningGalaxyChange()">
-    <option *ngFor="let galaxy of availableGalaxies" [value]="galaxy">{{ galaxy }}</option>
-  </select>
+      <select class="grammar-modal-select" [(ngModel)]="newMeaningSubtopic">
+        <option *ngFor="let sub of availableSubtopics" [value]="sub">{{ sub }}</option>
+      </select>
+    </div>
+    
+    <div class="grammar-modal-footer">
+      <button class="btn-primary" (click)="saveNewMeaning()">Sauvegarder</button>
+      <button class="btn-secondary" (click)="cancelAddMeaning()">Annuler</button>
+    </div>
+  </div>
+</div>
 
-  <select [(ngModel)]="newMeaningSubtopic">
-    <option *ngFor="let sub of availableSubtopics" [value]="sub">{{ sub }}</option>
-  </select>
-
-  <button (click)="saveNewMeaning()">Sauvegarder</button>
-  <button (click)="cancelAddMeaning()">Annuler</button>
+<!-- Modale de traduction supplémentaire avec style de grammaire -->
+<div *ngIf="showExtraTranslationModal" class="grammar-modal-overlay" (click)="closeExtraTranslationModal()">
+  <div class="grammar-modal-content" (click)="$event.stopPropagation()">
+    <div class="grammar-modal-header">
+      <div class="grammar-modal-title">
+        <div class="grammar-modal-icon">🌐</div>
+        <div class="grammar-modal-text">
+          <h2>Ajouter une traduction</h2>
+        </div>
+      </div>
+      <button class="close-btn" (click)="closeExtraTranslationModal()">✖</button>
+    </div>
+    
+    <div class="grammar-modal-body">
+      <input class="grammar-modal-input" [(ngModel)]="newTranslation" placeholder="Entrer une nouvelle traduction" />
+      
+      <ul *ngIf="editingCard?.translations" class="translations-list">
+        <li *ngFor="let translation of editingCard!.translations">{{ translation.target }}</li>
+      </ul>
+    </div>
+    
+    <div class="grammar-modal-footer">
+      <button class="btn-primary" (click)="addExtraTranslation()">Ajouter</button>
+      <button class="btn-secondary" (click)="closeExtraTranslationModal()">Fermer</button>
+    </div>
+  </div>
 </div>
 
 <!-- Modalka pour les champs grammaticaux -->
