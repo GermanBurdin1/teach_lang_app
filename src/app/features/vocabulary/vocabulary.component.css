@@ -270,7 +270,7 @@
   overflow: hidden;
 }
 
-.add-icon-btn::before, .sort-toggle-btn::before {
+/* .add-icon-btn::before, .sort-toggle-btn::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -286,10 +286,10 @@
 .add-icon-btn:hover::before, .sort-toggle-btn:hover::before {
   width: 100px;
   height: 100px;
-}
+} */
 
 .add-icon-btn:hover, .sort-toggle-btn:hover {
-  transform: translateY(-5px) scale(1.1);
+  transform: translateY(-2px) scale(1.05);
   box-shadow: 0 15px 40px rgba(139, 92, 246, 0.6);
 }
 
