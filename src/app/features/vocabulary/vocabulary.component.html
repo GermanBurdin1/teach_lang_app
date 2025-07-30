@@ -42,10 +42,10 @@
     <div class="filter-group">
       <label>Vue :</label>
       <div class="view-toggle-switch">
-        <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'" aria-label="Cartes">
+        <button (click)="viewMode = 'cards'" [class.active]="viewMode === 'cards'" aria-label="Cartes" matTooltip="Vue en cartes" matTooltipClass="galaxy-tooltip">
           📇
         </button>
-        <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'" aria-label="En liste">
+        <button (click)="viewMode = 'list'" [class.active]="viewMode === 'list'" aria-label="En liste" matTooltip="Vue en liste" matTooltipClass="galaxy-tooltip">
           📋
         </button>
       </div>
@@ -60,15 +60,16 @@
     <!-- Колонка для слов -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'word'">
       <div class="controls-row">
-        <button class="add-icon-btn" (click)="openAddCardModal('word')" title="Ajouter un mot">
+        <button class="add-icon-btn" (click)="openAddCardModal('word')" matTooltip="Ajouter un mot" matTooltipClass="galaxy-tooltip">
           <i class="fas fa-plus"></i>
         </button>
         <button class="sort-toggle-btn" (click)="toggleSortOrderWords()"
-          title="D'abord {{ sortOrderWords === 'desc' ? 'nouveaux' : 'anciens' }}">
+          [matTooltip]="'D\'abord ' + (sortOrderWords === 'desc' ? 'nouveaux' : 'anciens')" 
+          matTooltipClass="galaxy-tooltip">
           <i class="fas" [ngClass]="sortOrderWords === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
         <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
-          title="Trier par langue">
+          matTooltip="Trier par langue" matTooltipClass="galaxy-tooltip">
           <i class="fas fa-language"></i>
         </button>
       </div>
@@ -94,14 +95,14 @@
                 'card-front--untranslated': !card.translations[0] || card.translations[0].target === '...'
               }">
                 <div class="card-icon" *ngIf="sortBy === 'repeat' && card.status === 'repeat'">
-                  <i class="fas fa-sync-alt" title="À réviser"></i>
+                  <i class="fas fa-sync-alt" matTooltip="À réviser" matTooltipClass="galaxy-tooltip"></i>
                 </div>
                 <div class="card-icon" *ngIf="sortBy === 'learned' && card.status === 'learned'">
-                  <i class="fas fa-check-circle" title="Appris"></i>
+                  <i class="fas fa-check-circle" matTooltip="Appris" matTooltipClass="galaxy-tooltip"></i>
                 </div>
                 <div class="card-icon"
                   *ngIf="sortBy === 'untranslated' && (!card.translations[0] || card.translations[0].target === '...')">
-                  <i class="fas fa-question-circle" title="Pas de traduction"></i>
+                  <i class="fas fa-question-circle" matTooltip="Pas de traduction" matTooltipClass="galaxy-tooltip"></i>
                 </div>
                 <div class="card-header">
                   <p class="date-label">
@@ -239,16 +240,17 @@
     <!-- Колонка для выражений -->
     <div class="column" *ngIf="filterType === 'all' || filterType === 'expression'">
       <div class="controls-row">
-        <button class="add-icon-btn" (click)="openAddCardModal('expression')" title="Ajouter une expression"
+        <button class="add-icon-btn" (click)="openAddCardModal('expression')" matTooltip="Ajouter une expression" matTooltipClass="galaxy-tooltip"
           aria-label="Ajouter une expression">
           <i class="fas fa-plus"></i>
         </button>
         <button class="sort-toggle-btn" (click)="toggleSortOrderExpressions()"
-          title="D'abord {{ sortOrderExpressions === 'desc' ? 'nouvelles' : 'anciennes' }}">
+          [matTooltip]="'D\'abord ' + (sortOrderExpressions === 'desc' ? 'nouvelles' : 'anciennes')" 
+          matTooltipClass="galaxy-tooltip">
           <i class="fas" [ngClass]="sortOrderExpressions === 'desc' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
         </button>
         <button (click)="sortByLang = !sortByLang; sortWords()" [class.active]="sortByLang"
-          title="Trier par langue">
+          matTooltip="Trier par langue" matTooltipClass="galaxy-tooltip">
           <i class="fas fa-language"></i>
         </button>
       </div>
