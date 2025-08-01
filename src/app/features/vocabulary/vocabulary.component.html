@@ -123,12 +123,12 @@
                       class="hint untranslated" (click)="openTranslationForm(card, true)">
                       Ajouter une traduction
                     </span>
-                    <span *ngIf="card.translations[0] && card.translations[0].target !== '...'" class="hint" (click)="flipCard(card); $event.stopPropagation()">
+                    <span *ngIf="card.translations[0] && card.translations[0].target !== '...'" class="hint" (click)="flipCard(card, $event); $event.stopPropagation()">
                       Clique pour voir la traduction
                     </span>
                   </span>
                 </div>
-                <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                <button class="flip-btn" (click)="flipCard(card, $event); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i>
                 </button>
               </div>
@@ -227,7 +227,7 @@
 
                 <!-- Les champs grammaticaux sont maintenant dans une modalka séparée -->
 
-                <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                <button class="flip-btn" (click)="flipCard(card, $event); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i>
                 </button>
 
@@ -302,7 +302,7 @@
                   <p>{{ card.word }}</p>
                   <span *ngIf="card.hintVisible" class="hint">Clique pour voir la traduction</span>
                 </div>
-                <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                <button class="flip-btn" (click)="flipCard(card, $event); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i>
                 </button>
               </div>
@@ -447,7 +447,7 @@
                 <span *ngIf="card.isCorrect === true" class="correct">✔️</span>
                 <span *ngIf="card.isCorrect === false" class="wrong">❌</span>
 
-                <button class="flip-btn" (click)="flipCard(card); $event.stopPropagation()">
+                <button class="flip-btn" (click)="flipCard(card, $event); $event.stopPropagation()">
                   <i class="fas fa-retweet"></i>
                 </button>
               </div>

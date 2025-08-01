@@ -491,7 +491,23 @@ export class VocabularyComponent implements OnInit {
 
 
   // Переворот карточки
-  flipCard(card: WordCard): void {
+  flipCard(card: WordCard, event?: Event): void {
+    // Убираем focus с элемента чтобы не было hover эффекта
+    if (event && event.target) {
+      (event.target as HTMLElement).blur();
+      
+      // Добавляем класс для отключения hover на время анимации
+      const cardElement = (event.target as HTMLElement).closest('.card');
+      if (cardElement) {
+        cardElement.classList.add('flipping');
+        
+        // Убираем класс через время анимации
+        setTimeout(() => {
+          cardElement.classList.remove('flipping');
+        }, 600); // 600ms = время transition
+      }
+    }
+
     if (!card.translations[0] || card.translations[0].target === '...') {
       this.openTranslationForm(card); // <-- покажем форму
       return;

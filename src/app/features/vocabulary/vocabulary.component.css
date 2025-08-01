@@ -392,7 +392,7 @@
 }
 
 .card-inner.flipped {
-  transform: rotateY(140deg);
+  transform: rotateY(180deg);
 }
 
 .card-front, .card-back {
@@ -1238,6 +1238,16 @@
 .card:hover {
   /* transform: translateY(-10px); */
   box-shadow: 0 20px 60px rgba(139, 92, 246, 0.4);
+}
+
+/* Отключаем hover для перевернутых карточек */
+.card:has(.card-inner.flipped):hover {
+  box-shadow: none !important;
+}
+
+/* Альтернативный способ через класс */
+.card.flipping:hover {
+  box-shadow: none !important;
 }
 
 
