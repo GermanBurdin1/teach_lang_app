@@ -92,9 +92,12 @@ export class RegisterComponent implements OnInit {
       console.log('[RegisterComponent] Sending registration request:', { email, roles });
 
       this.api.register(email, password, roles, name, surname).subscribe({
-        next: (user) => {
-          if (user.roles && user.roles.length > 1) {
-            const lastRole = roles.find(r => user.roles.includes(r));
+        next: (jwtResponse) => {
+          // Сохраняем токены
+          this.api.setTokens(jwtResponse);
+          
+          if (jwtResponse.user.roles && jwtResponse.user.roles.length > 1) {
+            const lastRole = roles.find(r => jwtResponse.user.roles.includes(r));
             let roleText = lastRole === 'teacher'
               ? 'enseignant sur la plateforme'
               : 'étudiant sur la plateforme';

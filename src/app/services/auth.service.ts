@@ -1,14 +1,23 @@
 import { Injectable } from '@angular/core';
 import { User } from '../features/auth/models/user.model';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+
+interface JwtResponse {
+  access_token: string;
+  refresh_token: string;
+  user: User;
+  expires_in: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private _user: User | null = null;
-  private baseRegisterUrl = 'http://localhost:3001/auth';
+  private _accessToken: string | null = null;
+  private _refreshToken: string | null = null;
+  private baseRegisterUrl = 'http://localhost:3011/auth';
   private currentRoleSubject = new BehaviorSubject<string | null>(null);
   currentRole$ = this.currentRoleSubject.asObservable();
 
@@ -20,30 +29,45 @@ export class AuthService {
   private loadUserFromStorage(): void {
     try {
       const savedUser = localStorage.getItem('currentUser');
-      if (savedUser) {
+      const savedAccessToken = localStorage.getItem('access_token');
+      const savedRefreshToken = localStorage.getItem('refresh_token');
+      
+      if (savedUser && savedAccessToken) {
         const user = JSON.parse(savedUser);
         this._user = user;
+        this._accessToken = savedAccessToken;
+        this._refreshToken = savedRefreshToken;
         this.currentRoleSubject.next(user.currentRole || null);
-        console.log('[AuthService] User restored from localStorage:', user);
+        console.log('[AuthService] User and tokens restored from localStorage:', user);
       }
     } catch (error) {
       console.error('[AuthService] Failed to restore user from localStorage:', error);
-      localStorage.removeItem('currentUser'); // Очищаем поврежденные данные
+      this.clearStorage(); // Очищаем поврежденные данные
     }
   }
 
   private saveUserToStorage(): void {
     try {
-      if (this._user) {
+      if (this._user && this._accessToken) {
         localStorage.setItem('currentUser', JSON.stringify(this._user));
-        console.log('[AuthService] User saved to localStorage');
+        localStorage.setItem('access_token', this._accessToken);
+        if (this._refreshToken) {
+          localStorage.setItem('refresh_token', this._refreshToken);
+        }
+        console.log('[AuthService] User and tokens saved to localStorage');
       } else {
-        localStorage.removeItem('currentUser');
-        console.log('[AuthService] User removed from localStorage');
+        this.clearStorage();
       }
     } catch (error) {
       console.error('[AuthService] Failed to save user to localStorage:', error);
     }
+  }
+
+  private clearStorage(): void {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    console.log('[AuthService] Storage cleared');
   }
 
   get user(): User | null {
@@ -51,15 +75,15 @@ export class AuthService {
   }
 
   getAllTeachers(): Observable<User[]> {
-    return this.http.get<User[]>('http://localhost:3001/auth/teachers');
+    return this.http.get<User[]>('http://localhost:3011/auth/teachers');
   }
 
-  login(email: string, password: string) {
-    return this.http.post<User>('http://localhost:3001/auth/login', { email, password });
+  login(email: string, password: string): Observable<JwtResponse> {
+    return this.http.post<JwtResponse>('http://localhost:3011/auth/login', { email, password });
   }
 
-  register(email: string, password: string, roles: string[], name: string, surname: string): Observable<User> {
-    return this.http.post<User>(`${this.baseRegisterUrl}/register`, {
+  register(email: string, password: string, roles: string[], name: string, surname: string): Observable<JwtResponse> {
+    return this.http.post<JwtResponse>(`${this.baseRegisterUrl}/register`, {
       email,
       password,
       roles,
@@ -77,6 +101,12 @@ export class AuthService {
     console.log('[AuthService] User set:', this._user);
     this.currentRoleSubject.next(this._user.currentRole ?? null);
     this.saveUserToStorage(); // Сохраняем в localStorage
+  }
+
+  setTokens(jwtResponse: JwtResponse) {
+    this._accessToken = jwtResponse.access_token;
+    this._refreshToken = jwtResponse.refresh_token;
+    this.setUser(jwtResponse.user);
   }
 
   setActiveRole(role: string) {
@@ -100,8 +130,10 @@ export class AuthService {
 
   logout(): void {
     this._user = null;
+    this._accessToken = null;
+    this._refreshToken = null;
     this.currentRoleSubject.next(null);
-    this.saveUserToStorage(); // Очищаем localStorage
+    this.clearStorage(); // Очищаем localStorage
     console.log('[AuthService] User logged out');
   }
 
@@ -112,6 +144,38 @@ export class AuthService {
   }
 
   checkEmailExists(email: string): Observable<{ exists: boolean; roles?: string[] }> {
-    return this.http.get<{ exists: boolean; roles?: string[] }>(`http://localhost:3001/auth/check-email?email=${email}`);
+    return this.http.get<{ exists: boolean; roles?: string[] }>(`http://localhost:3011/auth/check-email?email=${email}`);
+  }
+
+  getAccessToken(): string | null {
+    return this._accessToken;
+  }
+
+  getRefreshToken(): string | null {
+    return this._refreshToken;
+  }
+
+  getAuthHeaders(): HttpHeaders {
+    if (this._accessToken) {
+      return new HttpHeaders().set('Authorization', `Bearer ${this._accessToken}`);
+    }
+    return new HttpHeaders();
+  }
+
+  refreshToken(): Observable<{ access_token: string; expires_in: number }> {
+    if (!this._refreshToken) {
+      throw new Error('No refresh token available');
+    }
+    
+    return this.http.post<{ access_token: string; expires_in: number }>(
+      'http://localhost:3011/auth/refresh-token',
+      { refresh_token: this._refreshToken }
+    );
+  }
+
+  updateAccessToken(newAccessToken: string): void {
+    this._accessToken = newAccessToken;
+    localStorage.setItem('access_token', newAccessToken);
+    console.log('[AuthService] Access token updated');
   }
 }

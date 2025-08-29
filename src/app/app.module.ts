@@ -3,7 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { LayoutModule } from './layout/layout.module';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { VocabularyModule } from './features/vocabulary/vocabulary.module';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
@@ -19,7 +20,6 @@ import { LandingModule } from './features/landing/landing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ClassroomModule } from './classroom/classroom.module';
-import { provideHttpClient } from '@angular/common/http';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -68,7 +68,11 @@ import { getCosmicPaginatorIntl } from './shared/providers/custom-paginator-intl
     MatTooltipModule,
     DragDropModule
 ],
-  providers: [provideHttpClient(),{ provide: LOCALE_ID, useValue: 'fr' }, { provide: MatPaginatorIntl, useValue: getCosmicPaginatorIntl() }],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'fr' }, 
+    { provide: MatPaginatorIntl, useValue: getCosmicPaginatorIntl() },
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

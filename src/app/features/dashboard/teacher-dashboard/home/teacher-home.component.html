@@ -128,6 +128,58 @@
           </div>
         </mat-tab>
 
+        <!-- Вкладка: Demandes non traitées -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">schedule</mat-icon>
+            Non traitées
+            <span *ngIf="untreatedRequests.length" class="tab-badge">{{ untreatedRequests.length }}</span>
+          </ng-template>
+          
+          <div class="tab-content">
+            <div *ngIf="untreatedRequests.length > 0; else noUntreatedRequests" class="requests-container untreated-requests">
+              <div *ngFor="let req of visibleUntreatedRequests" class="request-card untreated-request">
+                <div class="request-content">
+                  <div class="request-text">
+                    <strong>{{ req.title }}</strong><br />
+                    <small>{{ req.message }}</small>
+                    <div class="status-badge status-expired">
+                      Status: <strong>Expiré</strong>
+                    </div>
+                  </div>
+                  
+                  <div class="request-actions">
+                    <!-- Hide button -->
+                    <button mat-icon-button 
+                            class="hide-button" 
+                            (click)="hideUntreatedRequest(req)"
+                            matTooltip="Masquer cette demande">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Show more/less button for untreated requests -->
+              <div *ngIf="hasMoreUntreatedRequests" class="show-more-container">
+                <button mat-stroked-button 
+                        color="accent" 
+                        (click)="toggleShowMoreUntreatedRequests()">
+                  {{ showMoreUntreatedRequests ? 'Voir moins' : 'Voir plus (' + (untreatedRequests.length - MAX_UNTREATED_REQUESTS) + ')' }}
+                  <mat-icon>{{ showMoreUntreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </div>
+            </div>
+            
+            <ng-template #noUntreatedRequests>
+              <div class="no-requests">
+                <mat-icon class="no-requests-icon">schedule</mat-icon>
+                <p>✅ Aucune demande non traitée</p>
+              </div>
+            </ng-template>
+          </div>
+        </mat-tab>
+
         <!-- Вкладка: Demandes traitées -->
         <mat-tab>
           <ng-template mat-tab-label>

@@ -41,6 +41,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // ];
   newRequests: Notification[] = [];
   notifications: Notification[] = [];
+  untreatedRequests: Notification[] = []; // Новый массив для просроченных unread заявок
 
   // newRequests = [
   //   { name: 'Claire Martin', date: '21/05/2025' },
@@ -82,6 +83,10 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   showMoreTreatedRequests = false;
   readonly MAX_TREATED_REQUESTS = 10;
 
+  // Новые свойства для управления необработанными заявками
+  showMoreUntreatedRequests = false;
+  readonly MAX_UNTREATED_REQUESTS = 10;
+
   // Новые свойства для модалки студента
   selectedStudent: any = null;
   showStudentModal = false;
@@ -91,6 +96,36 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   notificationsCollapsed = false;
   homeworkCollapsed = false;
+
+  // Проверяет, что дата урока в будущем (актуальная)
+  private isLessonDateValid(notification: Notification): boolean {
+    try {
+      const scheduledAt = notification.data?.scheduledAt;
+      if (!scheduledAt) {
+        console.warn('[TeacherHome] scheduledAt не найден в уведомлении:', notification);
+        return false;
+      }
+
+      const lessonDate = new Date(scheduledAt);
+      const now = new Date();
+      
+      // Проверяем, что дата урока в будущем
+      const isValid = lessonDate > now;
+      
+      if (!isValid) {
+        console.log('[TeacherHome] Уведомление отфильтровано (дата прошла):', {
+          lessonDate: lessonDate.toLocaleString('fr-FR'),
+          now: now.toLocaleString('fr-FR'),
+          notificationTitle: notification.title
+        });
+      }
+      
+      return isValid;
+    } catch (error) {
+      console.error('[TeacherHome] Ошибка при проверке даты урока:', error, notification);
+      return false;
+    }
+  }
 
   private refreshCalendar(): void {
     const userId = this.authService.getCurrentUser()?.id;
@@ -124,8 +159,28 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (all) => {
         console.log('🔔 [FRONT] Ответ от сервера:', all);
         this.notifications = all.filter(n => n.type !== 'booking_request');
-        this.newRequests = all.filter(n => n.type === 'booking_request' && n.status === 'pending');
-        this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending');
+        
+        // Фильтруем новые запросы: только pending и с актуальной датой (в будущем)
+        this.newRequests = all.filter(n => {
+          if (n.type !== 'booking_request' || n.status !== 'pending') {
+            return false;
+          }
+          
+          // Проверяем актуальность даты урока
+          return this.isLessonDateValid(n);
+        });
+        
+        // Необработанные заявки: unread со просроченной датой
+        this.untreatedRequests = all.filter(n => {
+          if (n.type !== 'booking_request' || n.status !== 'unread') {
+            return false;
+          }
+          
+          // Проверяем что дата урока уже прошла
+          return !this.isLessonDateValid(n);
+        });
+        
+        this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending' && n.status !== 'unread');
       },
       error: (err) => {
         console.error('❌ [FRONT] Ошибка при получении уведомлений:', err);
@@ -266,8 +321,28 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (all) => {
         console.log('🔔 [FRONT] Ответ от сервера:', all);
         this.notifications = all.filter(n => n.type !== 'booking_request');
-        this.newRequests = all.filter(n => n.type === 'booking_request' && n.status === 'pending');
-        this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending');
+        
+        // Фильтруем новые запросы: только pending и с актуальной датой (в будущем)
+        this.newRequests = all.filter(n => {
+          if (n.type !== 'booking_request' || n.status !== 'pending') {
+            return false;
+          }
+          
+          // Проверяем актуальность даты урока
+          return this.isLessonDateValid(n);
+        });
+        
+        // Необработанные заявки: unread со просроченной датой
+        this.untreatedRequests = all.filter(n => {
+          if (n.type !== 'booking_request' || n.status !== 'unread') {
+            return false;
+          }
+          
+          // Проверяем что дата урока уже прошла
+          return !this.isLessonDateValid(n);
+        });
+        
+        this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending' && n.status !== 'unread');
       },
       error: (err) => {
         console.error('❌ [FRONT] Ошибка при получении уведомлений:', err);
@@ -459,6 +534,30 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleShowMoreTreatedRequests() {
     this.showMoreTreatedRequests = !this.showMoreTreatedRequests;
+  }
+
+  // Методы для управления необработанными заявками
+  hideUntreatedRequest(request: any) {
+    if (request.id) {
+      this.notificationService.hideNotification(request.id).subscribe(() => {
+        // Удаляем заявку из локального массива
+        this.untreatedRequests = this.untreatedRequests.filter(r => r.id !== request.id);
+      });
+    }
+  }
+
+  get visibleUntreatedRequests() {
+    return this.showMoreUntreatedRequests 
+      ? this.untreatedRequests 
+      : this.untreatedRequests.slice(0, this.MAX_UNTREATED_REQUESTS);
+  }
+
+  get hasMoreUntreatedRequests() {
+    return this.untreatedRequests.length > this.MAX_UNTREATED_REQUESTS;
+  }
+
+  toggleShowMoreUntreatedRequests() {
+    this.showMoreUntreatedRequests = !this.showMoreUntreatedRequests;
   }
 
   // Методы для модалки студента

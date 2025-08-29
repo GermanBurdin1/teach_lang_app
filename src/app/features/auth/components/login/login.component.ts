@@ -52,6 +52,14 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  onPasswordFocus(): void {
+    // Если email введен, но еще не проверен, проверяем его автоматически
+    const email = this.loginForm.get('email')?.value;
+    if (email && !this.emailChecked) {
+      this.onEmailBlur();
+    }
+  }
+
   onEmailBlur(): void {
     const email = this.loginForm.get('email')?.value;
     if (email) {
@@ -61,9 +69,20 @@ export class LoginComponent implements OnInit {
           this.availableRoles = res.roles || [];
 
           if (this.availableRoles.length === 1) {
-            this.loginForm.get('selectedRole')?.setValue(this.availableRoles[0]); // 💥 Автоустановка
+            // Для пользователей с одной ролью: убираем валидацию и автоустанавливаем роль
+            this.loginForm.get('selectedRole')?.setValidators([]);
+            this.loginForm.get('selectedRole')?.setValue(this.availableRoles[0]);
+            this.loginForm.get('selectedRole')?.updateValueAndValidity();
+          } else if (this.availableRoles.length > 1) {
+            // Для пользователей с несколькими ролями: восстанавливаем валидацию
+            this.loginForm.get('selectedRole')?.setValidators([Validators.required]);
+            this.loginForm.get('selectedRole')?.reset();
+            this.loginForm.get('selectedRole')?.updateValueAndValidity();
           } else {
-            this.loginForm.get('selectedRole')?.reset(); // сбросить, чтобы не блокировать кнопку
+            // Для новых пользователей: восстанавливаем валидацию
+            this.loginForm.get('selectedRole')?.setValidators([Validators.required]);
+            this.loginForm.get('selectedRole')?.reset();
+            this.loginForm.get('selectedRole')?.updateValueAndValidity();
           }
         },
         error: (err) => {
@@ -78,9 +97,13 @@ export class LoginComponent implements OnInit {
       const { email, password, selectedRole } = this.loginForm.value;
       console.log('Trying login with', this.loginForm.value);
       this.authService.login(email, password).subscribe({
-        next: (user) => {
-          this.authService.setUser(user);
+        next: (jwtResponse) => {
+          // Сохраняем токены и пользователя
+          this.authService.setTokens(jwtResponse);
           this.authService.setActiveRole(selectedRole);
+          
+          console.log('[LoginComponent] JWT tokens received and saved');
+          
           if (selectedRole === 'student') {
             this.router.navigate(['/student/home']);
           } else if (selectedRole === 'teacher') {
