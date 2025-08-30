@@ -231,8 +231,6 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   startVideoCall(): void {
-    // ВРЕМЕННО ЗАКОММЕНТИРОВАНО - СОСРЕДОТОЧИМСЯ НА ДАННЫХ УРОКА
-    /*
     if (this.videoService.showVideoCallSubject.getValue()) {
       console.log('⚠ Видео уже запущено, не дублируем');
       return;
@@ -240,8 +238,6 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
     console.log('🎥 Запуск видеозвонка');
     this.videoService.startVideoCall();
-    */
-    console.log('🎥 Видео-звонок временно отключен');
   }
 
   set showVideoCall(value: boolean) {

@@ -15,6 +15,7 @@ import { LessonTabsService } from '../../../../services/lesson-tabs.service';
 import { MaterialService } from '../../../../services/material.service';
 import { StatisticsService, StudentStats } from '../../../../services/statistics.service';
 import { LexiconService } from '../../../../services/lexicon.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-student-home',
@@ -80,7 +81,8 @@ export class StudentHomeComponent implements OnInit {
     private lessonTabsService: LessonTabsService,
     private materialService: MaterialService,
     private statisticsService: StatisticsService,
-    private lexiconService: LexiconService
+    private lexiconService: LexiconService,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
@@ -398,21 +400,37 @@ export class StudentHomeComponent implements OnInit {
     });
   }
 
-  makeProfesseurLink(text: string, teacherId: string, teacherName?: string): string {
-    // Заменяем 'Le professeur' или 'Votre professeur ИМЯ' на ссылку с именем
-    const displayName = teacherName ? `Votre professeur ${teacherName}` : 'Votre professeur';
-    const link = `<a href="/student/teachers/${teacherId}" title="voir l'information" style="text-decoration: underline; cursor: pointer;">${displayName}</a>`;
+  makeProfesseurLink(text: string, teacherId: string, teacherName?: string): SafeHtml {
+    // Экранируем входящий текст для безопасности
+    const safeText = this.escapeHtml(text);
+    const safeTeacherName = teacherName ? this.escapeHtml(teacherName) : '';
+    const safeTeacherId = this.escapeHtml(teacherId);
+    
+    // Создаем безопасную ссылку
+    const displayName = safeTeacherName ? `Votre professeur ${safeTeacherName}` : 'Votre professeur';
+    const link = `<a href="/student/teachers/${safeTeacherId}" title="voir l'information" style="text-decoration: underline; cursor: pointer;">${displayName}</a>`;
+    
+    let result = safeText;
     
     // Сначала заменяем полное совпадение "Votre professeur ИМЯ"
-    if (teacherName) {
-      const fullMatch = `Votre professeur ${teacherName}`;
-      if (text.includes(fullMatch)) {
-        return text.replace(fullMatch, link);
+    if (safeTeacherName) {
+      const fullMatch = `Votre professeur ${safeTeacherName}`;
+      if (result.includes(fullMatch)) {
+        result = result.replace(fullMatch, link);
       }
     }
     
     // Затем заменяем базовые варианты
-    return text.replace('Votre professeur', link).replace('Le professeur', link);
+    result = result.replace('Votre professeur', link).replace('Le professeur', link);
+    
+    // Возвращаем санитизированный HTML
+    return this.sanitizer.bypassSecurityTrustHtml(result);
+  }
+
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   acceptProposal(notif: any) {

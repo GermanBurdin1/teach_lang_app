@@ -11,6 +11,12 @@
       <i [class]="callActive ? 'fas fa-phone-slash' : 'fas fa-phone'"></i>
     </button>
 
+    <!-- Кнопка "Позвонить пользователю" (временная) -->
+    <button class="control-btn call-user-btn" *ngIf="showControls" (click)="initiateCall('student123')"
+      title="Appeler un utilisateur">
+      <i class="fas fa-user-phone"></i>
+    </button>
+
     <!-- Кнопка "Поделиться экраном" -->
     <button class="control-btn share-screen-btn" *ngIf="showControls" (click)="toggleScreenSharing()"
       title="{{ isScreenSharing ? 'Arrêter le partage d\'écran' : 'Partager l\'écran' }}">

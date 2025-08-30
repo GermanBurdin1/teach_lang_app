@@ -33,10 +33,12 @@ import { LOCALE_ID } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { getCosmicPaginatorIntl } from './shared/providers/custom-paginator-intl';
+import { TestVideoCallComponent } from './test-video-call/test-video-call.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    TestVideoCallComponent
   ],
   imports: [
     VocabularyModule,
@@ -56,7 +58,7 @@ import { getCosmicPaginatorIntl } from './shared/providers/custom-paginator-intl
     LandingModule,
     BrowserAnimationsModule,
     BsDropdownModule.forRoot(),
-    ClassroomModule,
+    ClassroomModule, // VideoCallComponent экспортируется отсюда
     BsDatepickerModule.forRoot(),
     TimepickerModule.forRoot(),
     MatInputModule,

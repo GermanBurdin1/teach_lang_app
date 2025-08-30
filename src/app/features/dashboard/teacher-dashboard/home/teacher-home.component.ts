@@ -13,6 +13,7 @@ import { VideoCallService } from '../../../../services/video-call.service';
 import { LessonTabsService } from '../../../../services/lesson-tabs.service';
 import { MaterialService } from '../../../../services/material.service';
 import { HomeworkService, Homework } from '../../../../services/homework.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-teacher-home',
@@ -32,7 +33,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private videoCallService: VideoCallService,
     private lessonTabsService: LessonTabsService,
     private materialService: MaterialService,
-    private homeworkService: HomeworkService
+    private homeworkService: HomeworkService,
+    private sanitizer: DomSanitizer
   ) { }
 
   // notifications: string[] = [
@@ -655,24 +657,39 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Создание кликабельных имен студентов в уведомлениях
-  makeStudentNameClickable(message: string, notification: any): string {
+  makeStudentNameClickable(message: string, notification: any): SafeHtml {
     const studentName = this.getStudentNameFromNotification(notification);
     
+    // Экранируем входящие данные
+    const safeMessage = this.escapeHtml(message);
+    const safeTitle = this.escapeHtml(notification.title);
+    const safeNotificationId = this.escapeHtml(notification.id);
+    
     if (!studentName || studentName === 'Étudiant') {
-      return `<strong>${notification.title}</strong><br><small>${message}</small>`;
+      const result = `<strong>${safeTitle}</strong><br><small>${safeMessage}</small>`;
+      return this.sanitizer.bypassSecurityTrustHtml(result);
     }
     
-    // Создаем кликабельный элемент для имени студента
-    const clickableMessage = message.replace(
-      studentName, 
+    // Экранируем имя студента и создаем безопасную ссылку
+    const safeStudentName = this.escapeHtml(studentName);
+    const clickableMessage = safeMessage.replace(
+      safeStudentName, 
       `<span class="student-name-clickable" 
-         data-notification-id="${notification.id}"
+         data-notification-id="${safeNotificationId}"
          style="color: #1976d2; text-decoration: underline; cursor: pointer; font-weight: bold;">
-         ${studentName}
+         ${safeStudentName}
        </span>`
     );
     
-    return `<strong>${notification.title}</strong><br><small>${clickableMessage}</small>`;
+    const result = `<strong>${safeTitle}</strong><br><small>${clickableMessage}</small>`;
+    return this.sanitizer.bypassSecurityTrustHtml(result);
+  }
+
+  private escapeHtml(text: string): string {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   ngAfterViewInit(): void {

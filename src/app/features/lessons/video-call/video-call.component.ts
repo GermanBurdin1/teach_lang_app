@@ -1,217 +1,235 @@
-// import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, OnDestroy } from '@angular/core';
-// import { VideoCallService } from '../../../services/video-call.service';
-// import { WebSocketService } from '../../../services/web-socket.service';
+import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, OnDestroy } from '@angular/core';
+import { VideoCallService } from '../../../services/video-call.service';
+import { WebSocketService } from '../../../services/web-socket.service';
 
-// @Component({
-//   selector: 'app-video-call',
-//   templateUrl: './video-call.component.html',
-//   styleUrls: ['./video-call.component.scss']
-// })
-// export class VideoCallComponent implements OnInit {
-//   @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
-//   @Input() isFloatingMode: boolean = false;
-//   remoteUserIds: string[] = [];
+@Component({
+  selector: 'app-video-call',
+  templateUrl: './video-call.component.html',
+  styleUrls: ['./video-call.component.scss']
+})
+export class VideoCallComponent implements OnInit {
+  @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
+  @Input() isFloatingMode: boolean = false;
+  remoteUserIds: string[] = [];
 
-//   constructor(public videoCallService: VideoCallService, private wsService: WebSocketService) { }
+  constructor(public videoCallService: VideoCallService, private wsService: WebSocketService) { }
 
-//   ngOnInit(): void {
-//     console.log('📹 VideoCallComponent загружен в ngOnInit', { isFloatingMode: this.isFloatingMode });
-//     console.log("🎥 video-call.component.ts → ngOnInit() сработал!");
-//     console.log(`🎥 video-call.component.ts → Создан ${new Date().toISOString()}`);
-//     this.videoCallService.joinChannel().then(() => {
-//       if (this.videoCallService.localTracks.videoTrack) {
-//         this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
-//       }
-//     });
+  ngOnInit(): void {
+    console.log('📹 VideoCallComponent загружен в ngOnInit', { isFloatingMode: this.isFloatingMode });
+    console.log("🎥 video-call.component.ts → ngOnInit() сработал!");
+    console.log(`🎥 video-call.component.ts → Создан ${new Date().toISOString()}`);
+    
+    // Регистрируем пользователя в WebSocket
+    if (this.videoCallService.userId) {
+      this.wsService.registerUser(this.videoCallService.userId);
+    }
+    
+    this.videoCallService.joinChannel().then(() => {
+      if (this.videoCallService.localTracks.videoTrack) {
+        this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
+      }
+    });
 
-//     this.videoCallService.agoraClient.on('user-published', (user) => {
-//       this.remoteUserIds.push(user.uid.toString());
-//     });
+    this.videoCallService.agoraClient.on('user-published', (user) => {
+      this.remoteUserIds.push(user.uid.toString());
+    });
 
-//     this.videoCallService.agoraClient.on('user-unpublished', (user) => {
-//       this.remoteUserIds = this.remoteUserIds.filter(uid => uid !== user.uid.toString());
-//     });
+    this.videoCallService.agoraClient.on('user-unpublished', (user) => {
+      this.remoteUserIds = this.remoteUserIds.filter(uid => uid !== user.uid.toString());
+    });
 
-//     this.wsService.listen('call_invite').subscribe((data: any) => {
-//       console.log(`📞 Входящий вызов от ${data.from}`);
+    // WebSocket обработчики для входящих звонков
+    this.wsService.listen('call_invite').subscribe((data: any) => {
+      console.log(`📞 Входящий вызов от ${data.from}`);
+      const acceptCall = confirm(`📞 Входящий вызов от ${data.from}. Принять?`);
+      if (acceptCall) {
+        this.wsService.acceptCall(data.from, data.to);
+        this.videoCallService.joinChannel();
+      } else {
+        this.wsService.rejectCall(data.from, data.to);
+      }
+    });
 
-//       const acceptCall = confirm(`📞 Входящий вызов от ${data.from}. Принять?`);
-//       if (acceptCall) {
-//         this.videoCallService.acceptCall(data.from);
-//       } else {
-//         this.videoCallService.rejectCall(data.from);
-//       }
-//     });
+    this.wsService.listen('call_accept').subscribe((data: any) => {
+      console.log(`✅ Пользователь ${data.from} принял вызов`);
+      this.videoCallService.joinChannel();
+    });
 
-//     this.wsService.listen('call_reject').subscribe((data: any) => {
-//       console.log(`📵 Пользователь ${data.from} отклонил вызов.`);
-//       alert(`📵 Пользователь ${data.from} отклонил вызов.`);
-//     });
+    this.wsService.listen('call_reject').subscribe((data: any) => {
+      console.log(`❌ Пользователь ${data.from} отклонил вызов`);
+      alert(`Пользователь отклонил вызов`);
+    });
+  }
 
-//     this.wsService.listen('call_accept').subscribe((data: any) => {
-//       console.log(`✅ Пользователь ${data.from} принял вызов.`);
-//       this.videoCallService.startVideoCall();
-//     });
-//   }
+  ngAfterViewInit(): void {
+    console.log("📹 VideoCallComponent загружен!");
 
-//   ngAfterViewInit(): void {
-//     console.log("📹 VideoCallComponent загружен!");
+    // Проверяем, есть ли localVideo
+    if (!this.localVideo || !this.localVideo.nativeElement) {
+      console.warn("⚠ localVideo отсутствует! Ожидание 500ms...");
+      setTimeout(() => this.initLocalVideo(), 500);
+      return;
+    }
 
-//     // Проверяем, есть ли localVideo
-//     if (!this.localVideo || !this.localVideo.nativeElement) {
-//       console.warn("⚠ localVideo отсутствует! Ожидание 500ms...");
-//       setTimeout(() => this.initLocalVideo(), 500);
-//       return;
-//     }
+    this.initLocalVideo();
+    console.log("🎥 video-call.component.ts → ngAfterViewInit() сработал!");
+  }
 
-//     this.initLocalVideo();
-//     console.log("🎥 video-call.component.ts → ngAfterViewInit() сработал!");
-//   }
-
-//   ngOnDestroy() {
-//     console.log("❌ video-call.component.ts → Компонент уничтожен!");
-//   }
-
-
-//   private initLocalVideo(): void {
-//     if (!this.videoCallService.localTracks.videoTrack) {
-//       console.warn("⚠ Видеотрек отсутствует, повторный запрос через 500ms...");
-//       setTimeout(() => this.initLocalVideo(), 500);
-//       return;
-//     }
-
-//     if (!this.localVideo || !this.localVideo.nativeElement) {
-//       console.error("❌ localVideo НЕ найден после ожидания!");
-//       return;
-//     }
-
-//     console.log("✅ Видеотрек найден, отображаем локальное видео!");
-//     this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
-
-//   }
-
-//   get videoWidth(): number {
-//     return this.videoCallService.videoWidth;
-//   }
-
-//   get videoHeight(): number {
-//     return this.videoCallService.videoHeight;
-//   }
-
-//   showVideoControls(): void {
-//     this.videoCallService.showControls = true;
-//     clearTimeout(this.videoCallService.controlTimeout);
-//     this.videoCallService.controlTimeout = setTimeout(() => {
-//       this.videoCallService.showControls = false;
-//     }, 3000);
-//   }
-
-//   hideVideoControls(): void {
-//     this.videoCallService.controlTimeout = setTimeout(() => {
-//       this.videoCallService.showControls = false;
-//     }, 3000);
-//   }
-
-//   get showControls(): boolean {
-//     return this.videoCallService.showControls;
-//   }
-
-//   get callActive(): boolean {
-//     return this.videoCallService.callActive;
-//   }
-
-//   toggleCall(): void {
-//     this.videoCallService.toggleCall();
-//   }
-
-//   startResize(event: MouseEvent): void {
-//     event.preventDefault();
-
-//     console.log("🔄 Начало изменения размера видео");
-
-//     const startX = event.clientX;
-//     const startY = event.clientY;
-
-//     const onMouseMove = (moveEvent: MouseEvent) => {
-//       const deltaX = moveEvent.clientX - startX;
-//       const deltaY = moveEvent.clientY - startY;
-
-//       this.videoCallService.resizeVideo(deltaX, deltaY);
-//     };
-
-//     const onMouseUp = () => {
-//       console.log("✅ Завершение изменения размера видео");
-//       document.removeEventListener("mousemove", onMouseMove);
-//       document.removeEventListener("mouseup", onMouseUp);
-//     };
-
-//     document.addEventListener("mousemove", onMouseMove);
-//     document.addEventListener("mouseup", onMouseUp);
-//   }
-
-//   //screensharing
-//   isScreenSharing = false;
-
-//   async toggleScreenSharing() {
-//     // Проверяем поддержку устройства перед началом трансляции
-//     const isSupported = await this.videoCallService.checkSystemSupport();
-//     if (!isSupported) {
-//       alert("Ваш браузер не поддерживает трансляцию экрана!");
-//       return;
-//     }
-
-//     if (this.isScreenSharing) {
-//       await this.videoCallService.stopScreenSharing();
-//     } else {
-//       await this.videoCallService.startScreenSharing();
-//       this.videoCallService.startTrackMonitoring(); // Начинаем мониторинг трека
-//     }
-
-//     this.isScreenSharing = !this.isScreenSharing;
-//   }
-
-//   startDrag(event: MouseEvent) {
-//     event.preventDefault();
-
-//     const elem = ((event.currentTarget as HTMLElement).closest('.video-call-container')) as HTMLElement;
-//     if (!elem) return;
-
-//     const startX = event.clientX;
-//     const startY = event.clientY;
-//     const startLeft = elem.offsetLeft;
-//     const startTop = elem.offsetTop;
-
-//     const onMouseMove = (moveEvent: MouseEvent) => {
-//       const deltaX = moveEvent.clientX - startX;
-//       const deltaY = moveEvent.clientY - startY;
-
-//       let newLeft = startLeft + deltaX;
-//       let newTop = startTop + deltaY;
-
-//       // Ограничения по ширине и высоте окна
-//       const videoWidth = elem.offsetWidth;
-//       const videoHeight = elem.offsetHeight;
-//       const maxLeft = window.innerWidth - videoWidth;
-//       const maxTop = window.innerHeight - videoHeight;
-
-//       // 🔒 Ограничиваем перемещение
-//       newLeft = Math.max(0, Math.min(newLeft, maxLeft));
-//       newTop = Math.max(0, Math.min(newTop, maxTop));
-
-//       elem.style.left = `${newLeft}px`;
-//       elem.style.top = `${newTop}px`;
-//     };
+  ngOnDestroy() {
+    console.log("❌ video-call.component.ts → Компонент уничтожен!");
+  }
 
 
-//     const onMouseUp = () => {
-//       document.removeEventListener("mousemove", onMouseMove);
-//       document.removeEventListener("mouseup", onMouseUp);
-//     };
+  private initLocalVideo(): void {
+    if (!this.videoCallService.localTracks.videoTrack) {
+      console.warn("⚠ Видеотрек отсутствует, повторный запрос через 500ms...");
+      setTimeout(() => this.initLocalVideo(), 500);
+      return;
+    }
 
-//     document.addEventListener("mousemove", onMouseMove);
-//     document.addEventListener("mouseup", onMouseUp);
-//   }
+    if (!this.localVideo || !this.localVideo.nativeElement) {
+      console.error("❌ localVideo НЕ найден после ожидания!");
+      return;
+    }
+
+    console.log("✅ Видеотрек найден, отображаем локальное видео!");
+    this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
+
+  }
+
+  get videoWidth(): number {
+    return this.videoCallService.videoWidth;
+  }
+
+  get videoHeight(): number {
+    return this.videoCallService.videoHeight;
+  }
+
+  showVideoControls(): void {
+    this.videoCallService.showControls = true;
+    clearTimeout(this.videoCallService.controlTimeout);
+    this.videoCallService.controlTimeout = setTimeout(() => {
+      this.videoCallService.showControls = false;
+    }, 3000);
+  }
+
+  hideVideoControls(): void {
+    this.videoCallService.controlTimeout = setTimeout(() => {
+      this.videoCallService.showControls = false;
+    }, 3000);
+  }
+
+  get showControls(): boolean {
+    return this.videoCallService.showControls;
+  }
+
+  get callActive(): boolean {
+    return this.videoCallService.callActive;
+  }
+
+  toggleCall(): void {
+    this.videoCallService.toggleCall();
+  }
+
+  // Метод для инициации звонка конкретному пользователю
+  initiateCall(targetUserId: string): void {
+    const currentUserId = this.videoCallService.userId;
+    if (currentUserId) {
+      console.log(`📞 Инициируем звонок от ${currentUserId} к ${targetUserId}`);
+      this.wsService.initiateCall(targetUserId, currentUserId);
+    } else {
+      console.error('❌ Текущий пользователь не установлен');
+    }
+  }
+
+  startResize(event: MouseEvent): void {
+    event.preventDefault();
+
+    console.log("🔄 Начало изменения размера видео");
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      this.videoCallService.resizeVideo(deltaX, deltaY);
+    };
+
+    const onMouseUp = () => {
+      console.log("✅ Завершение изменения размера видео");
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
+
+  //screensharing
+  isScreenSharing = false;
+
+  async toggleScreenSharing() {
+    // Проверяем поддержку устройства перед началом трансляции
+    const isSupported = await this.videoCallService.checkSystemSupport();
+    if (!isSupported) {
+      alert("Ваш браузер не поддерживает трансляцию экрана!");
+      return;
+    }
+
+    if (this.isScreenSharing) {
+      await this.videoCallService.stopScreenSharing();
+    } else {
+      await this.videoCallService.startScreenSharing();
+      this.videoCallService.startTrackMonitoring(); // Начинаем мониторинг трека
+    }
+
+    this.isScreenSharing = !this.isScreenSharing;
+  }
+
+  startDrag(event: MouseEvent) {
+    event.preventDefault();
+
+    const elem = ((event.currentTarget as HTMLElement).closest('.video-call-container')) as HTMLElement;
+    if (!elem) return;
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startLeft = elem.offsetLeft;
+    const startTop = elem.offsetTop;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      let newLeft = startLeft + deltaX;
+      let newTop = startTop + deltaY;
+
+      // Ограничения по ширине и высоте окна
+      const videoWidth = elem.offsetWidth;
+      const videoHeight = elem.offsetHeight;
+      const maxLeft = window.innerWidth - videoWidth;
+      const maxTop = window.innerHeight - videoHeight;
+
+      // 🔒 Ограничиваем перемещение
+      newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+      newTop = Math.max(0, Math.min(newTop, maxTop));
+
+      elem.style.left = `${newLeft}px`;
+      elem.style.top = `${newTop}px`;
+    };
+
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
 
 
 
-// }
+}

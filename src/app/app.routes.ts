@@ -4,6 +4,7 @@ import { AboutComponent } from './features/about/about.component';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/components/register/register.component';
 // import { VideoCallComponent } from './features/lessons/video-call/video-call.component'; // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
+import { TestVideoCallComponent } from './test-video-call/test-video-call.component';
 import { LandingComponent } from './features/landing/landing.component';
 import { PreviewLandingComponent } from './features/landing/preview-landing/preview-landing.component';
 import { RoleGuard } from './core/guards/role.guard';
@@ -30,6 +31,7 @@ export const routes: Routes = [
     data: { roles: ['student', 'teacher'] }
   },
   //{ path: 'video-call', component: VideoCallComponent }, // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
+  { path: 'test-video', component: TestVideoCallComponent }, // Тестовая страница видео звонков
   { path: 'landing', component: LandingComponent },
   { path: 'landing/preview', component: PreviewLandingComponent },
   { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule) },
