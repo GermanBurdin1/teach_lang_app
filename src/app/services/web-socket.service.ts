@@ -9,9 +9,12 @@ export class WebSocketService {
   private socket: Socket;
 
   constructor() {
-    console.log('🔌 Инициализация WebSocket подключения к http://localhost:3011');
+    // Определяем адрес API Gateway в зависимости от окружения
+    const apiHost = window.location.hostname === 'localhost' ? 'localhost' : window.location.hostname;
+    const wsUrl = `http://${apiHost}:3011`;
+    console.log('🔌 Инициализация WebSocket подключения к', wsUrl);
     
-    this.socket = io('http://localhost:3011', {
+    this.socket = io(wsUrl, {
       transports: ['websocket', 'polling'], // Добавляем fallback
       forceNew: true,
       timeout: 10000,

@@ -55,6 +55,37 @@ import { WebSocketService } from '../services/web-socket.service';
         <p>WebSocket: {{ wsConnected ? '✅ Подключен' : '❌ Отключен' }}</p>
         <p>Видео: {{ videoActive ? '📹 Активно' : '📵 Неактивно' }}</p>
         <p>Пользователь зарегистрирован: {{ userRegistered ? '✅ Да' : '❌ Нет' }}</p>
+        <p>Agora канал: {{ videoCallService.callActive ? '🔴 Подключен' : '⚪ Отключен' }}</p>
+        <p>Удалённые пользователи: {{ remoteUsersCount }}</p>
+      </div>
+      
+      <div class="instructions" *ngIf="currentUser">
+        <h3>📖 Инструкция для тестирования:</h3>
+        <div class="instruction-box">
+          <h4>Сценарий 1: Тестирование в одном браузере</h4>
+          <ol>
+            <li>Откройте <strong>2 вкладки</strong> с этой страницей</li>
+            <li>В 1-й вкладке выберите <strong>"Учитель Иван"</strong></li>
+            <li>Во 2-й вкладке выберите <strong>"Студент Петр"</strong></li>
+            <li>В 1-й вкладке нажмите <strong>"📞 Позвонить Петру"</strong></li>
+            <li>Во 2-й вкладке <strong>подтвердите вызов</strong></li>
+            <li>Оба пользователя должны увидеть друг друга!</li>
+          </ol>
+          
+          <h4>Сценарий 2: С другого ноутбука</h4>
+          <ol>
+            <li>Убедитесь что <strong>API Gateway запущен</strong> на этом компьютере</li>
+            <li>На втором ноутбуке откройте: <strong>http://{{ currentIP }}:4200/test-video</strong></li>
+            <li>Выберите разных пользователей на каждом устройстве</li>
+            <li>Инициируйте звонок как в сценарии 1</li>
+          </ol>
+          
+          <div class="ip-info">
+            <strong>🌐 IP адрес для второго ноутбука:</strong>
+            <code>{{ currentIP }}</code>
+            <button class="copy-btn" (click)="copyIP()">📋 Копировать</button>
+          </div>
+        </div>
       </div>
 
       <!-- Компонент видео звонка -->
@@ -135,6 +166,63 @@ import { WebSocketService } from '../services/web-socket.service';
       margin: 5px 0;
       font-weight: bold;
     }
+    
+    .instructions {
+      margin: 20px 0;
+      padding: 15px;
+      border: 2px solid #3498db;
+      border-radius: 8px;
+      background: #ecf0f1;
+    }
+    
+    .instruction-box {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    
+    .instruction-box h4 {
+      color: #2c3e50;
+      margin: 10px 0;
+    }
+    
+    .instruction-box ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    .instruction-box li {
+      margin: 5px 0;
+      line-height: 1.5;
+    }
+    
+    .ip-info {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      border-left: 4px solid #27ae60;
+    }
+    
+    .ip-info code {
+      background: #2c3e50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      margin: 0 10px;
+    }
+    
+    .copy-btn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
   `]
 })
 export class TestVideoCallComponent implements OnInit {
@@ -143,6 +231,8 @@ export class TestVideoCallComponent implements OnInit {
   wsConnected: boolean = false;
   videoActive: boolean = false;
   userRegistered: boolean = false;
+  remoteUsersCount: number = 0;
+  currentIP: string = 'localhost';
 
   constructor(
     public videoCallService: VideoCallService,
@@ -152,10 +242,21 @@ export class TestVideoCallComponent implements OnInit {
   ngOnInit() {
     console.log('🧪 Тестовая страница видео звонков загружена');
     
+    // Получаем локальный IP адрес
+    this.getCurrentIP();
+    
     // Подписываемся на изменения статуса видео
     this.videoCallService.showVideoCall$.subscribe(active => {
       this.videoActive = active;
     });
+    
+    // Отслеживаем количество удаленных пользователей
+    setInterval(() => {
+      if (this.videoCallService.agoraClient) {
+        // Получаем удаленных пользователей из Agora клиента
+        this.remoteUsersCount = Object.keys(this.videoCallService.remoteUsers || {}).length;
+      }
+    }, 1000);
 
     // Слушаем события подключения WebSocket
     this.wsService.listen('connect').subscribe(() => {
@@ -229,5 +330,38 @@ export class TestVideoCallComponent implements OnInit {
     
     console.log(`📞 Звоним пользователю ${targetUserId}`);
     this.wsService.initiateCall(targetUserId, this.currentUser);
+  }
+
+  getCurrentIP() {
+    // Простой способ получить локальный IP (работает не во всех браузерах)
+    try {
+      const connection = new RTCPeerConnection({ iceServers: [] });
+      connection.createDataChannel('');
+      connection.createOffer().then(offer => connection.setLocalDescription(offer));
+      
+      connection.onicecandidate = (event) => {
+        if (event.candidate) {
+          const candidate = event.candidate.candidate;
+          const ipMatch = candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+          if (ipMatch && ipMatch[1] !== '127.0.0.1') {
+            this.currentIP = ipMatch[1];
+            connection.close();
+          }
+        }
+      };
+    } catch (error) {
+      console.log('Не удалось определить IP адрес:', error);
+      // Для разработки используем известный IP
+      this.currentIP = '192.168.1.152'; // Ваш реальный IP
+    }
+  }
+
+  copyIP() {
+    const fullUrl = `http://${this.currentIP}:4200/test-video`;
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      alert('📋 URL скопирован в буфер обмена!');
+    }).catch(() => {
+      alert(`📋 Скопируйте вручную: ${fullUrl}`);
+    });
   }
 }

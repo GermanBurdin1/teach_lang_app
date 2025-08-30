@@ -30,12 +30,33 @@ export class VideoCallComponent implements OnInit {
       }
     });
 
-    this.videoCallService.agoraClient.on('user-published', (user) => {
-      this.remoteUserIds.push(user.uid.toString());
+    this.videoCallService.agoraClient.on('user-published', async (user, mediaType) => {
+      console.log('👤 Пользователь опубликовал:', user.uid, mediaType);
+      
+      // Подписываемся на удаленного пользователя
+      await this.videoCallService.agoraClient?.subscribe(user, mediaType);
+      
+      if (mediaType === 'video') {
+        if (!this.remoteUserIds.includes(user.uid.toString())) {
+          this.remoteUserIds.push(user.uid.toString());
+        }
+        // Воспроизводим видео через небольшую задержку
+        setTimeout(() => {
+          const remoteVideoTrack = user.videoTrack;
+          remoteVideoTrack?.play(`remote-video-${user.uid}`);
+        }, 100);
+      }
+      
+      if (mediaType === 'audio') {
+        user.audioTrack?.play();
+      }
     });
 
-    this.videoCallService.agoraClient.on('user-unpublished', (user) => {
-      this.remoteUserIds = this.remoteUserIds.filter(uid => uid !== user.uid.toString());
+    this.videoCallService.agoraClient.on('user-unpublished', (user, mediaType) => {
+      console.log('👤 Пользователь отключил:', user.uid, mediaType);
+      if (mediaType === 'video') {
+        this.remoteUserIds = this.remoteUserIds.filter(uid => uid !== user.uid.toString());
+      }
     });
 
     // WebSocket обработчики для входящих звонков
