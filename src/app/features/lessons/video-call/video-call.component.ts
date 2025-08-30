@@ -48,6 +48,11 @@ export class VideoCallComponent implements OnInit {
           if (!this.remoteUserIds.includes(user.uid.toString())) {
             this.remoteUserIds.push(user.uid.toString());
             console.log('📝 Добавлен удаленный пользователь. Список:', this.remoteUserIds);
+            
+            // Перезапускаем локальное видео для переключения в PiP режим
+            setTimeout(() => {
+              this.initLocalVideo();
+            }, 300);
           }
           
           // Воспроизводим видео через небольшую задержку
@@ -87,6 +92,12 @@ export class VideoCallComponent implements OnInit {
       console.log('👤 Пользователь отключил:', user.uid, mediaType);
       if (mediaType === 'video') {
         this.remoteUserIds = this.remoteUserIds.filter(uid => uid !== user.uid.toString());
+        console.log('📝 Удален удаленный пользователь. Список:', this.remoteUserIds);
+        
+        // Перезапускаем локальное видео для переключения в главный режим
+        setTimeout(() => {
+          this.initLocalVideo();
+        }, 300);
       }
     });
 
@@ -115,15 +126,12 @@ export class VideoCallComponent implements OnInit {
 
   ngAfterViewInit(): void {
     console.log("📹 VideoCallComponent загружен!");
-
-    // Проверяем, есть ли localVideo
-    if (!this.localVideo || !this.localVideo.nativeElement) {
-      console.warn("⚠ localVideo отсутствует! Ожидание 500ms...");
-      setTimeout(() => this.initLocalVideo(), 500);
-      return;
-    }
-
-    this.initLocalVideo();
+    
+    // Ждем немного и пытаемся инициализировать локальное видео
+    setTimeout(() => {
+      this.initLocalVideo();
+    }, 500);
+    
     console.log("🎥 video-call.component.ts → ngAfterViewInit() сработал!");
   }
 
@@ -140,18 +148,29 @@ export class VideoCallComponent implements OnInit {
     }
 
     console.log("✅ Видеотрек найден, отображаем локальное видео!");
+    console.log("🔍 Состояние элементов:", {
+      hasLocalVideo: !!(this.localVideo && this.localVideo.nativeElement),
+      hasLocalVideoPip: !!(this.localVideoPip && this.localVideoPip.nativeElement),
+      remoteUsersCount: this.remoteUserIds.length
+    });
     
-    // Воспроизводим на главном видео (когда нет удаленных пользователей)
-    if (this.localVideo && this.localVideo.nativeElement) {
-      this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
-    }
-    
-    // Воспроизводим на PiP видео (когда есть удаленные пользователи)
-    setTimeout(() => {
-      if (this.localVideoPip && this.localVideoPip.nativeElement && this.videoCallService.localTracks.videoTrack) {
+    // Если есть удаленные пользователи - показываем себя в PiP
+    if (this.remoteUserIds.length > 0) {
+      if (this.localVideoPip && this.localVideoPip.nativeElement) {
         this.videoCallService.localTracks.videoTrack.play(this.localVideoPip.nativeElement);
+        console.log("✅ Локальное видео запущено в PiP режиме");
+      } else {
+        console.warn("⚠ localVideoPip элемент не найден");
       }
-    }, 100);
+    } else {
+      // Если нет удаленных пользователей - показываем себя в главном окне
+      if (this.localVideo && this.localVideo.nativeElement) {
+        this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
+        console.log("✅ Локальное видео запущено в главном окне");
+      } else {
+        console.warn("⚠ localVideo элемент не найден");
+      }
+    }
   }
 
   get videoWidth(): number {
