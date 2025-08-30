@@ -9,6 +9,7 @@ import { WebSocketService } from '../../../services/web-socket.service';
 })
 export class VideoCallComponent implements OnInit {
   @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
+  @ViewChild('localVideoPip') localVideoPip!: ElementRef<HTMLVideoElement>;
   @Input() isFloatingMode: boolean = false;
   remoteUserIds: string[] = [];
 
@@ -31,24 +32,54 @@ export class VideoCallComponent implements OnInit {
     });
 
     this.videoCallService.agoraClient.on('user-published', async (user, mediaType) => {
-      console.log('👤 Пользователь опубликовал:', user.uid, mediaType);
+      console.log('🎯 ПОЛУЧЕН user-published:', {
+        uid: user.uid,
+        mediaType: mediaType,
+        currentChannel: this.videoCallService.channelName,
+        currentUser: this.videoCallService.userId
+      });
       
-      // Подписываемся на удаленного пользователя
-      await this.videoCallService.agoraClient?.subscribe(user, mediaType);
-      
-      if (mediaType === 'video') {
-        if (!this.remoteUserIds.includes(user.uid.toString())) {
-          this.remoteUserIds.push(user.uid.toString());
+      try {
+        // Подписываемся на удаленного пользователя
+        await this.videoCallService.agoraClient?.subscribe(user, mediaType);
+        console.log('✅ Подписались на пользователя:', user.uid, mediaType);
+        
+        if (mediaType === 'video') {
+          if (!this.remoteUserIds.includes(user.uid.toString())) {
+            this.remoteUserIds.push(user.uid.toString());
+            console.log('📝 Добавлен удаленный пользователь. Список:', this.remoteUserIds);
+          }
+          
+          // Воспроизводим видео через небольшую задержку
+          setTimeout(() => {
+            const remoteVideoTrack = user.videoTrack;
+            const videoElement = document.getElementById(`remote-video-${user.uid}`) as HTMLVideoElement;
+            
+            console.log('🎥 Попытка воспроизвести удаленное видео:', {
+              uid: user.uid,
+              hasTrack: !!remoteVideoTrack,
+              hasElement: !!videoElement,
+              elementId: `remote-video-${user.uid}`
+            });
+            
+            if (remoteVideoTrack && videoElement) {
+              remoteVideoTrack.play(videoElement);
+              console.log('✅ Удаленное видео запущено для пользователя:', user.uid);
+            } else {
+              console.error('❌ Не удалось запустить удаленное видео:', {
+                track: !!remoteVideoTrack,
+                element: !!videoElement
+              });
+            }
+          }, 200);
         }
-        // Воспроизводим видео через небольшую задержку
-        setTimeout(() => {
-          const remoteVideoTrack = user.videoTrack;
-          remoteVideoTrack?.play(`remote-video-${user.uid}`);
-        }, 100);
-      }
-      
-      if (mediaType === 'audio') {
-        user.audioTrack?.play();
+        
+        if (mediaType === 'audio') {
+          user.audioTrack?.play();
+          console.log('🔊 Аудио запущено для пользователя:', user.uid);
+        }
+      } catch (error) {
+        console.error('❌ Ошибка при подписке на пользователя:', error);
       }
     });
 
@@ -108,14 +139,19 @@ export class VideoCallComponent implements OnInit {
       return;
     }
 
-    if (!this.localVideo || !this.localVideo.nativeElement) {
-      console.error("❌ localVideo НЕ найден после ожидания!");
-      return;
-    }
-
     console.log("✅ Видеотрек найден, отображаем локальное видео!");
-    this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
-
+    
+    // Воспроизводим на главном видео (когда нет удаленных пользователей)
+    if (this.localVideo && this.localVideo.nativeElement) {
+      this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
+    }
+    
+    // Воспроизводим на PiP видео (когда есть удаленные пользователи)
+    setTimeout(() => {
+      if (this.localVideoPip && this.localVideoPip.nativeElement && this.videoCallService.localTracks.videoTrack) {
+        this.videoCallService.localTracks.videoTrack.play(this.localVideoPip.nativeElement);
+      }
+    }, 100);
   }
 
   get videoWidth(): number {

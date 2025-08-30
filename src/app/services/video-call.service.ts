@@ -37,8 +37,8 @@ export class VideoCallService {
 
   remoteUsers: { [uid: string]: { videoTrack: IRemoteVideoTrack | null, audioTrack: IRemoteAudioTrack | null } } = {};
   appId = 'a020b374553e4fac80325223fba38531'; // Замените на ваш App ID
-  channelName = 'rtc_token';
-  token = ''; // Можно оставить пустым для тестирования
+  channelName = 'test_channel_123'; // Простое имя канала
+  token = null; // null для тестового режима
   callActive: boolean = false;
   showControls = false;
   controlTimeout: any; // Объявляем свойство rtmClient
@@ -69,20 +69,42 @@ export class VideoCallService {
 
   async joinChannel(): Promise<void> {
     try {
+      console.log('🔌 Начинаем подключение к Agora канала:', {
+        appId: this.appId,
+        channelName: this.channelName,
+        userId: this.userId,
+        token: this.token || 'без токена'
+      });
+
       // Создаем локальные треки
+      console.log('📹 Создаем локальные треки...');
       this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      console.log('✅ Локальные треки созданы');
 
       // Присоединяемся к каналу
-      await this.agoraClient.join(this.appId, this.channelName, this.token, this.userId);
+      console.log('🚪 Присоединяемся к каналу...');
+      const uid = await this.agoraClient.join(this.appId, this.channelName, this.token, this.userId);
+      console.log('✅ Присоединились к каналу с UID:', uid);
       
       // Публикуем треки
+      console.log('📡 Публикуем треки...');
       await this.agoraClient.publish([this.localTracks.audioTrack, this.localTracks.videoTrack]);
+      console.log('✅ Треки опубликованы');
       
       this.callActive = true;
-      console.log('✅ Подключен к каналу Agora');
+      console.log('🎉 Успешно подключен к каналу Agora:', {
+        channelName: this.channelName,
+        userId: this.userId,
+        uid: uid
+      });
     } catch (error) {
       console.error('❌ Ошибка подключения к Agora:', error);
+      console.error('🔍 Детали ошибки:', {
+        name: (error as any)?.name,
+        message: (error as any)?.message,
+        code: (error as any)?.code
+      });
     }
   }
 

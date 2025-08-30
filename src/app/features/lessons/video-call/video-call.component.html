@@ -1,39 +1,52 @@
 <div class="video-call-container" [class.floating]="isFloatingMode" [class.screen-sharing-active]="isScreenSharing"
   (mousedown)="startDrag($event)">
-  <div class="video-container" #localVideoContainer [style.width.px]="videoWidth" [style.height.px]="videoHeight"
-    (mouseenter)="showVideoControls()" (mouseleave)="hideVideoControls()">
+  
+  <!-- ОСНОВНОЕ ВИДЕО (удаленные пользователи) -->
+  <div class="main-video-container" 
+       [style.width.px]="videoWidth" 
+       [style.height.px]="videoHeight"
+       (mouseenter)="showVideoControls()" 
+       (mouseleave)="hideVideoControls()">
+    
+    <!-- Если есть удаленные пользователи - показываем их -->
+    <ng-container *ngIf="remoteUserIds.length > 0">
+      <div class="remote-video-main" *ngFor="let uid of remoteUserIds; let first = first">
+        <video *ngIf="first" 
+               id="remote-video-{{ uid }}" 
+               autoplay 
+               playsinline 
+               class="main-video-stream">
+        </video>
+        <div class="user-info">{{ uid }}</div>
+      </div>
+    </ng-container>
+    
+    <!-- Если нет удаленных пользователей - показываем свое видео -->
+    <div *ngIf="remoteUserIds.length === 0" class="waiting-state">
+      <video #localVideo autoplay playsinline class="main-video-stream"></video>
+      <div class="waiting-message">Ожидание подключения других участников...</div>
+    </div>
 
-    <video #localVideo autoplay playsinline class="video-stream"></video>
+    <!-- Кнопки управления -->
+    <div class="controls-overlay" *ngIf="showControls">
+      <button class="control-btn" (click)="toggleCall()"
+        title="{{ callActive ? 'Завершить звонок' : 'Возобновить звонок' }}">
+        <i [class]="callActive ? 'fas fa-phone-slash' : 'fas fa-phone'"></i>
+      </button>
 
-    <!-- Кнопки управления звонком -->
-    <button class="control-btn" *ngIf="showControls" (click)="toggleCall()"
-      title="{{ callActive ? 'Terminer l\'appel' : 'Reprendre l\'appel' }}">
-      <i [class]="callActive ? 'fas fa-phone-slash' : 'fas fa-phone'"></i>
-    </button>
-
-    <!-- Кнопка "Позвонить пользователю" (временная) -->
-    <button class="control-btn call-user-btn" *ngIf="showControls" (click)="initiateCall('student123')"
-      title="Appeler un utilisateur">
-      <i class="fas fa-user-phone"></i>
-    </button>
-
-    <!-- Кнопка "Поделиться экраном" -->
-    <button class="control-btn share-screen-btn" *ngIf="showControls" (click)="toggleScreenSharing()"
-      title="{{ isScreenSharing ? 'Arrêter le partage d\'écran' : 'Partager l\'écran' }}">
-      <i [class]="isScreenSharing ? 'fas fa-stop-circle' : 'fas fa-desktop'"></i>
-    </button>
-
-
+      <button class="control-btn share-screen-btn" (click)="toggleScreenSharing()"
+        title="{{ isScreenSharing ? 'Остановить демонстрацию' : 'Демонстрация экрана' }}">
+        <i [class]="isScreenSharing ? 'fas fa-stop-circle' : 'fas fa-desktop'"></i>
+      </button>
+    </div>
 
     <!-- Область для изменения размера -->
     <div class="resize-handle" (mousedown)="startResize($event)"></div>
   </div>
 
-  <div id="remote-videos" class="remote-videos">
-    <ng-container *ngFor="let uid of remoteUserIds">
-      <div class="remote-video-container">
-        <video id="remote-video-{{ uid }}" autoplay playsinline class="video-stream"></video>
-      </div>
-    </ng-container>
+  <!-- МАЛЕНЬКОЕ ЛОКАЛЬНОЕ ВИДЕО (picture-in-picture) -->
+  <div class="local-video-pip" *ngIf="remoteUserIds.length > 0">
+    <video #localVideoPip autoplay playsinline muted class="pip-video-stream"></video>
+    <div class="pip-label">Вы</div>
   </div>
 </div>
