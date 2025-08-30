@@ -1,52 +1,102 @@
 <div class="video-call-container" [class.floating]="isFloatingMode" [class.screen-sharing-active]="isScreenSharing"
   (mousedown)="startDrag($event)">
   
-  <!-- ОСНОВНОЕ ВИДЕО (удаленные пользователи) -->
-  <div class="main-video-container" 
-       [style.width.px]="videoWidth" 
-       [style.height.px]="videoHeight"
-       (mouseenter)="showVideoControls()" 
-       (mouseleave)="hideVideoControls()">
-    
-    <!-- Если есть удаленные пользователи - показываем их -->
-    <ng-container *ngIf="remoteUserIds.length > 0">
-      <div class="remote-video-main" *ngFor="let uid of remoteUserIds; let first = first">
-        <video *ngIf="first" 
-               id="remote-video-{{ uid }}" 
-               autoplay 
-               playsinline 
-               class="main-video-stream">
-        </video>
-        <div class="user-info">{{ uid }}</div>
-      </div>
-    </ng-container>
-    
-    <!-- Если нет удаленных пользователей - показываем свое видео -->
-    <div *ngIf="remoteUserIds.length === 0" class="waiting-state">
-      <video #localVideo autoplay playsinline class="main-video-stream"></video>
-      <div class="waiting-message">Ожидание подключения других участников...</div>
-    </div>
+           <!-- ОСНОВНОЕ ВИДЕО -->
+         <div class="main-video-container" 
+              [style.width.px]="videoWidth" 
+              [style.height.px]="videoHeight"
+              (mouseenter)="showVideoControls()" 
+              (mouseleave)="hideVideoControls()">
+           
+           <!-- РЕЖИМ ПРЕПОДАВАТЕЛЯ: Видит всех студентов + себя в сетке -->
+           <ng-container *ngIf="isTeacher()">
+             <div class="teacher-grid-view">
+               <div class="video-grid" [class]="'grid-' + getTeacherGridLayout()">
+                 <!-- Локальное видео учителя (всегда первым) -->
+                 <div class="grid-video-item teacher-self">
+                   <video #localVideo autoplay playsinline muted class="grid-video-stream"></video>
+                   <div class="video-label">{{ getParticipantDisplayName(videoCallService.userId) }} (Вы)</div>
+                 </div>
+                 
+                 <!-- Удаленные студенты -->
+                 <div *ngFor="let uid of remoteUserIds" class="grid-video-item">
+                   <video id="remote-video-{{ uid }}" autoplay playsinline class="grid-video-stream"></video>
+                   <div class="video-label">{{ getParticipantDisplayName(uid) }}</div>
+                 </div>
+               </div>
+               
+               <!-- Сообщение если нет студентов -->
+               <div *ngIf="remoteUserIds.length === 0" class="waiting-overlay">
+                 <div class="waiting-message">🏫 Ожидание подключения студентов...</div>
+               </div>
+             </div>
+           </ng-container>
+
+           <!-- РЕЖИМ СТУДЕНТА: Видит преподавателя крупно -->
+           <ng-container *ngIf="!isTeacher()">
+             <div *ngIf="remoteUserIds.length > 0; else studentWaiting" class="student-teacher-view">
+               <!-- Показываем преподавателя если он есть, иначе первого участника -->
+               <ng-container *ngIf="getTeacherUID(); else showFirstParticipant">
+                 <video [id]="'remote-video-' + getTeacherUID()"
+                        autoplay 
+                        playsinline 
+                        class="main-video-stream">
+                 </video>
+                 <div class="teacher-info">{{ getTeacherName() }}</div>
+               </ng-container>
+               
+               <ng-template #showFirstParticipant>
+                 <video *ngIf="remoteUserIds[0]"
+                        [id]="'remote-video-' + remoteUserIds[0]"
+                        autoplay 
+                        playsinline 
+                        class="main-video-stream">
+                 </video>
+                 <div class="teacher-info">{{ getParticipantDisplayName(remoteUserIds[0]) }}</div>
+               </ng-template>
+             </div>
+             <ng-template #studentWaiting>
+               <div class="waiting-state">
+                 <video #localVideo autoplay playsinline class="main-video-stream"></video>
+                 <div class="waiting-message">📚 Ожидание подключения к уроку...</div>
+               </div>
+             </ng-template>
+           </ng-container>
 
     <!-- Кнопки управления -->
     <div class="controls-overlay" *ngIf="showControls">
       <button class="control-btn" (click)="toggleCall()"
         title="{{ callActive ? 'Завершить звонок' : 'Возобновить звонок' }}">
-        <i [class]="callActive ? 'fas fa-phone-slash' : 'fas fa-phone'"></i>
-      </button>
+      <i [class]="callActive ? 'fas fa-phone-slash' : 'fas fa-phone'"></i>
+    </button>
 
       <button class="control-btn share-screen-btn" (click)="toggleScreenSharing()"
         title="{{ isScreenSharing ? 'Остановить демонстрацию' : 'Демонстрация экрана' }}">
-        <i [class]="isScreenSharing ? 'fas fa-stop-circle' : 'fas fa-desktop'"></i>
-      </button>
+      <i [class]="isScreenSharing ? 'fas fa-stop-circle' : 'fas fa-desktop'"></i>
+    </button>
     </div>
 
     <!-- Область для изменения размера -->
     <div class="resize-handle" (mousedown)="startResize($event)"></div>
   </div>
 
-  <!-- МАЛЕНЬКОЕ ЛОКАЛЬНОЕ ВИДЕО (picture-in-picture) -->
-  <div class="local-video-pip" *ngIf="remoteUserIds.length > 0">
-    <video #localVideoPip autoplay playsinline muted class="pip-video-stream"></video>
-    <div class="pip-label">Вы</div>
-  </div>
+         <!-- PICTURE-IN-PICTURE ВИДЕО -->
+         <div class="pip-container">
+           <!-- ТОЛЬКО ДЛЯ СТУДЕНТОВ: Преподаватель НЕ использует PiP -->
+           <ng-container *ngIf="!isTeacher()">
+             <!-- Локальное видео студента всегда в PiP -->
+             <div class="local-video-pip">
+               <video #localVideoPip autoplay playsinline muted class="pip-video-stream"></video>
+               <div class="pip-label">{{ getParticipantDisplayName(videoCallService.userId) }} (Вы)</div>
+             </div>
+
+             <!-- Другие студенты в организованной сетке -->
+             <div *ngIf="getOtherStudents().length > 0" class="students-pip-grid">
+               <div *ngFor="let studentId of getOtherStudents(); trackBy: trackByStudentId" class="student-pip">
+                 <video [id]="'student-pip-' + studentId" autoplay playsinline class="pip-video-stream"></video>
+                 <div class="pip-label">{{ getParticipantDisplayName(studentId) }}</div>
+               </div>
+             </div>
+           </ng-container>
+         </div>
 </div>

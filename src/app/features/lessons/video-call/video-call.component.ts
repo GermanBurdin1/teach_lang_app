@@ -55,26 +55,35 @@ export class VideoCallComponent implements OnInit {
             }, 300);
           }
           
-          // Воспроизводим видео через небольшую задержку
+          // Воспроизводим видео на всех необходимых элементах
           setTimeout(() => {
             const remoteVideoTrack = user.videoTrack;
-            const videoElement = document.getElementById(`remote-video-${user.uid}`) as HTMLVideoElement;
             
             console.log('🎥 Попытка воспроизвести удаленное видео:', {
               uid: user.uid,
               hasTrack: !!remoteVideoTrack,
-              hasElement: !!videoElement,
-              elementId: `remote-video-${user.uid}`
+              isTeacher: this.isTeacher(),
+              isTeacherUID: this.isTeacherUID(user.uid.toString())
             });
             
-            if (remoteVideoTrack && videoElement) {
-              remoteVideoTrack.play(videoElement);
-              console.log('✅ Удаленное видео запущено для пользователя:', user.uid);
-            } else {
-              console.error('❌ Не удалось запустить удаленное видео:', {
-                track: !!remoteVideoTrack,
-                element: !!videoElement
+            if (remoteVideoTrack) {
+              // Основное видео - воспроизводим на всех элементах с соответствующим ID
+              const mainVideoElements = document.querySelectorAll(`#remote-video-${user.uid}`) as NodeListOf<HTMLVideoElement>;
+              mainVideoElements.forEach((element, index) => {
+                if (element) {
+                  remoteVideoTrack.play(element);
+                  console.log(`✅ Основное видео запущено для ${user.uid} (элемент ${index + 1})`);
+                }
               });
+
+              // Для студентов: PiP видео других студентов
+              if (!this.isTeacher() && !this.isTeacherUID(user.uid.toString())) {
+                const pipVideoElement = document.getElementById(`student-pip-${user.uid}`) as HTMLVideoElement;
+                if (pipVideoElement) {
+                  remoteVideoTrack.play(pipVideoElement);
+                  console.log('✅ PiP видео запущено для студента:', user.uid);
+                }
+              }
             }
           }, 200);
         }
@@ -151,24 +160,32 @@ export class VideoCallComponent implements OnInit {
     console.log("🔍 Состояние элементов:", {
       hasLocalVideo: !!(this.localVideo && this.localVideo.nativeElement),
       hasLocalVideoPip: !!(this.localVideoPip && this.localVideoPip.nativeElement),
-      remoteUsersCount: this.remoteUserIds.length
+      remoteUsersCount: this.remoteUserIds.length,
+      isTeacher: this.isTeacher()
     });
     
-    // Если есть удаленные пользователи - показываем себя в PiP
-    if (this.remoteUserIds.length > 0) {
-      if (this.localVideoPip && this.localVideoPip.nativeElement) {
-        this.videoCallService.localTracks.videoTrack.play(this.localVideoPip.nativeElement);
-        console.log("✅ Локальное видео запущено в PiP режиме");
-      } else {
-        console.warn("⚠ localVideoPip элемент не найден");
-      }
-    } else {
-      // Если нет удаленных пользователей - показываем себя в главном окне
+    if (this.isTeacher()) {
+      // ПРЕПОДАВАТЕЛЬ: Только в сетке, НЕ в PiP (как в Teams)
       if (this.localVideo && this.localVideo.nativeElement) {
         this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
-        console.log("✅ Локальное видео запущено в главном окне");
+        console.log("✅ Преподаватель: локальное видео в сетке (без PiP)");
+      }
+      
+      // Преподаватель НЕ показывается в PiP - он всегда в сетке
+    } else {
+      // СТУДЕНТ: В главном окне если один, в PiP если есть другие
+      if (this.remoteUserIds.length === 0) {
+        // Студент один - показываем в главном окне
+        if (this.localVideo && this.localVideo.nativeElement) {
+          this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
+          console.log("✅ Студент: локальное видео в главном окне (один)");
+        }
       } else {
-        console.warn("⚠ localVideo элемент не найден");
+        // Есть другие участники - показываем в PiP
+        if (this.localVideoPip && this.localVideoPip.nativeElement) {
+          this.videoCallService.localTracks.videoTrack.play(this.localVideoPip.nativeElement);
+          console.log("✅ Студент: локальное видео в PiP");
+        }
       }
     }
   }
@@ -306,6 +323,52 @@ export class VideoCallComponent implements OnInit {
     document.addEventListener("mouseup", onMouseUp);
   }
 
+  // === TEAMS-LIKE UX МЕТОДЫ ===
 
+  isTeacher(): boolean {
+    return this.videoCallService.userId === 'teacher1';
+  }
 
+  isTeacherUID(uid: string): boolean {
+    return uid === 'teacher1';
+  }
+
+  getGridLayout(): string {
+    const count = this.remoteUserIds.length;
+    return Math.min(count, 9).toString();
+  }
+
+  getTeacherGridLayout(): string {
+    // Учитель + студенты (локальное видео учителя всегда добавляется)
+    const totalCount = this.remoteUserIds.length + 1;
+    return Math.min(totalCount, 9).toString();
+  }
+
+  getTeacherUID(): string | null {
+    return this.remoteUserIds.find(uid => this.isTeacherUID(uid)) || null;
+  }
+
+  getParticipantDisplayName(uid: string): string {
+    const userMap: {[key: string]: string} = {
+      'teacher1': 'Учитель Иван',
+      'student1': 'Студент Петр',
+      'student2': 'Студент Мария',
+      'student3': 'Студент Алиса',
+      'student4': 'Студент Никита'
+    };
+    return userMap[uid] || uid;
+  }
+
+  getTeacherName(): string {
+    const teacherUID = this.remoteUserIds.find(uid => this.isTeacherUID(uid));
+    return teacherUID ? this.getParticipantDisplayName(teacherUID) : 'Преподаватель';
+  }
+
+  getOtherStudents(): string[] {
+    return this.remoteUserIds.filter(uid => !this.isTeacherUID(uid));
+  }
+
+  trackByStudentId(index: number, studentId: string): string {
+    return studentId;
+  }
 }

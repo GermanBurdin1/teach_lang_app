@@ -238,6 +238,152 @@
   border: none !important;
 }
 
+/* === TEAMS-LIKE UX === */
+
+/* Сетка преподавателя для просмотра всех студентов */
+.teacher-grid-view {
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+}
+
+.video-grid {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.grid-1 { grid-template-columns: 1fr; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.grid-5, .grid-6 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.grid-7, .grid-8, .grid-9 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+
+.grid-video-item {
+  position: relative;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 120px;
+  border: 2px solid #e0e0e0;
+}
+
+.grid-video-item.teacher-self {
+  border: 3px solid #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+.waiting-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  text-align: center;
+}
+
+.grid-video-stream {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-label {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Режим студента - видит преподавателя крупно */
+.student-teacher-view {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.teacher-info {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Picture-in-Picture контейнер */
+.pip-container {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 200px;
+}
+
+.local-video-pip {
+  width: 160px;
+  height: 120px;
+  border: 3px solid #007bff;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  position: relative;
+}
+
+.students-pip-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.students-pip-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.students-pip-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.students-pip-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.student-pip {
+  width: 140px;
+  height: 105px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.student-pip:hover {
+  transform: scale(1.05);
+  border-color: #ffc107;
+}
+
 .video-stream {
   width: 100%;
   height: 100%;

@@ -169,19 +169,22 @@ export class VideoCallService {
 
   startVideoCall(): void {
     console.log('🎥 Запуск видеозвонка');
+    console.log('📍 Текущее состояние:', {
+      channelName: this.channelName,
+      userId: this.userId,
+      callActive: this.callActive,
+      showVideoCall: this.showVideoCallSubject.getValue()
+    });
 
     this.showVideoCallSubject.next(true);
     console.log('✅ showVideoCall$ изменён:', this.showVideoCallSubject.getValue());
 
-    // this.joinChannel().then(() => {
-    //   console.log('✅ Успешно подключились к каналу!');
-      
-    //   // НЕ начинаем урок автоматически при подключении к каналу
-    //   // Урок начнется только при реальном запуске видео
-    //   console.log('📝 Урок НЕ начат автоматически - ждем реального запуска видео');
-    // }).catch(error => {
-    //   console.error('❌ Ошибка при подключении к каналу:', error);
-    // });
+    // Автоматически подключаемся к Agora каналу
+    this.joinChannel().then(() => {
+      console.log('✅ Успешно подключились к каналу!');
+    }).catch(error => {
+      console.error('❌ Ошибка при подключении к каналу:', error);
+    });
   }
 
   stopVideoCall(): void {
