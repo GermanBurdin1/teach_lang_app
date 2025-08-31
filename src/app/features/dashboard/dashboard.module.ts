@@ -56,6 +56,7 @@ import { AdminUsersManagementComponent } from './school-dashboard/admin-users-ma
 import { AdminLessonsManagementComponent } from './school-dashboard/admin-lessons-management/admin-lessons-management.component';
 import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -117,6 +118,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     MatSnackBarModule,
     MatTooltipModule,
     MatPaginatorModule,
+    MatDialogModule,
     BsDatepickerModule.forRoot()
   ],
   exports: [ReviewListComponent]

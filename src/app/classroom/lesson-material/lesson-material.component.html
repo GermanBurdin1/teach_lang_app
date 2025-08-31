@@ -13,6 +13,13 @@
       📂
       <div class="label">matériaux</div>
     </div>
+
+    <!-- 👥 Nouvelle вкладка для управления классом -->
+    <div class="tab-button top-tab" (click)="toggleClassManagement()" [class.active]="showClassManagement"
+      title="Gestion de classe">
+      👥
+      <div class="label">Gestion de classe</div>
+    </div>
   </div>
 
   <div class="row justify-content-center align-items-start video-wrapper position-relative">
@@ -36,6 +43,121 @@
                         (openNotesEvent)="onGabaritOpenNotes($event)">
 
       </app-gabarit-page>
+
+      <!-- 👥 Панель управления классом -->
+      <div *ngIf="showClassManagement" class="class-management-panel">
+        <div class="class-header">
+          <h2>🎓 Gestion de classe DELF/DALF</h2>
+          <button *ngIf="!currentClass" 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="openCreateClassDialog()">
+            ➕ Créer une nouvelle classe
+          </button>
+        </div>
+
+        <!-- Если класс не создан -->
+        <div *ngIf="!currentClass" class="no-class-message">
+          <mat-card class="welcome-card">
+            <mat-card-header>
+              <mat-card-title>Bienvenue dans votre espace classe !</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>Créez votre première classe pour commencer à enseigner le français (DELF/DALF)</p>
+              <ul>
+                <li>✅ Organisez vos élèves par niveau</li>
+                <li>✅ Gérez les invitations d'élèves</li>
+                <li>✅ Lancez des cours en ligne</li>
+                <li>✅ Suivez les progrès de chaque élève</li>
+              </ul>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Если класс создан -->
+        <div *ngIf="currentClass" class="class-details">
+          <mat-card class="class-info-card">
+            <mat-card-header>
+              <div mat-card-avatar class="class-avatar">{{ currentClass.level }}</div>
+              <mat-card-title>{{ currentClass.name }}</mat-card-title>
+              <mat-card-subtitle>
+                Niveau {{ currentClass.level }} • {{ currentClass.students?.length || 0 }}/{{ currentClass.maxStudents }} élèves
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p>{{ currentClass.description }}</p>
+              
+              <!-- Список студентов в классе -->
+              <div class="students-section">
+                <h4>📚 Élèves inscrits:</h4>
+                <div *ngIf="currentClass.students?.length > 0; else noStudents" class="students-grid">
+                  <mat-chip-set>
+                    <mat-chip *ngFor="let student of currentClass.students" 
+                             [removable]="true"
+                             (removed)="removeStudentFromClass(student)">
+                      {{ student.name }}
+                      <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+                <ng-template #noStudents>
+                  <p class="text-muted">Aucun élève inscrit pour le moment</p>
+                </ng-template>
+              </div>
+
+              <!-- Кнопки действий -->
+              <div class="class-actions">
+                <button mat-raised-button color="primary" (click)="startVideoCall()">
+                  🎥 Commencer le cours
+                </button>
+                <button mat-stroked-button (click)="openInviteStudentsDialog()">
+                  ➕ Ajouter des élèves
+                </button>
+                <button mat-stroked-button (click)="editClass()">
+                  ✏️ Modifier la classe
+                </button>
+                <button mat-stroked-button color="warn" (click)="deleteClass()">
+                  🗑️ Supprimer la classe
+                </button>
+              </div>
+
+              <!-- Список доступных студентов для добавления -->
+              <div *ngIf="showStudentsList" class="students-selection-panel">
+                <div class="students-selection-header">
+                  <h4>👥 Ajouter des élèves confirmés</h4>
+                  <button mat-icon-button (click)="closeStudentsList()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+                
+                <div *ngIf="availableStudents.length === 0" class="no-students-message">
+                  <p>Aucun élève disponible pour l'ajout.</p>
+                  <p>Les élèves doivent d'abord être confirmés dans l'onglet "Étudiants".</p>
+                </div>
+                
+                <div *ngIf="availableStudents.length > 0" class="available-students-list">
+                  <mat-card *ngFor="let student of availableStudents" class="student-selection-card">
+                    <mat-card-content>
+                      <div class="student-selection-info">
+                        <h5>{{ student.name }}</h5>
+                        <p *ngIf="student.nextLessonDate">
+                          Prochain cours: {{ student.nextLessonDate | date:'dd/MM/yyyy HH:mm' }}
+                        </p>
+                      </div>
+                      <button mat-raised-button 
+                              color="primary" 
+                              (click)="addStudentToCurrentClass(student)">
+                        <mat-icon>person_add</mat-icon>
+                        Ajouter à la classe
+                      </button>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
 
     </div>
 

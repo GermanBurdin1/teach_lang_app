@@ -919,3 +919,94 @@ body {
   background: #f0f8ff;
   border-left: 3px solid #2196f3;
 }
+
+/* Стили для панели выбора студентов */
+.students-selection-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.students-selection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.students-selection-header h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.no-students-message {
+  text-align: center;
+  padding: 24px;
+  color: #6c757d;
+}
+
+.no-students-message p {
+  margin: 8px 0;
+}
+
+.available-students-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.student-selection-card {
+  transition: all 0.2s ease;
+}
+
+.student-selection-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.student-selection-card mat-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px !important;
+}
+
+.student-selection-info h5 {
+  margin: 0 0 4px 0;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.student-selection-info p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* Стили для селектора классов в overview */
+.class-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.class-select-field {
+  min-width: 200px;
+}
+
+.student-class-status {
+  font-size: 12px;
+  color: #28a745;
+  font-weight: 500;
+  padding: 4px 8px;
+  background: #d4edda;
+  border-radius: 4px;
+  text-align: center;
+}

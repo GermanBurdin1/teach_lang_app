@@ -1,7 +1,10 @@
 <div class="overview-layout">
   <!-- ЛЕВАЯ ЧАСТЬ — СТУДЕНТЫ -->
   <div class="students-panel">
-    <h3>Mes élèves</h3>
+    <div class="students-header">
+      <h3>Mes élèves</h3>
+      <p class="header-description">Gérez vos élèves et ajoutez-les à vos classes DELF/DALF</p>
+    </div>
 
     <!-- Фильтр -->
     <mat-button-toggle-group [(ngModel)]="studentViewFilter" aria-label="Filtrer">
@@ -27,9 +30,42 @@
           <button mat-raised-button color="primary" (click)="respondToRequest(student, true)">Accepter</button>
           <button mat-stroked-button color="warn" (click)="respondToRequest(student, false)">Refuser</button>
         </ng-container>
-        <button mat-icon-button (click)="openStudentModal(student)" aria-label="Voir les détails" matTooltip="Détails">
-          <mat-icon>open_in_new</mat-icon>
-        </button>
+        <div class="student-actions">
+          <!-- DEBUG: показываем информацию о студенте -->
+          <div class="debug-info" style="font-size: 12px; color: #666; margin: 4px 0;">
+            isStudent: {{ student.isStudent }}, classes: {{ teacherClasses.length }}
+          </div>
+          
+          <!-- Добавить в класс (только для подтвержденных студентов) -->
+          <div *ngIf="student.isStudent || student.studentId || studentViewFilter === 'students'" class="class-selector">
+            <mat-form-field appearance="fill" class="class-select-field">
+              <mat-label>Ajouter à la classe</mat-label>
+              <mat-select (selectionChange)="addStudentToSelectedClass(student, $event.value)" 
+                         [value]="getStudentCurrentClass(student)">
+                <mat-option *ngFor="let classe of teacherClasses" [value]="classe.id">
+                  {{ classe.name }} ({{ classe.level }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <span *ngIf="getStudentCurrentClass(student)" class="student-class-status">
+              ✅ Dans {{ getStudentCurrentClassName(student) }}
+            </span>
+          </div>
+          
+          <!-- Кнопка приглашения нового студента (только для заявок) -->
+          <button *ngIf="!student.isStudent && !student.studentId && student.type === 'booking_request'" 
+                  mat-stroked-button 
+                  color="accent" 
+                  (click)="inviteStudentToClass(student)" 
+                  matTooltip="Inviter à devenir votre élève">
+            <mat-icon>person_add</mat-icon>
+            Inviter comme élève
+          </button>
+          
+          <button mat-icon-button (click)="openStudentModal(student)" aria-label="Voir les détails" matTooltip="Détails">
+            <mat-icon>open_in_new</mat-icon>
+          </button>
+        </div>
       </mat-card>
 
       <mat-card *ngIf="showRefuseDialog" class="request-card">
@@ -267,5 +303,69 @@
         </li>
       </ul>
     </div>
+  </div>
+</ng-template>
+
+<!-- 📧 МОДАЛЬНОЕ ОКНО ПРИГЛАШЕНИЯ СТУДЕНТА -->
+<ng-template #inviteStudentDialog>
+  <div class="invite-dialog">
+    <h2 mat-dialog-title>📧 Inviter un nouvel élève</h2>
+    
+    <mat-dialog-content>
+      <p>Envoyez une invitation à un élève pour qu'il devienne votre étudiant DELF/DALF</p>
+      
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Email de l'élève</mat-label>
+        <input matInput 
+               [(ngModel)]="inviteForm.email" 
+               type="email" 
+               placeholder="exemple@email.com"
+               required>
+        <mat-hint>L'élève doit déjà être inscrit sur la plateforme</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Niveau DELF/DALF</mat-label>
+        <mat-select [(ngModel)]="inviteForm.level" required>
+          <mat-option value="A1">A1 - Débutant</mat-option>
+          <mat-option value="A2">A2 - Élémentaire</mat-option>
+          <mat-option value="B1">B1 - Intermédiaire</mat-option>
+          <mat-option value="B2">B2 - Intermédiaire avancé</mat-option>
+          <mat-option value="C1">C1 - Avancé</mat-option>
+          <mat-option value="C2">C2 - Maîtrise</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Message personnel (optionnel)</mat-label>
+        <textarea matInput 
+                  [(ngModel)]="inviteForm.message" 
+                  rows="3"
+                  placeholder="Bonjour ! Je souhaiterais vous proposer des cours de français..."></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Objectif de l'examen</mat-label>
+        <mat-select [(ngModel)]="inviteForm.examGoal">
+          <mat-option value="DELF A1">DELF A1</mat-option>
+          <mat-option value="DELF A2">DELF A2</mat-option>
+          <mat-option value="DELF B1">DELF B1</mat-option>
+          <mat-option value="DELF B2">DELF B2</mat-option>
+          <mat-option value="DALF C1">DALF C1</mat-option>
+          <mat-option value="DALF C2">DALF C2</mat-option>
+          <mat-option value="Général">Français général</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Annuler</button>
+      <button mat-raised-button 
+              color="primary" 
+              (click)="sendStudentInvitation()"
+              [disabled]="!inviteForm.email || !inviteForm.level">
+        📧 Envoyer l'invitation
+      </button>
+    </mat-dialog-actions>
   </div>
 </ng-template>

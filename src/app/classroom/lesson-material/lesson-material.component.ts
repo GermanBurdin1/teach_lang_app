@@ -55,6 +55,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   countdown = 3000; // 3000 секунд
   private countdownInterval: any = null;
 
+  // Управление классом
+  showClassManagement = false;
+  currentClass: any = null;
+  showStudentsList = false;
+  availableStudents: any[] = []; // Подтвержденные студенты для добавления
+
   constructor(
     private backgroundService: BackgroundService, 
     public lessonTabsService: LessonTabsService, 
@@ -79,6 +85,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       if (role === 'student' || role === 'teacher') {
         this.userRole = role;
         console.log('👤 Роль пользователя:', role);
+        
+        // Если преподаватель зашел в компонент, автоматически показываем управление классом
+        if (role === 'teacher') {
+          this.showClassManagement = true;
+          this.loadTeacherClasses();
+        }
       }
     });
 
@@ -783,5 +795,174 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       console.error('❌ Ошибка при старте урока:', error);
       alert('Ошибка при старте урока. Попробуйте еще раз.');
     }
+  }
+
+  // Методы управления классом
+  toggleClassManagement(): void {
+    this.showClassManagement = !this.showClassManagement;
+    if (this.showClassManagement) {
+      this.showBoard = false;
+      this.showGabarit = false;
+    }
+  }
+
+  openCreateClassDialog(): void {
+    console.log('📝 Открытие диалога создания класса');
+    
+    const className = prompt('Введите название класса (например, "DELF B1 - Группа 1"):');
+    if (!className) return;
+    
+    const levelOptions = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const level = prompt(`Выберите уровень DELF/DALF:\n${levelOptions.map((l, i) => `${i+1}. ${l}`).join('\n')}\n\nВведите номер:`) || '1';
+    const selectedLevel = levelOptions[parseInt(level) - 1] || 'B1';
+    
+    const description = prompt('Описание класса (необязательно):') || `Класс для подготовки к экзамену DELF уровня ${selectedLevel}`;
+    
+    const maxStudents = parseInt(prompt('Максимальное количество студентов (по умолчанию 10):') || '10');
+    
+    this.currentClass = {
+      id: Date.now().toString(),
+      name: className,
+      level: selectedLevel,
+      description: description,
+      maxStudents: maxStudents,
+      students: [],
+      teacherId: this.authService.getCurrentUser()?.id,
+      createdAt: new Date().toISOString(),
+      status: 'active'
+    };
+    
+    // Сохраняем класс в localStorage
+    this.saveClassToStorage();
+    
+    console.log('✅ Новый класс создан:', this.currentClass);
+  }
+
+  loadTeacherClasses(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) return;
+    
+    // Загружаем классы преподавателя из localStorage
+    const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
+    if (savedClasses) {
+      const classes = JSON.parse(savedClasses);
+      // Берем последний созданный активный класс
+      this.currentClass = classes.find((cls: any) => cls.status === 'active') || null;
+      console.log('📚 Загружены классы преподавателя:', classes);
+    }
+  }
+
+  saveClassToStorage(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId || !this.currentClass) return;
+    
+    const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
+    let classes = savedClasses ? JSON.parse(savedClasses) : [];
+    
+    // Обновляем существующий класс или добавляем новый
+    const existingIndex = classes.findIndex((cls: any) => cls.id === this.currentClass.id);
+    if (existingIndex >= 0) {
+      classes[existingIndex] = this.currentClass;
+    } else {
+      classes.push(this.currentClass);
+    }
+    
+    localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(classes));
+    console.log('💾 Класс сохранен в localStorage');
+  }
+
+  removeStudentFromClass(student: any): void {
+    console.log('🗑️ Удаление студента из класса:', student);
+    if (this.currentClass && this.currentClass.students) {
+      const index = this.currentClass.students.indexOf(student);
+      if (index > -1) {
+        this.currentClass.students.splice(index, 1);
+        this.saveClassToStorage(); // Сохраняем изменения
+        console.log('✅ Студент удален из класса');
+      }
+    }
+  }
+
+  openInviteStudentsDialog(): void {
+    console.log('👥 Открытие диалога приглашения студентов через платформу');
+    
+    if (!this.currentClass) {
+      alert('Сначала создайте класс!');
+      return;
+    }
+    
+    // Показываем список подтвержденных студентов для добавления
+    this.loadAvailableStudents();
+    this.showStudentsList = true;
+  }
+
+  loadAvailableStudents(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) return;
+    
+    // Получаем подтвержденных студентов из lesson service
+    this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe({
+      next: (students) => {
+        // Фильтруем студентов, которые уже не в текущем классе
+        this.availableStudents = students.filter(student => 
+          !this.currentClass.students?.find((s: any) => 
+            s.id === student.studentId || s.name === student.name
+          )
+        );
+        console.log('📚 Доступные студенты для добавления:', this.availableStudents);
+      },
+      error: (error) => {
+        console.error('❌ Ошибка при загрузке студентов:', error);
+        // Fallback: используем моковые данные или пустой массив
+        this.availableStudents = [];
+      }
+    });
+  }
+
+  addStudentToCurrentClass(student: any): void {
+    if (!this.currentClass) return;
+    
+    if (!this.currentClass.students) {
+      this.currentClass.students = [];
+    }
+    
+    // Добавляем студента
+    this.currentClass.students.push({
+      id: student.studentId || Date.now().toString(),
+      name: student.name,
+      addedAt: new Date().toISOString()
+    });
+    
+    // Удаляем из доступных студентов
+    this.availableStudents = this.availableStudents.filter(s => 
+      s.studentId !== student.studentId && s.name !== student.name
+    );
+    
+    // Сохраняем изменения
+    this.saveClassToStorage();
+    
+    console.log('✅ Студент добавлен в класс:', student.name);
+  }
+
+  closeStudentsList(): void {
+    this.showStudentsList = false;
+  }
+
+  editClass(): void {
+    console.log('✏️ Редактирование класса');
+    // TODO: Реализовать диалог редактирования класса
+    alert('Функция редактирования класса будет реализована в следующей версии');
+  }
+
+  deleteClass(): void {
+    console.log('🗑️ Удаление класса');
+    if (confirm('Вы уверены, что хотите удалить этот класс? Это действие нельзя отменить.')) {
+      this.currentClass = null;
+      console.log('✅ Класс удален');
+    }
+  }
+
+  private generateInviteCode(): string {
+    return Math.random().toString(36).substring(2, 10).toUpperCase();
   }
 }

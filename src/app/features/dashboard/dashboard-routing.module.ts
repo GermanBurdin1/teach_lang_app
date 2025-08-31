@@ -78,6 +78,7 @@ const routes: Routes = [
       { path: 'mindmap', component: VocabularyComponent },
       { path: 'trainer', component: TrainerComponent },
       { path: 'training', component: TrainerComponent },
+      { path: 'classroom', redirectTo: '/classroom/1/lesson', pathMatch: 'full' },
       { path: 'settings', component: TeacherSettingsComponent }
     ]
   }

@@ -211,3 +211,47 @@
   margin: 16px 0;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
 }
+
+/* Стили для селектора классов в карточках студентов */
+.class-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.class-select-field {
+  min-width: 250px;
+}
+
+.student-class-status {
+  font-size: 12px;
+  color: #28a745;
+  font-weight: 500;
+  padding: 4px 8px;
+  background: #d4edda;
+  border-radius: 4px;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.students-header {
+  margin-bottom: 16px;
+}
+
+.students-header h3 {
+  margin: 0 0 8px 0;
+}
+
+.header-description {
+  margin: 0;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.student-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}

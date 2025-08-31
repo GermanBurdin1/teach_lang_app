@@ -16,6 +16,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatCardModule } from '@angular/material/card';
 
 const routes: Routes = [
   { path: ':id/lesson', component: LessonMaterialComponent },
@@ -41,6 +43,8 @@ const routes: Routes = [
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    MatChipsModule,
+    MatCardModule,
     RouterModule.forChild(routes) // Маршрут компонента
   ],
   providers: [DatePipe],

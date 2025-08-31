@@ -101,6 +101,16 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   teacherReviews: any[] = [];
   showPublicProfilePreview = false;
 
+  // Управление классом и приглашениями
+  hasActiveClass = true; // Временно установим true для демонстрации
+  teacherClasses: any[] = []; // Список всех классов преподавателя
+  inviteForm = {
+    email: '',
+    level: '',
+    message: '',
+    examGoal: ''
+  };
+
   ngOnInit(): void {
     const stored = localStorage.getItem('teacher_reviews');
     this.reviews = stored ? JSON.parse(stored) : MOCK_REVIEWS;
@@ -143,6 +153,48 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
 
     this.refreshStudents();
+    this.loadTeacherClasses();
+  }
+
+  loadTeacherClasses(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) return;
+    
+    const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
+    if (savedClasses) {
+      this.teacherClasses = JSON.parse(savedClasses);
+      console.log('[Overview] Загружены классы преподавателя:', this.teacherClasses);
+    } else {
+      // Если нет сохраненных классов, создаем демонстрационный класс
+      console.log('[Overview] Нет сохраненных классов, создаем демо-класс');
+      this.teacherClasses = [
+        {
+          id: 'demo-class-1',
+          name: 'DELF B1 - Groupe 1',
+          level: 'B1',
+          description: 'Classe de démonstration pour DELF B1',
+          maxStudents: 10,
+          students: [],
+          teacherId: teacherId,
+          createdAt: new Date().toISOString(),
+          status: 'active'
+        },
+        {
+          id: 'demo-class-2', 
+          name: 'DALF C1 - Groupe Avancé',
+          level: 'C1',
+          description: 'Classe de démonstration pour DALF C1',
+          maxStudents: 8,
+          students: [],
+          teacherId: teacherId,
+          createdAt: new Date().toISOString(),
+          status: 'active'
+        }
+      ];
+      
+      // Сохраняем демо-классы
+      localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(this.teacherClasses));
+    }
   }
 
   openPublicProfileModal(): void {
@@ -382,6 +434,207 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       case 'completed': return '✅';
       default: return '❓';
     }
+  }
+
+  // Методы для управления классом и приглашениями
+  openInviteStudentDialog(): void {
+    console.log('📧 Открытие диалога приглашения студента через платформу');
+    
+    // Реализация приглашения через платформу вместо email
+    const inviteCode = this.generateInviteCode();
+    const platformInviteLink = `${window.location.origin}/join-teacher/${this.authService.getCurrentUser()?.id}?code=${inviteCode}`;
+    
+    // Показываем ссылку пользователю для копирования
+    const message = `Поделитесь этой ссылкой со студентами для присоединения к вашим урокам:\n\n${platformInviteLink}\n\nИли они могут ввести код приглашения: ${inviteCode}`;
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(platformInviteLink).then(() => {
+        this.snackBar.open('✅ Ссылка приглашения скопирована в буфер обмена!', 'OK', { duration: 3000 });
+        alert(message);
+      }).catch(() => {
+        alert(message);
+      });
+    } else {
+      alert(message);
+    }
+  }
+
+  addStudentToClass(student: any): void {
+    console.log('👥 Добавление студента в активный класс:', student);
+    
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) return;
+    
+    // Загружаем классы преподавателя
+    const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
+    if (!savedClasses) {
+      this.snackBar.open('Сначала создайте класс во вкладке "Classes"', 'OK', { duration: 3000 });
+      return;
+    }
+    
+    const classes = JSON.parse(savedClasses);
+    const activeClass = classes.find((cls: any) => cls.status === 'active');
+    
+    if (!activeClass) {
+      this.snackBar.open('Нет активного класса. Создайте класс во вкладке "Classes"', 'OK', { duration: 3000 });
+      return;
+    }
+    
+    // Проверяем, есть ли уже студент в классе
+    if (activeClass.students && activeClass.students.find((s: any) => s.id === student.studentId || s.name === student.name)) {
+      this.snackBar.open('Студент уже в классе', 'OK', { duration: 3000 });
+      return;
+    }
+    
+    // Добавляем студента в класс
+    if (!activeClass.students) {
+      activeClass.students = [];
+    }
+    
+    activeClass.students.push({
+      id: student.studentId || Date.now().toString(),
+      name: student.name || student.metadata?.studentName,
+      addedAt: new Date().toISOString()
+    });
+    
+    // Сохраняем обновленные классы
+    localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(classes));
+    
+    this.snackBar.open(`✅ ${student.name || student.metadata?.studentName} добавлен в класс "${activeClass.name}"`, 'OK', { duration: 3000 });
+  }
+
+  isStudentInClass(student: any): boolean {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) return false;
+    
+    const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
+    if (!savedClasses) return false;
+    
+    const classes = JSON.parse(savedClasses);
+    const activeClass = classes.find((cls: any) => cls.status === 'active');
+    
+    if (!activeClass || !activeClass.students) return false;
+    
+    return activeClass.students.some((s: any) => 
+      s.id === student.studentId || 
+      s.name === student.name || 
+      s.name === student.metadata?.studentName
+    );
+  }
+
+  sendStudentInvitation(): void {
+    console.log('📧 Отправка приглашения студенту:', this.inviteForm);
+    
+    if (!this.inviteForm.email || !this.inviteForm.level) {
+      this.snackBar.open('Заполните обязательные поля', 'OK', { duration: 3000 });
+      return;
+    }
+
+    // Реализация через платформу вместо email
+    const inviteCode = this.generateInviteCode();
+    const platformInviteLink = `${window.location.origin}/join-teacher/${this.authService.getCurrentUser()?.id}?code=${inviteCode}&level=${this.inviteForm.level}`;
+    
+    const message = `Приглашение отправлено! Поделитесь этой ссылкой с студентом:\n\n${platformInviteLink}\n\nКод приглашения: ${inviteCode}\nУровень: ${this.inviteForm.level}`;
+    
+    // Очищаем форму
+    this.inviteForm = {
+      email: '',
+      level: '',
+      message: '',
+      examGoal: ''
+    };
+
+    this.snackBar.open('✅ Приглашение создано!', 'OK', { duration: 3000 });
+    alert(message);
+  }
+
+  inviteStudentToClass(student: any): void {
+    console.log('👥 Приглашение студента в класс:', student);
+    
+    // Генерируем ссылку приглашения для конкретного студента
+    const inviteCode = this.generateInviteCode();
+    const studentInviteLink = `${window.location.origin}/join-teacher/${this.authService.getCurrentUser()?.id}?code=${inviteCode}&student=${student.metadata?.studentName || student.name}`;
+    
+    const message = `Приглашение для ${student.metadata?.studentName || student.name}!\n\nПоделитесь этой ссылкой со студентом для присоединения к вашим урокам:\n\n${studentInviteLink}\n\nКод приглашения: ${inviteCode}\n\nСтудент сможет подтвердить, что хочет стать вашим учеником.`;
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(studentInviteLink).then(() => {
+        this.snackBar.open('✅ Ссылка приглашения скопирована в буфер обмена!', 'OK', { duration: 3000 });
+        alert(message);
+      }).catch(() => {
+        alert(message);
+      });
+    } else {
+      alert(message);
+    }
+  }
+
+  addStudentToSelectedClass(student: any, classId: string): void {
+    console.log('👥 Добавление студента в выбранный класс:', student, classId);
+    
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId || !classId) return;
+    
+    const targetClass = this.teacherClasses.find(cls => cls.id === classId);
+    if (!targetClass) {
+      this.snackBar.open('Класс не найден', 'OK', { duration: 3000 });
+      return;
+    }
+    
+    // Проверяем, есть ли уже студент в классе
+    if (targetClass.students && targetClass.students.find((s: any) => 
+      s.id === student.studentId || s.name === student.name)) {
+      this.snackBar.open('Студент уже в этом классе', 'OK', { duration: 3000 });
+      return;
+    }
+    
+    // Удаляем студента из других классов
+    this.teacherClasses.forEach(cls => {
+      if (cls.students) {
+        cls.students = cls.students.filter((s: any) => 
+          s.id !== student.studentId && s.name !== student.name);
+      }
+    });
+    
+    // Добавляем студента в выбранный класс
+    if (!targetClass.students) {
+      targetClass.students = [];
+    }
+    
+    targetClass.students.push({
+      id: student.studentId || Date.now().toString(),
+      name: student.name || student.metadata?.studentName,
+      addedAt: new Date().toISOString()
+    });
+    
+    // Сохраняем изменения
+    localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(this.teacherClasses));
+    
+    this.snackBar.open(`✅ ${student.name || student.metadata?.studentName} добавлен в класс "${targetClass.name}"`, 'OK', { duration: 3000 });
+  }
+
+  getStudentCurrentClass(student: any): string | null {
+    const studentName = student.name || student.metadata?.studentName;
+    
+    for (const classe of this.teacherClasses) {
+      if (classe.students && classe.students.find((s: any) => 
+        s.id === student.studentId || s.name === studentName)) {
+        return classe.id;
+      }
+    }
+    return null;
+  }
+
+  getStudentCurrentClassName(student: any): string | null {
+    const classId = this.getStudentCurrentClass(student);
+    if (!classId) return null;
+    
+    const classe = this.teacherClasses.find(cls => cls.id === classId);
+    return classe ? classe.name : null;
+  }
+
+  private generateInviteCode(): string {
+    return Math.random().toString(36).substring(2, 10).toUpperCase();
   }
 
 }
