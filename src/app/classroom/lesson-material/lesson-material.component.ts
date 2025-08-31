@@ -280,6 +280,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.showGabarit = !this.showGabarit;
     if (this.showGabarit) {
       this.showBoard = false;
+      this.showClassManagement = false; // Скрываем панель управления классом
     }
   }
 
@@ -287,9 +288,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     if (view === 'board') {
       this.showBoard = true;
       this.showGabarit = false;
+      this.showClassManagement = false;
     } else {
       this.showBoard = false;
       this.showGabarit = true;
+      this.showClassManagement = false;
     }
   }
 
@@ -303,6 +306,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.showBoard = !this.showBoard;
     if (this.showBoard) {
       this.showGabarit = false;
+      this.showClassManagement = false; // Скрываем панель управления классом
     }
   }
 
