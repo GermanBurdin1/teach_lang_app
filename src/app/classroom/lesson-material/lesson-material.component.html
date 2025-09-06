@@ -82,6 +82,10 @@
               <mat-card-title>{{ currentClass.name }}</mat-card-title>
               <mat-card-subtitle>
                 Niveau {{ currentClass.level }} • {{ currentClass.students?.length || 0 }}/{{ currentClass.maxStudents }} élèves
+                <br>
+                <small class="text-muted" *ngIf="currentClass.scheduledAt">
+                  🕒 Cours planifié le {{ currentClass.scheduledAt | date:'EEEE dd MMMM yyyy à HH:mm':'fr' }}
+                </small>
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>

@@ -13,6 +13,7 @@ import { LessonNotesService } from '../../services/lesson-notes.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LessonNotesModalComponent } from './lesson-notes-modal/lesson-notes-modal.component';
 import { HomeworkModalComponent } from './homework-modal/homework-modal.component';
+import { GroupClassService, CreateGroupClassDto, GroupClass } from '../../services/group-class.service';
 
 @Component({
   selector: 'app-lesson-material',
@@ -72,7 +73,8 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     private lessonService: LessonService,
     private materialService: MaterialService,
     private lessonNotesService: LessonNotesService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private groupClassService: GroupClassService
   ) { }
 
   trackByIndex(index: number, item: string): number {
@@ -824,36 +826,78 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     
     const maxStudents = parseInt(prompt('Максимальное количество студентов (по умолчанию 10):') || '10');
     
-    this.currentClass = {
-      id: Date.now().toString(),
+    // Запрашиваем дату и время первого урока
+    const lessonDate = prompt('Дата первого урока (дд/мм/гггг, например 25/12/2023):');
+    const lessonTime = prompt('Время первого урока (чч:мм, например 14:30):');
+    
+    let scheduledDate = new Date();
+    if (lessonDate && lessonTime) {
+      try {
+        const [day, month, year] = lessonDate.split('/');
+        const [hours, minutes] = lessonTime.split(':');
+        scheduledDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
+      } catch (error) {
+        console.warn('Некорректная дата/время, используем текущее время');
+      }
+    }
+    
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) {
+      alert('Ошибка: пользователь не авторизован');
+      return;
+    }
+
+    const createClassDto: CreateGroupClassDto = {
       name: className,
       level: selectedLevel,
       description: description,
       maxStudents: maxStudents,
-      students: [],
-      teacherId: this.authService.getCurrentUser()?.id,
-      createdAt: new Date().toISOString(),
-      status: 'active'
+      teacherId: teacherId,
+      scheduledAt: scheduledDate.toISOString()
     };
-    
-    // Сохраняем класс в localStorage
-    this.saveClassToStorage();
-    
-    console.log('✅ Новый класс создан:', this.currentClass);
+
+    // Создаем класс через API
+    this.groupClassService.createGroupClass(createClassDto).subscribe({
+      next: (createdClass: GroupClass) => {
+        console.log('✅ Класс создан на бекенде:', createdClass);
+        this.currentClass = createdClass;
+        
+        // Также сохраняем в localStorage для совместимости
+        this.saveClassToStorage();
+      },
+      error: (error) => {
+        console.error('❌ Ошибка создания класса:', error);
+        alert('Ошибка при создании класса. Попробуйте снова.');
+      }
+    });
   }
 
   loadTeacherClasses(): void {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId) return;
     
-    // Загружаем классы преподавателя из localStorage
-    const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
-    if (savedClasses) {
-      const classes = JSON.parse(savedClasses);
-      // Берем последний созданный активный класс
-      this.currentClass = classes.find((cls: any) => cls.status === 'active') || null;
-      console.log('📚 Загружены классы преподавателя:', classes);
-    }
+    // Загружаем классы преподавателя с бекенда
+    this.groupClassService.getTeacherGroupClasses(teacherId).subscribe({
+      next: (classes: GroupClass[]) => {
+        console.log('📚 Загружены классы преподавателя с бекенда:', classes);
+        // Берем последний созданный активный класс
+        this.currentClass = classes.find((cls: any) => cls.status === 'active') || null;
+        
+        // Также сохраняем в localStorage для совместимости
+        localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(classes));
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки классов с бекенда, используем localStorage:', error);
+        
+        // Fallback на localStorage
+        const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
+        if (savedClasses) {
+          const classes = JSON.parse(savedClasses);
+          this.currentClass = classes.find((cls: any) => cls.status === 'active') || null;
+          console.log('📚 Загружены классы из localStorage:', classes);
+        }
+      }
+    });
   }
 
   saveClassToStorage(): void {
@@ -877,14 +921,37 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   removeStudentFromClass(student: any): void {
     console.log('🗑️ Удаление студента из класса:', student);
-    if (this.currentClass && this.currentClass.students) {
-      const index = this.currentClass.students.indexOf(student);
-      if (index > -1) {
-        this.currentClass.students.splice(index, 1);
-        this.saveClassToStorage(); // Сохраняем изменения
-        console.log('✅ Студент удален из класса');
-      }
+    
+    if (!this.currentClass || !this.currentClass.id) {
+      alert('Класс не найден');
+      return;
     }
+
+    const studentId = student.studentId || student.id;
+    if (!studentId) {
+      alert('ID студента не найден');
+      return;
+    }
+
+    // Удаляем студента через API
+    this.groupClassService.removeStudentFromClass(this.currentClass.id, studentId).subscribe({
+      next: () => {
+        console.log('✅ Студент удален из класса на бекенде');
+        
+        // Обновляем локальные данные
+        if (this.currentClass && this.currentClass.students) {
+          const index = this.currentClass.students.indexOf(student);
+          if (index > -1) {
+            this.currentClass.students.splice(index, 1);
+            this.saveClassToStorage(); // Сохраняем изменения в localStorage
+          }
+        }
+      },
+      error: (error) => {
+        console.error('❌ Ошибка удаления студента:', error);
+        alert('Ошибка при удалении студента. Попробуйте снова.');
+      }
+    });
   }
 
   openInviteStudentsDialog(): void {

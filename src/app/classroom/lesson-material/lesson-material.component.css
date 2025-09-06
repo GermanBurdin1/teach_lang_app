@@ -1010,3 +1010,22 @@ body {
   border-radius: 4px;
   text-align: center;
 }
+
+/* Стили для информации о расписании класса */
+.lesson-schedule-info {
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.schedule-label {
+  margin: 0;
+  color: #1976d2;
+  font-size: 14px;
+}
+
+.schedule-label strong {
+  font-weight: 600;
+}

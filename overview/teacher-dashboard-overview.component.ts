@@ -177,6 +177,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
           students: [],
           teacherId: teacherId,
           createdAt: new Date().toISOString(),
+          scheduledAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // Dans 3 jours
           status: 'active'
         },
         {
@@ -188,6 +189,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
           students: [],
           teacherId: teacherId,
           createdAt: new Date().toISOString(),
+          scheduledAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Dans 7 jours
           status: 'active'
         }
       ];

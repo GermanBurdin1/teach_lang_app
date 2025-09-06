@@ -443,13 +443,14 @@ export class HeaderComponent {
   showAddStudentModal = false;
 
   // Пример списка пользователей
-  users = [
+  users: { initials: string; name: string; email: string; id: number; role: string; online: boolean; }[] = [
     {
       initials: 'J',
       name: 'Jean',
       email: 'coding_german@',
       id: 2477981,
       role: 'student',
+      online: true,
     },
     {
       initials: 'A',
@@ -457,6 +458,7 @@ export class HeaderComponent {
       email: 'alice@example.com',
       id: 1234567,
       role: 'student',
+      online: false,
     },
   ];
 
