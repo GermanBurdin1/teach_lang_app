@@ -47,7 +47,7 @@
     </div>
 
     <div class="galaxies cosmic-galaxies" *ngIf="!zoomedGalaxy">
-      <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper galaxy-cosmic" #galaxyWrapper>
+      <div *ngFor="let galaxy of galaxies; let i = index" class="galaxy-wrapper galaxy-cosmic galaxy-image" #galaxyWrapper>
         <!-- Кнопка плюсика вне SVG -->
         <button class="galaxy-add-button cosmic-button" (click)="onGalaxyAddButtonClick($event, galaxy.name)"
           matTooltip="Ajouter un mot ou une expression" 

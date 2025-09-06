@@ -22,7 +22,10 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/assets",
-              "src/favicon.ico"
+              "src/favicon.ico",
+              "src/robots.txt",
+              "src/sitemap.xml",
+              "src/google-site-verification.html"
             ],
             "styles": [
               "node_modules/angular-calendar/css/angular-calendar.css",
@@ -41,6 +44,11 @@
           },
           "configurations": {
             "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true,
               "budgets": [
                 {
                   "type": "initial",

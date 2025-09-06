@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://linguaconnect.com/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+Disallow: /_/
+
+# Allow important pages
+Allow: /classroom/
+Allow: /lessons/
+Allow: /wordsTeaching/
+Allow: /mindmap/
+
+# Crawl delay for better server performance
+Crawl-delay: 1

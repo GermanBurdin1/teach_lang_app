@@ -1,15 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Teacher } from './teacher.model';
 import { TeacherService } from '../../services/teacher.service';
 import { PageEvent } from '@angular/material/paginator';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-teacher-list',
   templateUrl: './teacher-list.component.html',
   styleUrls: ['./teacher-list.component.css']
 })
-export class TeacherListComponent implements OnInit {
+export class TeacherListComponent implements OnInit, OnDestroy {
   allTeachers: Teacher[] = [];
   experienceMin: number | null = null;
   experienceMax: number | null = null;
@@ -32,6 +33,10 @@ export class TeacherListComponent implements OnInit {
   myTeachers: Teacher[] = [];
   showMyTeachers = false;
 
+  // RxJS для оптимизации поиска
+  private destroy$ = new Subject<void>();
+  private searchSubject$ = new Subject<string>();
+
   constructor(
     private teacherService: TeacherService,
     private route: ActivatedRoute,
@@ -40,6 +45,7 @@ export class TeacherListComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('[TeacherListComponent] ngOnInit');
+    this.initializeSearch();
     this.route.queryParams.subscribe(params => {
       console.log('[TeacherListComponent] queryParams', params);
       this.searchQuery = params['search'] || '';
@@ -56,6 +62,25 @@ export class TeacherListComponent implements OnInit {
       this.loadTeachers();
       this.loadMyTeachers();
     });
+  }
+
+  private initializeSearch(): void {
+    // Оптимизированный поиск с debounceTime для улучшения INP
+    this.searchSubject$.pipe(
+      debounceTime(500), // Ждем 500ms после последнего ввода
+      distinctUntilChanged(), // Игнорируем повторяющиеся значения
+      takeUntil(this.destroy$) // Отписываемся при уничтожении компонента
+    ).subscribe(searchTerm => {
+      this.searchQuery = searchTerm;
+      this.page = 1; // Сбрасываем на первую страницу при поиске
+      this.loadTeachers();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Отписываемся от всех подписок для предотвращения memory leaks
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadTeachers() {
@@ -83,6 +108,11 @@ export class TeacherListComponent implements OnInit {
       this.updateSpecializationOptions();
       this.isLoading = false;
     });
+  }
+
+  onSearchChange(): void {
+    // Отправляем запрос в Subject для debounced обработки
+    this.searchSubject$.next(this.searchQuery);
   }
 
   onFilterChange() {

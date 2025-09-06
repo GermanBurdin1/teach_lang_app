@@ -1,4 +1,4 @@
-import { Component, ElementRef, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren, AfterViewInit, OnDestroy} from '@angular/core';
 import { VocabularyGptService } from '../../services/vocabulary-gpt.service';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
@@ -6,6 +6,8 @@ import { ExpressionGrammar, GrammarData } from '../vocabulary/models/grammar-dat
 import textFit from 'textfit';
 import { WordEntry } from './models/words.model';
 import { LexiconService } from '../../services/lexicon.service';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { AnalyticsService } from '../../services/analytics.service';
 
 interface WordCard {
   id?: number;
@@ -31,15 +33,18 @@ interface Subtopic {
 @Component({
   selector: 'app-words',
   templateUrl: './words.component.html',
-  styleUrls: ['./words.component.css']
+  styleUrls: ['./words.component.css'],
 })
-export class WordsComponent {
+export class WordsComponent implements OnDestroy {
   @ViewChildren('subtopicElement') subtopicElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyElement') galaxyElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyWrapper') galaxyWrappers!: QueryList<ElementRef>;
   @ViewChildren('labelRef') labelElements!: QueryList<ElementRef>;
   @ViewChildren('grammarFieldsRef') grammarFieldsComponents!: QueryList<any>;
 
+  // RxJS для оптимизации поиска
+  private destroy$ = new Subject<void>();
+  private searchSubject$ = new Subject<string>();
 
   searchQuery: string = '';
   searchResults: any[] = [];
@@ -130,6 +135,18 @@ export class WordsComponent {
 
   ngOnInit(): void {
     this.loadPostponedWords();
+    this.initializeSearch();
+  }
+
+  private initializeSearch(): void {
+    // Оптимизированный поиск с debounceTime для улучшения INP
+    this.searchSubject$.pipe(
+      debounceTime(300), // Ждем 300ms после последнего ввода
+      distinctUntilChanged(), // Игнорируем повторяющиеся значения
+      takeUntil(this.destroy$) // Отписываемся при уничтожении компонента
+    ).subscribe(searchTerm => {
+      this.performSearch(searchTerm);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -139,7 +156,19 @@ export class WordsComponent {
     this.fitSubtopicLabels(); // initial
   }
 
-  constructor(private router: Router, private gptService: VocabularyGptService, private translationService: TranslationService, private lexiconService: LexiconService) { }
+  ngOnDestroy(): void {
+    // Отписываемся от всех подписок для предотвращения memory leaks
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  constructor(
+    private router: Router, 
+    private gptService: VocabularyGptService, 
+    private translationService: TranslationService, 
+    private lexiconService: LexiconService,
+    private analyticsService: AnalyticsService
+  ) { }
 
   hoverGalaxy(galaxy: any) {
     // Можно добавить анимацию
@@ -187,7 +216,12 @@ export class WordsComponent {
   ////////////////////////////////поиск слов
 
   searchWord() {
-    if (!this.searchQuery.trim()) {
+    // Отправляем запрос в Subject для debounced обработки
+    this.searchSubject$.next(this.searchQuery);
+  }
+
+  private performSearch(searchTerm: string): void {
+    if (!searchTerm.trim()) {
       this.searchResults = [];
       return;
     }
@@ -200,8 +234,8 @@ export class WordsComponent {
 
     this.searchResults = allWords
       .filter(card =>
-        card.word.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        card.translation.toLowerCase().includes(this.searchQuery.toLowerCase())
+        card.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        card.translation.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .map(card => ({
         ...card,
@@ -210,6 +244,9 @@ export class WordsComponent {
       }));
 
     console.log('🔎 Найдено результатов:', this.searchResults.length);
+    
+    // 🔑 GA4: Track search event
+    this.analyticsService.trackSearch(searchTerm, this.searchResults.length, 'words');
   }
 
   navigateToWord(result: any) {

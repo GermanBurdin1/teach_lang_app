@@ -1,5 +1,202 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* ==================== ACCESSIBILITY (WCAG 2.1) IMPROVEMENTS ==================== */
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid #4A90E2 !important;
+  outline-offset: 2px !important;
+}
+
+/* Skip links for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 1000;
+  border-radius: 4px;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* High contrast focus for buttons */
+.btn:focus,
+button:focus {
+  outline: 3px solid #4A90E2 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3) !important;
+}
+
+/* Focus for form elements */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #4A90E2 !important;
+  outline-offset: 2px !important;
+  border-color: #4A90E2 !important;
+}
+
+/* Focus for links */
+a:focus {
+  outline: 2px solid #4A90E2 !important;
+  outline-offset: 2px !important;
+  text-decoration: underline !important;
+}
+
+/* High contrast colors for accessibility */
+:root {
+  --focus-color: #4A90E2;
+  --focus-color-dark: #2E5BBA;
+  --error-color: #D32F2F;
+  --success-color: #2E7D32;
+  --warning-color: #F57C00;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --background-primary: #FFFFFF;
+  --background-secondary: #F5F5F5;
+}
+
+/* Dark theme accessibility */
+body.dark-theme {
+  --text-primary: #FFFFFF;
+  --text-secondary: #B0B0B0;
+  --background-primary: #121212;
+  --background-secondary: #1E1E1E;
+  --focus-color: #64B5F6;
+  --focus-color-dark: #42A5F5;
+}
+
+/* Ensure sufficient color contrast */
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.bg-primary { background-color: var(--background-primary) !important; }
+.bg-secondary { background-color: var(--background-secondary) !important; }
+
+/* Error states with high contrast */
+.error-text {
+  color: var(--error-color) !important;
+  font-weight: 500;
+}
+
+/* Success states with high contrast */
+.success-text {
+  color: var(--success-color) !important;
+  font-weight: 500;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Ensure focus is visible even with outline: none overrides */
+*:focus:not(.sr-only) {
+  outline: 2px solid var(--focus-color) !important;
+  outline-offset: 2px !important;
+}
+
+/* ==================== CLS (CUMULATIVE LAYOUT SHIFT) IMPROVEMENTS ==================== */
+
+/* Глобальные стили для изображений - предотвращают CLS */
+img {
+  height: auto;
+  max-width: 100%;
+  display: block;
+}
+
+/* Ключевые изображения с фиксированными размерами */
+.logo-container img,
+.hero-image,
+.main-logo {
+  width: 150px;
+  height: 60px;
+  object-fit: contain;
+}
+
+/* Аватары пользователей */
+.user-avatar img,
+.avatar-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Иконки в кнопках */
+.btn img,
+.mat-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Карточки с фиксированными пропорциями */
+.card-image,
+.galaxy-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  aspect-ratio: 16/9;
+}
+
+/* Предотвращение сдвигов при загрузке контента */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Фиксированные размеры для контейнеров */
+.content-container {
+  min-height: 200px;
+  width: 100%;
+}
+
+/* Предотвращение сдвигов в списках */
+.list-item {
+  min-height: 60px;
+  padding: 12px;
+}
+
+/* Фиксированные размеры для модальных окон */
+.modal-dialog {
+  width: 90%;
+  max-width: 500px;
+  margin: 1.75rem auto;
+}
+
+/* Предотвращение сдвигов в таблицах */
+.table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ==================== CSS VARIABLES FOR LIGHT/DARK THEMES ==================== */
 
 :root {
@@ -657,6 +854,48 @@ body.dark-theme .auth-link a:hover {
 body.dark-theme .auth-question {
   color: #ff6b6b !important;
   text-shadow: 0 0 6px rgba(255, 107, 107, 0.4) !important;
+}
+
+/* ==================== CLS DARK THEME OVERRIDES ==================== */
+
+/* Dark theme loading skeleton */
+body.dark-theme .loading-skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #1a1a1a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+}
+
+/* Dark theme content containers */
+body.dark-theme .content-container {
+  background: var(--dark-card-bg);
+  border: 1px solid var(--dark-card-border);
+}
+
+/* Dark theme list items */
+body.dark-theme .list-item {
+  background: var(--dark-card-bg);
+  border-bottom: 1px solid var(--dark-card-border);
+  color: var(--dark-text-primary);
+}
+
+/* Dark theme modal dialogs */
+body.dark-theme .modal-dialog {
+  background: var(--dark-card-bg);
+  border: 1px solid var(--dark-card-border);
+}
+
+/* Dark theme tables */
+body.dark-theme .table {
+  color: var(--dark-text-primary);
+}
+
+body.dark-theme .table th {
+  background: var(--dark-card-bg);
+  border-color: var(--dark-card-border);
+  color: var(--dark-text-secondary);
+}
+
+body.dark-theme .table td {
+  border-color: var(--dark-card-border);
 }
 
 /* ==================== END DARK THEME LOGIN/REGISTER ==================== */

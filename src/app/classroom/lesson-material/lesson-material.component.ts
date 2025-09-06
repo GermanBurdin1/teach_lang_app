@@ -14,6 +14,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { LessonNotesModalComponent } from './lesson-notes-modal/lesson-notes-modal.component';
 import { HomeworkModalComponent } from './homework-modal/homework-modal.component';
 import { GroupClassService, CreateGroupClassDto, GroupClass } from '../../services/group-class.service';
+import { Meta, Title } from '@angular/platform-browser';
+import { AnalyticsService } from '../../services/analytics.service';
+import { StructuredDataService } from '../../services/structured-data.service';
 
 @Component({
   selector: 'app-lesson-material',
@@ -74,7 +77,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     private materialService: MaterialService,
     private lessonNotesService: LessonNotesService,
     private dialog: MatDialog,
-    private groupClassService: GroupClassService
+    private groupClassService: GroupClassService,
+    private meta: Meta,
+    private title: Title,
+    private analyticsService: AnalyticsService,
+    private structuredDataService: StructuredDataService
   ) { }
 
   trackByIndex(index: number, item: string): number {
@@ -151,8 +158,48 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       if (lesson) {
         this.currentLesson = lesson;
         console.log('🎓 Получены данные урока:', lesson);
+        this.updateMetaTags(lesson);
       }
     });
+  }
+
+  private updateMetaTags(lesson: any): void {
+    // Dynamic metadata for SEO and Open Graph (English audience)
+    const lessonTitle = lesson?.title || 'French Lesson';
+    const lessonDescription = lesson?.description || 'Learn French with our interactive and personalized online courses for DELF and DALF exam preparation';
+    const baseUrl = 'https://linguaconnect.com';
+    const currentUrl = `${baseUrl}/classroom/${lesson?.id || 'lesson'}`;
+    
+    // Meta Title
+    this.title.setTitle(`${lessonTitle} - LINGUACONNECT | Online French DELF/DALF Courses`);
+    
+    // Meta Description
+    this.meta.updateTag({ name: 'description', content: lessonDescription });
+    
+    // Open Graph Meta Tags
+    this.meta.updateTag({ property: 'og:title', content: `${lessonTitle} - LINGUACONNECT` });
+    this.meta.updateTag({ property: 'og:description', content: lessonDescription });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ property: 'og:url', content: currentUrl });
+    this.meta.updateTag({ property: 'og:image', content: `${baseUrl}/assets/images/lesson-og-image.jpg` });
+    this.meta.updateTag({ property: 'og:site_name', content: 'LINGUACONNECT' });
+    this.meta.updateTag({ property: 'og:locale', content: 'en_US' });
+    
+    // Twitter Card Meta Tags
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: `${lessonTitle} - LINGUACONNECT` });
+    this.meta.updateTag({ name: 'twitter:description', content: lessonDescription });
+    this.meta.updateTag({ name: 'twitter:image', content: `${baseUrl}/assets/images/lesson-og-image.jpg` });
+    
+    // Additional SEO Meta Tags
+    this.meta.updateTag({ name: 'keywords', content: 'french, courses, DELF, DALF, learning, language, teacher, student, online, exam preparation, native speaker' });
+    this.meta.updateTag({ name: 'author', content: 'LINGUACONNECT' });
+    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    
+    // Canonical URL
+    this.meta.updateTag({ rel: 'canonical', href: currentUrl });
+    
+    console.log('📊 Meta tags updated for lesson:', lessonTitle);
   }
 
   async loadLessonData(lessonId: string) {
@@ -861,6 +908,23 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       next: (createdClass: GroupClass) => {
         console.log('✅ Класс создан на бекенде:', createdClass);
         this.currentClass = createdClass;
+        
+        // 🔑 GA4: Track lesson booking event
+        this.analyticsService.trackLessonBooking(
+          createdClass.id,
+          createdClass.teacherId,
+          99, // Example price
+          'EUR'
+        );
+        
+        // 📊 Structured Data: Generate course schema
+        const courseSchema = this.structuredDataService.generateCourseSchema({
+          title: createdClass.name,
+          description: createdClass.description,
+          level: createdClass.level,
+          price: 99
+        });
+        this.structuredDataService.injectStructuredData(courseSchema);
         
         // Также сохраняем в localStorage для совместимости
         this.saveClassToStorage();

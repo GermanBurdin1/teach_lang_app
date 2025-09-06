@@ -4,6 +4,7 @@ import { AuthService } from '../../../../services/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../../services/notification.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AnalyticsService } from '../../../../services/analytics.service';
 
 @Component({
   selector: 'app-register',
@@ -27,7 +28,8 @@ export class RegisterComponent implements OnInit {
     private api: AuthService,
     private router: Router,
     private notificationService: NotificationService,
-    private snackBar: MatSnackBar) { }
+    private snackBar: MatSnackBar,
+    private analyticsService: AnalyticsService) { }
 
   ngOnInit(): void {
     // Проверяем сохранённую тему
@@ -95,6 +97,10 @@ export class RegisterComponent implements OnInit {
         next: (jwtResponse) => {
           // Сохраняем токены
           this.api.setTokens(jwtResponse);
+          
+          // 🔑 GA4: Track registration event
+          const primaryRole = roles[0] || 'student';
+          this.analyticsService.trackRegistration('email', primaryRole as 'student' | 'teacher');
           
           if (jwtResponse.user.roles && jwtResponse.user.roles.length > 1) {
             const lastRole = roles.find(r => jwtResponse.user.roles.includes(r));

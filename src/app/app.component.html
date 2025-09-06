@@ -1,18 +1,21 @@
 <div class="app-container">
+  <!-- ARIA live region for announcements -->
+  <div aria-live="polite" aria-atomic="true" class="sr-only" id="announcements"></div>
+  
   <div class="header-area" *ngIf="shouldShowHeader()">
     <app-header></app-header>
   </div>
   
   <div class="dashboard-layout" *ngIf="isDashboardRoute()">
-    <div class="sidebar-area">
+    <div class="sidebar-area" role="complementary" aria-label="Navigation latérale">
       <app-sidebar></app-sidebar>
     </div>
-    <div class="content-area">
+    <main class="content-area" id="main-content" role="main" tabindex="-1">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </div>
   
-  <div class="content-area" *ngIf="!isDashboardRoute()">
+  <main class="content-area" id="main-content" role="main" tabindex="-1" *ngIf="!isDashboardRoute()">
     <router-outlet></router-outlet>
-  </div>
+  </main>
 </div>
