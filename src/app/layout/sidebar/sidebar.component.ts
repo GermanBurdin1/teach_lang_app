@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   isSchoolDashboard = false;
   isTeacherDashboard = false;
   isStudentDashboard = false;
@@ -36,11 +36,14 @@ export class SidebarComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    this.roleSub.unsubscribe();
+    if (this.roleSub) {
+      this.roleSub.unsubscribe();
+    }
   }
 
   navigateTo(route: string): void {
-    this.router.navigate([route], { relativeTo: this.route });
+    console.log(`[Sidebar] Navigating to: ${route}`);
+    this.router.navigate([route]);
   }
 
   // Expand sidebar on hover

@@ -1,0 +1,20 @@
+/* Используем те же стили что и в school-dashboard */
+.dashboard-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Для mindmap нужно чтобы контент занимал всю высоту */
+app-mindmap {
+  flex: 1;
+  display: block;
+  height: 100%;
+}

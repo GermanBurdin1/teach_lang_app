@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MindmapComponent } from './mindmap.component';
+import { MindmapWrapperComponent } from './mindmap-wrapper.component';
 
 const routes: Routes = [
-  { path: '', component: MindmapComponent }
+  { path: '', component: MindmapWrapperComponent }
 ];
 
 @NgModule({
