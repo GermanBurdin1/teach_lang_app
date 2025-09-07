@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
 import { NotificationService } from '../../../../services/notifications.service';
 import { NotificationService as MatNotificationService } from '../../../../services/notification.service';
@@ -16,13 +16,14 @@ import { MaterialService } from '../../../../services/material.service';
 import { StatisticsService, StudentStats } from '../../../../services/statistics.service';
 import { LexiconService } from '../../../../services/lexicon.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { NavigationGuardService } from '../../../../services/navigation-guard.service';
 
 @Component({
   selector: 'app-student-home',
   templateUrl: './student-home.component.html',
   styleUrls: ['./student-home.component.css']
 })
-export class StudentHomeComponent implements OnInit {
+export class StudentHomeComponent implements OnInit, OnDestroy {
   goal = 'DALF C1 avant le 15 juillet 2025';
   
   // Свойства для целей
@@ -82,10 +83,14 @@ export class StudentHomeComponent implements OnInit {
     private materialService: MaterialService,
     private statisticsService: StatisticsService,
     private lexiconService: LexiconService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private navigationGuard: NavigationGuardService
   ) { }
 
   ngOnInit(): void {
+    // Активируем защиту навигации для личного кабинета
+    this.navigationGuard.enableNavigationGuard();
+    
     // Обновляем время каждую минуту
     setInterval(() => {
       this.now = new Date();
@@ -824,6 +829,11 @@ export class StudentHomeComponent implements OnInit {
           wordsLearned: 0
         };
       });
+  }
+
+  ngOnDestroy(): void {
+    // Отключаем защиту навигации при уходе с компонента
+    this.navigationGuard.disableNavigationGuard();
   }
 
 }

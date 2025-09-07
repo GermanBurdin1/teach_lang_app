@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-back-to-home-button',
@@ -19,9 +20,25 @@ export class BackToHomeButtonComponent {
   @Input() label: string = 'Accueil';
   @Input() title: string = 'Retourner à la page d\'accueil';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private location: Location) {}
 
   goToHome() {
+    // Проверяем, есть ли история браузера (откуда пришли)
+    const previousUrl = document.referrer;
+    const currentHost = window.location.origin;
+    
+    // Если пришли с того же сайта и не с login/register, возвращаемся назад
+    if (previousUrl && previousUrl.startsWith(currentHost)) {
+      const referrerPath = new URL(previousUrl).pathname;
+      if (!referrerPath.includes('/login') && !referrerPath.includes('/register') && 
+          !referrerPath.includes('/data-rights') && !referrerPath.includes('/privacy-policy') && 
+          !referrerPath.includes('/cookies-policy') && !referrerPath.includes('/terms')) {
+        this.location.back();
+        return;
+      }
+    }
+    
+    // Иначе идем на главную страницу по роли
     const homeRoutes = {
       student: '/cabinet/school/student/home',
       teacher: '/teacher/home',

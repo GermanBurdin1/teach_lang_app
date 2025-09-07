@@ -720,6 +720,77 @@ body.dark-theme .form-wrapper {
 
 body.dark-theme .form-wrapper::before {
   content: '';
+}
+
+/* ==================== LOGOUT CONFIRMATION SNACKBAR STYLES ==================== */
+
+/* Styles pour le SnackBar de confirmation de déconnexion */
+.logout-confirmation-snackbar {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.logout-confirmation-snackbar .mat-mdc-button {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  transition: all 0.3s ease !important;
+  text-transform: none !important;
+}
+
+.logout-confirmation-snackbar .mat-mdc-button:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+}
+
+.logout-confirmation-snackbar .mat-mdc-snack-bar-label {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  flex: 1 !important;
+}
+
+/* Animation pour le SnackBar */
+.logout-confirmation-snackbar {
+  animation: slideInFromTop 0.3s ease-out !important;
+}
+
+@keyframes slideInFromTop {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive design pour mobile */
+@media (max-width: 768px) {
+  .logout-confirmation-snackbar {
+    margin: 16px !important;
+    width: calc(100% - 32px) !important;
+    max-width: calc(100% - 32px) !important;
+  }
+  
+  .logout-confirmation-snackbar .mat-mdc-snack-bar-label {
+    font-size: 14px !important;
+  }
+  
+  .logout-confirmation-snackbar .mat-mdc-button {
+    padding: 6px 12px !important;
+    font-size: 14px !important;
+  }
+}
   position: absolute;
   top: 0;
   left: 0;

@@ -8,6 +8,7 @@ import { TestVideoCallComponent } from './test-video-call/test-video-call.compon
 import { LandingComponent } from './features/landing/landing.component';
 import { PreviewLandingComponent } from './features/landing/preview-landing/preview-landing.component';
 import { RoleGuard } from './core/guards/role.guard';
+import { AuthGuard } from './core/guards/auth.guard';
 
 
 
@@ -16,18 +17,26 @@ export const routes: Routes = [
   { path: 'about', component: AboutComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'logout', redirectTo: '/login', pathMatch: 'full' },
   {
     path: 'cabinet/school',
-    loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+    loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
+    canActivate: [AuthGuard]
   },
   {
     path: 'cabinet/teacher',
-    loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+    loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'teacher',
+    loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
+    canActivate: [AuthGuard]
   },
   {
     path: 'lessons',
     loadChildren: () => import('./features/lessons/lessons.module').then(m => m.LessonsModule),
-    canActivate: [RoleGuard],
+    canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['student', 'teacher'] }
   },
   //{ path: 'video-call', component: VideoCallComponent }, // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
@@ -38,10 +47,11 @@ export const routes: Routes = [
   { path: 'privacy-policy', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
   { path: 'cookies-policy', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
   { path: 'terms', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
-  { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule) },
+  { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule), canActivate: [AuthGuard] },
   {
     path: 'mindmap',
-    loadChildren: () => import('./features/mindmap/mindmap.module').then(m => m.MindmapModule)
+    loadChildren: () => import('./features/mindmap/mindmap.module').then(m => m.MindmapModule),
+    canActivate: [AuthGuard]
   },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

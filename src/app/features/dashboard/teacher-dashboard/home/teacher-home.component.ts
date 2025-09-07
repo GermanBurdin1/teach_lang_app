@@ -14,6 +14,7 @@ import { LessonTabsService } from '../../../../services/lesson-tabs.service';
 import { MaterialService } from '../../../../services/material.service';
 import { HomeworkService, Homework } from '../../../../services/homework.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { NavigationGuardService } from '../../../../services/navigation-guard.service';
 
 @Component({
   selector: 'app-teacher-home',
@@ -34,7 +35,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private lessonTabsService: LessonTabsService,
     private materialService: MaterialService,
     private homeworkService: HomeworkService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private navigationGuard: NavigationGuardService
   ) { }
 
   // notifications: string[] = [
@@ -286,6 +288,9 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Активируем защиту навигации для личного кабинета
+    this.navigationGuard.enableNavigationGuard();
+    
     this.refreshStudents();
     
     // Обновляем время каждую минуту
@@ -697,7 +702,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Больше не нужно удалять слушатель
+    // Отключаем защиту навигации при уходе с компонента
+    this.navigationGuard.disableNavigationGuard();
   }
 
   private getCalendarColor(status: string): { primary: string, secondary: string } {
@@ -870,4 +876,5 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       default: return 'Statut inconnu';
     }
   }
+
 }

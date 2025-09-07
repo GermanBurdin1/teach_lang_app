@@ -792,5 +792,11 @@ export class HeaderComponent {
   return !!user && Array.isArray(user.roles) && user.roles.includes('admin');
 }
 
+  logout(): void {
+    // Вызываем logout из AuthService
+    this.authService.logout();
+    // Перенаправляем на страницу логина
+    this.router.navigate(['/login']);
+  }
 
 }

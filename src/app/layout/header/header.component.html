@@ -197,7 +197,7 @@
         <mat-icon class="menu-icon">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
         <span class="menu-label">{{ isDarkMode ? 'Thème clair' : 'Thème sombre' }}</span>
       </button>
-      <button mat-menu-item routerLink="/logout">
+      <button mat-menu-item (click)="logout()">
         <mat-icon class="menu-icon">logout</mat-icon>
         <span class="menu-label">Déconnexion</span>
       </button>
