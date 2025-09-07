@@ -31,6 +31,7 @@ import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-re
 import { AdminUsersManagementComponent } from './school-dashboard/admin-users-management/admin-users-management.component';
 import { AdminLessonsManagementComponent } from './school-dashboard/admin-lessons-management/admin-lessons-management.component';
 import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
+import { AnalyticsDashboardComponent } from '../admin/analytics-dashboard/analytics-dashboard.component';
 
 const routes: Routes = [
   {
@@ -62,7 +63,8 @@ const routes: Routes = [
       { path: 'admin/settings', component: AdminSettingsComponent },
       { path: 'admin/gestion-utilisateurs', component: AdminUsersManagementComponent },
       { path: 'admin/gestion-cours', component: AdminLessonsManagementComponent },
-      { path: 'admin/analytique-plateforme', component: AdminPlatformAnalyticsComponent }
+      { path: 'admin/analytique-plateforme', component: AdminPlatformAnalyticsComponent },
+      { path: 'admin/ga4-analytics', component: AnalyticsDashboardComponent }
     ]
   },
 

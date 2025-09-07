@@ -12,7 +12,7 @@ import { RoleGuard } from './core/guards/role.guard';
 
 
 export const routes: Routes = [
-  // Корневой путь обрабатывается в app.component ngOnInit
+  { path: '', component: VocabularyComponent }, // Временно, будет редирект в app.component
   { path: 'about', component: AboutComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
