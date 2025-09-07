@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -9,20 +10,27 @@ import { Router } from '@angular/router';
 export class AppComponent implements OnInit {
   title = 'front-end';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
   ngOnInit(): void {
-  const currentUrl = this.router.url;
-  // TODO : Пересмотреть когда должна перезагружаться страница!!!! пока разрабатываю пусть будет возможность самому вставлять адреса в url
-  // ⚠️ не делаем редирект, если пользователь уже указал конкретный путь
-  // if (currentUrl === '/' || currentUrl === '') {
-  //   const isSchoolDashboard = JSON.parse(localStorage.getItem('isSchoolDashboard') || 'true');
-  //   if (isSchoolDashboard) {
-  //     this.router.navigate(['school/marathons']);
-  //   } else {
-  //     this.router.navigate(['student/wordsTeaching']);
-  //   }
-  // }
-}
+    const currentUrl = this.router.url;
+    
+    // Редирект с корневого пути на главные страницы по ролям
+    if (currentUrl === '/' || currentUrl === '') {
+      // Проверяем, есть ли сохраненная роль пользователя
+      const userRole = this.authService.currentRole;
+      
+      if (userRole === 'student') {
+        this.router.navigate(['/cabinet/school/student/home']);
+      } else if (userRole === 'teacher') {
+        this.router.navigate(['/teacher/home']);
+      } else if (userRole === 'admin') {
+        this.router.navigate(['/cabinet/school/dashboard/admin/home']);
+      } else {
+        // Если роль не определена, перенаправляем на логин
+        this.router.navigate(['/login']);
+      }
+    }
+  }
 
   isDashboardRoute(): boolean {
     const currentUrl = this.router.url;
