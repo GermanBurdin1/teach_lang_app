@@ -25,7 +25,16 @@ export class AppComponent implements OnInit {
 }
 
   isDashboardRoute(): boolean {
-    return this.router.url === '/student-dashboard';
+    const currentUrl = this.router.url;
+    // Dashboard routes where sidebar should be shown
+    const dashboardRoutes = [
+      '/student-dashboard',
+      '/cabinet/school',
+      '/classroom'
+    ];
+    
+    // Check if current URL starts with any dashboard route
+    return dashboardRoutes.some(route => currentUrl.startsWith(route));
   }
 
   shouldShowHeader(): boolean {

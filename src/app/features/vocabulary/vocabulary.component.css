@@ -23,7 +23,7 @@
 }
 
 .vocabulary-container {
-  min-height: 100vh;
+  min-height: auto;
   background: linear-gradient(135deg, 
     var(--galaxy-darker) 0%, 
     var(--galaxy-dark) 25%, 

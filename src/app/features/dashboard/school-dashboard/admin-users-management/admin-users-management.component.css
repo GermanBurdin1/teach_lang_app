@@ -32,7 +32,7 @@
 
 /* Light Mode Styles */
 .admin-users-management {
-  min-height: 100vh;
+  min-height: auto;
   background: linear-gradient(135deg, var(--galaxy-dark) 0%, var(--galaxy-secondary) 50%, var(--galaxy-dark) 100%);
   padding: 2rem;
   position: relative;

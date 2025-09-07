@@ -34,6 +34,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { getCosmicPaginatorIntl } from './shared/providers/custom-paginator-intl';
 import { TestVideoCallComponent } from './test-video-call/test-video-call.component';
+import { RgpdModule } from './features/rgpd/rgpd.module';
+import { FooterComponent } from './layout/footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -68,7 +70,9 @@ import { TestVideoCallComponent } from './test-video-call/test-video-call.compon
     MatChipsModule,
     MatSnackBarModule,
     MatTooltipModule,
-    DragDropModule
+    DragDropModule,
+    RgpdModule,
+    FooterComponent
 ],
   providers: [
     { provide: LOCALE_ID, useValue: 'fr' }, 

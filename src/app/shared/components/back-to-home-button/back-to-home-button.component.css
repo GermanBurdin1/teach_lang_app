@@ -1,0 +1,85 @@
+.back-to-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #6D28D9, #8B5CF6);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+  text-decoration: none;
+  outline: none;
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  z-index: 100;
+}
+
+.back-to-home-btn:hover {
+  background: linear-gradient(135deg, #5B21B6, #7C3AED);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(109, 40, 217, 0.4);
+}
+
+.back-to-home-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.3);
+}
+
+.back-to-home-btn i {
+  font-size: 1rem;
+}
+
+.back-to-home-btn span {
+  white-space: nowrap;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .back-to-home-btn {
+    position: fixed;
+    top: auto;
+    bottom: 20px;
+    left: 20px;
+    padding: 12px;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    justify-content: center;
+  }
+  
+  .back-to-home-btn span {
+    display: none;
+  }
+  
+  .back-to-home-btn i {
+    font-size: 1.2rem;
+  }
+}
+
+/* Accessibility */
+.back-to-home-btn:focus {
+  outline: 2px solid #4A90E2;
+  outline-offset: 2px;
+}
+
+/* Animation */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.back-to-home-btn {
+  animation: slideInRight 0.5s ease-out;
+}

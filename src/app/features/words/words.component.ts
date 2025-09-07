@@ -8,6 +8,7 @@ import { WordEntry } from './models/words.model';
 import { LexiconService } from '../../services/lexicon.service';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { AnalyticsService } from '../../services/analytics.service';
+import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-button/back-to-home-button.component';
 
 interface WordCard {
   id?: number;
@@ -33,7 +34,7 @@ interface Subtopic {
 @Component({
   selector: 'app-words',
   templateUrl: './words.component.html',
-  styleUrls: ['./words.component.css'],
+  styleUrls: ['./words.component.css']
 })
 export class WordsComponent implements OnDestroy {
   @ViewChildren('subtopicElement') subtopicElements!: QueryList<ElementRef>;

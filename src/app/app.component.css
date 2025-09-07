@@ -2,16 +2,12 @@
 body, html {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Remove body scroll */
-  height: 100vh;
-  width: 100vw;
 }
 
 /* Main app layout */
 .app-container {
+  min-height: 100vh;
   display: flex;
-  height: 100vh;
-  width: 100vw;
   flex-direction: column;
 }
 
@@ -19,8 +15,6 @@ body, html {
 .dashboard-layout {
   display: flex;
   flex: 1;
-  height: calc(100vh - 64px); /* Subtract header height */
-  overflow: hidden;
 }
 
 /* Sidebar area */
@@ -31,12 +25,21 @@ body, html {
   overflow: hidden;
 }
 
+/* Main wrapper for content + footer */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  min-height: calc(100vh - 64px);
+}
+
 /* Main content area */
 .content-area {
   flex: 1;
-  height: 100%;
-  overflow-y: auto; /* Only content scrolls */
-  overflow-x: hidden;
+  overflow: visible;
+  padding-bottom: 0;
+  min-height: 0;
 }
 
 /* Header area */
@@ -44,4 +47,12 @@ body, html {
   flex-shrink: 0;
   height: 64px;
   z-index: 1000;
+}
+
+/* Footer area */
+app-footer {
+  display: block;
+  margin-top: auto;
+  flex-shrink: 0;
+  width: 100%;
 }

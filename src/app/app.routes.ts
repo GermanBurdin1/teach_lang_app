@@ -34,6 +34,10 @@ export const routes: Routes = [
   { path: 'test-video', component: TestVideoCallComponent }, // Тестовая страница видео звонков
   { path: 'landing', component: LandingComponent },
   { path: 'landing/preview', component: PreviewLandingComponent },
+  { path: 'data-rights', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
+  { path: 'privacy-policy', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
+  { path: 'cookies-policy', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
+  { path: 'terms', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
   { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule) },
   {
     path: 'mindmap',

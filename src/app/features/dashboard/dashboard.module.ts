@@ -57,6 +57,7 @@ import { AdminLessonsManagementComponent } from './school-dashboard/admin-lesson
 import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDialogModule } from '@angular/material/dialog';
+import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-button/back-to-home-button.component';
 
 @NgModule({
   declarations: [
@@ -119,6 +120,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatTooltipModule,
     MatPaginatorModule,
     MatDialogModule,
+    BackToHomeButtonComponent,
     BsDatepickerModule.forRoot()
   ],
   exports: [ReviewListComponent]

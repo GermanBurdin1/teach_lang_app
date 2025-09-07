@@ -22,6 +22,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-button/back-to-home-button.component';
 @NgModule({
   declarations: [VocabularyComponent, AddWordDialogComponent],
   imports: [
@@ -44,7 +45,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatRadioModule,
     MatDialogModule,
     MatSnackBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    BackToHomeButtonComponent
 ],
   providers: [VocabularyService],
   exports: [VocabularyComponent]

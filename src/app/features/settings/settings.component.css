@@ -12,7 +12,7 @@
 }
 
 .admin-settings {
-  min-height: 100vh;
+  min-height: auto;
   background: linear-gradient(135deg, #0f0c29 0%, #24243e 50%, #2b5876 100%);
   color: #ffffff;
   padding: 24px;

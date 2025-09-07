@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { RgpdService } from './rgpd.service';
 
 // TypeScript declarations for Google Analytics
 declare global {
@@ -16,7 +17,7 @@ declare let gtag: any;
 export class AnalyticsService {
   private measurementId = 'G-XXXXXXXXXX'; // Replace with your GA4 Measurement ID
 
-  constructor() {
+  constructor(private rgpdService: RgpdService) {
     this.initializeGA4();
   }
 
@@ -43,6 +44,12 @@ export class AnalyticsService {
 
   // 🔑 KEY EVENTS - Inscription (Registration)
   trackRegistration(method: 'email' | 'google' | 'facebook', userRole: 'student' | 'teacher'): void {
+    // Vérifier le consentement RGPD avant le tracking
+    if (!this.rgpdService.hasAnalyticsConsent()) {
+      console.log('🚫 Analytics désactivé - Pas de consentement RGPD');
+      return;
+    }
+
     gtag('event', 'sign_up', {
       method: method,
       user_role: userRole,
@@ -55,6 +62,12 @@ export class AnalyticsService {
 
   // 🔑 KEY EVENTS - Réservation (Lesson Booking)
   trackLessonBooking(lessonId: string, teacherId: string, price: number, currency: string = 'EUR'): void {
+    // Vérifier le consentement RGPD avant le tracking
+    if (!this.rgpdService.hasAnalyticsConsent()) {
+      console.log('🚫 Analytics désactivé - Pas de consentement RGPD');
+      return;
+    }
+
     gtag('event', 'purchase', {
       transaction_id: `lesson_${lessonId}_${Date.now()}`,
       value: price,

@@ -2,6 +2,9 @@
   <!-- ARIA live region for announcements -->
   <div aria-live="polite" aria-atomic="true" class="sr-only" id="announcements"></div>
   
+  <!-- RGPD Consent Banner -->
+  <app-rgpd-consent-banner></app-rgpd-consent-banner>
+  
   <div class="header-area" *ngIf="shouldShowHeader()">
     <app-header></app-header>
   </div>
@@ -10,12 +13,18 @@
     <div class="sidebar-area" role="complementary" aria-label="Navigation latérale">
       <app-sidebar></app-sidebar>
     </div>
+    <div class="main-wrapper">
+      <main class="content-area" id="main-content" role="main" tabindex="-1">
+        <router-outlet></router-outlet>
+      </main>
+      <app-footer></app-footer>
+    </div>
+  </div>
+  
+  <div class="main-wrapper" *ngIf="!isDashboardRoute()">
     <main class="content-area" id="main-content" role="main" tabindex="-1">
       <router-outlet></router-outlet>
     </main>
+    <app-footer></app-footer>
   </div>
-  
-  <main class="content-area" id="main-content" role="main" tabindex="-1" *ngIf="!isDashboardRoute()">
-    <router-outlet></router-outlet>
-  </main>
 </div>

@@ -82,10 +82,6 @@
               <mat-card-title>{{ currentClass.name }}</mat-card-title>
               <mat-card-subtitle>
                 Niveau {{ currentClass.level }} • {{ currentClass.students?.length || 0 }}/{{ currentClass.maxStudents }} élèves
-                <br>
-                <small class="text-muted" *ngIf="currentClass.scheduledAt">
-                  🕒 Cours planifié le {{ currentClass.scheduledAt | date:'EEEE dd MMMM yyyy à HH:mm':'fr' }}
-                </small>
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
@@ -98,8 +94,7 @@
                   <mat-chip-set>
                     <mat-chip *ngFor="let student of currentClass.students" 
                              [removable]="true"
-                             (removed)="removeStudentFromClass(student)"
-                             class="list-item">
+                             (removed)="removeStudentFromClass(student)">
                       {{ student.name }}
                       <mat-icon matChipRemove>cancel</mat-icon>
                     </mat-chip>
@@ -125,40 +120,6 @@
                   🗑️ Supprimer la classe
                 </button>
               </div>
-
-              <!-- Список доступных студентов для добавления -->
-              <div *ngIf="showStudentsList" class="students-selection-panel">
-                <div class="students-selection-header">
-                  <h4>👥 Ajouter des élèves confirmés</h4>
-                  <button mat-icon-button (click)="closeStudentsList()">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-                
-                <div *ngIf="availableStudents.length === 0" class="no-students-message">
-                  <p>Aucun élève disponible pour l'ajout.</p>
-                  <p>Les élèves doivent d'abord être confirmés dans l'onglet "Étudiants".</p>
-                </div>
-                
-                <div *ngIf="availableStudents.length > 0" class="available-students-list">
-                  <mat-card *ngFor="let student of availableStudents" class="student-selection-card">
-                    <mat-card-content>
-                      <div class="student-selection-info">
-                        <h5>{{ student.name }}</h5>
-                        <p *ngIf="student.nextLessonDate">
-                          Prochain cours: {{ student.nextLessonDate | date:'dd/MM/yyyy HH:mm' }}
-                        </p>
-                      </div>
-                      <button mat-raised-button 
-                              color="primary" 
-                              (click)="addStudentToCurrentClass(student)">
-                        <mat-icon>person_add</mat-icon>
-                        Ajouter à la classe
-                      </button>
-                    </mat-card-content>
-                  </mat-card>
-                </div>
-              </div>
             </mat-card-content>
           </mat-card>
         </div>
@@ -174,12 +135,10 @@
 
       <!-- Индикатор загрузки -->
       <div *ngIf="isLoadingData" class="loading-container text-center py-3">
-        <div class="loading-skeleton content-container">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="mt-2">Chargement des données du cours...</p>
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
+        <p class="mt-2">Chargement des données du cours...</p>
       </div>
 
       <div *ngIf="!tasksCollapsed && !isLoadingData" class="d-flex justify-content-between">
@@ -230,15 +189,7 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" 
-                     (click)="lessonStarted && openNotes('tasks', task, task)" 
-                     (keydown.enter)="lessonStarted && openNotes('tasks', task, task)"
-                     (keydown.space)="lessonStarted && openNotes('tasks', task, task)"
-                     [class.disabled]="!lessonStarted" 
-                     [attr.tabindex]="lessonStarted ? 0 : -1" 
-                     [attr.aria-disabled]="!lessonStarted"
-                     role="button"
-                     [attr.aria-label]="'Ouvrir les notes pour ' + task">
+                <div class="action-item primary" (click)="lessonStarted && openNotes('tasks', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📝 Travailler la tâche
                 </div>
                 <!-- <div class="action-item secondary" (click)="lessonStarted && addToHomework('task', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
@@ -374,15 +325,7 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" 
-                     (click)="lessonStarted && openNotes('tasks', task, task)" 
-                     (keydown.enter)="lessonStarted && openNotes('tasks', task, task)"
-                     (keydown.space)="lessonStarted && openNotes('tasks', task, task)"
-                     [class.disabled]="!lessonStarted" 
-                     [attr.tabindex]="lessonStarted ? 0 : -1" 
-                     [attr.aria-disabled]="!lessonStarted"
-                     role="button"
-                     [attr.aria-label]="'Ouvrir les notes pour ' + task">
+                <div class="action-item primary" (click)="lessonStarted && openNotes('tasks', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📝 Travailler la tâche
                 </div>
                 <!-- Закомментированные действия для будущей реализации -->

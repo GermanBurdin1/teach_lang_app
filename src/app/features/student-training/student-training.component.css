@@ -1,6 +1,6 @@
 /* ==================== MAIN CONTAINER ==================== */
 .student-training-container {
-  min-height: 100vh;
+  min-height: auto;
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

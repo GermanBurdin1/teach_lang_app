@@ -2,7 +2,7 @@
 
 /* Main container with cosmic atmosphere */
 .container, .words-container {
-  min-height: 100vh;
+  min-height: auto;
   background: 
     /* Étoiles scintillantes */
     radial-gradient(2px 2px at 20px 30px, #fff, transparent),
@@ -31,7 +31,7 @@
     100% 100%, 100% 100%, 100% 100%, 100% 100%;
   color: #e2e8f0;
   transition: all 0.5s ease;
-  overflow-x: hidden;
+  overflow: visible;
   width: 100%;
   max-width: 100vw;
   padding: 32px 20px;
