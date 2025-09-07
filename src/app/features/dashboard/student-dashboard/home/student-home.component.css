@@ -639,9 +639,6 @@
   z-index: 1002 !important;
 }
 
-::ng-deep .cdk-overlay-backdrop {
-  z-index: 1001 !important;
-}
 
 /* ======================== МОДАЛЬНЫЕ ОКНА ======================== */
 .modal-overlay {
