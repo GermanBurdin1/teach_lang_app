@@ -360,11 +360,16 @@ mat-icon {
   background: transparent;
   border: none;
   transition: all 0.3s ease;
+  width: 3vw;
+  height: 6vh;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .user-button:hover {
   background: var(--header-hover-bg);
-  border-radius: 50%;
 }
 
 /* User header icon */
@@ -463,6 +468,11 @@ mat-icon {
     height: 220px;
   }
 
+  .user-button {
+    width: 30px;
+    height: 30px;
+  }
+  
   .user-header-icon {
     width: 30px;
     height: 30px;
