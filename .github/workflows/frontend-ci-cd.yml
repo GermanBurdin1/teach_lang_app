@@ -1,0 +1,58 @@
+name: frontend-ci-cd
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install deps (clean)
+        run: npm ci
+
+      # Quality gates (блокирующие)
+      - name: Lint (ESLint/Prettier)
+        run: npm run lint
+
+      - name: Unit tests (Jasmine/Karma)
+        run: npm run test
+
+      - name: Install Playwright (browsers)
+        run: npx playwright install --with-deps
+
+      - name: E2E tests (Playwright headless)
+        run: npm run e2e
+
+      - name: Build (Angular prod w/ budgets)
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/**/browser/**
+
+      - name: Deploy to OVH via rsync (only master)
+        if: github.ref == 'refs/heads/master'
+        env:
+          OVH_HOST: ${{ secrets.OVH_HOST }}
+          OVH_USER: ${{ secrets.OVH_USER }}
+          SSH_KEY:  ${{ secrets.OVH_SSH_KEY }}
+          REMOTE_DIR: /www/wwwroot/135.125.107.45
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "${OVH_PORT:-22}" "$OVH_HOST" >> ~/.ssh/known_hosts
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_deploy -p ${OVH_PORT:-22}" \
+            dist/**/browser/ "${OVH_USER}@${OVH_HOST}:${REMOTE_DIR}/"
+          # если менял конфиг, перезагрузи Nginx
+          ssh -i ~/.ssh/id_deploy -p "${OVH_PORT:-22}" "${OVH_USER}@${OVH_HOST}" \
+            "sudo nginx -t && sudo systemctl reload nginx || true"
