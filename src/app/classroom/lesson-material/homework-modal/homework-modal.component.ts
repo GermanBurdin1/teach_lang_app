@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HomeworkService } from '../../../services/homework.service';
+import { environment } from '../../../../../environment';
 
 export interface HomeworkModalData {
   type: 'task' | 'question' | 'material';
@@ -21,8 +22,8 @@ export class HomeworkModalComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<HomeworkModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: HomeworkModalData,
-    private homeworkService: HomeworkService
+    @Inject(MAT_DIALOG_DATA) public data: HomeworkModalData
+    // homeworkService удален, так как не используется
   ) {}
 
   ngOnInit() {
@@ -71,8 +72,10 @@ export class HomeworkModalComponent implements OnInit {
     };
 
     // Simulation de la sauvegarde
-    setTimeout(() => {
-      console.log('💾 Sauvegarde du devoir:', homeworkData);
+    window.setTimeout(() => {
+      if (!environment.production) {
+        console.log('💾 Sauvegarde du devoir:', homeworkData);
+      }
       
       // TODO: Sauvegarde réelle via HomeworkService
       // this.homeworkService.createHomework(homeworkData).subscribe(...)

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../../environment';
 
 @Component({
   selector: 'app-sidebar',
@@ -25,13 +26,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.roleSub = this.authService.currentRole$.subscribe(role => {
-      console.log(`[Sidebar] Role changed to: ${role}`);
+      if (!environment.production) {
+        console.log(`[Sidebar] Role changed to: ${role}`);
+      }
 
       this.isTeacherDashboard = role === 'teacher';
       this.isSchoolDashboard = role === 'admin';
       this.isStudentDashboard = role === 'student' || !role;
 
-      console.log(`[Sidebar] Flags — isTeacher: ${this.isTeacherDashboard}, isSchool: ${this.isSchoolDashboard}, isStudent: ${this.isStudentDashboard}`);
+      if (!environment.production) {
+        console.log(`[Sidebar] Flags — isTeacher: ${this.isTeacherDashboard}, isSchool: ${this.isSchoolDashboard}, isStudent: ${this.isStudentDashboard}`);
+      }
     });
   }
 
@@ -42,7 +47,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   navigateTo(route: string): void {
-    console.log(`[Sidebar] Navigating to: ${route}`);
+    if (!environment.production) {
+      console.log(`[Sidebar] Navigating to: ${route}`);
+    }
     this.router.navigate([route]);
   }
 

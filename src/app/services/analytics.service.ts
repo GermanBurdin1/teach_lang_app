@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RgpdService } from './rgpd.service';
+import { environment } from '../../../environment';
 
 // TypeScript declarations for Google Analytics
 declare global {
@@ -46,7 +47,9 @@ export class AnalyticsService {
   trackRegistration(method: 'email' | 'google' | 'facebook', userRole: 'student' | 'teacher'): void {
     // Vérifier le consentement RGPD avant le tracking
     if (!this.rgpdService.hasAnalyticsConsent()) {
-      console.log('🚫 Analytics désactivé - Pas de consentement RGPD');
+      if (!environment.production) {
+        console.log('🚫 Analytics désactivé - Pas de consentement RGPD');
+      }
       return;
     }
 
@@ -57,14 +60,18 @@ export class AnalyticsService {
       event_label: `${method}_${userRole}`,
       value: 1
     });
-    console.log('📊 GA4: Registration tracked', { method, userRole });
+    if (!environment.production) {
+      console.log('📊 GA4: Registration tracked', { method, userRole });
+    }
   }
 
   // 🔑 KEY EVENTS - Réservation (Lesson Booking)
   trackLessonBooking(lessonId: string, teacherId: string, price: number, currency: string = 'EUR'): void {
     // Vérifier le consentement RGPD avant le tracking
     if (!this.rgpdService.hasAnalyticsConsent()) {
-      console.log('🚫 Analytics désactivé - Pas de consentement RGPD');
+      if (!environment.production) {
+        console.log('🚫 Analytics désactivé - Pas de consentement RGPD');
+      }
       return;
     }
 
@@ -83,7 +90,9 @@ export class AnalyticsService {
       event_category: 'ecommerce',
       event_label: 'lesson_booking'
     });
-    console.log('📊 GA4: Lesson booking tracked', { lessonId, teacherId, price });
+    if (!environment.production) {
+      console.log('📊 GA4: Lesson booking tracked', { lessonId, teacherId, price });
+    }
   }
 
   // 🔑 KEY EVENTS - Paiement (Payment)
@@ -96,7 +105,9 @@ export class AnalyticsService {
       event_category: 'ecommerce',
       event_label: 'payment_completed'
     });
-    console.log('📊 GA4: Payment tracked', { paymentId, amount, paymentMethod });
+    if (!environment.production) {
+      console.log('📊 GA4: Payment tracked', { paymentId, amount, paymentMethod });
+    }
   }
 
   // 📚 Additional Events - Lesson Completion
@@ -108,7 +119,9 @@ export class AnalyticsService {
       event_category: 'engagement',
       event_label: 'lesson_completion'
     });
-    console.log('📊 GA4: Lesson completion tracked', { lessonId, duration });
+    if (!environment.production) {
+      console.log('📊 GA4: Lesson completion tracked', { lessonId, duration });
+    }
   }
 
   // 📚 Additional Events - Search
@@ -120,7 +133,9 @@ export class AnalyticsService {
       event_category: 'engagement',
       event_label: 'search_performed'
     });
-    console.log('📊 GA4: Search tracked', { searchTerm, resultsCount, searchType });
+    if (!environment.production) {
+      console.log('📊 GA4: Search tracked', { searchTerm, resultsCount, searchType });
+    }
   }
 
   // 📚 Additional Events - Page Views
@@ -132,7 +147,9 @@ export class AnalyticsService {
       event_category: 'navigation',
       event_label: 'page_view'
     });
-    console.log('📊 GA4: Page view tracked', { pageName, pagePath });
+    if (!environment.production) {
+      console.log('📊 GA4: Page view tracked', { pageName, pagePath });
+    }
   }
 
   // 📚 Additional Events - User Engagement
@@ -142,7 +159,9 @@ export class AnalyticsService {
       event_label: label || action,
       value: 1
     });
-    console.log('📊 GA4: User engagement tracked', { action, category, label });
+    if (!environment.production) {
+      console.log('📊 GA4: User engagement tracked', { action, category, label });
+    }
   }
 
   // 📚 Additional Events - Error Tracking
@@ -153,6 +172,8 @@ export class AnalyticsService {
       event_category: 'error',
       event_label: errorLocation
     });
-    console.log('📊 GA4: Error tracked', { errorMessage, errorLocation, errorSeverity });
+    if (!environment.production) {
+      console.log('📊 GA4: Error tracked', { errorMessage, errorLocation, errorSeverity });
+    }
   }
 }

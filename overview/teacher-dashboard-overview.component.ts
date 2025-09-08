@@ -11,6 +11,7 @@ import { LessonService } from '../src/app/services/lesson.service';
 import { NotificationService } from '../src/app/services/notifications.service';
 import { TeacherService } from '../src/app/services/teacher.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from '../environment.prod';
 
 
 @Component({
@@ -137,10 +138,14 @@ export class TeacherDashboardOverviewComponent implements OnInit {
         next: (all: any[]) => {
           this.pendingRequests = all.filter((n: any) => n.type === 'booking_request' && n.status === 'pending');
           this.treatedRequests = all.filter((n: any) => n.type === 'booking_request' && n.status !== 'pending');
-          console.log('[OVERVIEW] pendingRequests:', this.pendingRequests);
+          if (!environment.production) {
+            console.log('[OVERVIEW] pendingRequests:', this.pendingRequests);
+          }
         },
-        error: (err: any) => {
-          console.error('[OVERVIEW] Ошибка при получении заявок:', err);
+        error: (err: Error) => {
+          if (!environment.production) {
+            console.error('[OVERVIEW] Ошибка при получении заявок:', err);
+          }
         }
       });
 
@@ -163,10 +168,10 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
     if (savedClasses) {
       this.teacherClasses = JSON.parse(savedClasses);
-      console.log('[Overview] Загружены классы преподавателя:', this.teacherClasses);
+      if(!environment.production) console.log('[Overview] Загружены классы преподавателя:', this.teacherClasses);
     } else {
       // Если нет сохраненных классов, создаем демонстрационный класс
-      console.log('[Overview] Нет сохраненных классов, создаем демо-класс');
+      if(!environment.production) console.log('[Overview] Нет сохраненных классов, создаем демо-класс');
       this.teacherClasses = [
         {
           id: 'demo-class-1',
@@ -202,11 +207,11 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   openPublicProfileModal(): void {
     this.showPublicProfilePreview = true;
     const userId = this.authService.getCurrentUser()?.id;
-    console.log('[Overview] Открытие публичного профиля для userId:', userId);
+    if(!environment.production) console.log('[Overview] Открытие публичного профиля для userId:', userId);
     if (userId) {
       this.teacherService.getTeacherById(userId).subscribe({
         next: data => {
-          console.log('[Overview] teacherService.getTeacherById ответ:', data);
+          if(!environment.production) console.log('[Overview] teacherService.getTeacherById ответ:', data);
           this.teacher = data || null;
         },
         error: err => {
@@ -215,7 +220,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       });
       this.teacherService.getReviewsByTeacher(userId).subscribe({
         next: reviews => {
-          console.log('[Overview] teacherService.getReviewsByTeacher ответ:', reviews);
+          if(!environment.production) console.log('[Overview] teacherService.getReviewsByTeacher ответ:', reviews);
           this.teacherReviews = reviews;
         },
         error: err => {
@@ -313,10 +318,10 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   refreshConfirmedStudents(): void {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
-      console.log('[OVERVIEW] Обновляем подтверждённых студентов для teacherId:', teacherId);
+      if(!environment.production) console.log('[OVERVIEW] Обновляем подтверждённых студентов для teacherId:', teacherId);
       this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
         this.confirmedStudents = students;
-        console.log('[OVERVIEW] confirmedStudents (refresh):', students);
+        if(!environment.production) console.log('[OVERVIEW] confirmedStudents (refresh):', students);
       });
     }
   }
@@ -326,7 +331,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     if (!teacherId) return;
     this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
       const now = new Date();
-      console.log('[DEBUG] Загруженные уроки для учителя:', lessons);
+      if(!environment.production) console.log('[DEBUG] Загруженные уроки для учителя:', lessons);
       // Группируем занятия по studentId
       const studentsMap: { [studentId: string]: any } = {};
       lessons.forEach((lesson: any) => {
@@ -340,20 +345,20 @@ export class TeacherDashboardOverviewComponent implements OnInit {
         }
         studentsMap[lesson.studentId].lessons.push(lesson);
       });
-      console.log('[DEBUG] Сгруппированные по студентам уроки:', studentsMap);
+      if(!environment.production) console.log('[DEBUG] Сгруппированные по студентам уроки:', studentsMap);
       // Для каждого студента ищем ближайшее будущее занятие
       this.confirmedStudents = Object.values(studentsMap).map((student: any) => {
         const futureLessons = student.lessons
           .map((l: any) => new Date(l.scheduledAt))
           .filter((date: Date) => date > now)
           .sort((a: Date, b: Date) => a.getTime() - b.getTime());
-        console.log(`[DEBUG] Студент ${student.name} (${student.studentId}): futureLessons =`, futureLessons);
+        if(!environment.production) console.log(`[DEBUG] Студент ${student.name} (${student.studentId}): futureLessons =`, futureLessons);
         return {
           ...student,
           nextLessonDate: futureLessons.length > 0 ? futureLessons[0] : null
         };
       });
-      console.log('[Overview] Обновлён список confirmedStudents:', this.confirmedStudents);
+      if(!environment.production) console.log('[Overview] Обновлён список confirmedStudents:', this.confirmedStudents);
     });
   }
 
@@ -395,7 +400,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     if (!metadata) return;
 
     this.lessonService.respondToBooking(metadata.lessonId, false, reason).subscribe(() => {
-      console.log('📤 [OVERVIEW] Rejet envoyé avec raison:', reason);
+      if(!environment.production) console.log('📤 [OVERVIEW] Rejet envoyé avec raison:', reason);
       this.pendingRequests = this.pendingRequests.filter(r => r.id !== this.selectedRequest!.id);
       this.selectedRequest = null;
       this.showRefuseDialog = false;
@@ -440,7 +445,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
   // Методы для управления классом и приглашениями
   openInviteStudentDialog(): void {
-    console.log('📧 Открытие диалога приглашения студента через платформу');
+    if(!environment.production) console.log('📧 Открытие диалога приглашения студента через платформу');
     
     // Реализация приглашения через платформу вместо email
     const inviteCode = this.generateInviteCode();
@@ -462,7 +467,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   addStudentToClass(student: any): void {
-    console.log('👥 Добавление студента в активный класс:', student);
+    if(!environment.production) console.log('👥 Добавление студента в активный класс:', student);
     
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId) return;
@@ -525,7 +530,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   sendStudentInvitation(): void {
-    console.log('📧 Отправка приглашения студенту:', this.inviteForm);
+    if(!environment.production) console.log('📧 Отправка приглашения студенту:', this.inviteForm);
     
     if (!this.inviteForm.email || !this.inviteForm.level) {
       this.snackBar.open('Заполните обязательные поля', 'OK', { duration: 3000 });
@@ -551,7 +556,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   inviteStudentToClass(student: any): void {
-    console.log('👥 Приглашение студента в класс:', student);
+    if(!environment.production) console.log('👥 Приглашение студента в класс:', student);
     
     // Генерируем ссылку приглашения для конкретного студента
     const inviteCode = this.generateInviteCode();
@@ -572,7 +577,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   addStudentToSelectedClass(student: any, classId: string): void {
-    console.log('👥 Добавление студента в выбранный класс:', student, classId);
+    if(!environment.production) console.log('👥 Добавление студента в выбранный класс:', student, classId);
     
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId || !classId) return;

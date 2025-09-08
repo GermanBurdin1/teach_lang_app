@@ -4,6 +4,7 @@ import { AuthService } from '../../../../services/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../../services/notification.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from '../../../../../../environment';
 import { AnalyticsService } from '../../../../services/analytics.service';
 
 @Component({
@@ -91,7 +92,9 @@ export class RegisterComponent implements OnInit {
       if (isStudent) roles.push('student');
       if (isTeacher) roles.push('teacher');
 
-      console.log('[RegisterComponent] Sending registration request:', { email, roles });
+      if (!environment.production) {
+        console.log('[RegisterComponent] Sending registration request:', { email, roles });
+      }
 
       this.api.register(email, password, roles, name, surname).subscribe({
         next: (jwtResponse) => {
@@ -123,7 +126,9 @@ export class RegisterComponent implements OnInit {
           this.router.navigate(['/register']);
         },
         error: (err) => {
-          console.error('[RegisterComponent] Registration failed:', err);
+          if (!environment.production) {
+            console.error('[RegisterComponent] Registration failed:', err);
+          }
           if (err.error?.message && err.error.message.includes('уже зарегистрированы с этой ролью')) {
             this.snackBar.open('Vous êtes déjà inscrit avec ce rôle.', 'OK', {
               duration: 6000,
@@ -135,7 +140,9 @@ export class RegisterComponent implements OnInit {
         }
       });
     } else {
-      console.warn('[RegisterComponent] Form is invalid:', this.registerForm.errors);
+      if (!environment.production) {
+        console.warn('[RegisterComponent] Form is invalid:', this.registerForm.errors);
+      }
     }
   }
 
@@ -162,7 +169,9 @@ export class RegisterComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.warn('[RegisterComponent] Email check failed', err);
+        if (!environment.production) {
+          console.warn('[RegisterComponent] Email check failed', err);
+        }
         this.existingRoles = [];
       }
     });
@@ -178,8 +187,10 @@ export class RegisterComponent implements OnInit {
   }
 
   toggleTheme(): void {
-    console.log('isDarkTheme:', this.isDarkTheme);
-console.log('body classes:', document.body.className);
+    if (!environment.production) {
+      console.log('isDarkTheme:', this.isDarkTheme);
+      console.log('body classes:', document.body.className);
+    }
     this.isDarkTheme = !this.isDarkTheme;
     this.applyTheme();
     localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');

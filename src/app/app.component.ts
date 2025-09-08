@@ -11,7 +11,9 @@ import { filter } from 'rxjs/operators';
 export class AppComponent implements OnInit {
   title = 'front-end';
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService) {
+    // Переменные используются в ngOnInit и методах класса
+  }
   ngOnInit(): void {
     // Слушаем события навигации роутера
     this.router.events.pipe(

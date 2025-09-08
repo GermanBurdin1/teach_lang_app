@@ -12,6 +12,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 import { User } from '../../models/user.model';
+import 'jasmine';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -28,6 +29,13 @@ describe('RegisterComponent', () => {
     surname: 'User',
     roles: ['student'],
     currentRole: 'student'
+  };
+
+  const mockJwtResponse = {
+    access_token: 'mock-token',
+    refresh_token: 'mock-refresh-token',
+    user: mockUser,
+    expires_in: 3600
   };
 
   beforeEach(async () => {
@@ -173,7 +181,7 @@ describe('RegisterComponent', () => {
   }));
 
   it('should handle successful registration for new user', fakeAsync(() => {
-    authService.register.and.returnValue(of(mockUser));
+    authService.register.and.returnValue(of(mockJwtResponse));
     
     component.ngOnInit();
     component.registerForm.patchValue({
@@ -206,7 +214,13 @@ describe('RegisterComponent', () => {
 
   it('should handle registration for existing user with new role', fakeAsync(() => {
     const userWithMultipleRoles = { ...mockUser, roles: ['student', 'teacher'] };
-    authService.register.and.returnValue(of(userWithMultipleRoles));
+    const jwtResponseWithMultipleRoles = {
+      access_token: 'mock-token',
+      refresh_token: 'mock-refresh-token',
+      user: userWithMultipleRoles,
+      expires_in: 3600
+    };
+    authService.register.and.returnValue(of(jwtResponseWithMultipleRoles));
     
     component.ngOnInit();
     component.registerForm.patchValue({
@@ -337,11 +351,16 @@ describe('RegisterComponent', () => {
   });
 
   it('should apply dark theme on init if saved', () => {
-    localStorage.getItem.and.returnValue('dark');
+    // Reset the spy and set new return value
+    (window.localStorage.getItem as jasmine.Spy).and.returnValue('dark');
     
-    component.ngOnInit();
+    // Create new component instance to trigger ngOnInit with new localStorage value
+    const newFixture = TestBed.createComponent(RegisterComponent);
+    const newComponent = newFixture.componentInstance;
     
-    expect(component.isDarkTheme).toBeTruthy();
+    newComponent.ngOnInit();
+    
+    expect(newComponent.isDarkTheme).toBeTruthy();
     expect(document.body.classList.add).toHaveBeenCalledWith('dark-theme');
   });
 

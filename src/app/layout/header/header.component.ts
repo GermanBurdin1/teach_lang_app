@@ -6,6 +6,7 @@ import { BackgroundService } from '../../services/background.service';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../../environment';
 
 
 @Component({
@@ -69,7 +70,9 @@ export class HeaderComponent {
 
     this.authService.currentRole$.subscribe(role => {
       this.setSettingsLink();
-      console.log('[HeaderComponent] Role changed. settingsLink =', this.settingsLink);
+      if (!environment.production) {
+        console.log('[HeaderComponent] Role changed. settingsLink =', this.settingsLink);
+      }
     });
 
   }
@@ -112,7 +115,9 @@ export class HeaderComponent {
     
     // Add error handler for debugging
     this.darkThemeLink.onerror = () => {
-      console.error('Failed to load dark theme CSS');
+      if (!environment.production) {
+        console.error('Failed to load dark theme CSS');
+      }
     };
     
     document.head.appendChild(this.darkThemeLink);
@@ -263,7 +268,9 @@ export class HeaderComponent {
   // Навигация на другой урок
   navigateToLesson(): void {
     // Здесь будет логика навигации
-    console.log('Перейти на другой урок');
+    if (!environment.production) {
+      console.log('Перейти на другой урок');
+    }
   }
 
   tooltipVisible: string | null = null;
@@ -318,17 +325,23 @@ export class HeaderComponent {
   }
 
   addStudentByLink(): void {
-    console.log('Добавить по ссылке');
+    if (!environment.production) {
+      console.log('Добавить по ссылке');
+    }
     // Реализуйте логику добавления по ссылке
   }
 
   addStudentByEmail(): void {
-    console.log('Добавить по эл. почте');
+    if (!environment.production) {
+      console.log('Добавить по эл. почте');
+    }
     // Реализуйте логику добавления по электронной почте
   }
 
   addStudentFromExisting(): void {
-    console.log('Выбрать из существующих');
+    if (!environment.production) {
+      console.log('Выбрать из существующих');
+    }
     // Реализуйте логику выбора из существующих
   }
 
@@ -363,7 +376,9 @@ export class HeaderComponent {
       );
       if (!alreadyExists) {
         this.users.push(this.selectedStudent); // Добавить в класс
-        console.log('Добавлен ученик:', this.selectedStudent);
+        if (!environment.production) {
+          console.log('Добавлен ученик:', this.selectedStudent);
+        }
       }
       this.selectedStudent = null; // Снять выбор
       this.switchModalView('default'); // Вернуться в начальное состояние
@@ -406,7 +421,9 @@ export class HeaderComponent {
   }
 
   confirmLeaveClass(): void {
-    console.log('Пользователь покинул класс'); // Логика выхода (если есть дополнительные действия)
+    if (!environment.production) {
+      console.log('Пользователь покинул класс'); // Логика выхода (если есть дополнительные действия)
+    }
     this.closeLeaveClassModal(); // Закрыть модалку
     this.router.navigate(['/school/online-lessons']); // Перенаправить на указанную страницу
   }
@@ -473,7 +490,9 @@ export class HeaderComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      console.log(`Выбран файл для ${type}:`, file.name);
+      if (!environment.production) {
+        console.log(`Выбран файл для ${type}:`, file.name);
+      }
 
       // Дополнительная обработка
       const reader = new FileReader();
@@ -494,7 +513,9 @@ export class HeaderComponent {
 
   // Метод для временного выбора фона
   selectBackground(imageUrl: string): void {
-    console.log("selected bg");
+    if (!environment.production) {
+      console.log("selected bg");
+    }
 
     this.selectedBackground = imageUrl; // Устанавливаем временный фон
   }
@@ -505,13 +526,17 @@ export class HeaderComponent {
 
     // Сохраняем обложку
     if (this.classCover) {
-      console.log('Сохранена обложка:', this.classCover);
+      if (!environment.production) {
+        console.log('Сохранена обложка:', this.classCover);
+      }
       localStorage.setItem('classCover', this.classCover); // Сохраняем обложку в localStorage
     }
 
     // Сохраняем фон
     if (this.selectedBackground) {
-      console.log('Сохранён фон:', this.selectedBackground);
+      if (!environment.production) {
+        console.log('Сохранён фон:', this.selectedBackground);
+      }
       localStorage.setItem('selectedBackground', this.selectedBackground); // Сохраняем фон в localStorage
     }
 

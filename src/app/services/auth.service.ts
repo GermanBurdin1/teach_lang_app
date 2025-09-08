@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { User } from '../features/auth/models/user.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../../environment';
 
 interface JwtResponse {
   access_token: string;
@@ -38,10 +39,14 @@ export class AuthService {
         this._accessToken = savedAccessToken;
         this._refreshToken = savedRefreshToken;
         this.currentRoleSubject.next(user.currentRole || null);
-        console.log('[AuthService] User and tokens restored from localStorage:', user);
+        if (!environment.production) {
+          console.log('[AuthService] User and tokens restored from localStorage:', user);
+        }
       }
     } catch (error) {
-      console.error('[AuthService] Failed to restore user from localStorage:', error);
+      if (!environment.production) {
+        console.error('[AuthService] Failed to restore user from localStorage:', error);
+      }
       this.clearStorage(); // Очищаем поврежденные данные
     }
   }
@@ -54,12 +59,16 @@ export class AuthService {
         if (this._refreshToken) {
           localStorage.setItem('refresh_token', this._refreshToken);
         }
-        console.log('[AuthService] User and tokens saved to localStorage');
+        if (!environment.production) {
+          console.log('[AuthService] User and tokens saved to localStorage');
+        }
       } else {
         this.clearStorage();
       }
     } catch (error) {
-      console.error('[AuthService] Failed to save user to localStorage:', error);
+      if (!environment.production) {
+        console.error('[AuthService] Failed to save user to localStorage:', error);
+      }
     }
   }
 
@@ -67,7 +76,9 @@ export class AuthService {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    console.log('[AuthService] Storage cleared');
+    if (!environment.production) {
+      console.log('[AuthService] Storage cleared');
+    }
   }
 
   get user(): User | null {
@@ -98,7 +109,9 @@ export class AuthService {
       this._user.currentRole = this._user.roles[0];
     }
 
-    console.log('[AuthService] User set:', this._user);
+    if (!environment.production) {
+      console.log('[AuthService] User set:', this._user);
+    }
     this.currentRoleSubject.next(this._user.currentRole ?? null);
     this.saveUserToStorage(); // Сохраняем в localStorage
   }
@@ -111,12 +124,16 @@ export class AuthService {
 
   setActiveRole(role: string) {
     if (this._user?.roles.includes(role)) {
-      console.log(`[AuthService] Setting active role: ${role}`);
+      if (!environment.production) {
+        console.log(`[AuthService] Setting active role: ${role}`);
+      }
       this._user.currentRole = role;
       this.currentRoleSubject.next(role);
       this.saveUserToStorage(); // Сохраняем изменения
     } else {
-      console.warn(`[AuthService] Attempted to set unknown role: ${role}`);
+      if (!environment.production) {
+        console.warn(`[AuthService] Attempted to set unknown role: ${role}`);
+      }
     }
   }
 
@@ -134,7 +151,9 @@ export class AuthService {
     this._refreshToken = null;
     this.currentRoleSubject.next(null);
     this.clearStorage(); // Очищаем localStorage
-    console.log('[AuthService] User logged out');
+    if (!environment.production) {
+      console.log('[AuthService] User logged out');
+    }
   }
 
   getUserInitial(): string {
@@ -176,6 +195,8 @@ export class AuthService {
   updateAccessToken(newAccessToken: string): void {
     this._accessToken = newAccessToken;
     localStorage.setItem('access_token', newAccessToken);
-    console.log('[AuthService] Access token updated');
+    if (!environment.production) {
+      console.log('[AuthService] Access token updated');
+    }
   }
 }

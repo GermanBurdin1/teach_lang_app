@@ -1,10 +1,9 @@
-import { Component, AfterViewInit, HostListener, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, AfterViewInit, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
-import { WhiteWebSdk, Room, RoomPhase } from 'white-web-sdk';
+import { Room } from 'white-web-sdk';
 import { WhiteboardService } from '../../../services/whiteboard.service';
 import { ApplianceNames } from 'white-web-sdk';
-import { LessonTabsService } from '../../../services/lesson-tabs.service';
+import { environment } from '../../../../../environment';
 
 
 @Component({
@@ -34,34 +33,45 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   private room?: Room;
 
 
-  constructor(private cdr: ChangeDetectorRef,
-    private whiteboardService: WhiteboardService, private lessonTabsService: LessonTabsService) { }
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private whiteboardService: WhiteboardService
+    // lessonTabsService удален, так как не используется
+  ) { }
 
   ngOnInit(): void {
     this.whiteboardService.room$.subscribe((room) => {
       if (room) {
-        console.log("🎨 Комната установлена в компоненте:", room);
+        if (!environment.production) {
+          console.log("🎨 Комната установлена в компоненте:", room);
+        }
         this.room = room;
       } else {
-        console.log("❌ Комната все еще не установлена");
+        if (!environment.production) {
+          console.log("❌ Комната все еще не установлена");
+        }
       }
     });
-    console.log('📌 BoardComponent загружен');
-    setTimeout(() => {
+    if (!environment.production) {
+      console.log('📌 BoardComponent загружен');
+    }
+    window.setTimeout(() => {
 
       // 🔥 Задержка перед обновлением Board
-      setTimeout(() => {
+      window.setTimeout(() => {
         this.cdr.detectChanges();
       }, 100);
     }, 500);
   }
 
   getCurrentUserId(): string {
-    return localStorage.getItem('userId') || 'guest';
+    return window.localStorage.getItem('userId') || 'guest';
   }
 
   ngAfterViewInit(): void {
-    console.log("📌 Контейнер найден через @ViewChild:", this.whiteboardContainer.nativeElement);
+    if (!environment.production) {
+      console.log("📌 Контейнер найден через @ViewChild:", this.whiteboardContainer.nativeElement);
+    }
     this.whiteboardService.createRoomAndJoin(this.getCurrentUserId(), this.whiteboardContainer.nativeElement);
   }
 
@@ -71,15 +81,21 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   //рисование
   setDrawingMode(): void {
     if (this.room) {
-      console.log("🖌 Устанавливаем режим рисования...");
+      if (!environment.production) {
+        console.log("🖌 Устанавливаем режим рисования...");
+      }
       this.room.setMemberState({
         currentApplianceName: ApplianceNames.pencil, // Инструмент: карандаш
         strokeColor: [0, 0, 0], // Черный цвет
         strokeWidth: 4, // Толщина линии
       });
-      console.log("✅ Режим рисования установлен.");
+      if (!environment.production) {
+        console.log("✅ Режим рисования установлен.");
+      }
     } else {
-      console.error("❌ Ошибка: комната (room) не определена!");
+      if (!environment.production) {
+        console.error("❌ Ошибка: комната (room) не определена!");
+      }
     }
   }
 
@@ -102,21 +118,21 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
   zoomIn(): void {
     if (this.room) {
-      let scale = this.room.state.cameraState.scale;
+      const scale = this.room.state.cameraState.scale;
       this.room.moveCamera({ scale: Math.min(scale + 0.2, 3) }); // Максимальный зум = 3x
     }
   }
 
   zoomOut(): void {
     if (this.room) {
-      let scale = this.room.state.cameraState.scale;
+      const scale = this.room.state.cameraState.scale;
       this.room.moveCamera({ scale: Math.max(scale - 0.2, 0.5) }); // Минимальный зум = 0.5x
     }
   }
 
   moveCanvas(x: number, y: number): void {
     if (this.room) {
-      let camera = this.room.state.cameraState;
+      const camera = this.room.state.cameraState;
       this.room.moveCamera({
         centerX: camera.centerX + x,
         centerY: camera.centerY + y,
@@ -161,15 +177,21 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
   setEllipseMode(): void {
     if (this.room) {
-      console.log("✍️ Writable перед установкой инструмента:", this.room?.isWritable);
+      if (!environment.production) {
+        console.log("✍️ Writable перед установкой инструмента:", this.room?.isWritable);
+      }
       this.room.setMemberState({
         currentApplianceName: ApplianceNames.ellipse,
         strokeColor: [0, 0, 255],
         strokeWidth: 3,
       });
-      console.log("🔍 Текущий state:", this.room?.state.memberState);
+      if (!environment.production) {
+        console.log("🔍 Текущий state:", this.room?.state.memberState);
+      }
     } else {
-      console.error("❌ Ошибка: комната (room) не определена!");
+      if (!environment.production) {
+        console.error("❌ Ошибка: комната (room) не определена!");
+      }
     }
   }
 
@@ -193,7 +215,9 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   undoLastAction(): void {
     if (this.room) {
       const remainingUndos = this.room.undo();
-      console.log(`🛑 Отмена последнего действия. Осталось отмен: ${remainingUndos}`);
+      if (!environment.production) {
+        console.log(`🛑 Отмена последнего действия. Осталось отмен: ${remainingUndos}`);
+      }
     }
   }
 
@@ -246,7 +270,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
   //добавление заметок
   addStickyNote(): void {
-    const note = document.createElement('div');
+    const note = window.document.createElement('div');
     note.className = 'sticky-note';
     note.contentEditable = 'true';
     note.innerText = 'Новая заметка';
@@ -258,7 +282,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
     note.style.borderRadius = '5px';
     note.style.cursor = 'move';
 
-    document.body.appendChild(note);
+    window.document.body.appendChild(note);
   }
 
   addTextToBoard(text: string, x: number, y: number): void {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { WhiteWebSdk, Room, JoinRoomParams, RoomPhase } from 'white-web-sdk';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { environment } from '../../../environment';
 
 
 @Injectable({
@@ -33,13 +34,17 @@ export class WhiteboardService {
         throw new Error('❌ Ошибка: roomUuid или roomToken отсутствует!');
       }
 
-      console.log('✅ Получен roomUuid:', response.roomUuid);
-      console.log('✅ Получен roomToken:', response.roomToken);
+      if (!environment.production) {
+        console.log('✅ Получен roomUuid:', response.roomUuid);
+        console.log('✅ Получен roomToken:', response.roomToken);
+      }
 
       // Подключаемся к комнате
       await this.joinRoom(response.roomUuid, response.roomToken, userId, container);
     } catch (error) {
-      console.error('❌ Ошибка при создании комнаты и подключении:', error);
+      if (!environment.production) {
+        console.error('❌ Ошибка при создании комнаты и подключении:', error);
+      }
     }
   }
 
@@ -48,11 +53,15 @@ export class WhiteboardService {
     this.roomUuid = uuid;
 
     if (!roomToken) {
-      console.error('❌ Ошибка: Room Token отсутствует!');
+      if (!environment.production) {
+        console.error('❌ Ошибка: Room Token отсутствует!');
+      }
       return;
     }
 
-    console.log("📌 Используемый токен:", roomToken);
+    if (!environment.production) {
+      console.log("📌 Используемый токен:", roomToken);
+    }
 
     const roomParams: JoinRoomParams = {
       uuid,
@@ -64,32 +73,46 @@ export class WhiteboardService {
     try {
       this.room = await this.sdk.joinRoom(roomParams);
       this.roomSubject.next(this.room);
-      console.log('✅ Подключено к Whiteboard');
-      console.log("🔍 Writable:", this.room?.isWritable);
-      console.log(this.room);
+      if (!environment.production) {
+        console.log('✅ Подключено к Whiteboard');
+        console.log("🔍 Writable:", this.room?.isWritable);
+        console.log(this.room);
+      }
 
       // 🔹 Привязываем доску к контейнеру
-      console.log("📌 Привязываем whiteboard...");
+      if (!environment.production) {
+        console.log("📌 Привязываем whiteboard...");
+      }
       await this.bindWhiteboardToContainer(container);
-      console.log("✅ Whiteboard привязан!");
+      if (!environment.production) {
+        console.log("✅ Whiteboard привязан!");
+      }
 
     } catch (error) {
-      console.error('❌ Ошибка при подключении к доске:', error);
+      if (!environment.production) {
+        console.error('❌ Ошибка при подключении к доске:', error);
+      }
     }
   }
 
   /** 🔹 Функция привязки whiteboard к контейнеру */
   private async bindWhiteboardToContainer(container: HTMLDivElement): Promise<void> {
     if (!this.room) {
-      console.error("❌ Ошибка: Комната (room) не определена, невозможно привязать контейнер!");
+      if (!environment.production) {
+        console.error("❌ Ошибка: Комната (room) не определена, невозможно привязать контейнер!");
+      }
       return;
     }
 
     try {
       await this.room.bindHtmlElement(container);
-      console.log("🎨 Холст успешно привязан к контейнеру!");
+      if (!environment.production) {
+        console.log("🎨 Холст успешно привязан к контейнеру!");
+      }
     } catch (error) {
-      console.error("❌ Ошибка при привязке холста:", error);
+      if (!environment.production) {
+        console.error("❌ Ошибка при привязке холста:", error);
+      }
     }
   }
 

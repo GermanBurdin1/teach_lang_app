@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 import { User } from '../../models/user.model';
+import 'jasmine';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -27,6 +28,13 @@ describe('LoginComponent', () => {
     surname: 'User',
     roles: ['student', 'teacher'],
     currentRole: 'student'
+  };
+
+  const mockJwtResponse = {
+    access_token: 'mock-token',
+    refresh_token: 'mock-refresh-token',
+    user: mockUser,
+    expires_in: 3600
   };
 
   beforeEach(async () => {
@@ -129,7 +137,7 @@ describe('LoginComponent', () => {
   }));
 
   it('should handle successful login for student', fakeAsync(() => {
-    authService.login.and.returnValue(of(mockUser));
+    authService.login.and.returnValue(of(mockJwtResponse));
     
     component.ngOnInit();
     component.loginForm.patchValue({
@@ -148,7 +156,7 @@ describe('LoginComponent', () => {
   }));
 
   it('should handle successful login for teacher', fakeAsync(() => {
-    authService.login.and.returnValue(of(mockUser));
+    authService.login.and.returnValue(of(mockJwtResponse));
     
     component.ngOnInit();
     component.loginForm.patchValue({
@@ -164,7 +172,7 @@ describe('LoginComponent', () => {
   }));
 
   it('should handle successful login for admin', fakeAsync(() => {
-    authService.login.and.returnValue(of(mockUser));
+    authService.login.and.returnValue(of(mockJwtResponse));
     
     component.ngOnInit();
     component.loginForm.patchValue({

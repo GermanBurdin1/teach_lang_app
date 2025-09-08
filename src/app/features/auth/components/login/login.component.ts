@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../../services/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../../services/notification.service';
+import { environment } from '../../../../../../environment';
 
 @Component({
   selector: 'app-login',
@@ -86,7 +87,9 @@ export class LoginComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.error('Erreur lors de la vérification de l\'email', err);
+          if (!environment.production) {
+            console.error('Erreur lors de la vérification de l\'email', err);
+          }
         }
       });
     }
@@ -95,14 +98,18 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password, selectedRole } = this.loginForm.value;
-      console.log('Trying login with', this.loginForm.value);
+      if (!environment.production) {
+        console.log('Trying login with', this.loginForm.value);
+      }
       this.authService.login(email, password).subscribe({
         next: (jwtResponse) => {
           // Сохраняем токены и пользователя
           this.authService.setTokens(jwtResponse);
           this.authService.setActiveRole(selectedRole);
           
-          console.log('[LoginComponent] JWT tokens received and saved');
+          if (!environment.production) {
+            console.log('[LoginComponent] JWT tokens received and saved');
+          }
           
           if (selectedRole === 'student') {
             this.router.navigate(['/student/home']);
