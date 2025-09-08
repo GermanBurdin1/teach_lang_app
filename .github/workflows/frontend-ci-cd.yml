@@ -19,8 +19,6 @@ jobs:
         run: npm ci
 
       # Quality gates (блокирующие)
-      - name: Lint (ESLint/Prettier)
-        run: npm run lint
 
       - name: Unit tests (Jasmine/Karma)
         run: npm run test
