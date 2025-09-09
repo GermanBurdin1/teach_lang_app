@@ -12,7 +12,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 import { User } from '../../models/user.model';
-import 'jasmine';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -39,7 +38,7 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', [
-      'login', 'checkEmailExists', 'setUser', 'setActiveRole'
+      'login', 'checkEmailExists', 'setUser', 'setActiveRole', 'setTokens'
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['error']);
@@ -150,7 +149,7 @@ describe('LoginComponent', () => {
     tick();
     
     expect(authService.login).toHaveBeenCalledWith('test@example.com', 'password123');
-    expect(authService.setUser).toHaveBeenCalledWith(mockUser);
+    expect(authService.setTokens).toHaveBeenCalledWith(mockJwtResponse);
     expect(authService.setActiveRole).toHaveBeenCalledWith('student');
     expect(router.navigate).toHaveBeenCalledWith(['/student/home']);
   }));
@@ -234,7 +233,7 @@ describe('LoginComponent', () => {
 
   it('should apply dark theme on init if saved', () => {
     // Reset the spy and set new return value
-    spyOn(localStorage, 'getItem').and.returnValue('dark');
+    (localStorage.getItem as jasmine.Spy).and.returnValue('dark');
     
     // Create new component instance to trigger ngOnInit with new localStorage value
     const newFixture = TestBed.createComponent(LoginComponent);

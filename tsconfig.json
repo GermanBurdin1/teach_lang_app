@@ -22,7 +22,7 @@
       "ES2022",
       "dom"
     ],
-    "types": ["uuid"]
+    "types": ["uuid", "jasmine"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

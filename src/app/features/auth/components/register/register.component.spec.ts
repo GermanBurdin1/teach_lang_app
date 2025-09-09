@@ -12,7 +12,6 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 import { User } from '../../models/user.model';
-import 'jasmine';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -40,7 +39,7 @@ describe('RegisterComponent', () => {
 
   beforeEach(async () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', [
-      'register', 'checkEmailExists'
+      'register', 'checkEmailExists', 'setTokens'
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['error']);
@@ -234,13 +233,15 @@ describe('RegisterComponent', () => {
     });
     
     component.onSubmit();
-    tick();
+    tick(); // Дождемся первого асинхронного вызова
     
     expect(snackBar.open).toHaveBeenCalledWith(
       jasmine.stringContaining('Vous êtes maintenant aussi enseignant'),
       'OK',
       jasmine.any(Object)
     );
+    
+    tick(4000); // Дождемся setTimeout(4000)
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   }));
 
