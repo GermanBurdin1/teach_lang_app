@@ -55,6 +55,29 @@ export default [
     },
   },
 
+  // E2E тесты (Playwright) - отдельная конфигурация
+  {
+    files: ['**/*.e2e-spec.ts', 'e2e/**/*.ts'],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: { project: ['./tsconfig.json'] },
+      globals: {
+        // Playwright globals
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly'
+      }
+    },
+    rules: {
+      // Для E2E тестов можем быть более снисходительными
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
+    },
+  },
+
   // HTML templates
   {
     files: ['**/*.html'],
