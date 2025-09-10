@@ -4,7 +4,6 @@ import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { VideoCallService } from '../../services/video-call.service';
-import { LoaderComponent } from '../../shared/components/loader/loader.component';
 import { AuthService } from '../../services/auth.service';
 import { HomeworkService } from '../../services/homework.service';
 import { LessonService } from '../../services/lesson.service';

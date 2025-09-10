@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { VocabularyComponent } from './features/vocabulary/vocabulary.component';
-import { AboutComponent } from './features/about/about.component';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/components/register/register.component';
 // import { VideoCallComponent } from './features/lessons/video-call/video-call.component'; // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
@@ -14,7 +13,6 @@ import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: VocabularyComponent }, // Временно, будет редирект в app.component
-  { path: 'about', component: AboutComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'logout', redirectTo: '/login', pathMatch: 'full' },

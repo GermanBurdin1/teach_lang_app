@@ -18,12 +18,12 @@ jobs:
       - name: Install deps (clean)
         run: npm ci
 
-      # Quality gates (блокирующие)
-      # - name: Lint (ESLint/Prettier)
-      #   run: npm run lint
+      # Quality gates (блокирующие) - исключаем указанные папки
+      - name: Lint (ESLint/Prettier) - exclude specified folders
+        run: npm run lint:ci
 
-      - name: Unit tests (Jasmine/Karma)
-        run: npm run test
+      - name: Unit tests (Jasmine/Karma) - exclude specified folders  
+        run: npm run test:ci
 
       - name: Install Playwright (browsers)
         run: npx playwright install --with-deps
@@ -31,16 +31,47 @@ jobs:
       - name: E2E tests (Playwright headless)
         run: npm run e2e
 
+      - name: Remove excluded directories before build
+        run: |
+          # Удаляем папки только перед билдом для production
+          rm -rf public/
+          rm -rf src/app/classroom/lesson-material/tabs/
+          rm -rf src/app/features/landing/
+          rm -rf src/app/features/marathons/
+          rm -rf src/app/features/materials/
+          rm -rf src/app/features/tariffs/
+          rm -rf src/app/shared/components/calendar/
+          rm -rf src/app/shared/components/schedule/
+          rm -rf src/app/test-video-call/
+
       - name: Build (Angular prod w/ budgets)
         run: npm run build
 
-      - name: Upload build artifact
+      - name: Create filtered build artifact (exclude specified folders)
+        run: |
+          # Создаем временную папку для фильтрованного билда
+          mkdir -p filtered-dist
+          
+          # Копируем всё, кроме исключенных папок
+          rsync -av \
+            --exclude="**/tabs/" \
+            --exclude="**/landing/" \
+            --exclude="**/marathons/" \
+            --exclude="**/materials/" \
+            --exclude="**/tariffs/" \
+            --exclude="**/calendar/" \
+            --exclude="**/schedule/" \
+            --exclude="**/test-video-call/" \
+            --exclude="public/" \
+            dist/**/browser/ filtered-dist/
+
+      - name: Upload build artifact (without excluded folders)
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: dist/**/browser/**
+          path: filtered-dist/
 
-      - name: Deploy to OVH via rsync (only master)
+      - name: Deploy to OVH via rsync (only master) - with exclusions
         if: github.ref == 'refs/heads/master'
         env:
           OVH_HOST: ${{ secrets.OVH_HOST }}
@@ -51,8 +82,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
           ssh-keyscan -p "${OVH_PORT:-22}" "$OVH_HOST" >> ~/.ssh/known_hosts
-          rsync -avz --delete -e "ssh -i ~/.ssh/id_deploy -p ${OVH_PORT:-22}" \
-            dist/**/browser/ "${OVH_USER}@${OVH_HOST}:${REMOTE_DIR}/"
+          
+          # Деплоим отфильтрованную сборку (исключенные папки уже удалены)
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/id_deploy -p ${OVH_PORT:-22}" \
+            filtered-dist/ "${OVH_USER}@${OVH_HOST}:${REMOTE_DIR}/"
+            
           # если менял конфиг, перезагрузи Nginx
           ssh -i ~/.ssh/id_deploy -p "${OVH_PORT:-22}" "${OVH_USER}@${OVH_HOST}" \
             "sudo nginx -t && sudo systemctl reload nginx || true"

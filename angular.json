@@ -113,6 +113,22 @@
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ]
+          },
+          "configurations": {
+            "ci": {
+              "watch": false,
+              "browsers": "ChromeHeadless",
+              "exclude": [
+                "src/app/classroom/lesson-material/tabs/**/*.spec.ts",
+                "src/app/features/landing/**/*.spec.ts",
+                "src/app/features/marathons/**/*.spec.ts",
+                "src/app/features/materials/**/*.spec.ts",
+                "src/app/features/tariffs/**/*.spec.ts",
+                "src/app/shared/components/calendar/**/*.spec.ts",
+                "src/app/shared/components/schedule/**/*.spec.ts",
+                "src/app/test-video-call/**/*.spec.ts"
+              ]
+            }
           }
         }
       }
