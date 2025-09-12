@@ -1,9 +1,19 @@
-import { CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HomeworkService } from '../../../services/homework.service';
 import { VideoCallService } from '../../../services/video-call.service';
 import { AuthService } from '../../../services/auth.service';
+
+interface Lesson {
+  id: number;
+  title?: string;
+  date?: string;
+  status?: string;
+  tasks?: unknown[];
+  questions?: unknown[];
+  [key: string]: unknown;
+}
 import { LessonService } from '../../../services/lesson.service';
 
 @Component({
@@ -12,7 +22,7 @@ import { LessonService } from '../../../services/lesson.service';
   styleUrls: ['./lesson-card.component.css']
 })
 export class LessonCardComponent implements OnInit {
-  @Input() lesson: any;
+  @Input() lesson: Lesson | null = null;
   @Output() itemDropped = new EventEmitter<{ from: number, to: number, item: string, type: 'task' | 'question' }>();
   @Output() moveToFuture = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
   @Input() lessonId!: number;
@@ -30,8 +40,8 @@ export class LessonCardComponent implements OnInit {
   collapsedHomework = false;
 
   // Новые поля для работы с реальными данными
-  realTasks: any[] = [];
-  realQuestions: any[] = [];
+  realTasks: unknown[] = [];
+  realQuestions: unknown[] = [];
   currentUserId: string = '';
   currentUserRole: 'student' | 'teacher' = 'student';
 
@@ -64,8 +74,8 @@ export class LessonCardComponent implements OnInit {
     this.loadLessonData();
     
     // Допустим, lesson.materials делится на все задачи/вопросы
-    const items = this.lesson?.materials || ['Grammaire: Subjonctif', 'Phonétique: Liaison'];
-    this.unresolved = [...items];
+    const items = this.lesson?.['materials'] || ['Grammaire: Subjonctif', 'Phonétique: Liaison'];
+    this.unresolved = Array.isArray(items) ? [...items] : ['Grammaire: Subjonctif', 'Phonétique: Liaison'];
     this.homeworkService.getHomeworkStream().subscribe(items => {
       this.newHomeworkFromClass = items;
     });
@@ -75,7 +85,7 @@ export class LessonCardComponent implements OnInit {
     if (!this.lesson?.id) return;
 
     // Загружаем задачи урока
-    this.homeworkService.getTasksForLesson(this.lesson.id).subscribe({
+    this.homeworkService.getTasksForLesson(this.lesson.id.toString()).subscribe({
       next: (tasks) => {
         this.realTasks = tasks;
         console.log('📝 Задачи загружены:', tasks);
@@ -86,7 +96,7 @@ export class LessonCardComponent implements OnInit {
     });
 
     // Загружаем вопросы урока
-    this.homeworkService.getQuestionsForLesson(this.lesson.id).subscribe({
+    this.homeworkService.getQuestionsForLesson(this.lesson.id.toString()).subscribe({
       next: (questions) => {
         this.realQuestions = questions;
         console.log('❓ Вопросы загружены:', questions);
@@ -101,7 +111,7 @@ export class LessonCardComponent implements OnInit {
     const lessonId = this.lesson?.id;
     if (lessonId) {
       // Устанавливаем данные урока в VideoCallService
-      this.videoCallService.setLessonData(lessonId, this.currentUserId);
+      this.videoCallService.setLessonData(lessonId.toString(), this.currentUserId);
       
       this.router.navigate([`/classroom/${lessonId}/lesson`], {
         queryParams: { startCall: true }
@@ -127,7 +137,7 @@ export class LessonCardComponent implements OnInit {
     const isSameList = containerId === previousId;
 
     if (isSameList) {
-      if (this.lesson.status !== 'future') return;
+      if (this.lesson?.status !== 'future') return;
 
       const list = event.container.data;
       const [moved] = list.splice(event.previousIndex, 1);
@@ -145,30 +155,30 @@ export class LessonCardComponent implements OnInit {
   }
 
   isPast(): boolean {
-    return this.lesson.status === 'past';
+    return this.lesson?.status === 'past';
   }
 
   showJoinButton(): boolean {
     const now = new Date();
-    const lessonTime = new Date(this.lesson.date);
+    const lessonTime = new Date(this.lesson?.date || new Date());
     const diffInMs = lessonTime.getTime() - now.getTime();
     const diffInMin = diffInMs / 60000;
 
-    return this.lesson.status === 'future' && diffInMin <= 10 && diffInMin >= -60;
+    return this.lesson?.status === 'future' && diffInMin <= 10 && diffInMin >= -60;
   }
 
   showCancelButton(): boolean {
     const now = new Date();
-    const lessonTime = new Date(this.lesson.date);
+    const lessonTime = new Date(this.lesson?.date || new Date());
     const diffInMs = lessonTime.getTime() - now.getTime();
     const diffInHours = diffInMs / (60 * 60 * 1000);
 
-    return this.lesson.status === 'future' && this.currentUserRole === 'student' && diffInHours > -2;
+    return this.lesson?.status === 'future' && this.currentUserRole === 'student' && diffInHours > -2;
   }
 
   canCancelWithRefund(): boolean {
     const now = new Date();
-    const lessonTime = new Date(this.lesson.date);
+    const lessonTime = new Date(this.lesson?.date || new Date());
     const diffInMs = lessonTime.getTime() - now.getTime();
     const diffInHours = diffInMs / (60 * 60 * 1000);
 
@@ -200,7 +210,7 @@ export class LessonCardComponent implements OnInit {
     if (!this.lesson?.id) return;
 
     this.homeworkService.addTaskToLesson(
-      this.lesson.id,
+      this.lesson.id.toString(),
       title,
       null,
       this.currentUserId,
@@ -221,7 +231,7 @@ export class LessonCardComponent implements OnInit {
     if (!this.lesson?.id) return;
 
     this.homeworkService.addQuestionToLesson(
-      this.lesson.id,
+      this.lesson.id.toString(),
       question,
       this.currentUserId,
       this.currentUserRole
@@ -238,7 +248,10 @@ export class LessonCardComponent implements OnInit {
   }
 
   removeItem(type: 'task' | 'question', index: number) {
-    this.lesson[type === 'task' ? 'tasks' : 'questions'].splice(index, 1);
+    const key = type === 'task' ? 'tasks' : 'questions';
+    if (this.lesson?.[key] && Array.isArray(this.lesson[key])) {
+      (this.lesson[key] as unknown[]).splice(index, 1);
+    }
   }
 
   openCancelModal(): void {
@@ -253,14 +266,16 @@ export class LessonCardComponent implements OnInit {
   cancelLesson(): void {
     if (!this.cancellationReason.trim() || !this.lesson?.id) return;
 
-    this.lessonService.cancelLesson(this.lesson.id, this.cancellationReason).subscribe({
+    this.lessonService.cancelLesson(this.lesson.id.toString(), this.cancellationReason).subscribe({
       next: (response) => {
         console.log('✅ Урок отменен:', response);
-        this.lesson.status = response.status;
+        if (this.lesson) {
+          this.lesson.status = (response as {status?: string})['status'] || this.lesson.status;
+        }
         this.closeCancelModal();
         
         // Показываем сообщение пользователю
-        alert(response.message);
+        alert((response as {message?: string})['message'] || 'Урок отменен');
       },
       error: (error) => {
         console.error('❌ Ошибка отмены урока:', error);
@@ -273,7 +288,7 @@ export class LessonCardComponent implements OnInit {
     this.homeworkService.completeTask(taskId, this.currentUserId).subscribe({
       next: (task) => {
         // Обновляем задачу в локальном массиве
-        const taskIndex = this.realTasks.findIndex(t => t.id === taskId);
+        const taskIndex = this.realTasks.findIndex((t: unknown) => (t as {id: string}).id === taskId);
         if (taskIndex !== -1) {
           this.realTasks[taskIndex] = task;
         }
@@ -289,5 +304,72 @@ export class LessonCardComponent implements OnInit {
     if (section === 'tasks') this.collapsedTasks = !this.collapsedTasks;
     else if (section === 'questions') this.collapsedQuestions = !this.collapsedQuestions;
     else if (section === 'homework') this.collapsedHomework = !this.collapsedHomework;
+  }
+
+  // Helper методы для task properties
+  getTaskIsCompleted(task: unknown): boolean {
+    return (task as {isCompleted?: boolean})?.isCompleted || false;
+  }
+
+  getTaskTitle(task: unknown): string {
+    return (task as {title?: string})?.title || '';
+  }
+
+  getTaskDescription(task: unknown): string {
+    return (task as {description?: string})?.description || '';
+  }
+
+  getTaskCreatedByRole(task: unknown): string {
+    return (task as {createdByRole?: string})?.createdByRole || '';
+  }
+
+  getTaskCreatedAt(task: unknown): Date | null {
+    const date = (task as {createdAt?: string | Date})?.createdAt;
+    return date ? new Date(date) : null;
+  }
+
+  getTaskId(task: unknown): string {
+    return (task as {id?: string})?.id || '';
+  }
+
+  // Helper методы для question properties
+  getQuestionIsAnswered(question: unknown): boolean {
+    return (question as {isAnswered?: boolean})?.isAnswered || false;
+  }
+
+  getQuestionText(question: unknown): string {
+    return (question as {question?: string})?.question || '';
+  }
+
+  getQuestionAnswer(question: unknown): string {
+    return (question as {answer?: string})?.answer || '';
+  }
+
+  getQuestionCreatedByRole(question: unknown): string {
+    return (question as {createdByRole?: string})?.createdByRole || '';
+  }
+
+  getQuestionCreatedAt(question: unknown): Date | null {
+    const date = (question as {createdAt?: string | Date})?.createdAt;
+    return date ? new Date(date) : null;
+  }
+
+  // Helper методы для string arrays в cdkDropList
+  getLessonTasksStringArray(): string[] {
+    const tasks = (this.lesson as {tasks?: unknown[]})?.tasks || [];
+    return tasks.map(task => String(task));
+  }
+
+  getLessonQuestionsStringArray(): string[] {
+    const questions = (this.lesson as {questions?: unknown[]})?.questions || [];
+    return questions.map(q => String(q));
+  }
+
+  getTaskString(task: unknown): string {
+    return String(task);
+  }
+
+  getQuestionString(question: unknown): string {
+    return String(question);
   }
 }

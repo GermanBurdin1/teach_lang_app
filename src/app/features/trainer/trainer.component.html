@@ -552,7 +552,7 @@
               <option 
                 *ngFor="let lesson of availableLessons"
                 [value]="lesson.id">
-                {{ lesson.teacherName || lesson.studentName }} - {{ lesson.scheduledAt | date:'dd/MM/yyyy HH:mm' }}
+                {{ lesson['teacherName'] || lesson['studentName'] }} - {{ getFormattedDate(lesson['scheduledAt']) }}
               </option>
             </select>
           </div>
@@ -1092,10 +1092,10 @@
             class="lesson-item"
             (click)="attachMaterialToLesson(lesson.id)">
             <div class="lesson-info">
-              <p>{{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
-              <p class="lesson-teacher" *ngIf="lesson.teacherName">
+              <p>{{ getFormattedDateTime(lesson['scheduledAt']) }}</p>
+              <p class="lesson-teacher" *ngIf="lesson['teacherName']">
                 <i class="fas fa-chalkboard-teacher"></i>
-                Avec {{ lesson.teacherName }}
+                Avec {{ lesson['teacherName'] }}
               </p>
             </div>
             <div class="attach-arrow">

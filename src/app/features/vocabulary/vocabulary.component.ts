@@ -7,6 +7,22 @@ import * as Grammar from './models/grammar-data.model';
 import { GrammarData } from './models/grammar-data.model';
 import { AddWordDialogComponent, AddWordDialogData, AddWordDialogResult } from './add-word-dialog.component';
 
+interface VocabularyItem {
+  id?: string;
+  word: string;
+  translation: string;
+  createdAt: number;
+  [key: string]: unknown;
+}
+
+interface ConfettiWindow extends Window {
+  confetti?: (options: {
+    particleCount: number;
+    spread: number;
+    origin: { y: number };
+  }) => void;
+}
+
 interface TranslationEntry {
   id?: number;
   target: string;
@@ -326,7 +342,7 @@ export class VocabularyComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         console.log('✅ Слово добавлено в БД:', res);
-        newCard.id = res.id;
+        newCard.id = (res as {id?: number}).id || 0;
       },
       error: (err) => {
         console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err);
@@ -470,7 +486,7 @@ export class VocabularyComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         console.log('✅ Слово добавлено в БД:', res);
-        newCard.id = res.id;
+        newCard.id = (res as {id?: number}).id || 0;
       },
       error: (err) => {
         console.warn('⚠️ Ошибка при отправке в БД. Сохраняем локально:', err);
@@ -706,7 +722,7 @@ export class VocabularyComponent implements OnInit {
     if (!data) return null;
 
     const parsed = JSON.parse(data);
-    return parsed.map((item: any) => ({
+    return parsed.map((item: VocabularyItem) => ({
       ...item,
       createdAt: item.createdAt || Date.now() // <-- добавим дату, если не было
     }));
@@ -874,7 +890,7 @@ export class VocabularyComponent implements OnInit {
 
     if (detectedLang !== this.sourceLang) {
       const langNames = { ru: 'русский', fr: 'французский', en: 'английский' };
-      const confirmed = confirm(
+      const confirmed = window.confirm(
         `Вы выбрали перевод с языка: ${langNames[this.sourceLang]}, но слово "${this.newWord}" выглядит как на ${langNames[detectedLang]}. Переключить язык на ${langNames[detectedLang]}?`
       );
       if (confirmed) {
@@ -951,7 +967,7 @@ export class VocabularyComponent implements OnInit {
     const confettiScript = document.createElement('script');
     confettiScript.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
     confettiScript.onload = () => {
-      (window as any).confetti({
+      (window as ConfettiWindow).confetti?.({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 }
@@ -1198,7 +1214,7 @@ export class VocabularyComponent implements OnInit {
     const parts: string[] = [];
 
     switch (grammar.partOfSpeech) {
-      case 'noun':
+      case 'noun': {
         parts.push('n.');
         const gender = (grammar as Grammar.NounGrammar).gender;
         if (gender === 'masculine') parts.push('m.');
@@ -1207,6 +1223,7 @@ export class VocabularyComponent implements OnInit {
         if (number === 'singular') parts.push('sg.');
         if (number === 'plural') parts.push('pl.');
         break;
+      }
       case 'verb':
         parts.push('v.');
         break;

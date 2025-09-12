@@ -316,7 +316,7 @@ export class DataRightsComponent implements OnInit {
   }
 
   requestDataDeletion(): void {
-    if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer toutes vos données personnelles ? Cette action est irréversible.')) {
+    if (window.confirm('⚠️ Êtes-vous sûr de vouloir supprimer toutes vos données personnelles ? Cette action est irréversible.')) {
       this.isLoading = true;
       const user = this.authService.getCurrentUser();
       if (user) {

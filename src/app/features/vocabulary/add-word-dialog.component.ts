@@ -3,6 +3,11 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslationService } from '../../services/translation.service';
 import { GrammarData } from './models/grammar-data.model';
 
+interface TranslationResponse {
+  translations: string[];
+  grammar?: GrammarData;
+}
+
 export interface AddWordDialogData {
   type: 'word' | 'expression';
   currentGalaxy: string;
@@ -240,7 +245,7 @@ export class AddWordDialogComponent implements OnInit {
       this.sourceLang,
       this.targetLang
     ).subscribe({
-      next: (res: any) => {
+      next: (res: TranslationResponse) => {
         if (res.translations.length) {
           this.newTranslation = res.translations[0];
           if (res.grammar) {
@@ -251,7 +256,7 @@ export class AddWordDialogComponent implements OnInit {
           console.log('✅ Перевод получен:', res.translations);
         }
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         console.error('❌ Ошибка перевода:', err);
         // Можно добавить уведомление об ошибке
       }

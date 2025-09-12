@@ -1,5 +1,4 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { TeacherProfileService } from '../src/app/features/dashboard/teacher-dashboard/teacher-profile.service';
 import { TeacherProfile } from '../src/app/features/dashboard/teacher-dashboard/teacher-profile.model';
 import { Review } from '../src/app/features/dashboard/shared/models/review.model';
 import { MOCK_REVIEWS } from '../src/app/features/dashboard/teacher-dashboard/mock-reviews';
@@ -13,6 +12,76 @@ import { TeacherService } from '../src/app/services/teacher.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../environment.prod';
 
+// Интерфейсы для типизации
+interface Student {
+  id: string;  // Make required to match BookingRequest
+  name?: string;
+  email?: string;
+  studentId?: string;
+  isStudent?: boolean;
+  nextLessonDate?: string | Date | null;
+  photoUrl?: string;
+  title?: string;
+  goals?: string[];
+  homework?: Array<{
+    title: string;
+    status: string;
+  }>;
+  history?: Array<{
+    date: string;
+    topic: string;
+  }>;
+  metadata?: {
+    studentName?: string;
+  };
+  lessons?: unknown[];
+  requestDate?: string;
+  [key: string]: unknown;
+}
+
+interface BookingRequest {
+  id: string;
+  type?: string;
+  status?: string;
+  message?: string;
+  data?: {
+    lessonId?: string;
+  };
+  metadata?: {
+    studentName?: string;
+    lessonId?: string;
+  };
+  // Добавляем поля для совместимости со Student
+  name?: string;
+  title?: string;
+  photoUrl?: string;
+  nextLessonDate?: string | Date | null;
+  isStudent?: boolean;
+  studentId?: string;
+  requestDate?: string;
+  [key: string]: unknown;
+}
+
+interface Lesson {
+  id: string;
+  scheduledAt: string;
+  status: string;
+  studentName: string;
+  studentId: string;
+  teacherName?: string;
+  teacherId?: string;
+  [key: string]: unknown;
+}
+
+interface TeacherClass {
+  id: string;
+  name: string;
+  level: string;
+  status: string;
+  students?: Student[];
+  scheduledAt?: string;
+  [key: string]: unknown;
+}
 
 @Component({
   selector: 'app-teacher-dashboard-overview',
@@ -20,10 +89,18 @@ import { environment } from '../environment.prod';
   styleUrls: ['./overview.component.css']
 })
 export class TeacherDashboardOverviewComponent implements OnInit {
-  @ViewChild('publicProfile') publicProfileTemplate!: TemplateRef<any>;
-  @ViewChild('studentDetailDialog') studentDetailDialog!: TemplateRef<any>;
+  @ViewChild('publicProfile') publicProfileTemplate!: TemplateRef<unknown>;
+  @ViewChild('studentDetailDialog') studentDetailDialog!: TemplateRef<unknown>;
 
-  constructor(private dialog: MatDialog, private profileService: TeacherProfileService, private authService: AuthService, private profilesApi: ProfilesApiService, private lessonService: LessonService, private notificationService: NotificationService, private teacherService: TeacherService, private snackBar: MatSnackBar) { }
+  constructor(
+    private dialog: MatDialog,
+    private authService: AuthService, 
+    private profilesApi: ProfilesApiService,
+    private lessonService: LessonService,
+    private notificationService: NotificationService,
+    private teacherService: TeacherService,
+    private snackBar: MatSnackBar
+  ) { }
 
   profile: TeacherProfile | null = null;
   reviews: Review[] = [];
@@ -36,11 +113,12 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     { name: 'Samedi', hours: null },
     { name: 'Dimanche', hours: null }
   ];
-  selectedStudent: any = null;
+  selectedStudent: Student | null = null;
   studentViewFilter: 'all' | 'students' | 'pending' = 'all';
 
-  students = [
+  students: Student[] = [
     {
+      id: 'alice-dupont-1',
       name: 'Alice Dupont',
       isStudent: true,
       nextLessonDate: '22/05/2025',
@@ -56,6 +134,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       ]
     },
     {
+      id: 'thomas-moreau-1',
       name: 'Thomas Moreau',
       isStudent: false,
       requestDate: '18/05/2025',
@@ -83,13 +162,13 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
   ];
 
-  confirmedStudents: any[] = [];
-  pendingRequests: any[] = [];
-  selectedRequest: any = null;
+  confirmedStudents: Student[] = [];
+  pendingRequests: BookingRequest[] = [];
+  selectedRequest: BookingRequest | null = null;
   selectedReason = '';
   customReason = '';
   showRefuseDialog = false;
-  treatedRequests: any[] = [];
+  treatedRequests: BookingRequest[] = [];
   REJECTION_REASONS = [
     'Je ne suis pas disponible à cette date',
     'Ce créneau ne correspond pas à mon emploi du temps régulier',
@@ -98,13 +177,13 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     'Autre'
   ];
 
-  teacher: any = null;
-  teacherReviews: any[] = [];
+  teacher: unknown = null;
+  teacherReviews: unknown[] = [];
   showPublicProfilePreview = false;
 
   // Управление классом и приглашениями
   hasActiveClass = true; // Временно установим true для демонстрации
-  teacherClasses: any[] = []; // Список всех классов преподавателя
+  teacherClasses: TeacherClass[] = []; // Список всех классов преподавателя
   inviteForm = {
     email: '',
     level: '',
@@ -119,25 +198,28 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
       // Загружаем все подтверждённые занятия для календаря с цветовой индикацией
-      this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
-        this.calendarEvents = lessons.map(lesson => ({
-          start: new Date(lesson.scheduledAt),
-          title: `${this.getStatusIcon(lesson.status)} ${lesson.studentName}`,
-          color: this.getCalendarColor(lesson.status),
-          meta: {
-            lessonId: lesson.id,
-            status: lesson.status,
-            studentId: lesson.studentId,
-            studentName: lesson.studentName
-          }
-        }));
+      this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe((lessons: unknown[]) => {
+        this.calendarEvents = lessons.map((lesson: unknown) => {
+          const lessonData = lesson as Lesson;
+          return {
+            start: new Date(lessonData.scheduledAt),
+            title: `${this.getStatusIcon(lessonData.status)} ${lessonData.studentName}`,
+            color: this.getCalendarColor(lessonData.status),
+            meta: {
+              lessonId: lessonData.id,
+              status: lessonData.status,
+              studentId: lessonData.studentId,
+              studentName: lessonData.studentName
+            }
+          };
+        });
       });
 
       // Загружаем заявки (demandes) как в teacher-home.component
       this.notificationService.getNotificationsForUser(teacherId).subscribe({
-        next: (all: any[]) => {
-          this.pendingRequests = all.filter((n: any) => n.type === 'booking_request' && n.status === 'pending');
-          this.treatedRequests = all.filter((n: any) => n.type === 'booking_request' && n.status !== 'pending');
+        next: (all: unknown[]) => {
+          this.pendingRequests = all.filter((n: unknown) => (n as BookingRequest).type === 'booking_request' && (n as BookingRequest).status === 'pending') as BookingRequest[];
+          this.treatedRequests = all.filter((n: unknown) => (n as BookingRequest).type === 'booking_request' && (n as BookingRequest).status !== 'pending') as BookingRequest[];
           if (!environment.production) {
             console.log('[OVERVIEW] pendingRequests:', this.pendingRequests);
           }
@@ -237,8 +319,8 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     });
   }
 
-  openStudentModal(student: any): void {
-    this.selectedStudent = student;
+  openStudentModal(student: Student): void {
+    this.selectedStudent = student as Student;
     if (!this.studentDetailDialog) {
       console.error('studentDetailDialog is undefined');
       return;
@@ -291,7 +373,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
   }
 
-  filteredStudents() {
+  filteredStudents(): Student[] {
     if (this.studentViewFilter === 'pending') return this.pendingRequests;
     if (this.studentViewFilter === 'students') return this.confirmedStudents;
     return this.confirmedStudents;
@@ -306,7 +388,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     return Array(this.totalPages).fill(0);
   }
 
-  get paginatedStudents() {
+  get paginatedStudents(): Student[] {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     return this.filteredStudents().slice(start, start + this.itemsPerPage);
   }
@@ -319,8 +401,11 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
       if(!environment.production) console.log('[OVERVIEW] Обновляем подтверждённых студентов для teacherId:', teacherId);
-      this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe(students => {
-        this.confirmedStudents = students;
+      this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe((students: unknown[]) => {
+        this.confirmedStudents = students.map(s => {
+          const student = s as {id?: string, [key: string]: unknown};
+          return {...student, id: student.id || ''} as Student;
+        });
         if(!environment.production) console.log('[OVERVIEW] confirmedStudents (refresh):', students);
       });
     }
@@ -329,41 +414,43 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   private refreshStudents(): void {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId) return;
-    this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe(lessons => {
+    this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe((lessons: unknown[]) => {
       const now = new Date();
       if(!environment.production) console.log('[DEBUG] Загруженные уроки для учителя:', lessons);
       // Группируем занятия по studentId
-      const studentsMap: { [studentId: string]: any } = {};
-      lessons.forEach((lesson: any) => {
-        if (!studentsMap[lesson.studentId]) {
-          studentsMap[lesson.studentId] = {
-            studentId: lesson.studentId,
-            name: lesson.studentName,
-            photoUrl: lesson.studentPhotoUrl, // если есть
+      const studentsMap: { [studentId: string]: Student } = {};
+      lessons.forEach((lesson: unknown) => {
+        const lessonData = lesson as { studentId: string; studentName: string; studentPhotoUrl?: string; scheduledAt: string };
+        if (!studentsMap[lessonData.studentId]) {
+          studentsMap[lessonData.studentId] = {
+            id: lessonData.studentId,  // Add required id field
+            studentId: lessonData.studentId,
+            name: lessonData.studentName,
+            photoUrl: lessonData.studentPhotoUrl, // если есть
             lessons: []
           };
         }
-        studentsMap[lesson.studentId].lessons.push(lesson);
+        studentsMap[lessonData.studentId].lessons?.push(lesson);
       });
       if(!environment.production) console.log('[DEBUG] Сгруппированные по студентам уроки:', studentsMap);
       // Для каждого студента ищем ближайшее будущее занятие
-      this.confirmedStudents = Object.values(studentsMap).map((student: any) => {
+      this.confirmedStudents = Object.values(studentsMap).map((student: Student) => {
         const futureLessons = student.lessons
-          .map((l: any) => new Date(l.scheduledAt))
+          ?.map((l: unknown) => new Date((l as { scheduledAt: string }).scheduledAt))
           .filter((date: Date) => date > now)
           .sort((a: Date, b: Date) => a.getTime() - b.getTime());
         if(!environment.production) console.log(`[DEBUG] Студент ${student.name} (${student.studentId}): futureLessons =`, futureLessons);
         return {
           ...student,
-          nextLessonDate: futureLessons.length > 0 ? futureLessons[0] : null
+          nextLessonDate: futureLessons && futureLessons.length > 0 ? futureLessons[0] : null
         };
       });
       if(!environment.production) console.log('[Overview] Обновлён список confirmedStudents:', this.confirmedStudents);
     });
   }
 
-  respondToRequest(request: any, accepted: boolean): void {
-    const metadata = (request as any).data;
+  respondToRequest(request: BookingRequest, accepted: boolean): void {
+    const metadata = request.data;
     if (!metadata?.lessonId) {
       console.error('❌ Données de requête invalides (lessonId manquant)');
       return;
@@ -396,7 +483,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     const reason = this.selectedReason === 'Autre' ? this.customReason.trim() : this.selectedReason;
     if (!reason || !this.selectedRequest) return;
 
-    const metadata = this.parseMetadata(this.selectedRequest.message);
+    const metadata = this.parseMetadata(this.selectedRequest.message || '');
     if (!metadata) return;
 
     this.lessonService.respondToBooking(metadata.lessonId, false, reason).subscribe(() => {
@@ -466,7 +553,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
   }
 
-  addStudentToClass(student: any): void {
+  addStudentToClass(student: Student): void {
     if(!environment.production) console.log('👥 Добавление студента в активный класс:', student);
     
     const teacherId = this.authService.getCurrentUser()?.id;
@@ -480,7 +567,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
     
     const classes = JSON.parse(savedClasses);
-    const activeClass = classes.find((cls: any) => cls.status === 'active');
+    const activeClass = classes.find((cls: TeacherClass) => cls.status === 'active');
     
     if (!activeClass) {
       this.snackBar.open('Нет активного класса. Создайте класс во вкладке "Classes"', 'OK', { duration: 3000 });
@@ -488,7 +575,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
     
     // Проверяем, есть ли уже студент в классе
-    if (activeClass.students && activeClass.students.find((s: any) => s.id === student.studentId || s.name === student.name)) {
+    if (activeClass.students && activeClass.students.find((s: Student) => s.id === student.studentId || s.name === student.name)) {
       this.snackBar.open('Студент уже в классе', 'OK', { duration: 3000 });
       return;
     }
@@ -500,7 +587,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     
     activeClass.students.push({
       id: student.studentId || Date.now().toString(),
-      name: student.name || student.metadata?.studentName,
+      name: student.name || student.metadata?.studentName || 'Unknown Student',
       addedAt: new Date().toISOString()
     });
     
@@ -510,7 +597,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     this.snackBar.open(`✅ ${student.name || student.metadata?.studentName} добавлен в класс "${activeClass.name}"`, 'OK', { duration: 3000 });
   }
 
-  isStudentInClass(student: any): boolean {
+  isStudentInClass(student: Student): boolean {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId) return false;
     
@@ -518,11 +605,11 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     if (!savedClasses) return false;
     
     const classes = JSON.parse(savedClasses);
-    const activeClass = classes.find((cls: any) => cls.status === 'active');
+    const activeClass = classes.find((cls: TeacherClass) => cls.status === 'active');
     
     if (!activeClass || !activeClass.students) return false;
     
-    return activeClass.students.some((s: any) => 
+    return activeClass.students.some((s: Student) => 
       s.id === student.studentId || 
       s.name === student.name || 
       s.name === student.metadata?.studentName
@@ -555,7 +642,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     alert(message);
   }
 
-  inviteStudentToClass(student: any): void {
+  inviteStudentToClass(student: Student): void {
     if(!environment.production) console.log('👥 Приглашение студента в класс:', student);
     
     // Генерируем ссылку приглашения для конкретного студента
@@ -576,7 +663,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
   }
 
-  addStudentToSelectedClass(student: any, classId: string): void {
+  addStudentToSelectedClass(student: Student, classId: string): void {
     if(!environment.production) console.log('👥 Добавление студента в выбранный класс:', student, classId);
     
     const teacherId = this.authService.getCurrentUser()?.id;
@@ -589,7 +676,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
     
     // Проверяем, есть ли уже студент в классе
-    if (targetClass.students && targetClass.students.find((s: any) => 
+    if (targetClass.students && targetClass.students.find((s: Student) => 
       s.id === student.studentId || s.name === student.name)) {
       this.snackBar.open('Студент уже в этом классе', 'OK', { duration: 3000 });
       return;
@@ -598,7 +685,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     // Удаляем студента из других классов
     this.teacherClasses.forEach(cls => {
       if (cls.students) {
-        cls.students = cls.students.filter((s: any) => 
+        cls.students = cls.students.filter((s: Student) => 
           s.id !== student.studentId && s.name !== student.name);
       }
     });
@@ -610,7 +697,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     
     targetClass.students.push({
       id: student.studentId || Date.now().toString(),
-      name: student.name || student.metadata?.studentName,
+      name: student.name || student.metadata?.studentName || 'Unknown Student',
       addedAt: new Date().toISOString()
     });
     
@@ -620,11 +707,11 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     this.snackBar.open(`✅ ${student.name || student.metadata?.studentName} добавлен в класс "${targetClass.name}"`, 'OK', { duration: 3000 });
   }
 
-  getStudentCurrentClass(student: any): string | null {
+  getStudentCurrentClass(student: Student): string | null {
     const studentName = student.name || student.metadata?.studentName;
     
     for (const classe of this.teacherClasses) {
-      if (classe.students && classe.students.find((s: any) => 
+      if (classe.students && classe.students.find((s: Student) => 
         s.id === student.studentId || s.name === studentName)) {
         return classe.id;
       }
@@ -632,7 +719,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     return null;
   }
 
-  getStudentCurrentClassName(student: any): string | null {
+  getStudentCurrentClassName(student: Student): string | null {
     const classId = this.getStudentCurrentClass(student);
     if (!classId) return null;
     
@@ -642,6 +729,51 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
   private generateInviteCode(): string {
     return Math.random().toString(36).substring(2, 10).toUpperCase();
+  }
+
+  // Helper методы для доступа к свойствам teacher в шаблоне
+  getTeacherPhotoUrl(): string {
+    return (this.teacher as {photoUrl?: string})?.photoUrl || '';
+  }
+
+  getTeacherName(): string {
+    return (this.teacher as {name?: string})?.name || '';
+  }
+
+  getTeacherSurname(): string {
+    return (this.teacher as {surname?: string})?.surname || '';
+  }
+
+  getTeacherEmail(): string {
+    return (this.teacher as {email?: string})?.email || '';
+  }
+
+  getTeacherBio(): string {
+    return (this.teacher as {bio?: string})?.bio || '';
+  }
+
+  getTeacherSpecializations(): string[] {
+    return (this.teacher as {specializations?: string[]})?.specializations || [];
+  }
+
+  getTeacherExperienceYears(): number {
+    return (this.teacher as {experienceYears?: number})?.experienceYears || 0;
+  }
+
+  getTeacherPrice(): number {
+    return (this.teacher as {price?: number})?.price || 0;
+  }
+
+  getTeacherRating(): number {
+    return (this.teacher as {rating?: number})?.rating || 0;
+  }
+
+  getTeacherCertificates(): string[] {
+    return (this.teacher as {certificates?: string[]})?.certificates || [];
+  }
+
+  getTeacherReviews(): any[] {
+    return (this.teacherReviews as any[]) || [];
   }
 
 }

@@ -2,6 +2,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
+interface LessonResponse {
+  success: boolean;
+  lesson?: unknown;
+  [key: string]: unknown;
+}
+
+interface BookingRequest {
+  id: string;
+  studentId: string;
+  teacherId: string;
+  date: string;
+  time: string;
+  status: string;
+  [key: string]: unknown;
+}
+
 export interface TeacherTimeSlot {
   time: string;
   available: boolean;
@@ -29,8 +45,8 @@ export class LessonService {
     teacherId: string;
     scheduledAt: string;
     paymentId?: string;
-  }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/book`, data);
+  }): Observable<LessonResponse> {
+    return this.http.post<LessonResponse>(`${this.baseUrl}/book`, data);
   }
 
   getAvailableSlots(teacherId: string, date?: string): Observable<TeacherTimeSlot[]> {
@@ -44,8 +60,8 @@ export class LessonService {
     reason?: string,
     proposeAlternative?: boolean,
     proposedTime?: string
-  ): Observable<any> {
-    return this.http.post(`${this.baseUrl}/respond`, {
+  ): Observable<LessonResponse> {
+    return this.http.post<LessonResponse>(`${this.baseUrl}/respond`, {
       lessonId,
       accepted,
       reason,
@@ -54,62 +70,62 @@ export class LessonService {
     });
   }
 
-  getSessionsForStudent(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/student/me/confirmed`);
+  getSessionsForStudent(): Observable<unknown[]> {
+    return this.http.get<unknown[]>(`${this.baseUrl}/student/me/confirmed`);
   }
 
-  getConfirmedLessons(studentId: string): Observable<any[]> {
+  getConfirmedLessons(studentId: string): Observable<unknown[]> {
     return this.http
-      .get<any[]>(`http://localhost:3004/lessons/student/${studentId}/confirmed-lessons`)
+      .get<unknown[]>(`http://localhost:3004/lessons/student/${studentId}/confirmed-lessons`)
       .pipe(
         tap(lessons => console.log('📚 Confirmed lessons received from backend:', lessons))
       );
   }
 
-  getConfirmedStudentsForTeacher(teacherId: string): Observable<any[]> {
+  getConfirmedStudentsForTeacher(teacherId: string): Observable<unknown[]> {
     console.log('[FRONT] getConfirmedStudentsForTeacher called with teacherId:', teacherId);
-    return this.http.get<any[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-students`).pipe(
+    return this.http.get<unknown[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-students`).pipe(
       tap(students => console.log('[FRONT] getConfirmedStudentsForTeacher result:', students))
     );
   }
 
-  getAllConfirmedLessonsForTeacher(teacherId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-lessons`);
+  getAllConfirmedLessonsForTeacher(teacherId: string): Observable<unknown[]> {
+    return this.http.get<unknown[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-lessons`);
   }
 
-  studentRespondToProposal(data: { lessonId: string; accepted: boolean; newSuggestedTime?: string }): Observable<any> {
+  studentRespondToProposal(data: { lessonId: string; accepted: boolean; newSuggestedTime?: string }): Observable<LessonResponse> {
     console.log('[studentRespondToProposal] data:', data);
-    return this.http.post(`${this.baseUrl}/student-respond`, data);
+    return this.http.post<LessonResponse>(`${this.baseUrl}/student-respond`, data);
   }
 
-  getLessonById(lessonId: string): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/${lessonId}`);
+  getLessonById(lessonId: string): Observable<LessonResponse> {
+    return this.http.get<LessonResponse>(`${this.baseUrl}/${lessonId}`);
   }
 
-  cancelLesson(lessonId: string, reason: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/cancel`, { lessonId, reason });
+  cancelLesson(lessonId: string, reason: string): Observable<LessonResponse> {
+    return this.http.post<LessonResponse>(`${this.baseUrl}/cancel`, { lessonId, reason });
   }
 
-  getStudentSentRequests(studentId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/student/${studentId}/sent-requests`);
+  getStudentSentRequests(studentId: string): Observable<BookingRequest[]> {
+    return this.http.get<BookingRequest[]>(`${this.baseUrl}/student/${studentId}/sent-requests`);
   }
 
-  getStudentSentRequestsPaged(studentId: string, page = 1, limit = 10): Observable<{ data: any[], total: number }> {
-    return this.http.get<{ data: any[], total: number }>(`${this.baseUrl}/student/${studentId}/sent-requests-paged?page=${page}&limit=${limit}`);
+  getStudentSentRequestsPaged(studentId: string, page = 1, limit = 10): Observable<{ data: BookingRequest[], total: number }> {
+    return this.http.get<{ data: BookingRequest[], total: number }>(`${this.baseUrl}/student/${studentId}/sent-requests-paged?page=${page}&limit=${limit}`);
   }
 
   // Методы для работы с задачами и вопросами
 
-  getLessonDetails(lessonId: string): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/${lessonId}/details`);
+  getLessonDetails(lessonId: string): Observable<LessonResponse> {
+    return this.http.get<LessonResponse>(`${this.baseUrl}/${lessonId}/details`);
   }
 
-  getTasksForLesson(lessonId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/${lessonId}/tasks`);
+  getTasksForLesson(lessonId: string): Observable<unknown[]> {
+    return this.http.get<unknown[]>(`${this.baseUrl}/${lessonId}/tasks`);
   }
 
-  getQuestionsForLesson(lessonId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/${lessonId}/questions`);
+  getQuestionsForLesson(lessonId: string): Observable<unknown[]> {
+    return this.http.get<unknown[]>(`${this.baseUrl}/${lessonId}/questions`);
   }
 
   addTaskToLesson(taskData: {
@@ -118,8 +134,8 @@ export class LessonService {
     description?: string | null;
     createdBy: string;
     createdByRole: 'student' | 'teacher';
-  }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/tasks`, taskData);
+  }): Observable<LessonResponse> {
+    return this.http.post<LessonResponse>(`${this.baseUrl}/tasks`, taskData);
   }
 
   addQuestionToLesson(questionData: {
@@ -127,16 +143,16 @@ export class LessonService {
     question: string;
     createdBy: string;
     createdByRole: 'student' | 'teacher';
-  }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/questions`, questionData);
+  }): Observable<LessonResponse> {
+    return this.http.post<LessonResponse>(`${this.baseUrl}/questions`, questionData);
   }
 
-  completeTask(taskId: string, completedBy: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/tasks/${taskId}/complete`, { completedBy });
+  completeTask(taskId: string, completedBy: string): Observable<LessonResponse> {
+    return this.http.post<LessonResponse>(`${this.baseUrl}/tasks/${taskId}/complete`, { completedBy });
   }
 
-  answerQuestion(questionId: string, answer: string, teacherId: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}/questions/${questionId}/answer`, {
+  answerQuestion(questionId: string, answer: string, teacherId: string): Observable<LessonResponse> {
+    return this.http.put<LessonResponse>(`${this.baseUrl}/questions/${questionId}/answer`, {
       answer,
       answeredBy: teacherId
     });

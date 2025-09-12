@@ -73,15 +73,15 @@ export class LessonTabsService {
   }
 
   //для lesson-material.component.ts
-  private currentLessonDataSource = new BehaviorSubject<any | null>(null);
+  private currentLessonDataSource = new BehaviorSubject<unknown | null>(null);
   currentLessonData$ = this.currentLessonDataSource.asObservable();
 
-  setCurrentLessonData(data: any): void {
+  setCurrentLessonData(data: unknown): void {
     console.log('📚 Установлен урок:', data);
     this.currentLessonDataSource.next(data);
   }
 
-  getCurrentLessonData(): any | null {
+  getCurrentLessonData(): unknown | null {
     return this.currentLessonDataSource.value;
   }
 

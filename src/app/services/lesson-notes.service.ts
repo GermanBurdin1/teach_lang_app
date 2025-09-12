@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, forkJoin } from 'rxjs';
+import { BehaviorSubject, Observable as _Observable, forkJoin as _forkJoin } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export interface LessonNote {
@@ -220,7 +220,7 @@ export class LessonNotesService {
   }
 
   // Конвертация из frontend формата в backend формат
-  private convertFrontendToBackend(notes: LessonNotesData, createdBy: string, createdByRole: 'student' | 'teacher'): any {
+  private convertFrontendToBackend(notes: LessonNotesData, createdBy: string, createdByRole: 'student' | 'teacher'): Record<string, unknown> {
     return {
       tasksContent: notes.tasks.length > 0 ? JSON.stringify(notes.tasks) : null,
       questionsContent: notes.questions.length > 0 ? JSON.stringify(notes.questions) : null,
@@ -242,7 +242,7 @@ export class LessonNotesService {
       // Convert date strings back to Date objects
       ['tasks', 'questions', 'materials'].forEach(section => {
         if (parsed[section]) {
-          parsed[section].forEach((note: any) => {
+          parsed[section].forEach((note: LessonNote) => {
             note.createdAt = new Date(note.createdAt);
             note.updatedAt = new Date(note.updatedAt);
           });

@@ -16,7 +16,7 @@
       matTooltip="Перейти к слову">
       <strong>{{ result.word }}</strong> — {{ result.translation }}
       <div style="font-size: 12px; color: gray;">
-        {{ result.fullPath }}
+        {{ getResultFullPath(result) }}
       </div>
     </div>
   </div>
@@ -55,7 +55,7 @@
           +
         </button>
         
-        <div class="galaxy galaxy-enhanced" (click)="zoomIntoGalaxy(galaxy)" (drop)="onDropToGalaxy($event, galaxy.name)"
+        <div class="galaxy galaxy-enhanced" (click)="zoomIntoGalaxy(castToGalaxy(galaxy))" (drop)="onDropToGalaxy($event, getGalaxyName(galaxy))"
           (dragover)="onDragOver($event)">
           <svg #galaxyElement viewBox="0 0 200 200" class="galaxy-svg galaxy-stellar" 
                preserveAspectRatio="xMidYMid meet"
@@ -179,8 +179,8 @@
               <!-- Invisible overlay для tooltip -->
               <foreignObject [attr.x]="subtopic.x - 7" [attr.y]="subtopic.y - 7" width="14" height="14">
                 <div class="planet-tooltip-overlay"
-                  [matTooltip]="subtopic.name + ' (' + getWordAndExpressionCount(galaxy.name, subtopic.name) + ')'"
-                  (click)="zoomIntoGalaxy(galaxy); onSubtopicClick(galaxy.name, subtopic.name)">
+                  [matTooltip]="getSubtopicName(subtopic) + ' (' + getWordAndExpressionCount(getGalaxyName(galaxy), getSubtopicName(subtopic)) + ')'"
+                  (click)="zoomIntoGalaxy(castToGalaxy(galaxy)); onSubtopicClick(getGalaxyName(galaxy), getSubtopicName(subtopic))">
                 </div>
               </foreignObject>
               
@@ -229,23 +229,23 @@
         </text>
 
         <!-- Планеты-подтемы -->
-        <g *ngFor="let subtopic of zoomedGalaxy.subtopics">
+        <g *ngFor="let subtopic of getZoomedGalaxySubtopics()">
           <circle class="subtopic-planet" [ngClass]="{ 'pulse': pendingSubtopicWords.length > 0 }"
-            [attr.cx]="subtopic.x * 3" [attr.cy]="subtopic.y * 3" r="60" fill="url(#planetGradient)"
-            (dragover)="onDragOver($event)" (drop)="onDropToSubtopic($event, zoomedGalaxy.name, subtopic.name)"
-            (click)="onSubtopicClick(zoomedGalaxy.name, subtopic.name)">
+            [attr.cx]="getSubtopicX(subtopic) * 3" [attr.cy]="getSubtopicY(subtopic) * 3" r="60" fill="url(#planetGradient)"
+            (dragover)="onDragOver($event)" (drop)="onDropToSubtopic($event, getZoomedGalaxyName(), getSubtopicName(subtopic))"
+            (click)="onSubtopicClick(getZoomedGalaxyName(), getSubtopicName(subtopic))">
           </circle>
           
           <!-- Invisible overlay для tooltip -->
-          <foreignObject [attr.x]="subtopic.x * 3 - 60" [attr.y]="subtopic.y * 3 - 60" width="120" height="120">
+          <foreignObject [attr.x]="getSubtopicX(subtopic) * 3 - 60" [attr.y]="getSubtopicY(subtopic) * 3 - 60" width="120" height="120">
             <div class="planet-tooltip-overlay large"
-              [matTooltip]="'(' + getWordAndExpressionCount(subtopic.name, zoomedGalaxy.name) + ')'">
+              [matTooltip]="'(' + getWordAndExpressionCount(getSubtopicName(subtopic), getZoomedGalaxyName()) + ')'">
             </div>
           </foreignObject>
 
-          <foreignObject [attr.x]="subtopic.x * 3 - 50" [attr.y]="subtopic.y * 3 - 20" width="100" height="40">
+          <foreignObject [attr.x]="getSubtopicX(subtopic) * 3 - 50" [attr.y]="getSubtopicY(subtopic) * 3 - 20" width="100" height="40">
             <div #labelRef class="subtopic-label-wrapper">
-              {{ subtopic.name }}
+              {{ getSubtopicName(subtopic) }}
             </div>
           </foreignObject>
         </g>

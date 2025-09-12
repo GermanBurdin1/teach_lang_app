@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { StructuredDataService } from '../../../services/structured-data.service';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-analytics-dashboard',
@@ -148,23 +149,31 @@ export class AnalyticsDashboardComponent implements OnInit {
 
   testRegistrationEvent(): void {
     this.analyticsService.trackRegistration('email', 'student');
-    console.log('📊 Événement d\'inscription de test envoyé à GA4');
+    if (!environment.production) {
+      console.log('📊 Événement d\'inscription de test envoyé à GA4');
+    }
   }
 
   testLessonBookingEvent(): void {
     this.analyticsService.trackLessonBooking('lesson_123', 'teacher_456', 99, 'EUR');
-    console.log('📊 Événement de réservation de test envoyé à GA4');
+    if (!environment.production) {
+      console.log('📊 Événement de réservation de test envoyé à GA4');
+    }
   }
 
   testPaymentEvent(): void {
     this.analyticsService.trackPayment('payment_789', 99, 'EUR', 'credit_card');
-    console.log('📊 Événement de paiement de test envoyé à GA4');
+    if (!environment.production) {
+      console.log('📊 Événement de paiement de test envoyé à GA4');
+    }
   }
 
   injectOrganizationSchema(): void {
     const orgSchema = this.structuredDataService.generateOrganizationSchema();
     this.structuredDataService.injectStructuredData(orgSchema);
-    console.log('📊 Schéma organisation injecté');
+    if (!environment.production) {
+      console.log('📊 Schéma organisation injecté');
+    }
   }
 
   injectCourseSchema(): void {
@@ -175,6 +184,8 @@ export class AnalyticsDashboardComponent implements OnInit {
       price: 99
     });
     this.structuredDataService.injectStructuredData(courseSchema);
-    console.log('📊 Schéma cours injecté');
+    if (!environment.production) {
+      console.log('📊 Schéma cours injecté');
+    }
   }
 }

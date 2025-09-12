@@ -7,7 +7,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
   styleUrls: ['./gabarit-component.css']
 })
 export class GabaritComponent {
-  @Input() lesson: any;
+  @Input() lesson: unknown;
   @Input() visible: boolean = false;
   @Input() close!: () => void;
   @Input() lessonId: string = '';
@@ -26,9 +26,9 @@ export class GabaritComponent {
     }
   }
 
-  get texts() { return this.lesson?.texts || []; }
-  get audios() { return this.lesson?.audios || []; }
-  get videos() { return this.lesson?.videos || []; }
+  get texts() { return (this.lesson as {texts?: unknown[]})?.texts || []; }
+  get audios() { return (this.lesson as {audios?: unknown[]})?.audios || []; }
+  get videos() { return (this.lesson as {videos?: unknown[]})?.videos || []; }
 
 
   add(type: 'text' | 'audio' | 'video') {
@@ -43,9 +43,9 @@ export class GabaritComponent {
       const file = input.files?.[0];
       if (file && this.lesson) {
         const label = `${file.name} (${Math.round(file.size / 1024)} Ko)`;
-        if (type === 'text') this.lesson.texts.push(label);
-        if (type === 'audio') this.lesson.audios.push(label);
-        if (type === 'video') this.lesson.videos.push(label);
+        if (type === 'text' && this.lesson) (this.lesson as {texts?: unknown[]}).texts?.push?.(label);
+        if (type === 'audio' && this.lesson) (this.lesson as {audios?: unknown[]}).audios?.push?.(label);
+        if (type === 'video' && this.lesson) (this.lesson as {videos?: unknown[]}).videos?.push?.(label);
       }
     };
 
@@ -53,6 +53,31 @@ export class GabaritComponent {
   }
 
   onDrop(event: CdkDragDrop<string[]>, type: 'texts' | 'audios' | 'videos') {
-    moveItemInArray(this.lesson[type], event.previousIndex, event.currentIndex);
+    const lessonArray = (this.lesson as {[key: string]: unknown[]})?.[type];
+    if (lessonArray && Array.isArray(lessonArray)) {
+      moveItemInArray(lessonArray, event.previousIndex, event.currentIndex);
+    }
+  }
+
+  // Helper методы для template
+  getLessonDate(): Date | null {
+    const date = (this.lesson as {date?: string | Date})?.date;
+    return date ? new Date(date) : null;
+  }
+
+  getTextsStringArray(): string[] {
+    return this.texts.map(item => String(item));
+  }
+
+  getAudiosStringArray(): string[] {
+    return this.audios.map(item => String(item));
+  }
+
+  getVideosStringArray(): string[] {
+    return this.videos.map(item => String(item));
+  }
+
+  getItemString(item: unknown): string {
+    return String(item);
   }
 }

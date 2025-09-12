@@ -1,8 +1,19 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of as _of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environment';
+
+interface HomeworkResponse {
+  success: boolean;
+  homework?: Homework;
+  [key: string]: unknown;
+}
+
+interface _HomeworkListResponse {
+  homeworks: Homework[];
+  [key: string]: unknown;
+}
 
 export interface Homework {
   id: string;
@@ -74,23 +85,23 @@ export class HomeworkService {
   // ==================== НОВЫЕ МЕТОДЫ ДЛЯ РАБОТЫ С LESSON-SERVICE ====================
 
   // Начало урока
-  startLesson(lessonId: string, startedBy: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${lessonId}/start`, { startedBy });
+  startLesson(lessonId: string, startedBy: string): Observable<HomeworkResponse> {
+    return this.http.post<HomeworkResponse>(`${this.baseUrl}/${lessonId}/start`, { startedBy });
   }
 
   // Завершение урока
-  endLesson(lessonId: string, endedBy: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${lessonId}/end`, { endedBy });
+  endLesson(lessonId: string, endedBy: string): Observable<HomeworkResponse> {
+    return this.http.post<HomeworkResponse>(`${this.baseUrl}/${lessonId}/end`, { endedBy });
   }
 
   // Получение урока с задачами и вопросами
-  getLessonWithTasksAndQuestions(lessonId: string): Observable<any> {
+  getLessonWithTasksAndQuestions(lessonId: string): Observable<unknown> {
     return this.http.get(`${this.baseUrl}/${lessonId}/details`);
   }
 
   // Добавление задачи к уроку
-  addTaskToLesson(lessonId: string, title: string, description: string | null, createdBy: string, createdByRole: 'student' | 'teacher'): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${lessonId}/tasks`, {
+  addTaskToLesson(lessonId: string, title: string, description: string | null, createdBy: string, createdByRole: 'student' | 'teacher'): Observable<HomeworkResponse> {
+    return this.http.post<HomeworkResponse>(`${this.baseUrl}/${lessonId}/tasks`, {
       title,
       description,
       createdBy,
@@ -99,8 +110,8 @@ export class HomeworkService {
   }
 
   // Добавление вопроса к уроку
-  addQuestionToLesson(lessonId: string, question: string, createdBy: string, createdByRole: 'student' | 'teacher'): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${lessonId}/questions`, {
+  addQuestionToLesson(lessonId: string, question: string, createdBy: string, createdByRole: 'student' | 'teacher'): Observable<HomeworkResponse> {
+    return this.http.post<HomeworkResponse>(`${this.baseUrl}/${lessonId}/questions`, {
       question,
       createdBy,
       createdByRole
@@ -108,15 +119,15 @@ export class HomeworkService {
   }
 
   // Отметка задачи как выполненной
-  completeTask(taskId: string, completedBy: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/tasks/${taskId}/complete`, { completedBy });
+  completeTask(taskId: string, completedBy: string): Observable<HomeworkResponse> {
+    return this.http.post<HomeworkResponse>(`${this.baseUrl}/tasks/${taskId}/complete`, { completedBy });
   }
 
   // Отметка домашнего задания как выполненного
-  completeHomeworkItem(homeworkId: string, completedBy: string, studentResponse?: string): Observable<any> {
-    const body: any = { completedBy };
+  completeHomeworkItem(homeworkId: string, completedBy: string, studentResponse?: string): Observable<HomeworkResponse> {
+    const body: Record<string, unknown> = { completedBy };
     if (studentResponse) {
-      body.studentResponse = studentResponse;
+      body['studentResponse'] = studentResponse;
     }
     
     console.log('🔗 HomeworkService.completeHomeworkItem called:', {
@@ -127,30 +138,30 @@ export class HomeworkService {
       url: `${this.baseUrl}/homework-item/${homeworkId}/complete`
     });
     
-    return this.http.put(`${this.baseUrl}/homework-item/${homeworkId}/complete`, body);
+    return this.http.put<HomeworkResponse>(`${this.baseUrl}/homework-item/${homeworkId}/complete`, body);
   }
 
-  completeQuestion(questionId: string, completedBy: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}/questions/${questionId}/complete`, { completedBy });
+  completeQuestion(questionId: string, completedBy: string): Observable<HomeworkResponse> {
+    return this.http.put<HomeworkResponse>(`${this.baseUrl}/questions/${questionId}/complete`, { completedBy });
   }
 
   // Оценка домашнего задания преподавателем
-  gradeHomeworkItem(homeworkId: string, grade: number, teacherFeedback?: string): Observable<any> {
-    const body: any = { grade };
+  gradeHomeworkItem(homeworkId: string, grade: number, teacherFeedback?: string): Observable<HomeworkResponse> {
+    const body: Record<string, unknown> = { grade };
     if (teacherFeedback) {
-      body.teacherFeedback = teacherFeedback;
+      body['teacherFeedback'] = teacherFeedback;
     }
-    return this.http.put(`${this.baseUrl}/homework-item/${homeworkId}/grade`, body);
+    return this.http.put<HomeworkResponse>(`${this.baseUrl}/homework-item/${homeworkId}/grade`, body);
   }
 
   // Ответ на вопрос
-  answerQuestion(questionId: string, answer: string, answeredBy: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/questions/${questionId}/answer`, { answer, answeredBy });
+  answerQuestion(questionId: string, answer: string, answeredBy: string): Observable<HomeworkResponse> {
+    return this.http.post<HomeworkResponse>(`${this.baseUrl}/questions/${questionId}/answer`, { answer, answeredBy });
   }
 
   // Получение задач урока
-  getTasksForLesson(lessonId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/${lessonId}/tasks`);
+  getTasksForLesson(lessonId: string): Observable<unknown[]> {
+    return this.http.get<unknown[]>(`${this.baseUrl}/${lessonId}/tasks`);
   }
 
   // ==================== NEW HOMEWORK SYSTEM ====================
@@ -266,8 +277,8 @@ export class HomeworkService {
   }
 
   // Получение вопросов урока
-  getQuestionsForLesson(lessonId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/${lessonId}/questions`);
+  getQuestionsForLesson(lessonId: string): Observable<unknown[]> {
+    return this.http.get<unknown[]>(`${this.baseUrl}/${lessonId}/questions`);
   }
 
   // ==================== УЛУЧШЕННЫЕ МЕТОДЫ ДЛЯ СОЗДАНИЯ ДОМАШНИХ ЗАДАНИЙ ====================

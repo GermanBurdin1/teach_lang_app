@@ -13,6 +13,66 @@ import { VideoCallService } from '../../../../services/video-call.service';
 import { LessonTabsService } from '../../../../services/lesson-tabs.service';
 import { MaterialService } from '../../../../services/material.service';
 import { HomeworkService, Homework } from '../../../../services/homework.service';
+
+interface Student {
+  id: string;
+  name: string;
+  email?: string;
+  studentId?: string;
+  nextLessonDate?: string | Date | null;
+  photoUrl?: string;
+  goals?: string[];
+  homework?: Array<{
+    title: string;
+    status: string;
+  }>;
+  history?: Array<{
+    date: string;
+    topic: string;
+  }>;
+  metadata?: {
+    studentName?: string;
+  };
+  lessons?: unknown[];
+  requestDate?: string;
+  [key: string]: unknown;
+}
+
+interface _BookingRequest {
+  id: string;
+  type: string;
+  status: string;
+  message?: string;
+  data?: {
+    lessonId?: string;
+  };
+  metadata?: {
+    studentName?: string;
+    lessonId?: string;
+  };
+  [key: string]: unknown;
+}
+
+interface _Material {
+  id: string;
+  type: string;
+  title?: string;
+  [key: string]: unknown;
+}
+
+interface _Task {
+  id: string;
+  title: string;
+  createdByRole: string;
+  [key: string]: unknown;
+}
+
+interface _Question {
+  id: string;
+  question: string;
+  createdByRole: string;
+  [key: string]: unknown;
+}
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NavigationGuardService } from '../../../../services/navigation-guard.service';
 
@@ -73,7 +133,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   customReason = '';
   showRefuseDialog = false;
   treatedRequests: Notification[] = [];
-  confirmedStudents: any[] = [];
+  confirmedStudents: Student[] = [];
   selectedRefusalMode: 'refuse' | 'propose' = 'refuse';
   selectedAlternativeDate?: Date;
   selectedAlternativeTime?: string;
@@ -92,7 +152,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly MAX_UNTREATED_REQUESTS = 10;
 
   // Новые свойства для модалки студента
-  selectedStudent: any = null;
+  selectedStudent: Student | null = null;
   showStudentModal = false;
 
   // Текущее время для шаблонов
@@ -137,19 +197,28 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('[TeacherHome] refreshCalendar: requesting all confirmed lessons for teacher', userId);
     this.lessonService.getAllConfirmedLessonsForTeacher(userId).subscribe(lessons => {
       console.log('[TeacherHome] Все подтверждённые занятия:', lessons);
-      this.upcomingLessons = lessons.map(lesson => ({
-        start: new Date(lesson.scheduledAt),
-        end: new Date(new Date(lesson.scheduledAt).getTime() + 60 * 60 * 1000),
-        title: `${this.getStatusIcon(lesson.status)} ${lesson.studentName}`,
-        color: this.getCalendarColor(lesson.status),
-        allDay: false,
-        meta: { 
-          lessonId: lesson.id,
-          status: lesson.status,
-          studentId: lesson.studentId,
-          studentName: lesson.studentName
-        }
-              }));
+      this.upcomingLessons = (lessons as unknown[]).map(lesson => {
+        const lessonData = lesson as {
+          scheduledAt?: string,
+          status?: string,
+          studentName?: string,
+          id?: string,
+          studentId?: string
+        };
+        return {
+          start: new Date(lessonData.scheduledAt || new Date()),
+          end: new Date(new Date(lessonData.scheduledAt || new Date()).getTime() + 60 * 60 * 1000),
+          title: `${this.getStatusIcon(lessonData.status || '')} ${lessonData.studentName || ''}`,
+          color: this.getCalendarColor(lessonData.status || ''),
+          allDay: false,
+          meta: { 
+            lessonId: lessonData.id,
+            status: lessonData.status,
+            studentId: lessonData.studentId,
+            studentName: lessonData.studentName
+          }
+        };
+      });
     });
   }
 
@@ -196,7 +265,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const userId = this.authService.getCurrentUser()?.id;
     if (!userId) return;
     this.lessonService.getConfirmedStudentsForTeacher(userId).subscribe(students => {
-      this.confirmedStudents = students;
+      this.confirmedStudents = students as Student[];
       console.log('[TeacherHome] Обновлён список confirmedStudents:', students);
     });
   }
@@ -240,7 +309,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('[TeacherHome] Homework to review:', this.homeworksToReview);
         this.loadingHomework = false;
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         console.error('[TeacherHome] Error loading homework:', error);
         this.loadingHomework = false;
       }
@@ -361,7 +430,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   respondToRequest(request: Notification, accepted: boolean): void {
-    const metadata = (request as any).data;
+    const metadata = request.data;
     if (!metadata?.lessonId) {
       console.error('❌ Données de requête invalides (lessonId manquant)');
       return;
@@ -463,7 +532,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.selectedRequest) return;
     let metadata = this.selectedRequest.data;
     if (!metadata && 'metadata' in this.selectedRequest) {
-      metadata = (this.selectedRequest as any).metadata;
+      metadata = (this.selectedRequest as {metadata?: {lessonId?: string}}).metadata;
     }
     if (!metadata || !metadata.lessonId) return;
 
@@ -496,7 +565,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Методы для управления уведомлениями (как в student-home)
-  hideNotification(notification: any) {
+  hideNotification(notification: Notification) {
     if (notification.id) {
       this.notificationService.hideNotification(notification.id).subscribe(() => {
         // Удаляем уведомление из локального массива
@@ -520,7 +589,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Методы для управления обработанными заявками
-  hideTreatedRequest(request: any) {
+  hideTreatedRequest(request: Notification) {
     if (request.id) {
       this.notificationService.hideNotification(request.id).subscribe(() => {
         // Удаляем заявку из локального массива
@@ -544,7 +613,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Методы для управления необработанными заявками
-  hideUntreatedRequest(request: any) {
+  hideUntreatedRequest(request: Notification) {
     if (request.id) {
       this.notificationService.hideNotification(request.id).subscribe(() => {
         // Удаляем заявку из локального массива
@@ -568,7 +637,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Методы для модалки студента
-  openStudentModal(student: any): void {
+  openStudentModal(student: Student): void {
     this.selectedStudent = { ...student, loadingGoal: true };
     this.showStudentModal = true;
     
@@ -581,7 +650,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             goal: goal,
             goalDisplayText: goal ? this.getGoalDisplayText(goal) : 'Aucun objectif défini',
             loadingGoal: false
-          };
+          } as Student;
         },
         error: (error) => {
           console.error('Erreur lors du chargement de l\'objectif de l\'étudiant:', error);
@@ -589,12 +658,12 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             ...this.selectedStudent,
             goalDisplayText: 'Erreur lors du chargement de l\'objectif',
             loadingGoal: false
-          };
+          } as Student;
         }
       });
     } else {
-      this.selectedStudent.loadingGoal = false;
-      this.selectedStudent.goalDisplayText = 'Aucun objectif défini';
+      (this.selectedStudent as Student & {loadingGoal?: boolean, goalDisplayText?: string})['loadingGoal'] = false;
+      (this.selectedStudent as Student & {loadingGoal?: boolean, goalDisplayText?: string})['goalDisplayText'] = 'Aucun objectif défini';
     }
   }
 
@@ -604,25 +673,25 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Извлечение имени студента из уведомления
-  getStudentNameFromNotification(notification: any): string {
+  getStudentNameFromNotification(notification: Notification): string {
     return notification.data?.studentName || 'Étudiant';
   }
 
   // Извлечение ID студента из уведомления
-  getStudentIdFromNotification(notification: any): string {
+  getStudentIdFromNotification(notification: Notification): string {
     return notification.data?.studentId || '';
   }
 
   // Обработка клика по уведомлению
-  onNotificationClick(event: any, notification: any): void {
+  onNotificationClick(event: Event, notification: Notification): void {
     // Проверяем, был ли клик по кликабельному элементу студента
-    if (event.target && event.target.classList.contains('student-name-clickable')) {
+    if (event.target && (event.target as Element).classList?.contains('student-name-clickable')) {
       this.onStudentNameClick(notification);
     }
   }
 
   // Обработка клика по имени студента в уведомлениях
-  onStudentNameClick(notification: any): void {
+  onStudentNameClick(notification: Notification): void {
     const studentInfo = {
       id: this.getStudentIdFromNotification(notification),
       name: this.getStudentNameFromNotification(notification),
@@ -634,7 +703,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Обработка клика по студенту в заявках
-  onStudentRequestClick(request: any): void {
+  onStudentRequestClick(request: Notification): void {
     const studentInfo = {
       id: request.data?.studentId || '',
       name: request.data?.studentName || request.title,
@@ -662,7 +731,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Создание кликабельных имен студентов в уведомлениях
-  makeStudentNameClickable(message: string, notification: any): SafeHtml {
+  makeStudentNameClickable(message: string, notification: Notification): SafeHtml {
     const studentName = this.getStudentNameFromNotification(notification);
     
     // Экранируем входящие данные
@@ -787,7 +856,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return nowDate.getTime() === lessonDate.getTime();
   }
 
-  private async getMaterialsForLesson(lessonId: string): Promise<any[]> {
+  private async getMaterialsForLesson(lessonId: string): Promise<_Material[]> {
     try {
       console.log('🔍 [TeacherHome] Загружаем материалы для урока:', lessonId);
       const allMaterials = await this.materialService.getMaterials().toPromise();
@@ -804,7 +873,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       
       console.log('✅ [TeacherHome] Отфильтрованные материалы для урока:', filteredMaterials);
-      return filteredMaterials;
+      return filteredMaterials as unknown as _Material[];
     } catch (error) {
       console.error('❌ [TeacherHome] Ошибка загрузки материалов для урока:', error);
       return [];
@@ -827,10 +896,13 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     ]);
 
     // Разделяем задачи и вопросы по ролям
-    const studentTasks = (tasks || []).filter((t: any) => t.createdByRole === 'student').map((t: any) => ({ id: t.id, title: t.title }));
-    const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => ({ id: t.id, title: t.title }));
-    const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => ({ id: q.id, question: q.question }));
-    const teacherQuestions = (questions || []).filter((q: any) => q.createdByRole === 'teacher').map((q: any) => ({ id: q.id, question: q.question }));
+    const tasksArray = (tasks || []) as unknown[];
+    const questionsArray = (questions || []) as unknown[];
+    
+    const studentTasks = tasksArray.filter((t: unknown) => (t as {createdByRole?: string}).createdByRole === 'student').map((t: unknown) => ({ id: (t as {id?: string}).id || '', title: (t as {title?: string}).title || '' }));
+    const teacherTasks = tasksArray.filter((t: unknown) => (t as {createdByRole?: string}).createdByRole === 'teacher').map((t: unknown) => ({ id: (t as {id?: string}).id || '', title: (t as {title?: string}).title || '' }));
+    const studentQuestions = questionsArray.filter((q: unknown) => (q as {createdByRole?: string}).createdByRole === 'student').map((q: unknown) => ({ id: (q as {id?: string}).id || '', question: (q as {question?: string}).question || '' }));
+    const teacherQuestions = questionsArray.filter((q: unknown) => (q as {createdByRole?: string}).createdByRole === 'teacher').map((q: unknown) => ({ id: (q as {id?: string}).id || '', question: (q as {question?: string}).question || '' }));
 
     console.log('✅ [TeacherHome] Данные урока подготовлены:', {
       studentTasks,
@@ -848,9 +920,9 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       studentQuestions: studentQuestions,
       teacherQuestions: teacherQuestions,
       materials: materials,
-      texts: materials.filter((m: any) => m.type === 'text'),
-      audios: materials.filter((m: any) => m.type === 'audio'),
-      videos: materials.filter((m: any) => m.type === 'video'),
+      texts: materials.filter((m: _Material) => m.type === 'text'),
+      audios: materials.filter((m: _Material) => m.type === 'audio'),
+      videos: materials.filter((m: _Material) => m.type === 'video'),
       homework: []
     });
 
@@ -875,6 +947,26 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       case 'unfinished': return 'En cours';
       default: return 'Statut inconnu';
     }
+  }
+
+  // Helper методы для selectedStudent goal properties
+  getSelectedStudentGoalExamLevel(): string {
+    const goal = (this.selectedStudent as {goal?: {examLevel?: string}})?.goal;
+    return goal?.examLevel || '';
+  }
+
+  getSelectedStudentGoalTargetDate(): string {
+    const goal = (this.selectedStudent as {goal?: {targetDate?: string}})?.goal;
+    return goal?.targetDate || '';
+  }
+
+  getSelectedStudentGoalDescription(): string {
+    const goal = (this.selectedStudent as {goal?: {description?: string}})?.goal;
+    return goal?.description || '';
+  }
+
+  getSelectedStudentLessonId(): string {
+    return (this.selectedStudent as {lessonId?: string})?.lessonId || '';
   }
 
 }

@@ -18,7 +18,7 @@ import { CustomDateFormatter } from './custom-date-formatter';
 export class CalendarPreviewComponent {
   @Input() events: CalendarEvent[] = [];
   @Output() eventClicked = new EventEmitter<CalendarEvent>();
-  @Input() eventTitleTemplate!: TemplateRef<any>;
+  @Input() eventTitleTemplate!: TemplateRef<unknown>;
   @Input() hourSegments: number = 2;
   @Input() hourSegmentHeight: number = 80;
   @Input() dayStartHour: number = 8;

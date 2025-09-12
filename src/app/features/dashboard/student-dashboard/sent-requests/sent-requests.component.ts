@@ -4,6 +4,11 @@ import { AuthService } from '../../../../services/auth.service';
 import { PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 
+interface User {
+  id: string;
+  [key: string]: unknown;
+}
+
 interface SentRequest {
   lessonId: string;
   teacherId: string;
@@ -93,7 +98,7 @@ export class SentRequestsComponent implements OnInit {
     obs$.subscribe({
       next: (res: any) => {
         if (Array.isArray(res)) {
-          this.sentRequests = res.map((req: any) => ({
+          this.sentRequests = (res as SentRequest[]).map((req: SentRequest) => ({
             ...req,
             scheduledAt: new Date(req.scheduledAt),
             createdAt: new Date(req.createdAt),
@@ -102,14 +107,15 @@ export class SentRequestsComponent implements OnInit {
           }));
           this.total = res.length;
         } else {
-          this.sentRequests = res.data.map((req: any) => ({
+          const pagedRes = res as {data: SentRequest[], total?: number};
+          this.sentRequests = pagedRes.data.map((req: SentRequest) => ({
             ...req,
             scheduledAt: new Date(req.scheduledAt),
             createdAt: new Date(req.createdAt),
             proposedTime: req.proposedTime ? new Date(req.proposedTime) : undefined,
             proposedByTeacherAt: req.proposedByTeacherAt ? new Date(req.proposedByTeacherAt) : undefined
           }));
-          this.total = res.total;
+          this.total = pagedRes.total || pagedRes.data.length;
         }
         this.loading = false;
         if (this.total === 0) {

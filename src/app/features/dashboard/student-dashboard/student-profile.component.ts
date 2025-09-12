@@ -1,6 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
+
+interface Student {
+  id: number;
+  name: string;
+  email: string;
+  [key: string]: unknown;
+}
 
 @Component({
   selector: 'app-student-profile',
@@ -10,7 +17,7 @@ import { Router } from '@angular/router';
 export class StudentProfileComponent {
 
   isEditModalOpen = false;
-  studentData: any;
+  studentData: Student | null = null;
   studentId: number | null = null;
   isTariffPaid: boolean = true;
 
@@ -31,7 +38,7 @@ export class StudentProfileComponent {
     const savedStudents = localStorage.getItem('students');
     if (savedStudents) {
       const students = JSON.parse(savedStudents);
-      this.studentData = students.find((student: any) => student.id === this.studentId);
+      this.studentData = students.find((student: Student) => student.id === this.studentId);
     }
   }
 

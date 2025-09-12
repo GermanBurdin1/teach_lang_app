@@ -1,22 +1,22 @@
 <div class="lesson-card">
   <div class="lesson-header">
     <div class="info">
-      👩‍🏫 {{ lesson.teacher || lesson.studentName || 'Étudiant' }} — {{ lesson.date || lesson.scheduledAt | date: 'dd/MM/yyyy' }}
+      👩‍🏫 {{ getLessonTeacher() }} — {{ getLessonFormattedDate() }}
     </div>
     
     <!-- Статистика урока -->
     <div class="lesson-stats">
       <span class="stat-item">
         <mat-icon>assignment</mat-icon>
-        {{ lesson.tasks?.length || 0 }} tâche(s)
+        {{ getLessonTasksCount() }} tâche(s)
       </span>
       <span class="stat-item">
         <mat-icon>quiz</mat-icon>
-        {{ lesson.questions?.length || 0 }} question(s)
+        {{ getLessonQuestionsCount() }} question(s)
       </span>
       <span class="stat-item">
         <mat-icon>folder</mat-icon>
-        {{ lesson.materials?.length || 0 }} matériau(x)
+        {{ getLessonMaterialsCount() }} matériau(x)
       </span>
     </div>
 
@@ -42,9 +42,9 @@
       <span class="toggle-icon">{{ collapsedTasks ? '🔽' : '🔼' }}</span>
     </h4>
     <div *ngIf="!collapsedTasks">
-      <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks"
+      <div cdkDropList [id]="getTasksDropListId()" [cdkDropListData]="getLessonTasks()"
         [cdkDropListConnectedTo]="taskDropIds" (cdkDropListDropped)="dropItem($event)">
-        <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item"
+        <div *ngFor="let task of getLessonTasks(); let i = index" cdkDrag class="drag-item"
           [class.text-muted]="resolvedItems.includes(task)">
           {{ i + 1 }}. 🛠 {{ task }}
           <button mat-icon-button color="warn" (click)="removeTask(i)">
@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      <div class="add-item" *ngIf="lesson.status !== 'past'">
+      <div class="add-item" *ngIf="!isLessonPast()">
         <mat-form-field appearance="fill" class="w-100">
           <mat-label>Ajouter une tâche</mat-label>
           <input matInput placeholder="ex: Corriger l'expression écrite de l'élève" [(ngModel)]="newTask"

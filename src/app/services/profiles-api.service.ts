@@ -14,12 +14,12 @@ export class ProfilesApiService {
   private baseUrl = 'http://localhost:3002/profiles';
 
   constructor(private http: HttpClient) { }
-  createProfile(profile: TeacherOrStudentProfile): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, profile);
+  createProfile(profile: TeacherOrStudentProfile): Observable<TeacherOrStudentProfile> {
+    return this.http.post<TeacherOrStudentProfile>(`${this.baseUrl}`, profile);
   }
 
-  updateProfile(profile: TeacherOrStudentProfile): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${profile.user_id}`, profile);
+  updateProfile(profile: TeacherOrStudentProfile): Observable<TeacherOrStudentProfile> {
+    return this.http.put<TeacherOrStudentProfile>(`${this.baseUrl}/${profile.user_id}`, profile);
   }
 
   getProfile<T extends TeacherOrStudentProfile>(userId: string): Observable<T> {

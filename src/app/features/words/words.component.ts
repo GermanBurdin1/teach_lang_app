@@ -1,14 +1,26 @@
-import { Component, ElementRef, QueryList, ViewChildren, AfterViewInit, OnDestroy} from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren, OnDestroy} from '@angular/core';
 import { VocabularyGptService } from '../../services/vocabulary-gpt.service';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
-import { ExpressionGrammar, GrammarData } from '../vocabulary/models/grammar-data.model';
+import { ExpressionGrammar as _ExpressionGrammar, GrammarData } from '../vocabulary/models/grammar-data.model';
 import textFit from 'textfit';
 import { WordEntry } from './models/words.model';
 import { LexiconService } from '../../services/lexicon.service';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { AnalyticsService } from '../../services/analytics.service';
-import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-button/back-to-home-button.component';
+import { BackToHomeButtonComponent as _BackToHomeButtonComponent } from '../../shared/components/back-to-home-button/back-to-home-button.component';
+
+interface Galaxy {
+  id: string;
+  name: string;
+  [key: string]: unknown;
+}
+
+interface _Subtopic {
+  id: string;
+  name: string;
+  [key: string]: unknown;
+}
 
 interface WordCard {
   id?: number;
@@ -21,7 +33,7 @@ interface WordCard {
   grammar?: GrammarData
 }
 
-interface Subtopic {
+interface SubtopicPosition {
   x: number;
   y: number;
   name: string;
@@ -41,14 +53,14 @@ export class WordsComponent implements OnDestroy {
   @ViewChildren('galaxyElement') galaxyElements!: QueryList<ElementRef>;
   @ViewChildren('galaxyWrapper') galaxyWrappers!: QueryList<ElementRef>;
   @ViewChildren('labelRef') labelElements!: QueryList<ElementRef>;
-  @ViewChildren('grammarFieldsRef') grammarFieldsComponents!: QueryList<any>;
+  @ViewChildren('grammarFieldsRef') grammarFieldsComponents!: QueryList<unknown>;
 
   // RxJS для оптимизации поиска
   private destroy$ = new Subject<void>();
   private searchSubject$ = new Subject<string>();
 
   searchQuery: string = '';
-  searchResults: any[] = [];
+  searchResults: WordCard[] = [];
   zoomStyle = {};
   isZoomingToPlanet = false;
   isZoomingToGalaxy = false;
@@ -94,7 +106,7 @@ export class WordsComponent implements OnDestroy {
       subtopics: this.generateSubtopics(4, ['Fêtes', 'Catastrophes', 'Sport', 'Politique'])
     }
   ];
-  zoomedGalaxy: any = null;
+  zoomedGalaxy: Galaxy | null = null;
   sourceLang: 'ru' | 'fr' | 'en' = 'ru';
   targetLang: 'ru' | 'fr' | 'en' = 'fr';
   grammarData: GrammarData | null = null;
@@ -120,7 +132,7 @@ export class WordsComponent implements OnDestroy {
 
   confirmationMessage: string = '';
   showPostAddModal: boolean = false;
-  targetGalaxyForPostponed?: any; // запоминаем, в какую галактику потом зумировать
+  targetGalaxyForPostponed?: Galaxy; // запоминаем, в какую галактику потом зумировать
 
   private loadPostponedWords() {
     const raw = localStorage.getItem('postponed_words');
@@ -171,15 +183,15 @@ export class WordsComponent implements OnDestroy {
     private analyticsService: AnalyticsService
   ) { }
 
-  hoverGalaxy(galaxy: any) {
+  hoverGalaxy(galaxy: Galaxy) {
     // Можно добавить анимацию
   }
 
-  hoverSubtopic(subtopic: any) {
+  hoverSubtopic(subtopic: SubtopicPosition) {
     // Можно добавить эффект при наведении
   }
 
-  zoomIntoGalaxy(galaxy: any) {
+  zoomIntoGalaxy(galaxy: Galaxy) {
     this.zoomedGalaxy = galaxy;
     this.isZoomingToPlanet = false; // <-- обязательно!
     this.zoomStyle = {}; // сброс
@@ -195,11 +207,11 @@ export class WordsComponent implements OnDestroy {
   }
 
   generateSubtopics(count: number, names: string[]) {
-    let subtopics: Subtopic[] = [];
+    const subtopics: SubtopicPosition[] = [];
     for (let i = 0; i < count; i++) {
-      let angle = (i / count) * Math.PI * 2;
-      let x = 100 + Math.cos(angle) * 90; // Используем радиус RX эллипса
-      let y = 100 + Math.sin(angle) * 60; // Используем радиус RY эллипса
+      const angle = (i / count) * Math.PI * 2;
+      const x = 100 + Math.cos(angle) * 90; // Используем радиус RX эллипса
+      const y = 100 + Math.sin(angle) * 60; // Используем радиус RY эллипса
 
       subtopics.push({
         x,
@@ -250,7 +262,7 @@ export class WordsComponent implements OnDestroy {
     this.analyticsService.trackSearch(searchTerm, this.searchResults.length, 'words');
   }
 
-  navigateToWord(result: any) {
+  navigateToWord(result: WordCard) {
     const galaxy = this.galaxies.find(g => g.name === result.galaxy);
     if (!galaxy) return;
 
@@ -280,7 +292,7 @@ export class WordsComponent implements OnDestroy {
     setTimeout(() => {
       this.isZoomingToGalaxy = false;
       galaxiesContainer.style.transform = ''; // сброс
-      this.zoomedGalaxy = galaxy;
+      this.zoomedGalaxy = galaxy as unknown as Galaxy;
       this.isZoomingToPlanet = true;
 
       setTimeout(() => {
@@ -344,7 +356,7 @@ export class WordsComponent implements OnDestroy {
 
   saveGlobalWordOrExpression(): void {
     this.grammarFieldsComponents.forEach(comp => {
-      comp.validate();
+      (comp as {validate?: () => void})?.validate?.();
     });
 
     const firstEntry = this.entries[0];
@@ -428,7 +440,7 @@ export class WordsComponent implements OnDestroy {
         this.postponedWordsByGalaxy[previousSelectedGalaxy].push(newCard);
         this.savePostponedWords();
 
-        this.targetGalaxyForPostponed = galaxy;
+        this.targetGalaxyForPostponed = galaxy as unknown as Galaxy;
         this.confirmationMessage = `✅ Слово перемещено в некатегоризированные слова галактики "${galaxy.name}", вы можете добавить его в нужную подтему как только этого захотите.`;
 
         this.closeGlobalAddWordOrExpressionModal();
@@ -476,7 +488,7 @@ export class WordsComponent implements OnDestroy {
   onGalaxySelected(): void {
     const galaxy = this.galaxies.find(g => g.name === this.selectedGalaxy);
     if (galaxy) {
-      this.availableSubtopics = galaxy.subtopics.map((s: any) => s.name);
+      this.availableSubtopics = galaxy.subtopics.map((s: SubtopicPosition) => s.name);
       this.selectedSubtopic = ''; // сброс предыдущего выбора
     } else {
       this.availableSubtopics = [];
@@ -508,8 +520,8 @@ export class WordsComponent implements OnDestroy {
 
     const detectedLang = this.detectLang(word);
     if (detectedLang !== this.sourceLang) {
-      const langNames: any = { ru: 'русский', fr: 'французский', en: 'английский' };
-      const confirmSwitch = confirm(
+      const langNames: Record<string, string> = { ru: 'русский', fr: 'французский', en: 'английский' };
+      const confirmSwitch = window.confirm(
         `Введённое слово похоже на слово на языке "${langNames[detectedLang]}", а вы выбрали "${langNames[this.sourceLang]}". Переключиться?`
       );
       if (confirmSwitch) {
@@ -542,7 +554,7 @@ export class WordsComponent implements OnDestroy {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
     script.onload = () => {
-      (window as any).confetti({
+      (window as {confetti?: (options: {particleCount: number, spread: number, origin: {y: number}}) => void}).confetti?.({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 }
@@ -670,7 +682,10 @@ export class WordsComponent implements OnDestroy {
       this.getOrphanWords();
 
       // Зумируемся в выбранную галактику
-      this.zoomIntoGalaxy(this.galaxies.find(g => g.name === galaxyName));
+      const foundGalaxy = this.galaxies.find(g => g.name === galaxyName);
+      if (foundGalaxy) {
+        this.zoomIntoGalaxy(foundGalaxy as unknown as Galaxy);
+      }
     }
   }
 
@@ -809,23 +824,23 @@ export class WordsComponent implements OnDestroy {
       this.lexiconService.addMultipleWords(backendCards).subscribe({
         next: (res) => {
           console.log('✅ Все слова добавлены в БД:', res);
-          this.saveAllLocally(validEntries, backendCards, now);
+          this.saveAllLocally(validEntries as unknown as WordCard[], backendCards as unknown as WordCard[], now);
           this.resetEntryModal(true, validEntries.length);
         },
         error: (err) => {
           console.error('❌ Ошибка при сохранении слов. Сохраняем локально:', err);
-          this.saveAllLocally(validEntries, backendCards, now);
+          this.saveAllLocally(validEntries as unknown as WordCard[], backendCards as unknown as WordCard[], now);
           this.resetEntryModal(false, validEntries.length);
         }
       });
     } catch (e) {
       console.error('❌ Ошибка до отправки на сервер:', e);
-      this.saveAllLocally(validEntries, backendCards, now);
+      this.saveAllLocally(validEntries as unknown as WordCard[], backendCards as unknown as WordCard[], now);
       this.resetEntryModal(false, validEntries.length);
     }
   }
 
-  private saveAllLocally(validEntries: WordEntry[], backendCards: any[], now: number) {
+  private saveAllLocally(validEntries: WordEntry[], backendCards: WordCard[], now: number) {
     const raw = localStorage.getItem('vocabulary_cards');
     const allCards: WordCard[] = raw ? JSON.parse(raw) : [];
 
@@ -903,7 +918,7 @@ export class WordsComponent implements OnDestroy {
   }
 
   showNavigateToSubtopicModal(card: WordCard) {
-    const goToSubtopic = confirm(`✅ Слово "${card.word}" добавлено в подтему "${card.subtopic}".\nПерейти к подтеме?`);
+    const goToSubtopic = window.confirm(`✅ Слово "${card.word}" добавлено в подтему "${card.subtopic}".\nПерейти к подтеме?`);
 
     if (goToSubtopic) {
       this.router.navigate(['/student/wordsTeaching', card.galaxy, card.subtopic]);
@@ -926,7 +941,9 @@ export class WordsComponent implements OnDestroy {
 
     // Открываем список отложенных слов сразу
     setTimeout(() => {
-      this.collapsedPostponedList[this.targetGalaxyForPostponed.name] = false;
+      if (this.targetGalaxyForPostponed) {
+        this.collapsedPostponedList[this.targetGalaxyForPostponed.name] = false;
+      }
     }, 500);
   }
 
@@ -937,5 +954,42 @@ export class WordsComponent implements OnDestroy {
     });
   }
 
+  // Helper методы для шаблонов
+  getZoomedGalaxySubtopics() {
+    return (this.zoomedGalaxy as {subtopics?: unknown[]})?.subtopics || [];
+  }
 
+  getZoomedGalaxyName(): string {
+    return (this.zoomedGalaxy as {name?: string})?.name || '';
+  }
+
+  getSubtopicX(subtopic: unknown): number {
+    return (subtopic as {x?: number})?.x || 0;
+  }
+
+  getSubtopicY(subtopic: unknown): number {
+    return (subtopic as {y?: number})?.y || 0;
+  }
+
+  getSubtopicName(subtopic: unknown): string {
+    return (subtopic as {name?: string})?.name || '';
+  }
+
+  getResultFullPath(result: unknown): string {
+    return (result as {fullPath?: string})?.fullPath || '';
+  }
+
+  castToGalaxy(galaxy: unknown): Galaxy {
+    const g = galaxy as {id?: number | string, name?: string, sanitizedName?: string, subtopics?: unknown[]};
+    return {
+      id: String(g.id || 0),  // Convert to string
+      name: g.name || '',
+      sanitizedName: g.sanitizedName || '',
+      subtopics: g.subtopics || []
+    } as Galaxy;
+  }
+
+  getGalaxyName(galaxy: unknown): string {
+    return (galaxy as {name?: string})?.name || '';
+  }
 }

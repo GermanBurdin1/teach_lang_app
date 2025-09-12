@@ -5,8 +5,8 @@
     <div class="teacher-info">
       <img class="avatar" src="https://via.placeholder.com/40" alt="avatar" />
       <div>
-        <div class="name">👩‍🏫 {{ lesson.teacher }}</div>
-        <div class="date">📅 {{ lesson.date | date: 'dd/MM/yyyy HH:mm' }}</div>
+        <div class="name">👩‍🏫 {{ lesson?.['teacher'] }}</div>
+        <div class="date">📅 {{ lesson?.date | date: 'dd/MM/yyyy HH:mm' }}</div>
       </div>
     </div>
 
@@ -25,8 +25,8 @@
   <div class="lesson-body">
     <!-- 📈 Statistiques -->
     <div *ngIf="isPast()" class="stats">
-      ✅ Tâches terminées : {{ lesson.tasksDone || 0 }}<br />
-      ✅ Questions résolues : {{ lesson.questionsDone || 0 }}
+      ✅ Tâches terminées : {{ lesson?.['tasksDone'] || 0 }}<br />
+      ✅ Questions résolues : {{ lesson?.['questionsDone'] || 0 }}
     </div>
   </div>
 
@@ -42,29 +42,29 @@
 
         <!-- Tâches réelles du backend -->
         <div *ngFor="let task of realTasks; let i = index" class="drag-item"
-             [class.completed]="task.isCompleted"
-             [class.text-muted]="task.isCompleted">
-          {{ i + 1 }}. 🛠 {{ task.title }}
-          <span *ngIf="task.description" class="task-description">{{ task.description }}</span>
+             [class.completed]="getTaskIsCompleted(task)"
+             [class.text-muted]="getTaskIsCompleted(task)">
+          {{ i + 1 }}. 🛠 {{ getTaskTitle(task) }}
+          <span *ngIf="getTaskDescription(task)" class="task-description">{{ getTaskDescription(task) }}</span>
           <small class="task-meta">
-            {{ task.createdByRole === 'teacher' ? '👩‍🏫' : '👨‍🎓' }} 
-            {{ task.createdAt | date: 'dd/MM HH:mm' }}
+            {{ getTaskCreatedByRole(task) === 'teacher' ? '👩‍🏫' : '👨‍🎓' }} 
+            {{ getTaskCreatedAt(task) | date: 'dd/MM HH:mm' }}
           </small>
-          <button *ngIf="!task.isCompleted && currentUserRole === 'student'" 
+          <button *ngIf="!getTaskIsCompleted(task) && currentUserRole === 'student'" 
                   mat-icon-button color="accent" 
-                  (click)="completeTask(task.id)">
+                  (click)="completeTask(getTaskId(task))">
             <mat-icon>check</mat-icon>
           </button>
         </div>
 
         <!-- Anciennes tâches (для совместимости) -->
-        <div cdkDropList [id]="'tasks-' + lesson.id" [cdkDropListData]="lesson.tasks"
+        <div cdkDropList [id]="'tasks-' + (lesson?.id || '')" [cdkDropListData]="getLessonTasksStringArray()"
           [cdkDropListConnectedTo]="taskDropIds" (cdkDropListDropped)="dropItem($event, 'task')">
 
-          <div *ngFor="let task of lesson.tasks; let i = index" cdkDrag class="drag-item"
-            (click)="onPastItemClick(task, 'task')" [class.clickable]="isPast()"
-            [class.text-muted]="resolvedItems.includes(task)">
-            {{ i + realTasks.length + 1 }}. 🛠 {{ task }}
+          <div *ngFor="let task of (lesson?.tasks || []); let i = index" cdkDrag class="drag-item"
+            (click)="onPastItemClick(getTaskString(task), 'task')" [class.clickable]="isPast()"
+            [class.text-muted]="resolvedItems.includes(getTaskString(task))">
+            {{ i + realTasks.length + 1 }}. 🛠 {{ getTaskString(task) }}
             <button *ngIf="!isPast()" mat-icon-button color="warn" (click)="removeItem('task', i)">
               <mat-icon>delete</mat-icon>
             </button>
@@ -95,26 +95,26 @@
         
         <!-- Questions réelles du backend -->
         <div *ngFor="let question of realQuestions; let i = index" class="drag-item"
-             [class.answered]="question.isAnswered"
-             [class.text-muted]="question.isAnswered">
-          {{ i + 1 }}. 💬 {{ question.question }}
-          <div *ngIf="question.answer" class="question-answer">
-            <strong>Réponse:</strong> {{ question.answer }}
+             [class.answered]="getQuestionIsAnswered(question)"
+             [class.text-muted]="getQuestionIsAnswered(question)">
+          {{ i + 1 }}. 💬 {{ getQuestionText(question) }}
+          <div *ngIf="getQuestionAnswer(question)" class="question-answer">
+            <strong>Réponse:</strong> {{ getQuestionAnswer(question) }}
           </div>
           <small class="question-meta">
-            {{ question.createdByRole === 'teacher' ? '👩‍🏫' : '👨‍🎓' }} 
-            {{ question.createdAt | date: 'dd/MM HH:mm' }}
+            {{ getQuestionCreatedByRole(question) === 'teacher' ? '👩‍🏫' : '👨‍🎓' }} 
+            {{ getQuestionCreatedAt(question) | date: 'dd/MM HH:mm' }}
           </small>
         </div>
 
         <!-- Anciennes questions (для совместимости) -->
-        <div cdkDropList [id]="'questions-' + lesson.id" [cdkDropListData]="lesson.questions"
+        <div cdkDropList [id]="'questions-' + (lesson?.id || '')" [cdkDropListData]="getLessonQuestionsStringArray()"
           [cdkDropListConnectedTo]="questionDropIds" (cdkDropListDropped)="dropItem($event, 'question')">
 
-          <div *ngFor="let q of lesson.questions; let i = index" cdkDrag class="drag-item"
-            (click)="onPastItemClick(q, 'question')" [class.clickable]="isPast()"
-            [class.text-muted]="resolvedItems.includes(q)">
-            {{ i + realQuestions.length + 1 }}. 💬 {{ q }}
+          <div *ngFor="let q of (lesson?.questions || []); let i = index" cdkDrag class="drag-item"
+            (click)="onPastItemClick(getQuestionString(q), 'question')" [class.clickable]="isPast()"
+            [class.text-muted]="resolvedItems.includes(getQuestionString(q))">
+            {{ i + realQuestions.length + 1 }}. 💬 {{ getQuestionString(q) }}
             <button *ngIf="!isPast()" mat-icon-button color="warn" (click)="removeItem('question', i)">
               <mat-icon>delete</mat-icon>
             </button>

@@ -6,6 +6,20 @@ import { AuthService } from '../../services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
+interface User {
+  id: string;
+  name: string;
+  role: string;
+  [key: string]: unknown;
+}
+
+interface Lesson {
+  id: string;
+  title: string;
+  date?: string;
+  [key: string]: unknown;
+}
+
 interface HomeworkDisplay {
   id: string;
   sourceType: string;
@@ -62,7 +76,7 @@ export class StudentTrainingComponent implements OnInit {
   teachers: { id: string; name: string }[] = [];
   
   // Current user
-  currentUser: any = null;
+  currentUser: User | null = null;
   
   // Loading states
   loadingMaterials = false;
@@ -79,7 +93,7 @@ export class StudentTrainingComponent implements OnInit {
   };
   
   // Available lessons for homework assignment
-  availableLessons: any[] = [];
+  availableLessons: Lesson[] = [];
   loadingLessons = false;
 
   // Homework completion modal
@@ -98,7 +112,7 @@ export class StudentTrainingComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.currentUser = this.authService.getCurrentUser();
+    this.currentUser = this.authService.getCurrentUser() as unknown as User;
     console.log('👤 Current user:', this.currentUser);
     console.log('🎭 User role - isStudent():', this.isStudent(), 'isTeacher():', this.isTeacher());
     this.loadMaterials();
@@ -487,15 +501,26 @@ export class StudentTrainingComponent implements OnInit {
       this.lessonService.getAllConfirmedLessonsForTeacher(this.currentUser.id).subscribe({
         next: (lessons) => {
           console.log('👨‍🏫 Загружены уроки преподавателя:', lessons);
-          this.availableLessons = lessons.map(lesson => ({
-            id: lesson.id,
-            title: lesson.title || `Cours avec ${lesson.studentName}`,
-            date: new Date(lesson.scheduledAt),
-            teacherId: lesson.teacherId,
-            studentId: lesson.studentId,
-            studentName: lesson.studentName,
-            status: lesson.status
-          }));
+          this.availableLessons = (lessons as unknown[]).map((lesson: unknown) => {
+            const lessonObj = lesson as {
+              id?: unknown,
+              title?: string,
+              studentName?: string,
+              scheduledAt?: string | Date,
+              teacherId?: unknown,
+              studentId?: unknown,
+              status?: unknown
+            };
+            return {
+              id: lessonObj.id,
+              title: lessonObj.title || `Cours avec ${lessonObj.studentName || ''}`,
+              date: new Date(lessonObj.scheduledAt || new Date()),
+              teacherId: lessonObj.teacherId,
+              studentId: lessonObj.studentId,
+              studentName: lessonObj.studentName,
+              status: lessonObj.status
+            };
+          }) as unknown as Lesson[];
           this.loadingLessons = false;
         },
         error: (error) => {
@@ -509,15 +534,26 @@ export class StudentTrainingComponent implements OnInit {
       this.lessonService.getConfirmedLessons(this.currentUser.id).subscribe({
         next: (lessons) => {
           console.log('👨‍🎓 Загружены уроки студента:', lessons);
-          this.availableLessons = lessons.map(lesson => ({
-            id: lesson.id,
-            title: lesson.title || `Cours avec ${lesson.teacherName}`,
-            date: new Date(lesson.scheduledAt),
-            teacherId: lesson.teacherId,
-            studentId: lesson.studentId,
-            teacherName: lesson.teacherName,
-            status: lesson.status
-          }));
+          this.availableLessons = (lessons as unknown[]).map((lesson: unknown) => {
+            const lessonObj = lesson as {
+              id?: unknown,
+              title?: string,
+              teacherName?: string,
+              scheduledAt?: string | Date,
+              teacherId?: unknown,
+              studentId?: unknown,
+              status?: unknown
+            };
+            return {
+              id: lessonObj.id,
+              title: lessonObj.title || `Cours avec ${lessonObj.teacherName || ''}`,
+              date: new Date(lessonObj.scheduledAt || new Date()),
+              teacherId: lessonObj.teacherId,
+              studentId: lessonObj.studentId,
+              teacherName: lessonObj.teacherName,
+              status: lessonObj.status
+            };
+          }) as unknown as Lesson[];
           this.loadingLessons = false;
         },
         error: (error) => {
@@ -587,8 +623,9 @@ export class StudentTrainingComponent implements OnInit {
     };
   }
 
-  toggleMaterialForHomework(materialId: string, event: any) {
-    if (event.target.checked) {
+  toggleMaterialForHomework(materialId: string, event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.checked) {
       this.newHomework.materialIds.push(materialId);
     } else {
       const index = this.newHomework.materialIds.indexOf(materialId);
@@ -615,7 +652,7 @@ export class StudentTrainingComponent implements OnInit {
       return 'Cours inconnu';
     }
     
-    return lesson.title || `Cours du ${new Date(lesson.date).toLocaleDateString('fr-FR')}`;
+    return lesson.title || `Cours du ${new Date((lesson as unknown as {date: Date}).date).toLocaleDateString('fr-FR')}`;
   }
 
   // Определение роли пользователя для корректного отображения

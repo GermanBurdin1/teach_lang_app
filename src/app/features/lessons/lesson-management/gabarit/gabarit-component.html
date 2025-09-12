@@ -1,6 +1,6 @@
 <div class="gabarit-overlay" (click)="close()" *ngIf="visible">
   <div class="gabarit" (click)="$event.stopPropagation()">
-    <h3>Matériel du cours ({{ lesson.date | date: 'dd/MM/yyyy' }})</h3>
+    <h3>Matériel du cours ({{ getLessonDate() | date: 'dd/MM/yyyy' }})</h3>
 
     <!-- 📄 Textes -->
     <div class="zone text-zone">
@@ -8,11 +8,11 @@
         <span>📝 Textes</span>
         <button *ngIf="!readonly" (click)="add('text')">➕</button>
       </div>
-      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="texts" (cdkDropListDropped)="onDrop($event, 'texts')">
-        <div *ngFor="let t of texts" cdkDrag class="item">{{ t }}</div>
+      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="getTextsStringArray()" (cdkDropListDropped)="onDrop($event, 'texts')">
+        <div *ngFor="let t of texts" cdkDrag class="item">{{ getItemString(t) }}</div>
       </div>
       <div *ngIf="readonly">
-        <div *ngFor="let t of texts" class="item">{{ t }}</div>
+        <div *ngFor="let t of texts" class="item">{{ getItemString(t) }}</div>
       </div>
     </div>
 
@@ -22,11 +22,11 @@
         <span>🔊 Audios</span>
         <button *ngIf="!readonly" (click)="add('audio')">➕</button>
       </div>
-      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="audios" (cdkDropListDropped)="onDrop($event, 'audios')">
-        <div *ngFor="let a of audios" cdkDrag class="item">{{ a }}</div>
+      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="getAudiosStringArray()" (cdkDropListDropped)="onDrop($event, 'audios')">
+        <div *ngFor="let a of audios" cdkDrag class="item">{{ getItemString(a) }}</div>
       </div>
       <div *ngIf="readonly">
-        <div *ngFor="let a of audios" class="item">{{ a }}</div>
+        <div *ngFor="let a of audios" class="item">{{ getItemString(a) }}</div>
       </div>
     </div>
 
@@ -36,11 +36,11 @@
         <span>🎬 Vidéos</span>
         <button *ngIf="!readonly" (click)="add('video')">➕</button>
       </div>
-      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="videos" (cdkDropListDropped)="onDrop($event, 'videos')">
-        <div *ngFor="let v of videos" cdkDrag class="item">{{ v }}</div>
+      <div *ngIf="!readonly" cdkDropList [cdkDropListData]="getVideosStringArray()" (cdkDropListDropped)="onDrop($event, 'videos')">
+        <div *ngFor="let v of videos" cdkDrag class="item">{{ getItemString(v) }}</div>
       </div>
       <div *ngIf="readonly">
-        <div *ngFor="let v of videos" class="item">{{ v }}</div>
+        <div *ngFor="let v of videos" class="item">{{ getItemString(v) }}</div>
       </div>
     </div>
 

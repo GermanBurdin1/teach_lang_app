@@ -283,7 +283,7 @@
                 *ngFor="let lesson of availableLessons"
                 [value]="lesson.id">
                 {{ getLessonTitle(lesson.id) }}
-                <span *ngIf="lesson.studentName"> - {{ lesson.studentName }}</span>
+                <span *ngIf="lesson['studentName']"> - {{ lesson['studentName'] }}</span>
               </option>
             </select>
           </div>

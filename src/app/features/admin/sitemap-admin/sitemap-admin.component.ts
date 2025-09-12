@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SitemapService, SitemapUrl } from '../../../services/sitemap.service';
+import { environment } from '../../../../../environment';
 
 @Component({
   selector: 'app-sitemap-admin',
@@ -151,7 +152,9 @@ export class SitemapAdminComponent implements OnInit {
 
   submitToSearchConsole(): void {
     this.sitemapService.submitToSearchConsole().subscribe(result => {
-      console.log('Search Console submission:', result);
+      if (!environment.production) {
+        console.log('Search Console submission:', result);
+      }
       alert('Sitemap URL logged for manual submission to Google Search Console');
     });
   }

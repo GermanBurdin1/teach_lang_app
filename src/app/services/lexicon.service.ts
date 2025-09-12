@@ -4,6 +4,12 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { GrammarData } from '../features/vocabulary/models/grammar-data.model';
 import { AuthService } from './auth.service';
 
+interface LexiconResponse {
+  success: boolean;
+  word?: BackendWordCard;
+  [key: string]: unknown;
+}
+
 export interface BackendWordCard {
   id?: number;
   word: string;
@@ -44,22 +50,22 @@ export class LexiconService {
     return this.http.get<BackendWordCard[]>(`${this.apiUrl}?galaxy=${galaxy}&subtopic=${subtopic}&userId=${userId}`);
   }
 
-  updateWordStatus(id: number, status: 'learned' | 'repeat' | 'error' | null): Observable<any> {
-    return this.http.patch(`http://localhost:3000/lexicon/${id}/status`, { status });
+  updateWordStatus(id: number, status: 'learned' | 'repeat' | 'error' | null): Observable<LexiconResponse> {
+    return this.http.patch<LexiconResponse>(`http://localhost:3000/lexicon/${id}/status`, { status });
   }
 
-  revealWord(id: number): Observable<any> {
-    return this.http.patch(`http://localhost:3000/lexicon/${id}/reveal`, {});
+  revealWord(id: number): Observable<LexiconResponse> {
+    return this.http.patch<LexiconResponse>(`http://localhost:3000/lexicon/${id}/reveal`, {});
   }
 
-  addWord(card: BackendWordCard): Observable<any> {
+  addWord(card: BackendWordCard): Observable<LexiconResponse> {
     const currentUser = this.authService.getCurrentUser();
     const cardWithUserId = {
       ...card,
       userId: currentUser?.id || null
     };
     
-    return this.http.post(`${this.apiUrl}`, cardWithUserId).pipe(
+    return this.http.post<LexiconResponse>(`${this.apiUrl}`, cardWithUserId).pipe(
       catchError(err => {
         console.error('❌ Ошибка при добавлении слова:', err);
         return throwError(() => err);
@@ -67,14 +73,14 @@ export class LexiconService {
     );
   }
 
-  addMultipleWords(cards: BackendWordCard[]): Observable<any> {
+  addMultipleWords(cards: BackendWordCard[]): Observable<LexiconResponse[]> {
     const currentUser = this.authService.getCurrentUser();
     const cardsWithUserId = cards.map(card => ({
       ...card,
       userId: currentUser?.id || null
     }));
     
-    return this.http.post(`${this.apiUrl}/bulk`, cardsWithUserId).pipe(
+    return this.http.post<LexiconResponse[]>(`${this.apiUrl}/bulk`, cardsWithUserId).pipe(
       catchError(err => {
         console.error('❌ Ошибка при множественном добавлении слов:', err);
         return throwError(() => err);
@@ -82,8 +88,8 @@ export class LexiconService {
     );
   }
 
-  updateGrammar(id: number, grammar: GrammarData): Observable<any> {
-    return this.http.patch(`http://localhost:3000/grammar/${id}`, grammar).pipe(
+  updateGrammar(id: number, grammar: GrammarData): Observable<LexiconResponse> {
+    return this.http.patch<LexiconResponse>(`http://localhost:3000/grammar/${id}`, grammar).pipe(
       catchError(err => {
         console.error('❌ Ошибка при обновлении грамматики:', err);
         return throwError(() => err);
@@ -95,8 +101,8 @@ export class LexiconService {
     return this.http.patch<BackendWordCard>(`${this.apiUrl}/${id}`, updates);
   }
 
-  deleteWord(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`).pipe(
+  deleteWord(id: number): Observable<LexiconResponse> {
+    return this.http.delete<LexiconResponse>(`${this.apiUrl}/${id}`).pipe(
       catchError(err => {
         console.error('❌ Ошибка при удалении слова:', err);
         return throwError(() => err);

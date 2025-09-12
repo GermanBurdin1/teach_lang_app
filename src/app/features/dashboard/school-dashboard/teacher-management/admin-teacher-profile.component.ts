@@ -11,6 +11,16 @@ interface Lesson {
   topic?: string; // Дополнительные свойства урока, если нужны
 }
 
+interface Possibility {
+  title: string;
+  description: string;
+  icon: string;
+  role: string;
+  enabled: boolean;
+  expanded: boolean;
+  isFeatureEnabled: boolean;
+}
+
 @Component({
   selector: 'app-admin-teacher-profile',
   templateUrl: './admin-teacher-profile.component.html',
@@ -311,11 +321,11 @@ export class AdminTeacherProfileComponent implements OnInit {
     this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
   }
 
-  togglePossibility(possibility: any) {
+  togglePossibility(possibility: Possibility) {
     possibility.expanded = !possibility.expanded;
   }
 
-  toggleFeature(possibility: any) {
+  toggleFeature(possibility: Possibility) {
     if (possibility.role === 'admin') {
       // Логика для администратора
       possibility.isFeatureEnabled = !possibility.isFeatureEnabled;

@@ -22,11 +22,11 @@
           <p *ngIf="student.nextLessonDate; else noLesson">Prochain cours: {{ student.nextLessonDate | date:'dd/MM/yyyy HH:mm' }}</p>
           <ng-template #noLesson><span>Aucun cours à venir n'est encore planifié</span></ng-template>
           <p *ngIf="!student.isStudent && student.requestDate">Demande reçue le {{ student.requestDate }}</p>
-          <p *ngIf="student.type === 'booking_request' && student.status === 'pending'">
-            {{ student.message || 'Demande de réservation en attente' }}
+          <p *ngIf="student['type'] === 'booking_request' && student['status'] === 'pending'">
+            {{ student['message'] || 'Demande de réservation en attente' }}
           </p>
         </div>
-        <ng-container *ngIf="student.type === 'booking_request' && student.status === 'pending'">
+        <ng-container *ngIf="student['type'] === 'booking_request' && student['status'] === 'pending'">
           <button mat-raised-button color="primary" (click)="respondToRequest(student, true)">Accepter</button>
           <button mat-stroked-button color="warn" (click)="respondToRequest(student, false)">Refuser</button>
         </ng-container>
@@ -53,7 +53,7 @@
           </div>
           
           <!-- Кнопка приглашения нового студента (только для заявок) -->
-          <button *ngIf="!student.isStudent && !student.studentId && student.type === 'booking_request'" 
+          <button *ngIf="!student.isStudent && !student.studentId && student['type'] === 'booking_request'" 
                   mat-stroked-button 
                   color="accent" 
                   (click)="inviteStudentToClass(student)" 
@@ -132,29 +132,29 @@
       <div *ngIf="teacher" class="teacher-overview-container">
         <mat-card>
           <div class="profile-header">
-            <img [src]="teacher.photoUrl" alt="Photo de {{ teacher.name }} {{ teacher.surname }}" class="profile-photo" />
+            <img [src]="getTeacherPhotoUrl()" alt="Photo de {{ getTeacherName() }} {{ getTeacherSurname() }}" class="profile-photo" />
             <div class="profile-info">
-              <h2>{{ teacher.name }} {{ teacher.surname }}</h2>
-              <p>Email: {{ teacher.email }}</p>
-              <p>Bio: {{ teacher.bio }}</p>
+              <h2>{{ getTeacherName() }} {{ getTeacherSurname() }}</h2>
+              <p>Email: {{ getTeacherEmail() }}</p>
+              <p>Bio: {{ getTeacherBio() }}</p>
               <div class="profile-tags">
                 <div class="chip-list">
-                  <div class="chip" *ngFor="let subject of teacher.specializations">
+                  <div class="chip" *ngFor="let subject of getTeacherSpecializations()">
                     {{ subject }}
                   </div>
                 </div>
               </div>
               <div class="details">
-                <p>Expérience: {{ teacher.experienceYears }} ans</p>
-                <p>Tarif: {{ teacher.price }} €</p>
-                <p>⭐ Рейтинг: {{ teacher.rating }}</p>
+                <p>Expérience: {{ getTeacherExperienceYears() }} ans</p>
+                <p>Tarif: {{ getTeacherPrice() }} €</p>
+                <p>⭐ Рейтинг: {{ getTeacherRating() }}</p>
               </div>
             </div>
           </div>
           <div class="certificates mt-4">
             <h4>Certificats</h4>
             <div class="chip-list">
-              <div class="chip" *ngFor="let cert of teacher.certificates">
+              <div class="chip" *ngFor="let cert of getTeacherCertificates()">
                 {{ cert }}
               </div>
             </div>
@@ -164,7 +164,7 @@
               <mat-expansion-panel-header>
                 <mat-panel-title> Avis des étudiants </mat-panel-title>
               </mat-expansion-panel-header>
-              <app-review-list [reviews]="teacherReviews"></app-review-list>
+              <app-review-list [reviews]="getTeacherReviews()"></app-review-list>
             </mat-expansion-panel>
           </mat-accordion>
         </mat-card>
@@ -270,26 +270,26 @@
     <h2>{{ selectedStudent?.name }}</h2>
 
     <p *ngIf="selectedStudent?.isStudent">
-      📅 Prochain cours: {{ selectedStudent.nextLessonDate }}
+      📅 Prochain cours: {{ selectedStudent?.nextLessonDate }}
     </p>
 
     <p *ngIf="!selectedStudent?.isStudent">
-      📨 Demande reçue le {{ selectedStudent.requestDate }}
+      📨 Demande reçue le {{ selectedStudent?.requestDate }}
     </p>
 
-    <p *ngIf="selectedStudent?.message">💬 Message: {{ selectedStudent.message }}</p>
+    <p *ngIf="selectedStudent?.['message']">💬 Message: {{ selectedStudent?.['message'] }}</p>
 
     <div class="student-section">
       <h4>🎯 Objectifs</h4>
       <ul>
-        <li *ngFor="let goal of selectedStudent.goals">{{ goal }}</li>
+        <li *ngFor="let goal of selectedStudent?.goals">{{ goal }}</li>
       </ul>
     </div>
 
     <div class="student-section">
       <h4>📚 Devoirs à corriger</h4>
       <ul>
-        <li *ngFor="let homework of selectedStudent.homework">
+        <li *ngFor="let homework of selectedStudent?.homework">
           {{ homework.title }} — <span class="status">{{ homework.status }}</span>
         </li>
       </ul>
@@ -298,7 +298,7 @@
     <div class="student-section">
       <h4>🕓 Historique des cours</h4>
       <ul>
-        <li *ngFor="let lesson of selectedStudent.history">
+        <li *ngFor="let lesson of selectedStudent?.history">
           {{ lesson.date }} — {{ lesson.topic }}
         </li>
       </ul>

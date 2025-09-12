@@ -8,6 +8,13 @@ import { LessonService, TeacherTimeSlot } from '../../services/lesson.service';
 import { NotificationService } from '../../services/notification.service';
 import { PaymentService } from '../../services/payment.service';
 
+interface PaymentData {
+  id: string;
+  status: string;
+  amount: number;
+  [key: string]: unknown;
+}
+
 @Component({
   selector: 'app-teacher-details',
   templateUrl: './teacher-details.component.html',
@@ -170,7 +177,7 @@ export class TeacherDetailsComponent implements OnInit {
     console.log('🔍 showPaymentModal =', this.showPaymentModal);
   }
 
-  onPaymentSuccess(paymentData: any) {
+  onPaymentSuccess(paymentData: PaymentData) {
     // После успешной оплаты создаем бронирование
     const studentId = this.authService.getCurrentUser()?.id;
     const teacherId = this.teacher?.id;
@@ -190,7 +197,7 @@ export class TeacherDetailsComponent implements OnInit {
       studentId: studentId,
       teacherId: teacherId,
       scheduledAt: bookedDateTime.toISOString(),
-      paymentId: paymentData.paymentId // Добавляем ID платежа
+      paymentId: (paymentData as {paymentId?: string}).paymentId || '' // Добавляем ID платежа
     }).subscribe({
       next: () => {
         this.notificationService.success('Votre réservation a été confirmée et payée avec succès!');

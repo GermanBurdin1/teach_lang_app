@@ -222,7 +222,7 @@
                             [class.teacher-badge]="isOwnContent(task.createdBy)">
                         {{ getTaskAuthorDisplay(task) }}
                       </span>
-                      <span class="date">{{ task.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                      <span class="date">{{ formatTaskCreatedAt(task) | date:'dd/MM/yyyy à HH:mm' }}</span>
                     </mat-card-subtitle>
                   </mat-card-header>
                   <mat-card-content *ngIf="task.description">
@@ -250,10 +250,10 @@
                         <h4>Notes de travail</h4>
                       </div>
                       <div class="note-content">
-                        {{ getNoteForItem('tasks', task.title)?.content }}
+                        {{ getNoteContent('tasks', task.title) }}
                       </div>
                       <div class="note-meta">
-                        <small>Dernière modification: {{ getNoteForItem('tasks', task.title)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+                        <small>Dernière modification: {{ getNoteUpdatedAt('tasks', task.title) | date:'dd/MM/yyyy à HH:mm' }}</small>
                       </div>
                     </div>
                   </div>
@@ -302,7 +302,7 @@
                             [class.teacher-badge]="isOwnContent(question.createdBy)">
                         {{ getQuestionAuthorDisplay(question) }}
                       </span>
-                      <span class="date">{{ question.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                      <span class="date">{{ formatQuestionCreatedAt(question) | date:'dd/MM/yyyy à HH:mm' }}</span>
                     </mat-card-subtitle>
                   </mat-card-header>
                   <mat-card-content *ngIf="question.isAnswered && question.answer">
@@ -334,10 +334,10 @@
                         <h4>Notes de travail</h4>
                       </div>
                       <div class="note-content">
-                        {{ getNoteForItem('questions', question.question)?.content }}
+                        {{ getNoteContent('questions', question.question) }}
                       </div>
                       <div class="note-meta">
-                        <small>Dernière modification: {{ getNoteForItem('questions', question.question)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+                        <small>Dernière modification: {{ getNoteUpdatedAt('questions', question.question) | date:'dd/MM/yyyy à HH:mm' }}</small>
                       </div>
                     </div>
                   </div>
@@ -471,10 +471,10 @@
                         <h4>Notes de travail</h4>
                       </div>
                       <div class="note-content">
-                        {{ getNoteForItem('materials', material.id)?.content }}
+                        {{ getNoteContent('materials', material.id) }}
                       </div>
                       <div class="note-meta">
-                        <small>Dernière modification: {{ getNoteForItem('materials', material.id)?.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+                        <small>Dernière modification: {{ getNoteUpdatedAt('materials', material.id) | date:'dd/MM/yyyy à HH:mm' }}</small>
                       </div>
                     </div>
                   </div>
@@ -496,32 +496,32 @@
               <div class="homework-list">
                 <mat-card *ngFor="let homework of homeworkItems; let i = index" 
                           class="homework-card"
-                          [class]="'type-' + homework.sourceType">
+                          [class]="'type-' + homework['sourceType']">
                   <mat-card-header>
                     <mat-card-title>
                       <div class="homework-header">
                         <span class="homework-number">{{ i + 1 }}.</span>
                         <mat-icon class="homework-type-icon">
-                          {{ homework.sourceType === 'task' ? 'assignment' : 
-                             homework.sourceType === 'question' ? 'quiz' : 'folder' }}
+                          {{ homework['sourceType'] === 'task' ? 'assignment' : 
+                             homework['sourceType'] === 'question' ? 'quiz' : 'folder' }}
                         </mat-icon>
                         <span class="homework-title">{{ homework.title }}</span>
                         <span class="homework-status-badge" [class]="'status-' + homework.status">
                           {{ homework.status === 'unfinished' ? 'Non terminé' : 'Terminé' }}
                         </span>
-                        <span *ngIf="homework.createdInClass" class="covered-badge in-class" title="Créé en classe">
+                        <span *ngIf="homework['createdInClass']" class="covered-badge in-class" title="Créé en classe">
                           ✅ Créé en classe
                         </span>
-                        <span *ngIf="!homework.createdInClass" class="covered-badge outside-class" title="Créé hors classe">
+                        <span *ngIf="!homework['createdInClass']" class="covered-badge outside-class" title="Créé hors classe">
                           🏠 Créé hors classe
                         </span>
                       </div>
                     </mat-card-title>
                     <mat-card-subtitle>
                       <div class="homework-meta">
-                        <span class="homework-type">{{ homework.sourceType === 'task' ? 'Tâche' : homework.sourceType === 'question' ? 'Question' : 'Matériau' }}</span>
-                        <span class="homework-date">Créé le {{ homework.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
-                        <span class="homework-due" *ngIf="homework.dueDate">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}</span>
+                        <span class="homework-type">{{ homework['sourceType'] === 'task' ? 'Tâche' : homework['sourceType'] === 'question' ? 'Question' : 'Matériau' }}</span>
+                        <span class="homework-date">Créé le {{ formatHomeworkCreatedAt(homework) | date:'dd/MM/yyyy à HH:mm' }}</span>
+                        <span class="homework-due" *ngIf="homework['dueDate']">Échéance: {{ formatHomeworkDueDate(homework) | date:'dd/MM/yyyy' }}</span>
                       </div>
                     </mat-card-subtitle>
                   </mat-card-header>
@@ -555,24 +555,24 @@
                   <div class="section-header-notes">
                     <mat-icon class="section-icon">assignment</mat-icon>
                     <h3>📝 Notes sur les tâches</h3>
-                    <span class="notes-count">({{ lessonNotes.tasksNotes.length }} note(s))</span>
+                    <span class="notes-count">({{ getNotesCount('tasks') }} note(s))</span>
                   </div>
                   
                   <div class="notes-grid">
-                    <mat-card *ngFor="let note of lessonNotes.tasksNotes; let i = index" class="note-card task-note">
+                    <mat-card *ngFor="let note of getNotesForSection('tasks'); let i = index" class="note-card task-note">
                       <mat-card-header>
                         <mat-card-title>
                           <div class="note-header">
                             <span class="note-number">{{ i + 1 }}.</span>
-                            <span class="note-item">{{ note.itemText }}</span>
+                            <span class="note-item">{{ getNoteItemText(note) }}</span>
                           </div>
                         </mat-card-title>
                         <mat-card-subtitle>
-                          <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                          <span class="note-date">{{ getNoteFormattedDate(note) }}</span>
                         </mat-card-subtitle>
                       </mat-card-header>
                       <mat-card-content>
-                        <div class="note-content">{{ note.content }}</div>
+                        <div class="note-content">{{ getNoteContentText(note) }}</div>
                       </mat-card-content>
                     </mat-card>
                   </div>
@@ -583,24 +583,24 @@
                   <div class="section-header-notes">
                     <mat-icon class="section-icon">quiz</mat-icon>
                     <h3>❓ Notes sur les questions</h3>
-                    <span class="notes-count">({{ lessonNotes.questionsNotes.length }} note(s))</span>
+                    <span class="notes-count">({{ getNotesCount('questions') }} note(s))</span>
                   </div>
                   
                   <div class="notes-grid">
-                    <mat-card *ngFor="let note of lessonNotes.questionsNotes; let i = index" class="note-card question-note">
+                    <mat-card *ngFor="let note of getNotesForSection('questions'); let i = index" class="note-card question-note">
                       <mat-card-header>
                         <mat-card-title>
                           <div class="note-header">
                             <span class="note-number">{{ i + 1 }}.</span>
-                            <span class="note-item">{{ note.itemText }}</span>
+                            <span class="note-item">{{ getNoteItemText(note) }}</span>
                           </div>
                         </mat-card-title>
                         <mat-card-subtitle>
-                          <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                          <span class="note-date">{{ getNoteFormattedDate(note) }}</span>
                         </mat-card-subtitle>
                       </mat-card-header>
                       <mat-card-content>
-                        <div class="note-content">{{ note.content }}</div>
+                        <div class="note-content">{{ getNoteContentText(note) }}</div>
                       </mat-card-content>
                     </mat-card>
                   </div>
@@ -611,24 +611,24 @@
                   <div class="section-header-notes">
                     <mat-icon class="section-icon">folder</mat-icon>
                     <h3>📚 Notes sur les matériaux</h3>
-                    <span class="notes-count">({{ lessonNotes.materialsNotes.length }} note(s))</span>
+                    <span class="notes-count">({{ getNotesCount('materials') }} note(s))</span>
                   </div>
                   
                   <div class="notes-grid">
-                    <mat-card *ngFor="let note of lessonNotes.materialsNotes; let i = index" class="note-card material-note">
+                    <mat-card *ngFor="let note of getNotesForSection('materials'); let i = index" class="note-card material-note">
                       <mat-card-header>
                         <mat-card-title>
                           <div class="note-header">
                             <span class="note-number">{{ i + 1 }}.</span>
-                            <span class="note-item">{{ note.itemText }}</span>
+                            <span class="note-item">{{ getNoteItemText(note) }}</span>
                           </div>
                         </mat-card-title>
                         <mat-card-subtitle>
-                          <span class="note-date">{{ note.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                          <span class="note-date">{{ getNoteFormattedDate(note) }}</span>
                         </mat-card-subtitle>
                       </mat-card-header>
                       <mat-card-content>
-                        <div class="note-content">{{ note.content }}</div>
+                        <div class="note-content">{{ getNoteContentText(note) }}</div>
                       </mat-card-content>
                     </mat-card>
                   </div>

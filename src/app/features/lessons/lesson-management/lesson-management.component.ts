@@ -8,6 +8,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../../services/lesson-tabs.service';
+
+interface HomeworkItem {
+  id?: string;
+  title: string;
+  description?: string;
+  status?: string;
+  [key: string]: unknown;
+}
 import { LessonNotesService, LessonNote, LessonNotesData } from '../../../services/lesson-notes.service';
 
 interface Task {
@@ -84,8 +92,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   currentLesson: Lesson | null = null;
   
   // Домашние задания и конспекты
-  homeworkItems: any[] = [];
-  lessonNotes: any = null;
+  homeworkItems: HomeworkItem[] = [];
+  lessonNotes: unknown = null;
   
   // Формы для добавления
   showAddTaskForm = false;
@@ -192,17 +200,27 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         console.log('📚 Загружены все заявки студента:', requests);
         
         // Преобразуем заявки в формат уроков
-        this.lessons = requests.map(request => ({
-          id: request.lessonId || request.id,
-          teacherId: request.teacherId,
-          studentId: studentId,
-          scheduledAt: new Date(request.scheduledAt),
-          status: request.status,
-          teacherName: request.teacherName,
-          tasks: [],
-          questions: [],
-          materials: []
-        }));
+        this.lessons = requests.map(request => {
+          const requestData = request as {
+            lessonId?: string,
+            id?: string,
+            teacherId?: string,
+            scheduledAt?: string,
+            status?: string,
+            teacherName?: string
+          };
+          return {
+            id: requestData.lessonId || requestData.id || '',
+            teacherId: requestData.teacherId || '',
+            studentId: studentId,
+            scheduledAt: new Date(requestData.scheduledAt || new Date()),
+            status: requestData.status || '',
+            teacherName: requestData.teacherName || '',
+            tasks: [],
+            questions: [],
+            materials: []
+          };
+        }) as Lesson[];
         
         this.updateLessonStatuses();
         
@@ -246,7 +264,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         
         // Загружаем также из localStorage для совместимости со старыми данными
         const savedHomework = localStorage.getItem(`homework_${lessonId}`);
-        let localHomework: any[] = [];
+        let localHomework: HomeworkItem[] = [];
         if (savedHomework) {
           localHomework = JSON.parse(savedHomework);
           console.log('📋 Домашние задания загружены из localStorage:', localHomework);
@@ -258,14 +276,32 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         // Добавляем домашние задания из localStorage которых нет в БД
         localHomework.forEach(localItem => {
           const existsInDB = homeworkItems.some(dbItem => 
-            dbItem.itemId === localItem.itemId && 
+            (dbItem as {itemId?: string}).itemId === (localItem as {itemId?: string}).itemId && 
             dbItem.title === localItem.title
           );
           
           if (!existsInDB) {
             // Добавляем поле createdInClass для совместимости
-            localItem.createdInClass = localItem.createdInClass !== undefined ? localItem.createdInClass : true;
-            combinedHomework.push(localItem);
+            const localItemTyped = localItem as {createdInClass?: boolean};
+            localItemTyped.createdInClass = localItemTyped.createdInClass !== undefined ? localItemTyped.createdInClass : true;
+            const homeworkItem = {
+              id: (localItem as {id?: string}).id || '',
+              type: (localItem as {type?: string}).type || undefined,
+              title: (localItem as {title?: string}).title || '',
+              description: (localItem as {description?: string}).description || '',
+              dueDate: (localItem as {dueDate?: Date}).dueDate || new Date(),
+              status: ((localItem as {status?: string}).status as 'completed' | 'submitted' | 'overdue' | 'unfinished' | 'finished') || 'unfinished',
+              itemId: (localItem as {itemId?: string}).itemId || undefined,
+              teacherFeedback: (localItem as {teacherFeedback?: string}).teacherFeedback || undefined,
+              createdInClass: localItemTyped.createdInClass || true,
+              lessonId: (localItem as {lessonId?: string}).lessonId || '',
+              createdBy: (localItem as {createdBy?: string}).createdBy || '',
+              createdAt: (localItem as {createdAt?: Date}).createdAt || new Date(),
+              updatedAt: (localItem as {updatedAt?: Date}).updatedAt || undefined,
+              sourceItemText: (localItem as {sourceItemText?: string}).sourceItemText || undefined,
+              grade: (localItem as {grade?: string | number}).grade ? Number((localItem as {grade?: string | number}).grade) : undefined
+            };
+            combinedHomework.push(homeworkItem);
           }
         });
         
@@ -281,8 +317,9 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
           this.homeworkItems = JSON.parse(savedHomework);
           // Добавляем поле createdInClass для совместимости
           this.homeworkItems.forEach(item => {
-            if (item.createdInClass === undefined) {
-              item.createdInClass = true; // по умолчанию считаем что создано в классе
+            const itemTyped = item as {createdInClass?: boolean};
+            if (itemTyped['createdInClass'] === undefined) {
+              itemTyped['createdInClass'] = true; // по умолчанию считаем что создано в классе
             }
           });
           console.log('📋 Домашние задания загружены из localStorage (fallback):', this.homeworkItems);
@@ -343,7 +380,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   }
 
   // Новый метод для структурированных заметок
-  private extractStructuredNotes(notes: LessonNote[]): any[] {
+  private extractStructuredNotes(notes: LessonNote[]): unknown[] {
     if (!notes || notes.length === 0) {
       return [];
     }
@@ -398,8 +435,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   hasNotesForSection(section: 'tasks' | 'questions' | 'materials'): boolean {
     if (!this.lessonNotes) return false;
     
-    const sectionNotes = this.lessonNotes[`${section}Notes`];
-    return sectionNotes && sectionNotes.length > 0;
+    const sectionNotes = (this.lessonNotes as {[key: string]: unknown})[`${section}Notes`];
+    return Boolean(sectionNotes && (sectionNotes as {length?: number})?.length && (sectionNotes as {length?: number}).length! > 0);
   }
 
   // Загрузка конкретного урока с задачами и вопросами
@@ -409,7 +446,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     // Загружаем урок
     this.lessonService.getLessonDetails(lessonId).subscribe({
       next: (lesson) => {
-        this.currentLesson = lesson;
+        this.currentLesson = lesson as unknown as Lesson;
         this.highlightedLessonId = lessonId;
         
         // Загружаем задачи и вопросы
@@ -438,8 +475,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       this.getMaterialsForLesson(lessonId)
     ]).then(([tasks, questions, materials]) => {
       if (this.currentLesson) {
-        this.currentLesson.tasks = tasks || [];
-        this.currentLesson.questions = questions || [];
+        this.currentLesson.tasks = (tasks || []) as Task[];
+        this.currentLesson.questions = (questions || []) as Question[];
         this.currentLesson.materials = materials || [];
       }
       this.loading = false;
@@ -512,8 +549,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         this.lessonService.getQuestionsForLesson(lesson.id).toPromise().catch(() => []),
         this.getMaterialsForLesson(lesson.id).catch(() => [])
       ]).then(([tasks, questions, materials]) => {
-        lesson.tasks = tasks || [];
-        lesson.questions = questions || [];
+        lesson.tasks = (tasks || []) as Task[];
+        lesson.questions = (questions || []) as Question[];
         lesson.materials = materials || [];
       })
     );
@@ -552,12 +589,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     this.lessonService.addTaskToLesson(taskData).subscribe({
       next: (newTask) => {
         if (this.currentLesson) {
-          this.currentLesson.tasks.push(newTask);
+          this.currentLesson.tasks.push(newTask as unknown as Task);
           
           // Обновляем задачи и в списке уроков
           const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
           if (lessonInList) {
-            lessonInList.tasks.push(newTask);
+            lessonInList.tasks.push(newTask as unknown as Task);
           }
         }
         this.clearTaskForm();
@@ -586,12 +623,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     this.lessonService.addQuestionToLesson(questionData).subscribe({
       next: (newQuestion) => {
         if (this.currentLesson) {
-          this.currentLesson.questions.push(newQuestion);
+          this.currentLesson.questions.push(newQuestion as unknown as Question);
           
           // Обновляем вопросы и в списке уроков
           const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
           if (lessonInList) {
-            lessonInList.questions.push(newQuestion);
+            lessonInList.questions.push(newQuestion as unknown as Question);
           }
         }
         this.clearQuestionForm();
@@ -831,7 +868,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     this.currentPage = event.pageIndex + 1;
   }
 
-  addToHomework(item: any) {
+  addToHomework(item: unknown) {
     // Реализовать при nécessité
   }
 
@@ -973,7 +1010,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   }
 
   // Получение заметки для элемента
-  getNoteForItem(section: 'tasks' | 'questions' | 'materials', itemIdentifier: string): any {
+  getNoteForItem(section: 'tasks' | 'questions' | 'materials', itemIdentifier: string): unknown {
     // Аналогично с isItemProcessed
     let itemId: string;
     if (section === 'tasks') {
@@ -1041,6 +1078,84 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // Проверка раскрыта ли панель материалов
   isMaterialExpanded(materialId: string): boolean {
     return this.expandedMaterials.has(materialId);
+  }
+
+  // Helper метод для форматирования дат homework в шаблоне
+  formatHomeworkDate(date: unknown): string {
+    if (!date) return '';
+    try {
+      return new Date(date as string | Date).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '';
+    }
+  }
+
+  // Helper методы для lessonNotes (такие же как в teacher-lesson-management)
+  getNotesCount(section: string): number {
+    const notes = (this.lessonNotes as {[key: string]: unknown})?.[`${section}Notes`];
+    return (notes as {length?: number})?.length || 0;
+  }
+
+  getNotesForSection(section: string): unknown[] {
+    const notes = (this.lessonNotes as {[key: string]: unknown})?.[`${section}Notes`];
+    return (notes as unknown[]) || [];
+  }
+
+  // Helper методы для note properties
+  getNoteItemText(note: unknown): string {
+    return (note as {itemText?: string})?.itemText || '';
+  }
+
+  getNoteFormattedDate(note: unknown): string {
+    const updatedAt = (note as {updatedAt?: Date | string})?.updatedAt;
+    if (!updatedAt) return '';
+    
+    try {
+      return new Date(updatedAt).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '';
+    }
+  }
+
+  getNoteContentText(note: unknown): string {
+    return (note as {content?: string})?.content || '';
+  }
+
+  // Helper методы для task, question, material properties
+  getTaskTitle(task: unknown): string {
+    return (task as {title?: string})?.title || '';
+  }
+
+  getQuestionText(question: unknown): string {
+    return (question as {question?: string})?.question || '';
+  }
+
+  getMaterialId(material: unknown): string {
+    return String((material as {id?: string | number})?.id || '');
+  }
+
+  // Helper методы для getNoteContent и getNoteUpdatedAt (аналогично teacher-lesson-management)
+  getNoteContent(section: 'tasks' | 'questions' | 'materials', itemKey: string): string {
+    const note = this.lessonNotesService.getNoteForItem(section, itemKey);
+    return note ? (note as {content?: string}).content || '' : '';
+  }
+
+  getNoteUpdatedAt(section: 'tasks' | 'questions' | 'materials', itemKey: string): Date | null {
+    const note = this.lessonNotesService.getNoteForItem(section, itemKey);
+    const updatedAt = note ? (note as {updatedAt?: string | Date}).updatedAt : null;
+    return updatedAt ? new Date(updatedAt) : null;
   }
 }
 

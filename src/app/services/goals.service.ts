@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StudentGoal, CreateGoalDto, ExamLevel } from '../models/student-goal.model';
-import { environment } from '../../../environment';
+import { environment as _environment } from '../../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +38,7 @@ export class GoalsService {
 
   // Метод для получения локализованного названия уровня экзамена
   getExamLevelDisplayName(level: ExamLevel): string {
-    const displayNames: { [key in ExamLevel]: string } = {
+    const displayNames: { [_key in ExamLevel]: string } = {
       [ExamLevel.A1]: 'A1 - Débutant',
       [ExamLevel.A2]: 'A2 - Élémentaire',
       [ExamLevel.B1]: 'B1 - Intermédiaire',

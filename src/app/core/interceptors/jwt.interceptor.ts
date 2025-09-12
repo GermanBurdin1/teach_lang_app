@@ -8,7 +8,7 @@ import { AuthService } from '../../services/auth.service';
 export class JwtInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // Добавляем токен к запросу, если он есть
     const token = this.authService.getAccessToken();
     

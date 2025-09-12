@@ -5,12 +5,12 @@ import { environment } from '../../../environment';
 // TypeScript declarations for Google Analytics
 declare global {
   interface Window {
-    dataLayer: any[];
-    gtag: (...args: any[]) => void;
+    dataLayer: unknown[];
+    gtag: (...args: unknown[]) => void;
   }
 }
 
-declare let gtag: any;
+declare let gtag: (...args: unknown[]) => void;
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +31,7 @@ export class AnalyticsService {
 
     // Initialize gtag
     window.dataLayer = window.dataLayer || [];
-    function gtag(...args: any[]) {
+    function gtag(...args: unknown[]) {
       window.dataLayer.push(args);
     }
     window.gtag = gtag;

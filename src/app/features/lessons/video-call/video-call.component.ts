@@ -1,6 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { VideoCallService } from '../../../services/video-call.service';
 import { WebSocketService } from '../../../services/web-socket.service';
+
+interface CallData {
+  from: string;
+  to: string;
+  [key: string]: unknown;
+}
 
 @Component({
   selector: 'app-video-call',
@@ -111,9 +117,9 @@ export class VideoCallComponent implements OnInit {
     });
 
     // WebSocket обработчики для входящих звонков
-    this.wsService.listen('call_invite').subscribe((data: any) => {
+    this.wsService.listen('call_invite').subscribe((data: CallData) => {
       console.log(`📞 Входящий вызов от ${data.from}`);
-      const acceptCall = confirm(`📞 Входящий вызов от ${data.from}. Принять?`);
+      const acceptCall = window.confirm(`📞 Входящий вызов от ${data.from}. Принять?`);
       if (acceptCall) {
         this.wsService.acceptCall(data.from, data.to);
         this.videoCallService.joinChannel();
@@ -122,14 +128,14 @@ export class VideoCallComponent implements OnInit {
       }
     });
 
-    this.wsService.listen('call_accept').subscribe((data: any) => {
+    this.wsService.listen('call_accept').subscribe((data: CallData) => {
       console.log(`✅ Пользователь ${data.from} принял вызов`);
       this.videoCallService.joinChannel();
     });
 
-    this.wsService.listen('call_reject').subscribe((data: any) => {
+    this.wsService.listen('call_reject').subscribe((data: CallData) => {
       console.log(`❌ Пользователь ${data.from} отклонил вызов`);
-      alert(`Пользователь отклонил вызов`);
+      window.alert(`Пользователь отклонил вызов`);
     });
   }
 

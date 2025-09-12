@@ -8,6 +8,43 @@ import { LessonService } from '../../../../services/lesson.service';
 import { GoalsService } from '../../../../services/goals.service';
 import { StudentGoal, ExamLevel, CreateGoalDto } from '../../../../models/student-goal.model';
 import { Router } from '@angular/router';
+
+interface Notification {
+  id?: string;
+  type: string;
+  status: string;
+  data?: {
+    teacherId?: string;
+    lessonId?: string;
+    scheduledAt?: string;
+  };
+  metadata?: {
+    teacherName?: string;
+    studentName?: string;
+  };
+  [key: string]: unknown;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  createdByRole: string;
+  [key: string]: unknown;
+}
+
+interface Question {
+  id: string;
+  question: string;
+  createdByRole: string;
+  [key: string]: unknown;
+}
+
+interface Material {
+  id: string;
+  type: string;
+  title?: string;
+  [key: string]: unknown;
+}
 import { VideoCallService } from '../../../../services/video-call.service';
 import { TeacherService } from '../../../../services/teacher.service';
 import { HomeworkService, Homework } from '../../../../services/homework.service';
@@ -139,34 +176,42 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
 
     this.notificationService.getNotificationsForUser(studentId).subscribe(res => {
       console.log('[StudentHomeComponent] RAW notifications from backend:', res);
-      this.notifications = res
-        .filter(n => n.type === 'booking_response' || n.type === 'booking_proposal')
-        .map((n: any) => {
-          if (n.type === 'booking_proposal') {
-            console.log('[StudentHomeComponent] Processing booking_proposal:', n);
-            const teacherName = n.data?.teacherName;
+      this.notifications = (res as unknown[])
+        .filter((n: unknown) => (n as {type?: string}).type === 'booking_response' || (n as {type?: string}).type === 'booking_proposal')
+        .map((n: unknown) => {
+          const notification = n as Notification;
+          if (notification.type === 'booking_proposal') {
+            console.log('[StudentHomeComponent] Processing booking_proposal:', notification);
+            const notificationData = notification.data as {
+              teacherName?: string, 
+              proposedTime?: string, 
+              accepted?: boolean, 
+              refused?: boolean
+            };
+            const teacherName = notificationData?.teacherName;
+            const proposedTime = notificationData?.proposedTime;
             const displayText = teacherName 
-              ? `Votre professeur ${teacherName} vous propose ${n.data?.proposedTime ? (new Date(n.data.proposedTime)).toLocaleString('fr-FR') : ''}` 
-              : `Le professeur vous propose ${n.data?.proposedTime ? (new Date(n.data.proposedTime)).toLocaleString('fr-FR') : ''}`;
+              ? `Votre professeur ${teacherName} vous propose ${proposedTime ? (new Date(proposedTime)).toLocaleString('fr-FR') : ''}` 
+              : `Le professeur vous propose ${proposedTime ? (new Date(proposedTime)).toLocaleString('fr-FR') : ''}`;
               
             return {
               text: displayText,
-              type: n.type,
-              lessonId: n.data?.lessonId,
-              proposedTime: n.data?.proposedTime,
-              teacherId: n.data?.teacherId,
-              teacherName: n.data?.teacherName || '',
-              accepted: n.data?.accepted || false,
-              refused: n.data?.refused || false,
-              notification: n
+              type: notification.type,
+              lessonId: notification.data?.lessonId,
+              proposedTime: proposedTime,
+              teacherId: notification.data?.teacherId,
+              teacherName: teacherName || '',
+              accepted: notificationData?.accepted || false,
+              refused: notificationData?.refused || false,
+              notification: notification
             };
           }
           return {
-            text: `${n.title}: ${n.message}`,
-            type: n.type,
-            teacherId: n.data?.teacherId,
-            teacherName: n.data?.teacherName || '',
-            notification: n
+            text: `${(notification as {title?: string}).title || ''}: ${(notification as {message?: string}).message || ''}`,
+            type: notification.type,
+            teacherId: notification.data?.teacherId,
+            teacherName: (notification.data as {teacherName?: string})?.teacherName || '',
+            notification: notification
           };
         });
       console.log('[StudentHomeComponent] notifications for template:', this.notifications);
@@ -343,25 +388,34 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
         console.log('✅ Урок отменен:', response);
         
         // Показываем сообщение пользователю
-        this.matNotificationService.success(response.message || 'Урок успешно отменен');
+        this.matNotificationService.success((response as {message?: string})?.message || 'Урок успешно отменен');
         
         // Обновляем календарь
         const studentId = this.authService.getCurrentUser()?.id;
         if (studentId) {
-          this.lessonService.getConfirmedLessons(studentId).subscribe(lessons => {
-            this.upcomingLessons = lessons.map(lesson => ({
-              start: new Date(lesson.scheduledAt),
-              end: new Date(new Date(lesson.scheduledAt).getTime() + 60 * 60 * 1000),
-              title: `Cours avec ${lesson.teacherName}`,
-              color: { primary: '#3f51b5', secondary: '#e8eaf6' },
-              allDay: false,
-              meta: { 
-                lessonId: lesson.id, 
-                status: lesson.status,
-                teacherId: lesson.teacherId,
-                teacherName: lesson.teacherName
-              }
-            }));
+          this.lessonService.getConfirmedLessons(studentId).subscribe((lessons: unknown[]) => {
+            this.upcomingLessons = lessons.map((lesson: unknown) => {
+              const lessonData = lesson as {
+                id?: string,
+                scheduledAt?: string,
+                teacherName?: string,
+                status?: string,
+                teacherId?: string
+              };
+              return {
+                start: new Date(lessonData.scheduledAt || new Date()),
+                end: new Date(new Date(lessonData.scheduledAt || new Date()).getTime() + 60 * 60 * 1000),
+                title: `Cours avec ${lessonData.teacherName}`,
+                color: { primary: '#3f51b5', secondary: '#e8eaf6' },
+                allDay: false,
+                meta: { 
+                  lessonId: lessonData.id, 
+                  status: lessonData.status,
+                  teacherId: lessonData.teacherId,
+                  teacherName: lessonData.teacherName
+                }
+              };
+            });
           });
         }
         
@@ -438,36 +492,40 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
     return div.innerHTML;
   }
 
-  acceptProposal(notif: any) {
+  acceptProposal(notif: Notification) {
     console.log('[acceptProposal] notif:', notif);
     this.lessonService.studentRespondToProposal({
-      lessonId: notif.lessonId,
+      lessonId: (notif as {lessonId?: string})['lessonId'] || '',
       accepted: true
     }).subscribe((res) => {
       console.log('[acceptProposal] ответ от сервера:', res);
-      notif.accepted = true;
-      notif.refused = false;
+      (notif as {accepted?: boolean})['accepted'] = true;
+      (notif as {refused?: boolean})['refused'] = false;
       // Не вызываем ngOnInit для мгновенного эффекта
     });
   }
 
-  refuseProposal(notif: any) {
+  refuseProposal(notif: Notification) {
     this.lessonService.studentRespondToProposal({
-      lessonId: notif.lessonId,
+      lessonId: (notif as {lessonId?: string})['lessonId'] || '',
       accepted: false
     }).subscribe((res) => {
       console.log('[refuseProposal] ответ от сервера:', res);
-      notif.accepted = false;
-      notif.refused = true;
+      (notif as {accepted?: boolean})['accepted'] = false;
+      (notif as {refused?: boolean})['refused'] = true;
       // Не вызываем ngOnInit для мгновенного эффекта
     });
   }
 
-  hideNotification(notification: any) {
-    if (notification.notification?.id) {
-      this.notificationService.hideNotification(notification.notification.id).subscribe(() => {
+  hideNotification(notification: Notification) {
+    const notificationObj = notification['notification'] as { id?: string };
+    if (notificationObj?.id) {
+      this.notificationService.hideNotification(notificationObj.id).subscribe(() => {
         // Удаляем уведомление из локального массива
-        this.notifications = this.notifications.filter(n => n.notification?.id !== notification.notification.id);
+        this.notifications = this.notifications.filter(n => {
+          const nObj = n['notification'] as { id?: string };
+          return nObj?.id !== notificationObj.id;
+        });
       });
     }
   }
@@ -494,24 +552,35 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
       console.log('📅 Загружаем все заявки для календаря:', requests);
       
       this.upcomingLessons = requests.map(request => {
-        const lessonTime = new Date(request.scheduledAt);
+        const requestObj = request as {
+          scheduledAt?: string,
+          lessonId?: string,
+          status?: string,
+          teacherId?: string,
+          teacherName?: string,
+          createdAt?: string,
+          proposedTime?: string,
+          studentConfirmed?: boolean,
+          studentRefused?: boolean
+        };
+        const lessonTime = new Date(requestObj.scheduledAt || new Date());
         const endTime = new Date(lessonTime.getTime() + 60 * 60 * 1000);
         
         return {
           start: lessonTime,
           end: endTime,
-          title: `${this.getStatusIcon(request.status)} ${request.teacherName}`,
-          color: this.getCalendarColor(request.status),
+          title: `${this.getStatusIcon(requestObj.status || '')} ${requestObj.teacherName || ''}`,
+          color: this.getCalendarColor(requestObj.status || ''),
           allDay: false,
           meta: { 
-            lessonId: request.lessonId, 
-            status: request.status,
-            teacherId: request.teacherId,
-            teacherName: request.teacherName,
-            createdAt: request.createdAt,
-            proposedTime: request.proposedTime,
-            studentConfirmed: request.studentConfirmed,
-            studentRefused: request.studentRefused
+            lessonId: requestObj.lessonId, 
+            status: requestObj.status,
+            teacherId: requestObj.teacherId,
+            teacherName: requestObj.teacherName,
+            createdAt: requestObj.createdAt,
+            proposedTime: requestObj.proposedTime,
+            studentConfirmed: requestObj.studentConfirmed,
+            studentRefused: requestObj.studentRefused
           }
         };
       });
@@ -692,10 +761,13 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
     ]);
 
     // Разделяем задачи и вопросы по ролям
-    const studentTasks = (tasks || []).filter((t: any) => t.createdByRole === 'student').map((t: any) => ({ id: t.id, title: t.title }));
-    const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => ({ id: t.id, title: t.title }));
-    const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => ({ id: q.id, question: q.question }));
-    const teacherQuestions = (questions || []).filter((q: any) => q.createdByRole === 'teacher').map((q: any) => ({ id: q.id, question: q.question }));
+    const tasksArray = (tasks || []) as Task[];
+    const questionsArray = (questions || []) as Question[];
+    
+    const studentTasks = tasksArray.filter((t: Task) => t.createdByRole === 'student').map((t: Task) => ({ id: t.id, title: t.title }));
+    const teacherTasks = tasksArray.filter((t: Task) => t.createdByRole === 'teacher').map((t: Task) => ({ id: t.id, title: t.title }));
+    const studentQuestions = questionsArray.filter((q: Question) => q.createdByRole === 'student').map((q: Question) => ({ id: q.id, question: q.question }));
+    const teacherQuestions = questionsArray.filter((q: Question) => q.createdByRole === 'teacher').map((q: Question) => ({ id: q.id, question: q.question }));
 
     console.log('✅ [StudentHome] Данные урока подготовлены:', {
       studentTasks,
@@ -713,9 +785,9 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
       studentQuestions: studentQuestions,
       teacherQuestions: teacherQuestions,
       materials: materials,
-      texts: materials.filter((m: any) => m.type === 'text'),
-      audios: materials.filter((m: any) => m.type === 'audio'),
-      videos: materials.filter((m: any) => m.type === 'video'),
+      texts: materials.filter((m: Material) => m.type === 'text'),
+      audios: materials.filter((m: Material) => m.type === 'audio'),
+      videos: materials.filter((m: Material) => m.type === 'video'),
       homework: []
     });
 
@@ -749,7 +821,7 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
     return now > dueDate && (homework.status === 'unfinished' || homework.status === 'assigned');
   }
 
-  private async getMaterialsForLesson(lessonId: string): Promise<any[]> {
+  private async getMaterialsForLesson(lessonId: string): Promise<Material[]> {
     try {
       console.log('🔍 [StudentHome] Загружаем материалы для урока:', lessonId);
       const allMaterials = await this.materialService.getMaterials().toPromise();
@@ -766,7 +838,7 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
       });
       
       console.log('✅ [StudentHome] Отфильтрованные материалы для урока:', filteredMaterials);
-      return filteredMaterials;
+      return filteredMaterials as unknown as Material[];
     } catch (error) {
       console.error('❌ [StudentHome] Ошибка загрузки материалов для урока:', error);
       return [];

@@ -822,7 +822,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       await this.lessonService.startLesson(lessonId, currentUser.id).toPromise();
       // Получаем и показываем статус после старта
       const startedLesson = await this.lessonService.getLessonById(lessonId).toPromise();
-      alert('Статус урока после старта: ' + (startedLesson?.status || 'неизвестно'));
+      alert('Статус урока после старта: ' + (startedLesson?.['status'] || 'неизвестно'));
       this.lessonStarted = true;
       this.countdown = 30;
       this.countdownInterval = setInterval(async () => {
@@ -835,7 +835,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
             await this.lessonService.endLesson(lessonId, currentUser.id).toPromise();
             // Получаем и показываем статус после завершения
             const endedLesson = await this.lessonService.getLessonById(lessonId).toPromise();
-            alert('Статус урока после завершения: ' + (endedLesson?.status || 'неизвестно'));
+            alert('Статус урока после завершения: ' + (endedLesson?.['status'] || 'неизвестно'));
             console.log('✅ Урок завершён (статус completed в БД)');
           } catch (err) {
             console.error('❌ Ошибка при завершении урока:', err);
@@ -1038,11 +1038,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe({
       next: (students) => {
         // Фильтруем студентов, которые уже не в текущем классе
-        this.availableStudents = students.filter(student => 
-          !this.currentClass.students?.find((s: any) => 
-            s.id === student.studentId || s.name === student.name
-          )
-        );
+        this.availableStudents = students.filter((student: unknown) => {
+          const studentData = student as { studentId?: string; name?: string };
+          return !this.currentClass.students?.find((s: any) => 
+            s.id === studentData.studentId || s.name === studentData.name
+          );
+        });
         console.log('📚 Доступные студенты для добавления:', this.availableStudents);
       },
       error: (error) => {

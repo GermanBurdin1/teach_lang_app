@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { StatisticsService } from '../../../../services/statistics.service';
 
+interface MonthlyUserData {
+  month: string;
+  newStudents: number;
+  newTeachers: number;
+  totalNew: number;
+}
+
 @Component({
   selector: 'app-admin-users-management',
   templateUrl: './admin-users-management.component.html',
@@ -17,7 +24,7 @@ export class AdminUsersManagementComponent implements OnInit {
     month: ''
   };
 
-  monthlyData: any[] = [];
+  monthlyData: MonthlyUserData[] = [];
   loading = false;
 
   // Options pour le sélecteur de mois (derniers 12 mois)

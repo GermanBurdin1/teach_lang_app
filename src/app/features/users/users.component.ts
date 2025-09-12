@@ -200,11 +200,11 @@ export class UsersComponent implements OnInit {
     this.linkPlaceholder = this.selectedPlatform === 'Skype' ? 'Введите ссылку для Skype' : 'Введите ссылку для Zoom';
   }
 
-  togglePossibility(possibility: any) {
+  togglePossibility(possibility: {expanded?: boolean}) {
     possibility.expanded = !possibility.expanded;
   }
 
-  toggleFeature(possibility: any) {
+  toggleFeature(possibility: {role?: string, isFeatureEnabled?: boolean}) {
     if (possibility.role === 'admin') {
       // Логика для администратора
       possibility.isFeatureEnabled = !possibility.isFeatureEnabled;

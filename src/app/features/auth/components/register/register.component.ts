@@ -107,7 +107,7 @@ export class RegisterComponent implements OnInit {
           
           if (jwtResponse.user.roles && jwtResponse.user.roles.length > 1) {
             const lastRole = roles.find(r => jwtResponse.user.roles.includes(r));
-            let roleText = lastRole === 'teacher'
+            const roleText = lastRole === 'teacher'
               ? 'enseignant sur la plateforme'
               : 'étudiant sur la plateforme';
             this.snackBar.open(`Vous êtes maintenant aussi ${roleText} ! Vous pouvez maintenant saisir vos identifiants et vous connecter.`, 'OK', {

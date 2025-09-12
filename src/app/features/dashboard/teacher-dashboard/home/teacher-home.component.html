@@ -490,21 +490,21 @@
           <!-- Objectif de l'étudiant -->
           <div style="margin: 16px 0;">
             <p><strong>🎯 Objectif d'apprentissage:</strong></p>
-            <div *ngIf="selectedStudent.loadingGoal" class="loading-text" style="margin-left: 16px;">
+            <div *ngIf="selectedStudent['loadingGoal']" class="loading-text" style="margin-left: 16px;">
               <mat-spinner diameter="16" style="display: inline-block; margin-right: 8px;"></mat-spinner>
               Chargement...
             </div>
-            <div *ngIf="!selectedStudent.loadingGoal" style="margin-left: 16px;">
-              <div *ngIf="selectedStudent.goal; else noGoal">
+            <div *ngIf="!selectedStudent['loadingGoal']" style="margin-left: 16px;">
+              <div *ngIf="selectedStudent['goal']; else noGoal">
                 <p style="margin: 4px 0; color: #1976d2; font-weight: bold;">
-                  📚 {{ getExamLevelDisplay(selectedStudent.goal.examLevel) }}
+                  📚 {{ getExamLevelDisplay(getSelectedStudentGoalExamLevel()) }}
                 </p>
-                <p *ngIf="selectedStudent.goal.targetDate" style="margin: 4px 0; color: #4caf50;">
-                  📅 Objectif: {{ formatTargetDate(selectedStudent.goal.targetDate) }}
+                <p *ngIf="getSelectedStudentGoalTargetDate()" style="margin: 4px 0; color: #4caf50;">
+                  📅 Objectif: {{ formatTargetDate(getSelectedStudentGoalTargetDate()) }}
                 </p>
-                <div *ngIf="selectedStudent.goal.description" 
+                <div *ngIf="getSelectedStudentGoalDescription()" 
                      style="margin: 8px 0; padding: 8px; background-color: #f5f5f5; border-left: 3px solid #1976d2; border-radius: 4px;">
-                  <strong>💭 Motivation:</strong> {{ selectedStudent.goal.description }}
+                  <strong>💭 Motivation:</strong> {{ getSelectedStudentGoalDescription() }}
                 </div>
               </div>
               <ng-template #noGoal>
@@ -514,14 +514,14 @@
           </div>
           
           <!-- Informations contextuelles -->
-          <div *ngIf="selectedStudent.reason" style="margin: 16px 0;">
-            <p><strong>ℹ️ Contexte:</strong> {{ selectedStudent.reason }}</p>
+          <div *ngIf="selectedStudent['reason']" style="margin: 16px 0;">
+            <p><strong>ℹ️ Contexte:</strong> {{ selectedStudent['reason'] }}</p>
           </div>
           
-          <div *ngIf="selectedStudent.refundAvailable !== undefined" style="margin: 16px 0;">
+          <div *ngIf="selectedStudent['refundAvailable'] !== undefined" style="margin: 16px 0;">
             <p><strong>💰 Remboursement:</strong> 
-              <span [style.color]="selectedStudent.refundAvailable ? '#4caf50' : '#f44336'">
-                {{ selectedStudent.refundAvailable ? '✅ Disponible' : '❌ Non disponible' }}
+              <span [style.color]="selectedStudent['refundAvailable'] ? '#4caf50' : '#f44336'">
+                {{ selectedStudent['refundAvailable'] ? '✅ Disponible' : '❌ Non disponible' }}
               </span>
             </p>
           </div>
@@ -529,8 +529,8 @@
         
         <div class="modal-actions">
           <button mat-raised-button color="primary" 
-                  *ngIf="selectedStudent.lessonId"
-                  (click)="navigateToLesson(selectedStudent.lessonId)">
+                  *ngIf="selectedStudent['lessonId']"
+                  (click)="navigateToLesson(getSelectedStudentLessonId())">
             Aller à la leçon
           </button>
           <button mat-stroked-button (click)="closeStudentModal()">

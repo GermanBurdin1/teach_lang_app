@@ -1,11 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { MaterialService, Material } from '../../services/material.service';
-import { HomeworkService, Homework, CreateHomeworkRequest } from '../../services/homework.service';
+import { HomeworkService, Homework as _Homework, CreateHomeworkRequest as _CreateHomeworkRequest } from '../../services/homework.service';
 import { LessonService } from '../../services/lesson.service';
 import { AuthService } from '../../services/auth.service';
 import { FileUploadService } from '../../services/file-upload.service';
 import { NotificationService } from '../../services/notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
+
+interface User {
+  id: string;
+  name: string;
+  role: string;
+  [key: string]: unknown;
+}
+
+interface Lesson {
+  id: string;
+  title: string;
+  date?: string;
+  [key: string]: unknown;
+}
 
 interface HomeworkDisplay {
   id: string;
@@ -106,10 +120,10 @@ export class TrainerComponent implements OnInit {
   // Lesson selection for material attachment
   showAttachModal = false;
   selectedMaterial: Material | null = null;
-  availableLessons: any[] = [];
+  availableLessons: Lesson[] = [];
   
   // Current user
-  currentUser: any = null;
+  currentUser: User | null = null;
 
   // Loading states
   loadingHomeworks = false;
@@ -117,14 +131,14 @@ export class TrainerComponent implements OnInit {
   // User type detection
   isTeacher(): boolean {
     return this.currentUser?.role === 'teacher' || 
-           this.currentUser?.type === 'teacher' ||
-           this.currentUser?.currentRole === 'teacher';
+           this.currentUser?.['type'] === 'teacher' ||
+           this.currentUser?.['currentRole'] === 'teacher';
   }
 
   isStudent(): boolean {
     return this.currentUser?.role === 'student' || 
-           this.currentUser?.type === 'student' ||
-           this.currentUser?.currentRole === 'student';
+           this.currentUser?.['type'] === 'student' ||
+           this.currentUser?.['currentRole'] === 'student';
   }
 
   shouldShowMaterialTabs(): boolean {
@@ -261,7 +275,7 @@ export class TrainerComponent implements OnInit {
 
   ngOnInit() {
     // Загружаем данные пользователя
-    this.currentUser = this.authService.getCurrentUser();
+    this.currentUser = this.authService.getCurrentUser() as unknown as User;
     if (this.currentUser) {
       console.log('👤 Current user loaded:', this.currentUser);
       this.loadMaterials();
@@ -478,15 +492,17 @@ export class TrainerComponent implements OnInit {
       if (this.isStudent()) {
         // Для студента: загружаем подтвержденные уроки
         this.lessonService.getConfirmedLessons(this.currentUser.id).subscribe({
-          next: (lessons: any[]) => {
+          next: (lessons: unknown[]) => {
             // Фильтруем только будущие уроки для прикрепления материалов
-            this.availableLessons = lessons.filter((lesson: any) => 
-              lesson.status === 'confirmed' && 
-              new Date(lesson.scheduledAt) >= new Date()
-            );
+            this.availableLessons = lessons.filter((lesson: unknown) => {
+              const lessonData = lesson as {status?: string, scheduledAt?: string};
+              return lessonData.status === 'confirmed' && 
+                     lessonData.scheduledAt && 
+                     new Date(lessonData.scheduledAt) >= new Date();
+            }) as Lesson[];
             console.log('✅ Уроки студента загружены:', this.availableLessons);
           },
-          error: (error: any) => {
+          error: (error: unknown) => {
             console.error('❌ Ошибка загрузки уроков студента:', error);
             this.availableLessons = [];
           }
@@ -494,15 +510,17 @@ export class TrainerComponent implements OnInit {
       } else if (this.isTeacher()) {
         // Для преподавателя: загружаем все подтвержденные уроки
         this.lessonService.getAllConfirmedLessonsForTeacher(this.currentUser.id).subscribe({
-          next: (lessons: any[]) => {
+          next: (lessons: unknown[]) => {
             // Фильтруем только будущие уроки для прикрепления материалов
-            this.availableLessons = lessons.filter((lesson: any) => 
-              lesson.status === 'confirmed' && 
-              new Date(lesson.scheduledAt) >= new Date()
-            );
+            this.availableLessons = lessons.filter((lesson: unknown) => {
+              const lessonData = lesson as {status?: string, scheduledAt?: string};
+              return lessonData.status === 'confirmed' && 
+                     lessonData.scheduledAt && 
+                     new Date(lessonData.scheduledAt) >= new Date();
+            }) as Lesson[];
             console.log('✅ Уроки преподавателя загружены:', this.availableLessons);
           },
-          error: (error: any) => {
+          error: (error: unknown) => {
             console.error('❌ Ошибка загрузки уроков преподавателя:', error);
             this.availableLessons = [];
           }
@@ -513,8 +531,9 @@ export class TrainerComponent implements OnInit {
 
   // ==================== FILE UPLOAD METHODS ====================
   
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
+  onFileSelected(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
     if (file) {
       this.handleFileSelection(file);
     }
@@ -633,9 +652,9 @@ export class TrainerComponent implements OnInit {
 
       // Определяем courseId - используем числовой ID или ID по умолчанию
       let courseId: string;
-      if (this.currentUser?.courseId && !isNaN(Number(this.currentUser.courseId))) {
+      if (this.currentUser?.['courseId'] && !isNaN(Number(this.currentUser['courseId']))) {
         // Если есть числовой courseId в профиле пользователя
-        courseId = this.currentUser.courseId.toString();
+        courseId = this.currentUser['courseId'].toString();
       } else if (this.currentUser?.id && !isNaN(Number(this.currentUser.id))) {
         // Используем ID пользователя как courseId
         courseId = this.currentUser.id.toString();
@@ -701,7 +720,7 @@ export class TrainerComponent implements OnInit {
         ...this.newMaterial,
         content: contentUrl,
         createdBy: this.currentUser?.id || '',
-        createdByName: `${this.currentUser?.name || ''} ${this.currentUser?.surname || ''}`.trim(),
+        createdByName: `${this.currentUser?.name || ''} ${this.currentUser?.['surname'] || ''}`.trim(),
         tags: this.newMaterial.tags.filter(tag => tag.trim() !== '')
       };
 
@@ -814,7 +833,7 @@ export class TrainerComponent implements OnInit {
       description: this.newHomework.description,
       dueDate: this.newHomework.dueDate,
       assignedBy: this.currentUser.id,
-      assignedTo: this.isTeacher() ? selectedLesson.studentId : selectedLesson.teacherId,
+      assignedTo: this.isTeacher() ? (selectedLesson as {studentId?: string})['studentId'] || '' : (selectedLesson as {teacherId?: string})['teacherId'] || '',
       lessonId: this.newHomework.lessonId,
       materialIds: this.newHomework.materialIds
     };
@@ -869,7 +888,7 @@ export class TrainerComponent implements OnInit {
       materialId: this.selectedMaterial.id,
       lessonId: lessonId,
       teacherId: this.currentUser?.id || '',
-      studentId: lesson.studentId
+      studentId: (lesson as {studentId?: string}).studentId || ''
     };
 
     console.log('🔗 Попытка прикрепить материал:', {
@@ -891,13 +910,13 @@ export class TrainerComponent implements OnInit {
         this.closeAttachModal();
         this.loadMaterials();
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         console.error('❌ Erreur lors de l\'attachement:', error);
         console.error('❌ Детали ошибки прикрепления:', {
           request: request,
           error: error,
-          errorMessage: error.message,
-          errorStatus: error.status
+          errorMessage: (error as {message?: string}).message || 'Unknown error',
+          errorStatus: (error as {status?: number}).status || 0
         });
         this.notificationService.error('Erreur lors de l\'attachement du matériel au cours');
       }
@@ -911,11 +930,12 @@ export class TrainerComponent implements OnInit {
 
   // ==================== UTILITY METHODS ====================
 
-  addTag(event: any) {
-    const tag = event.target.value.trim();
+  addTag(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const tag = target.value.trim();
     if (tag && !this.newMaterial.tags.includes(tag)) {
       this.newMaterial.tags.push(tag);
-      event.target.value = '';
+      target.value = '';
     }
   }
 
@@ -938,8 +958,9 @@ export class TrainerComponent implements OnInit {
 
   // ==================== HOMEWORK HELPERS ====================
 
-  toggleMaterialForHomework(materialId: string, event: any) {
-    if (event.target.checked) {
+  toggleMaterialForHomework(materialId: string, event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.checked) {
       if (!this.newHomework.materialIds.includes(materialId)) {
         this.newHomework.materialIds.push(materialId);
       }
@@ -1223,11 +1244,12 @@ export class TrainerComponent implements OnInit {
     console.log('⏸️ Audio mis en pause:', material.title);
   }
 
-  playAudioManually(audioElement: any, material: any): void {
+  playAudioManually(audioElement: unknown, material: Material): void {
     console.log('🎵 Forçage lecture audio pour:', material.title);
-    if (audioElement && audioElement.nativeElement) {
-      const audio = audioElement.nativeElement;
-      audio.play().catch((error: any) => {
+    const audioElementRef = audioElement as {nativeElement?: HTMLAudioElement};
+    if (audioElementRef && audioElementRef.nativeElement) {
+      const audio = audioElementRef.nativeElement;
+      audio.play().catch((error: unknown) => {
         console.error('❌ Erreur lecture audio:', error);
         this.notificationService.error('Erreur lors de la lecture audio');
       });
@@ -1262,7 +1284,7 @@ export class TrainerComponent implements OnInit {
     // 4. Audio Context (Web Audio API)
     try {
       if (typeof window !== 'undefined' && 'AudioContext' in window) {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const audioContext = new (window.AudioContext || (window as {webkitAudioContext?: typeof AudioContext}).webkitAudioContext || AudioContext)();
         console.log('🎵 AudioContext State:', audioContext.state);
         console.log('🎵 AudioContext Sample Rate:', audioContext.sampleRate);
         
@@ -1279,9 +1301,9 @@ export class TrainerComponent implements OnInit {
     // 5. Permissions et politiques
     if ('permissions' in navigator) {
       try {
-        const result = await (navigator.permissions as any).query({ name: 'autoplay' });
+        const result = await (navigator.permissions as {query: (descriptor: {name: string}) => Promise<{state: string}>}).query({ name: 'autoplay' });
         console.log('🔒 Permission autoplay:', result.state);
-      } catch (permError) {
+      } catch {
         console.log('🔒 Impossible de vérifier les permissions autoplay');
       }
     }
@@ -1300,12 +1322,12 @@ export class TrainerComponent implements OnInit {
       
       // Test no-cors
       try {
-        const noCorsResponse = await fetch(material.content, { 
+        const _noCorsResponse = await fetch(material.content, { 
           method: 'HEAD',
           mode: 'no-cors' 
         });
         console.log('✅ No-CORS fonctionne');
-      } catch (noCorsError) {
+      } catch {
         console.log('❌ No-CORS aussi échoue');
       }
     }
@@ -1322,7 +1344,7 @@ export class TrainerComponent implements OnInit {
     console.log('🔍 === FIN DIAGNOSTIC ===');
   }
 
-  getDiagnosticInfo(audioElement: HTMLAudioElement, error: any): string {
+  getDiagnosticInfo(audioElement: HTMLAudioElement, error: unknown): string {
     const diagnostics = [];
     
     // État de l'élément audio
@@ -1333,8 +1355,9 @@ export class TrainerComponent implements OnInit {
     diagnostics.push(`Duration: ${audioElement.duration}`);
     
     // Type d'erreur
-    if (error.name) diagnostics.push(`Error: ${error.name}`);
-    if (error.message) diagnostics.push(`Message: ${error.message}`);
+    const errorObj = error as {name?: string, message?: string};
+    if (errorObj.name) diagnostics.push(`Error: ${errorObj.name}`);
+    if (errorObj.message) diagnostics.push(`Message: ${errorObj.message}`);
     
     return diagnostics.join(' | ');
   }
@@ -1422,16 +1445,17 @@ export class TrainerComponent implements OnInit {
     for (const lessonId of material.attachedLessons) {
       const lesson = this.availableLessons.find(l => l.id === lessonId);
       if (lesson) {
-        const date = new Date(lesson.scheduledAt).toLocaleDateString('fr-FR', {
+        const lessonData = lesson as {scheduledAt?: string, teacherName?: string, studentName?: string};
+        const date = new Date(lessonData.scheduledAt || new Date()).toLocaleDateString('fr-FR', {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric'
         });
-        const time = new Date(lesson.scheduledAt).toLocaleTimeString('fr-FR', {
+        const time = new Date(lessonData.scheduledAt || new Date()).toLocaleTimeString('fr-FR', {
           hour: '2-digit',
           minute: '2-digit'
         });
-        const teacherName = lesson.teacherName || lesson.studentName || 'Inconnu';
+        const teacherName = lessonData.teacherName || lessonData.studentName || 'Inconnu';
         lessonInfos.push(`${date} à ${time} avec ${teacherName}`);
       }
     }
@@ -1761,7 +1785,7 @@ export class TrainerComponent implements OnInit {
     this.isSubmittingGrade = false;
   }
 
-  onGradeChange(value: any): void {
+  onGradeChange(value: unknown): void {
     // Убеждаемся что grade это число, а не строка
     this.gradingData.grade = value === null || value === undefined || value === '' ? null : Number(value);
     console.log('🎯 Grade changed:', {
@@ -1892,5 +1916,34 @@ export class TrainerComponent implements OnInit {
       dueDate: homework.dueDate,
       assignedAt: homework.assignedAt
     });
+  }
+
+  // Helper методы для форматирования дат в шаблоне
+  getFormattedDate(date: unknown): string {
+    if (!date) return '';
+    try {
+      return new Date(date as string | Date).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric'
+      });
+    } catch {
+      return '';
+    }
+  }
+
+  getFormattedDateTime(date: unknown): string {
+    if (!date) return '';
+    try {
+      return new Date(date as string | Date).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '';
+    }
   }
 }

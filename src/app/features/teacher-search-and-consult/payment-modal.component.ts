@@ -4,7 +4,28 @@ import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { TeacherDetails } from './teacher-details.model';
 
-declare var Stripe: any;
+interface StripeInterface {
+  elements: () => unknown;
+  confirmCardPayment: (secret: string, config: unknown) => Promise<unknown>;
+  [key: string]: unknown;
+}
+
+interface PaymentData {
+  id: string;
+  status: string;
+  amount: number;
+  [key: string]: unknown;
+}
+
+interface PaymentIntent {
+  id: string;
+  client_secret: string;
+  amount: number;
+  status: string;
+  [key: string]: unknown;
+}
+
+declare const Stripe: (key: string) => StripeInterface;
 
 @Component({
   selector: 'app-payment-modal',
@@ -17,7 +38,7 @@ export class PaymentModalComponent implements OnInit {
   @Input() selectedDate: Date = new Date();
   @Input() selectedTime: string = '';
   @Input() lessonDuration: number = 60; // в минутах
-  @Output() paymentSuccess = new EventEmitter<any>();
+  @Output() paymentSuccess = new EventEmitter<PaymentData>();
   @Output() paymentCancel = new EventEmitter<void>();
 
   showPaymentModal = false;
@@ -25,12 +46,12 @@ export class PaymentModalComponent implements OnInit {
   paymentProcessing = false;
   
   // Stripe
-  stripe: any;
-  elements: any;
-  cardElement: any;
+  stripe: StripeInterface | null = null;
+  elements: unknown = null;
+  cardElement: unknown = null;
   
   // Payment data
-  paymentIntent: any = null;
+  paymentIntent: PaymentIntent | null = null;
   clientSecret: string = '';
   paymentId: string = '';
 
@@ -59,7 +80,7 @@ export class PaymentModalComponent implements OnInit {
     this.elements = this.stripe.elements();
     
     // Создаем элемент карты
-    this.cardElement = this.elements.create('card', {
+    this.cardElement = (this.elements as {create: Function}).create('card', {
       style: {
         base: {
           fontSize: '16px',
@@ -89,7 +110,7 @@ export class PaymentModalComponent implements OnInit {
     // Монтируем карту после инициализации компонента
     setTimeout(() => {
       if (this.cardElement) {
-        this.cardElement.mount('#card-element');
+        (this.cardElement as {mount: Function}).mount('#card-element');
         console.log('🔍 PaymentModal: Карта смонтирована');
       } else {
         console.error('❌ cardElement не найден');
@@ -128,9 +149,10 @@ export class PaymentModalComponent implements OnInit {
       return;
     }
 
-    const amount = this.teacher.price * (this.lessonDuration / 60); // Цена за час * продолжительность в часах
+    const teacherPrice = (this.teacher as {price?: number}).price || 0;
+    const amount = teacherPrice * (this.lessonDuration / 60); // Цена за час * продолжительность в часах
     console.log('🔍 amount:', amount);
-    console.log('🔍 teacher.price:', this.teacher.price);
+    console.log('🔍 teacher.price:', teacherPrice);
     console.log('🔍 lessonDuration:', this.lessonDuration);
     
     const paymentData: CreatePaymentIntentDto = {
@@ -152,14 +174,14 @@ export class PaymentModalComponent implements OnInit {
     this.paymentService.createPaymentIntent(paymentData).subscribe({
       next: (response) => {
         console.log('✅ Payment intent создан:', response);
-        this.paymentIntent = response;
-        this.clientSecret = response.clientSecret;
-        this.paymentId = response.paymentId;
+        this.paymentIntent = response as unknown as PaymentIntent;
+        this.clientSecret = (response as {clientSecret?: string}).clientSecret || '';
+        this.paymentId = (response as {paymentId?: string}).paymentId || '';
         this.isLoading = false;
         
         // Рендерим элемент карты после получения client secret
         setTimeout(() => {
-          this.cardElement.mount('#card-element');
+          (this.cardElement as {mount: Function}).mount('#card-element');
           console.log('🔍 Карта смонтирована');
         }, 100);
       },
@@ -187,32 +209,33 @@ export class PaymentModalComponent implements OnInit {
     console.log('🔍 Начинаем обработку платежа...');
 
     try {
-      const { error, paymentIntent } = await this.stripe.confirmCardPayment(this.clientSecret, {
+      const result = await this.stripe?.confirmCardPayment(this.clientSecret, {
         payment_method: {
-          card: this.cardElement,
+          card: this.cardElement!,
           billing_details: {
             name: this.authService.getCurrentUser()?.name || '',
             email: this.authService.getCurrentUser()?.email || ''
           }
         }
-      });
+      }) as unknown as {error?: unknown, paymentIntent?: unknown};
+      const { error, paymentIntent } = result;
 
       console.log('🔍 Stripe response:', { error, paymentIntent });
 
       if (error) {
         console.error('❌ Erreur de paiement:', error);
-        this.notificationService.error(`Erreur de paiement: ${error.message}`);
+        this.notificationService.error(`Erreur de paiement: ${(error as {message?: string}).message || 'Erreur inconnue'}`);
         this.paymentProcessing = false;
         return;
       }
 
-      if (paymentIntent.status === 'succeeded') {
+      if ((paymentIntent as {status?: string})?.status === 'succeeded') {
         console.log('✅ Платеж успешен через Stripe');
         
         // Подтверждаем платеж на бэкенде для обновления статуса в БД
         const confirmData: ConfirmPaymentDto = {
-          paymentIntentId: paymentIntent.id,
-          paymentMethodId: paymentIntent.payment_method
+          paymentIntentId: (paymentIntent as {id?: string}).id || '',
+          paymentMethodId: (paymentIntent as {payment_method?: string}).payment_method || ''
         };
 
         this.paymentService.confirmPayment(confirmData).subscribe({
@@ -222,7 +245,7 @@ export class PaymentModalComponent implements OnInit {
             this.paymentSuccess.emit({
               paymentId: this.paymentId,
               paymentIntent: paymentIntent
-            });
+            } as unknown as PaymentData);
             this.closePaymentModal();
           },
           error: (error) => {
@@ -232,7 +255,7 @@ export class PaymentModalComponent implements OnInit {
             this.paymentSuccess.emit({
               paymentId: this.paymentId,
               paymentIntent: paymentIntent
-            });
+            } as unknown as PaymentData);
             this.closePaymentModal();
           },
           complete: () => {
@@ -240,7 +263,7 @@ export class PaymentModalComponent implements OnInit {
           }
         });
       } else {
-        console.log('⚠️ Платеж требует дополнительных действий:', paymentIntent.status);
+        console.log('⚠️ Платеж требует дополнительных действий:', (paymentIntent as {status?: string})?.status);
         this.notificationService.warning('Le paiement nécessite une action supplémentaire');
         this.paymentProcessing = false;
       }
@@ -267,7 +290,7 @@ export class PaymentModalComponent implements OnInit {
     this.paymentSuccess.emit({
       paymentId: 'test-payment-id',
       paymentIntent: { id: 'test-intent-id' }
-    });
+    } as unknown as PaymentData);
     this.closePaymentModal();
   }
 } 

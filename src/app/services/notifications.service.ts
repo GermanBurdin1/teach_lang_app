@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+
+interface NotificationResponse {
+  success: boolean;
+  notification?: unknown;
+  [key: string]: unknown;
+}
 import { Notification } from '../models/notification.model';
 
 @Injectable({ providedIn: 'root' })
@@ -17,17 +23,17 @@ export class NotificationService {
       );
   }
 
-  updateNotificationStatus(id: string, status: 'accepted' | 'rejected'): Observable<any> {
+  updateNotificationStatus(id: string, status: 'accepted' | 'rejected'): Observable<NotificationResponse> {
     console.log('[NotificationService][FRONT] updateNotificationStatus called with id:', id, 'status:', status);
-    return this.http.patch(`${this.baseUrl}/${id}`, { status });
+    return this.http.patch<NotificationResponse>(`${this.baseUrl}/${id}`, { status });
   }
 
   markAsRead(notificationId: string): Observable<void> {
     return this.http.patch<void>(`http://localhost:3004/notifications/${notificationId}/read`, {});
   }
 
-  getConfirmedLessons(studentId: string): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:3001/lessons/student/${studentId}/confirmed-lessons`);
+  getConfirmedLessons(studentId: string): Observable<unknown[]> {
+    return this.http.get<unknown[]>(`http://localhost:3001/lessons/student/${studentId}/confirmed-lessons`);
   }
 
   hideNotification(notificationId: string): Observable<void> {

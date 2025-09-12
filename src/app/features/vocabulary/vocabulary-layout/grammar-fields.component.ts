@@ -43,9 +43,9 @@ export class GrammarFieldsComponent {
     this.grammarChange.emit(newGrammar); // ✅
   }
 
-  updateField(key: string, value: any) {
+  updateField(key: string, value: unknown) {
     if (!this.grammar) return;
-    (this.grammar as any)[key] = value;
+    (this.grammar as unknown as Record<string, unknown>)[key] = value;
     this.grammarChange.emit(this.grammar); // ✅
   }
 

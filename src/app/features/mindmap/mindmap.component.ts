@@ -102,8 +102,8 @@ export class MindmapComponent implements OnInit {
   addChild(data: { parent: MindmapNode }): void {
     const { parent } = data;
 
-    const GAP_X = 50;
-    const NODE_WIDTH = 200;
+    const _GAP_X = 50;
+    const _NODE_WIDTH = 200;
 
     const siblings = this.nodes.filter(n => n.parentId === parent.id);
     const index = siblings.length;
@@ -131,7 +131,7 @@ export class MindmapComponent implements OnInit {
       x: 0,
       y: 0,
       expanded: true,
-      width: NODE_WIDTH,
+      width: _NODE_WIDTH,
       height: 0,
       side,
       rule: '',
@@ -277,9 +277,9 @@ export class MindmapComponent implements OnInit {
    * on both the left and right sides of the root node.
    */
   private updateLayout(): void {
-    const GAP_X = 50;
-    const GAP_Y = 30;
-    const NODE_WIDTH = 200;
+    const _GAP_X = 50;
+    const _GAP_Y = 30;
+    const _NODE_WIDTH = 200;
 
     const layoutSubtree = (parent: MindmapNode) => {
       const children = this.nodes.filter(n => n.parentId === parent.id);
@@ -424,7 +424,7 @@ export class MindmapComponent implements OnInit {
         this.offsetX -= step;
         event.preventDefault();
         break;
-      case 'Backspace':
+      case 'Backspace': {
         // Не удалять узел, если пользователь в модалке
         const active = document.activeElement;
         if (
@@ -437,6 +437,7 @@ export class MindmapComponent implements OnInit {
         this.deleteSelectedNodes();
         event.preventDefault();
         break;
+      }
 
       case '1':
         this.centerMindmap();
@@ -664,7 +665,7 @@ export class MindmapComponent implements OnInit {
 
     const canvasRect = canvas.getBoundingClientRect();
     const offset = 10;
-    const style: any = {};
+    const style: Record<string, string> = {};
 
     // Реальные координаты с учётом масштабирования
     const scaledX = node.x * this.zoomLevel + canvasRect.left;
@@ -672,26 +673,28 @@ export class MindmapComponent implements OnInit {
     const width = node.width * this.zoomLevel;
     const height = node.height * this.zoomLevel;
 
+    const styleObj = style as {[key: string]: string};
+    
     switch (type) {
       case 'rule':
-        style.left = `${scaledX + width / 2}px`;
-        style.top = `${scaledY + height + offset}px`;
-        style.transform = 'translateX(-50%)';
+        styleObj['left'] = `${scaledX + width / 2}px`;
+        styleObj['top'] = `${scaledY + height + offset}px`;
+        styleObj['transform'] = 'translateX(-50%)';
         break;
       case 'exception':
-        style.left = `${scaledX + width / 2}px`;
-        style.top = `${scaledY - offset}px`;
-        style.transform = 'translate(-50%, -100%)';
+        styleObj['left'] = `${scaledX + width / 2}px`;
+        styleObj['top'] = `${scaledY - offset}px`;
+        styleObj['transform'] = 'translate(-50%, -100%)';
         break;
       case 'example':
-        style.left = `${scaledX + width + offset}px`;
-        style.top = `${scaledY + height / 2}px`;
-        style.transform = 'translateY(-50%)';
+        styleObj['left'] = `${scaledX + width + offset}px`;
+        styleObj['top'] = `${scaledY + height / 2}px`;
+        styleObj['transform'] = 'translateY(-50%)';
         break;
       case 'exercise':
-        style.left = `${scaledX - offset}px`;
-        style.top = `${scaledY + height / 2}px`;
-        style.transform = 'translateX(-100%) translateY(-50%)';
+        styleObj['left'] = `${scaledX - offset}px`;
+        styleObj['top'] = `${scaledY + height / 2}px`;
+        styleObj['transform'] = 'translateX(-100%) translateY(-50%)';
         break;
     }
 

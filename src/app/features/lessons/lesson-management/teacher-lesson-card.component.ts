@@ -10,7 +10,7 @@ import { AuthService } from '../../../services/auth.service';
   styleUrls: ['./teacher-lesson-card.component.css']
 })
 export class TeacherLessonCardComponent {
-  @Input() lesson: any;
+  @Input() lesson: unknown;
   @Input() lessonId!: string;
   @Input() taskDropIds: string[] = [];
   @Output() itemDropped = new EventEmitter<{ from: string, to: string, item: string }>();
@@ -30,7 +30,7 @@ export class TeacherLessonCardComponent {
     const toId = this.extractLessonIdFromDropListId(event.container.id);
 
     const isSame = fromId === toId;
-    const isFuture = this.lesson.status === 'future';
+    const isFuture = (this.lesson as {status?: string})?.status === 'future';
 
     if (isSame && isFuture) {
       const list = event.container.data;
@@ -55,12 +55,18 @@ export class TeacherLessonCardComponent {
   addTask(): void {
     const task = this.newTask?.trim();
     if (!task) return;
-    this.lesson.tasks.push(task);
+    const lessonWithTasks = this.lesson as {tasks?: string[]};
+    if (lessonWithTasks?.tasks) {
+      lessonWithTasks.tasks.push(task);
+    }
     this.newTask = '';
   }
 
   removeTask(index: number): void {
-    this.lesson.tasks.splice(index, 1);
+    const lessonWithTasks = this.lesson as {tasks?: string[]};
+    if (lessonWithTasks?.tasks) {
+      lessonWithTasks.tasks.splice(index, 1);
+    }
   }
 
 
@@ -71,12 +77,13 @@ export class TeacherLessonCardComponent {
   // Проверка можно ли войти в класс (только для confirmed уроков в тот же день)
   canEnterClass(): boolean {
     // Проверяем статус - можно войти только в confirmed уроки (одобренные преподавателем)
-    if (this.lesson.status !== 'confirmed') {
+    if ((this.lesson as {status?: string})?.status !== 'confirmed') {
       return false;
     }
 
     const now = new Date();
-    const lessonTime = new Date(this.lesson.scheduledAt || this.lesson.date);
+    const lessonWithTime = this.lesson as {scheduledAt?: string | Date, date?: string | Date};
+    const lessonTime = new Date(lessonWithTime?.scheduledAt || lessonWithTime?.date || new Date());
     
     // Проверяем что урок в тот же день
     const isSameDay = now.getFullYear() === lessonTime.getFullYear() &&
@@ -97,14 +104,69 @@ export class TeacherLessonCardComponent {
     if (!currentUserId) return;
 
     // Устанавливаем данные урока в VideoCallService
-    this.videoCallService.setLessonData(this.lesson.id, currentUserId);
+    this.videoCallService.setLessonData(String((this.lesson as {id: unknown}).id), currentUserId);
     
-    this.router.navigate([`/classroom/${this.lesson.id}/lesson`], {
+    this.router.navigate([`/classroom/${(this.lesson as {id: unknown}).id}/lesson`], {
       queryParams: { startCall: true }
     });
   }
 
   toggleTasksCollapsed(): void {
     this.collapsedTasks = !this.collapsedTasks;
+  }
+
+  // Helper методы для шаблона (без as any)
+  getLessonTeacher(): string {
+    const teacher = (this.lesson as {teacher?: string})?.teacher;
+    const studentName = (this.lesson as {studentName?: string})?.studentName;
+    return teacher || studentName || 'Étudiant';
+  }
+
+  getLessonFormattedDate(): string {
+    const date = (this.lesson as {date?: string | Date})?.date;
+    const scheduledAt = (this.lesson as {scheduledAt?: string | Date})?.scheduledAt;
+    const targetDate = date || scheduledAt;
+    
+    if (!targetDate) return '';
+    
+    try {
+      return new Date(targetDate).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch {
+      return '';
+    }
+  }
+
+  getLessonTasksCount(): number {
+    const tasks = (this.lesson as {tasks?: unknown[]})?.tasks;
+    return tasks?.length || 0;
+  }
+
+  getLessonQuestionsCount(): number {
+    const questions = (this.lesson as {questions?: unknown[]})?.questions;
+    return questions?.length || 0;
+  }
+
+  getLessonMaterialsCount(): number {
+    const materials = (this.lesson as {materials?: unknown[]})?.materials;
+    return materials?.length || 0;
+  }
+
+  getTasksDropListId(): string {
+    const id = (this.lesson as {id?: string})?.id;
+    return `tasks-${id || ''}`;
+  }
+
+  getLessonTasks(): string[] {
+    const tasks = (this.lesson as {tasks?: unknown[]})?.tasks || [];
+    return tasks.map(task => String(task));
+  }
+
+  isLessonPast(): boolean {
+    const status = (this.lesson as {status?: string})?.status;
+    return status === 'past';
   }
 }

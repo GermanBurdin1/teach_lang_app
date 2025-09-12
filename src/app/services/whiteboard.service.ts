@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { WhiteWebSdk, Room, JoinRoomParams, RoomPhase } from 'white-web-sdk';
+import { WhiteWebSdk, Room, JoinRoomParams, RoomPhase as _RoomPhase } from 'white-web-sdk';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environment';

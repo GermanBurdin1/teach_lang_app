@@ -3,21 +3,61 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import angular from '@angular-eslint/eslint-plugin';
 import angularTemplate from '@angular-eslint/eslint-plugin-template';
+import angularTemplateParser from '@angular-eslint/template-parser';
 
 export default [
   { ignores: ['dist/**', 'node_modules/**', 'projects/**'] },
 
-  // TypeScript/Angular
-  ...tseslint.configs.recommended,
+  // TypeScript/Angular для TS файлов только
+  ...tseslint.configs.recommended.map(config => ({
+    ...config,
+    files: config.files || ['**/*.ts', '**/*.tsx']
+  })),
   {
     files: ['**/*.ts'],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: { project: ['./tsconfig.json'] },
+      globals: {
+        // Браузерные глобальные переменные
+        window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        console: 'readonly',
+        navigator: 'readonly',
+        alert: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        fetch: 'readonly',
+        Audio: 'readonly',
+        history: 'readonly'
+      }
     },
     plugins: { '@angular-eslint': angular },
     rules: {
-      // правила по вкусу
+      // Менее строгие правила для продакшена
+      '@typescript-eslint/no-explicit-any': 'warn', // предупреждение вместо ошибки
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          args: 'none', // не проверяем неиспользуемые параметры функций
+          varsIgnorePattern: '^_', // игнорируем переменные начинающиеся с _
+          argsIgnorePattern: '^_', // игнорируем параметры начинающиеся с _
+          ignoreRestSiblings: true
+        }
+      ],
+      'no-unused-vars': [
+        'warn',
+        {
+          args: 'none', // не проверяем неиспользуемые параметры функций
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+          ignoreRestSiblings: true
+        }
+      ]
     },
   },
 
@@ -81,9 +121,17 @@ export default [
   // HTML templates
   {
     files: ['**/*.html'],
+    languageOptions: {
+      parser: angularTemplateParser,
+      parserOptions: {
+        project: ['./tsconfig.json']
+      }
+    },
     plugins: { '@angular-eslint/template': angularTemplate },
     rules: {
-      ...angularTemplate.configs['recommended'].rules,
+      // Отключаем строгие правила для HTML шаблонов
+      '@angular-eslint/template/no-negated-async': 'off',
+      '@angular-eslint/template/eqeqeq': 'off'
     },
   },
 

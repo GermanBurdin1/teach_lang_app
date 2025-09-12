@@ -10,6 +10,36 @@ import { LessonNotesService, LessonNote, LessonNotesData } from '../../../servic
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../../services/lesson-tabs.service';
 
+interface _Task {
+  id: string;
+  lessonId: string;
+  title: string;
+  createdByRole: string;
+  [key: string]: unknown;
+}
+
+interface _Question {
+  id: string;
+  question: string;
+  createdByRole: string;
+  [key: string]: unknown;
+}
+
+interface _Material {
+  id: string;
+  type: string;
+  title?: string;
+  [key: string]: unknown;
+}
+
+interface _HomeworkItem {
+  id?: string;
+  title: string;
+  description?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
 interface Task {
   id: string;
   lessonId: string;
@@ -87,8 +117,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   newTaskDescription = '';
   
   // Домашние задания и заметки
-  homeworkItems: any[] = [];
-  lessonNotes: any = null;
+  homeworkItems: _HomeworkItem[] = [];
+  lessonNotes: unknown = null;
   
   // Загрузка
   loading = false;
@@ -105,7 +135,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   resolvedItemsPerLesson: { [key: string]: string[] } = {};
   questionDropListIds: string[] = [];
   taskDropListIds: string[] = [];
-  activeLesson: any = null;
+  activeLesson: unknown = null;
 
   private subscriptions: Subscription[] = [];
 
@@ -197,12 +227,15 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe({
       next: async (lessons) => {
-        this.lessons = lessons.map(lesson => ({
-          ...lesson,
-          tasks: lesson.tasks || [],
-          questions: lesson.questions || [],
-          materials: lesson.materials || []
-        }));
+        this.lessons = lessons.map(lesson => {
+          const lessonData = lesson as {tasks?: unknown[], questions?: unknown[], materials?: unknown[]};
+          return {
+            ...(lesson as object),
+            tasks: lessonData.tasks || [],
+            questions: lessonData.questions || [],
+            materials: lessonData.materials || []
+          };
+        }) as Lesson[];
         
         // Загружаем задачи, вопросы и материалы для каждого урока
         for (const lesson of this.lessons) {
@@ -213,8 +246,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
               this.getMaterialsForLesson(lesson.id)
             ]);
             
-            lesson.tasks = tasks || [];
-            lesson.questions = questions || [];
+            lesson.tasks = (tasks || []) as Task[];
+            lesson.questions = (questions || []) as Question[];
             lesson.materials = materials || [];
             
             console.log(`📊 Урок ${lesson.id}: ${lesson.tasks.length} задач, ${lesson.questions.length} вопросов, ${lesson.materials.length} материалов`);
@@ -257,7 +290,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
       // Если урока нет в списке, загружаем через API
       this.lessonService.getLessonDetails(lessonId).subscribe({
         next: (lesson) => {
-          this.currentLesson = lesson;
+          this.currentLesson = lesson as unknown as Lesson;
           this.highlightedLessonId = lessonId;
           
                 // Загружаем задачи, вопросы, домашние задания и заметки
@@ -285,8 +318,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
       this.loadLessonNotes(lessonId)
     ]).then(([tasks, questions, materials, homeworkItems, lessonNotes]) => {
       if (this.currentLesson) {
-        this.currentLesson.tasks = tasks || [];
-        this.currentLesson.questions = questions || [];
+        this.currentLesson.tasks = (tasks || []) as Task[];
+        this.currentLesson.questions = (questions || []) as Question[];
         this.currentLesson.materials = materials || [];
       }
       this.loading = false;
@@ -364,13 +397,13 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     this.lessonService.addTaskToLesson(taskData).subscribe({
       next: (newTask) => {
         if (this.currentLesson) {
-          this.currentLesson.tasks.push(newTask);
+          this.currentLesson.tasks.push(newTask as unknown as Task);
         }
         
         // ✅ ВАЖНО: Обновляем задачи и в списке уроков для счетчиков
         const lessonInList = this.lessons.find(l => l.id === this.currentLesson!.id);
         if (lessonInList) {
-          lessonInList.tasks.push(newTask);
+          lessonInList.tasks.push(newTask as unknown as Task);
           console.log(`✅ Задача добавлена в список уроков. Новый счетчик: ${lessonInList.tasks.length}`);
         }
         
@@ -598,7 +631,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     // Реализовать при необходимости
   }
 
-  openGabarit(lesson: any) {
+  openGabarit(lesson: unknown) {
     this.activeLesson = lesson;
   }
 
@@ -610,11 +643,11 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     return [];
   }
 
-  onItemDropped(event: any) {
+  onItemDropped(event: unknown) {
     // Реализовать при необходимости
   }
 
-  addToHomework(item: any) {
+  addToHomework(item: unknown) {
     // Реализовать при необходимости
   }
 
@@ -653,10 +686,13 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
       this.getMaterialsForLesson(lesson.id)
     ]);
 
-    const studentTasks = (tasks || []).filter((t: any) => t.createdByRole === 'student').map((t: any) => ({ id: t.id, title: t.title }));
-    const teacherTasks = (tasks || []).filter((t: any) => t.createdByRole === 'teacher').map((t: any) => ({ id: t.id, title: t.title }));
-    const studentQuestions = (questions || []).filter((q: any) => q.createdByRole === 'student').map((q: any) => ({ id: q.id, question: q.question }));
-    const teacherQuestions = (questions || []).filter((q: any) => q.createdByRole === 'teacher').map((q: any) => ({ id: q.id, question: q.question }));
+    const tasksArray = (tasks || []) as unknown[];
+    const questionsArray = (questions || []) as unknown[];
+    
+    const studentTasks = tasksArray.filter((t: unknown) => (t as {createdByRole?: string}).createdByRole === 'student').map((t: unknown) => ({ id: (t as {id?: string}).id || '', title: (t as {title?: string}).title || '' }));
+    const teacherTasks = tasksArray.filter((t: unknown) => (t as {createdByRole?: string}).createdByRole === 'teacher').map((t: unknown) => ({ id: (t as {id?: string}).id || '', title: (t as {title?: string}).title || '' }));
+    const studentQuestions = questionsArray.filter((q: unknown) => (q as {createdByRole?: string}).createdByRole === 'student').map((q: unknown) => ({ id: (q as {id?: string}).id || '', question: (q as {question?: string}).question || '' }));
+    const teacherQuestions = questionsArray.filter((q: unknown) => (q as {createdByRole?: string}).createdByRole === 'teacher').map((q: unknown) => ({ id: (q as {id?: string}).id || '', question: (q as {question?: string}).question || '' }));
 
     this.lessonTabsService.setCurrentLessonData({
       id: lesson.id,
@@ -666,9 +702,9 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
       studentQuestions: studentQuestions,
       teacherQuestions: teacherQuestions,
       materials: materials,
-      texts: materials.filter((m: any) => m.type === 'text'),
-      audios: materials.filter((m: any) => m.type === 'audio'),
-      videos: materials.filter((m: any) => m.type === 'video'),
+      texts: (materials as unknown[]).filter((m: unknown) => (m as {type?: string}).type === 'text'),
+      audios: (materials as unknown[]).filter((m: unknown) => (m as {type?: string}).type === 'audio'),
+      videos: (materials as unknown[]).filter((m: unknown) => (m as {type?: string}).type === 'video'),
       homework: []
     });
 
@@ -737,7 +773,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
 
   // ==================== МЕТОДЫ ДЛЯ ДОМАШНИХ ЗАДАНИЙ ====================
   
-  loadHomeworkItems(lessonId: string): Promise<any[]> {
+  loadHomeworkItems(lessonId: string): Promise<_HomeworkItem[]> {
     console.log('📋 Начинаем загрузку домашних заданий для урока:', lessonId);
     
     return this.homeworkService.getHomeworkForLesson(lessonId).toPromise().then(
@@ -779,7 +815,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
 
   // ==================== МЕТОДЫ ДЛЯ ЗАМЕТОК ====================
   
-  async loadLessonNotes(lessonId: string): Promise<any> {
+  async loadLessonNotes(lessonId: string): Promise<unknown> {
     console.log('📝 Начинаем загрузку заметок для урока:', lessonId);
     
     try {
@@ -830,7 +866,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   }
 
   // Новый метод для структурированных заметок
-  private extractStructuredNotes(notes: LessonNote[]): any[] {
+  private extractStructuredNotes(notes: LessonNote[]): unknown[] {
     if (!notes || notes.length === 0) {
       return [];
     }
@@ -846,8 +882,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   hasNotesForSection(section: 'tasks' | 'questions' | 'materials'): boolean {
     if (!this.lessonNotes) return false;
     
-    const sectionNotes = this.lessonNotes[`${section}Notes`];
-    return sectionNotes && sectionNotes.length > 0;
+    const sectionNotes = (this.lessonNotes as {[key: string]: unknown})[`${section}Notes`];
+    return Boolean(sectionNotes && (sectionNotes as {length?: number})?.length && (sectionNotes as {length?: number}).length! > 0);
   }
 
   // Дополнительные методы для проверки заметок
@@ -906,7 +942,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   }
 
   // Получение заметки для элемента
-  getNoteForItem(section: 'tasks' | 'questions' | 'materials', itemIdentifier: string): any {
+  getNoteForItem(section: 'tasks' | 'questions' | 'materials', itemIdentifier: string): unknown {
     // Аналогично с isItemProcessed
     let itemId: string;
     if (section === 'tasks') {
@@ -974,5 +1010,73 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   // Проверка раскрыта ли панель материалов
   isMaterialExpanded(materialId: string): boolean {
     return this.expandedMaterials.has(materialId);
+  }
+
+  // Helper методы для шаблонов (без as any)
+  getNoteContent(section: 'tasks' | 'questions' | 'materials', itemKey: string): string {
+    const note = this.getNoteForItem(section, itemKey);
+    return (note as {content?: string})?.content || '';
+  }
+
+  getNoteUpdatedAt(section: 'tasks' | 'questions' | 'materials', itemKey: string): Date | null {
+    const note = this.getNoteForItem(section, itemKey);
+    return (note as {updatedAt?: Date})?.updatedAt || null;
+  }
+
+  getNotesCount(section: string): number {
+    const notes = (this.lessonNotes as {[key: string]: unknown})?.[`${section}Notes`];
+    return (notes as {length?: number})?.length || 0;
+  }
+
+  getNotesForSection(section: string): unknown[] {
+    const notes = (this.lessonNotes as {[key: string]: unknown})?.[`${section}Notes`];
+    return (notes as unknown[]) || [];
+  }
+
+  // Helper методы для note properties
+  getNoteItemText(note: unknown): string {
+    return (note as {itemText?: string})?.itemText || '';
+  }
+
+  getNoteFormattedDate(note: unknown): string {
+    const updatedAt = (note as {updatedAt?: Date | string})?.updatedAt;
+    if (!updatedAt) return '';
+    
+    try {
+      return new Date(updatedAt).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '';
+    }
+  }
+
+  getNoteContentText(note: unknown): string {
+    return (note as {content?: string})?.content || '';
+  }
+
+  // Helper методы для date formatting в templates
+  formatTaskCreatedAt(task: unknown): Date | null {
+    const date = (task as {createdAt?: string | Date})?.createdAt;
+    return date ? new Date(date) : null;
+  }
+
+  formatQuestionCreatedAt(question: unknown): Date | null {
+    const date = (question as {createdAt?: string | Date})?.createdAt;
+    return date ? new Date(date) : null;
+  }
+
+  formatHomeworkCreatedAt(homework: unknown): Date | null {
+    const date = (homework as {createdAt?: string | Date})?.['createdAt'];
+    return date ? new Date(date) : null;
+  }
+
+  formatHomeworkDueDate(homework: unknown): Date | null {
+    const date = (homework as {dueDate?: string | Date})?.['dueDate'];
+    return date ? new Date(date) : null;
   }
 }

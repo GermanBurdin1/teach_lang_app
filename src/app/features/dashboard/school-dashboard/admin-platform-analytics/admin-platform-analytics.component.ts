@@ -128,7 +128,7 @@ export class AdminPlatformAnalyticsComponent implements OnInit {
     return 'poor';
   }
 
-  get topLanguagePair(): any {
+  get topLanguagePair(): {pair: string, count: number} | null {
     return this.platformStats.topLanguagePairs.length > 0 ? this.platformStats.topLanguagePairs[0] : null;
   }
 

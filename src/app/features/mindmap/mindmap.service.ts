@@ -3,6 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { MindmapNode } from './models/mindmap-node.model'; // ✅ путь к твоей модели
 
+interface UpdateNodeResponse {
+  success: boolean;
+  message?: string;
+  [key: string]: unknown;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,16 +29,16 @@ export class MindmapService {
     return this.http.post<MindmapNode>(this.baseUrl, node);
   }
 
-  deleteNode(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  deleteNode(id: string): Observable<UpdateNodeResponse> {
+    return this.http.delete<UpdateNodeResponse>(`${this.baseUrl}/${id}`);
   }
 
   updateNodeText(
     nodeId: string,
     field: 'rule' | 'exception' | 'example' | 'exercise',
     content: string
-  ): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/${nodeId}`, {
+  ): Observable<UpdateNodeResponse> {
+    return this.http.patch<UpdateNodeResponse>(`${this.baseUrl}/${nodeId}`, {
       type: field,
       content
     });
@@ -47,24 +53,24 @@ export class MindmapService {
       side: 'left' | 'right';
       expanded: boolean;
     }
-  ): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/${nodeId}/position`, data);
+  ): Observable<UpdateNodeResponse> {
+    return this.http.patch<UpdateNodeResponse>(`${this.baseUrl}/${nodeId}/position`, data);
   }
 
-  saveAllPositions(nodes: { id: string; x: number; y: number }[]): Observable<any> {
-    return this.http.post(`${this.baseUrl}/save-positions`, { nodes });
+  saveAllPositions(nodes: { id: string; x: number; y: number }[]): Observable<UpdateNodeResponse> {
+    return this.http.post<UpdateNodeResponse>(`${this.baseUrl}/save-positions`, { nodes });
   }
 
-  updateTitle(id: string, title: string): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/${id}`, { title });
+  updateTitle(id: string, title: string): Observable<UpdateNodeResponse> {
+    return this.http.patch<UpdateNodeResponse>(`${this.baseUrl}/${id}`, { title });
   }
 
-  updateExpanded(id: string, expanded: boolean): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/${id}`, { expanded });
+  updateExpanded(id: string, expanded: boolean): Observable<UpdateNodeResponse> {
+    return this.http.patch<UpdateNodeResponse>(`${this.baseUrl}/${id}`, { expanded });
   }
 
-  bulkSave(nodes: MindmapNode[]): Observable<any> {
-    return this.http.post(`${this.baseUrl}/bulk-save`, { nodes });
+  bulkSave(nodes: MindmapNode[]): Observable<UpdateNodeResponse> {
+    return this.http.post<UpdateNodeResponse>(`${this.baseUrl}/bulk-save`, { nodes });
   }
 
 }
