@@ -10,7 +10,7 @@
     "test": "ng test",
     "test:ci": "ng test --configuration=ci",
     "lint": "eslint . --ext .ts,.html --max-warnings=0",
-    "lint:ci": "eslint . --ext .ts,.html --max-warnings=0 --ignore-pattern 'src/app/classroom/lesson-material/tabs/**' --ignore-pattern 'src/app/features/landing/**' --ignore-pattern 'src/app/features/marathons/**' --ignore-pattern 'src/app/features/materials/**' --ignore-pattern 'src/app/features/tariffs/**' --ignore-pattern 'src/app/shared/components/calendar/**' --ignore-pattern 'src/app/shared/components/schedule/**' --ignore-pattern 'src/app/test-video-call/**' --ignore-pattern 'public/**'",
+    "lint:ci": "eslint . --ext .ts,.html --ignore-pattern 'src/app/classroom/lesson-material/tabs/**' --ignore-pattern 'src/app/features/landing/**' --ignore-pattern 'src/app/features/marathons/**' --ignore-pattern 'src/app/features/materials/**' --ignore-pattern 'src/app/features/tariffs/**' --ignore-pattern 'src/app/shared/components/calendar/**' --ignore-pattern 'src/app/shared/components/schedule/**' --ignore-pattern 'src/app/test-video-call/**' --ignore-pattern 'public/**'",
     "format": "prettier --check ."
   },
   "private": true,

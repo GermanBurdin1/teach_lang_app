@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TeacherProfile } from '../../dashboard/teacher-dashboard/teacher-profile.model';
 // import { ProfilesApiService } from '../../../services/profiles-api.service';
 import { AuthService } from '../../../services/auth.service';
 import { TeacherService } from '../../../services/teacher.service';

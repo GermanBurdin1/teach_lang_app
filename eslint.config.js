@@ -6,7 +6,24 @@ import angularTemplate from '@angular-eslint/eslint-plugin-template';
 import angularTemplateParser from '@angular-eslint/template-parser';
 
 export default [
-  { ignores: ['dist/**', 'node_modules/**', 'projects/**'] },
+  { 
+    ignores: [
+      'dist/**', 
+      'node_modules/**', 
+      'projects/**',
+      '.angular/**',
+      'coverage/**',
+      '*.js',
+      '*.mjs',
+      'src/polyfills.ts',
+      'src/test.ts',
+      'src/main.ts',
+      'src/environment*.ts',
+      'angular.json',
+      '**/*.spec.ts',
+      '**/*.e2e-spec.ts'
+    ] 
+  },
 
   // TypeScript/Angular для TS файлов только
   ...tseslint.configs.recommended.map(config => ({
@@ -27,13 +44,23 @@ export default [
         console: 'readonly',
         navigator: 'readonly',
         alert: 'readonly',
+        prompt: 'readonly',
+        confirm: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
         fetch: 'readonly',
         Audio: 'readonly',
-        history: 'readonly'
+        history: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
+        FormData: 'readonly',
+        FileReader: 'readonly',
+        indexedDB: 'readonly',
+        KeyboardEvent: 'readonly',
+        requestAnimationFrame: 'readonly',
+        regeneratorRuntime: 'readonly'
       }
     },
     plugins: { '@angular-eslint': angular },
@@ -84,7 +111,9 @@ export default [
         localStorage: 'readonly',
         console: 'readonly',
         navigator: 'readonly',
-        alert: 'readonly'
+        alert: 'readonly',
+        prompt: 'readonly',
+        confirm: 'readonly'
       }
     },
     plugins: { '@angular-eslint': angular },

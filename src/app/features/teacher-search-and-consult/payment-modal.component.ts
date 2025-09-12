@@ -80,7 +80,7 @@ export class PaymentModalComponent implements OnInit {
     this.elements = this.stripe.elements();
     
     // Создаем элемент карты
-    this.cardElement = (this.elements as {create: Function}).create('card', {
+    this.cardElement = (this.elements as {create: (type: string, options?: unknown) => unknown}).create('card', {
       style: {
         base: {
           fontSize: '16px',
@@ -110,7 +110,7 @@ export class PaymentModalComponent implements OnInit {
     // Монтируем карту после инициализации компонента
     setTimeout(() => {
       if (this.cardElement) {
-        (this.cardElement as {mount: Function}).mount('#card-element');
+        (this.cardElement as {mount: (selector: string) => void}).mount('#card-element');
         console.log('🔍 PaymentModal: Карта смонтирована');
       } else {
         console.error('❌ cardElement не найден');
@@ -181,7 +181,7 @@ export class PaymentModalComponent implements OnInit {
         
         // Рендерим элемент карты после получения client secret
         setTimeout(() => {
-          (this.cardElement as {mount: Function}).mount('#card-element');
+          (this.cardElement as {mount: (selector: string) => void}).mount('#card-element');
           console.log('🔍 Карта смонтирована');
         }, 100);
       },

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, AfterViewChecked, HostListener, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnDestroy, OnInit, HostListener, Output, EventEmitter, Input } from '@angular/core';
 import { BackgroundService } from '../../services/background.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
@@ -882,7 +882,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         const [day, month, year] = lessonDate.split('/');
         const [hours, minutes] = lessonTime.split(':');
         scheduledDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
-      } catch (error) {
+      } catch {
         console.warn('Некорректная дата/время, используем текущее время');
       }
     }
@@ -968,7 +968,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     if (!teacherId || !this.currentClass) return;
     
     const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
-    let classes = savedClasses ? JSON.parse(savedClasses) : [];
+    const classes = savedClasses ? JSON.parse(savedClasses) : [];
     
     // Обновляем существующий класс или добавляем новый
     const existingIndex = classes.findIndex((cls: any) => cls.id === this.currentClass.id);

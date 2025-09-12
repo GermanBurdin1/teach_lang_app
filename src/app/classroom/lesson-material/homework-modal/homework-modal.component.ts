@@ -1,6 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { HomeworkService } from '../../../services/homework.service';
 import { environment } from '../../../../../environment';
 
 export interface HomeworkModalData {

@@ -39,20 +39,20 @@ export class GoalsService {
   // Метод для получения локализованного названия уровня экзамена
   getExamLevelDisplayName(level: ExamLevel): string {
     const displayNames: { [_key in ExamLevel]: string } = {
-      [ExamLevel.A1]: 'A1 - Débutant',
-      [ExamLevel.A2]: 'A2 - Élémentaire',
-      [ExamLevel.B1]: 'B1 - Intermédiaire',
-      [ExamLevel.B2]: 'B2 - Intermédiaire supérieur',
-      [ExamLevel.C1]: 'C1 - Avancé',
-      [ExamLevel.C2]: 'C2 - Maîtrise',
-      [ExamLevel.DELF_A1]: 'DELF A1',
-      [ExamLevel.DELF_A2]: 'DELF A2',
-      [ExamLevel.DELF_B1]: 'DELF B1',
-      [ExamLevel.DELF_B2]: 'DELF B2',
-      [ExamLevel.DALF_C1]: 'DALF C1',
-      [ExamLevel.DALF_C2]: 'DALF C2',
-      [ExamLevel.TCF]: 'TCF - Test de connaissance du français',
-      [ExamLevel.TEF]: 'TEF - Test d\'évaluation de français'
+      [ExamLevel._A1]: 'A1 - Débutant',
+      [ExamLevel._A2]: 'A2 - Élémentaire',
+      [ExamLevel._B1]: 'B1 - Intermédiaire',
+      [ExamLevel._B2]: 'B2 - Intermédiaire supérieur',
+      [ExamLevel._C1]: 'C1 - Avancé',
+      [ExamLevel._C2]: 'C2 - Maîtrise',
+      [ExamLevel._DELF_A1]: 'DELF A1',
+      [ExamLevel._DELF_A2]: 'DELF A2',
+      [ExamLevel._DELF_B1]: 'DELF B1',
+      [ExamLevel._DELF_B2]: 'DELF B2',
+      [ExamLevel._DALF_C1]: 'DALF C1',
+      [ExamLevel._DALF_C2]: 'DALF C2',
+      [ExamLevel._TCF]: 'TCF - Test de connaissance du français',
+      [ExamLevel._TEF]: 'TEF - Test d\'évaluation de français'
     };
 
     return displayNames[level] || level;

@@ -4,10 +4,6 @@ import { AuthService } from '../../../../services/auth.service';
 import { PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 
-interface User {
-  id: string;
-  [key: string]: unknown;
-}
 
 interface SentRequest {
   lessonId: string;
