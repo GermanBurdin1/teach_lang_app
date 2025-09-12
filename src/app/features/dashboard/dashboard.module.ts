@@ -1,4 +1,5 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { UsersComponent } from '../users/users.component';
@@ -123,7 +124,6 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
     BackToHomeButtonComponent,
     BsDatepickerModule.forRoot()
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
   exports: [ReviewListComponent]
 })
 export class DashboardModule { }
