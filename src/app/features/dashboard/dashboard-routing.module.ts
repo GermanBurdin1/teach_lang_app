@@ -20,7 +20,7 @@ import { AdminTeachersListComponent } from './school-dashboard/admin-management_
 import {TeacherDetailsComponent} from "../teacher-search-and-consult/teacher-details.component";
 import {AdminTeacherDetailsComponent} from "./school-dashboard/admin-management_teacher-list-and-details/admin-teacher-details.component";
 import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
-import { TeacherDashboardOverviewComponent } from '../../../../overview/teacher-dashboard-overview.component';
+import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
 import { TeacherSettingsComponent } from '../settings/teacher-settings/teacher-settings.component';
 import { StudentSettingsComponent } from '../settings/student-settings/student-settings.component';
 import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';

@@ -26,7 +26,7 @@ import { TeacherDetailsComponent } from '../teacher-search-and-consult/teacher-d
 import { PaymentModalComponent } from '../teacher-search-and-consult/payment-modal.component';
 import { AdminTeacherDetailsComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teacher-details.component';
 import { TeacherProfileComponent } from './teacher-dashboard/teacher-profile.component';
-import { TeacherDashboardOverviewComponent } from '../../../../overview/teacher-dashboard-overview.component';
+import { TeacherDashboardOverviewComponent } from './teacher-dashboard/overview/teacher-dashboard-overview.component';
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { ReviewListComponent } from './shared/components/review-list/review-list.component';
 import { MatChipsModule } from '@angular/material/chips';
@@ -47,7 +47,7 @@ import { StudentHomeComponent } from './student-dashboard/home/student-home.comp
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
 import { AdminSettingsComponent } from '../settings/admin-settings/admin-settings.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { SentRequestsComponent } from './student-dashboard/sent-requests/sent-requests.component';
@@ -116,6 +116,7 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
     MatRadioModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatOptionModule,
     MatTabsModule,
     MatSnackBarModule,
     MatTooltipModule,

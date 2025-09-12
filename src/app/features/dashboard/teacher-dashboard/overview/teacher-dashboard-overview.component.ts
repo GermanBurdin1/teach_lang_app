@@ -1,16 +1,16 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { TeacherProfile } from '../src/app/features/dashboard/teacher-dashboard/teacher-profile.model';
-import { Review } from '../src/app/features/dashboard/shared/models/review.model';
-import { MOCK_REVIEWS } from '../src/app/features/dashboard/teacher-dashboard/mock-reviews';
-import { AuthService } from '../src/app/services/auth.service';
-import { ProfilesApiService } from '../src/app/services/profiles-api.service';
+import { TeacherProfile } from '../teacher-profile.model';
+import { Review } from '../../shared/models/review.model';
+import { MOCK_REVIEWS } from '../mock-reviews';
+import { AuthService } from '../../../../services/auth.service';
+import { ProfilesApiService } from '../../../../services/profiles-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarEvent } from 'angular-calendar';
-import { LessonService } from '../src/app/services/lesson.service';
-import { NotificationService } from '../src/app/services/notifications.service';
-import { TeacherService } from '../src/app/services/teacher.service';
+import { LessonService } from '../../../../services/lesson.service';
+import { NotificationService } from '../../../../services/notifications.service';
+import { TeacherService } from '../../../../services/teacher.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { environment } from '../environment.prod';
+import { environment } from '../../../../../../environment.prod';
 
 // Интерфейсы для типизации
 interface Student {
