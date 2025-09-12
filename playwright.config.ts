@@ -21,8 +21,8 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'http://localhost:4200',
 
-    /* Run tests in headless mode */
-    headless: true,
+    /* Run tests in headless mode - force headless in CI */
+    headless: process.env['CI'] ? true : false,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -32,6 +32,10 @@ export default defineConfig({
     
     /* Ignore HTTPS errors */
     ignoreHTTPSErrors: true,
+
+    /* Additional CI optimizations */
+    video: process.env['CI'] ? 'off' : 'retain-on-failure',
+    screenshot: process.env['CI'] ? 'only-on-failure' : 'only-on-failure',
   },
 
   /* Configure projects for major browsers */
