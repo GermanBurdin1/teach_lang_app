@@ -30,8 +30,18 @@ import { TeacherDashboardOverviewComponent } from '../../../../overview/teacher-
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { ReviewListComponent } from './shared/components/review-list/review-list.component';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatRadioModule } from '@angular/material/radio';
 import { TeacherHomeComponent } from './teacher-dashboard/home/teacher-home.component';
 import { StudentHomeComponent } from './student-dashboard/home/student-home.component';
 import { AdminHomeComponent } from './school-dashboard/home/admin-home.component';
@@ -91,9 +101,19 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
     TariffsModule,
     SharedModule,
     GrammarFieldsComponent,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatChipsModule,
+    MatIconModule,
+    MatExpansionModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
     ReactiveFormsModule,
+    MatButtonToggleModule,
+    MatButtonModule,
     MatDividerModule,
+    MatRadioModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatTabsModule,
