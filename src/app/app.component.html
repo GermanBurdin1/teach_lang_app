@@ -2,8 +2,8 @@
   <!-- ARIA live region for announcements -->
   <div aria-live="polite" aria-atomic="true" class="sr-only" id="announcements"></div>
   
-  <!-- RGPD Consent Banner -->
-  <app-rgpd-consent-banner></app-rgpd-consent-banner>
+  <!-- RGPD Consent Banner (только в продакшене) -->
+  <app-rgpd-consent-banner *ngIf="shouldShowRgpdBanner()"></app-rgpd-consent-banner>
   
   <div class="header-area" *ngIf="shouldShowHeader()">
     <app-header></app-header>

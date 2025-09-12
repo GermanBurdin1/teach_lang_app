@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { filter } from 'rxjs/operators';
+import { environment } from '../../environment';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,11 @@ export class AppComponent implements OnInit {
 
   constructor(private router: Router, private authService: AuthService) {
     // Переменные используются в ngOnInit и методах класса
+  }
+
+  // Проверяем, нужно ли показывать RGPD баннер (отключаем для тестов)
+  shouldShowRgpdBanner(): boolean {
+    return environment.production; // Показываем только в продакшене
   }
   ngOnInit(): void {
     // Слушаем события навигации роутера
