@@ -776,4 +776,13 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     return (this.teacherReviews as any[]) || [];
   }
 
+  // Helper methods for profile safe access
+  getProfilePhotoUrl(): string | null {
+    return this.profile?.photo_url || null;
+  }
+
+  getProfileFullName(): string {
+    return this.profile?.full_name || '';
+  }
+
 }
