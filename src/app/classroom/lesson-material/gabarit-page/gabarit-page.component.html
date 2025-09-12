@@ -1,5 +1,5 @@
 <div class="gabarit-page px-3 py-2">
-  <h3>📚 Matériel du cours ({{ lesson.date | date: 'dd/MM/yyyy' }})</h3>
+  <h3>📚 Matériel du cours ({{ getLessonDate() | date: 'dd/MM/yyyy' }})</h3>
 
   <!-- 📄 Textes -->
   <div class="zone text-zone mt-3">
@@ -7,13 +7,13 @@
     <div *ngFor="let t of texts" class="material-item position-relative" 
          (mouseenter)="onHover(getMaterialTitle(t), $event)" 
          (mouseleave)="onLeaveItem()">
-      <div *ngIf="isString(t); else objectText" class="item">{{ getDisplayName(t) }}</div>
+      <div *ngIf="isString(t); else objectText" class="item">{{ getDisplayNameSafe(t) }}</div>
       <ng-template #objectText>
         <div class="material-card">
-          <h6>{{ t.title || t.name || 'Texte' }}</h6>
-          <p *ngIf="t.description" class="description">{{ t.description }}</p>
-          <div *ngIf="t.content" class="content">{{ t.content }}</div>
-          <a *ngIf="t.url" [href]="t.url" target="_blank" class="btn btn-sm btn-outline-primary">Ouvrir</a>
+          <h6>{{ getItemTitle(t) || getItemName(t) || 'Texte' }}</h6>
+          <p *ngIf="hasItemDescription(t)" class="description">{{ getItemDescription(t) }}</p>
+          <div *ngIf="hasItemContent(t)" class="content">{{ getItemContent(t) }}</div>
+          <a *ngIf="hasItemUrl(t)" [href]="getItemUrl(t)" target="_blank" class="btn btn-sm btn-outline-primary">Ouvrir</a>
         </div>
       </ng-template>
       
@@ -39,9 +39,9 @@
       <div *ngIf="isString(a); else objectAudio" class="item">
         <div class="d-flex align-items-center">
           <i class="fas fa-music me-2"></i>
-          <span>{{ getDisplayName(a) }}</span>
+          <span>{{ getDisplayNameSafe(a) }}</span>
         </div>
-        <audio *ngIf="isAudioUrl(a)" controls class="w-100 mt-2">
+        <audio *ngIf="isAudioUrlSafe(a)" controls class="w-100 mt-2">
           <source [src]="a" type="audio/mpeg">
           <source [src]="a" type="audio/wav">
           <source [src]="a" type="audio/ogg">
@@ -53,26 +53,26 @@
           <div class="d-flex align-items-center">
             <i class="fas fa-music me-2"></i>
             <div class="flex-grow-1">
-              <h6 class="mb-1">{{ a.title || a.name || 'Audio' }}</h6>
-              <p *ngIf="a.description" class="description mb-0">{{ a.description }}</p>
+              <h6 class="mb-1">{{ getItemTitle(a) || getItemName(a) || 'Audio' }}</h6>
+              <p *ngIf="hasItemDescription(a)" class="description mb-0">{{ getItemDescription(a) }}</p>
             </div>
           </div>
           <!-- Проигрыватель для URL -->
-          <audio *ngIf="a.url" controls class="w-100 mt-2">
-            <source [src]="a.url" type="audio/mpeg">
-            <source [src]="a.url" type="audio/wav">
-            <source [src]="a.url" type="audio/ogg">
+          <audio *ngIf="hasItemUrl(a)" controls class="w-100 mt-2">
+            <source [src]="getItemUrl(a)" type="audio/mpeg">
+            <source [src]="getItemUrl(a)" type="audio/wav">
+            <source [src]="getItemUrl(a)" type="audio/ogg">
             Votre navigateur ne supporte pas l'audio HTML5.
           </audio>
           <!-- Проигрыватель для content (если content содержит URL) -->
-          <audio *ngIf="!a.url && a.content && isAudioUrl(a.content)" controls class="w-100 mt-2">
-            <source [src]="a.content" type="audio/mpeg">
-            <source [src]="a.content" type="audio/wav">
-            <source [src]="a.content" type="audio/ogg">
+          <audio *ngIf="!hasItemUrl(a) && hasItemContent(a) && isAudioUrlSafe(a)" controls class="w-100 mt-2">
+            <source [src]="getItemContent(a)" type="audio/mpeg">
+            <source [src]="getItemContent(a)" type="audio/wav">
+            <source [src]="getItemContent(a)" type="audio/ogg">
             Votre navigateur ne supporte pas l'audio HTML5.
           </audio>
           <!-- Текстовое содержимое, если это не URL -->
-          <div *ngIf="!a.url && a.content && !isAudioUrl(a.content)" class="content">{{ a.content }}</div>
+          <div *ngIf="!hasItemUrl(a) && hasItemContent(a) && !isAudioUrlSafe(a)" class="content">{{ getItemContent(a) }}</div>
         </div>
       </ng-template>
       
@@ -98,9 +98,9 @@
       <div *ngIf="isString(v); else objectVideo" class="item">
         <div class="d-flex align-items-center">
           <i class="fas fa-video me-2"></i>
-          <span>{{ getDisplayName(v) }}</span>
+          <span>{{ getDisplayNameSafe(v) }}</span>
         </div>
-        <video *ngIf="isVideoUrl(v)" controls class="w-100 mt-2">
+        <video *ngIf="isVideoUrlSafe(v)" controls class="w-100 mt-2">
           <source [src]="v" type="video/mp4">
           <source [src]="v" type="video/webm">
           <source [src]="v" type="video/ogg">
@@ -112,26 +112,26 @@
           <div class="d-flex align-items-center">
             <i class="fas fa-video me-2"></i>
             <div class="flex-grow-1">
-              <h6 class="mb-1">{{ v.title || v.name || 'Vidéo' }}</h6>
-              <p *ngIf="v.description" class="description mb-0">{{ v.description }}</p>
+              <h6 class="mb-1">{{ getItemTitle(v) || getItemName(v) || 'Vidéo' }}</h6>
+              <p *ngIf="hasItemDescription(v)" class="description mb-0">{{ getItemDescription(v) }}</p>
             </div>
           </div>
           <!-- Плеер для URL -->
-          <video *ngIf="v.url" controls class="w-100 mt-2">
-            <source [src]="v.url" type="video/mp4">
-            <source [src]="v.url" type="video/webm">
-            <source [src]="v.url" type="video/ogg">
+          <video *ngIf="hasItemUrl(v)" controls class="w-100 mt-2">
+            <source [src]="getItemUrl(v)" type="video/mp4">
+            <source [src]="getItemUrl(v)" type="video/webm">
+            <source [src]="getItemUrl(v)" type="video/ogg">
             Votre navigateur ne supporte pas la vidéo HTML5.
           </video>
           <!-- Плеер для content (если content содержит URL видео) -->
-          <video *ngIf="!v.url && v.content && isVideoUrl(v.content)" controls class="w-100 mt-2">
-            <source [src]="v.content" type="video/mp4">
-            <source [src]="v.content" type="video/webm">
-            <source [src]="v.content" type="video/ogg">
+          <video *ngIf="!hasItemUrl(v) && hasItemContent(v) && isVideoUrlSafe(v)" controls class="w-100 mt-2">
+            <source [src]="getItemContent(v)" type="video/mp4">
+            <source [src]="getItemContent(v)" type="video/webm">
+            <source [src]="getItemContent(v)" type="video/ogg">
             Votre navigateur ne supporte pas la vidéo HTML5.
           </video>
           <!-- Текстовое содержимое, если это не URL -->
-          <div *ngIf="!v.url && v.content && !isVideoUrl(v.content)" class="content">{{ v.content }}</div>
+          <div *ngIf="!hasItemUrl(v) && hasItemContent(v) && !isVideoUrlSafe(v)" class="content">{{ getItemContent(v) }}</div>
         </div>
       </ng-template>
       

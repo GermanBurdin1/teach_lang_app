@@ -6,7 +6,7 @@ import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angu
   styleUrls: ['./gabarit-page.component.css']
 })
 export class GabaritPageComponent implements OnInit, OnDestroy {
-  @Input() lesson: any;
+  @Input() lesson: { texts?: unknown[]; audios?: unknown[]; videos?: unknown[]; [key: string]: unknown } | null = null;
   @Input() readonly = true;
   @Input() lessonStarted = false;
 
@@ -18,7 +18,7 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
   hoveredPosition: 'above' | 'below' = 'below';
   
   // Улучшенная логика для кнопок действий
-  private hideTimeout: any = null;
+  private hideTimeout: ReturnType<typeof setTimeout> | null = null;
   private isHoveringActions = false;
 
   ngOnInit(): void {
@@ -27,12 +27,19 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  get texts() { return this.lesson?.texts || []; }
-  get audios() { return this.lesson?.audios || []; }
-  get videos() { return this.lesson?.videos || []; }
+  get texts() { return this.lesson?.['texts'] || []; }
+  get audios() { return this.lesson?.['audios'] || []; }
+  get videos() { return this.lesson?.['videos'] || []; }
+
+  // Helper method for lesson date
+  getLessonDate(): Date | null {
+    if (!this.lesson) return null;
+    const date = (this.lesson as { date?: string | Date }).date;
+    return date ? new Date(date) : null;
+  }
 
   // Helper method to check if a value is a string
-  isString(value: any): boolean {
+  isString(value: unknown): boolean {
     return typeof value === 'string';
   }
 
@@ -76,19 +83,99 @@ export class GabaritPageComponent implements OnInit, OnDestroy {
   }
 
   // Helper method to get material identifier
-  getMaterialId(material: any): string {
+  getMaterialId(material: unknown): string {
     if (typeof material === 'string') {
       return material;
     }
-    return material?.id || material?.title || material?.name || 'unknown';
+    const obj = material as { id?: string; title?: string; name?: string };
+    return obj?.id || obj?.title || obj?.name || 'unknown';
   }
 
   // Helper method to get material title  
-  getMaterialTitle(material: any): string {
+  getMaterialTitle(material: unknown): string {
     if (typeof material === 'string') {
       return this.getDisplayName(material);
     }
-    return material?.title || material?.name || 'Matériau';
+    const obj = material as { title?: string; name?: string };
+    return obj?.title || obj?.name || 'Matériau';
+  }
+
+  // Helper methods for template property access
+  getItemTitle(item: unknown): string {
+    const obj = item as { title?: string; name?: string };
+    return obj?.title || obj?.name || '';
+  }
+
+  getItemName(item: unknown): string {
+    const obj = item as { name?: string };
+    return obj?.name || '';
+  }
+
+  getItemDescription(item: unknown): string {
+    const obj = item as { description?: string };
+    return obj?.description || '';
+  }
+
+  getItemContent(item: unknown): string {
+    const obj = item as { content?: string };
+    return obj?.content || '';
+  }
+
+  getItemUrl(item: unknown): string {
+    const obj = item as { url?: string };
+    return obj?.url || '';
+  }
+
+  hasItemDescription(item: unknown): boolean {
+    const obj = item as { description?: string };
+    return !!(obj?.description);
+  }
+
+  hasItemContent(item: unknown): boolean {
+    const obj = item as { content?: string };
+    return !!(obj?.content);
+  }
+
+  hasItemUrl(item: unknown): boolean {
+    const obj = item as { url?: string };
+    return !!(obj?.url);
+  }
+
+  // Helper methods for safe display name calls
+  getDisplayNameSafe(item: unknown): string {
+    if (typeof item === 'string') {
+      return this.getDisplayName(item);
+    }
+    return 'Matériau';
+  }
+
+  // Helper methods for safe audio/video URL checks
+  isAudioUrlSafe(item: unknown): boolean {
+    if (typeof item === 'string') {
+      return this.isAudioUrl(item);
+    }
+    const obj = item as { url?: string; content?: string };
+    if (obj?.url && typeof obj.url === 'string') {
+      return this.isAudioUrl(obj.url);
+    }
+    if (obj?.content && typeof obj.content === 'string') {
+      return this.isAudioUrl(obj.content);
+    }
+    return false;
+  }
+
+  isVideoUrlSafe(item: unknown): boolean {
+    if (typeof item === 'string') {
+      return this.isVideoUrl(item);
+    }
+    const obj = item as { url?: string; content?: string };
+    if (obj?.url && typeof obj.url === 'string') {
+      return this.isVideoUrl(obj.url);
+    }
+    if (obj?.content && typeof obj.content === 'string') {
+      return this.isVideoUrl(obj.content);
+    }
+    return false;
   }
 
   // Hover management - улучшенная логика

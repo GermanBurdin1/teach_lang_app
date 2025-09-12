@@ -60,7 +60,8 @@ export default [
         indexedDB: 'readonly',
         KeyboardEvent: 'readonly',
         requestAnimationFrame: 'readonly',
-        regeneratorRuntime: 'readonly'
+        regeneratorRuntime: 'readonly',
+        process: 'readonly'
       }
     },
     plugins: { '@angular-eslint': angular },
@@ -113,7 +114,8 @@ export default [
         navigator: 'readonly',
         alert: 'readonly',
         prompt: 'readonly',
-        confirm: 'readonly'
+        confirm: 'readonly',
+        process: 'readonly'
       }
     },
     plugins: { '@angular-eslint': angular },

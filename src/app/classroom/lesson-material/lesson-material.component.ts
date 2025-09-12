@@ -27,7 +27,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
   showBoard = false;
-  currentLesson: any = null;
+  currentLesson: unknown = null;
   userRole: 'student' | 'teacher' = 'student';
   newStudentTask = '';
   newStudentQuestion = '';
@@ -38,31 +38,31 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   hoveredPosition: 'above' | 'below' = 'below';
   
   // Реальные данные урока
-  lessonTasks: any[] = [];
-  lessonQuestions: any[] = [];
-  lessonMaterials: any[] = [];
+  lessonTasks: unknown[] = [];
+  lessonQuestions: unknown[] = [];
+  lessonMaterials: unknown[] = [];
   isLoadingData = false;
   
   // Сохраненные домашние задания
-  homeworkItems: any[] = [];
+  homeworkItems: unknown[] = [];
   coveredInClass = new Set<string>();
 
   @Output() itemResolved = new EventEmitter<{ item: string, type: 'task' | 'question' }>();
   @Input() addHomeworkExternal?: (item: string) => void;
 
   // Улучшенная логика для кнопок действий
-  private hideTimeout: any = null;
+  private hideTimeout: ReturnType<typeof setTimeout> | null = null;
   private isHoveringActions = false;
 
   lessonStarted = false;
   countdown = 3000; // 3000 секунд
-  private countdownInterval: any = null;
+  private countdownInterval: ReturnType<typeof setInterval> | null = null;
 
   // Управление классом
   showClassManagement = false;
-  currentClass: any = null;
+  currentClass: unknown = null;
   showStudentsList = false;
-  availableStudents: any[] = []; // Подтвержденные студенты для добавления
+  availableStudents: unknown[] = []; // Подтвержденные студенты для добавления
 
   constructor(
     private backgroundService: BackgroundService, 
@@ -162,12 +162,13 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateMetaTags(lesson: any): void {
+  private updateMetaTags(lesson: unknown): void {
     // Dynamic metadata for SEO and Open Graph (English audience)
-    const lessonTitle = lesson?.title || 'French Lesson';
-    const lessonDescription = lesson?.description || 'Learn French with our interactive and personalized online courses for DELF and DALF exam preparation';
+    const lessonObj = lesson as { title?: string; description?: string; id?: string };
+    const lessonTitle = lessonObj?.title || 'French Lesson';
+    const lessonDescription = lessonObj?.description || 'Learn French with our interactive and personalized online courses for DELF and DALF exam preparation';
     const baseUrl = 'https://linguaconnect.com';
-    const currentUrl = `${baseUrl}/classroom/${lesson?.id || 'lesson'}`;
+    const currentUrl = `${baseUrl}/classroom/${lessonObj?.id || 'lesson'}`;
     
     // Meta Title
     this.title.setTitle(`${lessonTitle} - LINGUACONNECT | Online French DELF/DALF Courses`);
@@ -253,7 +254,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     }
 
     if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
+      if (this.countdownInterval) clearInterval(this.countdownInterval);
     }
 
     // ❌ НЕ СБРАСЫВАЕМ ВИДЕО, ЧТОБЫ ОНО НЕ ПРОПАДАЛО
@@ -376,7 +377,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   // Проверка, добавлено ли задание в домашнее задание
   isAddedToHomework(itemId: string): boolean {
-    return this.homeworkItems.some(item => item.itemId === itemId);
+    return this.homeworkItems.some(item => (item as { itemId?: string }).itemId === itemId);
   }
 
   // Проверка, разобрано ли задание в классе
@@ -389,8 +390,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       const currentUser = this.authService.getCurrentUser();
       if (!currentUser) return;
 
+      const lessonId = (this.currentLesson as { id?: string }).id;
+      if (!lessonId) return;
+
       const taskData = {
-        lessonId: this.currentLesson.id,
+        lessonId,
         title: this.newStudentTask.trim(),
         description: null,
         createdBy: currentUser.id,
@@ -399,12 +403,13 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
       this.lessonService.addTaskToLesson(taskData).subscribe({
         next: (newTask) => {
-          if (!this.currentLesson.studentTasks) {
-            this.currentLesson.studentTasks = [];
+          const lesson = this.currentLesson as { studentTasks?: unknown[] };
+          if (!lesson.studentTasks) {
+            lesson.studentTasks = [];
           }
-          this.currentLesson.studentTasks.push(newTask);
+          lesson.studentTasks.push(newTask);
           console.log('✅ Задача студента добавлена в БД:', newTask);
-          console.log('studentTasks после добавления:', this.currentLesson.studentTasks);
+          console.log('studentTasks после добавления:', lesson.studentTasks);
           this.newStudentTask = '';
         },
         error: (error) => {
@@ -419,8 +424,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       const currentUser = this.authService.getCurrentUser();
       if (!currentUser) return;
 
+      const lessonId = (this.currentLesson as { id?: string }).id;
+      if (!lessonId) return;
+
       const questionData = {
-        lessonId: this.currentLesson.id,
+        lessonId,
         question: this.newStudentQuestion.trim(),
         createdBy: currentUser.id,
         createdByRole: 'student' as const
@@ -430,10 +438,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         next: (newQuestion) => {
           if (this.currentLesson) {
             // Добавляем вопрос в локальный массив
-            if (!this.currentLesson.studentQuestions) {
-              this.currentLesson.studentQuestions = [];
+            const lesson = this.currentLesson as { studentQuestions?: unknown[] };
+            if (!lesson.studentQuestions) {
+              lesson.studentQuestions = [];
             }
-            this.currentLesson.studentQuestions.push(newQuestion);
+            lesson.studentQuestions.push(newQuestion);
           }
           this.newStudentQuestion = '';
           console.log('✅ Вопрос студента добавлен в БД:', newQuestion);
@@ -450,8 +459,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       const currentUser = this.authService.getCurrentUser();
       if (!currentUser) return;
 
+      const lessonId = (this.currentLesson as { id?: string }).id;
+      if (!lessonId) return;
+
       const taskData = {
-        lessonId: this.currentLesson.id,
+        lessonId,
         title: this.newTeacherTask.trim(),
         description: null,
         createdBy: currentUser.id,
@@ -461,10 +473,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       this.lessonService.addTaskToLesson(taskData).subscribe({
         next: (newTask) => {
           if (this.currentLesson) {
-            if (!this.currentLesson.teacherTasks) {
-              this.currentLesson.teacherTasks = [];
+            const lesson = this.currentLesson as { teacherTasks?: unknown[] };
+            if (!lesson.teacherTasks) {
+              lesson.teacherTasks = [];
             }
-            this.currentLesson.teacherTasks.push(newTask);
+            lesson.teacherTasks.push(newTask);
           }
           this.newTeacherTask = '';
           console.log('✅ Задача преподавателя добавлена в БД:', newTask);
@@ -481,8 +494,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       const currentUser = this.authService.getCurrentUser();
       if (!currentUser) return;
 
+      const lessonId = (this.currentLesson as { id?: string }).id;
+      if (!lessonId) return;
+
       const questionData = {
-        lessonId: this.currentLesson.id,
+        lessonId,
         question: this.newTeacherQuestion.trim(),
         createdBy: currentUser.id,
         createdByRole: 'teacher' as const
@@ -491,10 +507,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       this.lessonService.addQuestionToLesson(questionData).subscribe({
         next: (newQuestion) => {
           if (this.currentLesson) {
-            if (!this.currentLesson.teacherQuestions) {
-              this.currentLesson.teacherQuestions = [];
+            const lesson = this.currentLesson as { teacherQuestions?: unknown[] };
+            if (!lesson.teacherQuestions) {
+              lesson.teacherQuestions = [];
             }
-            this.currentLesson.teacherQuestions.push(newQuestion);
+            lesson.teacherQuestions.push(newQuestion);
           }
           this.newTeacherQuestion = '';
           console.log('✅ Вопрос преподавателя добавлен в БД:', newQuestion);
@@ -517,11 +534,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         itemId,
         itemText,
         lessonData: {
-          studentTasks: this.currentLesson?.studentTasks || [],
-          teacherTasks: this.currentLesson?.teacherTasks || [],
-          studentQuestions: this.currentLesson?.studentQuestions || [],
-          teacherQuestions: this.currentLesson?.teacherQuestions || [],
-          materials: this.currentLesson?.materials || []
+          studentTasks: (this.currentLesson as { studentTasks?: unknown[] })?.studentTasks || [],
+          teacherTasks: (this.currentLesson as { teacherTasks?: unknown[] })?.teacherTasks || [],
+          studentQuestions: (this.currentLesson as { studentQuestions?: unknown[] })?.studentQuestions || [],
+          teacherQuestions: (this.currentLesson as { teacherQuestions?: unknown[] })?.teacherQuestions || [],
+          materials: (this.currentLesson as { materials?: unknown[] })?.materials || []
         }
       }
     });
@@ -573,7 +590,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
           description: result.description || '',
           dueDate: result.dueDate ? new Date(result.dueDate) : new Date(),
           assignedBy: currentUser.id,
-          assignedTo: this.currentLesson?.studentId || currentUser.id,
+          assignedTo: (this.currentLesson as { studentId?: string })?.studentId || currentUser.id,
           sourceType: type,
           sourceItemId: itemId,
           sourceItemText: title,
@@ -709,21 +726,25 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     }
   }
 
-  getStudentMaterials(): any[] {
-    if (!this.currentLesson?.materials) return [];
-    return this.currentLesson.materials.filter((m: any) => m.createdBy === this.currentLesson?.studentId);
+  getStudentMaterials(): unknown[] {
+    const lesson = this.currentLesson as { materials?: unknown[]; studentId?: string };
+    if (!lesson?.materials) return [];
+    return lesson.materials.filter((m: unknown) => (m as { createdBy?: string }).createdBy === lesson?.studentId);
   }
 
-  getTeacherMaterials(): any[] {
-    if (!this.currentLesson?.materials) return [];
-    return this.currentLesson.materials.filter((m: any) => m.createdBy === this.currentLesson?.teacherId);
+  getTeacherMaterials(): unknown[] {
+    const lesson = this.currentLesson as { materials?: unknown[]; teacherId?: string };
+    if (!lesson?.materials) return [];
+    return lesson.materials.filter((m: unknown) => (m as { createdBy?: string }).createdBy === lesson?.teacherId);
   }
 
   newHomeworkEntry = '';
 
   submitHomework(): void {
     if (this.newHomeworkEntry.trim()) {
-      this.currentLesson.homework.push(this.newHomeworkEntry.trim());
+      const lesson = this.currentLesson as { homework?: unknown[] };
+      if (!lesson.homework) lesson.homework = [];
+      lesson.homework.push(this.newHomeworkEntry.trim());
       this.newHomeworkEntry = '';
     }
   }
@@ -744,11 +765,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         console.log('✅ Домашнее задание отмечено как выполненное:', completedHomework);
         
         // Обновляем локальный статус
-        const homeworkIndex = this.homeworkItems.findIndex(item => item.id === homeworkId);
+        const homeworkIndex = this.homeworkItems.findIndex(item => (item as { id?: string }).id === homeworkId);
         if (homeworkIndex >= 0) {
-          this.homeworkItems[homeworkIndex].status = 'finished';
-          this.homeworkItems[homeworkIndex].isCompleted = true;
-          this.homeworkItems[homeworkIndex].completedAt = new Date().toISOString();
+          const homeworkItem = this.homeworkItems[homeworkIndex] as { status?: string; isCompleted?: boolean; completedAt?: string };
+          homeworkItem.status = 'finished';
+          homeworkItem.isCompleted = true;
+          homeworkItem.completedAt = new Date().toISOString();
           this.saveHomeworkItems();
         }
       },
@@ -774,13 +796,15 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         this.resolvedItems.add(taskId);
         
         // Если это задача из домашнего задания, обновляем и её
-        const relatedHomework = this.homeworkItems.find(item => 
-          item.itemId === taskId && item.type === 'task'
-        );
+        const relatedHomework = this.homeworkItems.find(item => {
+          const itemObj = item as { itemId?: string; type?: string };
+          return itemObj.itemId === taskId && itemObj.type === 'task';
+        });
         if (relatedHomework) {
-          relatedHomework.status = 'finished';
-          relatedHomework.isCompleted = true;
-          relatedHomework.completedAt = new Date().toISOString();
+          const homeworkObj = relatedHomework as { status?: string; isCompleted?: boolean; completedAt?: string };
+          homeworkObj.status = 'finished';
+          homeworkObj.isCompleted = true;
+          homeworkObj.completedAt = new Date().toISOString();
           this.saveHomeworkItems();
         }
       },
@@ -829,7 +853,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         if (this.countdown > 0) {
           this.countdown--;
         } else {
-          clearInterval(this.countdownInterval);
+          if (this.countdownInterval) clearInterval(this.countdownInterval);
           // Завершаем урок
           try {
             await this.lessonService.endLesson(lessonId, currentUser.id).toPromise();
@@ -944,7 +968,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       next: (classes: GroupClass[]) => {
         console.log('📚 Загружены классы преподавателя с бекенда:', classes);
         // Берем последний созданный активный класс
-        this.currentClass = classes.find((cls: any) => cls.status === 'active') || null;
+        this.currentClass = classes.find((cls: unknown) => (cls as { status?: string }).status === 'active') || null;
         
         // Также сохраняем в localStorage для совместимости
         localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(classes));
@@ -956,7 +980,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
         if (savedClasses) {
           const classes = JSON.parse(savedClasses);
-          this.currentClass = classes.find((cls: any) => cls.status === 'active') || null;
+          this.currentClass = classes.find((cls: unknown) => (cls as { status?: string }).status === 'active') || null;
           console.log('📚 Загружены классы из localStorage:', classes);
         }
       }
@@ -971,7 +995,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     const classes = savedClasses ? JSON.parse(savedClasses) : [];
     
     // Обновляем существующий класс или добавляем новый
-    const existingIndex = classes.findIndex((cls: any) => cls.id === this.currentClass.id);
+    const existingIndex = classes.findIndex((cls: unknown) => (cls as { id?: string }).id === (this.currentClass as { id?: string })?.id);
     if (existingIndex >= 0) {
       classes[existingIndex] = this.currentClass;
     } else {
@@ -982,30 +1006,32 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     console.log('💾 Класс сохранен в localStorage');
   }
 
-  removeStudentFromClass(student: any): void {
+  removeStudentFromClass(student: { id?: string; name?: string; [key: string]: unknown }): void {
     console.log('🗑️ Удаление студента из класса:', student);
     
-    if (!this.currentClass || !this.currentClass.id) {
+    const currentClass = this.currentClass as { id?: string };
+    if (!this.currentClass || !currentClass.id) {
       alert('Класс не найден');
       return;
     }
 
-    const studentId = student.studentId || student.id;
+    const studentId = (student as { studentId?: string }).studentId || student.id;
     if (!studentId) {
       alert('ID студента не найден');
       return;
     }
 
     // Удаляем студента через API
-    this.groupClassService.removeStudentFromClass(this.currentClass.id, studentId).subscribe({
+    this.groupClassService.removeStudentFromClass(currentClass.id!, studentId).subscribe({
       next: () => {
         console.log('✅ Студент удален из класса на бекенде');
         
         // Обновляем локальные данные
-        if (this.currentClass && this.currentClass.students) {
-          const index = this.currentClass.students.indexOf(student);
+        const currentClassObj = this.currentClass as { students?: unknown[] };
+        if (this.currentClass && currentClassObj.students) {
+          const index = currentClassObj.students.indexOf(student);
           if (index > -1) {
-            this.currentClass.students.splice(index, 1);
+            currentClassObj.students.splice(index, 1);
             this.saveClassToStorage(); // Сохраняем изменения в localStorage
           }
         }
@@ -1040,9 +1066,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         // Фильтруем студентов, которые уже не в текущем классе
         this.availableStudents = students.filter((student: unknown) => {
           const studentData = student as { studentId?: string; name?: string };
-          return !this.currentClass.students?.find((s: any) => 
-            s.id === studentData.studentId || s.name === studentData.name
-          );
+          return !(this.currentClass as { students?: unknown[] }).students?.find((s: unknown) => {
+            const studentObj = s as { id?: string; name?: string };
+            return studentObj.id === studentData.studentId || studentObj.name === studentData.name;
+          });
         });
         console.log('📚 Доступные студенты для добавления:', this.availableStudents);
       },
@@ -1054,24 +1081,26 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     });
   }
 
-  addStudentToCurrentClass(student: any): void {
+  addStudentToCurrentClass(student: { id?: string; name?: string; studentId?: string; [key: string]: unknown }): void {
     if (!this.currentClass) return;
     
-    if (!this.currentClass.students) {
-      this.currentClass.students = [];
+    const currentClassObj = this.currentClass as { students?: unknown[] };
+    if (!currentClassObj.students) {
+      currentClassObj.students = [];
     }
     
     // Добавляем студента
-    this.currentClass.students.push({
+    currentClassObj.students.push({
       id: student.studentId || Date.now().toString(),
       name: student.name,
       addedAt: new Date().toISOString()
     });
     
     // Удаляем из доступных студентов
-    this.availableStudents = this.availableStudents.filter(s => 
-      s.studentId !== student.studentId && s.name !== student.name
-    );
+    this.availableStudents = this.availableStudents.filter(s => {
+      const studentObj = s as { studentId?: string; name?: string };
+      return studentObj.studentId !== student.studentId && studentObj.name !== student.name;
+    });
     
     // Сохраняем изменения
     this.saveClassToStorage();
@@ -1099,5 +1128,128 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   private generateInviteCode(): string {
     return Math.random().toString(36).substring(2, 10).toUpperCase();
+  }
+
+  // Helper methods for template safe property access
+  getCurrentLessonSafe(): { studentTasks?: unknown[]; teacherTasks?: unknown[]; studentQuestions?: unknown[]; teacherQuestions?: unknown[]; homework?: unknown[]; [key: string]: unknown } | null {
+    return this.currentLesson as { studentTasks?: unknown[]; teacherTasks?: unknown[]; studentQuestions?: unknown[]; teacherQuestions?: unknown[]; homework?: unknown[]; [key: string]: unknown } | null;
+  }
+
+  getCurrentClassSafe(): { level?: string; name?: string; students?: unknown[]; maxStudents?: number; description?: string; [key: string]: unknown } | null {
+    return this.currentClass as { level?: string; name?: string; students?: unknown[]; maxStudents?: number; description?: string; [key: string]: unknown } | null;
+  }
+
+  getHomeworkTitle(homework: unknown): string {
+    return (homework as { title?: string }).title || '';
+  }
+
+  getHomeworkDescription(homework: unknown): string {
+    return (homework as { description?: string }).description || '';
+  }
+
+  hasHomeworkDescription(homework: unknown): boolean {
+    return !!(homework as { description?: string }).description;
+  }
+
+  getHomeworkType(homework: unknown): string {
+    const type = (homework as { type?: string }).type;
+    return type === 'task' ? 'Tâche' : type === 'question' ? 'Question' : 'Matériel';
+  }
+
+  getHomeworkDueDate(homework: unknown): Date | null {
+    const dueDate = (homework as { dueDate?: string | Date }).dueDate;
+    return dueDate ? new Date(dueDate) : null;
+  }
+
+  getHomeworkStatus(homework: unknown): string {
+    return (homework as { status?: string }).status || '';
+  }
+
+  isHomeworkCompleted(homework: unknown): boolean {
+    return !!(homework as { isCompleted?: boolean }).isCompleted;
+  }
+
+  getHomeworkId(homework: unknown): string {
+    return (homework as { id?: string }).id || '';
+  }
+
+  getStudentName(student: unknown): string {
+    return (student as { name?: string }).name || '';
+  }
+
+  // Helper method for gabarit component
+  getCurrentLessonForGabarit(): { texts?: unknown[]; audios?: unknown[]; videos?: unknown[]; [key: string]: unknown } | null {
+    if (!this.currentLesson) return null;
+    return this.currentLesson as { texts?: unknown[]; audios?: unknown[]; videos?: unknown[]; [key: string]: unknown };
+  }
+
+  // Helper methods for task/question properties
+  getTaskTitle(task: unknown): string {
+    return (task as { title?: string }).title || '';
+  }
+
+  getTaskId(task: unknown): string {
+    return (task as { id?: string }).id || '';
+  }
+
+  getQuestionText(question: unknown): string {
+    return (question as { question?: string }).question || '';
+  }
+
+  getQuestionId(question: unknown): string {
+    return (question as { id?: string }).id || '';
+  }
+
+  // Helper methods for template method calls with unknown parameters
+  onHoverSafe(item: unknown, event: MouseEvent): void {
+    const itemStr = typeof item === 'string' ? item : (item as { title?: string; question?: string }).title || (item as { question?: string }).question || '';
+    this.onHover(itemStr, event);
+  }
+
+  isCoveredInClassSafe(item: unknown): boolean {
+    const itemId = (item as { id?: string }).id || '';
+    return this.isCoveredInClass(itemId);
+  }
+
+  isAddedToHomeworkSafe(item: unknown): boolean {
+    const itemId = (item as { id?: string }).id || '';
+    return this.isAddedToHomework(itemId);
+  }
+
+  isResolvedSafe(item: unknown): boolean {
+    const itemId = (item as { id?: string }).id || '';
+    return this.isResolved(itemId);
+  }
+
+  markTaskAsCompletedSafe(task: unknown): void {
+    const taskId = (task as { id?: string }).id;
+    if (taskId) {
+      this.markTaskAsCompleted(taskId);
+    }
+  }
+
+  markQuestionAsCompletedSafe(question: unknown): void {
+    const questionId = (question as { id?: string }).id;
+    if (questionId) {
+      this.markQuestionAsCompleted(questionId);
+    }
+  }
+
+  openNotesSafe(section: 'tasks' | 'questions', item: unknown, itemObj: unknown): void {
+    const itemId = (item as { id?: string }).id || '';
+    const itemText = (item as { title?: string; question?: string }).title || (item as { question?: string }).question || '';
+    this.openNotes(section, itemId, itemText);
+  }
+
+  // Safe student access for removing from class
+  removeStudentFromClassSafe(student: unknown): void {
+    const studentObj = student as { id?: string; name?: string; studentId?: string; [key: string]: unknown };
+    this.removeStudentFromClass(studentObj);
+  }
+
+  // Safe check for students array length
+  hasStudents(): boolean {
+    const currentClass = this.currentClass as { students?: unknown[] };
+    return (currentClass?.students?.length || 0) > 0;
   }
 }

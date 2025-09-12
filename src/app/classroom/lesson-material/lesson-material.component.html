@@ -37,7 +37,7 @@
 
       <!-- 📁 Gabarit -->
       <app-gabarit-page *ngIf="showGabarit" 
-                        [lesson]="currentLesson" 
+                        [lesson]="getCurrentLessonForGabarit()" 
                         [readonly]="true"
                         [lessonStarted]="lessonStarted"
                         (openNotesEvent)="onGabaritOpenNotes($event)">
@@ -78,24 +78,24 @@
         <div *ngIf="currentClass" class="class-details">
           <mat-card class="class-info-card">
             <mat-card-header>
-              <div mat-card-avatar class="class-avatar">{{ currentClass.level }}</div>
-              <mat-card-title>{{ currentClass.name }}</mat-card-title>
+              <div mat-card-avatar class="class-avatar">{{ getCurrentClassSafe()?.level }}</div>
+              <mat-card-title>{{ getCurrentClassSafe()?.name }}</mat-card-title>
               <mat-card-subtitle>
-                Niveau {{ currentClass.level }} • {{ currentClass.students?.length || 0 }}/{{ currentClass.maxStudents }} élèves
+                Niveau {{ getCurrentClassSafe()?.level }} • {{ getCurrentClassSafe()?.students?.length || 0 }}/{{ getCurrentClassSafe()?.maxStudents }} élèves
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              <p>{{ currentClass.description }}</p>
+              <p>{{ getCurrentClassSafe()?.description }}</p>
               
               <!-- Список студентов в классе -->
               <div class="students-section">
                 <h4>📚 Élèves inscrits:</h4>
-                <div *ngIf="currentClass.students?.length > 0; else noStudents" class="students-grid">
+                <div *ngIf="hasStudents(); else noStudents" class="students-grid">
                   <mat-chip-set>
-                    <mat-chip *ngFor="let student of currentClass.students" 
+                    <mat-chip *ngFor="let student of getCurrentClassSafe()?.students" 
                              [removable]="true"
-                             (removed)="removeStudentFromClass(student)">
-                      {{ student.name }}
+                             (removed)="removeStudentFromClassSafe(student)">
+                      {{ getStudentName(student) }}
                       <mat-icon matChipRemove>cancel</mat-icon>
                     </mat-chip>
                   </mat-chip-set>
@@ -166,18 +166,18 @@
 
           <!-- Список задач студента -->
           <div class="section-header">📝 Tâches</div>
-          <div *ngFor="let task of currentLesson?.studentTasks" (mouseenter)="onHover(task, $event)"
+          <div *ngFor="let task of getCurrentLessonSafe()?.studentTasks" (mouseenter)="onHoverSafe(task, $event)"
             (mouseleave)="onLeaveItem()" class="position-relative">
 
-            <div class="task-card student-task" [class.covered-in-class]="isCoveredInClass(task)">
+            <div class="task-card student-task" [class.covered-in-class]="isCoveredInClassSafe(task)">
               <label class="task-label d-flex align-items-center">
-                <span class="task-text">{{ task.title }}</span>
+                <span class="task-text">{{ getTaskTitle(task) }}</span>
                 <div class="status-indicators ms-auto">
-                  <span *ngIf="isAddedToHomework(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
-                  <span *ngIf="isCoveredInClass(task)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
-                  <button *ngIf="lessonStarted && !isResolved(task)" 
+                  <span *ngIf="isAddedToHomeworkSafe(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
+                  <span *ngIf="isCoveredInClassSafe(task)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
+                  <button *ngIf="lessonStarted && !isResolvedSafe(task)" 
                           class="btn btn-sm btn-outline-success ms-1" 
-                          (click)="markTaskAsCompleted(task.id)"
+                          (click)="markTaskAsCompletedSafe(task)"
                           title="Marquer comme terminé">
                     ✅
                   </button>
@@ -189,7 +189,7 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" (click)="lessonStarted && openNotes('tasks', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
+                <div class="action-item primary" (click)="lessonStarted && openNotesSafe('tasks', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📝 Travailler la tâche
                 </div>
                 <!-- <div class="action-item secondary" (click)="lessonStarted && addToHomework('task', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
@@ -207,18 +207,18 @@
 
           <!-- Список вопросов студента -->
           <div class="section-header">❓ Questions</div>
-          <div *ngFor="let question of currentLesson?.studentQuestions" (mouseenter)="onHover(question, $event)"
+          <div *ngFor="let question of getCurrentLessonSafe()?.studentQuestions" (mouseenter)="onHoverSafe(question, $event)"
             (mouseleave)="onLeaveItem()" class="position-relative">
 
-            <div class="question-card student-question" [class.covered-in-class]="isCoveredInClass(question)">
+            <div class="question-card student-question" [class.covered-in-class]="isCoveredInClassSafe(question)">
               <label class="question-label d-flex align-items-center">
-                <span class="question-text">{{ question.question }}</span>
+                <span class="question-text">{{ getQuestionText(question) }}</span>
                 <div class="status-indicators ms-auto">
-                  <span *ngIf="isAddedToHomework(question)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
-                  <span *ngIf="isCoveredInClass(question)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
-                  <button *ngIf="lessonStarted && !isResolved(question)" 
+                  <span *ngIf="isAddedToHomeworkSafe(question)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
+                  <span *ngIf="isCoveredInClassSafe(question)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
+                  <button *ngIf="lessonStarted && !isResolvedSafe(question)" 
                           class="btn btn-sm btn-outline-success ms-1" 
-                          (click)="markQuestionAsCompleted(question.id)"
+                          (click)="markQuestionAsCompletedSafe(question)"
                           title="Marquer comme terminé">
                     ✅
                   </button>
@@ -230,7 +230,7 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" (click)="lessonStarted && openNotes('questions', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
+                <div class="action-item primary" (click)="lessonStarted && openNotesSafe('questions', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   ❓ Travailler la question
                 </div>
                 <!-- <div class="action-item secondary" (click)="lessonStarted && addToHomework('question', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
@@ -249,26 +249,26 @@
 
 
           <!-- Домашние задания -->
-          <div *ngIf="homeworkItems?.length || currentLesson?.homework?.length" class="section-header">📚 Devoirs</div>
+          <div *ngIf="homeworkItems?.length || getCurrentLessonSafe()?.homework?.length" class="section-header">📚 Devoirs</div>
           
           <!-- Домашние задания из системы (новые) -->
           <div *ngIf="homeworkItems?.length" class="homework-list">
             <div *ngFor="let homework of homeworkItems" class="homework-item-card">
               <div class="homework-header">
-                <span class="homework-title">{{ homework.title }}</span>
+                <span class="homework-title">{{ getHomeworkTitle(homework) }}</span>
               </div>
-              <div *ngIf="homework.description" class="homework-description">{{ homework.description }}</div>
+              <div *ngIf="hasHomeworkDescription(homework)" class="homework-description">{{ getHomeworkDescription(homework) }}</div>
               <div class="homework-meta">
-                <span class="homework-type">{{ homework.type === 'task' ? 'Tâche' : homework.type === 'question' ? 'Question' : 'Matériau' }}</span>
-                <span class="homework-due">Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}</span>
+                <span class="homework-type">{{ getHomeworkType(homework) }}</span>
+                <span class="homework-due">Échéance: {{ getHomeworkDueDate(homework) | date:'dd/MM/yyyy' }}</span>
               </div>
               <div class="homework-actions">
-                <button *ngIf="lessonStarted && homework.status !== 'finished' && !homework.isCompleted" 
+                <button *ngIf="lessonStarted && getHomeworkStatus(homework) !== 'finished' && !isHomeworkCompleted(homework)" 
                         class="btn btn-sm btn-success" 
-                        (click)="markHomeworkAsCompleted(homework.id)">
+                        (click)="markHomeworkAsCompleted(getHomeworkId(homework))">
                   ✅ Marquer comme terminé
                 </button>
-                <span *ngIf="lessonStarted && homework.status === 'finished' || homework.isCompleted" 
+                <span *ngIf="lessonStarted && getHomeworkStatus(homework) === 'finished' || isHomeworkCompleted(homework)" 
                       class="completed-badge">
                   ✅ Terminé
                 </span>
@@ -277,8 +277,8 @@
           </div>
           
           <!-- Домашние задания старой системы (для совместимости) -->
-          <div *ngIf="currentLesson?.homework?.length" class="homework-list legacy">
-            <div *ngFor="let hw of currentLesson.homework" class="homework-item">{{ hw }}</div>
+          <div *ngIf="getCurrentLessonSafe()?.homework?.length" class="homework-list legacy">
+            <div *ngFor="let hw of getCurrentLessonSafe()?.homework" class="homework-item">{{ hw }}</div>
           </div>
         </div>
 
@@ -302,18 +302,18 @@
 
           <!-- Список задач преподавателя -->
           <div class="section-header">📝 Tâches</div>
-          <div *ngFor="let task of currentLesson?.teacherTasks" (mouseenter)="onHover(task, $event)"
+          <div *ngFor="let task of getCurrentLessonSafe()?.teacherTasks" (mouseenter)="onHoverSafe(task, $event)"
             (mouseleave)="onLeaveItem()" class="position-relative">
 
-            <div class="task-card teacher-task" [class.covered-in-class]="isCoveredInClass(task)">
+            <div class="task-card teacher-task" [class.covered-in-class]="isCoveredInClassSafe(task)">
               <label class="task-label d-flex align-items-center">
-                <span class="task-text">{{ task.title }}</span>
+                <span class="task-text">{{ getTaskTitle(task) }}</span>
                 <div class="status-indicators ms-auto">
-                  <span *ngIf="isAddedToHomework(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
-                  <span *ngIf="isCoveredInClass(task)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
-                  <button *ngIf="lessonStarted && !isResolved(task) && userRole === 'teacher'" 
+                  <span *ngIf="isAddedToHomeworkSafe(task)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
+                  <span *ngIf="isCoveredInClassSafe(task)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
+                  <button *ngIf="lessonStarted && !isResolvedSafe(task) && userRole === 'teacher'" 
                           class="btn btn-sm btn-outline-success ms-1" 
-                          (click)="markTaskAsCompleted(task.id)"
+                          (click)="markTaskAsCompletedSafe(task)"
                           title="Marquer comme terminé">
                     ✅
                   </button>
@@ -325,7 +325,7 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" (click)="lessonStarted && openNotes('tasks', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
+                <div class="action-item primary" (click)="lessonStarted && openNotesSafe('tasks', task, task)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   📝 Travailler la tâche
                 </div>
                 <!-- Закомментированные действия для будущей реализации -->
@@ -340,16 +340,16 @@
 
           <!-- Вопросы преподавателя -->
           <div class="section-header">❓ Questions</div>
-          <div *ngFor="let question of currentLesson?.teacherQuestions" (mouseenter)="onHover(question, $event)"
+          <div *ngFor="let question of getCurrentLessonSafe()?.teacherQuestions" (mouseenter)="onHoverSafe(question, $event)"
             (mouseleave)="onLeaveItem()" class="position-relative">
 
-            <div class="question-card teacher-question" [class.covered-in-class]="isCoveredInClass(question)">
+            <div class="question-card teacher-question" [class.covered-in-class]="isCoveredInClassSafe(question)">
               <label class="question-label d-flex align-items-center">
-                <span class="question-text">{{ question.question }}</span>
+                <span class="question-text">{{ getQuestionText(question) }}</span>
                 <div class="status-indicators ms-auto">
-                  <span *ngIf="isAddedToHomework(question)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
-                  <span *ngIf="isCoveredInClass(question)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
-                  <span *ngIf="isResolved(question.id)">✅</span>
+                  <span *ngIf="isAddedToHomeworkSafe(question)" class="badge bg-success ms-1" title="Ajouté aux devoirs">📋</span>
+                  <span *ngIf="isCoveredInClassSafe(question)" class="badge bg-info ms-1" title="Traité en classe">✅</span>
+                  <span *ngIf="isResolvedSafe(question)">✅</span>
                 </div>
               </label>
 
@@ -358,7 +358,7 @@
                 'drop-above': hoveredPosition === 'above',
                 'drop-below': hoveredPosition === 'below'
               }" (mouseenter)="onEnterActions()" (mouseleave)="onLeaveActions()">
-                <div class="action-item primary" (click)="lessonStarted && openNotes('questions', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
+                <div class="action-item primary" (click)="lessonStarted && openNotesSafe('questions', question, question)" [class.disabled]="!lessonStarted" [attr.tabindex]="lessonStarted ? 0 : -1" [attr.aria-disabled]="!lessonStarted">
                   ❓ Travailler la question
                 </div>
                 <!-- Закомментированные действия для будущей реализации -->

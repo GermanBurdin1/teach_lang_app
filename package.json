@@ -14,7 +14,17 @@
     "e2e:ui": "playwright test --ui",
     "lint": "eslint . --ext .ts,.html --max-warnings=0",
     "lint:ci": "eslint . --ext .ts,.html --ignore-pattern 'src/app/classroom/lesson-material/tabs/**' --ignore-pattern 'src/app/features/landing/**' --ignore-pattern 'src/app/features/marathons/**' --ignore-pattern 'src/app/features/materials/**' --ignore-pattern 'src/app/features/tariffs/**' --ignore-pattern 'src/app/shared/components/calendar/**' --ignore-pattern 'src/app/shared/components/schedule/**' --ignore-pattern 'src/app/test-video-call/**' --ignore-pattern 'public/**'",
-    "format": "prettier --check ."
+    "format": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "angular:check": "ng build --configuration=production --aot",
+    "angular:typecheck": "ng build --aot",
+    "check:all": "npm run typecheck && npm run angular:check && npm run lint:ci",
+    "check:errors": "npm run typecheck",
+    "check:angular-errors": "ng build --configuration=production --aot",
+    "check:errors-count": "powershell \"npm run typecheck 2>&1 | Select-String 'error TS' | Measure-Object | Select-Object Count\"",
+    "check:angular-count": "powershell \"ng build --configuration=production --aot 2>&1 | Select-String 'ERROR' | Measure-Object | Select-Object Count\"",
+    "check:quick": "npm run typecheck && echo TypeScript OK"
   },
   "private": true,
   "dependencies": {
@@ -58,6 +68,7 @@
     "@playwright/test": "^1.53.2",
     "@types/bootstrap": "^5.2.10",
     "@types/jasmine": "~5.1.0",
+    "@types/node": "^24.3.1",
     "@types/textfit": "^2.4.5",
     "eslint": "^9.35.0",
     "jasmine-core": "~5.2.0",
