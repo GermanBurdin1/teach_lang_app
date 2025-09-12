@@ -16,6 +16,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -37,7 +38,8 @@ import { FormsModule } from '@angular/forms';
     MatOptionModule,
     MatRadioModule,
     MatProgressSpinnerModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatInputModule
   ],
   exports: [
     ScheduleComponent,
@@ -54,7 +56,8 @@ import { FormsModule } from '@angular/forms';
     MatOptionModule,
     MatRadioModule,
     MatProgressSpinnerModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatInputModule
   ]
 })
 export class SharedModule { }

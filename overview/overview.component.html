@@ -179,9 +179,9 @@
       <div *ngIf="profile" class="teacher-overview-container">
         <mat-card>
           <div class="profile-header">
-            <img [src]="profile.photo_url" alt="Photo de {{ profile.full_name }}" class="profile-photo" />
+            <img [src]="getProfilePhotoUrl()" alt="Photo de {{ getProfileFullName() }}" class="profile-photo" />
             <div class="profile-info">
-              <h2>{{ profile.full_name }}</h2>
+              <h2>{{ getProfileFullName() }}</h2>
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Biographie</mat-label>
                 <textarea matInput [(ngModel)]="profile.bio" (ngModelChange)="updateProfileField()"></textarea>
