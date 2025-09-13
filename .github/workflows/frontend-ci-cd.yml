@@ -86,9 +86,17 @@ jobs:
           ssh-keyscan -p "${OVH_PORT:-22}" "$OVH_HOST" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
           
-          # Проверяем SSH подключение
+          # Отладка SSH ключа
+          echo "=== SSH Key Debug ==="
+          echo "SSH key file exists: $(test -f ~/.ssh/id_deploy && echo 'YES' || echo 'NO')"
+          echo "SSH key permissions: $(ls -la ~/.ssh/id_deploy)"
+          echo "SSH key content (first 50 chars): $(head -c 50 ~/.ssh/id_deploy)"
+          echo "SSH key type: $(head -c 20 ~/.ssh/id_deploy)"
+          echo "===================="
+          
+          # Проверяем SSH подключение с подробной отладкой
           echo "Testing SSH connection..."
-          ssh -i ~/.ssh/id_deploy -p "${OVH_PORT:-22}" -o ConnectTimeout=10 -o StrictHostKeyChecking=no "${OVH_USER}@${OVH_HOST}" "echo 'SSH connection successful'"
+          ssh -i ~/.ssh/id_deploy -p "${OVH_PORT:-22}" -o ConnectTimeout=10 -o StrictHostKeyChecking=no -v "${OVH_USER}@${OVH_HOST}" "echo 'SSH connection successful'" 2>&1 || echo "SSH connection failed"
           
           # Деплоим отфильтрованную сборку (исключенные папки уже удалены)
           rsync -avz --delete \
