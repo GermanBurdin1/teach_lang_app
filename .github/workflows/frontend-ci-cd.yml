@@ -80,8 +80,15 @@ jobs:
           REMOTE_DIR: /www/wwwroot/135.125.107.45
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          chmod 700 ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
           ssh-keyscan -p "${OVH_PORT:-22}" "$OVH_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          
+          # Проверяем SSH подключение
+          echo "Testing SSH connection..."
+          ssh -i ~/.ssh/id_deploy -p "${OVH_PORT:-22}" -o ConnectTimeout=10 -o StrictHostKeyChecking=no "${OVH_USER}@${OVH_HOST}" "echo 'SSH connection successful'"
           
           # Деплоим отфильтрованную сборку (исключенные папки уже удалены)
           rsync -avz --delete \
