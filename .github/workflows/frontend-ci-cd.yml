@@ -99,9 +99,12 @@ jobs:
           ssh -i ~/.ssh/id_deploy -p "${OVH_PORT:-22}" -o ConnectTimeout=10 -o StrictHostKeyChecking=no -v "${OVH_USER}@${OVH_HOST}" "echo 'SSH connection successful'" 2>&1 || echo "SSH connection failed"
           
           # Деплоим отфильтрованную сборку (исключенные папки уже удалены)
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/id_deploy -p ${OVH_PORT:-22}" \
-            filtered-dist/ "${OVH_USER}@${OVH_HOST}:${REMOTE_DIR}/"
+          rsync -avz \
+          --delete \
+          --exclude='.user.ini' \
+          --no-perms --omit-dir-times \
+          -e "ssh -i ~/.ssh/id_deploy -p ${OVH_PORT:-22}" \
+          filtered-dist/ "${OVH_USER}@${OVH_HOST}:${REMOTE_DIR}/"
             
           # если менял конфиг, перезагрузи Nginx
           ssh -i ~/.ssh/id_deploy -p "${OVH_PORT:-22}" "${OVH_USER}@${OVH_HOST}" \
