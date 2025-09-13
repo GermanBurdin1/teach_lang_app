@@ -3,9 +3,9 @@ import { VocabularyComponent } from './features/vocabulary/vocabulary.component'
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/components/register/register.component';
 // import { VideoCallComponent } from './features/lessons/video-call/video-call.component'; // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
-import { TestVideoCallComponent } from './test-video-call/test-video-call.component';
-import { LandingComponent } from './features/landing/landing.component';
-import { PreviewLandingComponent } from './features/landing/preview-landing/preview-landing.component';
+// import { TestVideoCallComponent } from './test-video-call/test-video-call.component'; // Excluded from prod build
+// import { LandingComponent } from './features/landing/landing.component'; // Excluded from prod build
+// import { PreviewLandingComponent } from './features/landing/preview-landing/preview-landing.component'; // Excluded from prod build
 import { RoleGuard } from './core/guards/role.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 
@@ -38,9 +38,9 @@ export const routes: Routes = [
     data: { roles: ['student', 'teacher'] }
   },
   //{ path: 'video-call', component: VideoCallComponent }, // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
-  { path: 'test-video', component: TestVideoCallComponent }, // Тестовая страница видео звонков
-  { path: 'landing', component: LandingComponent },
-  { path: 'landing/preview', component: PreviewLandingComponent },
+  // { path: 'test-video', component: TestVideoCallComponent }, // Excluded from prod build
+  // { path: 'landing', component: LandingComponent }, // Excluded from prod build
+  // { path: 'landing/preview', component: PreviewLandingComponent }, // Excluded from prod build
   { path: 'data-rights', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
   { path: 'privacy-policy', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
   { path: 'cookies-policy', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },

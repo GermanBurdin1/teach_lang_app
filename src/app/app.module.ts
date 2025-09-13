@@ -13,9 +13,9 @@ import { DashboardModule } from './features/dashboard/dashboard.module';
 import { LessonsModule } from './features/lessons/lessons.module';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
-import { TariffsModule } from './features/tariffs/tariffs.module';
+// import { TariffsModule } from './features/tariffs/tariffs.module'; // Excluded from prod build
 import { SettingsModule } from './features/settings/settings.module';
-import { LandingModule } from './features/landing/landing.module';
+// import { LandingModule } from './features/landing/landing.module'; // Excluded from prod build
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ClassroomModule } from './classroom/classroom.module';
@@ -32,14 +32,14 @@ import { LOCALE_ID } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { getCosmicPaginatorIntl } from './shared/providers/custom-paginator-intl';
-import { TestVideoCallComponent } from './test-video-call/test-video-call.component';
+// import { TestVideoCallComponent } from './test-video-call/test-video-call.component'; // Excluded from prod build
 import { RgpdModule } from './features/rgpd/rgpd.module';
 import { FooterComponent } from './layout/footer/footer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TestVideoCallComponent
+    // TestVideoCallComponent // Excluded from prod build
   ],
   imports: [
     VocabularyModule,
@@ -53,9 +53,9 @@ import { FooterComponent } from './layout/footer/footer.component';
     LessonsModule,
     CoreModule,
     SharedModule,
-    TariffsModule,
+    // TariffsModule, // Excluded from prod build
     SettingsModule,
-    LandingModule,
+    // LandingModule, // Excluded from prod build
     BrowserAnimationsModule,
     BsDropdownModule.forRoot(),
     ClassroomModule, // VideoCallComponent экспортируется отсюда

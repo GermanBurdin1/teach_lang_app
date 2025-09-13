@@ -4,7 +4,7 @@ import { LessonMaterialComponent } from './lesson-material/lesson-material.compo
 import { LayoutModule } from '../layout/layout.module';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TabsComponent } from './lesson-material/tabs/tabs.component';
+// import { TabsComponent } from './lesson-material/tabs/tabs.component'; // Excluded from prod build
 import { VideoCallComponent } from '../features/lessons/video-call/video-call.component';
 import { LessonsModule } from '../features/lessons/lessons.module';
 import { InteractiveBoardComponent } from './lesson-material/interactive-board/interactive-board.component';
@@ -36,7 +36,7 @@ const routes: Routes = [
     CommonModule,
     LayoutModule,
     FormsModule,
-    TabsComponent,
+    // TabsComponent, // Excluded from prod build
     LessonsModule,
     MatDialogModule,
     MatFormFieldModule,
