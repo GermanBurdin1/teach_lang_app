@@ -2,9 +2,9 @@ import { NgModule } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { DashboardRoutingModule } from './dashboard-routing.module';
-import { UsersComponent } from '../users/users.component';
-import { MaterialsComponent } from '../marathons/materials/materials.component';
-import { MarathonsComponent } from '../marathons/marathons.component';
+// import { UsersComponent } from '../users/users.component'; // Excluded from prod build
+// import { MaterialsComponent } from '../marathons/materials/materials.component'; // Excluded from prod build
+// import { MarathonsComponent } from '../marathons/marathons.component'; // Excluded from prod build
 import { SchoolDashboardComponent } from './school-dashboard/school-dashboard.component';
 import { AdminTeacherProfileComponent } from './school-dashboard/teacher-management/admin-teacher-profile.component';
 import { StudentProfileComponent } from './student-dashboard/student-profile.component';
@@ -13,7 +13,7 @@ import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
-import { TariffsModule } from "../tariffs/tariffs.module";
+// import { TariffsModule } from "../tariffs/tariffs.module"; // Excluded from prod build
 // import { StatiscticsComponent } from '../statisctics/statisctics.component';
 import { WordsComponent } from '../words/words.component';
 import { SharedModule } from '../../shared/shared.module';
@@ -62,9 +62,9 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
 
 @NgModule({
   declarations: [
-    UsersComponent,
-    MaterialsComponent,
-    MarathonsComponent,
+    // UsersComponent, // Excluded from prod build
+    // MaterialsComponent, // Excluded from prod build
+    // MarathonsComponent, // Excluded from prod build
     SchoolDashboardComponent,
     AdminTeacherProfileComponent,
     StudentProfileComponent,
@@ -99,7 +99,7 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
     FormsModule,
     ReactiveFormsModule,
     NgSelectModule,
-    TariffsModule,
+    // TariffsModule, // Excluded from prod build
     MatButtonToggleModule,
     MatCardModule,
     MatFormFieldModule,
