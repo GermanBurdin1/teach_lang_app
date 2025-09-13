@@ -28,12 +28,9 @@ jobs:
       - name: Install Playwright (browsers)
         run: npx playwright install --with-deps
 
-      - name: E2E tests (Playwright headless)
-        run: npm run e2e
-
-      - name: Remove excluded directories before build
+      - name: Remove excluded directories before E2E and build
         run: |
-          # Удаляем папки только перед билдом для production
+          # Удаляем папки перед E2E тестами и билдом для production
           rm -rf public/
           rm -rf src/app/classroom/lesson-material/tabs/
           rm -rf src/app/features/landing/
@@ -43,6 +40,9 @@ jobs:
           rm -rf src/app/features/users/
           rm -rf src/app/shared/components/schedule/
           rm -rf src/app/test-video-call/
+
+      - name: E2E tests (Playwright headless)
+        run: npm run e2e
 
       - name: Build (Angular prod w/ budgets)
         run: npm run build

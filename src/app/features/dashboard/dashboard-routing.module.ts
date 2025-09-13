@@ -7,7 +7,7 @@ import { UsersComponent } from '../users/users.component';
 import { SettingsComponent } from '../settings/settings.component';
 // import { TariffsComponent } from '../tariffs/tariffs.component';
 //import { AdminTeacherProfileComponent } from './school-dashboard/teacher-management/admin-teacher-profile.component';
-import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
+// import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
 //import { StudentProfileComponent } from './student-dashboard/student-profile.component';
 // import { StatiscticsComponent } from '../statisctics/statisctics.component';
 import { WordsComponent } from '../words/words.component';
@@ -41,7 +41,7 @@ const routes: Routes = [
       { path: 'school/users', component: UsersComponent },
       //{ path: 'users/teacher/:id', component: AdminTeacherProfileComponent },
       //{ path: 'users/student/:id', component: StudentProfileComponent },
-      { path: 'school/online-lessons', component: OnlineLessonsComponent },
+      //{ path: 'school/online-lessons', component: OnlineLessonsComponent },
       // { path: 'school/materials', component: MaterialsComponent },
       // { path: 'school/marathons', component: MarathonsComponent },
       { path: 'school/settings', component: SettingsComponent },
