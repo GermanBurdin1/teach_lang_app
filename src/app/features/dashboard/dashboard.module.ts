@@ -6,8 +6,8 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 // import { MaterialsComponent } from '../marathons/materials/materials.component'; // Excluded from prod build
 // import { MarathonsComponent } from '../marathons/marathons.component'; // Excluded from prod build
 import { SchoolDashboardComponent } from './school-dashboard/school-dashboard.component';
-import { AdminTeacherProfileComponent } from './school-dashboard/teacher-management/admin-teacher-profile.component';
-import { StudentProfileComponent } from './student-dashboard/student-profile.component';
+//import { AdminTeacherProfileComponent } from './school-dashboard/teacher-management/admin-teacher-profile.component';
+//import { StudentProfileComponent } from './student-dashboard/student-profile.component';
 import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
@@ -66,8 +66,8 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
     // MaterialsComponent, // Excluded from prod build
     // MarathonsComponent, // Excluded from prod build
     SchoolDashboardComponent,
-    AdminTeacherProfileComponent,
-    StudentProfileComponent,
+    //AdminTeacherProfileComponent,
+    //StudentProfileComponent,
     OnlineLessonsComponent,
     // StatiscticsComponent,
     WordsComponent,
