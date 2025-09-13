@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SchoolDashboardComponent } from './school-dashboard/school-dashboard.component';
-import { UsersComponent } from '../users/users.component';
+// import { UsersComponent } from '../users/users.component';
 // import { MaterialsComponent } from '../materials/materials.component';
 // import { MarathonsComponent } from '../marathons/marathons.component';
 import { SettingsComponent } from '../settings/settings.component';
@@ -38,7 +38,7 @@ const routes: Routes = [
     path: '',
     component: SchoolDashboardComponent,
     children: [
-      { path: 'school/users', component: UsersComponent },
+      // { path: 'school/users', component: UsersComponent },
       //{ path: 'users/teacher/:id', component: AdminTeacherProfileComponent },
       //{ path: 'users/student/:id', component: StudentProfileComponent },
       //{ path: 'school/online-lessons', component: OnlineLessonsComponent },
