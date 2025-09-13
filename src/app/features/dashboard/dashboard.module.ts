@@ -12,7 +12,7 @@ import { RouterModule } from '@angular/router';
 import { LayoutModule } from "../../layout/layout.module";
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component';
+// import { OnlineLessonsComponent } from '../online-lessons/online-lessons.component'; // Excluded from prod build
 // import { TariffsModule } from "../tariffs/tariffs.module"; // Excluded from prod build
 // import { StatiscticsComponent } from '../statisctics/statisctics.component';
 import { WordsComponent } from '../words/words.component';
@@ -68,7 +68,7 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
     SchoolDashboardComponent,
     //AdminTeacherProfileComponent,
     //StudentProfileComponent,
-    OnlineLessonsComponent,
+    // OnlineLessonsComponent, // Excluded from prod build
     // StatiscticsComponent,
     WordsComponent,
     TrainerComponent,

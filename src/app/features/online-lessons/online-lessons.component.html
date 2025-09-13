@@ -1,7 +1,7 @@
 <div class="container mt-4">
 
   <!-- Скрытый компонент, чтобы взять из него данные -->
-  <app-marathons #marathonsComponent style="display: none;"></app-marathons>
+  <!-- <app-marathons #marathonsComponent style="display: none;"></app-marathons> --> <!-- Excluded from prod build -->
 
   <h2>Выберите курс</h2>
   <select class="form-select mb-3" (change)="selectCourse($event)">
@@ -70,8 +70,8 @@
           Онлайн-уроки не оплачены. Для проведения онлайн-уроков оплатите тариф.
         </div>
         <button class="btn btn-primary" (click)="openTariffModal()">Добавить</button>
-        <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal"
-          (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal>
+        <!-- <app-tariff-modal *ngIf="showTariffModal" [showTariffModal]="showTariffModal"
+          (closeTariffModalEvent)="closeTariffModal()"></app-tariff-modal> --> <!-- Excluded from prod build -->
       </div>
 
       <!-- Контент "Классы" -->
