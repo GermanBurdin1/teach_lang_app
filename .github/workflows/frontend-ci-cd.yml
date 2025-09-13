@@ -39,7 +39,6 @@ jobs:
           rm -rf src/app/features/tariffs/
           rm -rf src/app/features/users/
           rm -rf src/app/shared/components/schedule/
-          rm -rf src/app/shared/components/calendar/
           rm -rf src/app/test-video-call/
 
       - name: E2E tests (Playwright headless)
