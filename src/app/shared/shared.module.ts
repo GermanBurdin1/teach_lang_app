@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 // import { ScheduleComponent } from './components/schedule/schedule/schedule.component'; // Excluded from prod build
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-
-//import { CalendarPreviewComponent } from './components/calendar/calendar-preview.component';
+import { CalendarPreviewComponent } from './components/calendar/calendar-preview.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -20,7 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  //declarations: [ScheduleComponent,  CalendarPreviewComponent], // ScheduleComponent excluded from prod build
+  declarations: [CalendarPreviewComponent], // ScheduleComponent excluded from prod build
   imports: [
     CommonModule,
     FormsModule,
@@ -43,7 +42,7 @@ import { FormsModule } from '@angular/forms';
   ],
   exports: [
     // ScheduleComponent, // Excluded from prod build
-    // CalendarPreviewComponent, // Excluded from prod build
+    CalendarPreviewComponent, // Excluded from prod build
     CommonModule,
     FormsModule,
     MatSnackBarModule,
