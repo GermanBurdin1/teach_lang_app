@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VocabularyGptService {
-  private readonly API_URL = 'http://localhost:3000/gpt/classify'; // Настрой под свой бэкенд
+  private readonly API_URL = `${API_ENDPOINTS.VOCABULARY}/gpt/classify`;
 
   constructor(private http: HttpClient) {}
 

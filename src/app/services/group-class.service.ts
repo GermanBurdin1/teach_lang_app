@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 export interface GroupClass {
   id: string;
@@ -43,7 +44,7 @@ export interface AddStudentToClassDto {
   providedIn: 'root'
 })
 export class GroupClassService {
-  private readonly baseUrl = 'http://localhost:3004/lessons';
+  private readonly baseUrl = API_ENDPOINTS.LESSONS;
 
   constructor(private http: HttpClient) {}
 

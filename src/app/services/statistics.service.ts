@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 import { environment as _environment } from '../../../environment';
 
 export interface StudentStats {
@@ -13,7 +14,7 @@ export interface StudentStats {
   providedIn: 'root'
 })
 export class StatisticsService {
-  private baseUrl = 'http://localhost:3006/statistics';
+  private baseUrl = API_ENDPOINTS.STATISTICS;
 
   constructor(private http: HttpClient) {}
 

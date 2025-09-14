@@ -5,6 +5,7 @@ import { Teacher } from '../features/teacher-search-and-consult/teacher.model';
 import { AuthService } from './auth.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Review } from '../features/dashboard/shared/models/review.model';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,7 @@ export class TeacherService {
     });
 
     return this.http.get<{ data: any[]; total: number }>(
-      'http://localhost:3001/auth/teachers',
+      `${API_ENDPOINTS.AUTH}/teachers`,
       { params }
     ).pipe(
       map(response => {
@@ -55,7 +56,7 @@ export class TeacherService {
   }
 
   getTeacherById(id: string): Observable<TeacherDetails> {
-    return this.http.get<any>(`http://localhost:3001/teacher-profile/full/${id}`).pipe(
+    return this.http.get<any>(`${API_ENDPOINTS.AUTH}/teacher-profile/full/${id}`).pipe(
       map(profile => ({
         id: profile.user.id_users,
         name: profile.user.name || '',
@@ -73,7 +74,7 @@ export class TeacherService {
   }
 
   getReviewsByTeacher(teacherId: string): Observable<Review[]> {
-    return this.http.get<Review[]>(`http://localhost:3001/reviews/teacher/${teacherId}`);
+    return this.http.get<Review[]>(`${API_ENDPOINTS.AUTH}/reviews/teacher/${teacherId}`);
   }
 
   updateProfile(userId: string, data: {
@@ -83,16 +84,16 @@ export class TeacherService {
     specializations?: string[];
     certificates?: string[];
   }): Observable<any> {
-    return this.http.put(`http://localhost:3001/teacher-profile/update/${userId}`, data);
+    return this.http.put(`${API_ENDPOINTS.AUTH}/teacher-profile/update/${userId}`, data);
   }
 
 
   uploadPhoto(userId: string, photoUrl: string): Observable<any> {
-    return this.http.put(`http://localhost:3001/teacher-profile/photo/${userId}`, { photoUrl });
+    return this.http.put(`${API_ENDPOINTS.AUTH}/teacher-profile/photo/${userId}`, { photoUrl });
   }
 
   getMyTeachers(): Observable<Teacher[]> {
-    return this.http.get<Teacher[]>('http://localhost:3001/student/my-teachers');
+    return this.http.get<Teacher[]>(`${API_ENDPOINTS.AUTH}/student/my-teachers`);
   }
 
   getMyTeachersFromLessonService(): Observable<Teacher[]> {
@@ -101,7 +102,7 @@ export class TeacherService {
     if (!studentId) {
       throw new Error('Не найден id студента');
     }
-    return this.http.get<Teacher[]>(`http://localhost:3004/lessons/student/${studentId}/teachers`).pipe(
+    return this.http.get<Teacher[]>(`${API_ENDPOINTS.LESSONS}/student/${studentId}/teachers`).pipe(
       map(result => {
         console.log('[TeacherService] getMyTeachersFromLessonService result:', result);
         return result;

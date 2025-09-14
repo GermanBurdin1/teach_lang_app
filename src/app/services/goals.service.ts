@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 import { StudentGoal, CreateGoalDto, ExamLevel } from '../models/student-goal.model';
 import { environment as _environment } from '../../../environment';
 
@@ -8,7 +9,7 @@ import { environment as _environment } from '../../../environment';
   providedIn: 'root'
 })
 export class GoalsService {
-  private apiUrl = `http://localhost:3001/goals`; // auth-service
+  private apiUrl = `${API_ENDPOINTS.AUTH}/goals`;
 
   constructor(private http: HttpClient) {}
 

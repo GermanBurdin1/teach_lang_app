@@ -4,6 +4,7 @@ import { TeacherProfile } from '../features/dashboard/teacher-dashboard/teacher-
 import { StudentProfile } from '../features/dashboard/student-dashboard/student-profile.model';
 import { Observable } from 'rxjs';
 import { AdminProfile } from '../features/dashboard/school-dashboard/admin-profile.model';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 type TeacherOrStudentProfile = TeacherProfile | StudentProfile | AdminProfile;
 
@@ -11,7 +12,7 @@ type TeacherOrStudentProfile = TeacherProfile | StudentProfile | AdminProfile;
   providedIn: 'root'
 })
 export class ProfilesApiService {
-  private baseUrl = 'http://localhost:3002/profiles';
+  private baseUrl = API_ENDPOINTS.MINDMAP;
 
   constructor(private http: HttpClient) { }
   createProfile(profile: TeacherOrStudentProfile): Observable<TeacherOrStudentProfile> {

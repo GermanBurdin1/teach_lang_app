@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../../core/constants/api.constants';
 import { MindmapNode } from './models/mindmap-node.model'; // ✅ путь к твоей модели
 
 interface UpdateNodeResponse {
@@ -13,7 +14,7 @@ interface UpdateNodeResponse {
   providedIn: 'root'
 })
 export class MindmapService {
-  private readonly baseUrl = 'http://localhost:3002/mindmap';
+  private readonly baseUrl = API_ENDPOINTS.MINDMAP;
 
   constructor(private http: HttpClient) { }
 

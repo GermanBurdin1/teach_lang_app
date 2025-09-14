@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 
 @Component({
   selector: 'app-verify-email',
@@ -17,7 +18,7 @@ export class VerifyEmailComponent implements OnInit {
   ngOnInit() {
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) {
-      this.http.post('http://localhost:3001/auth/verify-email', { token }).subscribe({
+      this.http.post(`${API_ENDPOINTS.AUTH}/verify-email`, { token }).subscribe({
         next: () => {
           this.message = 'Votre email a été confirmé avec succès ! Vous pouvez maintenant vous connecter.';
           this.success = true;

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 export interface Material {
   id: string;
@@ -26,7 +27,7 @@ export interface AttachMaterialRequest {
   providedIn: 'root'
 })
 export class MaterialService {
-  private baseUrl = 'http://localhost:3008/materials';
+  private baseUrl = `${API_ENDPOINTS.FILES}/materials`;
   
   private materials$ = new BehaviorSubject<Material[]>([]);
   private studentMaterials$ = new BehaviorSubject<Material[]>([]);

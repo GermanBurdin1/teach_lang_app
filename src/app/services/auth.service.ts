@@ -3,6 +3,7 @@ import { User } from '../features/auth/models/user.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environment';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 interface JwtResponse {
   access_token: string;
@@ -18,7 +19,7 @@ export class AuthService {
   private _user: User | null = null;
   private _accessToken: string | null = null;
   private _refreshToken: string | null = null;
-  private baseRegisterUrl = 'http://localhost:3011/auth';
+  private baseRegisterUrl = `${API_ENDPOINTS.AUTH}/register`;
   private currentRoleSubject = new BehaviorSubject<string | null>(null);
   currentRole$ = this.currentRoleSubject.asObservable();
 
@@ -86,11 +87,11 @@ export class AuthService {
   }
 
   getAllTeachers(): Observable<User[]> {
-    return this.http.get<User[]>('http://localhost:3011/auth/teachers');
+    return this.http.get<User[]>(`${API_ENDPOINTS.AUTH}/teachers`);
   }
 
   login(email: string, password: string): Observable<JwtResponse> {
-    return this.http.post<JwtResponse>('http://localhost:3011/auth/login', { email, password });
+    return this.http.post<JwtResponse>(`${API_ENDPOINTS.AUTH}/login`, { email, password });
   }
 
   register(email: string, password: string, roles: string[], name: string, surname: string): Observable<JwtResponse> {
@@ -163,7 +164,7 @@ export class AuthService {
   }
 
   checkEmailExists(email: string): Observable<{ exists: boolean; roles?: string[] }> {
-    return this.http.get<{ exists: boolean; roles?: string[] }>(`http://localhost:3011/auth/check-email?email=${email}`);
+    return this.http.get<{ exists: boolean; roles?: string[] }>(`${API_ENDPOINTS.AUTH}/check-email?email=${email}`);
   }
 
   getAccessToken(): string | null {
@@ -187,7 +188,7 @@ export class AuthService {
     }
     
     return this.http.post<{ access_token: string; expires_in: number }>(
-      'http://localhost:3011/auth/refresh-token',
+      `${API_ENDPOINTS.AUTH}/refresh-token`,
       { refresh_token: this._refreshToken }
     );
   }

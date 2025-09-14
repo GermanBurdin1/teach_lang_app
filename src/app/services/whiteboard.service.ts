@@ -3,6 +3,7 @@ import { WhiteWebSdk, Room, JoinRoomParams, RoomPhase as _RoomPhase } from 'whit
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environment';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 
 @Injectable({
@@ -12,7 +13,7 @@ export class WhiteboardService {
   private sdk: WhiteWebSdk;
   private room?: Room;
   private roomUuid: string = '';
-  private apiUrl = 'http://localhost:3000/whiteboard/create-room';
+  private apiUrl = `${API_ENDPOINTS.VOCABULARY}/whiteboard/create-room`;
   private roomSubject = new BehaviorSubject<Room | null>(null);
   room$ = this.roomSubject.asObservable(); // Доступ к observable
 

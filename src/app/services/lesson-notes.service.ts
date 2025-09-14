@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable as _Observable, forkJoin as _forkJoin } from 'rxjs';
 import { AuthService } from './auth.service';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 export interface LessonNote {
   id: string;
@@ -38,7 +39,7 @@ export interface BackendLessonNotes {
   providedIn: 'root'
 })
 export class LessonNotesService {
-  private baseUrl = `http://localhost:3004/lessons`;
+  private baseUrl = API_ENDPOINTS.LESSONS;
   
   private notesSubject = new BehaviorSubject<LessonNotesData>({
     lessonId: '',

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 interface LessonResponse {
   success: boolean;
@@ -36,7 +37,7 @@ export interface TeacherTimeSlot {
   providedIn: 'root'
 })
 export class LessonService {
-  private baseUrl = 'http://localhost:3004/lessons';
+  private baseUrl = API_ENDPOINTS.LESSONS;
 
   constructor(private http: HttpClient) { }
 
@@ -76,7 +77,7 @@ export class LessonService {
 
   getConfirmedLessons(studentId: string): Observable<unknown[]> {
     return this.http
-      .get<unknown[]>(`http://localhost:3004/lessons/student/${studentId}/confirmed-lessons`)
+      .get<unknown[]>(`${API_ENDPOINTS.LESSONS}/student/${studentId}/confirmed-lessons`)
       .pipe(
         tap(lessons => console.log('📚 Confirmed lessons received from backend:', lessons))
       );

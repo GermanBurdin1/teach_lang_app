@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 export interface UploadedFile {
   id: number;
@@ -15,8 +16,8 @@ export interface UploadedFile {
   providedIn: 'root'
 })
 export class FileUploadService {
-  private apiUrl = 'http://localhost:3008/files/upload'; // URL API на бэкенде
-  private materialsUrl = `http://localhost:3008/files/materials`;
+  private apiUrl = `${API_ENDPOINTS.FILES}/upload`;
+  private materialsUrl = `${API_ENDPOINTS.FILES}/materials`;
 
   constructor(private http: HttpClient) {}
 
@@ -31,7 +32,7 @@ export class FileUploadService {
   }
 
   getFiles(courseId: string): Observable<UploadedFile[]> {
-    return this.http.get<UploadedFile[]>(`http://localhost:3008/files?courseId=${encodeURIComponent(courseId)}`);
+    return this.http.get<UploadedFile[]>(`${API_ENDPOINTS.FILES}?courseId=${encodeURIComponent(courseId)}`);
   }
 
 

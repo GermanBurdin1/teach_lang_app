@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environment';
 import { GrammarData } from '../features/vocabulary/models/grammar-data.model';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 interface TranslationResponse {
   word: string;
@@ -18,7 +19,7 @@ interface TranslationResponse {
   providedIn: 'root'
 })
 export class TranslationService {
-  private apiUrl = 'http://localhost:3000/translation'; // твой backend путь
+  private apiUrl = `${API_ENDPOINTS.VOCABULARY}/translation`;
 
   constructor(private http: HttpClient) { }
 

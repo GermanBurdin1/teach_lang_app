@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { GrammarData } from '../features/vocabulary/models/grammar-data.model';
 import { AuthService } from './auth.service';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 interface LexiconResponse {
   success: boolean;
@@ -40,7 +41,7 @@ export interface BackendWordCard {
 })
 export class LexiconService {
 
-  private apiUrl = 'http://localhost:3000/lexicon';
+  private apiUrl = `${API_ENDPOINTS.VOCABULARY}/lexicon`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -51,11 +52,11 @@ export class LexiconService {
   }
 
   updateWordStatus(id: number, status: 'learned' | 'repeat' | 'error' | null): Observable<LexiconResponse> {
-    return this.http.patch<LexiconResponse>(`http://localhost:3000/lexicon/${id}/status`, { status });
+    return this.http.patch<LexiconResponse>(`${API_ENDPOINTS.VOCABULARY}/lexicon/${id}/status`, { status });
   }
 
   revealWord(id: number): Observable<LexiconResponse> {
-    return this.http.patch<LexiconResponse>(`http://localhost:3000/lexicon/${id}/reveal`, {});
+    return this.http.patch<LexiconResponse>(`${API_ENDPOINTS.VOCABULARY}/lexicon/${id}/reveal`, {});
   }
 
   addWord(card: BackendWordCard): Observable<LexiconResponse> {
@@ -89,7 +90,7 @@ export class LexiconService {
   }
 
   updateGrammar(id: number, grammar: GrammarData): Observable<LexiconResponse> {
-    return this.http.patch<LexiconResponse>(`http://localhost:3000/grammar/${id}`, grammar).pipe(
+    return this.http.patch<LexiconResponse>(`${API_ENDPOINTS.VOCABULARY}/grammar/${id}`, grammar).pipe(
       catchError(err => {
         console.error('❌ Ошибка при обновлении грамматики:', err);
         return throwError(() => err);

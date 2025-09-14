@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 interface NotificationResponse {
   success: boolean;
@@ -11,7 +12,7 @@ import { Notification } from '../models/notification.model';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private baseUrl = 'http://localhost:3003/notifications';
+  private baseUrl = API_ENDPOINTS.NOTIFICATIONS;
 
   constructor(private http: HttpClient) { }
 
@@ -29,11 +30,11 @@ export class NotificationService {
   }
 
   markAsRead(notificationId: string): Observable<void> {
-    return this.http.patch<void>(`http://localhost:3004/notifications/${notificationId}/read`, {});
+    return this.http.patch<void>(`${API_ENDPOINTS.NOTIFICATIONS}/${notificationId}/read`, {});
   }
 
   getConfirmedLessons(studentId: string): Observable<unknown[]> {
-    return this.http.get<unknown[]>(`http://localhost:3001/lessons/student/${studentId}/confirmed-lessons`);
+    return this.http.get<unknown[]>(`${API_ENDPOINTS.LESSONS}/student/${studentId}/confirmed-lessons`);
   }
 
   hideNotification(notificationId: string): Observable<void> {

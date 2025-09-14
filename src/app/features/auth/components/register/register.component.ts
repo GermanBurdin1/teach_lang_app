@@ -6,6 +6,7 @@ import { NotificationService } from '../../../../services/notification.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../../../environment';
 import { AnalyticsService } from '../../../../services/analytics.service';
+import { API_ENDPOINTS } from '../../../../core/constants/api.constants';
 
 @Component({
   selector: 'app-register',
@@ -178,7 +179,7 @@ export class RegisterComponent implements OnInit {
   }
 
   loginWithProvider(provider: string) {
-    window.location.href = `http://localhost:3001/auth/oauth/${provider}`;
+    window.location.href = `${API_ENDPOINTS.AUTH}/oauth/${provider}`;
   }
 
   showPasswordFields(): boolean {
