@@ -1,5 +1,5 @@
 import { environment } from '../../../../environment';
-
+//automatique
 export const API_ENDPOINTS = {
   AUTH: `${environment.apiUrl}/auth`,
   FILES: `${environment.apiUrl}/files`,
