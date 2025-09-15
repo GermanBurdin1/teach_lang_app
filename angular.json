@@ -51,7 +51,7 @@
               "aot": true,
               "fileReplacements": [
                 {
-                  "replace": "src/environment.ts",
+                  "replace": "environment.ts",
                   "with": "environment.prod.ts"
                 }
               ],
