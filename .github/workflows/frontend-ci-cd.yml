@@ -45,7 +45,7 @@ jobs:
         run: npm run e2e
 
       - name: Build (Angular prod w/ budgets)
-        run: npm run build
+        run: npm run build --configuration=production
 
       - name: Create filtered build artifact (exclude specified folders)
         run: |
