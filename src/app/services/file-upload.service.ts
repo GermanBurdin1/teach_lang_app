@@ -32,7 +32,7 @@ export class FileUploadService {
   }
 
   getFiles(courseId: string): Observable<UploadedFile[]> {
-    return this.http.get<UploadedFile[]>(`${API_ENDPOINTS.FILES}?courseId=${encodeURIComponent(courseId)}`);
+    return this.http.get<UploadedFile[]>(`${this.materialsUrl}?courseId=${encodeURIComponent(courseId)}`);
   }
 
 
