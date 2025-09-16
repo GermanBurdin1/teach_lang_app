@@ -6,6 +6,8 @@ import { AuthService } from '../../services/auth.service';
 import { FileUploadService } from '../../services/file-upload.service';
 import { NotificationService } from '../../services/notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { environment } from '../../../../environment';
+import { API_ENDPOINTS } from '../../core/constants/api.constants';
 
 interface User {
   id: string;
@@ -929,6 +931,14 @@ export class TrainerComponent implements OnInit {
   }
 
   // ==================== UTILITY METHODS ====================
+
+  // Функция для преобразования localhost URL в правильный URL через API Gateway
+  getFileUrl(url: string): string {
+    if (url.includes('localhost:3008')) {
+      return url.replace('http://localhost:3008', `${API_ENDPOINTS.FILES}`);
+    }
+    return url;
+  }
 
   addTag(event: Event) {
     const target = event.target as HTMLInputElement;

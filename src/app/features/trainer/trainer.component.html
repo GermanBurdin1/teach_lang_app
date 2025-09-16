@@ -272,7 +272,7 @@
           <div class="material-content">
             <!-- Audio Content -->
             <div *ngIf="material.type === 'audio'" class="audio-content">
-              <audio controls #audioPlayer class="audio-player" [src]="material.content" preload="metadata">
+              <audio controls #audioPlayer class="audio-player" [src]="getFileUrl(material.content)" preload="metadata">
                 Votre navigateur ne supporte pas l'élément audio.
               </audio>
               <div class="audio-info">
@@ -281,7 +281,7 @@
                 <small class="audio-debug">{{ getAudioDebugInfo(material) }}</small>
               </div>
               <div class="audio-controls">
-                <a [href]="material.content" [download]="material.title" class="audio-test-btn download-btn">
+                <a [href]="getFileUrl(material.content)" [download]="material.title" class="audio-test-btn download-btn">
                   <i class="fas fa-download"></i>
                   Télécharger
                 </a>
@@ -291,9 +291,9 @@
             <!-- Video Content -->
             <div *ngIf="material.type === 'video'" class="video-content">
               <video controls preload="metadata" class="video-player">
-                <source [src]="material.content" type="video/mp4">
-                <source [src]="material.content" type="video/webm">
-                <source [src]="material.content" type="video/ogg">
+                <source [src]="getFileUrl(material.content)" type="video/mp4">
+                <source [src]="getFileUrl(material.content)" type="video/webm">
+                <source [src]="getFileUrl(material.content)" type="video/ogg">
                 Votre navigateur ne supporte pas l'élément vidéo.
               </video>
               <div class="video-info">
@@ -304,7 +304,7 @@
 
             <!-- Image Content -->
             <div *ngIf="material.type === 'image'" class="image-content">
-              <img [src]="material.content" [alt]="material.title" class="material-image" 
+              <img [src]="getFileUrl(material.content)" [alt]="material.title" class="material-image" 
                    (error)="onImageError($event)">
             </div>
 
@@ -314,7 +314,7 @@
                 <i class="fas fa-file-pdf"></i>
                 <div class="pdf-info">
                   <span class="pdf-name">Document PDF</span>
-                  <a [href]="material.content" target="_blank" class="pdf-link">
+                  <a [href]="getFileUrl(material.content)" target="_blank" class="pdf-link">
                     <i class="fas fa-external-link-alt"></i>
                     Ouvrir le PDF
                   </a>
@@ -338,7 +338,7 @@
             <div *ngIf="!['audio', 'video', 'image', 'pdf', 'text'].includes(material.type)" class="unknown-content">
               <i class="fas fa-file"></i>
               <span>Contenu disponible</span>
-              <a [href]="material.content" target="_blank" class="content-link">
+              <a [href]="getFileUrl(material.content)" target="_blank" class="content-link">
                 Ouvrir
               </a>
             </div>

@@ -8,7 +8,5 @@ export const API_ENDPOINTS = {
   STATISTICS: `${environment.apiUrl}/statistics`,
   MINDMAP: `${environment.apiUrl}/mindmap`,
   NOTIFICATIONS: `${environment.apiUrl}/notifications`,
-  PAYMENTS: environment.paymentApiUrl,
-  // Прямые URL для файлов (без API Gateway)
-  FILES_DIRECT: 'http://localhost:3008'
+  PAYMENTS: environment.paymentApiUrl
 };
