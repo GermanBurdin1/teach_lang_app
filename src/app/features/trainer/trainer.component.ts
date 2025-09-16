@@ -6,7 +6,6 @@ import { AuthService } from '../../services/auth.service';
 import { FileUploadService } from '../../services/file-upload.service';
 import { NotificationService } from '../../services/notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { environment } from '../../../../environment';
 import { API_ENDPOINTS } from '../../core/constants/api.constants';
 
 interface User {
