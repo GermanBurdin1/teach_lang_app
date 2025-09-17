@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Title, Meta } from '@angular/platform-browser';
 import { MaterialService, Material } from '../../services/material.service';
 import { HomeworkService, Homework as _Homework, CreateHomeworkRequest as _CreateHomeworkRequest } from '../../services/homework.service';
 import { LessonService } from '../../services/lesson.service';
@@ -271,10 +272,14 @@ export class TrainerComponent implements OnInit {
     private fileUploadService: FileUploadService,
     private notificationService: NotificationService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private title: Title,
+    private meta: Meta
   ) {}
 
   ngOnInit() {
+    this.updateSEOTags();
+    
     // Загружаем данные пользователя
     this.currentUser = this.authService.getCurrentUser() as unknown as User;
     if (this.currentUser) {
@@ -1954,5 +1959,16 @@ export class TrainerComponent implements OnInit {
     } catch {
       return '';
     }
+  }
+
+  private updateSEOTags(): void {
+    const pageTitle = 'Centre d\'Entraînement - Matériaux et Devoirs | LINGUACONNECT';
+    const pageDescription = 'Gérez vos matériaux pédagogiques et devoirs de français. Centre d\'entraînement interactif pour la préparation aux examens DELF/DALF.';
+    
+    this.title.setTitle(pageTitle);
+    this.meta.updateTag({ name: 'description', content: pageDescription });
+    this.meta.updateTag({ property: 'og:title', content: pageTitle });
+    this.meta.updateTag({ property: 'og:description', content: pageDescription });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
   }
 }

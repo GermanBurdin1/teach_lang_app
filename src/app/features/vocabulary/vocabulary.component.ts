@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Title, Meta } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { LexiconService } from '../../services/lexicon.service';
@@ -100,7 +101,9 @@ export class VocabularyComponent implements OnInit {
     private route: ActivatedRoute, 
     private lexiconService: LexiconService, 
     private translationService: TranslationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private title: Title,
+    private meta: Meta
   ) { }
 
   ngOnInit(): void {
@@ -110,6 +113,8 @@ export class VocabularyComponent implements OnInit {
 
       console.log('📌 Galaxy from route:', this.currentGalaxy);
       console.log('📌 Subtopic from route:', this.currentSubtopic);
+      
+      this.updateSEOTags();
 
       // 🔁 Essai de chargement depuis le backend
       this.lexiconService.getWordsByGalaxyAndSubtopic(this.currentGalaxy, this.currentSubtopic)
@@ -985,7 +990,6 @@ export class VocabularyComponent implements OnInit {
       if (!this.newGrammarData && this.newWordType === 'word') {
         this.onPartOfSpeechChange('noun'); // или другой дефолт
       }
-
     } else {
       this.isManualTranslation = false;
       this.newGrammarData = null;
@@ -1348,7 +1352,15 @@ export class VocabularyComponent implements OnInit {
     });
   }
 
-
-
+  private updateSEOTags(): void {
+    const pageTitle = `Dictionnaire Français - ${this.currentSubtopic} | LINGUACONNECT`;
+    const pageDescription = `Apprenez le vocabulaire français avec ${this.currentSubtopic}. Dictionnaire interactif pour étudiants DELF/DALF avec traductions et exercices.`;
+    
+    this.title.setTitle(pageTitle);
+    this.meta.updateTag({ name: 'description', content: pageDescription });
+    this.meta.updateTag({ property: 'og:title', content: pageTitle });
+    this.meta.updateTag({ property: 'og:description', content: pageDescription });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+  }
 
 }

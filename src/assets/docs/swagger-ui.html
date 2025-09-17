@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Video Calls</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin:0;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
+    <script>
+        // OpenAPI JSON встроен прямо в HTML
+        const openApiSpec = {
+            "openapi": "3.0.0",
+            "info": {
+                "title": "Video Call API",
+                "description": "Documentation complète des microservices exposés par l'API Gateway",
+                "version": "1.0.0"
+            },
+            "servers": [
+                {
+                    "url": "http://localhost:3011",
+                    "description": "Serveur de développement"
+                },
+                {
+                    "url": "http://135.125.107.45:3011",
+                    "description": "Serveur de production"
+                }
+            ],
+            "tags": [
+                {
+                    "name": "WebSocket",
+                    "description": "Communication temps réel pour les appels vidéo"
+                },
+                {
+                    "name": "Files",
+                    "description": "Gestion des fichiers et uploads"
+                }
+            ],
+            "paths": {
+                "/files/uploads/{filename}": {
+                    "get": {
+                        "tags": ["Files"],
+                        "summary": "Télécharger un fichier",
+                        "description": "Récupère un fichier uploadé (audio, vidéo, image)",
+                        "parameters": [
+                            {
+                                "name": "filename",
+                                "in": "path",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Nom du fichier à télécharger"
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Fichier téléchargé avec succès",
+                                "content": {
+                                    "audio/mpeg": {
+                                        "schema": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "video/mp4": {
+                                        "schema": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "image/jpeg": {
+                                        "schema": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {
+                                "description": "Fichier non trouvé"
+                            }
+                        }
+                    }
+                }
+            },
+            "components": {
+                "schemas": {
+                    "WebSocketEvent": {
+                        "type": "object",
+                        "properties": {
+                            "event": {
+                                "type": "string",
+                                "enum": ["register", "call_invite", "call_accept", "call_reject"]
+                            },
+                            "data": {
+                                "type": "object",
+                                "properties": {
+                                    "userId": {
+                                        "type": "string",
+                                        "description": "ID de l'utilisateur"
+                                    },
+                                    "from": {
+                                        "type": "string",
+                                        "description": "ID de l'utilisateur qui envoie"
+                                    },
+                                    "to": {
+                                        "type": "string",
+                                        "description": "ID de l'utilisateur destinataire"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "VideoCallConfig": {
+                        "type": "object",
+                        "properties": {
+                            "appId": {
+                                "type": "string",
+                                "description": "Agora App ID",
+                                "example": "a020b374553e4fac80325223fba38531"
+                            },
+                            "channelName": {
+                                "type": "string",
+                                "description": "Nom du canal Agora",
+                                "example": "test_channel_123"
+                            },
+                            "videoWidth": {
+                                "type": "integer",
+                                "description": "Largeur vidéo en pixels",
+                                "example": 640
+                            },
+                            "videoHeight": {
+                                "type": "integer",
+                                "description": "Hauteur vidéo en pixels",
+                                "example": 360
+                            },
+                            "codec": {
+                                "type": "string",
+                                "description": "Codec vidéo",
+                                "example": "VP8"
+                            }
+                        }
+                    }
+                }
+            },
+            "x-websocket": {
+                "connection": {
+                    "url": "ws://localhost:3011",
+                    "description": "Connexion WebSocket pour les appels vidéo"
+                },
+                "events": {
+                    "register": {
+                        "description": "Enregistrement d'un utilisateur",
+                        "payload": {
+                            "type": "string",
+                            "description": "ID de l'utilisateur"
+                        }
+                    },
+                    "call_invite": {
+                        "description": "Invitation à un appel vidéo",
+                        "payload": {
+                            "type": "object",
+                            "properties": {
+                                "from": {"type": "string"},
+                                "to": {"type": "string"}
+                            }
+                        }
+                    },
+                    "call_accept": {
+                        "description": "Acceptation d'un appel vidéo",
+                        "payload": {
+                            "type": "object",
+                            "properties": {
+                                "from": {"type": "string"},
+                                "to": {"type": "string"}
+                            }
+                        }
+                    },
+                    "call_reject": {
+                        "description": "Rejet d'un appel vidéo",
+                        "payload": {
+                            "type": "object",
+                            "properties": {
+                                "from": {"type": "string"},
+                                "to": {"type": "string"}
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                spec: openApiSpec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                validatorUrl: null,
+                docExpansion: "list",
+                operationsSorter: "alpha",
+                tagsSorter: "alpha",
+                tryItOutEnabled: true
+            });
+        };
+    </script>
+</body>
+</html>

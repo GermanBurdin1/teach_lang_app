@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Title, Meta } from '@angular/platform-browser';
 import { HomeworkService } from '../../../services/homework.service';
 import { LessonService } from '../../../services/lesson.service';
 import { AuthService } from '../../../services/auth.service';
@@ -124,10 +125,14 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     private router: Router,
     private videoCallService: VideoCallService,
     private lessonTabsService: LessonTabsService,
-    private lessonNotesService: LessonNotesService
+    private lessonNotesService: LessonNotesService,
+    private title: Title,
+    private meta: Meta
   ) { }
 
   ngOnInit(): void {
+    this.updateSEOTags();
+    
     this.route.params.subscribe(params => {
       this.highlightedLessonIdFromUrl = params['lessonId'] || null;
       console.log('📋 LessonManagement: Получен lessonId из URL:', this.highlightedLessonIdFromUrl);
@@ -1156,6 +1161,17 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     const note = this.lessonNotesService.getNoteForItem(section, itemKey);
     const updatedAt = note ? (note as {updatedAt?: string | Date}).updatedAt : null;
     return updatedAt ? new Date(updatedAt) : null;
+  }
+
+  private updateSEOTags(): void {
+    const pageTitle = 'Cours de Français - Gestion des Leçons | LINGUACONNECT';
+    const pageDescription = 'Gérez vos cours de français en ligne. Planification, réservation et suivi des leçons avec des professeurs natifs pour la préparation DELF/DALF.';
+    
+    this.title.setTitle(pageTitle);
+    this.meta.updateTag({ name: 'description', content: pageDescription });
+    this.meta.updateTag({ property: 'og:title', content: pageTitle });
+    this.meta.updateTag({ property: 'og:description', content: pageDescription });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
   }
 }
 
