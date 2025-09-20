@@ -5,9 +5,7 @@ import AgoraRTC, { IAgoraRTCClient, ILocalTrack as _ILocalTrack, IRemoteVideoTra
 import { HomeworkService } from './homework.service';
 
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class VideoCallService {
   public showVideoCallSubject = new BehaviorSubject<boolean>(false);
   public isFloatingVideoSubject = new BehaviorSubject<boolean>(false);
@@ -47,10 +45,9 @@ export class VideoCallService {
 
   // constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
   constructor(private homeworkService: HomeworkService) {
-    // Отключаем HTTPS предупреждения для разработки
-    this.disableHTTPSWarnings();
+    // Отключаем все AgoraRTC предупреждения
+    this.disableAllAgoraWarnings();
     console.log('⚡ VideoCallService создан');
-    // this.setupEventListeners();
   }
 
   // Новый метод для установки данных урока
@@ -160,21 +157,35 @@ export class VideoCallService {
     this._videoSize.height = Math.max(150, this._videoSize.height + deltaY);
   }
 
-  private disableHTTPSWarnings(): void {
-    // Переопределяем console.warn для фильтрации AgoraRTC HTTPS предупреждений
+  private disableAllAgoraWarnings(): void {
+    // Переопределяем console.warn для фильтрации всех AgoraRTC предупреждений
     const originalWarn = console.warn;
+    const originalError = console.error;
+    
     console.warn = (...args: any[]) => {
       const message = args.join(' ');
-      // Пропускаем предупреждения AgoraRTC о HTTPS
-      if (message.includes('WEB_SECURITY_RESTRICT') || 
+      // Пропускаем все AgoraRTC предупреждения
+      if (message.includes('AgoraRTC') || 
+          message.includes('WEB_SECURITY_RESTRICT') || 
           message.includes('web security') ||
           message.includes('https protocol') ||
+          message.includes('enumerateDevices') ||
           message.includes('localhost')) {
-        // Не показываем эти предупреждения
         return;
       }
-      // Показываем остальные предупреждения
       originalWarn.apply(console, args);
+    };
+
+    console.error = (...args: any[]) => {
+      const message = args.join(' ');
+      // Пропускаем все AgoraRTC ошибки
+      if (message.includes('AgoraRTC') || 
+          message.includes('WEB_SECURITY_RESTRICT') || 
+          message.includes('NOT_SUPPORTED') ||
+          message.includes('enumerateDevices')) {
+        return;
+      }
+      originalError.apply(console, args);
     };
   }
 

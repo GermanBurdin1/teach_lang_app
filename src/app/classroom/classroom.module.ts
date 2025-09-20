@@ -6,6 +6,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 // import { TabsComponent } from './lesson-material/tabs/tabs.component'; // Excluded from prod build
 import { VideoCallComponent } from '../features/lessons/video-call/video-call.component';
+import { VideoCallService } from '../services/video-call.service';
 import { LessonsModule } from '../features/lessons/lessons.module';
 import { InteractiveBoardComponent } from './lesson-material/interactive-board/interactive-board.component';
 import { GabaritPageComponent } from './lesson-material/gabarit-page/gabarit-page.component';
@@ -47,7 +48,7 @@ const routes: Routes = [
     MatCardModule,
     RouterModule.forChild(routes) // Маршрут компонента
   ],
-  providers: [DatePipe],
+  providers: [DatePipe, VideoCallService],
   exports: [VideoCallComponent]
 })
 export class ClassroomModule { }

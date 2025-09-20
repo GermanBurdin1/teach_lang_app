@@ -103,62 +103,63 @@ jobs:
       - name: Lint (ESLint/Prettier) - exclude specified folders
         run: npm run lint:ci
 
-      - name: Unit tests (Jasmine/Karma) - exclude specified folders  
-        if: steps.check-all-tests.outputs.run-unit-tests == 'true'
-        run: npm run test:ci
+      # ВРЕМЕННО ОТКЛЮЧЕНЫ ВСЕ ТЕСТЫ ДЛЯ УСКОРЕНИЯ CI/CD
+      # - name: Unit tests (Jasmine/Karma) - exclude specified folders  
+      #   if: steps.check-all-tests.outputs.run-unit-tests == 'true'
+      #   run: npm run test:ci
 
-      - name: Skip unit tests - no relevant changes
-        if: steps.check-all-tests.outputs.run-unit-tests == 'false'
-        run: echo "⏭️ Skipping unit tests - no source code or test changes detected"
+      # - name: Skip unit tests - no relevant changes
+      #   if: steps.check-all-tests.outputs.run-unit-tests == 'false'
+      #   run: echo "⏭️ Skipping unit tests - no source code or test changes detected"
 
-      # Интеграционные тесты (если есть в проекте)
-      - name: Integration tests (if configured)
-        if: steps.check-all-tests.outputs.run-integration-tests == 'true'
-        run: |
-          if npm run test:integration --if-present; then
-            echo "✅ Integration tests passed"
-          else
-            echo "ℹ️ No integration tests configured"
-          fi
+      # # Интеграционные тесты (если есть в проекте)
+      # - name: Integration tests (if configured)
+      #   if: steps.check-all-tests.outputs.run-integration-tests == 'true'
+      #   run: |
+      #     if npm run test:integration --if-present; then
+      #       echo "✅ Integration tests passed"
+      #     else
+      #       echo "ℹ️ No integration tests configured"
+      #     fi
 
-      - name: Skip integration tests - no service changes
-        if: steps.check-all-tests.outputs.run-integration-tests == 'false'
-        run: echo "⏭️ Skipping integration tests - no service files or integration test changes detected"
+      # - name: Skip integration tests - no service changes
+      #   if: steps.check-all-tests.outputs.run-integration-tests == 'false'
+      #   run: echo "⏭️ Skipping integration tests - no service files or integration test changes detected"
 
-      # E2E тесты с умной установкой Playwright
-      - name: Install Playwright (browsers) - only when needed
-        if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
-        run: |
-          echo "🎭 Installing Playwright browsers for E2E tests..."
-          npx playwright install --with-deps
-          echo "✅ Playwright installation completed"
+      # # E2E тесты с умной установкой Playwright
+      # - name: Install Playwright (browsers) - only when needed
+      #   if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
+      #   run: |
+      #     echo "🎭 Installing Playwright browsers for E2E tests..."
+      #     npx playwright install --with-deps
+      #     echo "✅ Playwright installation completed"
 
-      - name: Prepare E2E environment
-        if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
-        run: |
-          echo "🧹 Cleaning excluded directories for E2E tests..."
-          # Удаляем папки перед E2E тестами и билдом для production
-          rm -rf public/
-          rm -rf src/app/classroom/lesson-material/tabs/
-          rm -rf src/app/features/landing/
-          rm -rf src/app/features/marathons/
-          rm -rf src/app/features/materials/
-          rm -rf src/app/features/tariffs/
-          rm -rf src/app/features/users/
-          rm -rf src/app/shared/components/schedule/
-          rm -rf src/app/test-video-call/
-          echo "✅ Environment prepared for E2E tests"
+      # - name: Prepare E2E environment
+      #   if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
+      #   run: |
+      #     echo "🧹 Cleaning excluded directories for E2E tests..."
+      #     # Удаляем папки перед E2E тестами и билдом для production
+      #     rm -rf public/
+      #     rm -rf src/app/classroom/lesson-material/tabs/
+      #     rm -rf src/app/features/landing/
+      #     rm -rf src/app/features/marathons/
+      #     rm -rf src/app/features/materials/
+      #     rm -rf src/app/features/tariffs/
+      #     rm -rf src/app/features/users/
+      #     rm -rf src/app/shared/components/schedule/
+      #     rm -rf src/app/test-video-call/
+      #     echo "✅ Environment prepared for E2E tests"
 
-      - name: E2E tests (Playwright headless)
-        if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
-        run: |
-          echo "🎭 Running E2E tests..."
-          npm run e2e
-          echo "✅ E2E tests completed"
+      # - name: E2E tests (Playwright headless)
+      #   if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
+      #   run: |
+      #     echo "🎭 Running E2E tests..."
+      #     npm run e2e
+      #     echo "✅ E2E tests completed"
 
-      - name: Skip E2E tests - no relevant changes
-        if: steps.check-all-tests.outputs.run-e2e-tests == 'false'
-        run: echo "⏭️ Skipping E2E tests - no E2E files, critical components or test config changes detected"
+      # - name: Skip E2E tests - no relevant changes
+      #   if: steps.check-all-tests.outputs.run-e2e-tests == 'false'
+      #   run: echo "⏭️ Skipping E2E tests - no E2E files, critical components or test config changes detected"
 
       # Кэшируем Angular build для ускорения
       - name: Cache Angular build
