@@ -32,7 +32,7 @@ export class VideoCallService {
   offsetX = 0;
   offsetY = 0;
 
-  agoraClient: IAgoraRTCClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+  agoraClient: IAgoraRTCClient | null = null;
   localTracks: { videoTrack: ILocalVideoTrack | null, audioTrack: ILocalAudioTrack | null } = { videoTrack: null, audioTrack: null };
 
   remoteUsers: { [uid: string]: { videoTrack: IRemoteVideoTrack | null, audioTrack: IRemoteAudioTrack | null } } = {};
@@ -71,6 +71,12 @@ export class VideoCallService {
 
   async joinChannel(): Promise<void> {
     try {
+      // Создаем AgoraRTC клиент только при необходимости
+      if (!this.agoraClient) {
+        console.log('🚀 Создаем AgoraRTC клиент...');
+        this.agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+      }
+
       // Проверяем поддержку системы перед началом
       const systemSupport = await this.checkSystemSupport();
       if (!systemSupport) {
@@ -100,12 +106,12 @@ export class VideoCallService {
 
       // Присоединяемся к каналу
       console.log('🚪 Присоединяемся к каналу...');
-      const uid = await this.agoraClient.join(this.appId, this.channelName, this.token, this.userId);
+      const uid = await this.agoraClient!.join(this.appId, this.channelName, this.token, this.userId);
       console.log('✅ Присоединились к каналу с UID:', uid);
       
       // Публикуем треки
       console.log('📡 Публикуем треки...');
-      await this.agoraClient.publish([this.localTracks.audioTrack, this.localTracks.videoTrack]);
+      await this.agoraClient!.publish([this.localTracks.audioTrack, this.localTracks.videoTrack]);
       console.log('✅ Треки опубликованы');
       
       this.callActive = true;
@@ -134,7 +140,9 @@ export class VideoCallService {
       this.localTracks.videoTrack = null;
     }
     
-    await this.agoraClient.leave();
+    if (this.agoraClient) {
+      await this.agoraClient.leave();
+    }
     this.callActive = false;
     console.log('❌ Отключен от канала Agora');
   }
@@ -184,8 +192,10 @@ export class VideoCallService {
   async startScreenSharing(): Promise<void> {
     try {
       const screenTrack = await AgoraRTC.createScreenVideoTrack({}, 'auto');
-      await this.agoraClient.unpublish(this.localTracks.videoTrack!);
-      await this.agoraClient.publish(screenTrack);
+      if (this.agoraClient) {
+        await this.agoraClient.unpublish(this.localTracks.videoTrack!);
+        await this.agoraClient.publish(screenTrack);
+      }
       console.log('🖥️ Демонстрация экрана начата');
     } catch (error) {
       console.error('❌ Ошибка демонстрации экрана:', error);

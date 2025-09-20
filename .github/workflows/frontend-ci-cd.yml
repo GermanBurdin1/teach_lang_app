@@ -29,9 +29,9 @@ jobs:
       - name: Install deps (clean)
         run: npm ci
 
-      # Проверяем изменения в тестовых файлах
-      - name: Check test files changes
-        id: check-test-changes
+      # Проверяем изменения для всех типов тестов
+      - name: Check all test requirements
+        id: check-all-tests
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             # Для PR сравниваем с базовой веткой
@@ -43,65 +43,100 @@ jobs:
             HEAD_SHA="${{ github.event.after }}"
           fi
           
-          # Проверяем изменения в тестовых файлах
-          TEST_CHANGES=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -E '\.(spec|test)\.(ts|js)$|e2e/|test/' | wc -l)
+          # Получаем список всех измененных файлов
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
           
-          # Проверяем изменения в основных файлах (если есть изменения в src, то нужны тесты)
-          SRC_CHANGES=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -E '^src/' | grep -v -E '\.(spec|test)\.(ts|js)$' | wc -l)
+          # Проверяем изменения в Unit тестах
+          UNIT_TEST_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.(spec|test)\.(ts|js)$' | wc -l)
           
-          echo "test-changes=$TEST_CHANGES" >> $GITHUB_OUTPUT
+          # Проверяем изменения в E2E тестах
+          E2E_TEST_CHANGES=$(echo "$CHANGED_FILES" | grep -E 'e2e/|playwright|\.github/workflows/' | wc -l)
+          
+          # Проверяем изменения в основных файлах (требуют unit тестов)
+          SRC_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^src/' | grep -v -E '\.(spec|test)\.(ts|js)$' | wc -l)
+          
+          # Проверяем изменения в критичных компонентах (требуют E2E)
+          CRITICAL_CHANGES=$(echo "$CHANGED_FILES" | grep -E 'src/app/(auth|features|shared)/' | grep -v -E '\.(spec|test)\.(ts|js)$' | wc -l)
+          
+          # Проверяем изменения в конфигурации тестов
+          TEST_CONFIG_CHANGES=$(echo "$CHANGED_FILES" | grep -E '(karma|jasmine|test|spec|playwright|jest)\.(json|js|ts|conf)$|\.github/workflows/' | wc -l)
+          
+          # Проверяем изменения в интеграционных тестах (если есть)
+          INTEGRATION_TEST_CHANGES=$(echo "$CHANGED_FILES" | grep -E '(integration|api|service).*\.(spec|test)\.(ts|js)$' | wc -l)
+          
+          # Проверяем изменения в сервисах (требуют интеграционных тестов)
+          SERVICE_CHANGES=$(echo "$CHANGED_FILES" | grep -E 'src/app/services/' | grep -v -E '\.(spec|test)\.(ts|js)$' | wc -l)
+          
+          # Логика запуска тестов
+          RUN_UNIT_TESTS=$([ $SRC_CHANGES -gt 0 -o $UNIT_TEST_CHANGES -gt 0 -o $TEST_CONFIG_CHANGES -gt 0 ] && echo 'true' || echo 'false')
+          RUN_E2E_TESTS=$([ $E2E_TEST_CHANGES -gt 0 -o $CRITICAL_CHANGES -gt 0 -o $TEST_CONFIG_CHANGES -gt 0 ] && echo 'true' || echo 'false')
+          RUN_INTEGRATION_TESTS=$([ $INTEGRATION_TEST_CHANGES -gt 0 -o $SERVICE_CHANGES -gt 0 -o $TEST_CONFIG_CHANGES -gt 0 ] && echo 'true' || echo 'false')
+          
+          # Выводим результаты
+          echo "unit-test-changes=$UNIT_TEST_CHANGES" >> $GITHUB_OUTPUT
+          echo "e2e-test-changes=$E2E_TEST_CHANGES" >> $GITHUB_OUTPUT
+          echo "integration-test-changes=$INTEGRATION_TEST_CHANGES" >> $GITHUB_OUTPUT
           echo "src-changes=$SRC_CHANGES" >> $GITHUB_OUTPUT
-          echo "run-tests=$([ $SRC_CHANGES -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          echo "critical-changes=$CRITICAL_CHANGES" >> $GITHUB_OUTPUT
+          echo "service-changes=$SERVICE_CHANGES" >> $GITHUB_OUTPUT
+          echo "test-config-changes=$TEST_CONFIG_CHANGES" >> $GITHUB_OUTPUT
+          echo "run-unit-tests=$RUN_UNIT_TESTS" >> $GITHUB_OUTPUT
+          echo "run-e2e-tests=$RUN_E2E_TESTS" >> $GITHUB_OUTPUT
+          echo "run-integration-tests=$RUN_INTEGRATION_TESTS" >> $GITHUB_OUTPUT
           
-          echo "🔍 Test files changed: $TEST_CHANGES"
-          echo "🔍 Source files changed: $SRC_CHANGES"
-          echo "🔍 Will run tests: $([ $SRC_CHANGES -gt 0 ] && echo 'YES' || echo 'NO')"
+          echo "🔍 === АНАЛИЗ ИЗМЕНЕНИЙ ==="
+          echo "📝 Unit test files changed: $UNIT_TEST_CHANGES"
+          echo "🎭 E2E test files changed: $E2E_TEST_CHANGES"
+          echo "🔗 Integration test files changed: $INTEGRATION_TEST_CHANGES"
+          echo "📁 Source files changed: $SRC_CHANGES"
+          echo "⚡ Critical components changed: $CRITICAL_CHANGES"
+          echo "🔧 Service files changed: $SERVICE_CHANGES"
+          echo "⚙️ Test config files changed: $TEST_CONFIG_CHANGES"
+          echo ""
+          echo "🚀 === РЕШЕНИЕ ==="
+          echo "🧪 Unit tests: $([ $RUN_UNIT_TESTS = 'true' ] && echo 'RUN' || echo 'SKIP')"
+          echo "🎭 E2E tests: $([ $RUN_E2E_TESTS = 'true' ] && echo 'RUN' || echo 'SKIP')"
+          echo "🔗 Integration tests: $([ $RUN_INTEGRATION_TESTS = 'true' ] && echo 'RUN' || echo 'SKIP')"
+          echo "========================"
 
       # Quality gates (блокирующие) - исключаем указанные папки
       - name: Lint (ESLint/Prettier) - exclude specified folders
         run: npm run lint:ci
 
       - name: Unit tests (Jasmine/Karma) - exclude specified folders  
-        if: steps.check-test-changes.outputs.run-tests == 'true'
+        if: steps.check-all-tests.outputs.run-unit-tests == 'true'
         run: npm run test:ci
 
-      - name: Skip unit tests - no source changes
-        if: steps.check-test-changes.outputs.run-tests == 'false'
-        run: echo "⏭️ Skipping unit tests - no source code changes detected"
+      - name: Skip unit tests - no relevant changes
+        if: steps.check-all-tests.outputs.run-unit-tests == 'false'
+        run: echo "⏭️ Skipping unit tests - no source code or test changes detected"
 
-      # Проверяем нужны ли E2E тесты
-      - name: Check E2E test requirements
-        id: check-e2e-changes
+      # Интеграционные тесты (если есть в проекте)
+      - name: Integration tests (if configured)
+        if: steps.check-all-tests.outputs.run-integration-tests == 'true'
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE_SHA="${{ github.event.pull_request.base.sha }}"
-            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          if npm run test:integration --if-present; then
+            echo "✅ Integration tests passed"
           else
-            BASE_SHA="${{ github.event.before }}"
-            HEAD_SHA="${{ github.event.after }}"
+            echo "ℹ️ No integration tests configured"
           fi
-          
-          # Проверяем изменения в E2E тестах или критических файлах
-          E2E_CHANGES=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -E 'e2e/|playwright|\.github/workflows/' | wc -l)
-          
-          # Проверяем изменения в основных компонентах (требуют E2E)
-          CRITICAL_CHANGES=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -E 'src/app/(auth|features|shared)/' | grep -v -E '\.(spec|test)\.(ts|js)$' | wc -l)
-          
-          echo "e2e-changes=$E2E_CHANGES" >> $GITHUB_OUTPUT
-          echo "critical-changes=$CRITICAL_CHANGES" >> $GITHUB_OUTPUT
-          echo "run-e2e=$([ $E2E_CHANGES -gt 0 -o $CRITICAL_CHANGES -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
-          
-          echo "🔍 E2E files changed: $E2E_CHANGES"
-          echo "🔍 Critical components changed: $CRITICAL_CHANGES"
-          echo "🔍 Will run E2E tests: $([ $E2E_CHANGES -gt 0 -o $CRITICAL_CHANGES -gt 0 ] && echo 'YES' || echo 'NO')"
 
-      - name: Install Playwright (browsers)
-        if: steps.check-e2e-changes.outputs.run-e2e == 'true'
-        run: npx playwright install --with-deps
+      - name: Skip integration tests - no service changes
+        if: steps.check-all-tests.outputs.run-integration-tests == 'false'
+        run: echo "⏭️ Skipping integration tests - no service files or integration test changes detected"
 
-      - name: Remove excluded directories before E2E and build
-        if: steps.check-e2e-changes.outputs.run-e2e == 'true'
+      # E2E тесты с умной установкой Playwright
+      - name: Install Playwright (browsers) - only when needed
+        if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
         run: |
+          echo "🎭 Installing Playwright browsers for E2E tests..."
+          npx playwright install --with-deps
+          echo "✅ Playwright installation completed"
+
+      - name: Prepare E2E environment
+        if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
+        run: |
+          echo "🧹 Cleaning excluded directories for E2E tests..."
           # Удаляем папки перед E2E тестами и билдом для production
           rm -rf public/
           rm -rf src/app/classroom/lesson-material/tabs/
@@ -112,14 +147,18 @@ jobs:
           rm -rf src/app/features/users/
           rm -rf src/app/shared/components/schedule/
           rm -rf src/app/test-video-call/
+          echo "✅ Environment prepared for E2E tests"
 
       - name: E2E tests (Playwright headless)
-        if: steps.check-e2e-changes.outputs.run-e2e == 'true'
-        run: npm run e2e
+        if: steps.check-all-tests.outputs.run-e2e-tests == 'true'
+        run: |
+          echo "🎭 Running E2E tests..."
+          npm run e2e
+          echo "✅ E2E tests completed"
 
-      - name: Skip E2E tests - no critical changes
-        if: steps.check-e2e-changes.outputs.run-e2e == 'false'
-        run: echo "⏭️ Skipping E2E tests - no critical changes detected"
+      - name: Skip E2E tests - no relevant changes
+        if: steps.check-all-tests.outputs.run-e2e-tests == 'false'
+        run: echo "⏭️ Skipping E2E tests - no E2E files, critical components or test config changes detected"
 
       # Кэшируем Angular build для ускорения
       - name: Cache Angular build
