@@ -43,7 +43,7 @@ export class VideoCallComponent implements OnInit {
       this.handleVideoCallError(error);
     });
 
-    this.videoCallService.agoraClient.on('user-published', async (user, mediaType) => {
+    this.videoCallService.agoraClient?.on('user-published', async (user, mediaType) => {
       console.log('🎯 ПОЛУЧЕН user-published:', {
         uid: user.uid,
         mediaType: mediaType,
@@ -53,7 +53,9 @@ export class VideoCallComponent implements OnInit {
       
       try {
         // Подписываемся на удаленного пользователя
-        await this.videoCallService.agoraClient?.subscribe(user, mediaType);
+        if (this.videoCallService.agoraClient) {
+          await this.videoCallService.agoraClient.subscribe(user, mediaType);
+        }
         console.log('✅ Подписались на пользователя:', user.uid, mediaType);
         
         if (mediaType === 'video') {
@@ -109,7 +111,7 @@ export class VideoCallComponent implements OnInit {
       }
     });
 
-    this.videoCallService.agoraClient.on('user-unpublished', (user, mediaType) => {
+    this.videoCallService.agoraClient?.on('user-unpublished', (user, mediaType) => {
       console.log('👤 Пользователь отключил:', user.uid, mediaType);
       if (mediaType === 'video') {
         this.remoteUserIds = this.remoteUserIds.filter(uid => uid !== user.uid.toString());
