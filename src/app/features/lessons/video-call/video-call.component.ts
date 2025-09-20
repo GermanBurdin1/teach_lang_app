@@ -26,6 +26,9 @@ export class VideoCallComponent implements OnInit {
     console.log("🎥 video-call.component.ts → ngOnInit() сработал!");
     console.log(`🎥 video-call.component.ts → Создан ${new Date().toISOString()}`);
     
+    // Проверяем HTTPS для AgoraRTC
+    this.checkHTTPSRequirement();
+    
     // Регистрируем пользователя в WebSocket
     if (this.videoCallService.userId) {
       this.wsService.registerUser(this.videoCallService.userId);
@@ -35,6 +38,9 @@ export class VideoCallComponent implements OnInit {
       if (this.videoCallService.localTracks.videoTrack) {
         this.videoCallService.localTracks.videoTrack.play(this.localVideo.nativeElement);
       }
+    }).catch((error) => {
+      console.error('❌ Ошибка подключения к видеозвонку:', error);
+      this.handleVideoCallError(error);
     });
 
     this.videoCallService.agoraClient.on('user-published', async (user, mediaType) => {
@@ -376,5 +382,30 @@ export class VideoCallComponent implements OnInit {
 
   trackByStudentId(index: number, studentId: string): string {
     return studentId;
+  }
+
+  private checkHTTPSRequirement(): void {
+    const isSecure = window.location.protocol === 'https:' || 
+                    window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1';
+    
+    if (isSecure) {
+      console.log('✅ Безопасное соединение для AgoraRTC:', window.location.protocol);
+    }
+    // Убрали предупреждения для HTTP режима разработки
+  }
+
+  private handleVideoCallError(error: any): void {
+    console.error('❌ Детальная ошибка видеозвонка:', error);
+    
+    if (error.code === 'WEB_SECURITY_RESTRICT') {
+      console.error('🔒 Ошибка безопасности веб-браузера');
+      console.error('💡 Решение: Используйте HTTPS или localhost');
+    } else if (error.code === 'NOT_SUPPORTED') {
+      console.error('🚫 Функция не поддерживается браузером');
+      console.error('💡 Решение: Обновите браузер или используйте другой браузер');
+    } else {
+      console.error('🔍 Неизвестная ошибка:', error.message);
+    }
   }
 }

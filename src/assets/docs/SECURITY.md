@@ -23,23 +23,33 @@
     http://localhost:3011 
     http://135.125.107.45:3011 
     https://api.stripe.com 
-    https://embed.tawk.to;
+    https://embed.tawk.to 
+    https://va.tawk.to
+    https://*.tawk.to
+    wss://*.tawk.to
+    https://api.agora.io
+    wss://api.agora.io
+    wss://*.agora.io;
   frame-src 'self' 
     https://js.stripe.com 
     https://embed.tawk.to;
   object-src 'none';
   base-uri 'self';
   form-action 'self';
-  frame-ancestors 'none';
 ">
 ```
 
 ### 2. Autres Headers de Sécurité
 - **X-Content-Type-Options**: `nosniff` - Empêche le MIME type sniffing
-- **X-Frame-Options**: `DENY` - Empêche le clickjacking
 - **X-XSS-Protection**: `1; mode=block` - Protection XSS
 - **Referrer-Policy**: `strict-origin-when-cross-origin` - Contrôle des référents
 - **Permissions-Policy**: `camera=(), microphone=(), geolocation=(), payment=()` - Contrôle des permissions
+
+**Notes importantes**: 
+- X-Frame-Options удален из meta тега, так как он должен устанавливаться через HTTP заголовки, а не meta теги
+- frame-ancestors удален из CSP meta тега, так как он не поддерживается в meta тегах
+- Добавлена поддержка всех поддоменов Tawk.to для корректной работы чат-виджета
+- Добавлена поддержка AgoraRTC для видеозвонков
 
 ## CORS Configuration
 

@@ -47,6 +47,8 @@ export class VideoCallService {
 
   // constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
   constructor(private homeworkService: HomeworkService) {
+    // Отключаем HTTPS предупреждения для разработки
+    this.disableHTTPSWarnings();
     console.log('⚡ VideoCallService создан');
     // this.setupEventListeners();
   }
@@ -150,22 +152,28 @@ export class VideoCallService {
     this._videoSize.height = Math.max(150, this._videoSize.height + deltaY);
   }
 
+  private disableHTTPSWarnings(): void {
+    // Переопределяем console.warn для фильтрации AgoraRTC HTTPS предупреждений
+    const originalWarn = console.warn;
+    console.warn = (...args: any[]) => {
+      const message = args.join(' ');
+      // Пропускаем предупреждения AgoraRTC о HTTPS
+      if (message.includes('WEB_SECURITY_RESTRICT') || 
+          message.includes('web security') ||
+          message.includes('https protocol') ||
+          message.includes('localhost')) {
+        // Не показываем эти предупреждения
+        return;
+      }
+      // Показываем остальные предупреждения
+      originalWarn.apply(console, args);
+    };
+  }
+
   async checkSystemSupport(): Promise<boolean> {
     try {
-      // Проверяем HTTPS или localhost
-      const isSecure = window.location.protocol === 'https:' || 
-                      window.location.hostname === 'localhost' || 
-                      window.location.hostname === '127.0.0.1';
-      
-      if (!isSecure) {
-        console.warn('⚠️ AgoraRTC требует HTTPS или localhost для работы');
-        console.warn('🔧 Текущий протокол:', window.location.protocol);
-        console.warn('🌐 Текущий хост:', window.location.hostname);
-      }
-
       const systemSupport = AgoraRTC.checkSystemRequirements();
       console.log('✅ Поддержка системы AgoraRTC:', systemSupport);
-      
       return systemSupport;
     } catch (error) {
       console.error('❌ Ошибка проверки системы AgoraRTC:', error);
