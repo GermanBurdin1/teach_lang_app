@@ -69,6 +69,12 @@ export class VideoCallService {
 
   async joinChannel(): Promise<void> {
     try {
+      // Проверяем поддержку системы перед началом
+      const systemSupport = await this.checkSystemSupport();
+      if (!systemSupport) {
+        throw new Error('Система не поддерживает AgoraRTC');
+      }
+
       console.log('🔌 Начинаем подключение к Agora канала:', {
         appId: this.appId,
         channelName: this.channelName,
@@ -76,11 +82,19 @@ export class VideoCallService {
         token: this.token || 'без токена'
       });
 
-      // Создаем локальные треки
+      // Создаем локальные треки с обработкой ошибок
       console.log('📹 Создаем локальные треки...');
-      this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-      this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-      console.log('✅ Локальные треки созданы');
+      try {
+        this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+        console.log('✅ Локальные треки созданы');
+      } catch (trackError: any) {
+        console.error('❌ Ошибка создания треков:', trackError);
+        if (trackError.code === 'WEB_SECURITY_RESTRICT') {
+          throw new Error('Ограничения веб-безопасности: используйте HTTPS или localhost');
+        }
+        throw trackError;
+      }
 
       // Присоединяемся к каналу
       console.log('🚪 Присоединяемся к каналу...');
@@ -137,7 +151,26 @@ export class VideoCallService {
   }
 
   async checkSystemSupport(): Promise<boolean> {
-    return AgoraRTC.checkSystemRequirements();
+    try {
+      // Проверяем HTTPS или localhost
+      const isSecure = window.location.protocol === 'https:' || 
+                      window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1';
+      
+      if (!isSecure) {
+        console.warn('⚠️ AgoraRTC требует HTTPS или localhost для работы');
+        console.warn('🔧 Текущий протокол:', window.location.protocol);
+        console.warn('🌐 Текущий хост:', window.location.hostname);
+      }
+
+      const systemSupport = AgoraRTC.checkSystemRequirements();
+      console.log('✅ Поддержка системы AgoraRTC:', systemSupport);
+      
+      return systemSupport;
+    } catch (error) {
+      console.error('❌ Ошибка проверки системы AgoraRTC:', error);
+      return false;
+    }
   }
 
   async startScreenSharing(): Promise<void> {
