@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ClassroomRedirectComponent } from '../../classroom/classroom-redirect.component';
 import { SchoolDashboardComponent } from './school-dashboard/school-dashboard.component';
 // import { UsersComponent } from '../users/users.component';
 // import { MaterialsComponent } from '../materials/materials.component';
@@ -80,7 +81,11 @@ const routes: Routes = [
       { path: 'mindmap', component: VocabularyComponent },
       { path: 'trainer', component: TrainerComponent },
       { path: 'training', component: TrainerComponent },
-      { path: 'classroom', redirectTo: '/classroom/1/lesson', pathMatch: 'full' },
+      { 
+        path: 'classroom', 
+        component: ClassroomRedirectComponent,
+        resolve: { lessonData: 'LessonResolverService' }
+      },
       { path: 'settings', component: TeacherSettingsComponent }
     ]
   }

@@ -59,6 +59,8 @@ import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platfo
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-button/back-to-home-button.component';
+import { ClassroomRedirectComponent } from '../../classroom/classroom-redirect.component';
+import { LessonResolverService } from '../../classroom/lesson-resolver.service';
 
 @NgModule({
   declarations: [
@@ -88,7 +90,8 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
     SentRequestsComponent,
     AdminUsersManagementComponent,
     AdminLessonsManagementComponent,
-    AdminPlatformAnalyticsComponent
+    AdminPlatformAnalyticsComponent,
+    ClassroomRedirectComponent
   ],
   imports: [
     LayoutModule,
@@ -125,6 +128,9 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
     BackToHomeButtonComponent,
     BsDatepickerModule.forRoot()
   ],
-  exports: [ReviewListComponent]
+  exports: [ReviewListComponent],
+  providers: [
+    { provide: 'LessonResolverService', useClass: LessonResolverService }
+  ]
 })
 export class DashboardModule { }
