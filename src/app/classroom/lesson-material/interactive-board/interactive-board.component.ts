@@ -24,9 +24,9 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
   // Current tool
   currentTool: 'brush' | 'rectangle' | 'circle' = 'brush';
-  // Флаг плавающего видео
+  // Drapeau pour la vidéo flottante
   isFloatingVideo: boolean = false;
-  floatingVideoPosition = { x: window.innerWidth - 320, y: 20 }; // Изначальная позиция (справа сверху)
+  floatingVideoPosition = { x: window.innerWidth - 320, y: 20 }; // Position initiale (en haut à droite)
   dragging = false;
   offsetX = 0;
   offsetY = 0;
@@ -36,28 +36,28 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   constructor(
     private cdr: ChangeDetectorRef,
     private whiteboardService: WhiteboardService
-    // lessonTabsService удален, так как не используется
+    // lessonTabsService supprimé car non utilisé
   ) { }
 
   ngOnInit(): void {
     this.whiteboardService.room$.subscribe((room) => {
       if (room) {
         if (!environment.production) {
-          console.log("🎨 Комната установлена в компоненте:", room);
+          console.log("🎨 Salle configurée dans le composant:", room);
         }
         this.room = room;
       } else {
         if (!environment.production) {
-          console.log("❌ Комната все еще не установлена");
+          console.log("❌ La salle n'est toujours pas configurée");
         }
       }
     });
     if (!environment.production) {
-      console.log('📌 BoardComponent загружен');
+      console.log('📌 BoardComponent chargé');
     }
     window.setTimeout(() => {
 
-      // 🔥 Задержка перед обновлением Board
+      // 🔥 Délai avant la mise à jour du Board
       window.setTimeout(() => {
         this.cdr.detectChanges();
       }, 100);
@@ -70,7 +70,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (!environment.production) {
-      console.log("📌 Контейнер найден через @ViewChild:", this.whiteboardContainer.nativeElement);
+      console.log("📌 Conteneur trouvé via @ViewChild:", this.whiteboardContainer.nativeElement);
     }
     this.whiteboardService.createRoomAndJoin(this.getCurrentUserId(), this.whiteboardContainer.nativeElement);
   }
@@ -78,23 +78,23 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
 
 
-  //рисование
+  // dessin
   setDrawingMode(): void {
     if (this.room) {
       if (!environment.production) {
-        console.log("🖌 Устанавливаем режим рисования...");
+        console.log("🖌 Configuration du mode dessin...");
       }
       this.room.setMemberState({
-        currentApplianceName: ApplianceNames.pencil, // Инструмент: карандаш
-        strokeColor: [0, 0, 0], // Черный цвет
-        strokeWidth: 4, // Толщина линии
+        currentApplianceName: ApplianceNames.pencil, // Outil: crayon
+        strokeColor: [0, 0, 0], // Couleur noire
+        strokeWidth: 4, // Épaisseur de ligne
       });
       if (!environment.production) {
-        console.log("✅ Режим рисования установлен.");
+        console.log("✅ Mode dessin configuré.");
       }
     } else {
       if (!environment.production) {
-        console.error("❌ Ошибка: комната (room) не определена!");
+        console.error("❌ Erreur: la salle (room) n'est pas définie!");
       }
     }
   }
@@ -119,14 +119,14 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   zoomIn(): void {
     if (this.room) {
       const scale = this.room.state.cameraState.scale;
-      this.room.moveCamera({ scale: Math.min(scale + 0.2, 3) }); // Максимальный зум = 3x
+      this.room.moveCamera({ scale: Math.min(scale + 0.2, 3) }); // Zoom maximum = 3x
     }
   }
 
   zoomOut(): void {
     if (this.room) {
       const scale = this.room.state.cameraState.scale;
-      this.room.moveCamera({ scale: Math.max(scale - 0.2, 0.5) }); // Минимальный зум = 0.5x
+      this.room.moveCamera({ scale: Math.max(scale - 0.2, 0.5) }); // Zoom minimum = 0.5x
     }
   }
 
@@ -178,7 +178,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   setEllipseMode(): void {
     if (this.room) {
       if (!environment.production) {
-        console.log("✍️ Writable перед установкой инструмента:", this.room?.isWritable);
+        console.log("✍️ Writable avant la configuration de l'outil:", this.room?.isWritable);
       }
       this.room.setMemberState({
         currentApplianceName: ApplianceNames.ellipse,
@@ -186,11 +186,11 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
         strokeWidth: 3,
       });
       if (!environment.production) {
-        console.log("🔍 Текущий state:", this.room?.state.memberState);
+        console.log("🔍 État actuel:", this.room?.state.memberState);
       }
     } else {
       if (!environment.production) {
-        console.error("❌ Ошибка: комната (room) не определена!");
+        console.error("❌ Erreur: la salle (room) n'est pas définie!");
       }
     }
   }
@@ -208,7 +208,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
 
   clearBoard(): void {
     if (this.room) {
-      this.room.cleanCurrentScene(false); // false - удаляет все, включая PPT
+      this.room.cleanCurrentScene(false); // false - supprime tout, y compris PPT
     }
   }
 
@@ -216,7 +216,7 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
     if (this.room) {
       const remainingUndos = this.room.undo();
       if (!environment.production) {
-        console.log(`🛑 Отмена последнего действия. Осталось отмен: ${remainingUndos}`);
+        console.log(`🛑 Annulation de la dernière action. Annulations restantes: ${remainingUndos}`);
       }
     }
   }
@@ -262,18 +262,18 @@ export class InteractiveBoardComponent implements OnInit, AfterViewInit {
   }
 
 
-  // Функция для конвертации HEX в RGB (так требует Agora)
+  // Fonction pour convertir HEX en RGB (requis par Agora)
   private hexToRgb(hex: string): number[] {
     const bigint = parseInt(hex.slice(1), 16);
     return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
   }
 
-  //добавление заметок
+  // ajout de notes
   addStickyNote(): void {
     const note = window.document.createElement('div');
     note.className = 'sticky-note';
     note.contentEditable = 'true';
-    note.innerText = 'Новая заметка';
+    note.innerText = 'Nouvelle note';
     note.style.position = 'absolute';
     note.style.top = '100px';
     note.style.left = '100px';

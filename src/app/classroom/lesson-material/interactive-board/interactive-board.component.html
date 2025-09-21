@@ -6,44 +6,44 @@
     <button (click)="moveCanvas(-50, 0)">⬅️</button>
     <button (click)="moveCanvas(0, 50)">⬇️</button>
     <button (click)="moveCanvas(50, 0)">➡️</button>
-    <button (click)="resetPosition()">🔄 Сброс</button>
-    <button (click)="clearBoard()">Очистить доску</button>
+    <button (click)="resetPosition()">🔄 Réinitialiser</button>
+    <button (click)="clearBoard()">Effacer le tableau</button>
 
     <!-- Tool Selection -->
-    <button (click)="setDrawingMode()">✏️ Рисование</button>
-    <button (click)="setEraserMode()">🧹 Ластик</button>
-    <button (click)="setTextMode()">🔤 Текст</button>
-    <button (click)="setSelectionMode()">🎯 Выделение</button>
+    <button (click)="setDrawingMode()">✏️ Dessin</button>
+    <button (click)="setEraserMode()">🧹 Gomme</button>
+    <button (click)="setTextMode()">🔤 Texte</button>
+    <button (click)="setSelectionMode()">🎯 Sélection</button>
 
-    <button (click)="setRectangleMode()">⬛ Прямоугольник</button>
-    <button (click)="setEllipseMode()">⚪ Эллипс</button>
-    <button (click)="setLineMode()">📏 Линия</button>
+    <button (click)="setRectangleMode()">⬛ Rectangle</button>
+    <button (click)="setEllipseMode()">⚪ Ellipse</button>
+    <button (click)="setLineMode()">📏 Ligne</button>
 
     <!-- Brush Settings -->
-    <label for="brush-color">Цвет кисти:</label>
+    <label for="brush-color">Couleur du pinceau:</label>
     <input id="brush-color" type="color" [(ngModel)]="brushColor" (change)="changeBrushColor(brushColor)" />
 
-    <label for="brush-width">Толщина кисти:</label>
+    <label for="brush-width">Épaisseur du pinceau:</label>
     <input id="brush-width" type="range" min="1" max="20" [(ngModel)]="brushWidth"
       (change)="changeBrushWidth(brushWidth)" />
 
     <!-- Text Options -->
-    <button (click)="addTextToBoard('Введите текст', 200, 200)">Добавить текст</button>
+    <button (click)="addTextToBoard('Saisissez le texte', 200, 200)">Ajouter du texte</button>
 
-    <label for="fontSize">Размер:</label>
+    <label for="fontSize">Taille:</label>
     <input id="fontSize" type="number" min="10" max="100" (input)="changeFontSize($event)" />
 
-    <label for="textColor">Цвет текста:</label>
+    <label for="textColor">Couleur du texte:</label>
     <input id="textColor" type="color" value="#000000" (input)="changeTextColor($event)" />
 
-    <button (click)="addStickyNote()">📌 Добавить заметку</button>
+    <button (click)="addStickyNote()">📌 Ajouter une note</button>
   </div>
 
   <!-- Zoom Controls -->
   <div class="zoom-controls">
-    <button (click)="zoomIn()">➕ Зум +</button>
-    <button (click)="zoomOut()">➖ Зум -</button>
-    <span>Масштаб: {{ zoomLevel | number: '1.0-2' }}</span>
+    <button (click)="zoomIn()">➕ Zoom +</button>
+    <button (click)="zoomOut()">➖ Zoom -</button>
+    <span>Échelle: {{ zoomLevel | number: '1.0-2' }}</span>
   </div>
 
   <!-- Whiteboard -->
@@ -54,5 +54,5 @@
 
 
   <ng-template #delayRender>
-    <p>Загрузка видео...</p>
+    <p>Chargement de la vidéo...</p>
   </ng-template>
