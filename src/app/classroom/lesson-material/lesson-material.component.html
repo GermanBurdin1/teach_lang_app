@@ -47,52 +47,151 @@
       <!-- 👥 Панель управления классом -->
       <div *ngIf="showClassManagement" class="class-management-panel">
         <div class="class-header">
-          <h2>🎓 Gestion de classe DELF/DALF</h2>
-          <button *ngIf="!currentClass" 
-                  mat-raised-button 
+          <h2>🎓 Gestion de classes DELF/DALF</h2>
+          <button mat-raised-button 
                   color="primary" 
                   (click)="openCreateClassDialog()">
             ➕ Créer une nouvelle classe
           </button>
         </div>
 
-        <!-- Если класс не создан -->
-        <div *ngIf="!currentClass" class="no-class-message">
-          <mat-card class="welcome-card">
+        <!-- Статистика по уровням -->
+        <div class="level-stats" *ngIf="allTeacherClasses.length > 0">
+          <h3>📊 Statistiques par niveau</h3>
+          <div class="stats-grid">
+            <div *ngFor="let stat of getLevelStats()" 
+                 class="stat-card"
+                 [style.background-color]="stat.color + '20'"
+                 [style.border-color]="stat.color"
+                 (click)="setLevelFilter(stat.count > 0 ? stat.level : null)">
+              <div class="stat-level">{{ stat.level }}</div>
+              <div class="stat-count">{{ stat.count }}</div>
+              <div class="stat-label">classe(s)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Фильтр по уровням -->
+        <div class="level-filter" *ngIf="allTeacherClasses.length > 0">
+          <button mat-button 
+                  [class.active]="selectedLevelFilter === null"
+                  (click)="setLevelFilter(null)">
+            Tous les niveaux ({{ allTeacherClasses.length }})
+          </button>
+          <button *ngFor="let stat of getLevelStats()"
+                  mat-button
+                  [class.active]="selectedLevelFilter === stat.level"
+                  [style.color]="stat.count > 0 ? stat.color : '#ccc'"
+                  [disabled]="stat.count === 0"
+                  (click)="setLevelFilter(stat.level)">
+            {{ stat.level }} ({{ stat.count }})
+          </button>
+        </div>
+
+        <!-- Список всех классов -->
+        <div class="classes-grid" *ngIf="getFilteredClasses().length > 0; else noClasses">
+          <mat-card *ngFor="let cls of getFilteredClasses()" 
+                    class="class-card"
+                    [class.selected]="currentClass?.id === cls.id"
+                    (click)="selectClass(cls)">
+            
+            <!-- Header карточки -->
             <mat-card-header>
-              <mat-card-title>Bienvenue dans votre espace classe !</mat-card-title>
+              <div mat-card-avatar 
+                   class="class-level-avatar"
+                   [style.background-color]="getLevelColor(cls.level)">
+                {{ cls.level }}
+              </div>
+              <mat-card-title>{{ cls.name }}</mat-card-title>
+              <mat-card-subtitle>
+                Niveau {{ cls.level }} • {{ cls.students.length || 0 }}/{{ cls.maxStudents }} élèves
+              </mat-card-subtitle>
             </mat-card-header>
+
+            <!-- Содержимое карточки -->
             <mat-card-content>
-              <p>Créez votre première classe pour commencer à enseigner le français (DELF/DALF)</p>
-              <ul>
-                <li>✅ Organisez vos élèves par niveau</li>
-                <li>✅ Gérez les invitations d'élèves</li>
-                <li>✅ Lancez des cours en ligne</li>
-                <li>✅ Suivez les progrès de chaque élève</li>
-              </ul>
+              <p class="class-description">{{ cls.description }}</p>
+              
+              <!-- Статус и дата -->
+              <div class="class-meta">
+                <span class="status-badge" 
+                      [style.background-color]="getClassStatusColor(cls.status)">
+                  {{ getClassStatusText(cls.status) }}
+                </span>
+                <span class="scheduled-date">
+                  📅 {{ formatScheduledDate(cls.scheduledAt) }}
+                </span>
+              </div>
+
+              <!-- Список студентов -->
+              <div class="students-preview" *ngIf="cls.students && cls.students.length > 0">
+                <h4>👥 Élèves inscrits:</h4>
+                <div class="students-list">
+                  <span *ngFor="let student of cls.students.slice(0, 3)" 
+                        class="student-chip">
+                    {{ student.studentName || 'Élève' }}
+                  </span>
+                  <span *ngIf="cls.students.length > 3" 
+                        class="more-students">
+                    +{{ cls.students.length - 3 }} autres
+                  </span>
+                </div>
+              </div>
             </mat-card-content>
+
+            <!-- Действия карточки -->
+            <mat-card-actions>
+              <button mat-button (click)="selectClass(cls); $event.stopPropagation()">
+                <mat-icon>visibility</mat-icon>
+                Voir détails
+              </button>
+              <button mat-button (click)="startVideoCall(); $event.stopPropagation()">
+                <mat-icon>play_arrow</mat-icon>
+                Commencer
+              </button>
+            </mat-card-actions>
           </mat-card>
         </div>
 
-        <!-- Если класс создан -->
-        <div *ngIf="currentClass" class="class-details">
+        <!-- Сообщение если нет классов -->
+        <ng-template #noClasses>
+          <div class="no-classes-message">
+            <mat-card class="welcome-card">
+              <mat-card-header>
+                <mat-card-title>Bienvenue dans votre espace classes !</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <p>Créez votre première classe pour commencer à enseigner le français (DELF/DALF)</p>
+                <ul>
+                  <li>✅ Organisez vos élèves par niveau</li>
+                  <li>✅ Gérez les invitations d'élèves</li>
+                  <li>✅ Lancez des cours en ligne</li>
+                  <li>✅ Suivez les progrès de chaque élève</li>
+                </ul>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </ng-template>
+
+        <!-- Детали выбранного класса -->
+        <div *ngIf="currentClass" class="selected-class-details">
           <mat-card class="class-info-card">
             <mat-card-header>
-              <div mat-card-avatar class="class-avatar">{{ getCurrentClassSafe()?.level }}</div>
-              <mat-card-title>{{ getCurrentClassSafe()?.name }}</mat-card-title>
+              <div mat-card-avatar class="class-avatar">{{ currentClass.level }}</div>
+              <mat-card-title>{{ currentClass.name }}</mat-card-title>
               <mat-card-subtitle>
-                Niveau {{ getCurrentClassSafe()?.level }} • {{ getCurrentClassSafe()?.students?.length || 0 }}/{{ getCurrentClassSafe()?.maxStudents }} élèves
+                Niveau {{ currentClass.level }} • {{ currentClass.students.length || 0 }}/{{ currentClass.maxStudents }} élèves
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              <p>{{ getCurrentClassSafe()?.description }}</p>
+              <p>{{ currentClass.description }}</p>
               
               <!-- Список студентов в классе -->
               <div class="students-section">
                 <h4>📚 Élèves inscrits:</h4>
-                <div *ngIf="hasStudents(); else noStudents" class="students-grid">
+                <div *ngIf="currentClass.students && currentClass.students.length > 0; else noStudents" class="students-grid">
                   <mat-chip-set>
-                    <mat-chip *ngFor="let student of getCurrentClassSafe()?.students" 
+                    <mat-chip *ngFor="let student of currentClass.students" 
                              [removable]="true"
                              (removed)="removeStudentFromClassSafe(student)">
                       {{ getStudentName(student) }}

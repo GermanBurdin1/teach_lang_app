@@ -61,9 +61,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   // Управление классом
   showClassManagement = false;
-  currentClass: unknown = null;
+  currentClass: GroupClass | null = null;
+  allTeacherClasses: GroupClass[] = []; // Все классы преподавателя
   showStudentsList = false;
   availableStudents: unknown[] = []; // Подтвержденные студенты для добавления
+  selectedLevelFilter: string | null = null; // Фильтр по уровню
 
   constructor(
     private backgroundService: BackgroundService, 
@@ -929,6 +931,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         
         // Sauvegarder dans localStorage pour compatibilité
         this.saveClassToStorage();
+        
+        // Перезагружаем список всех классов
+        this.loadTeacherClasses();
       } else if (result?.error) {
         console.error('❌ Erreur lors de la création de la classe:', result.error);
         alert(result.error);
@@ -944,8 +949,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.groupClassService.getTeacherGroupClasses(teacherId).subscribe({
       next: (classes: GroupClass[]) => {
         console.log('📚 Загружены классы преподавателя с бекенда:', classes);
-        // Берем последний созданный активный класс
-        this.currentClass = classes.find((cls: unknown) => (cls as { status?: string }).status === 'active') || null;
+        
+        // Сохраняем все классы
+        this.allTeacherClasses = classes;
+        
+        // Берем последний созданный активный класс как текущий
+        this.currentClass = classes.find((cls: GroupClass) => cls.status === 'active') || null;
         
         // Также сохраняем в localStorage для совместимости
         localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(classes));
@@ -956,8 +965,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         // Fallback на localStorage
         const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
         if (savedClasses) {
-          const classes = JSON.parse(savedClasses);
-          this.currentClass = classes.find((cls: unknown) => (cls as { status?: string }).status === 'active') || null;
+          const classes: GroupClass[] = JSON.parse(savedClasses);
+          this.allTeacherClasses = classes;
+          this.currentClass = classes.find((cls: GroupClass) => cls.status === 'active') || null;
           console.log('📚 Загружены классы из localStorage:', classes);
         }
       }
@@ -969,10 +979,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     if (!teacherId || !this.currentClass) return;
     
     const savedClasses = localStorage.getItem(`teacher_classes_${teacherId}`);
-    const classes = savedClasses ? JSON.parse(savedClasses) : [];
+    const classes: GroupClass[] = savedClasses ? JSON.parse(savedClasses) : [];
     
     // Обновляем существующий класс или добавляем новый
-    const existingIndex = classes.findIndex((cls: unknown) => (cls as { id?: string }).id === (this.currentClass as { id?: string })?.id);
+    const existingIndex = classes.findIndex((cls: GroupClass) => cls.id === this.currentClass?.id);
     if (existingIndex >= 0) {
       classes[existingIndex] = this.currentClass;
     } else {
@@ -983,32 +993,104 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     console.log('💾 Класс сохранен в localStorage');
   }
 
-  removeStudentFromClass(student: { id?: string; name?: string; [key: string]: unknown }): void {
+  // Методы для работы с классами
+  getFilteredClasses(): GroupClass[] {
+    if (!this.selectedLevelFilter) {
+      return this.allTeacherClasses;
+    }
+    return this.allTeacherClasses.filter(cls => cls.level === this.selectedLevelFilter);
+  }
+
+  getClassesByLevel(level: string): GroupClass[] {
+    return this.allTeacherClasses.filter(cls => cls.level === level);
+  }
+
+  getLevelStats(): { level: string; count: number; color: string }[] {
+    const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const colors = {
+      'A1': '#ff6b6b', // Красный
+      'A2': '#ffa726', // Оранжевый
+      'B1': '#66bb6a', // Зеленый
+      'B2': '#42a5f5', // Синий
+      'C1': '#ab47bc', // Фиолетовый
+      'C2': '#26a69a'  // Бирюзовый
+    };
+
+    return levels.map(level => ({
+      level,
+      count: this.getClassesByLevel(level).length,
+      color: colors[level as keyof typeof colors]
+    }));
+  }
+
+  setLevelFilter(level: string | null): void {
+    this.selectedLevelFilter = level;
+  }
+
+  selectClass(cls: GroupClass): void {
+    this.currentClass = cls;
+  }
+
+  getClassStatusColor(status: string): string {
+    switch (status) {
+      case 'active': return '#4caf50'; // Зеленый
+      case 'completed': return '#2196f3'; // Синий
+      case 'cancelled': return '#f44336'; // Красный
+      default: return '#9e9e9e'; // Серый
+    }
+  }
+
+  getClassStatusText(status: string): string {
+    switch (status) {
+      case 'active': return 'Actif';
+      case 'completed': return 'Terminé';
+      case 'cancelled': return 'Annulé';
+      default: return 'Inconnu';
+    }
+  }
+
+  formatScheduledDate(dateInput: string | Date): string {
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getLevelColor(level: string | null): string {
+    if (!level) return '#9e9e9e';
+    const levelStats = this.getLevelStats();
+    const stat = levelStats.find(s => s.level === level);
+    return stat?.color || '#9e9e9e';
+  }
+
+  removeStudentFromClass(student: { id?: string; name?: string; studentId?: string; [key: string]: unknown }): void {
     console.log('🗑️ Удаление студента из класса:', student);
     
-    const currentClass = this.currentClass as { id?: string };
-    if (!this.currentClass || !currentClass.id) {
+    if (!this.currentClass || !this.currentClass.id) {
       alert('Класс не найден');
       return;
     }
 
-    const studentId = (student as { studentId?: string }).studentId || student.id;
+    const studentId = student.studentId || student.id;
     if (!studentId) {
       alert('ID студента не найден');
       return;
     }
 
     // Удаляем студента через API
-    this.groupClassService.removeStudentFromClass(currentClass.id!, studentId).subscribe({
+    this.groupClassService.removeStudentFromClass(this.currentClass.id, studentId).subscribe({
       next: () => {
         console.log('✅ Студент удален из класса на бекенде');
         
         // Обновляем локальные данные
-        const currentClassObj = this.currentClass as { students?: unknown[] };
-        if (this.currentClass && currentClassObj.students) {
-          const index = currentClassObj.students.indexOf(student);
+        if (this.currentClass && this.currentClass.students) {
+          const index = this.currentClass.students.findIndex(s => s.id === studentId);
           if (index > -1) {
-            currentClassObj.students.splice(index, 1);
+            this.currentClass.students.splice(index, 1);
             this.saveClassToStorage(); // Сохраняем изменения в localStorage
           }
         }
@@ -1112,8 +1194,8 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     return this.currentLesson as { studentTasks?: unknown[]; teacherTasks?: unknown[]; studentQuestions?: unknown[]; teacherQuestions?: unknown[]; homework?: unknown[]; [key: string]: unknown } | null;
   }
 
-  getCurrentClassSafe(): { level?: string; name?: string; students?: unknown[]; maxStudents?: number; description?: string; [key: string]: unknown } | null {
-    return this.currentClass as { level?: string; name?: string; students?: unknown[]; maxStudents?: number; description?: string; [key: string]: unknown } | null;
+  getCurrentClassSafe(): GroupClass | null {
+    return this.currentClass;
   }
 
   getHomeworkTitle(homework: unknown): string {
@@ -1226,7 +1308,6 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   // Safe check for students array length
   hasStudents(): boolean {
-    const currentClass = this.currentClass as { students?: unknown[] };
-    return (currentClass?.students?.length || 0) > 0;
+    return (this.currentClass?.students?.length || 0) > 0;
   }
 }
