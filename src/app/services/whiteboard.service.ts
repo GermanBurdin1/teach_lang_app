@@ -20,7 +20,9 @@ export class WhiteboardService {
   constructor(private http: HttpClient) {
     this.sdk = new WhiteWebSdk({
       appIdentifier: 'tmuA4P_vEe-XRGk9GboPXw/t7oX_QbCKG52Pw',
-      region: 'eu',
+      region: 'us', // Изменили регион на US для обхода CORS
+      useMobXState: false,
+      preloadDynamicPPT: false
     });
   }
 

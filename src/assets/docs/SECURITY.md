@@ -22,6 +22,9 @@
   img-src 'self' data: blob: 
     https://linguaconnect.com 
     https://embed.tawk.to;
+  media-src 'self' 
+    http://localhost:3008
+    http://135.125.107.45:3008;
   connect-src 'self' 
     http://localhost:3011 
     http://135.125.107.45:3011 
@@ -35,7 +38,22 @@
     wss://*.agora.io
     https://cdn.jsdelivr.net
     https://www.google-analytics.com
-    https://analytics.google.com;
+    https://analytics.google.com
+    https://api-eu.netless.link
+    https://api-eu.whiteboard.agora.io
+    https://api-eu.whiteboard.rtelink.com
+    https://api.netless.link
+    https://api.whiteboard.agora.io
+    https://api.whiteboard.rtelink.com
+    https://api-us.netless.link
+    https://api-us.whiteboard.agora.io
+    https://api-us.whiteboard.rtelink.com
+    https://api-us-sv.netless.link
+    https://api-us-sv.whiteboard.agora.io
+    https://api-us-sv.whiteboard.rtelink.com
+    https://api-cn.netless.link
+    https://api-cn.whiteboard.agora.io
+    https://api-cn.whiteboard.rtelink.com;
   frame-src 'self' 
     https://js.stripe.com 
     https://embed.tawk.to;
