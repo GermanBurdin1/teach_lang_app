@@ -32,6 +32,7 @@ export class VideoCallService {
 
   agoraClient: IAgoraRTCClient | null = null;
   localTracks: { videoTrack: ILocalVideoTrack | null, audioTrack: ILocalAudioTrack | null } = { videoTrack: null, audioTrack: null };
+  private agoraWarningsDisabled = false;
 
   remoteUsers: { [uid: string]: { videoTrack: IRemoteVideoTrack | null, audioTrack: IRemoteAudioTrack | null } } = {};
   appId = 'a020b374553e4fac80325223fba38531'; // Замените на ваш App ID
@@ -45,9 +46,7 @@ export class VideoCallService {
 
   // constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
   constructor(private homeworkService: HomeworkService) {
-    // Отключаем все AgoraRTC предупреждения
-    this.disableAllAgoraWarnings();
-    console.log('⚡ VideoCallService создан');
+    console.log('⚡ VideoCallService создан (без AgoraRTC инициализации)');
   }
 
   // Новый метод для установки данных урока
@@ -68,6 +67,12 @@ export class VideoCallService {
 
   async joinChannel(): Promise<void> {
     try {
+      // Отключаем AgoraRTC предупреждения только при первом использовании
+      if (!this.agoraWarningsDisabled) {
+        this.disableAllAgoraWarnings();
+        this.agoraWarningsDisabled = true;
+      }
+
       // Создаем AgoraRTC клиент только при необходимости
       if (!this.agoraClient) {
         console.log('🚀 Создаем AgoraRTC клиент...');
@@ -161,16 +166,25 @@ export class VideoCallService {
     // Переопределяем console.warn для фильтрации всех AgoraRTC предупреждений
     const originalWarn = console.warn;
     const originalError = console.error;
+    const originalLog = console.log;
+    const originalInfo = console.info;
+    
+    // Функция для проверки AgoraRTC сообщений
+    const isAgoraMessage = (message: string): boolean => {
+      return message.includes('AgoraRTC') || 
+             message.includes('WEB_SECURITY_RESTRICT') || 
+             message.includes('web security') ||
+             message.includes('https protocol') ||
+             message.includes('enumerateDevices') ||
+             message.includes('localhost') ||
+             message.includes('NOT_SUPPORTED') ||
+             message.includes('AgoraRTCError') ||
+             message.includes('Agora-SDK');
+    };
     
     console.warn = (...args: any[]) => {
       const message = args.join(' ');
-      // Пропускаем все AgoraRTC предупреждения
-      if (message.includes('AgoraRTC') || 
-          message.includes('WEB_SECURITY_RESTRICT') || 
-          message.includes('web security') ||
-          message.includes('https protocol') ||
-          message.includes('enumerateDevices') ||
-          message.includes('localhost')) {
+      if (isAgoraMessage(message)) {
         return;
       }
       originalWarn.apply(console, args);
@@ -178,15 +192,26 @@ export class VideoCallService {
 
     console.error = (...args: any[]) => {
       const message = args.join(' ');
-      // Пропускаем все AgoraRTC ошибки
-      if (message.includes('AgoraRTC') || 
-          message.includes('WEB_SECURITY_RESTRICT') || 
-          message.includes('NOT_SUPPORTED') ||
-          message.includes('enumerateDevices') ||
-          message.includes('AgoraRTCError NOT_SUPPORTED: enumerateDevices() not supported')) {
+      if (isAgoraMessage(message)) {
         return;
       }
       originalError.apply(console, args);
+    };
+
+    console.log = (...args: any[]) => {
+      const message = args.join(' ');
+      if (isAgoraMessage(message)) {
+        return;
+      }
+      originalLog.apply(console, args);
+    };
+
+    console.info = (...args: any[]) => {
+      const message = args.join(' ');
+      if (isAgoraMessage(message)) {
+        return;
+      }
+      originalInfo.apply(console, args);
     };
   }
 
