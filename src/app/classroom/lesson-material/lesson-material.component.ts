@@ -1138,31 +1138,30 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       return;
     }
     
-    this.devLog('📡 Вызываем lessonService.getAllConfirmedLessonsForTeacher...');
+    this.devLog('📡 Вызываем lessonService.getConfirmedStudentsForTeacher...');
     
-    // Получаем реальных студентов из бэкенда (используем тот же метод что и в overview)
-    this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe({
-      next: (lessons) => {
-        this.devLog('📚 Получены уроки с бэкенда:', lessons);
+    // Получаем реальных подтвержденных студентов из бэкенда
+    this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe({
+      next: (students) => {
+        this.devLog('📚 Получены подтвержденные студенты с бэкенда:', students);
         
-        // Группируем уроки по studentId (как в overview компоненте)
-        const studentsMap: { [studentId: string]: any } = {};
-        
-        (lessons as any[]).forEach((lesson: any) => {
-          const studentId = lesson.studentId;
-          if (!studentsMap[studentId]) {
-            studentsMap[studentId] = {
-              id: studentId,
-              studentId: studentId,
-              name: lesson.studentName || 'Студент без имени',
-              email: 'email@example.com', // По умолчанию
-              level: 'B1' // По умолчанию
-            };
-          }
+        // Преобразуем данные в нужный формат
+        this.availableStudents = students.map((student: unknown) => {
+          const studentData = student as { 
+            id?: string; 
+            name?: string; 
+            email?: string; 
+            level?: string;
+            studentId?: string;
+          };
+          
+          return {
+            id: studentData.studentId || studentData.id,
+            name: studentData.name || 'Студент без имени',
+            email: studentData.email || 'email@example.com',
+            level: studentData.level || 'B1' // По умолчанию B1
+          };
         });
-        
-        // Преобразуем в массив
-        this.availableStudents = Object.values(studentsMap);
         
         // Фильтруем студентов, которые уже в текущем классе
         if (this.currentClass?.students) {
