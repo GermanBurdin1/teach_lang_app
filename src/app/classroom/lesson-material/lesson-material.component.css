@@ -1342,6 +1342,64 @@ body {
   color: var(--text-secondary, #6b7280);
 }
 
+/* ===== LESSON STATUS STYLES ===== */
+.lesson-status {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(109, 40, 217, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid var(--galaxy-primary, #6d28d9);
+}
+
+.status-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.status-label {
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.timer {
+  background: var(--cosmic-gold, #fbbf24);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.participants-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.participants-label {
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.9rem;
+}
+
+.participants-count {
+  background: var(--galaxy-primary, #6d28d9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 /* ===== RESPONSIVE DESIGN FOR CLASS MANAGEMENT ===== */
 @media (max-width: 768px) {
   .class-management-panel {
@@ -1369,4 +1427,116 @@ body {
   .class-actions {
     justify-content: center;
   }
+
+  .status-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* ===== STUDENTS DIALOG STYLES ===== */
+.students-dialog {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  border: 2px solid var(--galaxy-primary, #6d28d9);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--border-color, rgba(109, 40, 217, 0.2));
+}
+
+.dialog-header h3 {
+  margin: 0;
+  color: var(--galaxy-primary, #6d28d9);
+  font-size: 1.3rem;
+}
+
+.students-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.student-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border-color, rgba(109, 40, 217, 0.2));
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.student-item:hover {
+  background: rgba(109, 40, 217, 0.05);
+  border-color: var(--galaxy-primary, #6d28d9);
+  transform: translateY(-1px);
+}
+
+.student-info {
+  flex: 1;
+}
+
+.student-name {
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+  margin-bottom: 4px;
+}
+
+.student-email {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #6b7280);
+  margin-bottom: 2px;
+}
+
+.student-level {
+  font-size: 0.8rem;
+  color: var(--galaxy-primary, #6d28d9);
+  font-weight: 500;
+}
+
+.add-button {
+  color: var(--galaxy-primary, #6d28d9) !important;
+  transition: all 0.3s ease;
+}
+
+.add-button:hover {
+  background: rgba(109, 40, 217, 0.1) !important;
+  transform: scale(1.1);
+}
+
+.no-students {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary, #6b7280);
+}
+
+/* ===== SCROLLBAR FOR STUDENTS LIST ===== */
+.students-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.students-list::-webkit-scrollbar-track {
+  background: rgba(109, 40, 217, 0.1);
+  border-radius: 3px;
+}
+
+.students-list::-webkit-scrollbar-thumb {
+  background: var(--galaxy-primary, #6d28d9);
+  border-radius: 3px;
+}
+
+.students-list::-webkit-scrollbar-thumb:hover {
+  background: var(--stellar-purple, #8b5cf6);
 }

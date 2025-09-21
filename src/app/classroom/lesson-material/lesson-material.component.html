@@ -204,21 +204,82 @@
                 </ng-template>
               </div>
 
-              <!-- Кнопки действий -->
-              <div class="class-actions">
-                <button mat-raised-button color="primary" (click)="startVideoCall()">
-                  🎥 Commencer le cours
-                </button>
-                <button mat-stroked-button (click)="openInviteStudentsDialog()">
-                  ➕ Ajouter des élèves
-                </button>
-                <button mat-stroked-button (click)="editClass()">
-                  ✏️ Modifier la classe
-                </button>
-                <button mat-stroked-button color="warn" (click)="deleteClass()">
-                  🗑️ Supprimer la classe
-                </button>
-              </div>
+                     <!-- Статус урока -->
+                     <div class="lesson-status" *ngIf="currentClass">
+                       <div class="status-info">
+                         <span class="status-label">Statut du cours:</span>
+                         <span class="status-badge" 
+                               [style.background-color]="getLessonStatusColor()">
+                           {{ getLessonStatusText() }}
+                         </span>
+                         <span class="timer" *ngIf="lessonStarted && !lessonEnded">
+                           ⏰ {{ formatLessonTime() }}
+                         </span>
+                       </div>
+                       <div class="participants-info" *ngIf="groupParticipants.length > 0">
+                         <span class="participants-label">Participants connectés:</span>
+                         <span class="participants-count">{{ groupParticipants.length }}</span>
+                       </div>
+                     </div>
+
+                     <!-- Кнопки действий -->
+                     <div class="class-actions">
+                       <button mat-raised-button 
+                               color="primary" 
+                               *ngIf="!lessonStarted"
+                               (click)="startVideoCall()">
+                         🎥 Commencer le cours
+                       </button>
+                       <button mat-raised-button 
+                               color="warn" 
+                               *ngIf="lessonStarted && !lessonEnded"
+                               (click)="endLesson()">
+                         🛑 Terminer le cours
+                       </button>
+                       <button mat-stroked-button 
+                               *ngIf="lessonStarted && !lessonEnded"
+                               (click)="inviteStudentsToLesson()">
+                         📧 Inviter les élèves
+                       </button>
+                       <button mat-stroked-button (click)="openInviteStudentsDialog()">
+                         ➕ Ajouter des élèves
+                       </button>
+                       <button mat-stroked-button (click)="editClass()">
+                         ✏️ Modifier la classe
+                       </button>
+                       <button mat-stroked-button color="warn" (click)="deleteClass()">
+                         🗑️ Supprimer la classe
+                       </button>
+                     </div>
+
+                     <!-- Диалог добавления студентов -->
+                     <div *ngIf="showStudentsList" class="students-dialog">
+                       <div class="dialog-header">
+                         <h3>👥 Ajouter des élèves au cours</h3>
+                         <button mat-icon-button (click)="closeStudentsList()">
+                           <mat-icon>close</mat-icon>
+                         </button>
+                       </div>
+                       
+                       <div class="students-list">
+                         <div *ngFor="let student of availableStudents" 
+                              class="student-item"
+                              (click)="addStudentToClass(student)">
+                           <div class="student-info">
+                             <div class="student-name">{{ getStudentName(student) }}</div>
+                             <div class="student-email">{{ getStudentEmail(student) }}</div>
+                             <div class="student-level">Niveau: {{ getStudentLevel(student) }}</div>
+                           </div>
+                           <button mat-icon-button class="add-button">
+                             <mat-icon>person_add</mat-icon>
+                           </button>
+                         </div>
+                         
+                         <div *ngIf="availableStudents.length === 0" class="no-students">
+                           <p>Aucun élève disponible à ajouter</p>
+                         </div>
+                       </div>
+                     </div>
             </mat-card-content>
           </mat-card>
         </div>

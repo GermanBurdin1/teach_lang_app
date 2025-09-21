@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { VideoCallService } from '../../services/video-call.service';
+import { WebSocketService } from '../../services/web-socket.service';
 import { AuthService } from '../../services/auth.service';
 import { HomeworkService } from '../../services/homework.service';
 import { LessonService } from '../../services/lesson.service';
@@ -17,6 +18,7 @@ import { GroupClassService, CreateGroupClassDto, GroupClass } from '../../servic
 import { Meta, Title } from '@angular/platform-browser';
 import { AnalyticsService } from '../../services/analytics.service';
 import { StructuredDataService } from '../../services/structured-data.service';
+import { environment } from '../../../../environment';
 
 @Component({
   selector: 'app-lesson-material',
@@ -24,6 +26,12 @@ import { StructuredDataService } from '../../services/structured-data.service';
   styleUrls: ['./lesson-material.component.css'],
 })
 export class LessonMaterialComponent implements OnInit, OnDestroy {
+  // Helper function for development-only logging
+  private devLog(message: string, ...args: unknown[]): void {
+    if (!environment.production) {
+      console.log(message, ...args);
+    }
+  }
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
@@ -55,7 +63,6 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private hideTimeout: ReturnType<typeof setTimeout> | null = null;
   private isHoveringActions = false;
 
-  lessonStarted = false;
   countdown = 3000; // 3000 секунд
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -64,8 +71,20 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   currentClass: GroupClass | null = null;
   allTeacherClasses: GroupClass[] = []; // Все классы преподавателя
   showStudentsList = false;
-  availableStudents: unknown[] = []; // Подтвержденные студенты для добавления
+  availableStudents: { id?: string; name?: string; email?: string; level?: string }[] = []; // Подтвержденные студенты для добавления
   selectedLevelFilter: string | null = null; // Фильтр по уровню
+
+  // Управление уроком и видеозвонками
+  lessonStarted = false;
+  lessonEnded = false;
+  lessonTimer = 30; // 30 секунд для демо
+  private lessonTimerInterval: ReturnType<typeof setInterval> | null = null;
+  
+  // WebSocket и участники
+  wsConnected = false;
+  groupRoomActive = false;
+  groupParticipants: string[] = [];
+  remoteUsersCount = 0;
 
   constructor(
     private backgroundService: BackgroundService, 
@@ -73,6 +92,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     private router: Router, 
     private route: ActivatedRoute, 
     public videoService: VideoCallService,
+    private wsService: WebSocketService,
     private authService: AuthService, 
     private homeworkService: HomeworkService,
     private lessonService: LessonService,
@@ -91,11 +111,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('✅ LessonMaterialComponent загружен');
+    this.devLog('✅ LessonMaterialComponent загружен');
     this.authService.currentRole$.subscribe(role => {
       if (role === 'student' || role === 'teacher') {
         this.userRole = role;
-        console.log('👤 Роль пользователя:', role);
+        this.devLog('👤 Роль пользователя:', role);
         
         // Если преподаватель зашел в компонент, автоматически показываем управление классом
         if (role === 'teacher') {
@@ -111,8 +131,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       }
     );
 
+    // Инициализация WebSocket и отслеживания участников
+    this.initializeWebSocket();
+    this.initializeVideoTracking();
+
     this.lessonTabsService.contentView$.subscribe((value) => {
-      console.log('🔍 Observed contentView:', value);
+      this.devLog('🔍 Observed contentView:', value);
     });
 
     // ВИДЕО-ИНИЦИАЛИЗАЦИЯ ВРЕМЕННО ЗАКОММЕНТИРОВАНА
@@ -256,6 +280,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       this.hideTimeout = null;
     }
 
+    // Очищаем таймер урока
+    if (this.lessonTimerInterval) {
+      clearInterval(this.lessonTimerInterval);
+      this.lessonTimerInterval = null;
+    }
+
     if (this.countdownInterval) {
       if (this.countdownInterval) clearInterval(this.countdownInterval);
     }
@@ -296,12 +326,25 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   startVideoCall(): void {
     if (this.videoService.showVideoCallSubject.getValue()) {
-      console.log('⚠ Видео уже запущено, не дублируем');
+      this.devLog('⚠ Видео уже запущено, не дублируем');
       return;
     }
 
-    console.log('🎥 Запуск видеозвонка');
+    this.devLog('🎥 Запуск видеозвонка');
+    
+    if (!this.currentClass) {
+      alert('❌ Сначала выберите или создайте класс');
+      return;
+    }
+
+    // Устанавливаем канал для группового урока
+    this.videoService.channelName = `class_${this.currentClass.id}`;
+    this.videoService.setLessonData(this.currentClass.id, this.authService.getCurrentUser()?.id || '');
+    
     this.videoService.startVideoCall();
+    
+    // Начинаем урок и запускаем таймер
+    this.startLesson();
   }
 
   set showVideoCall(value: boolean) {
@@ -838,44 +881,6 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   // Force recompilation - angular cache fix
 
-  async startLesson() {
-    const lessonId = this.lessonTabsService.getCurrentLessonId();
-    const currentUser = this.authService.getCurrentUser();
-    if (!lessonId || !currentUser) {
-      console.error('Нет данных для старта урока');
-      return;
-    }
-    try {
-      await this.lessonService.startLesson(lessonId, currentUser.id).toPromise();
-      // Получаем и показываем статус после старта
-      const startedLesson = await this.lessonService.getLessonById(lessonId).toPromise();
-      alert('Статус урока после старта: ' + (startedLesson?.['status'] || 'неизвестно'));
-      this.lessonStarted = true;
-      this.countdown = 30;
-      this.countdownInterval = setInterval(async () => {
-        if (this.countdown > 0) {
-          this.countdown--;
-        } else {
-          if (this.countdownInterval) clearInterval(this.countdownInterval);
-          // Завершаем урок
-          try {
-            await this.lessonService.endLesson(lessonId, currentUser.id).toPromise();
-            // Получаем и показываем статус после завершения
-            const endedLesson = await this.lessonService.getLessonById(lessonId).toPromise();
-            alert('Статус урока после завершения: ' + (endedLesson?.['status'] || 'неизвестно'));
-            console.log('✅ Урок завершён (статус completed в БД)');
-          } catch (err) {
-            console.error('❌ Ошибка при завершении урока:', err);
-          }
-        }
-      }, 1000);
-      console.log('✅ Урок успешно начат (статус обновлен в БД)');
-    } catch (error) {
-      console.error('❌ Ошибка при старте урока:', error);
-      alert('Ошибка при старте урока. Попробуйте еще раз.');
-    }
-  }
-
   // Методы управления классом
   toggleClassManagement(): void {
     this.showClassManagement = !this.showClassManagement;
@@ -909,7 +914,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: CreateClassDialogResult) => {
       if (result?.success && result.createdClass) {
-        console.log('✅ Classe créée avec succès:', result.createdClass);
+        this.devLog('✅ Classe créée avec succès:', result.createdClass);
         this.currentClass = result.createdClass;
         
         // 🔑 GA4: Track lesson booking event
@@ -948,7 +953,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     // Загружаем классы преподавателя с бекенда
     this.groupClassService.getTeacherGroupClasses(teacherId).subscribe({
       next: (classes: GroupClass[]) => {
-        console.log('📚 Загружены классы преподавателя с бекенда:', classes);
+        this.devLog('📚 Загружены классы преподавателя с бекенда:', classes);
         
         // Сохраняем все классы
         this.allTeacherClasses = classes;
@@ -968,7 +973,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
           const classes: GroupClass[] = JSON.parse(savedClasses);
           this.allTeacherClasses = classes;
           this.currentClass = classes.find((cls: GroupClass) => cls.status === 'active') || null;
-          console.log('📚 Загружены классы из localStorage:', classes);
+                 this.devLog('📚 Загружены классы из localStorage:', classes);
         }
       }
     });
@@ -990,7 +995,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     }
     
     localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(classes));
-    console.log('💾 Класс сохранен в localStorage');
+    this.devLog('💾 Класс сохранен в localStorage');
   }
 
   // Методы для работы с классами
@@ -1103,39 +1108,85 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   openInviteStudentsDialog(): void {
-    console.log('👥 Открытие диалога приглашения студентов через платформу');
+    this.devLog('👥 Открытие диалога добавления студентов');
     
     if (!this.currentClass) {
-      alert('Сначала создайте класс!');
+      alert('❌ Сначала создайте класс!');
       return;
     }
     
-    // Показываем список подтвержденных студентов для добавления
+    // Загружаем доступных студентов
     this.loadAvailableStudents();
     this.showStudentsList = true;
   }
 
   loadAvailableStudents(): void {
-    const teacherId = this.authService.getCurrentUser()?.id;
-    if (!teacherId) return;
+    this.devLog('🔄 Загрузка доступных студентов...');
     
-    // Получаем подтвержденных студентов из lesson service
-    this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe({
-      next: (students) => {
-        // Фильтруем студентов, которые уже не в текущем классе
-        this.availableStudents = students.filter((student: unknown) => {
-          const studentData = student as { studentId?: string; name?: string };
-          return !(this.currentClass as { students?: unknown[] }).students?.find((s: unknown) => {
-            const studentObj = s as { id?: string; name?: string };
-            return studentObj.id === studentData.studentId || studentObj.name === studentData.name;
-          });
+    // Для демо используем заглушку с реальными именами студентов
+    this.availableStudents = [
+      { id: 'student1', name: 'Alice Dupont', email: 'alice@example.com', level: 'B1' },
+      { id: 'student2', name: 'Bob Martin', email: 'bob@example.com', level: 'A2' },
+      { id: 'student3', name: 'Claire Dubois', email: 'claire@example.com', level: 'B2' },
+      { id: 'student4', name: 'David Leroy', email: 'david@example.com', level: 'A1' },
+      { id: 'student5', name: 'Emma Rousseau', email: 'emma@example.com', level: 'C1' },
+    ];
+    
+    // Фильтруем студентов, которые уже в текущем классе
+    if (this.currentClass?.students) {
+      this.availableStudents = this.availableStudents.filter(student => {
+        const studentObj = student as { id?: string };
+        return !this.currentClass?.students?.find(s => (s as { studentId?: string }).studentId === studentObj.id);
+      });
+    }
+    
+    this.devLog('✅ Доступные студенты загружены:', this.availableStudents);
+  }
+
+  addStudentToClass(student: unknown): void {
+    this.devLog('➕ Добавление студента в класс:', student);
+    
+    if (!this.currentClass || !this.currentClass.id) {
+      alert('❌ Класс не найден');
+      return;
+    }
+
+    const studentObj = student as { id?: string; name?: string; studentId?: string };
+    const studentId = studentObj.id || studentObj.studentId;
+    const studentName = studentObj.name;
+    
+    if (!studentId || !studentName) {
+      alert('❌ Недостаточно данных о студенте');
+      return;
+    }
+
+    const addStudentDto = {
+      groupClassId: this.currentClass.id,
+      studentId: studentId,
+      studentName: studentName
+    };
+
+    this.groupClassService.addStudentToClass(addStudentDto).subscribe({
+      next: (addedStudent) => {
+        this.devLog('✅ Студент добавлен в класс на бекенде:', addedStudent);
+        
+        // Обновляем локальные данные
+        if (this.currentClass && this.currentClass.students) {
+          this.currentClass.students.push(addedStudent);
+          this.saveClassToStorage(); // Сохраняем изменения в localStorage
+        }
+        
+        // Убираем студента из списка доступных
+        this.availableStudents = this.availableStudents.filter(s => {
+          const sObj = s as { id?: string };
+          return sObj.id !== studentId;
         });
-        console.log('📚 Доступные студенты для добавления:', this.availableStudents);
+        
+        alert(`✅ ${studentName} добавлен в класс!`);
       },
       error: (error) => {
-        console.error('❌ Ошибка при загрузке студентов:', error);
-        // Fallback: используем моковые данные или пустой массив
-        this.availableStudents = [];
+        console.error('❌ Ошибка добавления студента:', error);
+        alert('❌ Ошибка при добавлении студента. Попробуйте снова.');
       }
     });
   }
@@ -1233,7 +1284,15 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   getStudentName(student: unknown): string {
-    return (student as { name?: string }).name || '';
+    return (student as { name?: string }).name || (student as { studentName?: string }).studentName || 'Inconnu';
+  }
+
+  getStudentEmail(student: unknown): string {
+    return (student as { email?: string }).email || 'Email non disponible';
+  }
+
+  getStudentLevel(student: unknown): string {
+    return (student as { level?: string }).level || 'Niveau non spécifié';
   }
 
   // Helper method for gabarit component
@@ -1309,5 +1368,179 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   // Safe check for students array length
   hasStudents(): boolean {
     return (this.currentClass?.students?.length || 0) > 0;
+  }
+
+  // ===== НОВЫЕ МЕТОДЫ ДЛЯ УПРАВЛЕНИЯ УРОКОМ И ВИДЕОЗВОНКАМИ =====
+
+  /**
+   * Инициализация WebSocket соединения
+   */
+  private initializeWebSocket(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.id) return;
+
+    // Регистрируем пользователя в WebSocket
+    this.wsService.registerUser(currentUser.id);
+
+    // Слушаем события подключения
+    this.wsService.listen('connect').subscribe(() => {
+      this.wsConnected = true;
+      this.devLog('✅ WebSocket подключен для урока!');
+    });
+
+    this.wsService.listen('disconnect').subscribe(() => {
+      this.wsConnected = false;
+      this.devLog('❌ WebSocket отключен!');
+    });
+
+    // Слушаем события участников урока
+    this.wsService.listen('room_participant_joined').subscribe((data: any) => {
+      this.devLog('👤 Новый участник присоединился к уроку:', data.participant);
+      this.groupParticipants.push(data.participant);
+    });
+
+    this.wsService.listen('room_participant_left').subscribe((data: any) => {
+      this.devLog('👤 Участник покинул урок:', data.participant);
+      this.groupParticipants = this.groupParticipants.filter(p => p !== data.participant);
+    });
+  }
+
+  /**
+   * Инициализация отслеживания видео
+   */
+  private initializeVideoTracking(): void {
+    // Отслеживаем количество удаленных пользователей
+    setInterval(() => {
+      if (this.videoService.agoraClient) {
+        this.remoteUsersCount = Object.keys(this.videoService.remoteUsers || {}).length;
+      }
+    }, 1000);
+  }
+
+  /**
+   * Начать урок
+   */
+  startLesson(): void {
+    this.devLog('🎓 Начинаем урок!');
+    this.lessonStarted = true;
+    this.lessonEnded = false;
+    this.lessonTimer = 30; // Сбрасываем таймер на 30 секунд
+
+    // Обновляем статус класса
+    if (this.currentClass) {
+      this.currentClass.status = 'active';
+      this.saveClassToStorage();
+    }
+
+    // Запускаем таймер урока
+    this.startLessonTimer();
+
+    // Уведомляем через WebSocket о начале урока
+    this.notifyLessonStatus('started');
+  }
+
+  /**
+   * Завершить урок
+   */
+  endLesson(): void {
+    this.devLog('🏁 Завершаем урок!');
+    this.lessonStarted = false;
+    this.lessonEnded = true;
+
+    // Останавливаем таймер
+    if (this.lessonTimerInterval) {
+      clearInterval(this.lessonTimerInterval);
+      this.lessonTimerInterval = null;
+    }
+
+    // Обновляем статус класса
+    if (this.currentClass) {
+      this.currentClass.status = 'completed';
+      this.saveClassToStorage();
+    }
+
+    // Останавливаем видео
+    this.videoService.stopVideoCall();
+
+    // Уведомляем через WebSocket о завершении урока
+    this.notifyLessonStatus('completed');
+  }
+
+  /**
+   * Запустить таймер урока
+   */
+  private startLessonTimer(): void {
+    this.lessonTimerInterval = setInterval(() => {
+      this.lessonTimer--;
+      
+      if (this.lessonTimer <= 0) {
+        this.devLog('⏰ Время урока истекло!');
+        this.endLesson();
+      }
+    }, 1000);
+  }
+
+  /**
+   * Уведомить о статусе урока через WebSocket
+   */
+  private notifyLessonStatus(status: 'started' | 'completed'): void {
+    if (!this.currentClass) return;
+
+    this.wsService.sendMessage('lesson_status_changed', {
+      classId: this.currentClass.id,
+      status: status,
+      timestamp: new Date().toISOString(),
+      teacherId: this.authService.getCurrentUser()?.id
+    });
+  }
+
+  /**
+   * Пригласить студентов в урок
+   */
+  inviteStudentsToLesson(): void {
+    if (!this.currentClass || !this.currentClass.students) {
+      alert('❌ Нет студентов для приглашения');
+      return;
+    }
+
+    const studentIds = this.currentClass.students.map(s => s.studentId);
+    this.devLog('📧 Приглашаем студентов в урок:', studentIds);
+
+    // Отправляем приглашения через WebSocket
+    this.wsService.sendMessage('invite_to_lesson', {
+      classId: this.currentClass.id,
+      studentIds: studentIds,
+      teacherId: this.authService.getCurrentUser()?.id,
+      lessonName: this.currentClass.name
+    });
+
+    alert(`📧 Приглашения отправлены ${studentIds.length} студентам!`);
+  }
+
+  /**
+   * Получить статус урока для отображения
+   */
+  getLessonStatusText(): string {
+    if (this.lessonEnded) return 'Завершен';
+    if (this.lessonStarted) return 'В процессе';
+    return 'Не начат';
+  }
+
+  /**
+   * Получить цвет статуса урока
+   */
+  getLessonStatusColor(): string {
+    if (this.lessonEnded) return '#6c757d'; // Серый
+    if (this.lessonStarted) return '#28a745'; // Зеленый
+    return '#ffc107'; // Желтый
+  }
+
+  /**
+   * Форматировать время урока
+   */
+  formatLessonTime(): string {
+    const minutes = Math.floor(this.lessonTimer / 60);
+    const seconds = this.lessonTimer % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 }
