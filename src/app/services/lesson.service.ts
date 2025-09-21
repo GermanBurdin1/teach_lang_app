@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../core/constants/api.constants';
+import { environment } from '../../../environment';
 
 interface LessonResponse {
   success: boolean;
@@ -37,6 +38,12 @@ export interface TeacherTimeSlot {
   providedIn: 'root'
 })
 export class LessonService {
+  // Helper function for development-only logging
+  private devLog(message: string, ...args: unknown[]): void {
+    if (!environment.production) {
+      console.log(message, ...args);
+    }
+  }
   private baseUrl = API_ENDPOINTS.LESSONS;
 
   constructor(private http: HttpClient) { }
@@ -79,14 +86,14 @@ export class LessonService {
     return this.http
       .get<unknown[]>(`${API_ENDPOINTS.LESSONS}/student/${studentId}/confirmed-lessons`)
       .pipe(
-        tap(lessons => console.log('📚 Confirmed lessons received from backend:', lessons))
+        tap(lessons => this.devLog('📚 Confirmed lessons received from backend:', lessons))
       );
   }
 
   getConfirmedStudentsForTeacher(teacherId: string): Observable<unknown[]> {
-    console.log('[FRONT] getConfirmedStudentsForTeacher called with teacherId:', teacherId);
+    this.devLog('[FRONT] getConfirmedStudentsForTeacher called with teacherId:', teacherId);
     return this.http.get<unknown[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-students`).pipe(
-      tap(students => console.log('[FRONT] getConfirmedStudentsForTeacher result:', students))
+      tap(students => this.devLog('[FRONT] getConfirmedStudentsForTeacher result:', students))
     );
   }
 
@@ -95,7 +102,7 @@ export class LessonService {
   }
 
   studentRespondToProposal(data: { lessonId: string; accepted: boolean; newSuggestedTime?: string }): Observable<LessonResponse> {
-    console.log('[studentRespondToProposal] data:', data);
+    this.devLog('[studentRespondToProposal] data:', data);
     return this.http.post<LessonResponse>(`${this.baseUrl}/student-respond`, data);
   }
 

@@ -1107,10 +1107,17 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     });
   }
 
+  testButtonClick(): void {
+    this.devLog('🔘 BUTTON CLICKED!');
+    this.openInviteStudentsDialog();
+  }
+
   openInviteStudentsDialog(): void {
     this.devLog('👥 Открытие диалога добавления студентов');
+    this.devLog('🔍 currentClass:', this.currentClass);
     
     if (!this.currentClass) {
+      this.devLog('❌ currentClass не найден!');
       alert('❌ Сначала создайте класс!');
       return;
     }
@@ -1123,24 +1130,65 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   loadAvailableStudents(): void {
     this.devLog('🔄 Загрузка доступных студентов...');
     
-    // Для демо используем заглушку с реальными именами студентов
-    this.availableStudents = [
-      { id: 'student1', name: 'Alice Dupont', email: 'alice@example.com', level: 'B1' },
-      { id: 'student2', name: 'Bob Martin', email: 'bob@example.com', level: 'A2' },
-      { id: 'student3', name: 'Claire Dubois', email: 'claire@example.com', level: 'B2' },
-      { id: 'student4', name: 'David Leroy', email: 'david@example.com', level: 'A1' },
-      { id: 'student5', name: 'Emma Rousseau', email: 'emma@example.com', level: 'C1' },
-    ];
+    const teacherId = this.authService.getCurrentUser()?.id;
+    this.devLog('🔍 Teacher ID:', teacherId);
     
-    // Фильтруем студентов, которые уже в текущем классе
-    if (this.currentClass?.students) {
-      this.availableStudents = this.availableStudents.filter(student => {
-        const studentObj = student as { id?: string };
-        return !this.currentClass?.students?.find(s => (s as { studentId?: string }).studentId === studentObj.id);
-      });
+    if (!teacherId) {
+      this.devLog('❌ ID преподавателя не найден');
+      return;
     }
     
-    this.devLog('✅ Доступные студенты загружены:', this.availableStudents);
+    this.devLog('📡 Вызываем lessonService.getAllConfirmedLessonsForTeacher...');
+    
+    // Получаем реальных студентов из бэкенда (используем тот же метод что и в overview)
+    this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe({
+      next: (lessons) => {
+        this.devLog('📚 Получены уроки с бэкенда:', lessons);
+        
+        // Группируем уроки по studentId (как в overview компоненте)
+        const studentsMap: { [studentId: string]: any } = {};
+        
+        (lessons as any[]).forEach((lesson: any) => {
+          const studentId = lesson.studentId;
+          if (!studentsMap[studentId]) {
+            studentsMap[studentId] = {
+              id: studentId,
+              studentId: studentId,
+              name: lesson.studentName || 'Студент без имени',
+              email: 'email@example.com', // По умолчанию
+              level: 'B1' // По умолчанию
+            };
+          }
+        });
+        
+        // Преобразуем в массив
+        this.availableStudents = Object.values(studentsMap);
+        
+        // Фильтруем студентов, которые уже в текущем классе
+        if (this.currentClass?.students) {
+          this.availableStudents = this.availableStudents.filter(student => {
+            return !this.currentClass?.students?.find(s => (s as { studentId?: string }).studentId === student.id);
+          });
+        }
+        
+        this.devLog('✅ Доступные студенты загружены и отфильтрованы:', this.availableStudents);
+      },
+      error: (error) => {
+        this.devLog('❌ Ошибка загрузки студентов с бэкенда:', error);
+        this.devLog('❌ Детали ошибки:', error.status, error.message);
+        
+        // Fallback: используем заглушку при ошибке
+        this.availableStudents = [
+          { id: 'student1', name: 'Alice Dupont', email: 'alice@example.com', level: 'B1' },
+          { id: 'student2', name: 'Bob Martin', email: 'bob@example.com', level: 'A2' },
+          { id: 'student3', name: 'Claire Dubois', email: 'claire@example.com', level: 'B2' },
+          { id: 'student4', name: 'David Leroy', email: 'david@example.com', level: 'A1' },
+          { id: 'student5', name: 'Emma Rousseau', email: 'emma@example.com', level: 'C1' },
+        ];
+        
+        this.devLog('⚠️ Используем заглушку из-за ошибки загрузки');
+      }
+    });
   }
 
   addStudentToClass(student: unknown): void {
