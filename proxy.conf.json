@@ -1,16 +1,11 @@
 {
   "/api-eu/*": {
-    "target": "https://api-eu.whiteboard.rtelink.com",
-    "secure": true,
+    "target": "http://localhost:3011/api/lessons/whiteboard/agora-proxy",
+    "secure": false,
     "changeOrigin": true,
     "logLevel": "debug",
     "pathRewrite": {
       "^/api-eu": ""
-    },
-    "headers": {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
   },
   "/api-us/*": {
