@@ -12,6 +12,7 @@ import { LessonNotesService } from '../../services/lesson-notes.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LessonNotesModalComponent } from './lesson-notes-modal/lesson-notes-modal.component';
 import { HomeworkModalComponent } from './homework-modal/homework-modal.component';
+import { CreateClassDialogComponent, CreateClassDialogData, CreateClassDialogResult } from './create-class-dialog.component';
 import { GroupClassService, CreateGroupClassDto, GroupClass } from '../../services/group-class.service';
 import { Meta, Title } from '@angular/platform-browser';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -883,78 +884,54 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   openCreateClassDialog(): void {
-    console.log('📝 Открытие диалога создания класса');
-    
-    const className = prompt('Введите название класса (например, "DELF B1 - Группа 1"):');
-    if (!className) return;
-    
-    const levelOptions = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-    const level = prompt(`Выберите уровень DELF/DALF:\n${levelOptions.map((l, i) => `${i+1}. ${l}`).join('\n')}\n\nВведите номер:`) || '1';
-    const selectedLevel = levelOptions[parseInt(level) - 1] || 'B1';
-    
-    const description = prompt('Описание класса (необязательно):') || `Класс для подготовки к экзамену DELF уровня ${selectedLevel}`;
-    
-    const maxStudents = parseInt(prompt('Максимальное количество студентов (по умолчанию 10):') || '10');
-    
-    // Запрашиваем дату и время первого урока
-    const lessonDate = prompt('Дата первого урока (дд/мм/гггг, например 25/12/2023):');
-    const lessonTime = prompt('Время первого урока (чч:мм, например 14:30):');
-    
-    let scheduledDate = new Date();
-    if (lessonDate && lessonTime) {
-      try {
-        const [day, month, year] = lessonDate.split('/');
-        const [hours, minutes] = lessonTime.split(':');
-        scheduledDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
-      } catch {
-        console.warn('Некорректная дата/время, используем текущее время');
-      }
-    }
+    console.log('📝 Ouverture du dialogue de création de classe');
     
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId) {
-      alert('Ошибка: пользователь не авторизован');
+      alert('Erreur: utilisateur non authentifié');
       return;
     }
 
-    const createClassDto: CreateGroupClassDto = {
-      name: className,
-      level: selectedLevel,
-      description: description,
-      maxStudents: maxStudents,
-      teacherId: teacherId,
-      scheduledAt: scheduledDate.toISOString()
+    const dialogData: CreateClassDialogData = {
+      teacherId: teacherId
     };
 
-    // Создаем класс через API
-    this.groupClassService.createGroupClass(createClassDto).subscribe({
-      next: (createdClass: GroupClass) => {
-        console.log('✅ Класс создан на бекенде:', createdClass);
-        this.currentClass = createdClass;
+    const dialogRef = this.dialog.open(CreateClassDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: dialogData,
+      disableClose: false,
+      autoFocus: true,
+      panelClass: 'create-class-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe((result: CreateClassDialogResult) => {
+      if (result?.success && result.createdClass) {
+        console.log('✅ Classe créée avec succès:', result.createdClass);
+        this.currentClass = result.createdClass;
         
         // 🔑 GA4: Track lesson booking event
         this.analyticsService.trackLessonBooking(
-          createdClass.id,
-          createdClass.teacherId,
+          result.createdClass.id,
+          result.createdClass.teacherId,
           99, // Example price
           'EUR'
         );
         
         // 📊 Structured Data: Generate course schema
         const courseSchema = this.structuredDataService.generateCourseSchema({
-          title: createdClass.name,
-          description: createdClass.description,
-          level: createdClass.level,
+          title: result.createdClass.name,
+          description: result.createdClass.description,
+          level: result.createdClass.level,
           price: 99
         });
         this.structuredDataService.injectStructuredData(courseSchema);
         
-        // Также сохраняем в localStorage для совместимости
+        // Sauvegarder dans localStorage pour compatibilité
         this.saveClassToStorage();
-      },
-      error: (error) => {
-        console.error('❌ Ошибка создания класса:', error);
-        alert('Ошибка при создании класса. Попробуйте снова.');
+      } else if (result?.error) {
+        console.error('❌ Erreur lors de la création de la classe:', result.error);
+        alert(result.error);
       }
     });
   }

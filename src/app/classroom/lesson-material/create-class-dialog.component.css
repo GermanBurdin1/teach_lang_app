@@ -1,0 +1,345 @@
+/* ==================== CREATE CLASS DIALOG STYLES ==================== */
+
+.create-class-dialog {
+  width: 100%;
+  max-width: 600px;
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--galaxy-primary, #6d28d9);
+}
+
+/* ===== HEADER ===== */
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px 24px;
+  background: linear-gradient(135deg, var(--galaxy-primary, #6d28d9) 0%, var(--stellar-purple, #8b5cf6) 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+}
+
+.title-icon {
+  font-size: 1.8rem;
+  color: var(--cosmic-gold, #fbbf24);
+}
+
+.close-button {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+/* ===== CONTENT ===== */
+.dialog-content {
+  padding: 24px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.9));
+}
+
+.create-class-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: calc(50% - 10px);
+}
+
+/* ===== MAT-FORM-FIELD CUSTOMIZATION ===== */
+::ng-deep .mat-form-field {
+  .mat-form-field-outline {
+    color: var(--galaxy-primary, #6d28d9);
+  }
+
+  &.mat-focused .mat-form-field-outline-thick {
+    color: var(--stellar-purple, #8b5cf6);
+  }
+
+  .mat-form-field-label {
+    color: var(--text-secondary, #6b7280);
+  }
+
+  &.mat-focused .mat-form-field-label {
+    color: var(--galaxy-primary, #6d28d9);
+  }
+
+  .mat-input-element {
+    color: var(--text-primary, #1f2937);
+  }
+
+  .mat-form-field-hint {
+    color: var(--text-secondary, #6b7280);
+    font-size: 0.875rem;
+  }
+
+  .mat-icon {
+    color: var(--galaxy-primary, #6d28d9);
+  }
+}
+
+/* ===== SECTION TITLE ===== */
+.datetime-section {
+  margin-top: 16px;
+  padding: 20px;
+  background: var(--glass-bg, rgba(255, 255, 255, 0.1));
+  border-radius: 12px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  color: var(--galaxy-primary, #6d28d9);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.section-title mat-icon {
+  color: var(--cosmic-gold, #fbbf24);
+}
+
+.datetime-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* ===== ACTIONS ===== */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 16px 24px 24px 24px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.9));
+  border-radius: 0 0 12px 12px;
+  position: relative;
+}
+
+.cancel-button {
+  color: var(--text-secondary, #6b7280) !important;
+  background: transparent !important;
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+  background: var(--hover-bg, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--text-primary, #1f2937) !important;
+}
+
+.create-button {
+  background: linear-gradient(135deg, var(--galaxy-primary, #6d28d9) 0%, var(--stellar-purple, #8b5cf6) 100%) !important;
+  color: white !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.create-button:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  background: linear-gradient(135deg, var(--stellar-purple, #8b5cf6) 0%, var(--galaxy-primary, #6d28d9) 100%) !important;
+}
+
+.create-button:disabled {
+  background: var(--space-gray, #6b7280) !important;
+  transform: none !important;
+}
+
+/* ===== LOADING SPINNER ===== */
+.mat-spinner {
+  margin-right: 8px;
+}
+
+::ng-deep .mat-spinner circle {
+  stroke: white;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .create-class-dialog {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .dialog-header {
+    padding: 16px;
+  }
+
+  .dialog-title {
+    font-size: 1.25rem;
+  }
+
+  .dialog-content {
+    padding: 16px;
+  }
+
+  .datetime-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .dialog-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .create-button,
+  .cancel-button {
+    width: 100% !important;
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+  .create-class-dialog {
+    border-color: var(--cosmic-gold, #fbbf24);
+  }
+
+  .dialog-content {
+    background: var(--dark-space, #1f2937);
+  }
+
+  .datetime-section {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .dialog-actions {
+    background: var(--dark-space, #1f2937);
+  }
+
+  ::ng-deep .create-class-dialog-panel {
+    border-color: var(--cosmic-gold, #fbbf24) !important;
+    background: var(--dark-space, #1f2937) !important;
+  }
+
+
+  ::ng-deep .mat-dialog-container {
+    border-color: var(--cosmic-gold, #fbbf24) !important;
+    background: var(--dark-space, #1f2937) !important;
+  }
+
+
+  ::ng-deep .mat-form-field {
+    .mat-input-element {
+      color: white;
+    }
+
+    .mat-form-field-label {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    &.mat-focused .mat-form-field-label {
+      color: var(--cosmic-gold, #fbbf24);
+    }
+
+    .mat-form-field-hint {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+}
+
+/* ===== DIALOG PANEL STYLES ===== */
+::ng-deep .create-class-dialog-panel {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 2px solid var(--galaxy-primary, #6d28d9) !important;
+  background: var(--card-bg, rgba(255, 255, 255, 0.95)) !important;
+}
+
+::ng-deep .create-class-dialog-panel .mat-dialog-container {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* ===== GLOBAL DIALOG STYLES ===== */
+::ng-deep .mat-dialog-container {
+  border-radius: 12px !important;
+  border: 2px solid var(--galaxy-primary, #6d28d9) !important;
+  background: var(--card-bg, rgba(255, 255, 255, 0.95)) !important;
+}
+
+::ng-deep .mat-dialog-backdrop {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+
+/* ===== ANIMATIONS ===== */
+.create-class-dialog {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dialog-header {
+  animation: fadeInDown 0.4s ease-out 0.1s both;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dialog-content {
+  animation: fadeInUp 0.4s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dialog-actions {
+  animation: fadeInUp 0.4s ease-out 0.3s both;
+}
