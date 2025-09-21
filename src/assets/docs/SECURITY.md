@@ -10,7 +10,9 @@
     https://cdn.jsdelivr.net 
     https://js.stripe.com 
     https://embed.tawk.to 
-    https://unpkg.com;
+    https://unpkg.com
+    https://download.agora.io
+    https://www.googletagmanager.com;
   style-src 'self' 'unsafe-inline' 
     https://cdn.jsdelivr.net 
     https://fonts.googleapis.com;
@@ -30,7 +32,10 @@
     wss://*.tawk.to
     https://api.agora.io
     wss://api.agora.io
-    wss://*.agora.io;
+    wss://*.agora.io
+    https://cdn.jsdelivr.net
+    https://www.google-analytics.com
+    https://analytics.google.com;
   frame-src 'self' 
     https://js.stripe.com 
     https://embed.tawk.to;

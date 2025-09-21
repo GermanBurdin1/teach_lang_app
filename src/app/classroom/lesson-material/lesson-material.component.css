@@ -310,14 +310,14 @@ body {
 .side-tabs {
   position: fixed;
   top: 50%;
-  left: 0;
+  right: 0;
   z-index: 10001;
   pointer-events: none;
   display: flex;
   flex-direction: column;
   gap: 10px;
   transform: translateY(-50%);
-  padding-left: 4px; /* 👈 Отступ от края экрана */
+  padding-right: 4px; /* 👈 Отступ от края экрана */
 }
 
 .tab-button {
@@ -325,16 +325,17 @@ body {
   height: 40px;
   background: rgba(0, 0, 0, 0.6);
   color: white;
-  border-radius: 0 6px 6px 0;
+  border-radius: 6px 0 0 6px;
   display: flex;
   justify-content: flex-start; /* 👈 чтобы иконка была в начале */
   align-items: center;
   cursor: pointer;
   pointer-events: auto;
-  transition: width 0.3s ease, background 0.3s ease;
+  transition: background 0.3s ease;
   overflow: visible; /* ✅ обязательно, чтобы label не обрезался */
   font-size: 18px;
   padding-left: 8px; /* 👈 немного отступа внутри кнопки */
+  position: relative; /* 👈 для абсолютного позиционирования label */
 }
 
 .tab-button .label {
@@ -342,10 +343,18 @@ body {
   margin-left: 8px;
   white-space: nowrap;
   transition: opacity 0.3s ease;
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-right: 8px;
 }
 
 .tab-button:hover {
-  width: 180px; /* ⬅️ немного больше ширины */
   background: rgba(0, 0, 0, 0.8);
 }
 
