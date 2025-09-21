@@ -131,8 +131,21 @@ mat-form-field {
 }
 
 /* Цвета для светлой темы */
-mat-label, input, .mat-button-toggle {
+mat-label, input {
   color: var(--text-primary) !important;
+}
+
+/* Цвет для обычных кнопок (не выбранных) */
+::ng-deep .mat-button-toggle:not(.mat-button-toggle-checked) {
+  color: var(--text-primary) !important;
+}
+
+/* Убираем только голубую обводку при фокусе */
+::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: var(--galaxy-primary) !important;
+  border-width: 2px !important;
 }
 
 /* Переопределение floating label для светлой темы */
@@ -245,6 +258,19 @@ mat-label, input, .mat-button-toggle {
 ::ng-deep .mat-button-toggle-checked {
   background-color: var(--galaxy-primary) !important;
   color: white !important;
+  opacity: 0.85; /* Добавляем прозрачность */
+}
+
+/* Максимально специфичный селектор для перебития цвета */
+::ng-deep .mat-button-toggle-checked.mat-button-toggle[_ngcontent-ng-c354870120] {
+  color: white !important;
+  opacity: 0.85; /* Добавляем прозрачность */
+}
+
+/* Дополнительный селектор на случай смены Angular ID */
+::ng-deep .mat-button-toggle-checked.mat-button-toggle[_ngcontent-ng-c4131399546] {
+  color: white !important;
+  opacity: 0.85; /* Добавляем прозрачность */
 }
 
 /* Тёмная тема */

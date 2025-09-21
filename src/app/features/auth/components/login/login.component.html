@@ -13,7 +13,7 @@
       <!-- Email -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" required (blur)="onEmailBlur()" />
+        <input matInput formControlName="email" type="email" required (blur)="onEmailBlur()" autocomplete="username" />
       </mat-form-field>
 
       <!-- Выбор роли, если доступно больше одной -->
