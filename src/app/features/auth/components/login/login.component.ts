@@ -180,6 +180,18 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  getHintStyles(): any {
+    if (this.isDarkTheme) {
+      return {
+        'color': '#4ecdc4',
+        'text-shadow': '0 0 6px rgba(78, 205, 196, 0.6)',
+        'font-weight': '600',
+        'font-size': '10px'
+      };
+    }
+    return {};
+  }
+
   private applyTheme(): void {
     if (this.isDarkTheme) {
       document.body.classList.add('dark-theme');

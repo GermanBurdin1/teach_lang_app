@@ -23,6 +23,7 @@
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
         <input matInput formControlName="email" type="email" required (blur)="onEmailBlur()" autocomplete="username" />
+        <mat-hint id="email-help" [ngStyle]="getHintStyles()">Entrez votre e-mail</mat-hint>
       </mat-form-field>
 
       <!-- Выбор роли, если доступно больше одной -->
@@ -48,7 +49,7 @@
           [attr.aria-label]="'Voir mot de passe'" [attr.aria-pressed]="showPassword">
           <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
-        <mat-hint id="password-help">Entrez votre mot de passe</mat-hint>
+        <mat-hint id="password-help" [ngStyle]="getHintStyles()">Entrez votre mot de passe</mat-hint>
       </mat-form-field>
 
       <!-- Remember Me -->

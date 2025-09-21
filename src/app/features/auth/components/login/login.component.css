@@ -457,12 +457,24 @@ body.dark-theme .role-selection p {
   text-shadow: 0 0 8px rgba(78, 205, 196, 0.6) !important;
 }
 
-/* Контрастные placeholder'ы для тёмной темы */
-body.dark-theme ::ng-deep .mat-mdc-input-element::placeholder {
-  color: #4ecdc4 !important;
+
+/* Неоново-зеленые подсказки в темной теме */
+body.dark-theme ::ng-deep .mat-mdc-form-field-hint,
+body.dark-theme ::ng-deep mat-hint,
+body.dark-theme ::ng-deep .mat-form-field-hint-wrapper,
+body.dark-theme ::ng-deep .mat-hint {
+  color: #00ff00 !important;
+  font-weight: 800 !important;
+  text-shadow: 
+    0 0 5px #00ff00,
+    0 0 10px #00ff00,
+    0 0 15px #00ff00,
+    0 0 20px #00ff00 !important;
+  font-size: 15px !important;
   opacity: 1 !important;
-  font-weight: 700 !important;
-  text-shadow: 0 0 8px rgba(78, 205, 196, 0.5) !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
 }
 
 body.dark-theme ::ng-deep .mat-mdc-form-field-label {
