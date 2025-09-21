@@ -36,8 +36,12 @@ export class LoginComponent implements OnInit {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
-      selectedRole: [null, Validators.required]
+      selectedRole: [null, Validators.required],
+      rememberMe: [false]
     });
+
+    // Загружаем сохраненные данные
+    this.loadSavedCredentials();
 
     // 👉 Если админ вводит логин, сразу задаём роль и снимаем валидацию
     this.loginForm.get('email')?.valueChanges.subscribe(email => {
@@ -98,6 +102,10 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password, selectedRole } = this.loginForm.value;
+      
+      // Сохраняем данные если "Запомнить меня" включено
+      this.saveCredentials();
+      
       if (!environment.production) {
         console.log('Trying login with', this.loginForm.value);
       }
@@ -132,6 +140,44 @@ export class LoginComponent implements OnInit {
     this.isDarkTheme = !this.isDarkTheme;
     this.applyTheme();
     localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
+  }
+
+  private loadSavedCredentials(): void {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    const savedPassword = localStorage.getItem('rememberedPassword');
+    const savedRole = localStorage.getItem('rememberedRole');
+    const rememberMe = localStorage.getItem('rememberMe') === 'true';
+
+    if (savedEmail && rememberMe) {
+      this.loginForm.patchValue({
+        email: savedEmail,
+        password: savedPassword || '',
+        selectedRole: savedRole || null,
+        rememberMe: rememberMe
+      });
+      
+      // Проверяем роль для загруженного email
+      if (savedEmail) {
+        this.onEmailBlur();
+      }
+    }
+  }
+
+  private saveCredentials(): void {
+    const formValue = this.loginForm.value;
+    
+    if (formValue.rememberMe) {
+      localStorage.setItem('rememberedEmail', formValue.email);
+      localStorage.setItem('rememberedPassword', formValue.password);
+      localStorage.setItem('rememberedRole', formValue.selectedRole);
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      // Очищаем сохраненные данные если "Запомнить меня" отключен
+      localStorage.removeItem('rememberedEmail');
+      localStorage.removeItem('rememberedPassword');
+      localStorage.removeItem('rememberedRole');
+      localStorage.removeItem('rememberMe');
+    }
   }
 
   private applyTheme(): void {

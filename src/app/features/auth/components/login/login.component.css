@@ -103,7 +103,10 @@ body {
 
 .logo-container img {
   max-width: 150px;
-  height: auto;
+  width: 150px;
+  height: 60px;
+  object-fit: contain;
+  object-position: center;
 }
 
 .form-container h2 {
@@ -151,6 +154,33 @@ mat-label, input {
 /* Переопределение floating label для светлой темы */
 ::ng-deep .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label {
   color: var(--galaxy-primary) !important;
+}
+
+/* Стили для чекбокса "Запомнить меня" */
+.remember-me-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+::ng-deep .remember-me-checkbox .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
+  background-color: var(--galaxy-primary) !important;
+  border-color: var(--galaxy-primary) !important;
+}
+
+::ng-deep .remember-me-checkbox .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {
+  background-color: var(--galaxy-primary) !important;
+  border-color: var(--galaxy-primary) !important;
+}
+
+::ng-deep .remember-me-checkbox .mdc-checkbox__native-control:enabled ~ .mdc-checkbox__background {
+  border-color: var(--galaxy-primary) !important;
+}
+
+::ng-deep .remember-me-checkbox .mdc-form-field {
+  color: var(--text-primary) !important;
+  font-size: 14px;
 }
 
 /* Контрастные placeholder'ы */
@@ -202,15 +232,17 @@ mat-label, input {
 .login-button {
   width: 100%;
   font-weight: 600;
-  background: #ffffff !important;
-  color: var(--galaxy-primary) !important;
-  border: 2px solid var(--galaxy-primary) !important;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(109, 40, 217, 0.2);
-  border-radius: 8px;
-  padding: 12px 0;
+  background: linear-gradient(135deg, var(--galaxy-primary) 0%, #8b5cf6 100%) !important;
+  color: white !important;
+  border: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3);
+  border-radius: 12px;
+  padding: 14px 0;
   position: relative;
   overflow: hidden;
+  font-size: 16px;
+  letter-spacing: 0.5px;
 }
 
 .login-button::before {
@@ -227,14 +259,20 @@ mat-label, input {
 }
 
 .login-button:not(:disabled):hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%) !important;
+  color: var(--galaxy-primary) !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(109, 40, 217, 0.4);
-  background: rgba(109, 40, 217, 0.05) !important;
+  box-shadow: 0 12px 35px rgba(147, 51, 234, 0.4);
 }
 
 .login-button:not(:disabled):hover::before {
   width: 200px;
   height: 200px;
+}
+
+.login-button:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 6px 20px rgba(147, 51, 234, 0.3);
 }
 
 .login-button:disabled {
@@ -375,7 +413,27 @@ body.dark-theme .theme-toggle:hover {
 }
 
 body.dark-theme mat-form-field {
-  background: rgba(15, 23, 42, 0.6);
+  background: transparent !important;
+}
+
+/* Поле ввода email в темной теме - прозрачный фон */
+body.dark-theme ::ng-deep .mat-mdc-form-field .mdc-notched-outline__leading,
+body.dark-theme ::ng-deep .mat-mdc-form-field .mdc-notched-outline__notch,
+body.dark-theme ::ng-deep .mat-mdc-form-field .mdc-notched-outline__trailing {
+  border-color: rgba(78, 205, 196, 0.3) !important;
+}
+
+body.dark-theme ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+body.dark-theme ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+body.dark-theme ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: #4ecdc4 !important;
+  border-width: 2px !important;
+}
+
+/* Неоновые буквы в поле email */
+body.dark-theme ::ng-deep .mat-mdc-input-element {
+  color: #4ecdc4 !important;
+  text-shadow: 0 0 4px rgba(78, 205, 196, 0.5) !important;
 }
 
 body.dark-theme .form-container h2 {
@@ -390,6 +448,13 @@ body.dark-theme mat-label,
 body.dark-theme input, 
 body.dark-theme .mat-button-toggle {
   color: #4ecdc4 !important;
+}
+
+/* Неоново-зеленый цвет для "Choisissez un rôle" */
+body.dark-theme .role-selection p {
+  color: #4ecdc4 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 8px rgba(78, 205, 196, 0.6) !important;
 }
 
 /* Контрастные placeholder'ы для тёмной темы */
@@ -457,5 +522,20 @@ body.dark-theme .auth-link a:hover {
 body.dark-theme .auth-question {
   color: #ff6b6b !important;
   text-shadow: 0 0 6px rgba(255, 107, 107, 0.4) !important;
+}
+
+/* Чекбокс "Se souvenir de moi" в темной теме */
+body.dark-theme ::ng-deep .remember-me-checkbox .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
+  background-color: #4ecdc4 !important;
+  border-color: #4ecdc4 !important;
+}
+
+body.dark-theme ::ng-deep .remember-me-checkbox .mdc-checkbox__native-control:enabled ~ .mdc-checkbox__background {
+  border-color: #4ecdc4 !important;
+}
+
+body.dark-theme ::ng-deep .remember-me-checkbox .mdc-form-field {
+  color: #4ecdc4 !important;
+  text-shadow: 0 0 4px rgba(78, 205, 196, 0.5) !important;
 }
 

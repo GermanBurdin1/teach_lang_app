@@ -4,8 +4,17 @@
       {{ isDarkTheme ? '☀️ Light' : '🌙 Dark' }}
     </div>
     <div class="logo-container">
-      <!-- Здесь можно добавить логотип -->
-      <img src="assets/logo/linguaconnect-high-resolution-logo-transparent.png" alt="GalaxyLang Logo" class="main-logo">
+      <!-- 
+        TODO: Создать оптимизированную версию логотипа 150x60px 
+        для устранения предупреждения NG0913 о размерах изображения
+      -->
+      <img src="assets/logo/linguaconnect-high-resolution-logo-transparent.png" 
+           alt="Linguaconnect Logo" 
+           class="main-logo"
+           width="150" 
+           height="60"
+           loading="eager"
+           fetchpriority="high">
     </div>
     <h2>Connexion</h2>
 
@@ -42,7 +51,12 @@
         <mat-hint id="password-help">Entrez votre mot de passe</mat-hint>
       </mat-form-field>
 
-
+      <!-- Remember Me -->
+      <div class="remember-me-container mt-3">
+        <mat-checkbox formControlName="rememberMe" class="remember-me-checkbox">
+          Se souvenir de moi
+        </mat-checkbox>
+      </div>
 
       <!-- Submit -->
       <div class="mt-3">
