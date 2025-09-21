@@ -1,8 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import AgoraRTC, { IAgoraRTCClient, ILocalTrack as _ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
 // import { WebSocketService } from './web-socket.service';
 import { HomeworkService } from './homework.service';
+
+// Динамический импорт AgoraRTC для избежания глобальной инициализации
+type AgoraRTCType = typeof import('agora-rtc-sdk-ng').default;
+type IAgoraRTCClient = import('agora-rtc-sdk-ng').IAgoraRTCClient;
+type ILocalVideoTrack = import('agora-rtc-sdk-ng').ILocalVideoTrack;
+type ILocalAudioTrack = import('agora-rtc-sdk-ng').ILocalAudioTrack;
+type IRemoteVideoTrack = import('agora-rtc-sdk-ng').IRemoteVideoTrack;
+type IRemoteAudioTrack = import('agora-rtc-sdk-ng').IRemoteAudioTrack;
 
 
 @Injectable()
@@ -33,6 +40,8 @@ export class VideoCallService {
   agoraClient: IAgoraRTCClient | null = null;
   localTracks: { videoTrack: ILocalVideoTrack | null, audioTrack: ILocalAudioTrack | null } = { videoTrack: null, audioTrack: null };
   private agoraWarningsDisabled = false;
+  private agoraRTC: AgoraRTCType | null = null;
+  private agoraLoadingPromise: Promise<AgoraRTCType> | null = null;
 
   remoteUsers: { [uid: string]: { videoTrack: IRemoteVideoTrack | null, audioTrack: IRemoteAudioTrack | null } } = {};
   appId = 'a020b374553e4fac80325223fba38531'; // Замените на ваш App ID
@@ -73,10 +82,20 @@ export class VideoCallService {
         this.agoraWarningsDisabled = true;
       }
 
+      // Динамически загружаем AgoraRTC только при необходимости
+      if (!this.agoraRTC) {
+        if (!this.agoraLoadingPromise) {
+          console.log('📦 Загружаем AgoraRTC SDK...');
+          this.agoraLoadingPromise = import('agora-rtc-sdk-ng').then(module => module.default);
+        }
+        this.agoraRTC = await this.agoraLoadingPromise;
+        console.log('✅ AgoraRTC SDK загружен');
+      }
+
       // Создаем AgoraRTC клиент только при необходимости
       if (!this.agoraClient) {
         console.log('🚀 Создаем AgoraRTC клиент...');
-        this.agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+        this.agoraClient = this.agoraRTC!.createClient({ mode: 'rtc', codec: 'vp8' });
       }
 
       // Проверяем поддержку системы перед началом
@@ -95,8 +114,8 @@ export class VideoCallService {
       // Создаем локальные треки с обработкой ошибок
       console.log('📹 Создаем локальные треки...');
       try {
-        this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-        this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+        this.localTracks.audioTrack = await this.agoraRTC!.createMicrophoneAudioTrack();
+        this.localTracks.videoTrack = await this.agoraRTC!.createCameraVideoTrack();
         console.log('✅ Локальные треки созданы');
       } catch (trackError: any) {
         console.error('❌ Ошибка создания треков:', trackError);
@@ -217,7 +236,11 @@ export class VideoCallService {
 
   async checkSystemSupport(): Promise<boolean> {
     try {
-      const systemSupport = AgoraRTC.checkSystemRequirements();
+      if (!this.agoraRTC) {
+        console.error('❌ AgoraRTC не загружен');
+        return false;
+      }
+      const systemSupport = this.agoraRTC.checkSystemRequirements();
       console.log('✅ Поддержка системы AgoraRTC:', systemSupport);
       return systemSupport;
     } catch (error) {
@@ -228,7 +251,10 @@ export class VideoCallService {
 
   async startScreenSharing(): Promise<void> {
     try {
-      const screenTrack = await AgoraRTC.createScreenVideoTrack({}, 'auto');
+      if (!this.agoraRTC) {
+        throw new Error('AgoraRTC не загружен');
+      }
+      const screenTrack = await this.agoraRTC.createScreenVideoTrack({}, 'auto');
       if (this.agoraClient) {
         await this.agoraClient.unpublish(this.localTracks.videoTrack!);
         await this.agoraClient.publish(screenTrack);
