@@ -14,8 +14,9 @@
   style-src 'self' 'unsafe-inline' 
     https://cdn.jsdelivr.net 
     https://fonts.googleapis.com;
-  font-src 'self' 
-    https://fonts.gstatic.com;
+    font-src 'self' 
+      https://fonts.gstatic.com
+      https://embed.tawk.to;
   img-src 'self' data: blob: 
     https://linguaconnect.com 
     https://embed.tawk.to;

@@ -182,7 +182,8 @@ export class VideoCallService {
       if (message.includes('AgoraRTC') || 
           message.includes('WEB_SECURITY_RESTRICT') || 
           message.includes('NOT_SUPPORTED') ||
-          message.includes('enumerateDevices')) {
+          message.includes('enumerateDevices') ||
+          message.includes('AgoraRTCError NOT_SUPPORTED: enumerateDevices() not supported')) {
         return;
       }
       originalError.apply(console, args);
