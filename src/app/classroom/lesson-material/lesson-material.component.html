@@ -2,19 +2,25 @@
 
   <!-- 🔧 Боковые вкладки -->
   <div class="side-tabs">
-    <div class="tab-button left-tab" (click)="toggleBoard()" [class.active]="showBoard && !showGabarit"
-      title="Afficher le tableau">
+    <div class="tab-button left-tab" 
+         (click)="lessonStarted ? null : toggleBoard()" 
+         [class.active]="showBoard && !showGabarit"
+         [class.disabled]="lessonStarted"
+         [title]="lessonStarted ? 'Disponible après connexion des étudiants' : 'Afficher le tableau'">
       🧑‍🏫
       <div class="label">Tableau interactif</div>
     </div>
 
-    <div class="tab-button right-tab" (click)="toggleGabarit()" [class.active]="showGabarit"
-      title="Afficher les matériaux">
+    <div class="tab-button right-tab" 
+         (click)="lessonStarted ? null : toggleGabarit()" 
+         [class.active]="showGabarit"
+         [class.disabled]="lessonStarted"
+         [title]="lessonStarted ? 'Disponible après connexion des étudiants' : 'Afficher les matériaux'">
       📂
       <div class="label">matériaux</div>
     </div>
 
-    <!-- 👥 Nouvelle вкладка для управления классом -->
+    <!-- 👥 Nouvelle вкладка pour управления классом -->
     <div class="tab-button top-tab" (click)="toggleClassManagement()" [class.active]="showClassManagement"
       title="Gestion de classe">
       👥
@@ -55,13 +61,13 @@
             <div class="student-name">{{ getStudentNameById(student.studentId) }}</div>
             <div class="call-status">
               <span *ngIf="getStudentCallState(student.studentId) === 'calling'" class="calling-status">
-                📞 Звонок...
+                📞 Appel en cours...
               </span>
               <span *ngIf="getStudentCallState(student.studentId) === 'connected'" class="connected-status">
-                ✅ Подключен
+                ✅ Connecté
               </span>
               <span *ngIf="getStudentCallState(student.studentId) === 'declined'" class="declined-status">
-                ❌ Отклонил
+                ❌ Refusé
               </span>
             </div>
           </div>

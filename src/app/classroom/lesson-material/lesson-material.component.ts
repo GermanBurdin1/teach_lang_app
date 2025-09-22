@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { LessonNotesModalComponent } from './lesson-notes-modal/lesson-notes-modal.component';
 import { HomeworkModalComponent } from './homework-modal/homework-modal.component';
 import { CreateClassDialogComponent, CreateClassDialogData, CreateClassDialogResult } from './create-class-dialog.component';
+import { ExitConfirmationDialogComponent } from './exit-confirmation-dialog.component';
 import { GroupClassService, CreateGroupClassDto, GroupClass } from '../../services/group-class.service';
 import { Meta, Title } from '@angular/platform-browser';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -346,6 +347,15 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   onMouseMove(event: MouseEvent): void {
     // ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
     // this.videoService.onResize(event);
+  }
+
+  @HostListener('window:popstate', ['$event'])
+  onPopState(event: PopStateEvent): void {
+    // Если идет видеозвонок, показываем подтверждение
+    if (this.lessonStarted) {
+      event.preventDefault();
+      this.showExitConfirmation();
+    }
   }
 
   startDrag(event: MouseEvent): void {
@@ -1696,6 +1706,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     // Запускаем урок
     this.lessonStarted = true;
     this.startLessonTimer();
+    
+    // Добавляем запись в историю браузера для предотвращения случайного выхода
+    history.pushState({ preventBack: true }, '', window.location.href);
   }
 
   /**
@@ -1814,6 +1827,37 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     // Разворачиваем панель управления классом
     this.isClassManagementCollapsed = false;
     
+    // Очищаем состояние истории браузера
+    if (history.state?.preventBack) {
+      history.back();
+    }
+    
     this.devLog('✅ Видеозвонок остановлен, возвращаемся к управлению классом');
+  }
+
+  /**
+   * Показать диалог подтверждения выхода
+   */
+  private showExitConfirmation(): void {
+    const dialogRef = this.dialog.open(ExitConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmer la sortie',
+        message: 'Êtes-vous sûr de vouloir terminer l\'appel vidéo ?',
+        confirmText: 'Terminer l\'appel',
+        cancelText: 'Annuler'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.stopVideoCall();
+        // Возвращаемся назад после подтверждения
+        history.back();
+      } else {
+        // Если отменили, добавляем запись в историю чтобы предотвратить выход
+        history.pushState(null, '', window.location.href);
+      }
+    });
   }
 }

@@ -1,18 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import AgoraRTC, { IAgoraRTCClient, ILocalTrack as _ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
 // import { WebSocketService } from './web-socket.service';
 import { HomeworkService } from './homework.service';
 
-// Динамический импорт AgoraRTC для избежания глобальной инициализации
-type AgoraRTCType = typeof import('agora-rtc-sdk-ng').default;
-type IAgoraRTCClient = import('agora-rtc-sdk-ng').IAgoraRTCClient;
-type ILocalVideoTrack = import('agora-rtc-sdk-ng').ILocalVideoTrack;
-type ILocalAudioTrack = import('agora-rtc-sdk-ng').ILocalAudioTrack;
-type IRemoteVideoTrack = import('agora-rtc-sdk-ng').IRemoteVideoTrack;
-type IRemoteAudioTrack = import('agora-rtc-sdk-ng').IRemoteAudioTrack;
 
-
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class VideoCallService {
   public showVideoCallSubject = new BehaviorSubject<boolean>(false);
   public isFloatingVideoSubject = new BehaviorSubject<boolean>(false);
@@ -37,11 +32,8 @@ export class VideoCallService {
   offsetX = 0;
   offsetY = 0;
 
-  agoraClient: IAgoraRTCClient | null = null;
+  agoraClient: IAgoraRTCClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
   localTracks: { videoTrack: ILocalVideoTrack | null, audioTrack: ILocalAudioTrack | null } = { videoTrack: null, audioTrack: null };
-  private agoraWarningsDisabled = false;
-  private agoraRTC: AgoraRTCType | null = null;
-  private agoraLoadingPromise: Promise<AgoraRTCType> | null = null;
 
   remoteUsers: { [uid: string]: { videoTrack: IRemoteVideoTrack | null, audioTrack: IRemoteAudioTrack | null } } = {};
   appId = 'a020b374553e4fac80325223fba38531'; // Замените на ваш App ID
@@ -55,7 +47,8 @@ export class VideoCallService {
 
   // constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
   constructor(private homeworkService: HomeworkService) {
-    console.log('⚡ VideoCallService создан (без AgoraRTC инициализации)');
+    console.log('⚡ VideoCallService создан');
+    // this.setupEventListeners();
   }
 
   // Новый метод для установки данных урока
@@ -76,34 +69,6 @@ export class VideoCallService {
 
   async joinChannel(): Promise<void> {
     try {
-      // Отключаем AgoraRTC предупреждения только при первом использовании
-      if (!this.agoraWarningsDisabled) {
-        this.disableAllAgoraWarnings();
-        this.agoraWarningsDisabled = true;
-      }
-
-      // Динамически загружаем AgoraRTC только при необходимости
-      if (!this.agoraRTC) {
-        if (!this.agoraLoadingPromise) {
-          console.log('📦 Загружаем AgoraRTC SDK...');
-          this.agoraLoadingPromise = import('agora-rtc-sdk-ng').then(module => module.default);
-        }
-        this.agoraRTC = await this.agoraLoadingPromise;
-        console.log('✅ AgoraRTC SDK загружен');
-      }
-
-      // Создаем AgoraRTC клиент только при необходимости
-      if (!this.agoraClient) {
-        console.log('🚀 Создаем AgoraRTC клиент...');
-        this.agoraClient = this.agoraRTC!.createClient({ mode: 'rtc', codec: 'vp8' });
-      }
-
-      // Проверяем поддержку системы перед началом
-      const systemSupport = await this.checkSystemSupport();
-      if (!systemSupport) {
-        throw new Error('Система не поддерживает AgoraRTC');
-      }
-
       console.log('🔌 Начинаем подключение к Agora канала:', {
         appId: this.appId,
         channelName: this.channelName,
@@ -111,28 +76,20 @@ export class VideoCallService {
         token: this.token || 'без токена'
       });
 
-      // Создаем локальные треки с обработкой ошибок
+      // Создаем локальные треки
       console.log('📹 Создаем локальные треки...');
-      try {
-        this.localTracks.audioTrack = await this.agoraRTC!.createMicrophoneAudioTrack();
-        this.localTracks.videoTrack = await this.agoraRTC!.createCameraVideoTrack();
-        console.log('✅ Локальные треки созданы');
-      } catch (trackError: any) {
-        console.error('❌ Ошибка создания треков:', trackError);
-        if (trackError.code === 'WEB_SECURITY_RESTRICT') {
-          throw new Error('Ограничения веб-безопасности: используйте HTTPS или localhost');
-        }
-        throw trackError;
-      }
+      this.localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      console.log('✅ Локальные треки созданы');
 
       // Присоединяемся к каналу
       console.log('🚪 Присоединяемся к каналу...');
-      const uid = await this.agoraClient!.join(this.appId, this.channelName, this.token, this.userId);
+      const uid = await this.agoraClient.join(this.appId, this.channelName, this.token, this.userId);
       console.log('✅ Присоединились к каналу с UID:', uid);
       
       // Публикуем треки
       console.log('📡 Публикуем треки...');
-      await this.agoraClient!.publish([this.localTracks.audioTrack, this.localTracks.videoTrack]);
+      await this.agoraClient.publish([this.localTracks.audioTrack, this.localTracks.videoTrack]);
       console.log('✅ Треки опубликованы');
       
       this.callActive = true;
@@ -152,20 +109,55 @@ export class VideoCallService {
   }
 
   async leaveChannel(): Promise<void> {
+    console.log('🔴 Начинаем отключение от канала...');
+    
     if (this.localTracks.audioTrack) {
+      console.log('🔇 Закрываем аудио трек...');
       this.localTracks.audioTrack.close();
       this.localTracks.audioTrack = null;
     }
     if (this.localTracks.videoTrack) {
+      console.log('📹 Закрываем видео трек...');
       this.localTracks.videoTrack.close();
       this.localTracks.videoTrack = null;
     }
     
-    if (this.agoraClient) {
-      await this.agoraClient.leave();
-    }
+    console.log('🚪 Отключаемся от Agora канала...');
+    await this.agoraClient.leave();
     this.callActive = false;
-    console.log('❌ Отключен от канала Agora');
+    
+    // Принудительная очистка всех медиа-потоков в браузере
+    try {
+      console.log('🔧 Принудительная очистка медиа-потоков...');
+      
+      // Получаем все видео и аудио элементы
+      const videoElements = document.querySelectorAll('video');
+      const audioElements = document.querySelectorAll('audio');
+      
+      // Останавливаем все медиа-потоки
+      const allElements = [...Array.from(videoElements), ...Array.from(audioElements)];
+      allElements.forEach(element => {
+        if (element.srcObject) {
+          const stream = element.srcObject as MediaStream;
+          stream.getTracks().forEach(track => {
+            console.log('🔇 Останавливаем трек:', track.kind, track.label);
+            track.stop();
+          });
+          element.srcObject = null;
+        }
+        element.pause();
+      });
+      
+      // Очищаем локальные треки еще раз
+      this.localTracks.audioTrack = null;
+      this.localTracks.videoTrack = null;
+      
+      console.log('✅ Принудительная очистка завершена');
+    } catch (error) {
+      console.error('❌ Ошибка при принудительной очистке:', error);
+    }
+    
+    console.log('✅ Отключен от канала Agora - камера освобождена');
   }
 
   toggleCall(): void {
@@ -181,67 +173,22 @@ export class VideoCallService {
     this._videoSize.height = Math.max(150, this._videoSize.height + deltaY);
   }
 
-  private disableAllAgoraWarnings(): void {
-    // Переопределяем console.warn для фильтрации всех AgoraRTC предупреждений
-    const originalWarn = console.warn;
-    const originalError = console.error;
-    const originalLog = console.log;
-    const originalInfo = console.info;
-    
-    // Функция для проверки AgoraRTC сообщений
-    const isAgoraMessage = (message: string): boolean => {
-      return message.includes('AgoraRTC') || 
-             message.includes('WEB_SECURITY_RESTRICT') || 
-             message.includes('web security') ||
-             message.includes('https protocol') ||
-             message.includes('enumerateDevices') ||
-             message.includes('localhost') ||
-             message.includes('NOT_SUPPORTED') ||
-             message.includes('AgoraRTCError') ||
-             message.includes('Agora-SDK');
-    };
-    
-    console.warn = (...args: any[]) => {
-      const message = args.join(' ');
-      if (isAgoraMessage(message)) {
-        return;
-      }
-      originalWarn.apply(console, args);
-    };
-
-    console.error = (...args: any[]) => {
-      const message = args.join(' ');
-      if (isAgoraMessage(message)) {
-        return;
-      }
-      originalError.apply(console, args);
-    };
-
-    console.log = (...args: any[]) => {
-      const message = args.join(' ');
-      if (isAgoraMessage(message)) {
-        return;
-      }
-      originalLog.apply(console, args);
-    };
-
-    console.info = (...args: any[]) => {
-      const message = args.join(' ');
-      if (isAgoraMessage(message)) {
-        return;
-      }
-      originalInfo.apply(console, args);
-    };
-  }
-
   async checkSystemSupport(): Promise<boolean> {
     try {
-      if (!this.agoraRTC) {
-        console.error('❌ AgoraRTC не загружен');
-        return false;
+      // Проверяем HTTPS или localhost
+      const isSecure = window.location.protocol === 'https:' || 
+                      window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1';
+      
+      if (!isSecure) {
+        console.warn('⚠️ AgoraRTC требует HTTPS или localhost для работы');
+        console.warn('🔧 Текущий протокол:', window.location.protocol);
+        console.warn('🌐 Текущий хост:', window.location.hostname);
       }
-      const systemSupport = this.agoraRTC.checkSystemRequirements();
+
+      const systemSupport = AgoraRTC.checkSystemRequirements();
       console.log('✅ Поддержка системы AgoraRTC:', systemSupport);
+      
       return systemSupport;
     } catch (error) {
       console.error('❌ Ошибка проверки системы AgoraRTC:', error);
@@ -251,14 +198,9 @@ export class VideoCallService {
 
   async startScreenSharing(): Promise<void> {
     try {
-      if (!this.agoraRTC) {
-        throw new Error('AgoraRTC не загружен');
-      }
-      const screenTrack = await this.agoraRTC.createScreenVideoTrack({}, 'auto');
-      if (this.agoraClient) {
-        await this.agoraClient.unpublish(this.localTracks.videoTrack!);
-        await this.agoraClient.publish(screenTrack);
-      }
+      const screenTrack = await AgoraRTC.createScreenVideoTrack({}, 'auto');
+      await this.agoraClient.unpublish(this.localTracks.videoTrack!);
+      await this.agoraClient.publish(screenTrack);
       console.log('🖥️ Демонстрация экрана начата');
     } catch (error) {
       console.error('❌ Ошибка демонстрации экрана:', error);
@@ -304,6 +246,14 @@ export class VideoCallService {
   stopVideoCall(): void {
     console.log('🔴 Завершение видеозвонка');
 
+    // Сначала отключаемся от канала и останавливаем медиа-потоки
+    this.leaveChannel().then(() => {
+      console.log('✅ Успешно отключились от канала и остановили медиа-потоки');
+    }).catch(error => {
+      console.error('❌ Ошибка при отключении от канала:', error);
+    });
+
+    // Затем скрываем UI
     this.showVideoCallSubject.next(false);
     this.isFloatingVideoSubject.next(false);
 
