@@ -46,6 +46,7 @@ export const routes: Routes = [
   { path: 'cookies-policy', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
   { path: 'terms', loadChildren: () => import('./features/rgpd/rgpd.module').then(m => m.RgpdModule) },
   { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule), canActivate: [AuthGuard] },
+  { path: 'student', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule), canActivate: [AuthGuard] },
   {
     path: 'mindmap',
     loadChildren: () => import('./features/mindmap/mindmap.module').then(m => m.MindmapModule),

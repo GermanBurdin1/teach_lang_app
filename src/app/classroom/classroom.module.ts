@@ -27,6 +27,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 const routes: Routes = [
   { path: ':id/lesson', component: LessonMaterialComponent },
+  { path: 'classroom', component: LessonMaterialComponent },
 ];
 
 @NgModule({

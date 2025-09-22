@@ -37,6 +37,78 @@
       <app-interactive-board *ngIf="showBoard" class="whiteboard-layer position-absolute top-0 start-0 w-100 h-100">
       </app-interactive-board>
 
+      <!-- 👨‍🎓 Информация о классе для студентов -->
+      <div *ngIf="userRole === 'student'" class="student-class-info-panel">
+        <div class="student-class-header">
+          <h2>📚 Ma classe</h2>
+        </div>
+
+        <!-- Информация о классе -->
+        <div *ngIf="studentClassInfo" class="student-class-card">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>{{ studentClassInfo.name }}</mat-card-title>
+              <mat-card-subtitle>Niveau {{ studentClassInfo.level }}</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="class-details">
+                <div class="detail-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Statut: {{ studentClassInfo.status }}</span>
+                </div>
+                
+                <div *ngIf="studentClassInfo.startTime" class="detail-item">
+                  <mat-icon>access_time</mat-icon>
+                  <span>Début: {{ studentClassInfo.startTime | date:'short' }}</span>
+                </div>
+                
+                <div *ngIf="studentClassInfo.endTime" class="detail-item">
+                  <mat-icon>access_time</mat-icon>
+                  <span>Fin: {{ studentClassInfo.endTime | date:'short' }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Информация о преподавателе -->
+        <div *ngIf="teacherInfo" class="teacher-info-card">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>👨‍🏫 Mon professeur</mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="teacher-details">
+                <div class="detail-item">
+                  <mat-icon>person</mat-icon>
+                  <span>{{ teacherInfo.name }}</span>
+                </div>
+                
+                <div class="detail-item">
+                  <mat-icon>email</mat-icon>
+                  <span>{{ teacherInfo.email }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Сообщение если студент не состоит в классе -->
+        <div *ngIf="!studentClassInfo" class="no-class-message">
+          <mat-card>
+            <mat-card-content>
+              <div class="no-class-content">
+                <mat-icon>school</mat-icon>
+                <h3>Vous n'êtes pas encore inscrit dans une classe</h3>
+                <p>Contactez votre professeur pour être ajouté à une classe.</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
       <!-- 🎥 Видео (располагается ниже панели управления классом) -->
       <app-video-call *ngIf="videoService.showVideoCall$ | async" [isFloatingMode]="false" class="main-video-container">
       </app-video-call>
@@ -80,8 +152,8 @@
 
       </app-gabarit-page>
 
-      <!-- 👥 Панель управления классом -->
-      <div *ngIf="showClassManagement && !isClassManagementCollapsed" class="class-management-panel">
+      <!-- 👥 Панель управления классом (только для преподавателей) -->
+      <div *ngIf="showClassManagement && !isClassManagementCollapsed && userRole === 'teacher'" class="class-management-panel">
         <div class="class-header">
           <h2>🎓 Gestion de classes DELF/DALF</h2>
           <button mat-raised-button color="primary" (click)="openCreateClassDialog()">

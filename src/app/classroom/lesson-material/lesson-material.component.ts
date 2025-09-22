@@ -33,6 +33,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       console.log(message, ...args);
     }
   }
+
+  // Student-specific properties
+  studentClassInfo: any = null;
+  teacherInfo: any = null;
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
@@ -127,6 +131,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         if (role === 'teacher') {
           this.showClassManagement = true;
           this.loadTeacherClasses();
+        } else if (role === 'student') {
+          this.devLog('🎯 Загружаем информацию о классе для студента');
+          this.loadStudentClassInfo();
         }
       }
     });
@@ -1859,5 +1866,61 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         history.pushState(null, '', window.location.href);
       }
     });
+  }
+
+  // Метод для загрузки информации о классе студента
+  private loadStudentClassInfo(): void {
+    this.devLog('📚 Загружаем информацию о классе для студента...');
+    
+    // Получаем текущего пользователя
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      this.devLog('❌ Пользователь не найден');
+      return;
+    }
+
+    // Загружаем уроки студента
+    this.lessonService.getConfirmedLessons(currentUser.id).subscribe({
+      next: (lessons) => {
+        this.devLog('📚 Уроки студента:', lessons);
+        
+        if (lessons && lessons.length > 0) {
+          // Берем первый урок (можно расширить логику)
+          const lesson = lessons[0] as any;
+          this.studentClassInfo = {
+            id: lesson.id,
+            name: lesson.className || 'Classe sans nom',
+            level: lesson.level || 'Niveau non défini',
+            teacherId: lesson.teacherId,
+            status: lesson.status,
+            startTime: lesson.startTime,
+            endTime: lesson.endTime
+          };
+          
+          // Загружаем информацию о преподавателе
+          this.loadTeacherInfo(lesson.teacherId);
+        } else {
+          this.devLog('📚 Студент не состоит ни в одном классе');
+          this.studentClassInfo = null;
+        }
+      },
+      error: (error) => {
+        this.devLog('❌ Ошибка при загрузке уроков студента:', error);
+        this.studentClassInfo = null;
+      }
+    });
+  }
+
+  // Метод для загрузки информации о преподавателе
+  private loadTeacherInfo(teacherId: string): void {
+    this.devLog('👨‍🏫 Загружаем информацию о преподавателе:', teacherId);
+    
+    // Здесь можно добавить вызов API для получения информации о преподавателе
+    // Пока используем базовую информацию
+    this.teacherInfo = {
+      id: teacherId,
+      name: 'Professeur',
+      email: 'prof@example.com'
+    };
   }
 }
