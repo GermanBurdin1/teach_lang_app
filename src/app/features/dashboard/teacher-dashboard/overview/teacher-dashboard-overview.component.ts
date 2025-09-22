@@ -7,6 +7,7 @@ import { ProfilesApiService } from '../../../../services/profiles-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarEvent } from 'angular-calendar';
 import { LessonService } from '../../../../services/lesson.service';
+import { WebSocketService } from '../../../../services/web-socket.service';
 import { NotificationService } from '../../../../services/notifications.service';
 import { TeacherService } from '../../../../services/teacher.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -34,6 +35,8 @@ interface Student {
   }>;
   metadata?: {
     studentName?: string;
+    invitationStatus?: 'sent' | 'accepted' | 'declined';
+    invitationClassId?: string;
   };
   lessons?: unknown[];
   requestDate?: string;
@@ -98,6 +101,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     private authService: AuthService, 
     private profilesApi: ProfilesApiService,
     private lessonService: LessonService,
+    private wsService: WebSocketService,
     private notificationService: NotificationService,
     private teacherService: TeacherService,
     private snackBar: MatSnackBar,
@@ -167,6 +171,9 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   confirmedStudents: Student[] = [];
   pendingRequests: BookingRequest[] = [];
   selectedRequest: BookingRequest | null = null;
+  
+  // Отправленные приглашения
+  sentInvitations: { [key: string]: { studentId: string, classId: string, status: 'sent' | 'accepted' | 'declined' } } = {};
   selectedReason = '';
   customReason = '';
   showRefuseDialog = false;
@@ -208,6 +215,14 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     console.log('🔥🔥🔥 Form initialized:', this.addStudentForm);
 
     const teacherId = this.authService.getCurrentUser()?.id;
+    
+    // Загружаем отправленные приглашения
+    if (teacherId) {
+      const storedInvitations = localStorage.getItem(`sent_invitations_${teacherId}`);
+      if (storedInvitations) {
+        this.sentInvitations = JSON.parse(storedInvitations);
+      }
+    }
     if (teacherId) {
       // Загружаем все подтверждённые занятия для календаря с цветовой индикацией
       this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe((lessons: unknown[]) => {
@@ -251,9 +266,24 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       });
     }
 
+    this.devLog('[OVERVIEW] ngOnInit - starting initialization');
+    
+    this.devLog('[OVERVIEW] ngOnInit - calling loadStudentsFromStorage()');
+    this.loadStudentsFromStorage(); // Загружаем студентов из localStorage
+    
+    this.devLog('[OVERVIEW] ngOnInit - calling refreshStudents()');
     this.refreshStudents();
+    
+    this.devLog('[OVERVIEW] ngOnInit - before refreshConfirmedStudents, confirmedStudents:', this.confirmedStudents);
+    this.devLog('[OVERVIEW] ngOnInit - before refreshConfirmedStudents, confirmedStudents count:', this.confirmedStudents.length);
+    
+    this.devLog('[OVERVIEW] ngOnInit - calling refreshConfirmedStudents()');
     this.refreshConfirmedStudents(); // Добавляем загрузку подтвержденных студентов
+    
+    this.devLog('[OVERVIEW] ngOnInit - calling loadTeacherClasses()');
     this.loadTeacherClasses();
+    
+    this.devLog('[OVERVIEW] ngOnInit - initialization complete');
   }
 
   loadTeacherClasses(): void {
@@ -414,15 +444,46 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     console.log('🔥 refreshConfirmedStudents called!');
     const teacherId = this.authService.getCurrentUser()?.id;
     console.log('🔥 teacherId:', teacherId);
+    
+    this.devLog('[OVERVIEW] refreshConfirmedStudents - current confirmedStudents before API call:', this.confirmedStudents);
+    this.devLog('[OVERVIEW] refreshConfirmedStudents - current confirmedStudents count:', this.confirmedStudents.length);
+    
     if (teacherId) {
       console.log('🔥 Calling API...');
       this.devLog('[OVERVIEW] Обновляем подтверждённых студентов для teacherId:', teacherId);
       this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe((students: unknown[]) => {
         this.devLog('[OVERVIEW] Получены студенты от API:', students);
-        this.confirmedStudents = students.map(s => {
+        this.devLog('[OVERVIEW] API students count:', students.length);
+        
+        // Получаем студентов из API
+        const apiStudents = students.map(s => {
           const student = s as {id?: string, [key: string]: unknown};
           return {...student, id: student.id || ''} as Student;
         });
+        
+        this.devLog('[OVERVIEW] Mapped API students:', apiStudents);
+        
+        // Объединяем студентов из localStorage и API (избегаем дубликатов)
+        const existingIds = new Set(this.confirmedStudents.map(s => s.id));
+        this.devLog('[OVERVIEW] Existing student IDs from localStorage:', Array.from(existingIds));
+        this.devLog('[OVERVIEW] All localStorage students with their IDs:', this.confirmedStudents.map(s => ({ id: s.id, name: s.name })));
+        
+        const newStudents = apiStudents.filter(s => !existingIds.has(s.id));
+        this.devLog('[OVERVIEW] New students from API (not in localStorage):', newStudents);
+        
+        // Вместо объединения, заменяем localStorage студентов на API студентов
+        // но сохраняем студентов, которых нет в API (добавленных вручную)
+        const apiStudentIds = new Set(apiStudents.map(s => s.id));
+        const localStorageOnlyStudents = this.confirmedStudents.filter(s => !apiStudentIds.has(s.id));
+        
+        this.devLog('[OVERVIEW] Students only in localStorage (not in API):', localStorageOnlyStudents);
+        
+        this.confirmedStudents = [...apiStudents, ...localStorageOnlyStudents];
+        this.devLog('[OVERVIEW] Final confirmedStudents after merge:', this.confirmedStudents);
+        
+        // Сохраняем обновленный список
+        this.saveStudentsToStorage();
+        
         this.devLog('[OVERVIEW] confirmedStudents (refresh):', this.confirmedStudents);
         this.devLog('[OVERVIEW] Количество студентов:', this.confirmedStudents.length);
       });
@@ -432,9 +493,14 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   private refreshStudents(): void {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId) return;
+    
+    this.devLog('[OVERVIEW] refreshStudents - current confirmedStudents before API call:', this.confirmedStudents);
+    this.devLog('[OVERVIEW] refreshStudents - current confirmedStudents count:', this.confirmedStudents.length);
+    
     this.lessonService.getAllConfirmedLessonsForTeacher(teacherId).subscribe((lessons: unknown[]) => {
       const now = new Date();
       if(!environment.production) console.log('[DEBUG] Загруженные уроки для учителя:', lessons);
+      
       // Группируем занятия по studentId
       const studentsMap: { [studentId: string]: Student } = {};
       lessons.forEach((lesson: unknown) => {
@@ -451,8 +517,9 @@ export class TeacherDashboardOverviewComponent implements OnInit {
         studentsMap[lessonData.studentId].lessons?.push(lesson);
       });
       if(!environment.production) console.log('[DEBUG] Сгруппированные по студентам уроки:', studentsMap);
+      
       // Для каждого студента ищем ближайшее будущее занятие
-      this.confirmedStudents = Object.values(studentsMap).map((student: Student) => {
+      const apiStudents = Object.values(studentsMap).map((student: Student) => {
         const futureLessons = student.lessons
           ?.map((l: unknown) => new Date((l as { scheduledAt: string }).scheduledAt))
           .filter((date: Date) => date > now)
@@ -463,6 +530,21 @@ export class TeacherDashboardOverviewComponent implements OnInit {
           nextLessonDate: futureLessons && futureLessons.length > 0 ? futureLessons[0] : null
         };
       });
+      
+      this.devLog('[OVERVIEW] refreshStudents - API students:', apiStudents);
+      
+      // Объединяем студентов из API с существующими (из localStorage)
+      const existingIds = new Set(this.confirmedStudents.map(s => s.id));
+      const newApiStudents = apiStudents.filter(s => !existingIds.has(s.id));
+      
+      this.devLog('[OVERVIEW] refreshStudents - new API students (not in localStorage):', newApiStudents);
+      
+      // Добавляем только новых студентов из API, не перезаписывая существующих
+      this.confirmedStudents = [...this.confirmedStudents, ...newApiStudents];
+      
+      this.devLog('[OVERVIEW] refreshStudents - final confirmedStudents:', this.confirmedStudents);
+      this.devLog('[OVERVIEW] refreshStudents - final confirmedStudents count:', this.confirmedStudents.length);
+      
       if(!environment.production) console.log('[Overview] Обновлён список confirmedStudents:', this.confirmedStudents);
     });
   }
@@ -682,7 +764,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   addStudentToSelectedClass(student: Student, classId: string): void {
-    if(!environment.production) console.log('👥 Добавление студента в выбранный класс:', student, classId);
+    if(!environment.production) console.log('📨 Отправка приглашения студенту в класс:', student, classId);
     
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId || !classId) return;
@@ -693,36 +775,63 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       return;
     }
     
-    // Проверяем, есть ли уже студент в классе
-    if (targetClass.students && targetClass.students.find((s: Student) => 
-      s.id === student.studentId || s.name === student.name)) {
-      this.snackBar.open('Студент уже в этом классе', 'OK', { duration: 3000 });
+    const studentId = student.studentId || student.id;
+    if (!studentId) {
+      this.snackBar.open('ID студента не найден', 'OK', { duration: 3000 });
       return;
     }
     
-    // Удаляем студента из других классов
-    this.teacherClasses.forEach(cls => {
-      if (cls.students) {
-        cls.students = cls.students.filter((s: Student) => 
-          s.id !== student.studentId && s.name !== student.name);
+    // Проверяем, есть ли уже отправленное приглашение
+    const invitationKey = `${studentId}_${classId}`;
+    if (this.sentInvitations[invitationKey]) {
+      this.snackBar.open('Приглашение уже отправлено', 'OK', { duration: 3000 });
+      return;
+    }
+    
+    // Подготавливаем данные класса для приглашения
+    const classData = {
+      id: targetClass.id,
+      name: targetClass.name,
+      level: targetClass.level,
+      description: targetClass['description'] || `Classe de préparation à l'examen DELF niveau ${targetClass.level}`,
+      teacherName: this.authService.getCurrentUser()?.name || 'Professeur'
+    };
+
+    // Создаем приглашение через API
+    this.lessonService.createClassInvitation(classId, teacherId, studentId, `Приглашение в класс ${targetClass.name}`).subscribe({
+      next: (invitation) => {
+        this.devLog('[OVERVIEW] Приглашение создано/обновлено в базе данных:', invitation);
+        
+        // Всегда отправляем WebSocket уведомление (даже если студент офлайн)
+        this.wsService.inviteToClass(studentId, teacherId, classData);
+        
+        // Сохраняем информацию об отправленном приглашении
+        this.sentInvitations[invitationKey] = {
+          studentId: studentId,
+          classId: classId,
+          status: 'sent'
+        };
+        
+        // Сохраняем в localStorage
+        localStorage.setItem(`sent_invitations_${teacherId}`, JSON.stringify(this.sentInvitations));
+        
+        // Обновляем статус студента в списке
+        this.updateStudentInvitationStatus(student, classId, 'sent');
+        
+        // Показываем сообщение в зависимости от того, новая ли это запись
+        const message = invitation.invitedAt && invitation.invitedAt.getTime() === invitation.addedAt.getTime() 
+          ? `Приглашение отправлено студенту ${student.name}` 
+          : `Приглашение повторно отправлено студенту ${student.name}`;
+        
+        this.snackBar.open(message, 'OK', { duration: 3000 });
+      },
+      error: (error) => {
+        this.devLog('[OVERVIEW] Ошибка при создании приглашения:', error);
+        this.snackBar.open('Ошибка при отправке приглашения', 'OK', { duration: 3000 });
       }
     });
     
-    // Добавляем студента в выбранный класс
-    if (!targetClass.students) {
-      targetClass.students = [];
-    }
-    
-    targetClass.students.push({
-      id: student.studentId || Date.now().toString(),
-      name: student.name || student.metadata?.studentName || 'Unknown Student',
-      addedAt: new Date().toISOString()
-    });
-    
-    // Сохраняем изменения
-    localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(this.teacherClasses));
-    
-    this.snackBar.open(`✅ ${student.name || student.metadata?.studentName} добавлен в класс "${targetClass.name}"`, 'OK', { duration: 3000 });
+    this.snackBar.open(`📨 Приглашение отправлено ${student.name || student.metadata?.studentName} в класс "${targetClass.name}"`, 'OK', { duration: 3000 });
   }
 
   getStudentCurrentClass(student: Student): string | null {
@@ -829,25 +938,24 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     this.isAddingStudent = true;
     this.devLog('[OVERVIEW] Adding student by email:', email, 'for teacher:', teacherId);
 
-    this.lessonService.addStudentByEmail(email, teacherId).subscribe({
-      next: (result) => {
-        this.devLog('[OVERVIEW] Add student result:', result);
-        this.isAddingStudent = false;
-
-        if (result.success) {
-          this.snackBar.open(result.message, 'Fermer', { duration: 3000 });
-          this.addStudentForm.reset();
-          // Обновляем список студентов
-          console.log('🔥 About to call refreshConfirmedStudents...');
-          this.refreshConfirmedStudents();
+    // Сначала проверяем, существует ли студент
+    this.lessonService.getStudentByEmail(email).subscribe({
+      next: (response) => {
+        this.devLog('[OVERVIEW] Student search response:', response);
+        
+        if (response && response.success && response.student) {
+          // Студент найден, добавляем его в список как раньше
+          this.addStudentToList(response.student, email);
         } else {
-          this.snackBar.open(result.message, 'Fermer', { duration: 3000 });
+          this.isAddingStudent = false;
+          const errorMessage = response?.message || 'Студент с таким email не найден';
+          this.snackBar.open(errorMessage, 'Fermer', { duration: 3000 });
         }
       },
       error: (error) => {
-        this.devLog('[OVERVIEW] Error adding student:', error);
+        this.devLog('[OVERVIEW] Error finding student:', error);
         this.isAddingStudent = false;
-        this.snackBar.open('Erreur lors de l\'ajout de l\'étudiant', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Ошибка при поиске студента', 'Fermer', { duration: 3000 });
       }
     });
   }
@@ -857,11 +965,196 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     console.log(message, ...args);
   }
 
+  /**
+   * Добавить студента в список (как раньше)
+   */
+  private addStudentToList(studentData: any, email: string): void {
+    this.devLog('[OVERVIEW] Adding student to list:', studentData);
+    this.devLog('[OVERVIEW] Current confirmedStudents before adding:', this.confirmedStudents);
+    this.devLog('[OVERVIEW] Current confirmedStudents count before adding:', this.confirmedStudents.length);
+    
+    // Создаем объект студента для добавления в список
+    const newStudent: Student = {
+      id: studentData.id,
+      studentId: studentData.id,
+      name: studentData.name || email,
+      email: email,
+      photoUrl: '', // Если есть фото, можно добавить
+      isStudent: true,
+      nextLessonDate: null,
+      // Добавляем метаданные для отображения
+      metadata: {
+        studentName: studentData.name || email
+      }
+    };
+
+    this.devLog('[OVERVIEW] New student object created:', newStudent);
+
+    // Добавляем студента в список подтвержденных студентов
+    this.confirmedStudents.push(newStudent);
+    
+    this.devLog('[OVERVIEW] Student added to array. New confirmedStudents:', this.confirmedStudents);
+    this.devLog('[OVERVIEW] New confirmedStudents count:', this.confirmedStudents.length);
+    
+    // Сохраняем в localStorage
+    this.saveStudentsToStorage();
+    
+    this.isAddingStudent = false;
+    this.addStudentForm.reset();
+    
+    this.snackBar.open(`✅ Студент ${studentData.name || email} добавлен в список`, 'Fermer', { duration: 3000 });
+    
+    this.devLog('[OVERVIEW] Student added to confirmedStudents:', this.confirmedStudents);
+  }
+
+  /**
+   * Сохранить студентов в localStorage
+   */
+  private saveStudentsToStorage(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    this.devLog('[OVERVIEW] saveStudentsToStorage called with teacherId:', teacherId);
+    this.devLog('[OVERVIEW] saveStudentsToStorage - confirmedStudents to save:', this.confirmedStudents);
+    this.devLog('[OVERVIEW] saveStudentsToStorage - confirmedStudents count:', this.confirmedStudents.length);
+    
+    if (teacherId) {
+      const dataToSave = JSON.stringify(this.confirmedStudents);
+      this.devLog('[OVERVIEW] Data to save to localStorage:', dataToSave);
+      
+      localStorage.setItem(`teacher_students_${teacherId}`, dataToSave);
+      
+      // Проверяем, что данные действительно сохранились
+      const savedData = localStorage.getItem(`teacher_students_${teacherId}`);
+      this.devLog('[OVERVIEW] Verification - data read back from localStorage:', savedData);
+      
+      this.devLog('[OVERVIEW] Students saved to localStorage:', this.confirmedStudents);
+    } else {
+      this.devLog('[OVERVIEW] No teacherId found, cannot save to localStorage');
+    }
+  }
+
+  /**
+   * Загрузить студентов из localStorage
+   */
+  private loadStudentsFromStorage(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    this.devLog('[OVERVIEW] loadStudentsFromStorage called with teacherId:', teacherId);
+    
+    if (teacherId) {
+      const stored = localStorage.getItem(`teacher_students_${teacherId}`);
+      this.devLog('[OVERVIEW] Raw localStorage data:', stored);
+      
+      if (stored) {
+        try {
+          this.confirmedStudents = JSON.parse(stored);
+          this.devLog('[OVERVIEW] Students loaded from localStorage:', this.confirmedStudents);
+          this.devLog('[OVERVIEW] Number of students from localStorage:', this.confirmedStudents.length);
+        } catch (error) {
+          this.devLog('[OVERVIEW] Error parsing localStorage data:', error);
+          this.confirmedStudents = [];
+        }
+      } else {
+        this.devLog('[OVERVIEW] No data in localStorage for teacherId:', teacherId);
+        this.confirmedStudents = [];
+      }
+    } else {
+      this.devLog('[OVERVIEW] No teacherId found');
+      this.confirmedStudents = [];
+    }
+  }
+
+  /**
+   * Обновить статус приглашения для студента
+   */
+  private updateStudentInvitationStatus(student: Student, classId: string, status: 'sent' | 'accepted' | 'declined'): void {
+    const studentId = student.studentId || student.id;
+    if (!studentId) return;
+
+    // Обновляем статус в объекте студента
+    if (!student.metadata) {
+      student.metadata = {};
+    }
+    student.metadata.invitationStatus = status;
+    student.metadata.invitationClassId = classId;
+
+    // Сохраняем обновленный список студентов
+    this.saveStudentsToStorage();
+    
+    this.devLog('[OVERVIEW] Updated student invitation status:', student.name, status);
+  }
+
+  // Отправка приглашения в класс студенту
+  private sendClassInvitationToStudent(studentId: string, email: string, teacherId: string): void {
+    // Создаем базовое приглашение (без конкретного класса)
+    const classData = {
+      id: 'general_invitation',
+      name: 'Classe DELF/DALF',
+      level: 'À déterminer',
+      description: 'Invitation à rejoindre une classe de préparation DELF/DALF',
+      teacherName: this.authService.getCurrentUser()?.name || 'Professeur'
+    };
+
+    // Отправляем WebSocket приглашение
+    this.wsService.inviteToClass(studentId, teacherId, classData);
+    
+    // Сохраняем информацию об отправленном приглашении
+    const invitationKey = `${studentId}_general`;
+    this.sentInvitations[invitationKey] = {
+      studentId: studentId,
+      classId: 'general_invitation',
+      status: 'sent'
+    };
+    
+    // Сохраняем в localStorage
+    localStorage.setItem(`sent_invitations_${teacherId}`, JSON.stringify(this.sentInvitations));
+    
+    this.snackBar.open(`📨 Приглашение отправлено на ${email}`, 'Fermer', { duration: 3000 });
+    this.addStudentForm.reset();
+  }
+
   testClick(): void {
     console.log('🔥🔥🔥🔥 BUTTON CLICKED!');
     console.log('🔥🔥🔥🔥 Form valid:', this.addStudentForm.valid);
     console.log('🔥🔥🔥🔥 Form value:', this.addStudentForm.value);
     this.addStudentByEmail();
+  }
+
+  // Проверка статуса приглашения для студента
+  getStudentInvitationStatus(student: Student, classId?: string): 'none' | 'sent' | 'accepted' | 'declined' {
+    const studentId = student.studentId || student.id;
+    if (!studentId) return 'none';
+    
+    // Сначала проверяем статус в метаданных студента
+    if (student.metadata?.invitationStatus) {
+      return student.metadata.invitationStatus;
+    }
+    
+    // Затем проверяем общее приглашение (по email)
+    const generalInvitationKey = `${studentId}_general`;
+    const generalInvitation = this.sentInvitations[generalInvitationKey];
+    if (generalInvitation) {
+      return generalInvitation.status;
+    }
+    
+    // Затем проверяем приглашение в конкретный класс
+    if (classId) {
+      const invitationKey = `${studentId}_${classId}`;
+      const invitation = this.sentInvitations[invitationKey];
+      return invitation ? invitation.status : 'none';
+    }
+    
+    return 'none';
+  }
+
+  // Получение текста статуса приглашения
+  getInvitationStatusText(student: Student, classId?: string): string {
+    const status = this.getStudentInvitationStatus(student, classId);
+    
+    switch (status) {
+      case 'sent': return '📨 Запрос отправлен';
+      case 'accepted': return '✅ Принято';
+      case 'declined': return '❌ Отклонено';
+      default: return '';
+    }
   }
 
 }

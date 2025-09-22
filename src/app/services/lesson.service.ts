@@ -97,6 +97,13 @@ export class LessonService {
     );
   }
 
+  getStudentByEmail(email: string): Observable<any> {
+    this.devLog('[FRONT] getStudentByEmail called with email:', email);
+    return this.http.get<any>(`${this.baseUrl}/student/by-email/${email}`).pipe(
+      tap(student => this.devLog('[FRONT] getStudentByEmail result:', student))
+    );
+  }
+
   getAllConfirmedLessonsForTeacher(teacherId: string): Observable<unknown[]> {
     return this.http.get<unknown[]>(`${this.baseUrl}/teacher/${teacherId}/confirmed-lessons`);
   }
@@ -177,13 +184,68 @@ export class LessonService {
   /**
    * Добавить студента по email
    */
-  addStudentByEmail(email: string, teacherId: string): Observable<{ success: boolean; message: string; studentId?: string }> {
+  addStudentByEmail(email: string, teacherId: string): Observable<{ success: boolean; message: string; studentId?: string; student?: any }> {
     this.devLog('[FRONT] addStudentByEmail called with email:', email, 'teacherId:', teacherId);
-    return this.http.post<{ success: boolean; message: string; studentId?: string }>(`${this.baseUrl}/add-student-by-email`, {
+    return this.http.post<{ success: boolean; message: string; studentId?: string; student?: any }>(`${this.baseUrl}/add-student-by-email`, {
       email,
       teacherId
     }).pipe(
       tap(result => this.devLog('[FRONT] addStudentByEmail result:', result))
+    );
+  }
+
+  /**
+   * Получить непрочитанные приглашения для студента
+   */
+  getUnreadInvitationsForStudent(studentId: string): Observable<any[]> {
+    this.devLog('[FRONT] getUnreadInvitationsForStudent called with studentId:', studentId);
+    return this.http.get<any[]>(`${this.baseUrl}/invitations/student/${studentId}`).pipe(
+      tap(result => this.devLog('[FRONT] getUnreadInvitationsForStudent result:', result))
+    );
+  }
+
+  /**
+   * Принять приглашение в класс
+   */
+  acceptClassInvitation(invitationId: string): Observable<any> {
+    this.devLog('[FRONT] acceptClassInvitation called with invitationId:', invitationId);
+    return this.http.post<any>(`${this.baseUrl}/invitations/${invitationId}/accept`, {}).pipe(
+      tap(result => this.devLog('[FRONT] acceptClassInvitation result:', result))
+    );
+  }
+
+  /**
+   * Отклонить приглашение в класс
+   */
+  declineClassInvitation(invitationId: string): Observable<any> {
+    this.devLog('[FRONT] declineClassInvitation called with invitationId:', invitationId);
+    return this.http.post<any>(`${this.baseUrl}/invitations/${invitationId}/decline`, {}).pipe(
+      tap(result => this.devLog('[FRONT] declineClassInvitation result:', result))
+    );
+  }
+
+  /**
+   * Отметить приглашение как прочитанное
+   */
+  markInvitationAsRead(invitationId: string): Observable<any> {
+    this.devLog('[FRONT] markInvitationAsRead called with invitationId:', invitationId);
+    return this.http.post<any>(`${this.baseUrl}/invitations/${invitationId}/read`, {}).pipe(
+      tap(result => this.devLog('[FRONT] markInvitationAsRead result:', result))
+    );
+  }
+
+  /**
+   * Создать приглашение в класс
+   */
+  createClassInvitation(classId: string, teacherId: string, studentId: string, message?: string): Observable<any> {
+    this.devLog('[FRONT] createClassInvitation called with:', { classId, teacherId, studentId, message });
+    return this.http.post<any>(`${this.baseUrl}/create-class-invitation`, {
+      classId,
+      teacherId,
+      studentId,
+      message
+    }).pipe(
+      tap(result => this.devLog('[FRONT] createClassInvitation result:', result))
     );
   }
 }

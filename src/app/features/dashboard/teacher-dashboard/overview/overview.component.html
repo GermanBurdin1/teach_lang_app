@@ -90,6 +90,17 @@
             <span *ngIf="getStudentCurrentClass(student)" class="student-class-status">
               ✅ Dans {{ getStudentCurrentClassName(student) }}
             </span>
+            
+            <!-- Статус приглашения для общего приглашения (по email) -->
+            <span *ngIf="getStudentInvitationStatus(student) === 'sent'" class="invitation-status sent">
+              📨 {{ getInvitationStatusText(student) }}
+            </span>
+            <span *ngIf="getStudentInvitationStatus(student) === 'accepted'" class="invitation-status accepted">
+              ✅ {{ getInvitationStatusText(student) }}
+            </span>
+            <span *ngIf="getStudentInvitationStatus(student) === 'declined'" class="invitation-status declined">
+              ❌ {{ getInvitationStatusText(student) }}
+            </span>
           </div>
           
           <!-- Кнопка приглашения нового студента (только для заявок) -->

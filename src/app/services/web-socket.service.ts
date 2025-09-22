@@ -55,14 +55,17 @@ export class WebSocketService {
   }
 
   listen(event: string): Observable<any> {
+    console.log('🔌 [WebSocket] Подписываемся на событие:', event);
     return new Observable(observer => {
       this.socket.on(event, (data) => {
+        console.log('📨 [WebSocket] Получено событие:', event, 'данные:', data);
         observer.next(data);
       });
     });
   }
 
   registerUser(userId: string) {
+    console.log('👤 [WebSocket] Регистрируем пользователя:', userId);
     this.sendMessage('register', userId);
   }
 
@@ -77,5 +80,35 @@ export class WebSocketService {
 
   rejectCall(fromUserId: string, toUserId: string) {
     this.sendMessage('call_reject', { to: fromUserId, from: toUserId });
+  }
+
+  // Методы для приглашений в класс
+  inviteToClass(targetUserId: string, fromUserId: string, classData: any) {
+    console.log('📨 [WebSocket] Отправляем приглашение в класс:', {
+      to: targetUserId,
+      from: fromUserId,
+      classData: classData
+    });
+    this.sendMessage('class_invite', { 
+      to: targetUserId, 
+      from: fromUserId, 
+      classData: classData 
+    });
+  }
+
+  acceptClassInvitation(fromUserId: string, toUserId: string, classId: string) {
+    this.sendMessage('class_accept', { 
+      to: fromUserId, 
+      from: toUserId, 
+      classId: classId 
+    });
+  }
+
+  rejectClassInvitation(fromUserId: string, toUserId: string, classId: string) {
+    this.sendMessage('class_reject', { 
+      to: fromUserId, 
+      from: toUserId, 
+      classId: classId 
+    });
   }
 }

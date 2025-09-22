@@ -37,36 +37,33 @@
     media-src 'self' 
       http://localhost:3008
       http://135.125.107.45:3008;
-         connect-src 'self' 
-           http://localhost:3011 
-           http://135.125.107.45:3011 
-           ws://localhost:3011
-           wss://localhost:3011
-           https://api.stripe.com 
-           https://embed.tawk.to 
-           https://va.tawk.to
-           https://*.tawk.to
-           wss://*.tawk.to
-           https://cdn.jsdelivr.net
-           https://www.google-analytics.com
-           https://analytics.google.com
-           https://*.agora.io
-           https://*.agoralab.co
-           wss://*.agora.io
-           https://*.netless.link
-           https://*.whiteboard.agora.io
-           https://*.whiteboard.rtelink.com
-           https://*.sd-rtn.com
-              https://gateway-us-sv.netless.link
-              wss://gateway-us-sv.netless.link
-              https://gateway-eu.netless.link
-              wss://gateway-eu.netless.link
-              https://gateway-cn-hz.netless.link
-              wss://gateway-cn-hz.netless.link
-              https://api-eu.whiteboard.rtelink.com
-              https://api-eu.netless.link
-              https://api-eu.whiteboard.agora.io
-              https:;
+    connect-src 'self' 
+      http://localhost:3011 
+      ws://localhost:3011
+      http://135.125.107.45:3011 
+      ws://135.125.107.45:3011
+      https://api.stripe.com 
+      https://embed.tawk.to 
+      https://va.tawk.to
+      https://*.tawk.to
+      wss://*.tawk.to
+      https://cdn.jsdelivr.net
+      https://www.google-analytics.com
+      https://analytics.google.com
+      https://*.agora.io
+      https://*.agoralab.co
+      wss://*.agora.io
+      https://*.netless.link
+      https://*.whiteboard.agora.io
+      https://*.whiteboard.rtelink.com
+      https://*.sd-rtn.com
+         https://gateway-us-sv.netless.link
+         wss://gateway-us-sv.netless.link
+         https://gateway-eu.netless.link
+         wss://gateway-eu.netless.link
+         https://api-eu.whiteboard.rtelink.com
+         https://api-eu.netless.link
+         https://api-eu.whiteboard.agora.io;
     frame-src 'self' 
       https://js.stripe.com 
       https://embed.tawk.to;

@@ -340,3 +340,39 @@
 .form-actions ::ng-deep .mat-spinner circle {
   stroke: white;
 }
+
+/* Стили для статусов приглашений */
+.student-class-status {
+  font-size: 12px;
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.invitation-status-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.invitation-status {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 6px;
+  border-radius: 3px;
+}
+
+.invitation-status.sent {
+  color: #ff9800;
+  background-color: #fff3e0;
+}
+
+.invitation-status.accepted {
+  color: #4caf50;
+  background-color: #e8f5e8;
+}
+
+.invitation-status.declined {
+  color: #f44336;
+  background-color: #ffebee;
+}
