@@ -1212,8 +1212,11 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       next: (students) => {
         this.devLog('📚 Получены подтвержденные студенты с бэкенда:', students);
         
-        // Преобразуем данные в нужный формат
-        this.availableStudents = students.map((student: unknown) => {
+        // Преобразуем данные в нужный формат и получаем реальные email адреса
+        this.availableStudents = [];
+        
+        // Загружаем email для каждого студента
+        students.forEach((student: unknown) => {
           const studentData = student as { 
             id?: string; 
             name?: string; 
@@ -1222,22 +1225,48 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
             studentId?: string;
           };
           
-          return {
-            id: studentData.studentId || studentData.id,
-            name: studentData.name || 'Студент без имени',
-            email: studentData.email || 'email@example.com',
-            level: studentData.level || 'B1' // По умолчанию B1
-          };
+          const studentId = studentData.studentId || studentData.id;
+          if (studentId) {
+            // Получаем реальный email через authService
+            this.authService.getUserEmail(studentId).subscribe({
+              next: (emailInfo) => {
+                const studentInfo = {
+                  id: studentId,
+                  name: studentData.name || 'Студент без имени',
+                  email: emailInfo.email, // Реальный email
+                  level: studentData.level || 'B1'
+                };
+                
+                // Проверяем, не добавлен ли уже этот студент и не в текущем классе
+                if (!this.availableStudents.find(s => s.id === studentId)) {
+                  // Фильтруем студентов, которые уже в текущем классе
+                  if (!this.currentClass?.students?.find(s => (s as { studentId?: string }).studentId === studentId)) {
+                    this.availableStudents.push(studentInfo);
+                  }
+                }
+              },
+              error: (error) => {
+                console.error('❌ Ошибка получения email для студента:', studentId, error);
+                // Fallback на заглушку
+                const studentInfo = {
+                  id: studentId,
+                  name: studentData.name || 'Студент без имени',
+                  email: 'email@example.com',
+                  level: studentData.level || 'B1'
+                };
+                
+                if (!this.availableStudents.find(s => s.id === studentId)) {
+                  // Фильтруем студентов, которые уже в текущем классе
+                  if (!this.currentClass?.students?.find(s => (s as { studentId?: string }).studentId === studentId)) {
+                    this.availableStudents.push(studentInfo);
+                  }
+                }
+              }
+            });
+          }
         });
         
-        // Фильтруем студентов, которые уже в текущем классе
-        if (this.currentClass?.students) {
-          this.availableStudents = this.availableStudents.filter(student => {
-            return !this.currentClass?.students?.find(s => (s as { studentId?: string }).studentId === student.id);
-          });
-        }
-        
-        this.devLog('✅ Доступные студенты загружены и отфильтрованы:', this.availableStudents);
+        this.devLog('✅ Загрузка email адресов студентов запущена');
       },
       error: (error) => {
         this.devLog('❌ Ошибка загрузки студентов с бэкенда:', error);

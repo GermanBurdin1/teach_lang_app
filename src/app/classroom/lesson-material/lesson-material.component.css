@@ -2148,13 +2148,14 @@ body {
 }
 
 .invitation-actions button[color="primary"] {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #4caf50 !important;
+  color: white !important;
+  border: 1px solid #4caf50 !important;
 }
 
 .invitation-actions button[color="primary"]:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #45a049 !important;
+  border: 1px solid #45a049 !important;
 }
 
 .invitation-actions button[mat-stroked-button] {

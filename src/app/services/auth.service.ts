@@ -200,4 +200,17 @@ export class AuthService {
       console.log('[AuthService] Access token updated');
     }
   }
+
+  // Получение email пользователя по ID
+  getUserEmail(userId: string): Observable<{ id: string; email: string; name: string; surname: string }> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this._accessToken}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.get<{ id: string; email: string; name: string; surname: string }>(
+      `${API_ENDPOINTS.AUTH}/email/user/${userId}`,
+      { headers }
+    );
+  }
 }
