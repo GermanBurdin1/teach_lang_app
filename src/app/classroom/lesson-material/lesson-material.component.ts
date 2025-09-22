@@ -942,6 +942,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         
         // Также сохраняем в localStorage для совместимости
         localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(classes));
+        
+        // Загружаем студентов из lessons и добавляем их к классам
+        this.loadStudentsForClasses(teacherId);
       },
       error: (error) => {
         console.error('❌ Ошибка загрузки классов с бекенда, используем localStorage:', error);
@@ -952,10 +955,79 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
           const classes: GroupClass[] = JSON.parse(savedClasses);
           this.allTeacherClasses = classes;
           this.currentClass = classes.find((cls: GroupClass) => cls.status === 'active') || null;
-                 this.devLog('📚 Загружены классы из localStorage:', classes);
+          this.devLog('📚 Загружены классы из localStorage:', classes);
+          
+          // Загружаем студентов из lessons и добавляем их к классам
+          this.loadStudentsForClasses(teacherId);
         }
       }
     });
+  }
+
+  /**
+   * Загружает студентов из lessons и добавляет их к классам
+   */
+  loadStudentsForClasses(teacherId: string): void {
+    this.devLog('🔄 Загружаем студентов из lessons для добавления к классам...');
+    
+    this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe({
+      next: (students) => {
+        this.devLog('👥 Получены студенты из lessons:', students);
+        
+        // Добавляем студентов к классам
+        this.allTeacherClasses.forEach(cls => {
+          // Находим студентов, которые еще не добавлены к этому классу
+          const newStudents = students.filter((student: any) => {
+            const studentId = student.studentId || student.id;
+            return !cls.students?.find(s => (s as any).studentId === studentId);
+          });
+          
+          if (newStudents.length > 0) {
+            this.devLog(`➕ Добавляем ${newStudents.length} студентов к классу ${cls.name}:`, newStudents);
+            
+            // Добавляем студентов к классу
+            newStudents.forEach((student: any) => {
+              const studentData = {
+                id: `temp-${Date.now()}-${Math.random()}`, // Временный ID
+                studentId: student.studentId || student.id,
+                studentName: student.name || 'Студент',
+                addedAt: new Date(),
+                status: 'active' as const
+              };
+              
+              if (!cls.students) {
+                cls.students = [];
+              }
+              cls.students.push(studentData);
+            });
+          }
+        });
+        
+        // Обновляем текущий класс если он изменился
+        if (this.currentClass) {
+          this.currentClass = this.allTeacherClasses.find(cls => cls.id === this.currentClass?.id) || null;
+        }
+        
+        // Сохраняем обновленные классы
+        localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(this.allTeacherClasses));
+        
+        this.devLog('✅ Студенты добавлены к классам:', this.allTeacherClasses);
+      },
+      error: (error) => {
+        this.devLog('❌ Ошибка загрузки студентов из lessons:', error);
+      }
+    });
+  }
+
+  /**
+   * Ручное обновление студентов в классах (можно вызвать после добавления студента через teacher-overview)
+   */
+  refreshStudentsInClasses(): void {
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (teacherId) {
+      this.devLog('🔄 Ручное обновление студентов в классах...');
+      this.loadStudentsForClasses(teacherId);
+    }
   }
 
   saveClassToStorage(): void {
@@ -1215,6 +1287,12 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         });
         
         alert(`✅ ${studentName} добавлен в класс!`);
+        
+        // Перезагружаем студентов для всех классов
+        const teacherId = this.authService.getCurrentUser()?.id;
+        if (teacherId) {
+          this.loadStudentsForClasses(teacherId);
+        }
       },
       error: (error) => {
         console.error('❌ Ошибка добавления студента:', error);
