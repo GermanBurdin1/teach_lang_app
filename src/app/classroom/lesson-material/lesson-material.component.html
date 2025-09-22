@@ -35,6 +35,39 @@
       <app-video-call *ngIf="videoService.showVideoCall$ | async" [isFloatingMode]="false" class="main-video-container">
       </app-video-call>
 
+      <!-- 👥 PiP окна студентов с состоянием звонка -->
+      <div *ngIf="(videoService.showVideoCall$ | async) && lessonStarted && currentClass?.students" class="students-calling-overlay">
+        <div *ngFor="let student of currentClass?.students" 
+             class="student-calling-pip"
+             [class.calling]="getStudentCallState(student.studentId) === 'calling'"
+             [class.connected]="getStudentCallState(student.studentId) === 'connected'"
+             [class.declined]="getStudentCallState(student.studentId) === 'declined'">
+          
+          <!-- Аватар студента -->
+          <div class="student-avatar">
+            <div class="avatar-circle">
+              {{ getStudentNameById(student.studentId).charAt(0).toUpperCase() }}
+            </div>
+          </div>
+          
+          <!-- Информация о студенте -->
+          <div class="student-info">
+            <div class="student-name">{{ getStudentNameById(student.studentId) }}</div>
+            <div class="call-status">
+              <span *ngIf="getStudentCallState(student.studentId) === 'calling'" class="calling-status">
+                📞 Звонок...
+              </span>
+              <span *ngIf="getStudentCallState(student.studentId) === 'connected'" class="connected-status">
+                ✅ Подключен
+              </span>
+              <span *ngIf="getStudentCallState(student.studentId) === 'declined'" class="declined-status">
+                ❌ Отклонил
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 📁 Gabarit -->
       <app-gabarit-page *ngIf="showGabarit" [lesson]="getCurrentLessonForGabarit()" [readonly]="true"
         [lessonStarted]="lessonStarted" (openNotesEvent)="onGabaritOpenNotes($event)">
@@ -140,6 +173,13 @@
                   <span class="timer" *ngIf="lessonStarted && !lessonEnded">
                     ⏰ {{ formatLessonTime() }}
                   </span>
+                  <button *ngIf="lessonStarted" 
+                          mat-icon-button 
+                          color="warn" 
+                          (click)="stopVideoCall(); $event.stopPropagation()"
+                          matTooltip="Arrêter la vidéo">
+                    <mat-icon>stop</mat-icon>
+                  </button>
                 </div>
                 
                 <!-- Кнопки управления -->

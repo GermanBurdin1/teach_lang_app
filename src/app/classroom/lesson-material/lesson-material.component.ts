@@ -86,6 +86,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   groupRoomActive = false;
   groupParticipants: string[] = [];
   remoteUsersCount = 0;
+  
+  // Состояние студентов в видеозвонке
+  studentCallStates: { [studentId: string]: 'calling' | 'connected' | 'declined' } = {};
+  connectedStudents: string[] = [];
 
   constructor(
     private backgroundService: BackgroundService, 
@@ -135,6 +139,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     // Инициализация WebSocket и отслеживания участников
     this.initializeWebSocket();
     this.initializeVideoTracking();
+    this.initializeLessonInvitations();
 
     this.lessonTabsService.contentView$.subscribe((value) => {
       this.devLog('🔍 Observed contentView:', value);
@@ -1668,6 +1673,17 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Проверяем, есть ли студенты в классе
+    if (!this.currentClass.students || this.currentClass.students.length === 0) {
+      alert('❌ В классе нет студентов для видеозвонка');
+      return;
+    }
+
+    this.devLog('👥 Студенты в классе:', this.currentClass.students);
+
+    // Отправляем приглашения всем студентам
+    this.sendInvitationsToStudents();
+
     // Устанавливаем канал для группового урока
     this.videoService.channelName = `class_${this.currentClass.id}`;
     this.videoService.setLessonData(this.currentClass.id, this.authService.getCurrentUser()?.id || '');
@@ -1676,5 +1692,128 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     
     // Сворачиваем панель управления классом при запуске видео
     this.isClassManagementCollapsed = true;
+    
+    // Запускаем урок
+    this.lessonStarted = true;
+    this.startLessonTimer();
+  }
+
+  /**
+   * Отправить приглашения всем студентам класса
+   */
+  private sendInvitationsToStudents(): void {
+    if (!this.currentClass?.students) {
+      this.devLog('❌ Нет студентов для отправки приглашений');
+      return;
+    }
+
+    const teacherId = this.authService.getCurrentUser()?.id;
+    if (!teacherId) {
+      this.devLog('❌ ID преподавателя не найден');
+      return;
+    }
+
+    this.devLog('📞 Отправляем приглашения студентам:', this.currentClass.students);
+
+    // Сбрасываем состояния студентов
+    this.studentCallStates = {};
+    this.connectedStudents = [];
+
+    this.currentClass.students.forEach(student => {
+      const studentId = (student as any).studentId;
+      if (studentId) {
+        this.devLog(`📞 Отправляем приглашение студенту ${studentId}`);
+        
+        // Устанавливаем состояние "звонок идет"
+        this.studentCallStates[studentId] = 'calling';
+        
+        // Отправляем WebSocket приглашение
+        this.wsService.sendMessage('invite_to_lesson', {
+          to: studentId,
+          from: teacherId,
+          classId: this.currentClass!.id,
+          className: this.currentClass!.name,
+          teacherName: this.authService.getCurrentUser()?.name || 'Преподаватель'
+        });
+      }
+    });
+
+    this.devLog('📊 Состояния студентов после отправки приглашений:', this.studentCallStates);
+  }
+
+
+  /**
+   * Инициализация обработчиков приглашений в урок
+   */
+  private initializeLessonInvitations(): void {
+    // Обработчик принятия приглашения студентом
+    this.wsService.listen('lesson_invitation_accepted').subscribe((data: any) => {
+      this.devLog('✅ Студент принял приглашение:', data);
+      
+      if (data.studentId && this.studentCallStates[data.studentId]) {
+        this.studentCallStates[data.studentId] = 'connected';
+        this.connectedStudents.push(data.studentId);
+        
+        this.devLog('📊 Обновленные состояния студентов:', this.studentCallStates);
+        this.devLog('👥 Подключенные студенты:', this.connectedStudents);
+      }
+    });
+
+    // Обработчик отклонения приглашения студентом
+    this.wsService.listen('lesson_invitation_declined').subscribe((data: any) => {
+      this.devLog('❌ Студент отклонил приглашение:', data);
+      
+      if (data.studentId && this.studentCallStates[data.studentId]) {
+        this.studentCallStates[data.studentId] = 'declined';
+        
+        this.devLog('📊 Обновленные состояния студентов:', this.studentCallStates);
+      }
+    });
+  }
+
+  /**
+   * Получить состояние студента для отображения
+   */
+  getStudentCallState(studentId: string): 'calling' | 'connected' | 'declined' | 'unknown' {
+    return this.studentCallStates[studentId] || 'unknown';
+  }
+
+  /**
+   * Получить имя студента по ID
+   */
+  getStudentNameById(studentId: string): string {
+    if (!this.currentClass?.students) return 'Студент';
+    
+    const student = this.currentClass.students.find(s => (s as any).studentId === studentId);
+    return (student as any)?.studentName || 'Студент';
+  }
+
+  /**
+   * Остановить видеозвонок и вернуться к управлению классом
+   */
+  stopVideoCall(): void {
+    this.devLog('🛑 Остановка видеозвонка');
+    
+    // Останавливаем видеозвонок
+    this.videoService.stopVideoCall();
+    
+    // Завершаем урок
+    this.lessonStarted = false;
+    this.lessonEnded = true;
+    
+    // Очищаем таймер
+    if (this.lessonTimerInterval) {
+      clearInterval(this.lessonTimerInterval);
+      this.lessonTimerInterval = null;
+    }
+    
+    // Сбрасываем состояния студентов
+    this.studentCallStates = {};
+    this.connectedStudents = [];
+    
+    // Разворачиваем панель управления классом
+    this.isClassManagementCollapsed = false;
+    
+    this.devLog('✅ Видеозвонок остановлен, возвращаемся к управлению классом');
   }
 }
