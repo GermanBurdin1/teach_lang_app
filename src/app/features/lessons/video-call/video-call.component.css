@@ -66,6 +66,43 @@
   box-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
+/* Picture-in-Picture студента для преподавателя (перетаскиваемый) */
+.teacher-student-pip {
+  position: absolute;
+  width: 200px;
+  height: 150px;
+  border: 2px solid #4caf50; /* Зеленая рамка для студента */
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  z-index: 1000; /* Высокий z-index для перетаскивания */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+  cursor: move;
+}
+
+.teacher-student-pip:hover {
+  box-shadow: 0 6px 30px rgba(0,0,0,0.9);
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+.drag-handle {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: grab;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
 .pip-video-stream {
   width: 100%;
   height: 100%;

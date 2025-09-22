@@ -255,3 +255,88 @@
   gap: 12px;
   margin-top: 12px;
 }
+
+/* Стили для формы добавления студента */
+.add-student-form {
+  margin: 20px 0;
+}
+
+.add-student-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.add-student-card ::ng-deep .mat-card-header {
+  color: white;
+}
+
+.add-student-card ::ng-deep .mat-card-title {
+  color: white;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.add-student-card ::ng-deep .mat-card-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9em;
+}
+
+.email-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.email-field ::ng-deep .mat-form-field-label {
+  color: white;
+}
+
+.email-field ::ng-deep .mat-form-field-underline {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.email-field ::ng-deep .mat-form-field-ripple {
+  background-color: white;
+}
+
+.email-field ::ng-deep .mat-input-element {
+  color: white;
+}
+
+.email-field ::ng-deep .mat-input-element::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.form-actions button {
+  min-width: 150px;
+  height: 40px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.form-actions button[color="primary"] {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.form-actions button[color="primary"]:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-actions ::ng-deep .mat-spinner circle {
+  stroke: white;
+}

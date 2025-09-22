@@ -173,4 +173,17 @@ export class LessonService {
   endLesson(lessonId: string, endedBy: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/end`, { lessonId, endedBy });
   }
+
+  /**
+   * Добавить студента по email
+   */
+  addStudentByEmail(email: string, teacherId: string): Observable<{ success: boolean; message: string; studentId?: string }> {
+    this.devLog('[FRONT] addStudentByEmail called with email:', email, 'teacherId:', teacherId);
+    return this.http.post<{ success: boolean; message: string; studentId?: string }>(`${this.baseUrl}/add-student-by-email`, {
+      email,
+      teacherId
+    }).pipe(
+      tap(result => this.devLog('[FRONT] addStudentByEmail result:', result))
+    );
+  }
 }

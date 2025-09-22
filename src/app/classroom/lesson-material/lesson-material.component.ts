@@ -325,31 +325,6 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     */
   }
 
-  startVideoCall(): void {
-    if (this.videoService.showVideoCallSubject.getValue()) {
-      this.devLog('⚠ Видео уже запущено, не дублируем');
-      return;
-    }
-
-    this.devLog('🎥 Запуск видеозвонка');
-    
-    if (!this.currentClass) {
-      alert('❌ Сначала выберите или создайте класс');
-      return;
-    }
-
-    // Устанавливаем канал для группового урока
-    this.videoService.channelName = `class_${this.currentClass.id}`;
-    this.videoService.setLessonData(this.currentClass.id, this.authService.getCurrentUser()?.id || '');
-    
-    this.videoService.startVideoCall();
-    
-    // Сворачиваем панель управления классом при запуске видео
-    this.isClassManagementCollapsed = true;
-    
-    // Начинаем урок и запускаем таймер
-    this.startLesson();
-  }
 
   set showVideoCall(value: boolean) {
     console.log('🔄 showVideoCall изменён:', value);
@@ -1596,5 +1571,26 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     const minutes = Math.floor(this.lessonTimer / 60);
     const seconds = this.lessonTimer % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  /**
+   * Начать видео звонок
+   */
+  startVideoCall(): void {
+    this.devLog('🎥 Запуск видеозвонка');
+    
+    if (!this.currentClass) {
+      alert('❌ Сначала выберите или создайте класс');
+      return;
+    }
+
+    // Устанавливаем канал для группового урока
+    this.videoService.channelName = `class_${this.currentClass.id}`;
+    this.videoService.setLessonData(this.currentClass.id, this.authService.getCurrentUser()?.id || '');
+    
+    this.videoService.startVideoCall();
+    
+    // Сворачиваем панель управления классом при запуске видео
+    this.isClassManagementCollapsed = true;
   }
 }

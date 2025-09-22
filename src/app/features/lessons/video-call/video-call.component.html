@@ -1,5 +1,5 @@
 <div class="video-call-container" [class.floating]="isFloatingMode" [class.screen-sharing-active]="isScreenSharing"
-  (mousedown)="startDrag($event)">
+  (mousedown)="startVideoDrag($event)">
   
            <!-- ОСНОВНОЕ ВИДЕО -->
          <div class="main-video-container" 
@@ -82,7 +82,7 @@
 
          <!-- PICTURE-IN-PICTURE ВИДЕО -->
          <div class="pip-container">
-           <!-- ТОЛЬКО ДЛЯ СТУДЕНТОВ: Преподаватель НЕ использует PiP -->
+           <!-- ДЛЯ СТУДЕНТОВ: показываем себя в PiP -->
            <ng-container *ngIf="!isTeacher()">
              <!-- Локальное видео студента всегда в PiP -->
              <div class="local-video-pip">
@@ -98,5 +98,27 @@
                </div>
              </div>
            </ng-container>
+
+           <!-- ДЛЯ ПРЕПОДАВАТЕЛЯ: показываем первого студента в PiP -->
+           <ng-container *ngIf="isTeacher() && remoteUserIds.length > 0">
+             <div class="teacher-student-pip draggable-pip" 
+                  [style.left.px]="pipPosition.x" 
+                  [style.top.px]="pipPosition.y"
+                  (mousedown)="startDrag($event)">
+               <video [id]="'remote-video-' + remoteUserIds[0]" autoplay playsinline class="pip-video-stream"></video>
+               <div class="pip-label">{{ getParticipantDisplayName(remoteUserIds[0]) }}</div>
+               <div class="drag-handle">⋮⋮</div>
+             </div>
+           </ng-container>
+
+           <!-- ОТЛАДКА: показываем информацию о подключенных пользователях -->
+           <div class="debug-info" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; font-size: 12px; z-index: 9999;">
+             <div>Текущий пользователь: {{ videoCallService.userId }}</div>
+             <div>Роль: {{ authService.getCurrentUser()?.currentRole || 'НЕ ОПРЕДЕЛЕНА' }}</div>
+             <div>isTeacher(): {{ isTeacher() }}</div>
+             <div>Студенты: {{ remoteUserIds.length }}</div>
+             <div *ngFor="let uid of remoteUserIds">ID: {{ uid }}</div>
+             <div>Показываем в PiP: {{ remoteUserIds[0] || 'НЕТ' }}</div>
+           </div>
          </div>
 </div>

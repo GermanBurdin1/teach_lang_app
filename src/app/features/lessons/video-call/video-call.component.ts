@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { VideoCallService } from '../../../services/video-call.service';
 import { WebSocketService } from '../../../services/web-socket.service';
+import { AuthService } from '../../../services/auth.service';
 
 interface CallData {
   from: string;
@@ -19,7 +20,12 @@ export class VideoCallComponent implements OnInit {
   @Input() isFloatingMode: boolean = false;
   remoteUserIds: string[] = [];
 
-  constructor(public videoCallService: VideoCallService, private wsService: WebSocketService) { }
+  // PiP позиция и перетаскивание
+  pipPosition = { x: 20, y: 20 };
+  isDragging = false;
+  dragOffset = { x: 0, y: 0 };
+
+  constructor(public videoCallService: VideoCallService, private wsService: WebSocketService, public authService: AuthService) { }
 
   ngOnInit(): void {
     console.log('📹 VideoCallComponent загружен в ngOnInit', { isFloatingMode: this.isFloatingMode });
@@ -295,7 +301,7 @@ export class VideoCallComponent implements OnInit {
     this.isScreenSharing = !this.isScreenSharing;
   }
 
-  startDrag(event: MouseEvent) {
+  startVideoDrag(event: MouseEvent) {
     event.preventDefault();
 
     const elem = ((event.currentTarget as HTMLElement).closest('.video-call-container')) as HTMLElement;
@@ -340,11 +346,13 @@ export class VideoCallComponent implements OnInit {
   // === TEAMS-LIKE UX МЕТОДЫ ===
 
   isTeacher(): boolean {
-    return this.videoCallService.userId === 'teacher1';
+    const currentUser = this.authService.getCurrentUser();
+    return currentUser?.currentRole === 'teacher';
   }
 
   isTeacherUID(uid: string): boolean {
-    return uid === 'teacher1';
+    const currentUser = this.authService.getCurrentUser();
+    return uid === currentUser?.id && currentUser?.currentRole === 'teacher';
   }
 
   getGridLayout(): string {
@@ -409,5 +417,46 @@ export class VideoCallComponent implements OnInit {
     } else {
       console.error('🔍 Неизвестная ошибка:', error.message);
     }
+  }
+
+  // Методы для перетаскивания PiP
+  startDrag(event: MouseEvent): void {
+    if (event.target instanceof HTMLElement && event.target.classList.contains('drag-handle')) {
+      event.preventDefault();
+      this.isDragging = true;
+      this.dragOffset = {
+        x: event.clientX - this.pipPosition.x,
+        y: event.clientY - this.pipPosition.y
+      };
+      
+      document.addEventListener('mousemove', this.onDrag);
+      document.addEventListener('mouseup', this.stopDrag);
+    }
+  }
+
+  onDrag = (event: MouseEvent): void => {
+    if (this.isDragging) {
+      const container = document.querySelector('app-lesson-material');
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const pipWidth = 200;
+        const pipHeight = 150;
+        
+        let newX = event.clientX - this.dragOffset.x;
+        let newY = event.clientY - this.dragOffset.y;
+        
+        // Ограничиваем перемещение в рамках контейнера
+        newX = Math.max(0, Math.min(newX, containerRect.width - pipWidth));
+        newY = Math.max(0, Math.min(newY, containerRect.height - pipHeight));
+        
+        this.pipPosition = { x: newX, y: newY };
+      }
+    }
+  }
+
+  stopDrag = (): void => {
+    this.isDragging = false;
+    document.removeEventListener('mousemove', this.onDrag);
+    document.removeEventListener('mouseup', this.stopDrag);
   }
 }

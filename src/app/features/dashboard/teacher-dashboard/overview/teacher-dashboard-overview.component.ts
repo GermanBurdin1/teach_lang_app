@@ -11,6 +11,7 @@ import { NotificationService } from '../../../../services/notifications.service'
 import { TeacherService } from '../../../../services/teacher.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../../../environment.prod';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 // Интерфейсы для типизации
 interface Student {
@@ -99,7 +100,8 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     private lessonService: LessonService,
     private notificationService: NotificationService,
     private teacherService: TeacherService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private formBuilder: FormBuilder
   ) { }
 
   profile: TeacherProfile | null = null;
@@ -169,6 +171,10 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   customReason = '';
   showRefuseDialog = false;
   treatedRequests: BookingRequest[] = [];
+
+  // Форма добавления студента по email
+  addStudentForm!: FormGroup;
+  isAddingStudent = false;
   REJECTION_REASONS = [
     'Je ne suis pas disponible à cette date',
     'Ce créneau ne correspond pas à mon emploi du temps régulier',
@@ -194,6 +200,11 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   ngOnInit(): void {
     const stored = localStorage.getItem('teacher_reviews');
     this.reviews = stored ? JSON.parse(stored) : MOCK_REVIEWS;
+
+    // Инициализируем форму добавления студента
+    this.addStudentForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
 
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
@@ -783,6 +794,55 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
   getProfileFullName(): string {
     return this.profile?.full_name || '';
+  }
+
+  /**
+   * Добавить студента по email
+   */
+  addStudentByEmail(): void {
+    if (this.addStudentForm.invalid) {
+      this.devLog('[OVERVIEW] Form is invalid');
+      return;
+    }
+
+    const email = this.addStudentForm.get('email')?.value;
+    const teacherId = this.authService.getCurrentUser()?.id;
+
+    if (!teacherId) {
+      this.devLog('[OVERVIEW] No teacher ID found');
+      this.snackBar.open('Erreur: Impossible de récupérer l\'ID du professeur', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    this.isAddingStudent = true;
+    this.devLog('[OVERVIEW] Adding student by email:', email, 'for teacher:', teacherId);
+
+    this.lessonService.addStudentByEmail(email, teacherId).subscribe({
+      next: (result) => {
+        this.devLog('[OVERVIEW] Add student result:', result);
+        this.isAddingStudent = false;
+
+        if (result.success) {
+          this.snackBar.open(result.message, 'Fermer', { duration: 3000 });
+          this.addStudentForm.reset();
+          // Обновляем список студентов
+          this.refreshConfirmedStudents();
+        } else {
+          this.snackBar.open(result.message, 'Fermer', { duration: 3000 });
+        }
+      },
+      error: (error) => {
+        this.devLog('[OVERVIEW] Error adding student:', error);
+        this.isAddingStudent = false;
+        this.snackBar.open('Erreur lors de l\'ajout de l\'étudiant', 'Fermer', { duration: 3000 });
+      }
+    });
+  }
+
+  private devLog(message: string, ...args: any[]): void {
+    if (!environment.production) {
+      console.log(message, ...args);
+    }
   }
 
 }

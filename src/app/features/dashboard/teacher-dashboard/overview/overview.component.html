@@ -13,6 +13,45 @@
       <mat-button-toggle value="pending">Demandes</mat-button-toggle>
     </mat-button-toggle-group>
 
+    <!-- Форма добавления студента по email -->
+    <div class="add-student-form">
+      <mat-card class="add-student-card">
+        <mat-card-header>
+          <mat-card-title>Ajouter un élève par email</mat-card-title>
+          <mat-card-subtitle>Rechercher un étudiant existant par son adresse email</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="addStudentForm" (ngSubmit)="addStudentByEmail()">
+            <mat-form-field appearance="fill" class="email-field">
+              <mat-label>Email de l'étudiant</mat-label>
+              <input matInput 
+                     formControlName="email" 
+                     type="email" 
+                     placeholder="exemple@email.com"
+                     [class.mat-form-field-invalid]="addStudentForm.get('email')?.invalid && addStudentForm.get('email')?.touched">
+              <mat-error *ngIf="addStudentForm.get('email')?.hasError('required')">
+                L'email est requis
+              </mat-error>
+              <mat-error *ngIf="addStudentForm.get('email')?.hasError('email')">
+                Veuillez entrer un email valide
+              </mat-error>
+            </mat-form-field>
+            
+            <div class="form-actions">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="addStudentForm.invalid || isAddingStudent">
+                <mat-spinner *ngIf="isAddingStudent" diameter="20"></mat-spinner>
+                <span *ngIf="!isAddingStudent">Ajouter l'étudiant</span>
+                <span *ngIf="isAddingStudent">Ajout en cours...</span>
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
     <!-- Список -->
     <div class="student-cards">
       <mat-card class="student-card" *ngFor="let student of paginatedStudents">
