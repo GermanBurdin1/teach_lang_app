@@ -1574,3 +1574,162 @@ body {
     min-height: 250px;
   }
 }
+
+/* Стили для кнопок в class-card */
+.main-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.main-actions button {
+  flex: 1;
+}
+
+.class-management-section {
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.class-management-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.class-management-buttons button {
+  font-size: 12px;
+  min-height: 32px;
+  flex: 1;
+  min-width: 100px;
+}
+
+.lesson-status-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.lesson-status-inline .status-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.lesson-status-inline .status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.lesson-status-inline .timer {
+  color: #ff6b35;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* Растягиваем карточки */
+.class-card {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.class-card mat-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.class-card mat-card-actions {
+  margin-top: auto;
+  padding: 16px;
+}
+
+/* Стили для диалога добавления студентов */
+.students-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.students-dialog {
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.students-dialog mat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.students-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.student-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.student-item:hover {
+  background-color: #f5f5f5;
+}
+
+.student-info {
+  flex: 1;
+}
+
+.student-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.student-email {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.student-level {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.add-button {
+  color: #4caf50;
+}
+
+.no-students {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}

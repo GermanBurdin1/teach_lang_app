@@ -1171,8 +1171,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   addStudentToClass(student: unknown): void {
     this.devLog('➕ Добавление студента в класс:', student);
+    this.devLog('➕ currentClass:', this.currentClass);
     
     if (!this.currentClass || !this.currentClass.id) {
+      this.devLog('❌ Класс не найден!');
       alert('❌ Класс не найден');
       return;
     }
@@ -1181,7 +1183,10 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     const studentId = studentObj.id || studentObj.studentId;
     const studentName = studentObj.name;
     
+    this.devLog('➕ studentId:', studentId, 'studentName:', studentName);
+    
     if (!studentId || !studentName) {
+      this.devLog('❌ Недостаточно данных о студенте!');
       alert('❌ Недостаточно данных о студенте');
       return;
     }
@@ -1192,6 +1197,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       studentName: studentName
     };
 
+    this.devLog('➕ Отправляем запрос:', addStudentDto);
     this.groupClassService.addStudentToClass(addStudentDto).subscribe({
       next: (addedStudent) => {
         this.devLog('✅ Студент добавлен в класс на бекенде:', addedStudent);
