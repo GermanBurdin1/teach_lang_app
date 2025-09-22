@@ -41,7 +41,8 @@
               <button mat-raised-button 
                       color="primary" 
                       type="submit"
-                      [disabled]="addStudentForm.invalid || isAddingStudent">
+                      (click)="testClick()"
+                      [disabled]="isAddingStudent">
                 <mat-spinner *ngIf="isAddingStudent" diameter="20"></mat-spinner>
                 <span *ngIf="!isAddingStudent">Ajouter l'étudiant</span>
                 <span *ngIf="isAddingStudent">Ajout en cours...</span>

@@ -205,6 +205,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     this.addStudentForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]]
     });
+    console.log('🔥🔥🔥 Form initialized:', this.addStudentForm);
 
     const teacherId = this.authService.getCurrentUser()?.id;
     if (teacherId) {
@@ -251,6 +252,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
     }
 
     this.refreshStudents();
+    this.refreshConfirmedStudents(); // Добавляем загрузку подтвержденных студентов
     this.loadTeacherClasses();
   }
 
@@ -409,15 +411,20 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   refreshConfirmedStudents(): void {
+    console.log('🔥 refreshConfirmedStudents called!');
     const teacherId = this.authService.getCurrentUser()?.id;
+    console.log('🔥 teacherId:', teacherId);
     if (teacherId) {
-      if(!environment.production) console.log('[OVERVIEW] Обновляем подтверждённых студентов для teacherId:', teacherId);
+      console.log('🔥 Calling API...');
+      this.devLog('[OVERVIEW] Обновляем подтверждённых студентов для teacherId:', teacherId);
       this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe((students: unknown[]) => {
+        this.devLog('[OVERVIEW] Получены студенты от API:', students);
         this.confirmedStudents = students.map(s => {
           const student = s as {id?: string, [key: string]: unknown};
           return {...student, id: student.id || ''} as Student;
         });
-        if(!environment.production) console.log('[OVERVIEW] confirmedStudents (refresh):', students);
+        this.devLog('[OVERVIEW] confirmedStudents (refresh):', this.confirmedStudents);
+        this.devLog('[OVERVIEW] Количество студентов:', this.confirmedStudents.length);
       });
     }
   }
@@ -800,7 +807,12 @@ export class TeacherDashboardOverviewComponent implements OnInit {
    * Добавить студента по email
    */
   addStudentByEmail(): void {
+    console.log('🔥🔥🔥 addStudentByEmail method called!');
+    console.log('🔥🔥🔥 Form valid:', this.addStudentForm.valid);
+    console.log('🔥🔥🔥 Form value:', this.addStudentForm.value);
+    
     if (this.addStudentForm.invalid) {
+      console.log('🔥🔥🔥 Form is invalid, returning');
       this.devLog('[OVERVIEW] Form is invalid');
       return;
     }
@@ -826,6 +838,7 @@ export class TeacherDashboardOverviewComponent implements OnInit {
           this.snackBar.open(result.message, 'Fermer', { duration: 3000 });
           this.addStudentForm.reset();
           // Обновляем список студентов
+          console.log('🔥 About to call refreshConfirmedStudents...');
           this.refreshConfirmedStudents();
         } else {
           this.snackBar.open(result.message, 'Fermer', { duration: 3000 });
@@ -840,9 +853,15 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   }
 
   private devLog(message: string, ...args: any[]): void {
-    if (!environment.production) {
-      console.log(message, ...args);
-    }
+    // Временно всегда выводим логи для отладки
+    console.log(message, ...args);
+  }
+
+  testClick(): void {
+    console.log('🔥🔥🔥🔥 BUTTON CLICKED!');
+    console.log('🔥🔥🔥🔥 Form valid:', this.addStudentForm.valid);
+    console.log('🔥🔥🔥🔥 Form value:', this.addStudentForm.value);
+    this.addStudentByEmail();
   }
 
 }
