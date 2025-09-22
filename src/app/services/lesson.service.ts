@@ -248,4 +248,11 @@ export class LessonService {
       tap(result => this.devLog('[FRONT] createClassInvitation result:', result))
     );
   }
+
+  closeInvitationWithoutResponse(invitationId: string): Observable<any> {
+    this.devLog('[FRONT] closeInvitationWithoutResponse called with:', invitationId);
+    return this.http.post<any>(`${this.baseUrl}/invitations/${invitationId}/close`, {}).pipe(
+      tap(result => this.devLog('[FRONT] closeInvitationWithoutResponse result:', result))
+    );
+  }
 }

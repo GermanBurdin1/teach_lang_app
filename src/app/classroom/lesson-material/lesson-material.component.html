@@ -72,6 +72,32 @@
           </mat-card>
         </div>
 
+        <!-- Постоянное уведомление о приглашениях -->
+        <div *ngIf="hasUnreadInvitations()" class="persistent-invitation-notification">
+          <mat-card class="invitation-card">
+            <mat-card-content>
+              <div class="invitation-header">
+                <mat-icon class="invitation-icon">mail</mat-icon>
+                <h3>Nouvelle invitation reçue!</h3>
+              </div>
+              <div class="invitation-content">
+                <p *ngIf="pendingClassInvitations.length === 1">Vous avez reçu une invitation à rejoindre un cours.</p>
+                <p *ngIf="pendingClassInvitations.length > 1">Vous avez reçu {{ pendingClassInvitations.length }} invitations à rejoindre des cours.</p>
+                <div class="invitation-actions">
+                  <button mat-raised-button color="primary" (click)="showInvitationDialogFromPanel()">
+                    <mat-icon>visibility</mat-icon>
+                    Voir l'invitation
+                  </button>
+                  <button mat-stroked-button (click)="dismissInvitationNotification()">
+                    <mat-icon>close</mat-icon>
+                    Masquer
+                  </button>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
         <!-- Информация о преподавателе -->
         <div *ngIf="teacherInfo" class="teacher-info-card">
           <mat-card>
@@ -110,7 +136,13 @@
 
         <!-- Список ожидающих приглашений -->
         <div *ngIf="pendingClassInvitations.length > 0" class="pending-invitations">
-          <h3>📨 Invitations en attente</h3>
+          <div class="invitations-header">
+            <h3>📨 Invitations en attente</h3>
+            <button mat-stroked-button (click)="checkAndShowUnreadInvitations()" class="show-invitations-btn">
+              <mat-icon>refresh</mat-icon>
+              Voir les invitations
+            </button>
+          </div>
           <div *ngFor="let invitation of pendingClassInvitations" class="invitation-item">
             <mat-card>
               <mat-card-content>
@@ -129,6 +161,10 @@
                     <button mat-raised-button color="warn" (click)="rejectClassInvitationFromList(invitation)">
                       <mat-icon>close</mat-icon>
                       Refuser
+                    </button>
+                    <button mat-stroked-button (click)="showInvitationDialogAgain(invitation)">
+                      <mat-icon>refresh</mat-icon>
+                      Voir à nouveau
                     </button>
                   </div>
                 </div>
@@ -245,13 +281,19 @@
                 </span>
               </div>
 
-              <!-- Список студентов -->
+              <!-- Список студентов с крестиками -->
               <div class="students-preview" *ngIf="cls.students && cls.students.length > 0">
                 <h4>👥 Élèves inscrits:</h4>
                 <div class="students-list">
-                  <span *ngFor="let student of cls.students.slice(0, 3)" class="student-chip">
-                    {{ student.studentName || 'Élève' }}
-                  </span>
+                  <div *ngFor="let student of cls.students.slice(0, 3)" class="student-chip-with-remove">
+                    <span class="student-name">{{ student.studentName || 'Élève' }}</span>
+                    <button mat-icon-button 
+                            class="remove-student-btn"
+                            (click)="removeStudentFromClass(student); $event.stopPropagation()"
+                            matTooltip="Retirer de la classe">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
                   <span *ngIf="cls.students.length > 3" class="more-students">
                     +{{ cls.students.length - 3 }} autres
                   </span>
@@ -291,11 +333,8 @@
                 
                 <!-- Кнопки управления -->
                 <div class="class-management-buttons">
-                  <button mat-stroked-button (click)="testButtonClick(); $event.stopPropagation()">
-                    ➕ Ajouter des élèves
-                  </button>
-                  <button mat-stroked-button (click)="editClass(); $event.stopPropagation()">
-                    ✏️ Modifier
+                  <button mat-stroked-button (click)="inviteStudentsToClass(); $event.stopPropagation()">
+                    📨 Inviter des élèves
                   </button>
                   <button mat-stroked-button color="warn" (click)="deleteClass(); $event.stopPropagation()">
                     🗑️ Supprimer
@@ -326,45 +365,49 @@
         </div>
         </ng-template>
 
-        <!-- Удаляем дублирующую секцию - все перенесено в class-card -->
 
       </div>
                 </div>
 
               </div>
 
-  <!-- Диалог добавления студентов -->
+  <!-- Диалог приглашения студентов -->
   <div *ngIf="showStudentsList" class="students-dialog-overlay">
     <mat-card class="students-dialog">
       <mat-card-header>
-        <mat-card-title>👥 Ajouter des élèves au cours</mat-card-title>
+        <mat-card-title>📨 Inviter des élèves à la classe</mat-card-title>
         <button mat-icon-button (click)="closeStudentsList()">
           <mat-icon>close</mat-icon>
-                </button>
+        </button>
       </mat-card-header>
       
       <mat-card-content>
+        <div class="invitation-info">
+          <p><strong>Classe:</strong> {{ currentClass?.name }} ({{ currentClass?.level }})</p>
+          <p><strong>Description:</strong> {{ currentClass?.description }}</p>
+        </div>
+        
         <div class="students-list">
           <div *ngFor="let student of availableStudents" 
                class="student-item"
-               (click)="addStudentToClass(student)">
+               (click)="inviteStudentToClass(student)">
             <div class="student-info">
               <div class="student-name">{{ getStudentName(student) }}</div>
               <div class="student-email">{{ getStudentEmail(student) }}</div>
               <div class="student-level">Niveau: {{ getStudentLevel(student) }}</div>
             </div>
-            <button mat-icon-button class="add-button">
-              <mat-icon>person_add</mat-icon>
-                </button>
+            <button mat-icon-button class="invite-button">
+              <mat-icon>mail</mat-icon>
+            </button>
           </div>
           
           <div *ngIf="availableStudents.length === 0" class="no-students">
-            <p>Aucun élève disponible à ajouter</p>
+            <p>Aucun élève disponible à inviter</p>
           </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-    </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
     <!-- 🧩 Нижняя панель заданий -->
     <div class="fixed-task-panel bg-light px-4 py-2" [class.collapsed]="tasksCollapsed">
@@ -632,7 +675,7 @@
     <div class="invitation-dialog">
       <div class="dialog-header">
         <h2>📨 Invitation à rejoindre une classe</h2>
-        <button mat-icon-button (click)="rejectClassInvitation()" class="close-button">
+        <button mat-icon-button (click)="closeInvitationWithoutResponse()" class="close-button">
           <mat-icon>close</mat-icon>
         </button>
       </div>

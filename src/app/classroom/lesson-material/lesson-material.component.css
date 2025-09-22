@@ -2095,3 +2095,163 @@ body {
   padding: 20px;
   color: #666;
 }
+
+/* Стили для постоянного уведомления о приглашениях */
+.persistent-invitation-notification {
+  margin-top: 15px;
+  animation: slideInFromTop 0.5s ease-out;
+}
+
+.invitation-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  border: none;
+}
+
+.invitation-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.invitation-icon {
+  font-size: 24px;
+  margin-right: 12px;
+  color: #ffd700;
+}
+
+.invitation-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.invitation-content p {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.invitation-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.invitation-actions button {
+  border-radius: 20px;
+  font-weight: 500;
+  text-transform: none;
+  min-width: 140px;
+}
+
+.invitation-actions button[color="primary"] {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.invitation-actions button[color="primary"]:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.invitation-actions button[mat-stroked-button] {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.invitation-actions button[mat-stroked-button]:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Анимация появления */
+@keyframes slideInFromTop {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ===== STUDENT CHIPS WITH REMOVE BUTTON ===== */
+.student-chip-with-remove {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(109, 40, 217, 0.1);
+  color: var(--galaxy-primary, #6d28d9);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin: 2px;
+  transition: all 0.3s ease;
+}
+
+.student-chip-with-remove:hover {
+  background: rgba(109, 40, 217, 0.2);
+  transform: translateY(-1px);
+}
+
+.student-chip-with-remove .student-name {
+  margin-right: 4px;
+}
+
+.remove-student-btn {
+  width: 20px !important;
+  height: 20px !important;
+  line-height: 20px !important;
+  min-width: 20px !important;
+  padding: 0 !important;
+  margin-left: 4px !important;
+}
+
+.remove-student-btn mat-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  line-height: 14px !important;
+}
+
+.remove-student-btn:hover {
+  background: rgba(220, 53, 69, 0.1) !important;
+  color: #dc3545 !important;
+}
+
+/* ===== INVITATION DIALOG ===== */
+.invitation-info {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #6d28d9;
+}
+
+.invitation-info p {
+  margin: 4px 0;
+  color: #2c3e50;
+}
+
+.invite-button {
+  color: #6d28d9 !important;
+}
+
+.invite-button:hover {
+  background: rgba(109, 40, 217, 0.1) !important;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .invitation-actions {
+    flex-direction: column;
+  }
+  
+  .invitation-actions button {
+    width: 100%;
+    min-width: auto;
+  }
+}

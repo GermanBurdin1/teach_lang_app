@@ -788,13 +788,17 @@ export class TeacherDashboardOverviewComponent implements OnInit {
       return;
     }
     
+    // Получаем реальное имя преподавателя
+    const currentUser = this.authService.getCurrentUser();
+    const teacherName = currentUser?.name || currentUser?.surname || 'Professeur';
+    
     // Подготавливаем данные класса для приглашения
     const classData = {
       id: targetClass.id,
       name: targetClass.name,
       level: targetClass.level,
       description: targetClass['description'] || `Classe de préparation à l'examen DELF niveau ${targetClass.level}`,
-      teacherName: this.authService.getCurrentUser()?.name || 'Professeur'
+      teacherName: teacherName
     };
 
     // Создаем приглашение через API

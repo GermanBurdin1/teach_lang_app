@@ -11,6 +11,7 @@ import { LessonService } from '../../services/lesson.service';
 import { MaterialService } from '../../services/material.service';
 import { LessonNotesService } from '../../services/lesson-notes.service';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { LessonNotesModalComponent } from './lesson-notes-modal/lesson-notes-modal.component';
 import { HomeworkModalComponent } from './homework-modal/homework-modal.component';
 import { CreateClassDialogComponent, CreateClassDialogData, CreateClassDialogResult } from './create-class-dialog.component';
@@ -42,6 +43,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   pendingClassInvitations: any[] = [];
   showInvitationDialog = false;
   currentInvitation: any = null;
+  hideNotificationUntilReload = false; // Временно скрыть уведомление
   backgroundStyle: string = '';
   private backgroundSubscription: Subscription | undefined;
   private isVideoCallStarted = false;
@@ -118,7 +120,8 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     private meta: Meta,
     private title: Title,
     private analyticsService: AnalyticsService,
-    private structuredDataService: StructuredDataService
+    private structuredDataService: StructuredDataService,
+    private snackBar: MatSnackBar
   ) { }
 
   trackByIndex(index: number, item: string): number {
@@ -142,6 +145,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
           this.loadStudentClassInfo();
           this.loadUnreadInvitations();
           this.initializeStudentWebSocketListeners();
+          // Уведомления теперь постоянные в панели
         }
       }
     });
@@ -1017,18 +1021,68 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
             
             // Добавляем студентов к классу
             newStudents.forEach((student: any) => {
-              const studentData = {
-                id: `temp-${Date.now()}-${Math.random()}`, // Временный ID
-                studentId: student.studentId || student.id,
-                studentName: student.name || 'Студент',
-                addedAt: new Date(),
-                status: 'active' as const
+              const studentId = student.studentId || student.id;
+              const studentName = student.name || 'Студент';
+              const studentEmail = student.email || null;
+              
+              // Проверяем, что у нас есть валидные ID
+              if (!studentId || !cls.id) {
+                this.devLog('❌ Пропускаем студента - нет валидных ID:', { studentId, classId: cls.id });
+                return;
+              }
+              
+              // Создаем DTO для API
+              const addStudentDto = {
+                groupClassId: cls.id,
+                studentId: studentId,
+                studentName: studentName,
+                studentEmail: studentEmail
               };
               
-              if (!cls.students) {
-                cls.students = [];
-              }
-              cls.students.push(studentData);
+              this.devLog('📤 Отправляем данные студента в API:', addStudentDto);
+              this.devLog('📤 groupClassId type:', typeof addStudentDto.groupClassId, 'value:', addStudentDto.groupClassId);
+              this.devLog('📤 studentId type:', typeof addStudentDto.studentId, 'value:', addStudentDto.studentId);
+              this.devLog('📤 studentName type:', typeof addStudentDto.studentName, 'value:', addStudentDto.studentName);
+              this.devLog('📤 studentEmail type:', typeof addStudentDto.studentEmail, 'value:', addStudentDto.studentEmail);
+              
+              // Сохраняем студента в базе данных
+              this.groupClassService.addStudentToClass(addStudentDto).subscribe({
+                next: (addedStudent) => {
+                  this.devLog('✅ Студент добавлен в класс на бекенде:', addedStudent);
+                  
+                  // Добавляем в локальный список
+                  if (!cls.students) {
+                    cls.students = [];
+                  }
+                  cls.students.push({
+                    id: addedStudent.id,
+                    studentId: addedStudent.studentId,
+                    studentName: addedStudent.studentName,
+                    studentEmail: addedStudent.studentEmail,
+                    addedAt: addedStudent.addedAt,
+                    status: addedStudent.status
+                  });
+                },
+                error: (error) => {
+                  this.devLog('❌ Ошибка при добавлении студента в класс:', error);
+                  this.devLog('❌ Error details:', error.error);
+                  this.devLog('❌ Error status:', error.status);
+                  this.devLog('❌ Error message:', error.message);
+                  
+                  // Если ошибка, добавляем локально (fallback)
+                  if (!cls.students) {
+                    cls.students = [];
+                  }
+                  cls.students.push({
+                    id: `temp-${Date.now()}-${Math.random()}`,
+                    studentId: studentId,
+                    studentName: studentName,
+                    studentEmail: studentEmail,
+                    addedAt: new Date(),
+                    status: 'active' as const
+                  });
+                }
+              });
             });
           }
         });
@@ -1153,8 +1207,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     return stat?.color || '#9e9e9e';
   }
 
-  removeStudentFromClass(student: { id?: string; name?: string; studentId?: string; [key: string]: unknown }): void {
+  removeStudentFromClass(student: any): void {
     console.log('🗑️ Удаление студента из класса:', student);
+    console.log('🗑️ currentClass.students:', this.currentClass?.students);
     
     if (!this.currentClass || !this.currentClass.id) {
       alert('Класс не найден');
@@ -1162,6 +1217,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     }
 
     const studentId = student.studentId || student.id;
+    console.log('🗑️ studentId для удаления:', studentId);
     if (!studentId) {
       alert('ID студента не найден');
       return;
@@ -1170,20 +1226,39 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     // Удаляем студента через API
     this.groupClassService.removeStudentFromClass(this.currentClass.id, studentId).subscribe({
       next: () => {
-        console.log('✅ Студент удален из класса на бекенде');
+        console.log('✅ Студент удален из класса');
         
         // Обновляем локальные данные
         if (this.currentClass && this.currentClass.students) {
-          const index = this.currentClass.students.findIndex(s => s.id === studentId);
+          const index = this.currentClass.students.findIndex(s => 
+            s.id === studentId || s.studentId === studentId
+          );
           if (index > -1) {
             this.currentClass.students.splice(index, 1);
             this.saveClassToStorage(); // Сохраняем изменения в localStorage
+            console.log('✅ Студент удален из локального списка');
+          } else {
+            console.log('⚠️ Студент не найден в локальном списке для удаления');
           }
         }
       },
       error: (error) => {
         console.error('❌ Ошибка удаления студента:', error);
-        alert('Ошибка при удалении студента. Попробуйте снова.');
+        
+        // Даже если произошла ошибка на бекенде, удаляем студента локально
+        if (this.currentClass && this.currentClass.students) {
+          const index = this.currentClass.students.findIndex(s => 
+            s.id === studentId || s.studentId === studentId
+          );
+          if (index > -1) {
+            this.currentClass.students.splice(index, 1);
+            this.saveClassToStorage();
+            console.log('✅ Студент удален из локального списка (несмотря на ошибку бекенда)');
+          }
+        }
+        
+        // Показываем уведомление об успешном удалении
+        this.snackBar.open('Студент удален из класса', 'Fermer', { duration: 3000 });
       }
     });
   }
@@ -1318,16 +1393,42 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       teacherName: currentUser.name || 'Professeur'
     };
 
-    // Отправляем WebSocket приглашение
-    this.wsService.inviteToClass(studentId, currentUser.id, classData);
-    
-    this.devLog('📨 Приглашение отправлено студенту:', studentId);
-    alert(`📨 Приглашение отправлено студенту ${studentName}`);
-    
-    // Убираем студента из списка доступных
-    this.availableStudents = this.availableStudents.filter(s => {
-      const sObj = s as { id?: string };
-      return sObj.id !== studentId;
+    // Сначала сохраняем студента в базе данных
+    this.groupClassService.addStudentToClass(addStudentDto).subscribe({
+      next: (addedStudent) => {
+        this.devLog('✅ Студент добавлен в класс на бекенде:', addedStudent);
+        
+        // Добавляем студента в локальный список
+        if (this.currentClass) {
+          if (!this.currentClass.students) {
+            this.currentClass.students = [];
+          }
+          this.currentClass.students.push({
+            id: addedStudent.id,
+            studentId: addedStudent.studentId,
+            studentName: addedStudent.studentName,
+            studentEmail: addedStudent.studentEmail,
+            addedAt: addedStudent.addedAt,
+            status: addedStudent.status
+          });
+        }
+        
+        // Отправляем WebSocket приглашение
+        this.wsService.inviteToClass(studentId, currentUser.id, classData);
+        
+        this.devLog('📨 Приглашение отправлено студенту:', studentId);
+        alert(`📨 Приглашение отправлено студенту ${studentName}`);
+        
+        // Убираем студента из списка доступных
+        this.availableStudents = this.availableStudents.filter(s => {
+          const sObj = s as { id?: string };
+          return sObj.id !== studentId;
+        });
+      },
+      error: (error) => {
+        this.devLog('❌ Ошибка при добавлении студента в класс:', error);
+        alert('❌ Ошибка при добавлении студента в класс');
+      }
     });
   }
 
@@ -1988,28 +2089,61 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
         invitations.forEach(invitation => {
           this.pendingClassInvitations.push({
             id: invitation.id,
+            recordId: invitation.id, // ID записи в базе данных
             classId: invitation.groupClassId,
             name: invitation.groupClass?.name || 'Класс',
             level: invitation.groupClass?.level || 'A1',
             description: invitation.groupClass?.description || '',
             teacherId: invitation.groupClass?.teacherId || '',
-            teacherName: invitation.groupClass?.teacherName || 'Преподаватель',
+            teacherName: invitation.groupClass?.teacherName || 'Professeur',
             timestamp: new Date(invitation.invitedAt || invitation.addedAt),
             isFromDatabase: true,
-            invitationMessage: invitation.invitationMessage
+            invitationMessage: invitation.invitationMessage,
+            status: invitation.status || 'invited', // Добавляем статус
+            isRead: invitation.isRead || false,
+            invitationResponse: invitation.invitationResponse || null // Добавляем ответ на приглашение
           });
         });
 
-        // Если есть непрочитанные приглашения, показываем первое
-        if (this.pendingClassInvitations.length > 0) {
-          this.currentInvitation = this.pendingClassInvitations[0];
-          this.showInvitationDialog = true;
-        }
+        // Загружаем приглашения, но не показываем модальное окно автоматически
+        this.devLog('📨 Приглашения загружены, уведомление будет показано в панели');
       },
       error: (error) => {
         this.devLog('❌ Ошибка при загрузке приглашений:', error);
       }
     });
+  }
+
+  // Закрытие диалога без удаления приглашения
+  private closeInvitationDialog(): void {
+    this.devLog('🔒 Закрываем диалог приглашения, но оставляем в списке');
+    this.showInvitationDialog = false;
+    this.currentInvitation = null;
+  }
+
+  // Закрытие диалога без ответа (только отмечаем как прочитанное)
+  closeInvitationWithoutResponse(): void {
+    this.devLog('🔒 Закрываем диалог приглашения без ответа');
+    
+    if (this.currentInvitation && this.currentInvitation.isFromDatabase) {
+      this.lessonService.closeInvitationWithoutResponse(this.currentInvitation.recordId).subscribe({
+        next: (result) => {
+          this.devLog('🔒 Приглашение закрыто без ответа:', result);
+          // Обновляем статус в локальном списке
+          const invitation = this.pendingClassInvitations.find(inv => inv.recordId === this.currentInvitation.recordId);
+          if (invitation) {
+            invitation.isRead = true;
+          }
+          this.closeInvitationDialog();
+        },
+        error: (error) => {
+          this.devLog('❌ Ошибка при закрытии приглашения:', error);
+          this.closeInvitationDialog();
+        }
+      });
+    } else {
+      this.closeInvitationDialog();
+    }
   }
 
   // Обработка приглашения в класс
@@ -2028,9 +2162,8 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       isFromDatabase: false
     });
 
-    // Показываем диалог приглашения
-    this.currentInvitation = this.pendingClassInvitations[this.pendingClassInvitations.length - 1];
-    this.showInvitationDialog = true;
+    // Добавляем приглашение в список, уведомление появится в панели
+    this.devLog('📨 Новое приглашение добавлено, уведомление появится в панели');
   }
 
   // Обработка принятия приглашения в класс
@@ -2063,9 +2196,14 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
     // Если приглашение из базы данных, используем API
     if (this.currentInvitation.isFromDatabase) {
-      this.lessonService.acceptClassInvitation(this.currentInvitation.id).subscribe({
+      this.lessonService.acceptClassInvitation(this.currentInvitation.recordId).subscribe({
         next: (result) => {
           this.devLog('✅ Приглашение принято через API:', result);
+          // Обновляем статус в локальном списке
+          const invitation = this.pendingClassInvitations.find(inv => inv.recordId === this.currentInvitation.recordId);
+          if (invitation) {
+            invitation.invitationResponse = 'confirmed';
+          }
           this.removeInvitationFromList();
           this.loadStudentClassInfo(); // Перезагружаем информацию о классе
         },
@@ -2096,29 +2234,30 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Если приглашение из базы данных, используем API
+    // Если приглашение из базы данных, используем API для отклонения
     if (this.currentInvitation.isFromDatabase) {
-      this.lessonService.declineClassInvitation(this.currentInvitation.id).subscribe({
+      this.lessonService.declineClassInvitation(this.currentInvitation.recordId).subscribe({
         next: (result) => {
           this.devLog('❌ Приглашение отклонено через API:', result);
-          this.removeInvitationFromList();
+          // Обновляем статус в локальном списке
+          const invitation = this.pendingClassInvitations.find(inv => inv.recordId === this.currentInvitation.recordId);
+          if (invitation) {
+            invitation.invitationResponse = 'rejected';
+          }
+          this.closeInvitationDialog();
         },
         error: (error) => {
           this.devLog('❌ Ошибка при отклонении приглашения:', error);
         }
       });
     } else {
-      // Если приглашение через WebSocket, отправляем WebSocket сообщение
-      this.wsService.rejectClassInvitation(
-        this.currentInvitation.teacherId,
-        currentUser.id,
-        this.currentInvitation.id
-      );
-      this.removeInvitationFromList();
+      // Если приглашение через WebSocket, просто закрываем диалог
+      this.devLog('🔒 Закрываем WebSocket приглашение без отправки сообщения');
+      this.closeInvitationDialog();
     }
   }
 
-  // Удаление приглашения из списка
+  // Удаление приглашения из списка (только при принятии)
   private removeInvitationFromList(): void {
     if (this.currentInvitation) {
       this.pendingClassInvitations = this.pendingClassInvitations.filter(
@@ -2164,17 +2303,156 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Отправляем WebSocket сообщение об отклонении
-    this.wsService.rejectClassInvitation(
-      invitation.teacherId,
-      currentUser.id,
-      invitation.id
-    );
+    // Если приглашение из базы данных, используем API
+    if (invitation.isFromDatabase) {
+      this.lessonService.declineClassInvitation(invitation.recordId).subscribe({
+        next: (result) => {
+          this.devLog('❌ Приглашение отклонено через API:', result);
+          // НЕ удаляем из списка, только закрываем диалог
+          this.closeInvitationDialog();
+        },
+        error: (error) => {
+          this.devLog('❌ Ошибка при отклонении приглашения:', error);
+        }
+      });
+    } else {
+      // Если приглашение через WebSocket, просто закрываем диалог
+      // НЕ отправляем WebSocket сообщение, чтобы не удалять приглашение
+      this.devLog('🔒 Закрываем WebSocket приглашение без отправки сообщения');
+      this.closeInvitationDialog();
+    }
+  }
 
-    // Удаляем приглашение из списка
-    this.pendingClassInvitations = this.pendingClassInvitations.filter(
-      inv => inv.id !== invitation.id
+  // Показать диалог приглашения снова
+  showInvitationDialogAgain(invitation: any): void {
+    this.devLog('🔄 Показываем диалог приглашения снова:', invitation);
+    this.currentInvitation = invitation;
+    this.showInvitationDialog = true;
+  }
+
+  // Проверить и показать непрочитанные приглашения
+  checkAndShowUnreadInvitations(): void {
+    this.devLog('🔍 Проверяем непрочитанные приглашения...');
+    
+    // Если уже показывается диалог, не показываем другой
+    if (this.showInvitationDialog) {
+      this.devLog('🔍 Диалог уже открыт, пропускаем');
+      return;
+    }
+
+    // Ищем первое непрочитанное приглашение
+    const unreadInvitation = this.pendingClassInvitations.find(inv => !inv.isRead);
+    
+    if (unreadInvitation) {
+      this.devLog('📨 Найдено непрочитанное приглашение:', unreadInvitation);
+      this.currentInvitation = unreadInvitation;
+      this.showInvitationDialog = true;
+    } else {
+      this.devLog('📨 Непрочитанных приглашений не найдено');
+    }
+  }
+
+  // Периодическая проверка непрочитанных приглашений
+  private startInvitationChecker(): void {
+    this.devLog('⏰ Запускаем периодическую проверку приглашений');
+    
+    // Проверяем каждые 30 секунд
+    setInterval(() => {
+      this.devLog('⏰ Периодическая проверка приглашений...');
+      this.checkAndShowUnreadInvitations();
+    }, 30000);
+  }
+
+  // Проверить, есть ли непрочитанные приглашения для показа в панели
+  hasUnreadInvitations(): boolean {
+    return !this.hideNotificationUntilReload && this.pendingClassInvitations.some(inv => 
+      inv.status === 'invited' && inv.invitationResponse === null
     );
+  }
+
+  // Показать диалог приглашения из панели
+  showInvitationDialogFromPanel(): void {
+    this.devLog('👁️ Показываем диалог приглашения из панели');
+    const unreadInvitation = this.pendingClassInvitations.find(inv => 
+      inv.status === 'invited' && inv.invitationResponse === null
+    );
+    if (unreadInvitation) {
+      this.currentInvitation = unreadInvitation;
+      this.showInvitationDialog = true;
+    }
+  }
+
+  // Скрыть уведомление о приглашении временно (до перезагрузки)
+  dismissInvitationNotification(): void {
+    this.devLog('🙈 Временно скрываем уведомление о приглашении');
+    this.hideNotificationUntilReload = true;
+    // Приглашение остается в списке, уведомление появится после перезагрузки страницы
+  }
+
+
+  // Пригласить студентов в класс
+  inviteStudentsToClass(): void {
+    this.devLog('📨 Открываем диалог приглашения студентов');
+    
+    if (!this.currentClass) {
+      this.devLog('❌ Нет выбранного класса');
+      return;
+    }
+
+    // Загружаем доступных студентов
+    this.loadAvailableStudents();
+    
+    // Показываем диалог
+    this.showStudentsList = true;
+  }
+
+  // Пригласить конкретного студента в класс
+  inviteStudentToClass(student: any): void {
+    this.devLog('📨 Приглашаем студента в класс:', student);
+    
+    if (!this.currentClass) {
+      this.devLog('❌ Нет выбранного класса');
+      return;
+    }
+
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      this.devLog('❌ Пользователь не найден');
+      return;
+    }
+
+    const studentId = student.studentId || student.id;
+    const teacherId = currentUser.id;
+    const classId = this.currentClass.id;
+    const message = `Приглашение в класс ${this.currentClass.name} (${this.currentClass.level})`;
+
+    this.devLog('📨 Отправляем приглашение:', { studentId, teacherId, classId, message });
+
+    // Создаем приглашение через API
+    this.lessonService.createClassInvitation(classId, teacherId, studentId, message).subscribe({
+      next: (invitation) => {
+        this.devLog('✅ Приглашение создано:', invitation);
+        
+        // Отправляем WebSocket уведомление
+        this.wsService.inviteToClass(studentId, teacherId, {
+          id: this.currentClass!.id,
+          name: this.currentClass!.name,
+          level: this.currentClass!.level,
+          description: this.currentClass!.description,
+          teacherName: currentUser.name || currentUser.surname || 'Professeur'
+        });
+
+        // Показываем уведомление
+        this.snackBar.open(`Invitation envoyée à ${student.studentName || student.name}`, 'Fermer', { duration: 3000 });
+        
+        // Закрываем диалог
+        this.closeStudentsList();
+      },
+      error: (error) => {
+        this.devLog('❌ Ошибка при создании приглашения:', error);
+        this.snackBar.open('Erreur lors de l\'envoi de l\'invitation', 'Fermer', { duration: 3000 });
+      }
+    });
   }
 
   // Инициализация WebSocket слушателей для преподавателя

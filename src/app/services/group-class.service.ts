@@ -21,8 +21,14 @@ export interface GroupClassStudent {
   id: string;
   studentId: string;
   studentName: string | null;
+  studentEmail?: string | null;
   addedAt: Date;
-  status: 'active' | 'removed' | 'completed';
+  status: 'active' | 'removed' | 'completed' | 'invited' | 'accepted' | 'declined';
+  invitedAt?: Date;
+  respondedAt?: Date;
+  invitationMessage?: string;
+  isRead?: boolean;
+  invitationResponse?: 'confirmed' | 'rejected' | null;
 }
 
 export interface CreateGroupClassDto {
@@ -38,6 +44,7 @@ export interface AddStudentToClassDto {
   groupClassId: string;
   studentId: string;
   studentName?: string;
+  studentEmail?: string;
 }
 
 @Injectable({
