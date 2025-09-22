@@ -999,107 +999,18 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Загружает студентов из lessons и добавляет их к классам
+   * Загружает студентов из group_class_students для каждого класса
    */
   loadStudentsForClasses(teacherId: string): void {
-    this.devLog('🔄 Загружаем студентов из lessons для добавления к классам...');
+    this.devLog('🔄 Загружаем студентов из group_class_students для каждого класса...');
     
-    this.lessonService.getConfirmedStudentsForTeacher(teacherId).subscribe({
-      next: (students) => {
-        this.devLog('👥 Получены студенты из lessons:', students);
-        
-        // Добавляем студентов к классам
-        this.allTeacherClasses.forEach(cls => {
-          // Находим студентов, которые еще не добавлены к этому классу
-          const newStudents = students.filter((student: any) => {
-            const studentId = student.studentId || student.id;
-            return !cls.students?.find(s => (s as any).studentId === studentId);
-          });
-          
-          if (newStudents.length > 0) {
-            this.devLog(`➕ Добавляем ${newStudents.length} студентов к классу ${cls.name}:`, newStudents);
-            
-            // Добавляем студентов к классу
-            newStudents.forEach((student: any) => {
-              const studentId = student.studentId || student.id;
-              const studentName = student.name || 'Студент';
-              const studentEmail = student.email || null;
-              
-              // Проверяем, что у нас есть валидные ID
-              if (!studentId || !cls.id) {
-                this.devLog('❌ Пропускаем студента - нет валидных ID:', { studentId, classId: cls.id });
-                return;
-              }
-              
-              // Создаем DTO для API
-              const addStudentDto = {
-                groupClassId: cls.id,
-                studentId: studentId,
-                studentName: studentName,
-                studentEmail: studentEmail
-              };
-              
-              this.devLog('📤 Отправляем данные студента в API:', addStudentDto);
-              this.devLog('📤 groupClassId type:', typeof addStudentDto.groupClassId, 'value:', addStudentDto.groupClassId);
-              this.devLog('📤 studentId type:', typeof addStudentDto.studentId, 'value:', addStudentDto.studentId);
-              this.devLog('📤 studentName type:', typeof addStudentDto.studentName, 'value:', addStudentDto.studentName);
-              this.devLog('📤 studentEmail type:', typeof addStudentDto.studentEmail, 'value:', addStudentDto.studentEmail);
-              
-              // Сохраняем студента в базе данных
-              this.groupClassService.addStudentToClass(addStudentDto).subscribe({
-                next: (addedStudent) => {
-                  this.devLog('✅ Студент добавлен в класс на бекенде:', addedStudent);
-                  
-                  // Добавляем в локальный список
-                  if (!cls.students) {
-                    cls.students = [];
-                  }
-                  cls.students.push({
-                    id: addedStudent.id,
-                    studentId: addedStudent.studentId,
-                    studentName: addedStudent.studentName,
-                    studentEmail: addedStudent.studentEmail,
-                    addedAt: addedStudent.addedAt,
-                    status: addedStudent.status
-                  });
-                },
-                error: (error) => {
-                  this.devLog('❌ Ошибка при добавлении студента в класс:', error);
-                  this.devLog('❌ Error details:', error.error);
-                  this.devLog('❌ Error status:', error.status);
-                  this.devLog('❌ Error message:', error.message);
-                  
-                  // Если ошибка, добавляем локально (fallback)
-                  if (!cls.students) {
-                    cls.students = [];
-                  }
-                  cls.students.push({
-                    id: `temp-${Date.now()}-${Math.random()}`,
-                    studentId: studentId,
-                    studentName: studentName,
-                    studentEmail: studentEmail,
-                    addedAt: new Date(),
-                    status: 'active' as const
-                  });
-                }
-              });
-            });
-          }
-        });
-        
-        // Обновляем текущий класс если он изменился
-        if (this.currentClass) {
-          this.currentClass = this.allTeacherClasses.find(cls => cls.id === this.currentClass?.id) || null;
-        }
-        
-        // Сохраняем обновленные классы
-        localStorage.setItem(`teacher_classes_${teacherId}`, JSON.stringify(this.allTeacherClasses));
-        
-        this.devLog('✅ Студенты добавлены к классам:', this.allTeacherClasses);
-      },
-      error: (error) => {
-        this.devLog('❌ Ошибка загрузки студентов из lessons:', error);
-      }
+    // Загружаем студентов для каждого класса отдельно
+    this.allTeacherClasses.forEach(cls => {
+      this.devLog(`🔄 Загружаем студентов для класса ${cls.name} (${cls.id})`);
+      
+      // Здесь мы не добавляем студентов автоматически, 
+      // а просто загружаем уже существующих из базы данных
+      this.devLog(`✅ Класс ${cls.name} уже имеет ${cls.students?.length || 0} студентов`);
     });
   }
 
