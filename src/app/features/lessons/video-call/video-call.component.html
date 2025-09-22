@@ -64,7 +64,7 @@
            </ng-container>
 
     <!-- Кнопки управления -->
-    <div class="controls-overlay" *ngIf="showControls">
+    <div class="controls-overlay">
       <button class="control-btn" (click)="toggleCall()"
         title="{{ callActive ? 'Завершить звонок' : 'Возобновить звонок' }}">
       <i [class]="callActive ? 'fas fa-phone-slash' : 'fas fa-phone'"></i>

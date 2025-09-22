@@ -68,6 +68,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
   // Управление классом
   showClassManagement = false;
+  isClassManagementCollapsed = false; // Сворачивание панели при запуске видео
   currentClass: GroupClass | null = null;
   allTeacherClasses: GroupClass[] = []; // Все классы преподавателя
   showStudentsList = false;
@@ -342,6 +343,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     this.videoService.setLessonData(this.currentClass.id, this.authService.getCurrentUser()?.id || '');
     
     this.videoService.startVideoCall();
+    
+    // Сворачиваем панель управления классом при запуске видео
+    this.isClassManagementCollapsed = true;
     
     // Начинаем урок и запускаем таймер
     this.startLesson();
@@ -1508,6 +1512,9 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
 
     // Останавливаем видео
     this.videoService.stopVideoCall();
+    
+    // Разворачиваем панель управления классом обратно
+    this.isClassManagementCollapsed = false;
 
     // Уведомляем через WebSocket о завершении урока
     this.notifyLessonStatus('completed');

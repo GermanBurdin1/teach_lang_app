@@ -31,9 +31,9 @@
       <app-interactive-board *ngIf="showBoard" class="whiteboard-layer position-absolute top-0 start-0 w-100 h-100">
       </app-interactive-board>
 
-      <!-- 🎥 Видео -->
-      <!-- <app-video-call *ngIf="videoService.showVideoCall$ | async" [isFloatingMode]="true" class="floating-video-layer">
-      </app-video-call> -->
+      <!-- 🎥 Видео (располагается ниже панели управления классом) -->
+      <app-video-call *ngIf="videoService.showVideoCall$ | async" [isFloatingMode]="false" class="main-video-container">
+      </app-video-call>
 
       <!-- 📁 Gabarit -->
       <app-gabarit-page *ngIf="showGabarit" 
@@ -45,7 +45,7 @@
       </app-gabarit-page>
 
       <!-- 👥 Панель управления классом -->
-      <div *ngIf="showClassManagement" class="class-management-panel">
+      <div *ngIf="showClassManagement && !isClassManagementCollapsed" class="class-management-panel">
         <div class="class-header">
           <h2>🎓 Gestion de classes DELF/DALF</h2>
           <button mat-raised-button 

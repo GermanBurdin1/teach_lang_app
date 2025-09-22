@@ -1540,3 +1540,37 @@ body {
 .students-list::-webkit-scrollbar-thumb:hover {
   background: var(--stellar-purple, #8b5cf6);
 }
+
+/* ===== VIDEO CALL STYLES ===== */
+.main-video-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 2px solid var(--galaxy-primary, #6d28d9);
+  background: #000;
+  min-height: 400px;
+}
+
+.main-video-container:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Responsive video */
+@media (max-width: 768px) {
+  .main-video-container {
+    margin: 10px auto;
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-video-container {
+    margin: 5px auto;
+    min-height: 250px;
+  }
+}
