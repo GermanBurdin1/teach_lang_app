@@ -1964,13 +1964,27 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   private loadTeacherInfo(teacherId: string): void {
     this.devLog('👨‍🏫 Загружаем информацию о преподавателе:', teacherId);
     
-    // Здесь можно добавить вызов API для получения информации о преподавателе
-    // Пока используем базовую информацию
-    this.teacherInfo = {
-      id: teacherId,
-      name: 'Professeur',
-      email: 'prof@example.com'
-    };
+    // Получаем реальную информацию о преподавателе через authService
+    this.authService.getUserEmail(teacherId).subscribe({
+      next: (userInfo) => {
+        this.devLog('👨‍🏫 Информация о преподавателе получена:', userInfo);
+        const fullName = `${userInfo.name || ''} ${userInfo.surname || ''}`.trim() || 'Professeur';
+        this.teacherInfo = {
+          id: teacherId,
+          name: fullName,
+          email: userInfo.email || 'prof@example.com'
+        };
+      },
+      error: (error) => {
+        this.devLog('❌ Ошибка при получении информации о преподавателе:', error);
+        // Fallback на базовую информацию
+        this.teacherInfo = {
+          id: teacherId,
+          name: 'Professeur',
+          email: 'prof@example.com'
+        };
+      }
+    });
   }
 
   // Инициализация WebSocket слушателей для студентов
