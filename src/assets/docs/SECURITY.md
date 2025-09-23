@@ -22,7 +22,8 @@
       https://embed.tawk.to;
   img-src 'self' data: blob: 
     https://linguaconnect.com 
-    https://embed.tawk.to;
+    https://embed.tawk.to
+    https://randomuser.me;
   media-src 'self' 
     http://localhost:3008
     http://135.125.107.45:3008;

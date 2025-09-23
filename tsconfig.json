@@ -22,7 +22,8 @@
       "ES2022",
       "dom"
     ],
-    "types": ["uuid", "jasmine", "node"]
+    "types": ["jasmine", "node"],
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

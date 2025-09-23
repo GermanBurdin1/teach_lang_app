@@ -43,7 +43,7 @@ export interface Payment {
   providedIn: 'root'
 })
 export class PaymentService {
-  private apiUrl = `${environment.paymentApiUrl}/payments`;
+  private apiUrl = environment.paymentApiUrl;
 
   constructor(private http: HttpClient) {}
 
