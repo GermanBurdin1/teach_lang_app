@@ -10,7 +10,7 @@ import { API_ENDPOINTS } from '../core/constants/api.constants';
   providedIn: 'root',
 })
 export class WhiteboardService {
-  private sdk: WhiteWebSdk;
+  private sdk!: WhiteWebSdk; // Используем definite assignment assertion
   private room?: Room;
   private roomUuid: string = '';
   private apiUrl = `${API_ENDPOINTS.LESSONS}/whiteboard/create-room`;
@@ -22,12 +22,30 @@ export class WhiteboardService {
     this.ignoreCorsErrors();
     this.interceptXMLHttpRequest();
     
-    this.sdk = new WhiteWebSdk({
-      appIdentifier: 'tmuA4P_vEe-XRGk9GboPXw/t7oX_QbCKG52Pw',
-      region: 'cn-hz',
-      useMobXState: false,
-      preloadDynamicPPT: false
-    });
+    // Инициализируем SDK после получения App Identifier
+    this.initializeSDK();
+  }
+
+  private async initializeSDK(): Promise<void> {
+    try {
+      // Получаем App Identifier с бэкенда
+      const response = await firstValueFrom(
+        this.http.get<{ appIdentifier: string }>(`${API_ENDPOINTS.LESSONS}/whiteboard/app-identifier`)
+      );
+      
+      this.sdk = new WhiteWebSdk({
+        appIdentifier: response.appIdentifier,
+        region: 'cn-hz',
+        useMobXState: false,
+        preloadDynamicPPT: false
+      });
+      
+      console.log('✅ Whiteboard SDK initialized with App Identifier from backend');
+    } catch (error) {
+      console.error('❌ Failed to load App Identifier, whiteboard will not work');
+      // НЕ ИСПОЛЬЗУЕМ FALLBACK - пусть упадет
+      throw new Error('Whiteboard App Identifier not available');
+    }
   }
 
   private ignoreCorsErrors(): void {

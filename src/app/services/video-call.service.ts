@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import AgoraRTC, { IAgoraRTCClient, ILocalTrack as _ILocalTrack, IRemoteVideoTrack, IRemoteAudioTrack, ILocalVideoTrack, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
 // import { WebSocketService } from './web-socket.service';
 import { HomeworkService } from './homework.service';
+import { AgoraTokenService } from './agora-token.service';
 
 
 @Injectable({
@@ -36,19 +37,30 @@ export class VideoCallService {
   localTracks: { videoTrack: ILocalVideoTrack | null, audioTrack: ILocalAudioTrack | null } = { videoTrack: null, audioTrack: null };
 
   remoteUsers: { [uid: string]: { videoTrack: IRemoteVideoTrack | null, audioTrack: IRemoteAudioTrack | null } } = {};
-  appId = 'a020b374553e4fac80325223fba38531'; // Замените на ваш App ID
+  appId = ''; // Будет получен с бэкенда
   channelName = 'test_channel_123'; // Простое имя канала
-  token = null; // null для тестового режима
+  token: string | null = null; // RTC токен с бэкенда
   callActive: boolean = false;
   showControls = false;
   controlTimeout: any; // Объявляем свойство rtmClient
   userId!: string; // Добавляем userId, если его нет
 
-
-  // constructor(private wsService: WebSocketService, private homeworkService: HomeworkService) {
-  constructor(private homeworkService: HomeworkService) {
+  constructor(
+    private homeworkService: HomeworkService,
+    private agoraTokenService: AgoraTokenService
+  ) {
     console.log('⚡ VideoCallService создан');
-    // this.setupEventListeners();
+    this.initializeAppId();
+  }
+
+  /**
+   * Инициализирует App ID с бэкенда
+   */
+  private initializeAppId(): void {
+    this.agoraTokenService.appId$.subscribe(appId => {
+      this.appId = appId;
+      console.log('✅ App ID updated:', appId);
+    });
   }
 
   // Новый метод для установки данных урока
@@ -69,11 +81,17 @@ export class VideoCallService {
 
   async joinChannel(): Promise<void> {
     try {
+      // Проверяем, что App ID загружен
+      if (!this.appId) {
+        console.error('❌ App ID не загружен, ждем...');
+        await this.waitForAppId();
+      }
+
       console.log('🔌 Начинаем подключение к Agora канала:', {
         appId: this.appId,
         channelName: this.channelName,
         userId: this.userId,
-        token: this.token || 'без токена'
+        token: this.token || 'без токена (тестовый режим)'
       });
 
       // Создаем локальные треки
@@ -82,7 +100,7 @@ export class VideoCallService {
       this.localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
       console.log('✅ Локальные треки созданы');
 
-      // Присоединяемся к каналу
+      // Присоединяемся к каналу (как раньше - без токена)
       console.log('🚪 Присоединяемся к каналу...');
       const uid = await this.agoraClient.join(this.appId, this.channelName, this.token, this.userId);
       console.log('✅ Присоединились к каналу с UID:', uid);
@@ -106,6 +124,21 @@ export class VideoCallService {
         code: (error as any)?.code
       });
     }
+  }
+
+  /**
+   * Ждет загрузки App ID
+   */
+  private async waitForAppId(): Promise<void> {
+    return new Promise((resolve) => {
+      const subscription = this.agoraTokenService.appId$.subscribe(appId => {
+        if (appId) {
+          this.appId = appId;
+          subscription.unsubscribe();
+          resolve();
+        }
+      });
+    });
   }
 
   async leaveChannel(): Promise<void> {
