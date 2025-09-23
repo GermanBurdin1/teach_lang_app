@@ -1928,26 +1928,26 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Загружаем уроки студента
-    this.lessonService.getConfirmedLessons(currentUser.id).subscribe({
-      next: (lessons) => {
-        this.devLog('📚 Уроки студента:', lessons);
+    // Загружаем классы студента из group_class_students
+    this.groupClassService.getStudentClasses(currentUser.id).subscribe({
+      next: (classes) => {
+        this.devLog('📚 Классы студента из group_class_students:', classes);
         
-        if (lessons && lessons.length > 0) {
-          // Берем первый урок (можно расширить логику)
-          const lesson = lessons[0] as any;
+        if (classes && classes.length > 0) {
+          // Берем первый класс (можно расширить логику для множественных классов)
+          const classInfo = classes[0] as any;
           this.studentClassInfo = {
-            id: lesson.id,
-            name: lesson.className || 'Classe sans nom',
-            level: lesson.level || 'Niveau non défini',
-            teacherId: lesson.teacherId,
-            status: lesson.status,
-            startTime: lesson.startTime,
-            endTime: lesson.endTime
+            id: classInfo.id,
+            name: classInfo.name || 'Classe sans nom',
+            level: classInfo.level || 'Niveau non défini',
+            teacherId: classInfo.teacherId,
+            status: classInfo.status,
+            startTime: classInfo.scheduledAt,
+            endTime: classInfo.scheduledAt // Можно добавить логику для расчета времени окончания
           };
           
           // Загружаем информацию о преподавателе
-          this.loadTeacherInfo(lesson.teacherId);
+          this.loadTeacherInfo(classInfo.teacherId);
         } else {
           this.devLog('📚 Студент не состоит ни в одном классе');
           this.studentClassInfo = null;
@@ -2220,17 +2220,59 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Отправляем WebSocket сообщение о принятии
-    this.wsService.acceptClassInvitation(
-      invitation.teacherId,
-      currentUser.id,
-      invitation.id
-    );
+    // Если приглашение из базы данных, используем API
+    if (invitation.isFromDatabase && invitation.recordId) {
+      this.lessonService.acceptClassInvitation(invitation.recordId).subscribe({
+        next: (result) => {
+          this.devLog('✅ Приглашение принято через API:', result);
+          
+          // Обновляем статус в локальном списке
+          const invitationIndex = this.pendingClassInvitations.findIndex(inv => inv.recordId === invitation.recordId);
+          if (invitationIndex !== -1) {
+            this.pendingClassInvitations[invitationIndex].invitationResponse = 'confirmed';
+          }
+          
+          // Удаляем приглашение из списка
+          this.pendingClassInvitations = this.pendingClassInvitations.filter(
+            inv => inv.recordId !== invitation.recordId
+          );
+          
+          // Перезагружаем информацию о классе студента
+          this.loadStudentClassInfo();
+          
+          // Показываем уведомление об успехе
+          this.snackBar.open('Invitation acceptée! Vous avez rejoint la classe.', 'Fermer', { 
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+        },
+        error: (error) => {
+          this.devLog('❌ Ошибка при принятии приглашения:', error);
+          this.snackBar.open('Erreur lors de l\'acceptation de l\'invitation', 'Fermer', { 
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+    } else {
+      // Если приглашение через WebSocket, отправляем WebSocket сообщение
+      this.wsService.acceptClassInvitation(
+        invitation.teacherId,
+        currentUser.id,
+        invitation.id
+      );
 
-    // Удаляем приглашение из списка
-    this.pendingClassInvitations = this.pendingClassInvitations.filter(
-      inv => inv.id !== invitation.id
-    );
+      // Удаляем приглашение из списка
+      this.pendingClassInvitations = this.pendingClassInvitations.filter(
+        inv => inv.id !== invitation.id
+      );
+      
+      // Показываем уведомление
+      this.snackBar.open('Invitation acceptée!', 'Fermer', { 
+        duration: 3000,
+        panelClass: ['success-snackbar']
+      });
+    }
   }
 
   // Отклонение приглашения из списка
@@ -2244,15 +2286,34 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
     }
 
     // Если приглашение из базы данных, используем API
-    if (invitation.isFromDatabase) {
+    if (invitation.isFromDatabase && invitation.recordId) {
       this.lessonService.declineClassInvitation(invitation.recordId).subscribe({
         next: (result) => {
           this.devLog('❌ Приглашение отклонено через API:', result);
-          // НЕ удаляем из списка, только закрываем диалог
-          this.closeInvitationDialog();
+          
+          // Обновляем статус в локальном списке
+          const invitationIndex = this.pendingClassInvitations.findIndex(inv => inv.recordId === invitation.recordId);
+          if (invitationIndex !== -1) {
+            this.pendingClassInvitations[invitationIndex].invitationResponse = 'rejected';
+          }
+          
+          // Удаляем приглашение из списка
+          this.pendingClassInvitations = this.pendingClassInvitations.filter(
+            inv => inv.recordId !== invitation.recordId
+          );
+          
+          // Показываем уведомление
+          this.snackBar.open('Invitation refusée', 'Fermer', { 
+            duration: 3000,
+            panelClass: ['info-snackbar']
+          });
         },
         error: (error) => {
           this.devLog('❌ Ошибка при отклонении приглашения:', error);
+          this.snackBar.open('Erreur lors du refus de l\'invitation', 'Fermer', { 
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
     } else {

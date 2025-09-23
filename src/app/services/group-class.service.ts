@@ -107,4 +107,12 @@ export class GroupClassService {
       { headers: this.getHeaders() }
     );
   }
+
+  // Получить классы студента
+  getStudentClasses(studentId: string): Observable<GroupClass[]> {
+    return this.http.get<GroupClass[]>(
+      `${this.baseUrl}/group-classes/student/${studentId}`,
+      { headers: this.getHeaders() }
+    );
+  }
 }
