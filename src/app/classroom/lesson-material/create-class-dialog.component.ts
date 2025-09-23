@@ -2,7 +2,6 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CreateGroupClassDto, GroupClass, GroupClassService } from '../../services/group-class.service';
-import { AuthService } from '../../services/auth.service';
 
 export interface CreateClassDialogData {
   teacherId: string;

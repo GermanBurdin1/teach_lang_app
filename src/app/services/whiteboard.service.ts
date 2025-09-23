@@ -34,7 +34,7 @@ export class WhiteboardService {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       try {
-        const [url, options] = args;
+        const [url] = args;
         console.log('🔍 FETCH ЗАПРОС:', url);
         
         // Если это запрос к Agora API, возвращаем фиктивные данные

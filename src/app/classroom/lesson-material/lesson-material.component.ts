@@ -16,7 +16,7 @@ import { LessonNotesModalComponent } from './lesson-notes-modal/lesson-notes-mod
 import { HomeworkModalComponent } from './homework-modal/homework-modal.component';
 import { CreateClassDialogComponent, CreateClassDialogData, CreateClassDialogResult } from './create-class-dialog.component';
 import { ExitConfirmationDialogComponent } from './exit-confirmation-dialog.component';
-import { GroupClassService, CreateGroupClassDto, GroupClass } from '../../services/group-class.service';
+import { GroupClassService,  GroupClass } from '../../services/group-class.service';
 import { Meta, Title } from '@angular/platform-browser';
 import { AnalyticsService } from '../../services/analytics.service';
 import { StructuredDataService } from '../../services/structured-data.service';
