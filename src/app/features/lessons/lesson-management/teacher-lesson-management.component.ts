@@ -451,16 +451,16 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   }
 
   get fullFilteredLessons() {
-    console.log(`📊 Teacher: Применяем фильтр "${this.filter}" к ${this.lessons.length} урокам`);
+    //console.log(`📊 Teacher: Применяем фильтр "${this.filter}" к ${this.lessons.length} урокам`);
     
     const result = this.lessons.filter(lesson => this.matchesCurrentFilter(lesson));
     
-    console.log(`📊 Teacher: После фильтрации: ${result.length} уроков`, result.map(l => ({
-      id: l.id, 
-      date: l.scheduledAt, 
-      status: l.status,
-      studentName: l.studentName
-    })));
+    // console.log(`📊 Teacher: После фильтрации: ${result.length} уроков`, result.map(l => ({
+    //   id: l.id, 
+    //   date: l.scheduledAt, 
+    //   status: l.status,
+    //   studentName: l.studentName
+    // })));
 
     // Если есть выделенный урок (через calendar), ставим его первым
     if (this.highlightedLessonIdFromUrl) {
@@ -490,7 +490,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
       }
     });
     
-    console.log(`📊 Teacher: После сортировки: ${sorted.length} уроков`);
+    //console.log(`📊 Teacher: После сортировки: ${sorted.length} уроков`);
     return sorted;
   }
 
