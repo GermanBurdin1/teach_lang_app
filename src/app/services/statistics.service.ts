@@ -21,36 +21,36 @@ export class StatisticsService {
   /**
    * Получить полную статистику для студента
    */
-  getStudentDashboardStats(studentId: string): Observable<StudentStats> {
-    return this.http.get<StudentStats>(`${this.baseUrl}/student/${studentId}/dashboard`);
+  getStudentDashboardStats(): Observable<StudentStats> {
+    return this.http.get<StudentStats>(`${this.baseUrl}/student/dashboard`);
   }
 
   /**
    * Записать вход пользователя в систему
    */
-  recordUserLogin(userId: string): Observable<{success: boolean}> {
-    return this.http.post<{success: boolean}>(`${this.baseUrl}/login`, { userId });
+  recordUserLogin(): Observable<{success: boolean}> {
+    return this.http.post<{success: boolean}>(`${this.baseUrl}/login`, {});
   }
 
   /**
    * Получить количество завершенных уроков
    */
-  getCompletedLessonsCount(studentId: string): Observable<{count: number}> {
-    return this.http.get<{count: number}>(`${this.baseUrl}/student/${studentId}/lessons/completed`);
+  getCompletedLessonsCount(): Observable<{count: number}> {
+    return this.http.get<{count: number}>(`${this.baseUrl}/student/lessons/completed`);
   }
 
   /**
    * Получить количество активных дней
    */
-  getActiveDaysCount(studentId: string): Observable<{count: number}> {
-    return this.http.get<{count: number}>(`${this.baseUrl}/student/${studentId}/active-days`);
+  getActiveDaysCount(): Observable<{count: number}> {
+    return this.http.get<{count: number}>(`${this.baseUrl}/student/active-days`);
   }
 
   /**
    * Получить количество изученных слов
    */
-  getLearnedWordsCount(studentId: string): Observable<{count: number}> {
-    return this.http.get<{count: number}>(`${this.baseUrl}/student/${studentId}/words/learned`);
+  getLearnedWordsCount(): Observable<{count: number}> {
+    return this.http.get<{count: number}>(`${this.baseUrl}/student/words/learned`);
   }
 
   // ==================== ADMIN METHODS ====================

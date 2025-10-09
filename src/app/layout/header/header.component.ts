@@ -6,6 +6,7 @@ import { BackgroundService } from '../../services/background.service';
 import { LessonTabsService } from '../../services/lesson-tabs.service';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { RoleService } from '../../services/role.service';
 import { environment } from '../../../../environment';
 
 
@@ -27,7 +28,7 @@ export class HeaderComponent {
   isDarkMode = false;
   private darkThemeLink: HTMLLinkElement | null = null;
 
-  constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService, public authService: AuthService) { }
+  constructor(private router: Router, private dashboardService: DashboardService, private activatedRoute: ActivatedRoute, private backgroundService: BackgroundService, private lessonTabsService: LessonTabsService, public authService: AuthService, private roleService: RoleService) { }
 
   ngOnInit(): void {
 
@@ -147,12 +148,8 @@ export class HeaderComponent {
   switchToStudent(): void {
     this.isHeaderExpanded = false;
 
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      user.currentRole = 'student';
-      this.authService.setUser(user);
-      this.setSettingsLink();
-    }
+    this.authService.setActiveRole('student');
+    this.setSettingsLink();
 
     this.router.navigate(['student/home']).then(() => {
       this.dashboardService.switchToStudentDashboard();
@@ -162,12 +159,8 @@ export class HeaderComponent {
   switchToTeacher(): void {
     this.isHeaderExpanded = false;
 
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      user.currentRole = 'teacher';
-      this.authService.setUser(user);
-      this.setSettingsLink();
-    }
+    this.authService.setActiveRole('teacher');
+    this.setSettingsLink();
 
     this.router.navigate(['teacher/home']).then(() => {
       this.dashboardService.switchToTeacherDashboard();
@@ -177,12 +170,8 @@ export class HeaderComponent {
   switchToAdmin(): void {
     this.isHeaderExpanded = false;
 
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      user.currentRole = 'admin';
-      this.authService.setUser(user);
-      this.setSettingsLink();
-    }
+    this.authService.setActiveRole('admin');
+    this.setSettingsLink();
 
     this.router.navigate(['admin/home']).then(() => {
       this.dashboardService.switchToSchoolDashboard();
@@ -560,7 +549,8 @@ export class HeaderComponent {
 
     if (!user) return false;
 
-    const { currentRole, roles } = user;
+    const { roles } = user;
+    const currentRole = this.roleService.getCurrentRole();
 
     // Никогда не показываем текущую роль
     if (role === currentRole) return false;
@@ -574,7 +564,7 @@ export class HeaderComponent {
 
   private setSettingsLink(): void {
     const user = this.authService.getCurrentUser();
-    const role = user?.currentRole;
+    const role = this.roleService.getCurrentRole();
 
     switch (role) {
       case 'admin':

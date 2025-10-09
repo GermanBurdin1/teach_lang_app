@@ -4,6 +4,7 @@ import { MaterialService, Material } from '../../services/material.service';
 import { HomeworkService, Homework as _Homework, CreateHomeworkRequest as _CreateHomeworkRequest } from '../../services/homework.service';
 import { LessonService } from '../../services/lesson.service';
 import { AuthService } from '../../services/auth.service';
+import { RoleService } from '../../services/role.service';
 import { FileUploadService } from '../../services/file-upload.service';
 import { NotificationService } from '../../services/notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -130,17 +131,13 @@ export class TrainerComponent implements OnInit {
   // Loading states
   loadingHomeworks = false;
 
-  // User type detection
+  // User type detection - теперь используем RoleService
   isTeacher(): boolean {
-    return this.currentUser?.role === 'teacher' || 
-           this.currentUser?.['type'] === 'teacher' ||
-           this.currentUser?.['currentRole'] === 'teacher';
+    return this.roleService.isTeacher();
   }
 
   isStudent(): boolean {
-    return this.currentUser?.role === 'student' || 
-           this.currentUser?.['type'] === 'student' ||
-           this.currentUser?.['currentRole'] === 'student';
+    return this.roleService.isStudent();
   }
 
   shouldShowMaterialTabs(): boolean {
@@ -269,6 +266,7 @@ export class TrainerComponent implements OnInit {
     private homeworkService: HomeworkService,
     private lessonService: LessonService,
     private authService: AuthService,
+    private roleService: RoleService,
     private fileUploadService: FileUploadService,
     private notificationService: NotificationService,
     private route: ActivatedRoute,
@@ -406,7 +404,7 @@ export class TrainerComponent implements OnInit {
 
     console.log('👤 Current user:', {
       id: this.currentUser.id,
-      role: this.currentUser.role,
+      role: this.roleService.getCurrentRole(),
       isTeacher: this.isTeacher()
     });
 
@@ -478,7 +476,7 @@ export class TrainerComponent implements OnInit {
         console.error('❌ Error loading homeworks:', {
           error,
           userId: this.currentUser?.id,
-          role: this.currentUser?.role,
+          role: this.roleService.getCurrentRole(),
           isTeacher: this.isTeacher(),
           status: error.status,
           url: error.url

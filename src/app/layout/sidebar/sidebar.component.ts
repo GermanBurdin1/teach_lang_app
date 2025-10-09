@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { RoleService } from '../../services/role.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../../environment';
 
@@ -21,7 +22,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private roleService: RoleService
   ) { }
 
   ngOnInit(): void {
@@ -30,9 +32,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
         console.log(`[Sidebar] Role changed to: ${role}`);
       }
 
-      this.isTeacherDashboard = role === 'teacher';
-      this.isSchoolDashboard = role === 'admin';
-      this.isStudentDashboard = role === 'student' || !role;
+      // Используем RoleService для определения типов dashboard
+      this.isTeacherDashboard = this.roleService.isTeacher();
+      this.isSchoolDashboard = this.roleService.isAdmin();
+      this.isStudentDashboard = this.roleService.isStudent();
 
       if (!environment.production) {
         console.log(`[Sidebar] Flags — isTeacher: ${this.isTeacherDashboard}, isSchool: ${this.isSchoolDashboard}, isStudent: ${this.isStudentDashboard}`);

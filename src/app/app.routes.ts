@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { VocabularyComponent } from './features/vocabulary/vocabulary.component';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/components/register/register.component';
+import { UnauthorizedComponent } from './features/unauthorized/unauthorized.component';
 // import { VideoCallComponent } from './features/lessons/video-call/video-call.component'; // TODO ВИДЕО-ВЫЗОВЫ ВРЕМЕННО ЗАКОММЕНТИРОВАНЫ
 // import { TestVideoCallComponent } from './test-video-call/test-video-call.component'; // Excluded from prod build
 // import { LandingComponent } from './features/landing/landing.component'; // Excluded from prod build
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: '', component: VocabularyComponent }, // Временно, будет редирект в app.component
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'logout', redirectTo: '/login', pathMatch: 'full' },
   {
     path: 'cabinet/school',
@@ -24,12 +26,14 @@ export const routes: Routes = [
   {
     path: 'cabinet/teacher',
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['teacher'] }
   },
   {
     path: 'teacher',
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['teacher'] }
   },
   {
     path: 'lessons',

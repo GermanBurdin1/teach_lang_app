@@ -1,42 +1,55 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
   // === Кабинет школы или ученика ===
-  private isSchoolDashboard = new BehaviorSubject<boolean>(
-    JSON.parse(localStorage.getItem('isSchoolDashboard') || 'true')
-  );
+  private isSchoolDashboard = new BehaviorSubject<boolean>(false);
   currentDashboard = this.isSchoolDashboard.asObservable();
 
   // === Кабинет преподавателя ===
-  private isTeacherDashboard = new BehaviorSubject<boolean>(
-    JSON.parse(localStorage.getItem('isTeacherDashboard') || 'false')
-  );
+  private isTeacherDashboard = new BehaviorSubject<boolean>(false);
   currentTeacherDashboard = this.isTeacherDashboard.asObservable();
 
-  // === Методы переключения ===
+  constructor(private authService: AuthService) {
+    // Подписываемся на изменения роли пользователя
+    this.authService.currentRole$.subscribe(role => {
+      this.updateDashboardFlags(role);
+    });
+  }
+
+  private updateDashboardFlags(role: string | null): void {
+    const isAdmin = role === 'admin';
+    const isTeacher = role === 'teacher';
+    const isStudent = role === 'student' || !role;
+
+    this.isSchoolDashboard.next(isAdmin);
+    this.isTeacherDashboard.next(isTeacher);
+  }
+
+  // === Методы переключения (теперь основаны на ролях с backend) ===
 
   switchToSchoolDashboard(): void {
-    localStorage.setItem('isSchoolDashboard', JSON.stringify(true));
-    localStorage.setItem('isTeacherDashboard', JSON.stringify(false));
-    this.isSchoolDashboard.next(true);
-    this.isTeacherDashboard.next(false);
+    // Переключаем роль на admin
+    this.authService.setActiveRole('admin');
   }
 
   switchToStudentDashboard(): void {
-    localStorage.setItem('isSchoolDashboard', JSON.stringify(false));
-    localStorage.setItem('isTeacherDashboard', JSON.stringify(false));
-    this.isSchoolDashboard.next(false);
-    this.isTeacherDashboard.next(false);
+    // Переключаем роль на student
+    this.authService.setActiveRole('student');
   }
 
   switchToTeacherDashboard(): void {
-    localStorage.setItem('isSchoolDashboard', JSON.stringify(false));
-    localStorage.setItem('isTeacherDashboard', JSON.stringify(true));
-    this.isSchoolDashboard.next(false);
-    this.isTeacherDashboard.next(true);
+    // Переключаем роль на teacher
+    this.authService.setActiveRole('teacher');
+  }
+
+  // Получение текущего типа dashboard на основе роли
+  getCurrentDashboardType(): 'admin' | 'teacher' | 'student' {
+    const currentRole = this.authService.currentRole;
+    return currentRole as 'admin' | 'teacher' | 'student' || 'student';
   }
 }

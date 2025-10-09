@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
 import { AuthService } from '../../../../services/auth.service';
+import { RoleService } from '../../../../services/role.service';
 import { TeacherService } from '../../../../services/teacher.service';
 import { NotificationService } from '../../../../services/notifications.service';
 import { Notification } from '../../../../models/notification.model';
@@ -84,6 +85,7 @@ import { NavigationGuardService } from '../../../../services/navigation-guard.se
 export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private authService: AuthService,
+    private roleService: RoleService,
     private teacherService: TeacherService,
     private notificationService: NotificationService,
     private lessonService: LessonService,
@@ -357,6 +359,13 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Проверяем роль пользователя
+    if (!this.roleService.isTeacher()) {
+      console.warn('[TeacherHome] Access denied: User is not a teacher');
+      this.router.navigate(['/unauthorized']);
+      return;
+    }
+
     // Активируем защиту навигации для личного кабинета
     this.navigationGuard.enableNavigationGuard();
     

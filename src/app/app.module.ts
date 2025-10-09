@@ -35,10 +35,12 @@ import { getCosmicPaginatorIntl } from './shared/providers/custom-paginator-intl
 // import { TestVideoCallComponent } from './test-video-call/test-video-call.component'; // Excluded from prod build
 import { RgpdModule } from './features/rgpd/rgpd.module';
 import { FooterComponent } from './layout/footer/footer.component';
+import { UnauthorizedComponent } from './features/unauthorized/unauthorized.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    UnauthorizedComponent,
     // TestVideoCallComponent // Excluded from prod build
   ],
   imports: [

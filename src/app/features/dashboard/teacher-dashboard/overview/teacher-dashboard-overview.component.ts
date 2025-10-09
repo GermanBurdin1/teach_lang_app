@@ -3,6 +3,7 @@ import { TeacherProfile } from '../teacher-profile.model';
 import { Review } from '../../shared/models/review.model';
 import { MOCK_REVIEWS } from '../mock-reviews';
 import { AuthService } from '../../../../services/auth.service';
+import { RoleService } from '../../../../services/role.service';
 import { ProfilesApiService } from '../../../../services/profiles-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarEvent } from 'angular-calendar';
@@ -13,6 +14,7 @@ import { TeacherService } from '../../../../services/teacher.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../../../environment.prod';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 // Интерфейсы для типизации
 interface Student {
@@ -98,7 +100,9 @@ export class TeacherDashboardOverviewComponent implements OnInit {
 
   constructor(
     private dialog: MatDialog,
-    private authService: AuthService, 
+    private authService: AuthService,
+    private roleService: RoleService,
+    private router: Router,
     private profilesApi: ProfilesApiService,
     private lessonService: LessonService,
     private wsService: WebSocketService,
@@ -205,6 +209,13 @@ export class TeacherDashboardOverviewComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    // Проверяем роль пользователя
+    if (!this.roleService.isTeacher()) {
+      console.warn('[TeacherDashboardOverview] Access denied: User is not a teacher');
+      this.router.navigate(['/unauthorized']);
+      return;
+    }
+
     const stored = localStorage.getItem('teacher_reviews');
     this.reviews = stored ? JSON.parse(stored) : MOCK_REVIEWS;
 

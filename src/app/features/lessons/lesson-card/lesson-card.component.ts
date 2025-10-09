@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HomeworkService } from '../../../services/homework.service';
 import { VideoCallService } from '../../../services/video-call.service';
 import { AuthService } from '../../../services/auth.service';
+import { RoleService } from '../../../services/role.service';
 
 interface Lesson {
   id: number;
@@ -61,6 +62,7 @@ export class LessonCardComponent implements OnInit {
     private homeworkService: HomeworkService,
     private videoCallService: VideoCallService,
     private authService: AuthService,
+    private roleService: RoleService,
     private lessonService: LessonService
   ) {}
 
@@ -68,7 +70,7 @@ export class LessonCardComponent implements OnInit {
     // Получаем текущего пользователя
     const currentUser = this.authService.getCurrentUser();
     this.currentUserId = currentUser?.id || '';
-    this.currentUserRole = (currentUser?.currentRole as 'student' | 'teacher') || 'student';
+    this.currentUserRole = (this.roleService.getCurrentRole() as 'student' | 'teacher') || 'student';
     
     // Загружаем задачи и вопросы урока
     this.loadLessonData();

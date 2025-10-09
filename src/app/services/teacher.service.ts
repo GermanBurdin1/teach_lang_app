@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { TeacherDetails } from '../features/teacher-search-and-consult/teacher-details.model';
 import { Teacher } from '../features/teacher-search-and-consult/teacher.model';
@@ -11,7 +11,11 @@ import { API_ENDPOINTS } from '../core/constants/api.constants';
   providedIn: 'root'
 })
 export class TeacherService {
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient, private injector: Injector) { }
+
+  private get authService(): AuthService {
+    return this.injector.get(AuthService);
+  }
 
 
   getTeachers(

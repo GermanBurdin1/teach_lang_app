@@ -3,6 +3,7 @@ import { MaterialService, Material } from '../../services/material.service';
 import { HomeworkService, Homework } from '../../services/homework.service';
 import { LessonService } from '../../services/lesson.service';
 import { AuthService } from '../../services/auth.service';
+import { RoleService } from '../../services/role.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
@@ -107,6 +108,7 @@ export class StudentTrainingComponent implements OnInit {
     private homeworkService: HomeworkService,
     private lessonService: LessonService,
     private authService: AuthService,
+    private roleService: RoleService,
     private dialog: MatDialog,
     private route: ActivatedRoute
   ) {}
@@ -494,7 +496,7 @@ export class StudentTrainingComponent implements OnInit {
     this.loadingLessons = true;
     
     // Определяем роль пользователя и загружаем соответствующие уроки
-    const userRole = this.currentUser.role || 'student';
+    const userRole = this.roleService.getCurrentRole() || 'student';
     
     if (userRole === 'teacher') {
       // Для преподавателя загружаем все подтвержденные уроки
@@ -655,13 +657,13 @@ export class StudentTrainingComponent implements OnInit {
     return lesson.title || `Cours du ${new Date((lesson as unknown as {date: Date}).date).toLocaleDateString('fr-FR')}`;
   }
 
-  // Определение роли пользователя для корректного отображения
+  // Определение роли пользователя для корректного отображения - теперь используем RoleService
   isTeacher(): boolean {
-    return this.currentUser?.role === 'teacher';
+    return this.roleService.isTeacher();
   }
 
   isStudent(): boolean {
-    return this.currentUser?.role === 'student' || !this.currentUser?.role;
+    return this.roleService.isStudent();
   }
 
   // ==================== UTILITY METHODS ====================

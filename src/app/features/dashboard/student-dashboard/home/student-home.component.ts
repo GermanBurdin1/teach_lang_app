@@ -162,7 +162,7 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
     console.log('[StudentHome] Initializing with studentId:', studentId);
 
     // Записываем вход пользователя для статистики активных дней
-    this.statisticsService.recordUserLogin(studentId).subscribe({
+    this.statisticsService.recordUserLogin().subscribe({
       next: () => console.log('[StudentHome] User login recorded'),
       error: (err) => console.error('[StudentHome] Failed to record login:', err)
     });
@@ -872,8 +872,8 @@ export class StudentHomeComponent implements OnInit, OnDestroy {
     console.log('[StudentHome] Загружаем статистику для студента:', studentId);
     
     // Загружаем статистику напрямую используя разные сервисы
-    const activeDaysPromise = this.statisticsService.getActiveDaysCount(studentId).toPromise();
-    const lessonsCompletedPromise = this.statisticsService.getCompletedLessonsCount(studentId).toPromise();
+    const activeDaysPromise = this.statisticsService.getActiveDaysCount().toPromise();
+    const lessonsCompletedPromise = this.statisticsService.getCompletedLessonsCount().toPromise();
     const wordsLearnedPromise = this.lexiconService.getLearnedWordsCount().toPromise();
     
     Promise.all([activeDaysPromise, lessonsCompletedPromise, wordsLearnedPromise])

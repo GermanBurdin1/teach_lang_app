@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { GrammarData } from '../features/vocabulary/models/grammar-data.model';
 import { AuthService } from './auth.service';
@@ -43,7 +43,11 @@ export class LexiconService {
 
   private apiUrl = `${API_ENDPOINTS.VOCABULARY}/lexicon`;
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private injector: Injector) {}
+
+  private get authService(): AuthService {
+    return this.injector.get(AuthService);
+  }
 
   getWordsByGalaxyAndSubtopic(galaxy: string, subtopic: string): Observable<BackendWordCard[]> {
     const currentUser = this.authService.getCurrentUser();
@@ -112,15 +116,8 @@ export class LexiconService {
   }
 
   getLearnedWordsCount(): Observable<{ count: number }> {
-    const currentUser = this.authService.getCurrentUser();
-    const userId = currentUser?.id;
-    
-    if (!userId) {
-      console.warn('⚠️ Нет текущего пользователя для получения статистики');
-      return throwError(() => new Error('Пользователь не аутентифицирован'));
-    }
-    
-    return this.http.get<{ count: number }>(`${this.apiUrl}/learned/count/${userId}`);
+    // userId будет автоматически извлечен из JWT токена на бэкенде
+    return this.http.get<{ count: number }>(`${this.apiUrl}/learned/count`);
   }
 
 }

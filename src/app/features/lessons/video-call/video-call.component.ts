@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { VideoCallService } from '../../../services/video-call.service';
 import { WebSocketService } from '../../../services/web-socket.service';
 import { AuthService } from '../../../services/auth.service';
+import { RoleService } from '../../../services/role.service';
 
 interface CallData {
   from: string;
@@ -25,7 +26,7 @@ export class VideoCallComponent implements OnInit {
   isDragging = false;
   dragOffset = { x: 0, y: 0 };
 
-  constructor(public videoCallService: VideoCallService, private wsService: WebSocketService, public authService: AuthService) { }
+  constructor(public videoCallService: VideoCallService, private wsService: WebSocketService, public authService: AuthService, private roleService: RoleService) { }
 
   ngOnInit(): void {
     console.log('📹 VideoCallComponent загружен в ngOnInit', { isFloatingMode: this.isFloatingMode });
@@ -346,13 +347,16 @@ export class VideoCallComponent implements OnInit {
   // === TEAMS-LIKE UX МЕТОДЫ ===
 
   isTeacher(): boolean {
-    const currentUser = this.authService.getCurrentUser();
-    return currentUser?.currentRole === 'teacher';
+    return this.roleService.isTeacher();
+  }
+
+  getCurrentRole(): string | null {
+    return this.roleService.getCurrentRole();
   }
 
   isTeacherUID(uid: string): boolean {
     const currentUser = this.authService.getCurrentUser();
-    return uid === currentUser?.id && currentUser?.currentRole === 'teacher';
+    return uid === currentUser?.id && this.roleService.isTeacher();
   }
 
   getGridLayout(): string {

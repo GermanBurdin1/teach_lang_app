@@ -27,7 +27,6 @@ describe('RegisterComponent', () => {
     name: 'Test',
     surname: 'User',
     roles: ['student'],
-    currentRole: 'student'
   };
 
   const mockJwtResponse = {

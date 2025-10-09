@@ -23,6 +23,14 @@
     {
       "name": "Files",
       "description": "Gestion des fichiers et uploads"
+    },
+    {
+      "name": "Whiteboard",
+      "description": "Gestion des tableaux blancs et appels vidéo Agora"
+    },
+    {
+      "name": "Lessons",
+      "description": "Gestion des leçons et interactions vidéo"
     }
   ],
   "paths": {
@@ -71,9 +79,200 @@
           }
         }
       }
+    },
+    "/lessons/whiteboard/create-room": {
+      "post": {
+        "tags": ["Whiteboard"],
+        "summary": "Créer une salle de tableau blanc",
+        "description": "Crée une nouvelle salle de tableau blanc avec token d'accès",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Salle créée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "roomUuid": {
+                      "type": "string",
+                      "description": "Identifiant unique de la salle"
+                    },
+                    "roomToken": {
+                      "type": "string",
+                      "description": "Token d'accès à la salle"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorisé - Token JWT requis"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la création"
+          }
+        }
+      }
+    },
+    "/lessons/whiteboard/get-room-token": {
+      "get": {
+        "tags": ["Whiteboard"],
+        "summary": "Obtenir le token d'une salle",
+        "description": "Génère un nouveau token d'accès pour une salle existante",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "roomUuid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifiant de la salle"
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["admin", "writer", "reader"]
+            },
+            "description": "Rôle de l'utilisateur dans la salle"
+          },
+          {
+            "name": "lifespan",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Durée de vie du token en secondes"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token généré avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "roomToken": {
+                      "type": "string",
+                      "description": "Token d'accès à la salle"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Paramètres manquants ou invalides"
+          },
+          "401": {
+            "description": "Non autorisé - Token JWT requis"
+          }
+        }
+      }
+    },
+    "/lessons/whiteboard/app-identifier": {
+      "get": {
+        "tags": ["Whiteboard"],
+        "summary": "Obtenir l'identifiant de l'application",
+        "description": "Récupère l'identifiant de l'application pour Agora",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identifiant récupéré avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appIdentifier": {
+                      "type": "string",
+                      "description": "Identifiant de l'application Agora"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorisé - Token JWT requis"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/lessons/whiteboard/agora-proxy/{path}": {
+      "get": {
+        "tags": ["Whiteboard"],
+        "summary": "Proxy vers l'API Agora",
+        "description": "Proxifie les requêtes vers l'API Agora pour la configuration des régions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Chemin de l'API Agora à proxifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Réponse de l'API Agora",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorisé - Token JWT requis"
+          },
+          "500": {
+            "description": "Erreur de proxification vers Agora"
+          }
+        }
+      }
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT requis pour l'authentification"
+      }
+    },
     "schemas": {
       "WebSocketEvent": {
         "type": "object",
@@ -128,6 +327,37 @@
             "type": "string",
             "description": "Codec vidéo",
             "example": "VP8"
+          }
+        }
+      },
+      "RoomResponse": {
+        "type": "object",
+        "properties": {
+          "roomUuid": {
+            "type": "string",
+            "description": "Identifiant unique de la salle"
+          },
+          "roomToken": {
+            "type": "string",
+            "description": "Token d'accès à la salle"
+          }
+        }
+      },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "roomToken": {
+            "type": "string",
+            "description": "Token d'accès à la salle"
+          }
+        }
+      },
+      "AppIdentifierResponse": {
+        "type": "object",
+        "properties": {
+          "appIdentifier": {
+            "type": "string",
+            "description": "Identifiant de l'application Agora"
           }
         }
       }

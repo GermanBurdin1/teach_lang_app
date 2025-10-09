@@ -26,7 +26,6 @@ describe('LoginComponent', () => {
     name: 'Test',
     surname: 'User',
     roles: ['student', 'teacher'],
-    currentRole: 'student'
   };
 
   const mockJwtResponse = {
