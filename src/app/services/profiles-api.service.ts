@@ -27,3 +27,6 @@ export class ProfilesApiService {
     return this.http.get<T>(`${this.baseUrl}/${userId}`);
   }
 }
+
+
+
