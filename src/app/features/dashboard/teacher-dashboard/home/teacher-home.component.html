@@ -1,20 +1,25 @@
 <div class="teacher-home">
 
   <!-- 🔼 ВЕРХНЯЯ ЧАСТЬ -->
+
+  <div class="teacher-photo">
+    <img [src]="(photoUrl$ | async) ?? 'assets/default-avatar.png'" alt="photo du professeur"
+      (error)="onImgError($event)" />
+  </div>
+
   <div class="top-section">
+    <!--TODO: как вывести в src возврат функции loadTeacherPhoto -->
+
     <!-- Кнопка входа в класс для ближайшего урока -->
-    <div *ngIf="getNextLesson() && canEnterClass(getNextLesson()!)" 
-         class="next-lesson-entry-zone">
+    <div *ngIf="getNextLesson() && canEnterClass(getNextLesson()!)" class="next-lesson-entry-zone">
       <div class="next-lesson-card">
         <div class="lesson-info">
-                     <h3>🎥 Prochain cours dans {{ getMinutesUntilLesson(getNextLesson()!) }} minutes</h3>
+          <h3>🎥 Prochain cours dans {{ getMinutesUntilLesson(getNextLesson()!) }} minutes</h3>
           <p>{{ getNextLesson()!.title }}</p>
           <p>{{ getNextLesson()!.start | date:'HH:mm' }} - {{ getNextLesson()!.end | date:'HH:mm' }}</p>
         </div>
-        <button mat-raised-button 
-                color="accent" 
-                (click)="enterVirtualClass(getNextLesson()!)"
-                class="enter-class-btn large">
+        <button mat-raised-button color="accent" (click)="enterVirtualClass(getNextLesson()!)"
+          class="enter-class-btn large">
           🎥 Entrer en classe
         </button>
       </div>
@@ -32,34 +37,30 @@
         <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
           <div *ngFor="let note of visibleNotifications" class="notification-card">
             <div class="notification-content">
-              <div class="notification-text" 
-                   [innerHTML]="makeStudentNameClickable(note.message, note)"
-                   (click)="onNotificationClick($event, note)">
+              <div class="notification-text" [innerHTML]="makeStudentNameClickable(note.message, note)"
+                (click)="onNotificationClick($event, note)">
               </div>
-              
+
               <div class="notification-actions">
                 <!-- Hide button -->
-                <button mat-icon-button 
-                        class="hide-button" 
-                        (click)="hideNotification(note)"
-                        matTooltip="Masquer cette notification">
+                <button mat-icon-button class="hide-button" (click)="hideNotification(note)"
+                  matTooltip="Masquer cette notification">
                   <mat-icon>close</mat-icon>
                 </button>
               </div>
             </div>
           </div>
-          
+
           <!-- Show more/less button -->
           <div *ngIf="hasMoreNotifications" class="show-more-container">
-            <button mat-stroked-button 
-                    color="accent" 
-                    (click)="toggleShowMore()">
-              {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')' }}
+            <button mat-stroked-button color="accent" (click)="toggleShowMore()">
+              {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')'
+              }}
               <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
             </button>
           </div>
         </div>
-        
+
         <ng-template #noNotifications>
           <div class="no-notifications">
             <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
@@ -70,7 +71,7 @@
 
       <!-- СИСТЕМА ВКЛАДОК ДЛЯ ЗАЯВОК -->
       <h3>📨 Demandes de réservation</h3>
-      
+
       <mat-tab-group class="requests-tabs" animationDuration="300ms">
         <!-- Вкладка: Nouvelles demandes -->
         <mat-tab>
@@ -79,7 +80,7 @@
             Nouvelles
             <span *ngIf="newRequests.length" class="tab-badge">{{ newRequests.length }}</span>
           </ng-template>
-          
+
           <div class="tab-content">
             <div *ngIf="newRequests.length > 0; else noNewRequests" class="requests-container">
               <div *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card new-request">
@@ -88,7 +89,7 @@
                     <strong>{{ req.title }}</strong><br />
                     <small>{{ req.message }}</small>
                   </div>
-                  
+
                   <div class="request-actions">
                     <button mat-raised-button color="primary" size="small" (click)="respondToRequest(req, true)">
                       Accepter
@@ -99,26 +100,21 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Show more/less button for new requests -->
               <div *ngIf="newRequests.length > 5" class="show-more-container">
-                <button mat-stroked-button 
-                        color="primary" 
-                        *ngIf="shownRequests < newRequests.length" 
-                        (click)="loadMore()">
+                <button mat-stroked-button color="primary" *ngIf="shownRequests < newRequests.length"
+                  (click)="loadMore()">
                   Voir plus ({{ newRequests.length - shownRequests }})
                   <mat-icon>expand_more</mat-icon>
                 </button>
-                <button mat-stroked-button 
-                        color="primary" 
-                        *ngIf="shownRequests > 5" 
-                        (click)="reduce()">
+                <button mat-stroked-button color="primary" *ngIf="shownRequests > 5" (click)="reduce()">
                   Réduire
                   <mat-icon>expand_less</mat-icon>
                 </button>
               </div>
             </div>
-            
+
             <ng-template #noNewRequests>
               <div class="no-requests">
                 <mat-icon class="no-requests-icon">inbox</mat-icon>
@@ -135,9 +131,10 @@
             Non traitées
             <span *ngIf="untreatedRequests.length" class="tab-badge">{{ untreatedRequests.length }}</span>
           </ng-template>
-          
+
           <div class="tab-content">
-            <div *ngIf="untreatedRequests.length > 0; else noUntreatedRequests" class="requests-container untreated-requests">
+            <div *ngIf="untreatedRequests.length > 0; else noUntreatedRequests"
+              class="requests-container untreated-requests">
               <div *ngFor="let req of visibleUntreatedRequests" class="request-card untreated-request">
                 <div class="request-content">
                   <div class="request-text">
@@ -147,30 +144,27 @@
                       Status: <strong>Expiré</strong>
                     </div>
                   </div>
-                  
+
                   <div class="request-actions">
                     <!-- Hide button -->
-                    <button mat-icon-button 
-                            class="hide-button" 
-                            (click)="hideUntreatedRequest(req)"
-                            matTooltip="Masquer cette demande">
+                    <button mat-icon-button class="hide-button" (click)="hideUntreatedRequest(req)"
+                      matTooltip="Masquer cette demande">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
               </div>
-              
+
               <!-- Show more/less button for untreated requests -->
               <div *ngIf="hasMoreUntreatedRequests" class="show-more-container">
-                <button mat-stroked-button 
-                        color="accent" 
-                        (click)="toggleShowMoreUntreatedRequests()">
-                  {{ showMoreUntreatedRequests ? 'Voir moins' : 'Voir plus (' + (untreatedRequests.length - MAX_UNTREATED_REQUESTS) + ')' }}
+                <button mat-stroked-button color="accent" (click)="toggleShowMoreUntreatedRequests()">
+                  {{ showMoreUntreatedRequests ? 'Voir moins' : 'Voir plus (' + (untreatedRequests.length -
+                  MAX_UNTREATED_REQUESTS) + ')' }}
                   <mat-icon>{{ showMoreUntreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
                 </button>
               </div>
             </div>
-            
+
             <ng-template #noUntreatedRequests>
               <div class="no-requests">
                 <mat-icon class="no-requests-icon">schedule</mat-icon>
@@ -187,7 +181,7 @@
             Traitées
             <span *ngIf="treatedRequests.length" class="tab-badge">{{ treatedRequests.length }}</span>
           </ng-template>
-          
+
           <div class="tab-content">
             <div *ngIf="treatedRequests.length > 0; else noTreatedRequests" class="requests-container treated-requests">
               <div *ngFor="let req of visibleTreatedRequests" class="request-card treated-request">
@@ -200,30 +194,27 @@
 
                     </div>
                   </div>
-                  
+
                   <div class="request-actions">
                     <!-- Hide button -->
-                    <button mat-icon-button 
-                            class="hide-button" 
-                            (click)="hideTreatedRequest(req)"
-                            matTooltip="Masquer cette demande">
+                    <button mat-icon-button class="hide-button" (click)="hideTreatedRequest(req)"
+                      matTooltip="Masquer cette demande">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
               </div>
-              
+
               <!-- Show more/less button for treated requests -->
               <div *ngIf="hasMoreTreatedRequests" class="show-more-container">
-                <button mat-stroked-button 
-                        color="accent" 
-                        (click)="toggleShowMoreTreatedRequests()">
-                  {{ showMoreTreatedRequests ? 'Voir moins' : 'Voir plus (' + (treatedRequests.length - MAX_TREATED_REQUESTS) + ')' }}
+                <button mat-stroked-button color="accent" (click)="toggleShowMoreTreatedRequests()">
+                  {{ showMoreTreatedRequests ? 'Voir moins' : 'Voir plus (' + (treatedRequests.length -
+                  MAX_TREATED_REQUESTS) + ')' }}
                   <mat-icon>{{ showMoreTreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
                 </button>
               </div>
             </div>
-            
+
             <ng-template #noTreatedRequests>
               <div class="no-requests">
                 <mat-icon class="no-requests-icon">done_all</mat-icon>
@@ -244,7 +235,8 @@
 
           <div *ngIf="selectedRefusalMode === 'refuse'" class="mt-2">
             <mat-radio-group [(ngModel)]="selectedReason">
-              <mat-radio-button *ngFor="let reason of REJECTION_REASONS" [value]="reason">{{ reason }}</mat-radio-button>
+              <mat-radio-button *ngFor="let reason of REJECTION_REASONS" [value]="reason">{{ reason
+                }}</mat-radio-button>
             </mat-radio-group>
             <mat-form-field *ngIf="selectedReason === 'Autre'" appearance="fill" class="w-full">
               <mat-label>Précisez</mat-label>
@@ -255,30 +247,24 @@
           <div *ngIf="selectedRefusalMode === 'propose'" class="mt-2">
             <mat-form-field appearance="fill">
               <mat-label>Date</mat-label>
-              <input matInput [matDatepicker]="altDatePicker" [(ngModel)]="selectedAlternativeDate" (ngModelChange)="onAlternativeDateChange()">
+              <input matInput [matDatepicker]="altDatePicker" [(ngModel)]="selectedAlternativeDate"
+                (ngModelChange)="onAlternativeDateChange()">
               <mat-datepicker-toggle matSuffix [for]="altDatePicker"></mat-datepicker-toggle>
               <mat-datepicker #altDatePicker></mat-datepicker>
             </mat-form-field>
-            
+
             <div class="alternative-time-slots">
               <label class="form-label">Mes créneaux disponibles</label>
               <div *ngIf="teacherAlternativeSchedule.length === 0" class="text-muted">
                 Sélectionnez d'abord une date...
               </div>
               <div class="time-slots-grid">
-                <button 
-                  *ngFor="let slot of teacherAlternativeSchedule" 
-                  type="button"
-                  class="time-slot-btn"
-                  [class.available]="slot.type === 'available'"
-                  [class.lesson]="slot.type === 'lesson'"
-                  [class.break]="slot.type === 'break'"
-                  [class.blocked]="slot.type === 'blocked'"
-                  [class.selected]="selectedAlternativeTime === slot.time"
-                  [disabled]="!slot.available"
-                  [title]="slot.reason || slot.time"
-                  (click)="selectAlternativeTimeSlot(slot.time)">
-                  
+                <button *ngFor="let slot of teacherAlternativeSchedule" type="button" class="time-slot-btn"
+                  [class.available]="slot.type === 'available'" [class.lesson]="slot.type === 'lesson'"
+                  [class.break]="slot.type === 'break'" [class.blocked]="slot.type === 'blocked'"
+                  [class.selected]="selectedAlternativeTime === slot.time" [disabled]="!slot.available"
+                  [title]="slot.reason || slot.time" (click)="selectAlternativeTimeSlot(slot.time)">
+
                   <div class="slot-time">{{ slot.time }}</div>
                   <div *ngIf="slot.type === 'lesson'" class="slot-info">
                     👨‍🎓 {{ slot.studentName }}
@@ -304,7 +290,7 @@
       </mat-card>
 
     </div>
-    
+
     <!-- Правая колонка -->
     <div class="column right-column">
       <div class="homework-zone">
@@ -320,7 +306,7 @@
             <div class="spinner"></div>
             <p>Chargement des devoirs...</p>
           </div>
-          
+
           <!-- Homework to review -->
           <div *ngIf="!loadingHomework" class="homework-section">
             <div *ngIf="homeworksToReview.length > 0; else noHomeworkToReview" class="homework-list">
@@ -329,7 +315,8 @@
                   <div class="homework-header">
                     <h4 class="homework-title">
                       <span class="homework-icon" [ngClass]="'status-' + hw.status">
-                        {{ hw.status === 'submitted' ? '📥' : hw.status === 'completed' ? '✅' : hw.status === 'finished' ? '🏁' : '⏰' }}
+                        {{ hw.status === 'submitted' ? '📥' : hw.status === 'completed' ? '✅' : hw.status === 'finished'
+                        ? '🏁' : '⏰' }}
                       </span>
                       {{ hw.title }}
                     </h4>
@@ -343,7 +330,7 @@
                       </span>
                     </div>
                   </div>
-                  
+
                   <div class="homework-student-info">
                     <div class="student-details">
                       <div class="student-avatar">
@@ -357,7 +344,7 @@
                         </div>
                       </div>
                     </div>
-                    
+
                     <div class="dates-info">
                       <div class="due-date-info" [ngClass]="{ 'overdue': isHomeworkOverdue(hw) }">
                         <i class="fas fa-calendar-alt"></i>
@@ -367,7 +354,7 @@
                           {{ getDaysOverdue(hw) }}j de retard
                         </span>
                       </div>
-                      
+
                       <div *ngIf="hw.submittedAt || hw.status === 'finished'" class="submitted-date-info">
                         <i class="fas fa-paper-plane"></i>
                         <span class="date-label">Soumis</span>
@@ -375,41 +362,39 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div *ngIf="hw.description" class="homework-description">
                     <h6><i class="fas fa-info-circle"></i> Description</h6>
-                    <p>{{ hw.description | slice:0:120 }}<span *ngIf="hw.description && hw.description.length > 120">...</span></p>
+                    <p>{{ hw.description | slice:0:120 }}<span
+                        *ngIf="hw.description && hw.description.length > 120">...</span></p>
                   </div>
-                  
+
                   <div *ngIf="hw.studentResponse" class="student-response-preview">
                     <h6><i class="fas fa-comment-dots"></i> Réponse de l'étudiant</h6>
-                    <p class="response-text">{{ hw.studentResponse | slice:0:100 }}<span *ngIf="hw.studentResponse && hw.studentResponse.length > 100">...</span></p>
+                    <p class="response-text">{{ hw.studentResponse | slice:0:100 }}<span
+                        *ngIf="hw.studentResponse && hw.studentResponse.length > 100">...</span></p>
                   </div>
-                  
+
                   <div class="homework-actions">
-                    <button mat-raised-button 
-                            color="primary" 
-                            class="review-btn"
-                            (click)="goToHomeworkReview(hw); $event.stopPropagation()">
+                    <button mat-raised-button color="primary" class="review-btn"
+                      (click)="goToHomeworkReview(hw); $event.stopPropagation()">
                       <i class="fas fa-star"></i>
                       Évaluer et corriger
                     </button>
-                    <button mat-stroked-button 
-                            color="accent"
-                            class="details-btn"
-                            (click)="goToHomeworkReview(hw); $event.stopPropagation()">
+                    <button mat-stroked-button color="accent" class="details-btn"
+                      (click)="goToHomeworkReview(hw); $event.stopPropagation()">
                       <i class="fas fa-eye"></i>
                       Voir détails
                     </button>
                   </div>
                 </div>
-                
+
                 <div class="homework-priority-indicator" *ngIf="isHomeworkOverdue(hw)">
                   <div class="priority-pulse"></div>
                 </div>
               </div>
             </div>
-            
+
             <ng-template #noHomeworkToReview>
               <div class="no-homework">
                 <i class="fas fa-clipboard-check no-homework-icon"></i>
@@ -417,7 +402,7 @@
                 <small>Les devoirs soumis ou en retard apparaîtront ici</small>
               </div>
             </ng-template>
-            
+
             <!-- Statistics -->
             <div *ngIf="teacherHomework.length > 0" class="homework-stats">
               <div class="stats-grid">
@@ -441,102 +426,99 @@
     </div>
   </div>
 
-    <!-- 🔽 НИЖНЯЯ ЧАСТЬ -->
-    <div class="bottom-section">
-      <h3>🗓️ Prochains cours</h3>
-      <div class="calendar-wrapper">
-        <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate" (eventClicked)="onCalendarEventClick($event)"></app-calendar-preview>
-        
-                 <ng-template #customEventTemplate let-event="event">
-           <div class="custom-event" [ngClass]="{
+  <!-- 🔽 НИЖНЯЯ ЧАСТЬ -->
+  <div class="bottom-section">
+    <h3>🗓️ Prochains cours</h3>
+    <div class="calendar-wrapper">
+      <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate"
+        (eventClicked)="onCalendarEventClick($event)"></app-calendar-preview>
+
+      <ng-template #customEventTemplate let-event="event">
+        <div class="custom-event" [ngClass]="{
              'past-event': event?.end && event.end < now,
              'upcoming-event': event?.end && event.end >= now
            }" (click)="onCalendarEventClick(event)">
-            <div class="event-content">
-              <div class="event-info">
-                <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
-                {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
-              </div>
-              <button *ngIf="canEnterClass(event) && event?.meta?.status === 'confirmed'" 
-                      mat-mini-fab 
-                      color="accent" 
-                      (click)="enterVirtualClass(event); $event.stopPropagation()"
-                      class="enter-class-btn-mini"
-                      matTooltip="Entrer en classe">
-                🎥
-              </button>
+          <div class="event-content">
+            <div class="event-info">
+              <strong>{{ event?.title || 'Titre manquant' }}</strong><br />
+              {{ event?.start | date: 'shortTime' }} - {{ event?.end | date: 'shortTime' }}
             </div>
+            <button *ngIf="canEnterClass(event) && event?.meta?.status === 'confirmed'" mat-mini-fab color="accent"
+              (click)="enterVirtualClass(event); $event.stopPropagation()" class="enter-class-btn-mini"
+              matTooltip="Entrer en classe">
+              🎥
+            </button>
           </div>
-        </ng-template>
-      </div>
+        </div>
+      </ng-template>
     </div>
-
   </div>
 
-  <!-- Модалка информации о студенте -->
-  <div *ngIf="showStudentModal" class="modal-overlay" (click)="closeStudentModal()">
-    <div class="student-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>👤 Informations sur l'étudiant</h3>
-        <button mat-icon-button (click)="closeStudentModal()" class="close-button">
-          <mat-icon>close</mat-icon>
+</div>
+
+<!-- Модалка информации о студенте -->
+<div *ngIf="showStudentModal" class="modal-overlay" (click)="closeStudentModal()">
+  <div class="student-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>👤 Informations sur l'étudiant</h3>
+      <button mat-icon-button (click)="closeStudentModal()" class="close-button">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="modal-content" *ngIf="selectedStudent">
+      <div class="student-info">
+        <p><strong>Nom:</strong> {{ selectedStudent.name }}</p>
+
+        <!-- Objectif de l'étudiant -->
+        <div style="margin: 16px 0;">
+          <p><strong>🎯 Objectif d'apprentissage:</strong></p>
+          <div *ngIf="selectedStudent['loadingGoal']" class="loading-text" style="margin-left: 16px;">
+            <mat-spinner diameter="16" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+            Chargement...
+          </div>
+          <div *ngIf="!selectedStudent['loadingGoal']" style="margin-left: 16px;">
+            <div *ngIf="selectedStudent['goal']; else noGoal">
+              <p style="margin: 4px 0; color: #1976d2; font-weight: bold;">
+                📚 {{ getExamLevelDisplay(getSelectedStudentGoalExamLevel()) }}
+              </p>
+              <p *ngIf="getSelectedStudentGoalTargetDate()" style="margin: 4px 0; color: #4caf50;">
+                📅 Objectif: {{ formatTargetDate(getSelectedStudentGoalTargetDate()) }}
+              </p>
+              <div *ngIf="getSelectedStudentGoalDescription()"
+                style="margin: 8px 0; padding: 8px; background-color: #f5f5f5; border-left: 3px solid #1976d2; border-radius: 4px;">
+                <strong>💭 Motivation:</strong> {{ getSelectedStudentGoalDescription() }}
+              </div>
+            </div>
+            <ng-template #noGoal>
+              <p style="color: #666; font-style: italic;">Aucun objectif défini</p>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Informations contextuelles -->
+        <div *ngIf="selectedStudent['reason']" style="margin: 16px 0;">
+          <p><strong>ℹ️ Contexte:</strong> {{ selectedStudent['reason'] }}</p>
+        </div>
+
+        <div *ngIf="selectedStudent['refundAvailable'] !== undefined" style="margin: 16px 0;">
+          <p><strong>💰 Remboursement:</strong>
+            <span [style.color]="selectedStudent['refundAvailable'] ? '#4caf50' : '#f44336'">
+              {{ selectedStudent['refundAvailable'] ? '✅ Disponible' : '❌ Non disponible' }}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button color="primary" *ngIf="selectedStudent['lessonId']"
+          (click)="navigateToLesson(getSelectedStudentLessonId())">
+          Aller à la leçon
+        </button>
+        <button mat-stroked-button (click)="closeStudentModal()">
+          Fermer
         </button>
       </div>
-      
-      <div class="modal-content" *ngIf="selectedStudent">
-        <div class="student-info">
-          <p><strong>Nom:</strong> {{ selectedStudent.name }}</p>
-          
-          <!-- Objectif de l'étudiant -->
-          <div style="margin: 16px 0;">
-            <p><strong>🎯 Objectif d'apprentissage:</strong></p>
-            <div *ngIf="selectedStudent['loadingGoal']" class="loading-text" style="margin-left: 16px;">
-              <mat-spinner diameter="16" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-              Chargement...
-            </div>
-            <div *ngIf="!selectedStudent['loadingGoal']" style="margin-left: 16px;">
-              <div *ngIf="selectedStudent['goal']; else noGoal">
-                <p style="margin: 4px 0; color: #1976d2; font-weight: bold;">
-                  📚 {{ getExamLevelDisplay(getSelectedStudentGoalExamLevel()) }}
-                </p>
-                <p *ngIf="getSelectedStudentGoalTargetDate()" style="margin: 4px 0; color: #4caf50;">
-                  📅 Objectif: {{ formatTargetDate(getSelectedStudentGoalTargetDate()) }}
-                </p>
-                <div *ngIf="getSelectedStudentGoalDescription()" 
-                     style="margin: 8px 0; padding: 8px; background-color: #f5f5f5; border-left: 3px solid #1976d2; border-radius: 4px;">
-                  <strong>💭 Motivation:</strong> {{ getSelectedStudentGoalDescription() }}
-                </div>
-              </div>
-              <ng-template #noGoal>
-                <p style="color: #666; font-style: italic;">Aucun objectif défini</p>
-              </ng-template>
-            </div>
-          </div>
-          
-          <!-- Informations contextuelles -->
-          <div *ngIf="selectedStudent['reason']" style="margin: 16px 0;">
-            <p><strong>ℹ️ Contexte:</strong> {{ selectedStudent['reason'] }}</p>
-          </div>
-          
-          <div *ngIf="selectedStudent['refundAvailable'] !== undefined" style="margin: 16px 0;">
-            <p><strong>💰 Remboursement:</strong> 
-              <span [style.color]="selectedStudent['refundAvailable'] ? '#4caf50' : '#f44336'">
-                {{ selectedStudent['refundAvailable'] ? '✅ Disponible' : '❌ Non disponible' }}
-              </span>
-            </p>
-          </div>
-        </div>
-        
-        <div class="modal-actions">
-          <button mat-raised-button color="primary" 
-                  *ngIf="selectedStudent['lessonId']"
-                  (click)="navigateToLesson(getSelectedStudentLessonId())">
-            Aller à la leçon
-          </button>
-          <button mat-stroked-button (click)="closeStudentModal()">
-            Fermer
-          </button>
-        </div>
-      </div>
     </div>
   </div>
+</div>

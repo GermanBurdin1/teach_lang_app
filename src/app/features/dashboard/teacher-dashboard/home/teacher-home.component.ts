@@ -76,6 +76,7 @@ interface _Question {
 }
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NavigationGuardService } from '../../../../services/navigation-guard.service';
+import { catchError, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-teacher-home',
@@ -118,6 +119,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   teacherHomework: Homework[] = [];
   homeworksToReview: Homework[] = [];
   loadingHomework = false;
+  photoUrl$!: Observable<string>;
 
   upcomingLessons: CalendarEvent[] = [];
 
@@ -174,10 +176,10 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const lessonDate = new Date(scheduledAt);
       const now = new Date();
-      
+
       // Проверяем, что дата урока в будущем
       const isValid = lessonDate > now;
-      
+
       if (!isValid) {
         console.log('[TeacherHome] Уведомление отфильтровано (дата прошла):', {
           lessonDate: lessonDate.toLocaleString('fr-FR'),
@@ -185,7 +187,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           notificationTitle: notification.title
         });
       }
-      
+
       return isValid;
     } catch (error) {
       console.error('[TeacherHome] Ошибка при проверке даты урока:', error, notification);
@@ -213,7 +215,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           title: `${this.getStatusIcon(lessonData.status || '')} ${lessonData.studentName || ''}`,
           color: this.getCalendarColor(lessonData.status || ''),
           allDay: false,
-          meta: { 
+          meta: {
             lessonId: lessonData.id,
             status: lessonData.status,
             studentId: lessonData.studentId,
@@ -224,8 +226,6 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-
-
   private refreshNotifications(): void {
     const userId = this.authService.getCurrentUser()?.id;
     if (!userId) return;
@@ -234,27 +234,27 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (all) => {
         console.log('🔔 [FRONT] Ответ от сервера:', all);
         this.notifications = all.filter(n => n.type !== 'booking_request');
-        
+
         // Фильтруем новые запросы: только pending и с актуальной датой (в будущем)
         this.newRequests = all.filter(n => {
           if (n.type !== 'booking_request' || n.status !== 'pending') {
             return false;
           }
-          
+
           // Проверяем актуальность даты урока
           return this.isLessonDateValid(n);
         });
-        
+
         // Необработанные заявки: unread со просроченной датой
         this.untreatedRequests = all.filter(n => {
           if (n.type !== 'booking_request' || n.status !== 'unread') {
             return false;
           }
-          
+
           // Проверяем что дата урока уже прошла
           return !this.isLessonDateValid(n);
         });
-        
+
         this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending' && n.status !== 'unread');
       },
       error: (err) => {
@@ -275,29 +275,29 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private loadTeacherHomework(): void {
     const userId = this.authService.getCurrentUser()?.id;
     if (!userId) return;
-    
+
     this.loadingHomework = true;
     console.log('[TeacherHome] Loading homework for teacher:', userId);
-    
+
     this.homeworkService.getHomeworkForTeacher(userId).subscribe({
       next: (homework: Homework[]) => {
         console.log('[TeacherHome] Loaded teacher homework:', homework);
         this.teacherHomework = homework;
-        
+
         // Фильтруем homework для проверки (выполненные, но еще не оцененные)
         this.homeworksToReview = homework.filter((hw: Homework) => {
           // Исключаем уже оцененные домашние задания
           if (hw.grade !== null && hw.grade !== undefined) {
             return false;
           }
-          
+
           // Включаем задания со статусом submitted, completed, или finished с ответом студента
-          return hw.status === 'submitted' || 
-                 hw.status === 'completed' || 
-                 (hw.status === 'finished' && hw.studentResponse && hw.studentResponse.trim().length > 0) ||
-                 (hw.status === 'unfinished' && this.isHomeworkOverdue(hw));
+          return hw.status === 'submitted' ||
+            hw.status === 'completed' ||
+            (hw.status === 'finished' && hw.studentResponse && hw.studentResponse.trim().length > 0) ||
+            (hw.status === 'unfinished' && this.isHomeworkOverdue(hw));
         });
-        
+
         console.log('[TeacherHome] Homework status breakdown:', {
           total: homework.length,
           submitted: homework.filter(hw => hw.status === 'submitted').length,
@@ -307,7 +307,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           unfinished: homework.filter(hw => hw.status === 'unfinished').length,
           toReview: this.homeworksToReview.length
         });
-        
+
         console.log('[TeacherHome] Homework to review:', this.homeworksToReview);
         this.loadingHomework = false;
       },
@@ -316,6 +316,25 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadingHomework = false;
       }
     });
+  }
+
+  private loadTeacherPhoto(): void {
+    const userId = this.authService.getCurrentUser()?.id;
+
+    if (!userId) return;
+
+
+    this.photoUrl$ = this.teacherService.getTeacherPhoto(userId).pipe(
+      catchError(() => of('assets/default-avatar.png'))
+    );
+  }
+
+  onImgError(e: Event) {
+    const img = e.target as HTMLImageElement;
+    // защита от зацикливания, если вдруг плейсхолдер тоже не загрузится
+    if (!img.src.includes('assets/default-avatar.png')) {
+      img.src = 'assets/default-avatar.png';
+    }
   }
 
   isHomeworkOverdue(homework: Homework): boolean {
@@ -327,12 +346,12 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   goToHomeworkReview(homework: Homework): void {
     // Переходим к homework в trainer компоненте со специальными параметрами для преподавателя
-    this.router.navigate(['/teacher/trainer'], { 
-      queryParams: { 
-        tab: 'homework', 
+    this.router.navigate(['/teacher/trainer'], {
+      queryParams: {
+        tab: 'homework',
         homeworkId: homework.id,
         mode: 'review' // Специальный режим для преподавателей
-      } 
+      }
     });
   }
 
@@ -345,14 +364,14 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getOverdueCount(): number {
-    return this.teacherHomework.filter(hw => 
+    return this.teacherHomework.filter(hw =>
       hw.status === 'unfinished' && this.isHomeworkOverdue(hw)
     ).length;
   }
 
   getSubmittedCount(): number {
-    return this.teacherHomework.filter(hw => 
-      hw.status === 'submitted' || 
+    return this.teacherHomework.filter(hw =>
+      hw.status === 'submitted' ||
       hw.status === 'completed' ||
       (hw.status === 'finished' && hw.studentResponse) // ✨ Включаем finished со studentResponse
     ).length;
@@ -368,17 +387,20 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Активируем защиту навигации для личного кабинета
     this.navigationGuard.enableNavigationGuard();
-    
+
     this.refreshStudents();
-    
+
     // Обновляем время каждую минуту
     setInterval(() => {
       this.now = new Date();
     }, 60000);
-    
+
+    // chargement de la photo
+    this.loadTeacherPhoto();
+
     // Загружаем homework для преподавателя
     this.loadTeacherHomework();
-    
+
     // Подписываемся на обновления homework
     this.homeworkService.onHomeworkUpdated().subscribe(() => {
       console.log('[TeacherHome] Homework updated, reloading...');
@@ -406,27 +428,27 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (all) => {
         console.log('🔔 [FRONT] Ответ от сервера:', all);
         this.notifications = all.filter(n => n.type !== 'booking_request');
-        
+
         // Фильтруем новые запросы: только pending и с актуальной датой (в будущем)
         this.newRequests = all.filter(n => {
           if (n.type !== 'booking_request' || n.status !== 'pending') {
             return false;
           }
-          
+
           // Проверяем актуальность даты урока
           return this.isLessonDateValid(n);
         });
-        
+
         // Необработанные заявки: unread со просроченной датой
         this.untreatedRequests = all.filter(n => {
           if (n.type !== 'booking_request' || n.status !== 'unread') {
             return false;
           }
-          
+
           // Проверяем что дата урока уже прошла
           return !this.isLessonDateValid(n);
         });
-        
+
         this.treatedRequests = all.filter(n => n.type === 'booking_request' && n.status !== 'pending' && n.status !== 'unread');
       },
       error: (err) => {
@@ -487,7 +509,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   loadAvailableSlots() {
     const teacherId = this.authService.getCurrentUser()?.id;
     if (!teacherId || !this.selectedAlternativeDate) return;
-    
+
     const dateStr = this.selectedAlternativeDate.toISOString().split('T')[0];
     this.lessonService.getAvailableSlots(teacherId, dateStr).subscribe({
       next: (slots) => {
@@ -497,10 +519,10 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.teacherAlternativeSchedule = slots;
           return;
         }
-        
+
         const currentDate = this.selectedAlternativeDate.toDateString();
         const todayDate = now.toDateString();
-        
+
         if (currentDate === todayDate) {
           // Если выбран сегодняшний день, фильтруем прошедшие часы
           this.teacherAlternativeSchedule = slots.filter(slot => {
@@ -518,7 +540,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           // Если выбран не сегодняшний день, показываем все слоты
           this.teacherAlternativeSchedule = slots;
         }
-        
+
         console.log('✅ Planning alternatif du professeur chargé (filtré):', this.teacherAlternativeSchedule);
       },
       error: (error) => {
@@ -541,7 +563,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.selectedRequest) return;
     let metadata = this.selectedRequest.data;
     if (!metadata && 'metadata' in this.selectedRequest) {
-      metadata = (this.selectedRequest as {metadata?: {lessonId?: string}}).metadata;
+      metadata = (this.selectedRequest as { metadata?: { lessonId?: string } }).metadata;
     }
     if (!metadata || !metadata.lessonId) return;
 
@@ -584,8 +606,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get visibleNotifications() {
-    return this.showMoreNotifications 
-      ? this.notifications 
+    return this.showMoreNotifications
+      ? this.notifications
       : this.notifications.slice(0, this.MAX_NOTIFICATIONS);
   }
 
@@ -608,8 +630,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get visibleTreatedRequests() {
-    return this.showMoreTreatedRequests 
-      ? this.treatedRequests 
+    return this.showMoreTreatedRequests
+      ? this.treatedRequests
       : this.treatedRequests.slice(0, this.MAX_TREATED_REQUESTS);
   }
 
@@ -632,8 +654,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get visibleUntreatedRequests() {
-    return this.showMoreUntreatedRequests 
-      ? this.untreatedRequests 
+    return this.showMoreUntreatedRequests
+      ? this.untreatedRequests
       : this.untreatedRequests.slice(0, this.MAX_UNTREATED_REQUESTS);
   }
 
@@ -649,7 +671,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   openStudentModal(student: Student): void {
     this.selectedStudent = { ...student, loadingGoal: true };
     this.showStudentModal = true;
-    
+
     // Загружаем информацию о целях студента
     if (student.id) {
       this.goalsService.getActiveGoal(student.id).subscribe({
@@ -671,8 +693,8 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
     } else {
-      (this.selectedStudent as Student & {loadingGoal?: boolean, goalDisplayText?: string})['loadingGoal'] = false;
-      (this.selectedStudent as Student & {loadingGoal?: boolean, goalDisplayText?: string})['goalDisplayText'] = 'Aucun objectif défini';
+      (this.selectedStudent as Student & { loadingGoal?: boolean, goalDisplayText?: string })['loadingGoal'] = false;
+      (this.selectedStudent as Student & { loadingGoal?: boolean, goalDisplayText?: string })['goalDisplayText'] = 'Aucun objectif défini';
     }
   }
 
@@ -724,11 +746,11 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Навигация к уроку
   navigateToLesson(lessonId: string): void {
-    this.router.navigate(['/lessons/teacher'], { 
-      queryParams: { 
+    this.router.navigate(['/lessons/teacher'], {
+      queryParams: {
         lessonId: lessonId,
-        tab: 'upcoming' 
-      } 
+        tab: 'upcoming'
+      }
     });
   }
 
@@ -742,28 +764,28 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Создание кликабельных имен студентов в уведомлениях
   makeStudentNameClickable(message: string, notification: Notification): SafeHtml {
     const studentName = this.getStudentNameFromNotification(notification);
-    
+
     // Экранируем входящие данные
     const safeMessage = this.escapeHtml(message);
     const safeTitle = this.escapeHtml(notification.title);
     const safeNotificationId = this.escapeHtml(notification.id);
-    
+
     if (!studentName || studentName === 'Étudiant') {
       const result = `<strong>${safeTitle}</strong><br><small>${safeMessage}</small>`;
       return this.sanitizer.bypassSecurityTrustHtml(result);
     }
-    
+
     // Экранируем имя студента и создаем безопасную ссылку
     const safeStudentName = this.escapeHtml(studentName);
     const clickableMessage = safeMessage.replace(
-      safeStudentName, 
-      `<span class="student-name-clickable" 
+      safeStudentName,
+      `<span class="student-name-clickable"
          data-notification-id="${safeNotificationId}"
          style="color: #1976d2; text-decoration: underline; cursor: pointer; font-weight: bold;">
          ${safeStudentName}
        </span>`
     );
-    
+
     const result = `<strong>${safeTitle}</strong><br><small>${clickableMessage}</small>`;
     return this.sanitizer.bypassSecurityTrustHtml(result);
   }
@@ -786,11 +808,11 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private getCalendarColor(status: string): { primary: string, secondary: string } {
     switch (status) {
-      case 'confirmed': 
+      case 'confirmed':
         return { primary: '#4caf50', secondary: '#e8f5e9' }; // Зеленый
-      case 'rejected': 
+      case 'rejected':
         return { primary: '#f44336', secondary: '#ffebee' }; // Красный
-      case 'pending': 
+      case 'pending':
         return { primary: '#ff9800', secondary: '#fff3e0' }; // Желтый/оранжевый
       case 'cancelled_by_student':
       case 'cancelled_by_student_no_refund':
@@ -799,7 +821,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         return { primary: '#2196f3', secondary: '#e3f2fd' }; // Синий
       case 'completed':
         return { primary: '#9c27b0', secondary: '#f3e5f5' }; // Фиолетовый
-      default: 
+      default:
         return { primary: '#9e9e9e', secondary: '#f5f5f5' }; // Серый
     }
   }
@@ -839,14 +861,14 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Получить ближайший урок
   getNextLesson(): CalendarEvent | null {
     const now = new Date();
-    const confirmedLessons = this.upcomingLessons.filter(lesson => 
-      lesson.meta?.status === 'confirmed' && 
+    const confirmedLessons = this.upcomingLessons.filter(lesson =>
+      lesson.meta?.status === 'confirmed' &&
       lesson.start > now
     );
-    
+
     if (confirmedLessons.length === 0) return null;
-    
-    return confirmedLessons.sort((a, b) => 
+
+    return confirmedLessons.sort((a, b) =>
       a.start.getTime() - b.start.getTime()
     )[0];
   }
@@ -854,14 +876,14 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Проверка можно ли войти в класс (в день занятия)
   canEnterClass(event: CalendarEvent): boolean {
     if (event.meta?.status !== 'confirmed') return false;
-    
+
     const now = new Date();
     const lessonTime = event.start;
-    
+
     // Проверяем что урок в тот же день
     const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const lessonDate = new Date(lessonTime.getFullYear(), lessonTime.getMonth(), lessonTime.getDate());
-    
+
     return nowDate.getTime() === lessonDate.getTime();
   }
 
@@ -870,17 +892,17 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('🔍 [TeacherHome] Загружаем материалы для урока:', lessonId);
       const allMaterials = await this.materialService.getMaterials().toPromise();
       console.log('📦 [TeacherHome] Все материалы получены:', allMaterials);
-      
+
       if (!allMaterials || allMaterials.length === 0) {
         console.warn('⚠️ [TeacherHome] Материалы не найдены или список пуст. Возможно file-service не запущен?');
         return [];
       }
-      
+
       const filteredMaterials = allMaterials.filter(material => {
         const isAttached = material.attachedLessons && material.attachedLessons.includes(lessonId);
         return isAttached;
       });
-      
+
       console.log('✅ [TeacherHome] Отфильтрованные материалы для урока:', filteredMaterials);
       return filteredMaterials as unknown as _Material[];
     } catch (error) {
@@ -907,11 +929,11 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Разделяем задачи и вопросы по ролям
     const tasksArray = (tasks || []) as unknown[];
     const questionsArray = (questions || []) as unknown[];
-    
-    const studentTasks = tasksArray.filter((t: unknown) => (t as {createdByRole?: string}).createdByRole === 'student').map((t: unknown) => ({ id: (t as {id?: string}).id || '', title: (t as {title?: string}).title || '' }));
-    const teacherTasks = tasksArray.filter((t: unknown) => (t as {createdByRole?: string}).createdByRole === 'teacher').map((t: unknown) => ({ id: (t as {id?: string}).id || '', title: (t as {title?: string}).title || '' }));
-    const studentQuestions = questionsArray.filter((q: unknown) => (q as {createdByRole?: string}).createdByRole === 'student').map((q: unknown) => ({ id: (q as {id?: string}).id || '', question: (q as {question?: string}).question || '' }));
-    const teacherQuestions = questionsArray.filter((q: unknown) => (q as {createdByRole?: string}).createdByRole === 'teacher').map((q: unknown) => ({ id: (q as {id?: string}).id || '', question: (q as {question?: string}).question || '' }));
+
+    const studentTasks = tasksArray.filter((t: unknown) => (t as { createdByRole?: string }).createdByRole === 'student').map((t: unknown) => ({ id: (t as { id?: string }).id || '', title: (t as { title?: string }).title || '' }));
+    const teacherTasks = tasksArray.filter((t: unknown) => (t as { createdByRole?: string }).createdByRole === 'teacher').map((t: unknown) => ({ id: (t as { id?: string }).id || '', title: (t as { title?: string }).title || '' }));
+    const studentQuestions = questionsArray.filter((q: unknown) => (q as { createdByRole?: string }).createdByRole === 'student').map((q: unknown) => ({ id: (q as { id?: string }).id || '', question: (q as { question?: string }).question || '' }));
+    const teacherQuestions = questionsArray.filter((q: unknown) => (q as { createdByRole?: string }).createdByRole === 'teacher').map((q: unknown) => ({ id: (q as { id?: string }).id || '', question: (q as { question?: string }).question || '' }));
 
     console.log('✅ [TeacherHome] Данные урока подготовлены:', {
       studentTasks,
@@ -960,22 +982,22 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Helper методы для selectedStudent goal properties
   getSelectedStudentGoalExamLevel(): string {
-    const goal = (this.selectedStudent as {goal?: {examLevel?: string}})?.goal;
+    const goal = (this.selectedStudent as { goal?: { examLevel?: string } })?.goal;
     return goal?.examLevel || '';
   }
 
   getSelectedStudentGoalTargetDate(): string {
-    const goal = (this.selectedStudent as {goal?: {targetDate?: string}})?.goal;
+    const goal = (this.selectedStudent as { goal?: { targetDate?: string } })?.goal;
     return goal?.targetDate || '';
   }
 
   getSelectedStudentGoalDescription(): string {
-    const goal = (this.selectedStudent as {goal?: {description?: string}})?.goal;
+    const goal = (this.selectedStudent as { goal?: { description?: string } })?.goal;
     return goal?.description || '';
   }
 
   getSelectedStudentLessonId(): string {
-    return (this.selectedStudent as {lessonId?: string})?.lessonId || '';
+    return (this.selectedStudent as { lessonId?: string })?.lessonId || '';
   }
 
 }

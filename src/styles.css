@@ -3,10 +3,10 @@
 /* ==================== ACCESSIBILITY (WCAG 2.1) IMPROVEMENTS ==================== */
 
 /* Focus styles for accessibility */
-*:focus {
+/* *:focus {
   outline: 2px solid #4A90E2 !important;
   outline-offset: 2px !important;
-}
+} */
 
 /* Skip links for keyboard navigation */
 .skip-link {
@@ -26,28 +26,28 @@
 }
 
 /* High contrast focus for buttons */
-.btn:focus,
+/* .btn:focus,
 button:focus {
   outline: 3px solid #4A90E2 !important;
   outline-offset: 2px !important;
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3) !important;
-}
+} */
 
 /* Focus for form elements */
-input:focus,
+/* input:focus,
 textarea:focus,
 select:focus {
   outline: 2px solid #4A90E2 !important;
   outline-offset: 2px !important;
   border-color: #4A90E2 !important;
-}
+} */
 
 /* Focus for links */
-a:focus {
+/* a:focus {
   outline: 2px solid #4A90E2 !important;
   outline-offset: 2px !important;
   text-decoration: underline !important;
-}
+} */
 
 /* High contrast colors for accessibility */
 :root {
@@ -104,10 +104,10 @@ body.dark-theme {
 }
 
 /* Ensure focus is visible even with outline: none overrides */
-*:focus:not(.sr-only) {
+/* *:focus:not(.sr-only) {
   outline: 2px solid var(--focus-color) !important;
   outline-offset: 2px !important;
-}
+} */
 
 /* ==================== CLS (CUMULATIVE LAYOUT SHIFT) IMPROVEMENTS ==================== */
 
@@ -387,7 +387,7 @@ img {
     min-width: 280px !important;
     margin: 8px !important;
   }
-  
+
   .mat-mdc-snack-bar-surface {
     padding: 14px 16px !important;
     font-size: 13px !important;
@@ -397,14 +397,14 @@ img {
 /* ==================== CUSTOM DIALOG STYLES ==================== */
 
 .custom-dialog-container .mat-mdc-dialog-container {
-  background: linear-gradient(135deg, 
-    rgba(16, 18, 30, 0.95) 0%, 
-    rgba(30, 27, 75, 0.95) 50%, 
+  background: linear-gradient(135deg,
+    rgba(16, 18, 30, 0.95) 0%,
+    rgba(30, 27, 75, 0.95) 50%,
     rgba(16, 18, 30, 0.95) 100%);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 20px;
-  box-shadow: 
+  box-shadow:
     0 25px 50px rgba(109, 40, 217, 0.3),
     0 0 40px rgba(139, 92, 246, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -421,7 +421,7 @@ img {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
+  background:
     radial-gradient(circle at 20% 20%, rgba(109, 40, 217, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 40% 60%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
@@ -632,7 +632,7 @@ router-outlet {
     row-gap: 50px !important; /* Вертикальное уменьшено в 2 раза */
     padding: 15px !important;
   }
-  
+
   .words-container .galaxy-wrapper {
     width: min(40vw, 180px) !important;
     height: min(40vw, 180px) !important;
@@ -655,7 +655,7 @@ router-outlet {
   height: 120%;
   top: -10%;
   left: -10%;
-  background: 
+  background:
     radial-gradient(circle at 20% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(114, 9, 183, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 40% 60%, rgba(72, 12, 168, 0.05) 0%, transparent 50%);
@@ -695,7 +695,7 @@ router-outlet {
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
   color: white !important;
   border-radius: 50% !important;
-  box-shadow: 
+  box-shadow:
     0 0 10px rgba(157, 78, 221, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   transition: all 0.3s ease !important;
@@ -703,7 +703,7 @@ router-outlet {
 
 .cosmic-button:hover {
   background: linear-gradient(135deg, rgba(157, 78, 221, 1), rgba(114, 9, 183, 1)) !important;
-  box-shadow: 
+  box-shadow:
     0 0 15px rgba(157, 78, 221, 0.8),
     0 0 25px rgba(157, 78, 221, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
@@ -781,17 +781,17 @@ body.dark-theme .form-wrapper::before {
     width: calc(100% - 32px) !important;
     max-width: calc(100% - 32px) !important;
   }
-  
+
   .logout-confirmation-snackbar .mat-mdc-snack-bar-label {
     font-size: 14px !important;
   }
-  
+
   .logout-confirmation-snackbar .mat-mdc-button {
     padding: 6px 12px !important;
     font-size: 14px !important;
   }
 }
-  
+
 
 body.dark-theme .form-wrapper::after {
   content: 'Learn • Apprendre • Estudiar • Imparare • Учиться • 学ぶ • 배우다 • تعلم • सीखना • Lernen';
@@ -840,8 +840,8 @@ body.dark-theme .form-container h2 {
   color: transparent;
 }
 
-body.dark-theme mat-label, 
-body.dark-theme input, 
+body.dark-theme mat-label,
+body.dark-theme input,
 body.dark-theme .mat-button-toggle {
   color: #4ecdc4 !important;
 }

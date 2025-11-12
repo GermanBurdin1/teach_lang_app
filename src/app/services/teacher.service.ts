@@ -91,9 +91,16 @@ export class TeacherService {
     return this.http.put(`${API_ENDPOINTS.AUTH}/teacher-profile/update/${userId}`, data);
   }
 
-
   uploadPhoto(userId: string, photoUrl: string): Observable<any> {
     return this.http.put(`${API_ENDPOINTS.AUTH}/teacher-profile/photo/${userId}`, { photoUrl });
+  }
+
+  getTeacherPhoto(id: string): Observable<string> {
+    return this.http
+      .get<{ photo_url?: string }>(`${API_ENDPOINTS.AUTH}/teacher-profile/full/${id}`)
+      .pipe(
+        map(profile => profile.photo_url ?? 'assets/default-avatar.png')
+      );
   }
 
   getMyTeachers(): Observable<Teacher[]> {
