@@ -28,10 +28,10 @@ export interface AttachMaterialRequest {
 })
 export class MaterialService {
   private baseUrl = `${API_ENDPOINTS.FILES}/materials`;
-  
+
   private materials$ = new BehaviorSubject<Material[]>([]);
   private studentMaterials$ = new BehaviorSubject<Material[]>([]);
-  
+
   // Subject для уведомления о прикреплении материалов к урокам
   private materialAttached$ = new Subject<{ materialId: string, lessonId: string }>();
 
@@ -64,6 +64,7 @@ export class MaterialService {
 
   // Создание нового материала
   createMaterial(material: Omit<Material, 'id' | 'createdAt' | 'attachedLessons'>): Observable<Material> {
+    console.warn("in createMaterial:" , material)
     return this.http.post<Material>(this.baseUrl, {
       ...material,
       createdAt: new Date(),
@@ -125,4 +126,4 @@ export class MaterialService {
     const current = this.materials$.value;
     this.materials$.next(current.filter(m => m.id !== materialId));
   }
-} 
+}

@@ -656,14 +656,16 @@ export class TrainerComponent implements OnInit {
       console.warn('!!!!!! current user:', this.currentUser);
 
       console.warn("----------------selected file:", this.selectedFile)
-      this.fileUploadService.uploadFile(this.selectedFile).subscribe({
-        next: (response) => {
-          this.uploadingFile = false;
-          this.uploadProgress = 100;
-          console.log('✅ Fichier uploadé avec succès:', response.url);
-          this.notificationService.success('Fichier uploadé avec succès!');
-          resolve(response.url);
-        },
+      const courseId: number | null = null;
+
+    this.fileUploadService.uploadFile(this.selectedFile, courseId).subscribe({
+      next: (response) => {
+        this.uploadingFile = false;
+        this.uploadProgress = 100;
+        console.log('✅ Fichier uploadé avec succès:', response.url);
+        this.notificationService.success('Fichier uploadé avec succès!');
+        resolve(response.url);
+      },
         error: (error) => {
           this.uploadingFile = false;
           this.uploadProgress = 0;
@@ -758,6 +760,7 @@ export class TrainerComponent implements OnInit {
         ...this.newMaterial,
         content: contentUrl,
         createdBy: this.currentUser?.id || '',
+        userId: this.currentUser,
         createdByName: `${this.currentUser?.name || ''} ${this.currentUser?.['surname'] || ''}`.trim(),
         tags: this.newMaterial.tags.filter(tag => tag.trim() !== '')
       };

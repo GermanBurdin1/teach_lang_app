@@ -19,11 +19,19 @@ export class FileUploadService {
   private apiUrl = `${API_ENDPOINTS.FILES}/upload`;
   private materialsUrl = `${API_ENDPOINTS.FILES}/materials`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  uploadFile(file: File): Observable<{ id: number; url: string; createdAt: string }> {
+  uploadFile(
+    file: File,
+    courseId?: number | null
+  ): Observable<{ id: number; url: string; createdAt: string }> {
     const formData = new FormData();
     formData.append('file', file);
+
+    //  если courseId передали и он не null – отправляем в FormData
+    if (courseId !== undefined && courseId !== null) {
+      formData.append('courseId', String(courseId));
+    }
 
     return this.http.post<{ id: number; url: string; createdAt: string }>(
       `${this.apiUrl}`,
