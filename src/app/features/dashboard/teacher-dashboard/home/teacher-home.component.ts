@@ -76,7 +76,7 @@ interface _Question {
 }
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NavigationGuardService } from '../../../../services/navigation-guard.service';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, finalize, from, Observable, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-teacher-home',
@@ -318,6 +318,11 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  selectedPhotoFile: File | null = null;
+  selectedPhotoUrl: string | null = null;
+  isUploading = false;
+  uploadError = '';
+
   private loadTeacherPhoto(): void {
     const userId = this.authService.getCurrentUser()?.id;
 
@@ -335,6 +340,79 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!img.src.includes('assets/default-avatar.png')) {
       img.src = 'assets/default-avatar.png';
     }
+  }
+
+  openPhotoPicker(inputEl: HTMLInputElement) {
+    inputEl.click();
+  }
+
+  onFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    // Примитивная валидация
+    if (!file.type.startsWith('image/')) {
+      this.uploadError = 'Файл должен быть изображением.';
+      return;
+    }
+    const maxMb = 5;
+    if (file.size > maxMb * 1024 * 1024) {
+      this.uploadError = `Макс. размер ${maxMb} МБ.`;
+      return;
+    }
+
+    this.uploadError = '';
+    this.selectedPhotoFile = file;
+
+    // Preview: лучше ObjectURL, чем base64
+    if (this.selectedPhotoUrl) URL.revokeObjectURL(this.selectedPhotoUrl);
+    this.selectedPhotoUrl = URL.createObjectURL(file);
+  }
+
+  private fileToDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string); // data:image/...;base64,AAAA
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  uploadSelected() {
+    if (!this.selectedPhotoFile) return;
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+
+    this.isUploading = true;
+    this.uploadError = '';
+
+    from(this.fileToDataURL(this.selectedPhotoFile)).pipe(
+      // Если бэкенду нужен ЧИСТЫЙ base64 без префикса:
+      // map(dataUrl => dataUrl.split(',')[1]),
+      switchMap((dataUrl) => this.teacherService.uploadPhoto(userId, dataUrl)),
+      finalize(() => (this.isUploading = false))
+    ).subscribe({
+      next: () => {
+        this.loadTeacherPhoto();   // перезагрузим фото с сервера
+        this.cleanupSelection();   // очистим превью/файл
+        console.log('[Photo] Mise à jour réussie');
+      },
+      error: (err) => {
+        this.uploadError = 'Ошибка загрузки фото.';
+        console.error(err);
+      },
+    });
+  }
+
+  cancelSelected() {
+    this.cleanupSelection();
+  }
+
+  private cleanupSelection() {
+    if (this.selectedPhotoUrl) URL.revokeObjectURL(this.selectedPhotoUrl);
+    this.selectedPhotoUrl = null;
+    this.selectedPhotoFile = null;
   }
 
   isHomeworkOverdue(homework: Homework): boolean {

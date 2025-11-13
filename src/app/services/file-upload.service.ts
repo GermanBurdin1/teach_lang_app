@@ -21,7 +21,17 @@ export class FileUploadService {
 
   constructor(private http: HttpClient) {}
 
-  uploadFile(file: File, courseId: string): Observable<{ id: number; url: string; createdAt: string }> {
+  uploadFile(file: File): Observable<{ id: number; url: string; createdAt: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<{ id: number; url: string; createdAt: string }>(
+      `${this.apiUrl}`,
+      formData
+    );
+  }
+
+  uploadFileAsCourse(file: File, courseId: string): Observable<{ id: number; url: string; createdAt: string }> {
     const formData = new FormData();
     formData.append('file', file);
 

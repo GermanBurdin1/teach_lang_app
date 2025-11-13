@@ -54,18 +54,18 @@ interface HomeworkDisplay {
 })
 export class TrainerComponent implements OnInit {
   // ==================== MATERIALS PROPERTIES ====================
-  
+
   activeTab = 'materials';
   activeHomeworkTab = 'pending'; // For students: 'pending', 'completed', 'overdue'
   activeTeacherHomeworkTab = 'toReview'; // For teachers: 'toReview', 'reviewed'
   activeMaterialTab = 'own'; // 'own' for mes propres matériaux, 'teachers' for matériaux des professeurs
-  
+
   // ==================== MATERIAL DATA ====================
   materials: Material[] = [];
   ownMaterials: Material[] = [];
   teacherMaterials: Material[] = [];
   showCreateMaterialForm = false;
-  
+
   newMaterial = {
     title: '',
     type: 'text' as 'text' | 'audio' | 'video' | 'pdf' | 'image',
@@ -73,7 +73,7 @@ export class TrainerComponent implements OnInit {
     description: '',
     tags: [] as string[]
   };
-  
+
   // File upload for materials
   selectedFile: File | null = null;
   uploadingFile = false;
@@ -81,7 +81,7 @@ export class TrainerComponent implements OnInit {
   isDragOver = false;
   filePreview: string | null = null;
   maxFileSize = 50 * 1024 * 1024; // 50MB
-  
+
   // Homework management
   homeworks: HomeworkDisplay[] = [];
   showCreateHomeworkForm = false;
@@ -97,7 +97,7 @@ export class TrainerComponent implements OnInit {
   pendingHomeworks: HomeworkDisplay[] = [];
   completedHomeworks: HomeworkDisplay[] = [];
   overdueHomeworks: HomeworkDisplay[] = [];
-  
+
   // Teacher homework arrays
   homeworksToReview: HomeworkDisplay[] = []; // Для проверки (с ответами студентов)
   reviewedHomeworks: HomeworkDisplay[] = []; // Уже проверенные
@@ -119,12 +119,12 @@ export class TrainerComponent implements OnInit {
 
   // Homework expansion for reviewed section
   selectedExpandedHomework: string | null = null;
-  
+
   // Lesson selection for material attachment
   showAttachModal = false;
   selectedMaterial: Material | null = null;
   availableLessons: Lesson[] = [];
-  
+
   // Current user
   currentUser: User | null = null;
 
@@ -163,7 +163,7 @@ export class TrainerComponent implements OnInit {
   resultParaphrase = '';
   correctIntonation = 'joy';
   resultIntonation = '';
-  
+
   // Reading
   readingTask = 'matchTitle';
   readingText = 'La pollution est un problème majeur dans le monde moderne...';
@@ -182,7 +182,7 @@ export class TrainerComponent implements OnInit {
   argumentationOptions = ['Opinion personnelle', 'Thèse avec argument', 'Faits historiques'];
   correctArgumentation = 'Thèse avec argument';
   argumentationResult: string | undefined;
-  
+
   // Writing
   writingTask = 'plan';
   essayPlan = '';
@@ -201,7 +201,7 @@ export class TrainerComponent implements OnInit {
   correctSentence = 'Il faut faire attention aux règles grammaticales.';
   correctedSentence = '';
   correctionFeedback: string | undefined;
-  
+
   // Speaking
   speakingTask = 'argumentation';
   speakingQuestion = 'Pourquoi faut-il protéger l\'environnement?';
@@ -221,7 +221,7 @@ export class TrainerComponent implements OnInit {
   dialogueFeedback: string | undefined;
   intonationSentence = 'Je suis tellement content de cette nouvelle!';
   intonationFeedback: string | undefined;
-  
+
   // Grammar
   grammarTask = 'connectors';
   sentenceWithBlank = 'Il pleuvait, _____ nous avons annulé le voyage.';
@@ -243,7 +243,7 @@ export class TrainerComponent implements OnInit {
   synonymOptions = ['lent', 'vite', 'facile'];
   correctSynonym = 'vite';
   synonymResult: string | undefined;
-  
+
   // Exam
   examStarted = false;
   examStep = 'listening';
@@ -273,11 +273,11 @@ export class TrainerComponent implements OnInit {
     private router: Router,
     private title: Title,
     private meta: Meta
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.updateSEOTags();
-    
+
     // Загружаем данные пользователя
     this.currentUser = this.authService.getCurrentUser() as unknown as User;
     if (this.currentUser) {
@@ -285,7 +285,7 @@ export class TrainerComponent implements OnInit {
       this.loadMaterials();
       this.loadHomeworks();
       this.loadAvailableLessons();
-      
+
       console.log('🎯 TrainerComponent initialized for role:', this.isTeacher() ? 'teacher' : 'student');
     }
 
@@ -308,12 +308,12 @@ export class TrainerComponent implements OnInit {
   }
 
   // ==================== MATERIALS SECTION ====================
-  
+
   loadMaterials() {
     if (this.currentUser?.id) {
       console.log('🔍 Loading materials for user:', this.currentUser.id);
       console.log('🔍 isTeacher:', this.isTeacher(), 'isStudent:', this.isStudent());
-      
+
       if (this.isTeacher()) {
         console.log('🔍 Loading as teacher...');
         // Преподаватели загружают только свои материалы
@@ -408,7 +408,7 @@ export class TrainerComponent implements OnInit {
       isTeacher: this.isTeacher()
     });
 
-    const loadMethod = this.isTeacher() 
+    const loadMethod = this.isTeacher()
       ? this.homeworkService.getHomeworkForTeacher(this.currentUser.id)
       : this.homeworkService.getHomeworkForStudent(this.currentUser.id);
 
@@ -432,7 +432,7 @@ export class TrainerComponent implements OnInit {
           rawData: hw
         })));
 
-        console.log('🔍 Specific check for d097ef72-7d65-409a-946a-264a620d5b1f:', 
+        console.log('🔍 Specific check for d097ef72-7d65-409a-946a-264a620d5b1f:',
           homeworks.find(hw => hw.id === 'd097ef72-7d65-409a-946a-264a620d5b1f'));
 
         // Преобразуем Homework[] в HomeworkDisplay[]
@@ -491,7 +491,7 @@ export class TrainerComponent implements OnInit {
   loadAvailableLessons() {
     if (this.currentUser?.id) {
       console.log('🔍 Chargement des cours disponibles...');
-      
+
       // Загружаем уроки для студента или преподавателя
       if (this.isStudent()) {
         // Для студента: загружаем подтвержденные уроки
@@ -499,10 +499,10 @@ export class TrainerComponent implements OnInit {
           next: (lessons: unknown[]) => {
             // Фильтруем только будущие уроки для прикрепления материалов
             this.availableLessons = lessons.filter((lesson: unknown) => {
-              const lessonData = lesson as {status?: string, scheduledAt?: string};
-              return lessonData.status === 'confirmed' && 
-                     lessonData.scheduledAt && 
-                     new Date(lessonData.scheduledAt) >= new Date();
+              const lessonData = lesson as { status?: string, scheduledAt?: string };
+              return lessonData.status === 'confirmed' &&
+                lessonData.scheduledAt &&
+                new Date(lessonData.scheduledAt) >= new Date();
             }) as Lesson[];
             console.log('✅ Уроки студента загружены:', this.availableLessons);
           },
@@ -517,10 +517,10 @@ export class TrainerComponent implements OnInit {
           next: (lessons: unknown[]) => {
             // Фильтруем только будущие уроки для прикрепления материалов
             this.availableLessons = lessons.filter((lesson: unknown) => {
-              const lessonData = lesson as {status?: string, scheduledAt?: string};
-              return lessonData.status === 'confirmed' && 
-                     lessonData.scheduledAt && 
-                     new Date(lessonData.scheduledAt) >= new Date();
+              const lessonData = lesson as { status?: string, scheduledAt?: string };
+              return lessonData.status === 'confirmed' &&
+                lessonData.scheduledAt &&
+                new Date(lessonData.scheduledAt) >= new Date();
             }) as Lesson[];
             console.log('✅ Уроки преподавателя загружены:', this.availableLessons);
           },
@@ -534,7 +534,7 @@ export class TrainerComponent implements OnInit {
   }
 
   // ==================== FILE UPLOAD METHODS ====================
-  
+
   onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
@@ -544,7 +544,7 @@ export class TrainerComponent implements OnInit {
   }
 
   // ==================== DRAG & DROP METHODS ====================
-  
+
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -561,7 +561,7 @@ export class TrainerComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     this.isDragOver = false;
-    
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.handleFileSelection(files[0]);
@@ -583,7 +583,7 @@ export class TrainerComponent implements OnInit {
 
     this.selectedFile = file;
     console.log('📁 Fichier sélectionné:', file.name, `(${this.formatFileSize(file.size)})`);
-    
+
     // Auto-detect file type
     if (file.type.startsWith('image/')) {
       this.newMaterial.type = 'image';
@@ -608,9 +608,9 @@ export class TrainerComponent implements OnInit {
     };
 
     if (this.newMaterial.type === 'text') return false;
-    
+
     const typeKey = this.newMaterial.type as keyof typeof allowedTypes;
-    return allowedTypes[typeKey]?.some(type => 
+    return allowedTypes[typeKey]?.some(type =>
       file.type === type || file.type.startsWith(type.split('/')[0] + '/')
     ) || false;
   }
@@ -653,9 +653,43 @@ export class TrainerComponent implements OnInit {
 
       this.uploadingFile = true;
       this.uploadProgress = 0;
+      console.warn('!!!!!! current user:', this.currentUser);
+
+      console.warn("----------------selected file:", this.selectedFile)
+      this.fileUploadService.uploadFile(this.selectedFile).subscribe({
+        next: (response) => {
+          this.uploadingFile = false;
+          this.uploadProgress = 100;
+          console.log('✅ Fichier uploadé avec succès:', response.url);
+          this.notificationService.success('Fichier uploadé avec succès!');
+          resolve(response.url);
+        },
+        error: (error) => {
+          this.uploadingFile = false;
+          this.uploadProgress = 0;
+          console.error('❌ Erreur lors de l\'upload:', error);
+          this.notificationService.error('Erreur lors de l\'upload');
+          reject(error);
+        }
+      });
+    });
+  }
+
+  uploadFileAsCourse(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.selectedFile) {
+        reject('Aucun fichier sélectionné');
+        return;
+      }
+
+      this.uploadingFile = true;
+      this.uploadProgress = 0;
 
       // Определяем courseId - используем числовой ID или ID по умолчанию
       let courseId: string;
+      console.warn('!!!!!! current user:', this.currentUser
+
+      );
       if (this.currentUser?.['courseId'] && !isNaN(Number(this.currentUser['courseId']))) {
         // Если есть числовой courseId в профиле пользователя
         courseId = this.currentUser['courseId'].toString();
@@ -668,8 +702,8 @@ export class TrainerComponent implements OnInit {
       }
 
       console.log('📤 Загрузка файла с courseId:', courseId);
-
-      this.fileUploadService.uploadFile(this.selectedFile, courseId).subscribe({
+      console.warn("----------------selected file:", this.selectedFile)
+      this.fileUploadService.uploadFileAsCourse(this.selectedFile, courseId).subscribe({
         next: (response) => {
           this.uploadingFile = false;
           this.uploadProgress = 100;
@@ -728,6 +762,8 @@ export class TrainerComponent implements OnInit {
         tags: this.newMaterial.tags.filter(tag => tag.trim() !== '')
       };
 
+      console.warn("materialData:", materialData)
+
       this.materialService.createMaterial(materialData).subscribe({
         next: (material) => {
           this.materials.push(material);
@@ -781,7 +817,7 @@ export class TrainerComponent implements OnInit {
   openCreateHomeworkForm() {
     this.showCreateHomeworkForm = true;
     this.loadAvailableLessons();
-    
+
     // Set default due date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -790,7 +826,7 @@ export class TrainerComponent implements OnInit {
 
   createHomework() {
     console.log('🔍 Création de devoir - DÉBUT');
-    
+
     console.log('📝 Données actuelles:', {
       title: this.newHomework.title,
       description: this.newHomework.description,
@@ -837,7 +873,7 @@ export class TrainerComponent implements OnInit {
       description: this.newHomework.description,
       dueDate: this.newHomework.dueDate,
       assignedBy: this.currentUser.id,
-      assignedTo: this.isTeacher() ? (selectedLesson as {studentId?: string})['studentId'] || '' : (selectedLesson as {teacherId?: string})['teacherId'] || '',
+      assignedTo: this.isTeacher() ? (selectedLesson as { studentId?: string })['studentId'] || '' : (selectedLesson as { teacherId?: string })['teacherId'] || '',
       lessonId: this.newHomework.lessonId,
       materialIds: this.newHomework.materialIds
     };
@@ -857,7 +893,7 @@ export class TrainerComponent implements OnInit {
         this.notificationService.error('Erreur lors de la création du devoir');
       }
     });
-    
+
     console.log('🔍 Création de devoir - FIN (méthode appelée)');
   }
 
@@ -892,7 +928,7 @@ export class TrainerComponent implements OnInit {
       materialId: this.selectedMaterial.id,
       lessonId: lessonId,
       teacherId: this.currentUser?.id || '',
-      studentId: (lesson as {studentId?: string}).studentId || ''
+      studentId: (lesson as { studentId?: string }).studentId || ''
     };
 
     console.log('🔗 Попытка прикрепить материал:', {
@@ -907,10 +943,10 @@ export class TrainerComponent implements OnInit {
         console.log('✅ Matériel attaché au cours avec succès');
         console.log('🔗 Материал успешно прикреплен:', request);
         this.notificationService.success(`Matériel "${this.selectedMaterial?.title}" attaché au cours avec succès!`);
-        
+
         // Уведомляем другие компоненты о прикреплении материала
         this.materialService.notifyMaterialAttached(this.selectedMaterial!.id, lessonId);
-        
+
         this.closeAttachModal();
         this.loadMaterials();
       },
@@ -919,8 +955,8 @@ export class TrainerComponent implements OnInit {
         console.error('❌ Детали ошибки прикрепления:', {
           request: request,
           error: error,
-          errorMessage: (error as {message?: string}).message || 'Unknown error',
-          errorStatus: (error as {status?: number}).status || 0
+          errorMessage: (error as { message?: string }).message || 'Unknown error',
+          errorStatus: (error as { status?: number }).status || 0
         });
         this.notificationService.error('Erreur lors de l\'attachement du matériel au cours');
       }
@@ -1258,7 +1294,7 @@ export class TrainerComponent implements OnInit {
 
   playAudioManually(audioElement: unknown, material: Material): void {
     console.log('🎵 Forçage lecture audio pour:', material.title);
-    const audioElementRef = audioElement as {nativeElement?: HTMLAudioElement};
+    const audioElementRef = audioElement as { nativeElement?: HTMLAudioElement };
     if (audioElementRef && audioElementRef.nativeElement) {
       const audio = audioElementRef.nativeElement;
       audio.play().catch((error: unknown) => {
@@ -1270,11 +1306,11 @@ export class TrainerComponent implements OnInit {
 
   async fullAudioDiagnostic(audioElement: HTMLAudioElement, material: Material) {
     console.log('🔍 === DIAGNOSTIC AUDIO COMPLET ===');
-    
+
     // 1. Informations sur le fichier
     console.log('📁 Fichier:', material.content);
     console.log('📁 Type:', material.type);
-    
+
     // 2. État de l'élément audio
     console.log('🎵 Audio Element State:', {
       readyState: audioElement.readyState,
@@ -1287,19 +1323,19 @@ export class TrainerComponent implements OnInit {
       ended: audioElement.ended,
       src: audioElement.src
     });
-    
+
     // 3. Support du navigateur
     const mp3Support = audioElement.canPlayType('audio/mpeg');
     const wavSupport = audioElement.canPlayType('audio/wav');
     console.log('🎵 Support formats:', { mp3: mp3Support, wav: wavSupport });
-    
+
     // 4. Audio Context (Web Audio API)
     try {
       if (typeof window !== 'undefined' && 'AudioContext' in window) {
-        const audioContext = new (window.AudioContext || (window as {webkitAudioContext?: typeof AudioContext}).webkitAudioContext || AudioContext)();
+        const audioContext = new (window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext || AudioContext)();
         console.log('🎵 AudioContext State:', audioContext.state);
         console.log('🎵 AudioContext Sample Rate:', audioContext.sampleRate);
-        
+
         if (audioContext.state === 'suspended') {
           console.log('⚠️ AudioContext suspendu - tentative de reprise...');
           await audioContext.resume();
@@ -1309,41 +1345,41 @@ export class TrainerComponent implements OnInit {
     } catch (contextError) {
       console.error('❌ Erreur AudioContext:', contextError);
     }
-    
+
     // 5. Permissions et politiques
     if ('permissions' in navigator) {
       try {
-        const result = await (navigator.permissions as {query: (descriptor: {name: string}) => Promise<{state: string}>}).query({ name: 'autoplay' });
+        const result = await (navigator.permissions as { query: (descriptor: { name: string }) => Promise<{ state: string }> }).query({ name: 'autoplay' });
         console.log('🔒 Permission autoplay:', result.state);
       } catch {
         console.log('🔒 Impossible de vérifier les permissions autoplay');
       }
     }
-    
+
     // 6. Test CORS
     try {
       console.log('🌐 Test CORS...');
-      const corsResponse = await fetch(material.content, { 
+      const corsResponse = await fetch(material.content, {
         method: 'HEAD',
-        mode: 'cors' 
+        mode: 'cors'
       });
       console.log('✅ CORS OK:', corsResponse.status);
     } catch (corsError) {
       console.log('❌ CORS Problem:', corsError);
       console.log('💡 Ceci peut être la cause du problème!');
-      
+
       // Test no-cors
       try {
-        const _noCorsResponse = await fetch(material.content, { 
+        const _noCorsResponse = await fetch(material.content, {
           method: 'HEAD',
-          mode: 'no-cors' 
+          mode: 'no-cors'
         });
         console.log('✅ No-CORS fonctionne');
       } catch {
         console.log('❌ No-CORS aussi échoue');
       }
     }
-    
+
     // 7. Informations URL
     const urlInfo = new URL(material.content);
     console.log('🔗 URL Info:', {
@@ -1352,35 +1388,35 @@ export class TrainerComponent implements OnInit {
       pathname: urlInfo.pathname,
       sameOrigin: urlInfo.origin === window.location.origin
     });
-    
+
     console.log('🔍 === FIN DIAGNOSTIC ===');
   }
 
   getDiagnosticInfo(audioElement: HTMLAudioElement, error: unknown): string {
     const diagnostics = [];
-    
+
     // État de l'élément audio
     diagnostics.push(`ReadyState: ${audioElement.readyState}`);
     diagnostics.push(`NetworkState: ${audioElement.networkState}`);
     diagnostics.push(`Volume: ${audioElement.volume}`);
     diagnostics.push(`Muted: ${audioElement.muted}`);
     diagnostics.push(`Duration: ${audioElement.duration}`);
-    
+
     // Type d'erreur
-    const errorObj = error as {name?: string, message?: string};
+    const errorObj = error as { name?: string, message?: string };
     if (errorObj.name) diagnostics.push(`Error: ${errorObj.name}`);
     if (errorObj.message) diagnostics.push(`Message: ${errorObj.message}`);
-    
+
     return diagnostics.join(' | ');
   }
 
   async tryAlternativePlayback(audioElement: HTMLAudioElement, material: Material) {
     console.log('🔄 Tentative d\'approche alternative...');
-    
+
     try {
       // Recharger l'audio
       audioElement.load();
-      
+
       // Attendre le chargement
       await new Promise((resolve) => {
         const onCanPlay = () => {
@@ -1389,12 +1425,12 @@ export class TrainerComponent implements OnInit {
         };
         audioElement.addEventListener('canplay', onCanPlay);
       });
-      
+
       // Essayer à nouveau
       await audioElement.play();
       console.log('✅ Approche alternative réussie!');
       this.notificationService.success('Lecture alternative réussie!');
-      
+
     } catch (alternativeError) {
       console.error('❌ Approche alternative échouée:', alternativeError);
       this.notificationService.warning('Utilisez "Ouvrir directement" pour écouter le fichier');
@@ -1406,26 +1442,26 @@ export class TrainerComponent implements OnInit {
     const isLocalhost = url.includes('localhost');
     const isHttp = url.startsWith('http');
     const extension = url.split('.').pop()?.toLowerCase();
-    
+
     return `${extension?.toUpperCase() || 'UNKNOWN'} | ${isLocalhost ? 'LOCAL' : 'REMOTE'} | ${isHttp ? 'HTTP' : 'FILE'}`;
   }
 
   testAudioPlayback(material: Material) {
     console.log('🧪 Test de lecture audio:', material.content);
-    
+
     // Créer un nouvel élément audio pour tester
     const testAudio = new Audio();
     testAudio.preload = 'metadata';
-    
+
     testAudio.addEventListener('loadeddata', () => {
       console.log('✅ Test: Audio chargé');
       this.notificationService.success('Audio test: Fichier chargé correctement');
-      
+
       // Tester la lecture
       testAudio.play().then(() => {
         console.log('✅ Test: Lecture démarrée');
         this.notificationService.success('Audio test: Lecture réussie!');
-        
+
         // Arrêter après 2 secondes
         setTimeout(() => {
           testAudio.pause();
@@ -1436,12 +1472,12 @@ export class TrainerComponent implements OnInit {
         this.notificationService.error('Audio test: Erreur de lecture - ' + error.message);
       });
     });
-    
+
     testAudio.addEventListener('error', (error) => {
       console.error('❌ Test: Erreur de chargement:', error);
       this.notificationService.error('Audio test: Impossible de charger le fichier');
     });
-    
+
     testAudio.src = material.content;
     testAudio.load();
   }
@@ -1453,11 +1489,11 @@ export class TrainerComponent implements OnInit {
     }
 
     const lessonInfos: string[] = [];
-    
+
     for (const lessonId of material.attachedLessons) {
       const lesson = this.availableLessons.find(l => l.id === lessonId);
       if (lesson) {
-        const lessonData = lesson as {scheduledAt?: string, teacherName?: string, studentName?: string};
+        const lessonData = lesson as { scheduledAt?: string, teacherName?: string, studentName?: string };
         const date = new Date(lessonData.scheduledAt || new Date()).toLocaleDateString('fr-FR', {
           day: '2-digit',
           month: '2-digit',
@@ -1491,10 +1527,10 @@ export class TrainerComponent implements OnInit {
       grade: hw.grade,
       isOverdue: this.isOverdue(hw.dueDate)
     })));
-    
+
     const now = new Date();
     console.log('⏰ Current time:', now.toISOString());
-    
+
     if (this.isStudent()) {
       // Student filtering logic
       // Сначала фильтруем завершенные
@@ -1503,7 +1539,7 @@ export class TrainerComponent implements OnInit {
         console.log(`✅ ${hw.title}: status=${hw.status}, isCompleted=${isCompleted}`);
         return isCompleted;
       });
-      
+
       // Затем фильтруем просроченные (unfinished/assigned которые просрочены)
       this.overdueHomeworks = this.homeworks.filter(hw => {
         const dueDate = new Date(hw.dueDate);
@@ -1513,7 +1549,7 @@ export class TrainerComponent implements OnInit {
         console.log(`⏰ ${hw.title}: status=${hw.status}, dueDate=${dueDate.toISOString()}, now=${now.toISOString()}, isOverdue=${isOverdue}, result=${result}`);
         return result;
       });
-      
+
       // Наконец, pending (unfinished/assigned которые не просрочены)
       this.pendingHomeworks = this.homeworks.filter(hw => {
         const dueDate = new Date(hw.dueDate);
@@ -1523,7 +1559,7 @@ export class TrainerComponent implements OnInit {
         console.log(`📝 ${hw.title}: status=${hw.status}, dueDate=${dueDate.toISOString()}, now=${now.toISOString()}, isNotOverdue=${isNotOverdue}, result=${result}`);
         return result;
       });
-      
+
       console.log('📊 Student homework filtered by status:');
       console.log('📝 Pending count:', this.pendingHomeworks.length);
       console.log('✅ Completed count:', this.completedHomeworks.length);
@@ -1536,13 +1572,13 @@ export class TrainerComponent implements OnInit {
         const isFinishedWithResponse = hw.status === 'finished' && hasResponse && isNotGraded;
         const isSubmitted = hw.status === 'submitted';
         const isOverdueUnfinished = hw.status === 'unfinished' && this.isOverdue(hw.dueDate);
-        
+
         const shouldReview = isFinishedWithResponse || isSubmitted || isOverdueUnfinished;
-        
+
         console.log(`🔍 ${hw.title}: status=${hw.status}, hasResponse=${hasResponse}, isNotGraded=${isNotGraded}, shouldReview=${shouldReview}`);
         return shouldReview;
       });
-      
+
       this.reviewedHomeworks = this.homeworks.filter(hw => {
         const isGraded = hw.grade !== null && hw.grade !== undefined;
         console.log(`📊 ${hw.title}: grade=${hw.grade}, isGraded=${isGraded}`);
@@ -1569,7 +1605,7 @@ export class TrainerComponent implements OnInit {
     console.log('🔍 Pending homeworks:', this.pendingHomeworks.length);
     console.log('✅ Completed homeworks:', this.completedHomeworks.length);
     console.log('⏰ Overdue homeworks:', this.overdueHomeworks.length);
-    
+
     const homework = this.homeworks.find(hw => hw.id === homeworkId);
     if (homework) {
       console.log('✅ Found homework:', {
@@ -1578,7 +1614,7 @@ export class TrainerComponent implements OnInit {
         status: homework.status,
         dueDate: homework.dueDate
       });
-      
+
       // Определяем, на какую подвкладку перейти
       if (homework.status === 'completed' || homework.status === 'submitted') {
         this.activeHomeworkTab = 'completed';
@@ -1587,12 +1623,12 @@ export class TrainerComponent implements OnInit {
       } else {
         this.activeHomeworkTab = 'pending';
       }
-      
+
       console.log('📌 Set activeHomeworkTab to:', this.activeHomeworkTab);
-      
+
       // НЕ открываем модалку автоматически, а только прокручиваем к карточке
       // Пользователь должен нажать "Faire le devoir" чтобы открыть модалку
-      
+
       // Прокручиваем к элементу
       setTimeout(() => {
         const element = document.getElementById(`homework-${homeworkId}`);
@@ -1656,7 +1692,7 @@ export class TrainerComponent implements OnInit {
 
     this.isSubmittingHomework = true;
     const currentUser = this.authService.getCurrentUser();
-    
+
     if (!currentUser) {
       console.error('❌ Пользователь не авторизован');
       this.isSubmittingHomework = false;
@@ -1672,18 +1708,18 @@ export class TrainerComponent implements OnInit {
 
     // Используем правильный endpoint для завершения homework с ответом студента
     this.homeworkService.completeHomeworkItem(
-      this.selectedHomework.id, 
-      currentUser.id, 
+      this.selectedHomework.id,
+      currentUser.id,
       this.homeworkResponse
     ).subscribe({
       next: (response) => {
         console.log('✅ Домашнее задание завершено:', response);
         this.closeHomeworkModal();
         this.loadHomeworks(); // Перезагружаем список для обновления статуса
-        
+
         // Уведомляем об обновлении домашнего задания
         this.homeworkService.notifyHomeworkUpdated();
-        
+
         // Показываем уведомление об успехе
         // this.notificationService.success('Devoir terminé avec succès !');
       },
@@ -1754,18 +1790,18 @@ export class TrainerComponent implements OnInit {
   formatCompletedDate(homework: HomeworkDisplay): string | null {
     const date = this.getCompletedDate(homework);
     if (!date) return null;
-    
+
     // Проверяем валидность даты
     if (isNaN(date.getTime())) {
       console.warn('⚠️ Invalid date for homework:', homework.id, date);
       return null;
     }
-    
+
     return date.toLocaleDateString('fr-FR');
   }
 
   // ==================== TEACHER METHODS FOR GRADING ====================
-  
+
   openGradingModal(homework: HomeworkDisplay): void {
     this.selectedHomeworkForGrading = homework;
     this.gradingData = {
@@ -1775,7 +1811,7 @@ export class TrainerComponent implements OnInit {
     };
     this.showGradingModal = true;
     this.isSubmittingGrade = false;
-    
+
     console.log('🎯 Opening grading modal for homework:', {
       id: homework.id,
       title: homework.title,
@@ -1810,11 +1846,11 @@ export class TrainerComponent implements OnInit {
   }
 
   isGradeValid(): boolean {
-    return this.gradingData.grade !== null && 
-           this.gradingData.grade !== undefined && 
-           !isNaN(this.gradingData.grade) &&
-           this.gradingData.grade >= 0 && 
-           this.gradingData.grade <= this.gradingData.maxGrade;
+    return this.gradingData.grade !== null &&
+      this.gradingData.grade !== undefined &&
+      !isNaN(this.gradingData.grade) &&
+      this.gradingData.grade >= 0 &&
+      this.gradingData.grade <= this.gradingData.maxGrade;
   }
 
   submitGrade(): void {
@@ -1841,7 +1877,7 @@ export class TrainerComponent implements OnInit {
     }
 
     this.isSubmittingGrade = true;
-    
+
     console.log('📝 Submitting grade:', {
       homeworkId: this.selectedHomeworkForGrading.id,
       grade: this.gradingData.grade,
@@ -1857,10 +1893,10 @@ export class TrainerComponent implements OnInit {
         console.log('✅ Grade submitted successfully:', response);
         this.closeGradingModal();
         this.loadHomeworks(); // Reload homework to see updated grade
-        
+
         // Notify about homework update
         this.homeworkService.notifyHomeworkUpdated();
-        
+
         // TODO: Show success notification
         // this.notificationService.success('Évaluation enregistrée avec succès !');
       },
@@ -1879,7 +1915,7 @@ export class TrainerComponent implements OnInit {
   }
 
   // ==================== HOMEWORK EXPANSION METHODS ====================
-  
+
   toggleHomeworkExpansion(homeworkId: string): void {
     if (this.selectedExpandedHomework === homeworkId) {
       this.selectedExpandedHomework = null;
@@ -1936,7 +1972,7 @@ export class TrainerComponent implements OnInit {
     try {
       return new Date(date as string | Date).toLocaleDateString('fr-FR', {
         day: '2-digit',
-        month: '2-digit', 
+        month: '2-digit',
         year: 'numeric'
       });
     } catch {
@@ -1962,7 +1998,7 @@ export class TrainerComponent implements OnInit {
   private updateSEOTags(): void {
     const pageTitle = 'Centre d\'Entraînement - Matériaux et Devoirs | LINGUACONNECT';
     const pageDescription = 'Gérez vos matériaux pédagogiques et devoirs de français. Centre d\'entraînement interactif pour la préparation aux examens DELF/DALF.';
-    
+
     this.title.setTitle(pageTitle);
     this.meta.updateTag({ name: 'description', content: pageDescription });
     this.meta.updateTag({ property: 'og:title', content: pageTitle });

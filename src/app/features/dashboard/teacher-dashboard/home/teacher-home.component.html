@@ -4,8 +4,45 @@
 
   <div class="teacher-photo">
     <img [src]="(photoUrl$ | async) ?? 'assets/default-avatar.png'" alt="photo du professeur"
-      (error)="onImgError($event)" />
+      (error)="onImgError($event)" (click)="openPhotoPicker(fileInput)" style="cursor:pointer" />
+
+    <!-- опционально: плавающая кнопка-иконка поверх фото -->
+    <button mat-mini-fab color="primary" class="edit-overlay" aria-label="Changer la photo"
+      (click)="openPhotoPicker(fileInput)" type="button">
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    <!-- скрытый инпут; откроем его программно -->
+    <input #fileInput type="file" accept="image/*" class="visually-hidden" (change)="onFileChange($event)" />
   </div>
+
+  <div *ngIf="selectedPhotoUrl" class="mt-3">
+    <div class="preview">
+      <p>
+        <mat-icon inline>insert_photo</mat-icon>
+        Fichier sélectionné : {{ selectedPhotoFile?.name }}
+      </p>
+
+      <img [src]="selectedPhotoUrl" alt="aperçu" style="max-width:180px;display:block;margin-top:8px" />
+    </div>
+
+    <button mat-raised-button color="primary" (click)="uploadSelected()" [disabled]="isUploading" type="button">
+      <mat-icon>save</mat-icon>
+      Sauvegarder
+    </button>
+
+    <button mat-stroked-button color="warn" (click)="cancelSelected()" [disabled]="isUploading" type="button"
+      style="margin-left:8px">
+      <mat-icon>cancel</mat-icon>
+      Annuler
+    </button>
+
+    <div *ngIf="uploadError" class="error" style="margin-top:8px">
+      <mat-icon inline color="warn">error</mat-icon>
+      {{ uploadError }}
+    </div>
+  </div>
+
 
   <div class="top-section">
     <!--TODO: как вывести в src возврат функции loadTeacherPhoto -->
@@ -28,7 +65,7 @@
     <!-- Левая колонка -->
     <div class="column left-column">
       <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
-        <h3>🔔 Notifications</h3>
+        <h3><img class="notification-icon" src="assets/icons/home-page/notif.png" alt=""> Notifications</h3>
         <button mat-icon-button (click)="notificationsCollapsed = !notificationsCollapsed">
           <mat-icon>{{ notificationsCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
         </button>
@@ -70,7 +107,7 @@
       </div>
 
       <!-- СИСТЕМА ВКЛАДОК ДЛЯ ЗАЯВОК -->
-      <h3>📨 Demandes de réservation</h3>
+      <h3><img src="assets/icons/home-page/letter.png" alt="demande de réservation" class="letter"> Demandes de réservation</h3>
 
       <mat-tab-group class="requests-tabs" animationDuration="300ms">
         <!-- Вкладка: Nouvelles demandes -->
@@ -295,7 +332,7 @@
     <div class="column right-column">
       <div class="homework-zone">
         <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
-          <h3>📚 Devoirs à corriger</h3>
+          <h3><img src="assets/icons/home-page/devoir.png" alt="icon-devoirs" class="devoirs-corriger"> Devoirs à corriger</h3>
           <button mat-icon-button (click)="homeworkCollapsed = !homeworkCollapsed">
             <mat-icon>{{ homeworkCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
           </button>
@@ -428,7 +465,7 @@
 
   <!-- 🔽 НИЖНЯЯ ЧАСТЬ -->
   <div class="bottom-section">
-    <h3>🗓️ Prochains cours</h3>
+    <h3><img src="assets/icons/home-page/calendrier.png" alt="" class="calendar"> Prochains cours</h3>
     <div class="calendar-wrapper">
       <app-calendar-preview [events]="upcomingLessons" [eventTitleTemplate]="customEventTemplate"
         (eventClicked)="onCalendarEventClick($event)"></app-calendar-preview>
