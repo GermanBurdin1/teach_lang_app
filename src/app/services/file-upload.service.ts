@@ -41,12 +41,17 @@ export class FileUploadService {
     );
   }
 
-  uploadFileAsCourse(file: File, courseId: string): Observable<{ id: number; url: string; createdAt: string }> {
+  uploadFileAsCourse(file: File, courseId: string, tag?: string): Observable<{ id: number; url: string; createdAt: string }> {
     const formData = new FormData();
     formData.append('file', file);
 
+    let url = `${this.apiUrl}?courseId=${encodeURIComponent(courseId)}`;
+    if (tag) {
+      url += `&tag=${encodeURIComponent(tag)}`;
+    }
+
     return this.http.post<{ id: number; url: string; createdAt: string }>(
-      `${this.apiUrl}?courseId=${encodeURIComponent(courseId)}`, // ✅ Передаем courseId как строку
+      url,
       formData
     );
   }
@@ -56,10 +61,10 @@ export class FileUploadService {
     return this.http.get<UploadedFile[]>(`${API_ENDPOINTS.FILES}?courseId=${encodeURIComponent(courseId)}`);
   }
 
-  linkFileToCourse(fileUrl: string, courseId: number): Observable<{ id: number; url: string; createdAt: string }> {
+  linkFileToCourse(fileUrl: string, courseId: number, tag?: string): Observable<{ id: number; url: string; createdAt: string }> {
     return this.http.post<{ id: number; url: string; createdAt: string }>(
       `${API_ENDPOINTS.FILES}/linkToCourse`,
-      { fileUrl, courseId }
+      { fileUrl, courseId, tag }
     );
   }
 

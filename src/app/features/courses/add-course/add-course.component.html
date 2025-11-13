@@ -272,18 +272,17 @@
       </div>
     </div>
 
-    <!-- Materials List -->
-    <div *ngIf="materials.length > 0" class="materials-list">
-      <h3>Matériaux ajoutés ({{ materials.length }})</h3>
+    <!-- Materials without section (legacy) -->
+    <div *ngIf="getMaterialsBySection(null).length > 0 || getMaterialsWithoutSection().length > 0" class="materials-list">
+      <h3>Matériaux sans section ({{ getMaterialsWithoutSection().length }})</h3>
       <div class="materials-grid">
-        <div *ngFor="let material of materials" class="material-item">
+        <div *ngFor="let material of getMaterialsWithoutSection()" class="material-item">
           <div class="material-icon">
             <i [class]="getMaterialTypeIcon(getMaterialTypeFromMime(material.mimetype))"></i>
           </div>
           <div class="material-info">
             <h4>{{ material.filename }}</h4>
             <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
-            <span *ngIf="material.tag" class="material-tag">{{ material.tag }}</span>
           </div>
           <div class="material-actions">
             <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-link" title="Ouvrir">
@@ -298,9 +297,6 @@
           </div>
         </div>
       </div>
-    </div>
-    <div *ngIf="materials.length === 0" class="no-materials">
-      <p><i class="fas fa-info-circle"></i> Aucun matériau ajouté pour le moment.</p>
     </div>
 
     <!-- Sections Management -->
@@ -348,6 +344,35 @@
                 <i class="fas fa-trash"></i>
               </button>
             </div>
+          </div>
+          
+          <!-- Materials in this section -->
+          <div class="section-materials" *ngIf="getMaterialsBySection(section).length > 0">
+            <div class="materials-grid">
+              <div *ngFor="let material of getMaterialsBySection(section)" class="material-item">
+                <div class="material-icon">
+                  <i [class]="getMaterialTypeIcon(getMaterialTypeFromMime(material.mimetype))"></i>
+                </div>
+                <div class="material-info">
+                  <h4>{{ material.filename }}</h4>
+                  <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
+                </div>
+                <div class="material-actions">
+                  <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-link" title="Ouvrir">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                  <button 
+                    class="btn btn-sm btn-danger"
+                    (click)="deleteMaterial(material)"
+                    title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="section-materials-empty" *ngIf="getMaterialsBySection(section).length === 0">
+            <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette section</p>
           </div>
         </div>
       </div>
