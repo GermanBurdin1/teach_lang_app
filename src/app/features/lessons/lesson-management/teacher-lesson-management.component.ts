@@ -9,6 +9,7 @@ import { VideoCallService } from '../../../services/video-call.service';
 import { LessonNotesService, LessonNote, LessonNotesData } from '../../../services/lesson-notes.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../../services/lesson-tabs.service';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
 
 interface _Task {
   id: string;
@@ -1078,5 +1079,20 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   formatHomeworkDueDate(homework: unknown): Date | null {
     const date = (homework as {dueDate?: string | Date})?.['dueDate'];
     return date ? new Date(date) : null;
+  }
+
+  // Функция для преобразования URL файлов на локальный сервер
+  getFileUrl(url: string): string {
+    if (!url) {
+      return '#';
+    }
+    // Заменяем удаленный сервер на локальный
+    if (url.includes('135.125.107.45:3011')) {
+      return url.replace('http://135.125.107.45:3011', 'http://localhost:3011');
+    }
+    if (url.includes('localhost:3008')) {
+      return url.replace('http://localhost:3008', `${API_ENDPOINTS.FILES}`);
+    }
+    return url;
   }
 }

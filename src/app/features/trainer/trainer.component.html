@@ -279,7 +279,7 @@
           <div class="material-content">
             <!-- Audio Content -->
             <div *ngIf="material.type === 'audio'" class="audio-content">
-              <audio controls #audioPlayer class="audio-player" [src]="material.content" preload="metadata">
+              <audio controls #audioPlayer class="audio-player" [src]="getFileUrl(material.content)" preload="metadata">
                 Votre navigateur ne supporte pas l'élément audio.
               </audio>
               <div class="audio-info">

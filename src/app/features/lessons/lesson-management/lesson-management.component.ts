@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call.service';
 import { Subscription } from 'rxjs';
 import { LessonTabsService } from '../../../services/lesson-tabs.service';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
 
 interface HomeworkItem {
   id?: string;
@@ -1172,6 +1173,21 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     this.meta.updateTag({ property: 'og:title', content: pageTitle });
     this.meta.updateTag({ property: 'og:description', content: pageDescription });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
+  }
+
+  // Функция для преобразования URL файлов на локальный сервер
+  getFileUrl(url: string): string {
+    if (!url) {
+      return '#';
+    }
+    // Заменяем удаленный сервер на локальный
+    if (url.includes('135.125.107.45:3011')) {
+      return url.replace('http://135.125.107.45:3011', 'http://localhost:3011');
+    }
+    if (url.includes('localhost:3008')) {
+      return url.replace('http://localhost:3008', `${API_ENDPOINTS.FILES}`);
+    }
+    return url;
   }
 }
 

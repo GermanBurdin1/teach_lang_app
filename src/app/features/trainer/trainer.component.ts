@@ -984,6 +984,11 @@ export class TrainerComponent implements OnInit {
 
   // Функция для преобразования localhost URL в правильный URL через API Gateway
   getFileUrl(url: string): string {
+    // Заменяем удаленный сервер на локальный
+    if (url.includes('135.125.107.45:3011')) {
+      // Заменяем удаленный сервер на локальный, сохраняя путь
+      return url.replace('http://135.125.107.45:3011', 'http://localhost:3011');
+    }
     if (url.includes('localhost:3008')) {
       return url.replace('http://localhost:3008', `${API_ENDPOINTS.FILES}`);
     }

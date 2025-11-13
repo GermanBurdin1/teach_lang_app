@@ -415,8 +415,8 @@
                       <!-- Аудио материал -->
                       <div *ngIf="material.type === 'audio'" class="audio-content">
                         <audio controls class="audio-player">
-                          <source [src]="material.content" type="audio/mpeg">
-                          <source [src]="material.content" type="audio/wav">
+                          <source [src]="getFileUrl(material.content)" type="audio/mpeg">
+                          <source [src]="getFileUrl(material.content)" type="audio/wav">
                           Votre navigateur ne supporte pas l'élément audio.
                         </audio>
                       </div>
@@ -424,8 +424,8 @@
                       <!-- Видео материал -->
                       <div *ngIf="material.type === 'video'" class="video-content">
                         <video controls class="video-player">
-                          <source [src]="material.content" type="video/mp4">
-                          <source [src]="material.content" type="video/webm">
+                          <source [src]="getFileUrl(material.content)" type="video/mp4">
+                          <source [src]="getFileUrl(material.content)" type="video/webm">
                           Votre navigateur ne supporte pas l'élément vidéo.
                         </video>
                       </div>
@@ -440,7 +440,7 @@
                       
                       <!-- Изображение -->
                       <div *ngIf="material.type === 'image'" class="image-content">
-                        <img [src]="material.content" [alt]="material.title" class="material-image">
+                        <img [src]="getFileUrl(material.content)" [alt]="material.title" class="material-image">
                       </div>
                     </div>
                     
