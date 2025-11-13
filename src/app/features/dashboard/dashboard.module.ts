@@ -61,6 +61,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-button/back-to-home-button.component';
 import { ClassroomRedirectComponent } from '../../classroom/classroom-redirect.component';
 import { LessonResolverService } from '../../classroom/lesson-resolver.service';
+import { AddCourseComponent } from '../courses/add-course/add-course.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +92,8 @@ import { LessonResolverService } from '../../classroom/lesson-resolver.service';
     AdminUsersManagementComponent,
     AdminLessonsManagementComponent,
     AdminPlatformAnalyticsComponent,
-    ClassroomRedirectComponent
+    ClassroomRedirectComponent,
+    AddCourseComponent
   ],
   imports: [
     LayoutModule,

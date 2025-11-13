@@ -10,6 +10,8 @@ export interface UploadedFile {
   mimetype: string;
   courseId: string;
   createdAt: string;
+  tag?: string;
+  description?: string;
 }
 
 @Injectable({
@@ -50,8 +52,25 @@ export class FileUploadService {
   }
 
   getFiles(courseId: string): Observable<UploadedFile[]> {
-    return this.http.get<UploadedFile[]>(`${this.materialsUrl}?courseId=${encodeURIComponent(courseId)}`);
+    // Используем endpoint для получения файлов курса
+    return this.http.get<UploadedFile[]>(`${API_ENDPOINTS.FILES}?courseId=${encodeURIComponent(courseId)}`);
   }
 
+  linkFileToCourse(fileUrl: string, courseId: number): Observable<{ id: number; url: string; createdAt: string }> {
+    return this.http.post<{ id: number; url: string; createdAt: string }>(
+      `${API_ENDPOINTS.FILES}/linkToCourse`,
+      { fileUrl, courseId }
+    );
+  }
+
+  deleteFile(fileId: number, courseId?: string): Observable<any> {
+    // Если передан courseId, удаляем только связь с курсом
+    // Иначе удаляем файл полностью
+    let url = `${API_ENDPOINTS.FILES}/${fileId}`;
+    if (courseId) {
+      url += `?courseId=${encodeURIComponent(courseId)}`;
+    }
+    return this.http.delete(url);
+  }
 
 }

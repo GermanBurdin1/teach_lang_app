@@ -33,6 +33,7 @@ import { AdminUsersManagementComponent } from './school-dashboard/admin-users-ma
 import { AdminLessonsManagementComponent } from './school-dashboard/admin-lessons-management/admin-lessons-management.component';
 import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
 import { AnalyticsDashboardComponent } from '../admin/analytics-dashboard/analytics-dashboard.component';
+import { AddCourseComponent } from '../courses/add-course/add-course.component';
 
 const routes: Routes = [
   {
@@ -65,7 +66,9 @@ const routes: Routes = [
       { path: 'admin/gestion-utilisateurs', component: AdminUsersManagementComponent },
       { path: 'admin/gestion-cours', component: AdminLessonsManagementComponent },
       { path: 'admin/analytique-plateforme', component: AdminPlatformAnalyticsComponent },
-      { path: 'admin/ga4-analytics', component: AnalyticsDashboardComponent }
+      { path: 'admin/ga4-analytics', component: AnalyticsDashboardComponent },
+      { path: 'admin/add-course', component: AddCourseComponent },
+      { path: 'teacher/add-course', component: AddCourseComponent }
     ]
   },
 
@@ -86,7 +89,8 @@ const routes: Routes = [
         component: ClassroomRedirectComponent,
         resolve: { lessonData: 'LessonResolverService' }
       },
-      { path: 'settings', component: TeacherSettingsComponent }
+      { path: 'settings', component: TeacherSettingsComponent },
+      { path: 'add-course', component: AddCourseComponent }
     ]
   }
 ];

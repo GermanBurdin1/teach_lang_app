@@ -9,6 +9,7 @@ import { FileUploadService } from '../../services/file-upload.service';
 import { NotificationService } from '../../services/notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../core/constants/api.constants';
+import { CourseService, Course } from '../../services/course.service';
 
 interface User {
   id: string;
@@ -124,6 +125,12 @@ export class TrainerComponent implements OnInit {
   showAttachModal = false;
   selectedMaterial: Material | null = null;
   availableLessons: Lesson[] = [];
+
+  // Course selection for material attachment
+  showAddToCourseModal = false;
+  courses: Course[] = [];
+  loadingCourses = false;
+  selectedCourseId: number | null = null;
 
   // Current user
   currentUser: User | null = null;
@@ -269,6 +276,7 @@ export class TrainerComponent implements OnInit {
     private roleService: RoleService,
     private fileUploadService: FileUploadService,
     private notificationService: NotificationService,
+    private courseService: CourseService,
     private route: ActivatedRoute,
     private router: Router,
     private title: Title,
@@ -285,6 +293,7 @@ export class TrainerComponent implements OnInit {
       this.loadMaterials();
       this.loadHomeworks();
       this.loadAvailableLessons();
+      // Курсы загружаются лениво при открытии модального окна добавления в курс
 
       console.log('🎯 TrainerComponent initialized for role:', this.isTeacher() ? 'teacher' : 'student');
     }
@@ -1996,6 +2005,116 @@ export class TrainerComponent implements OnInit {
     } catch {
       return '';
     }
+  }
+
+  // ==================== COURSE METHODS ====================
+
+  loadCourses(): void {
+    // Загружаем курсы только для преподавателей
+    if (!this.isTeacher()) {
+      return;
+    }
+
+    this.loadingCourses = true;
+    this.courseService.getCoursesByTeacher().subscribe({
+      next: (courses) => {
+        this.courses = courses;
+        this.loadingCourses = false;
+        console.log('✅ Courses loaded:', courses);
+      },
+      error: (error) => {
+        console.error('❌ Error loading courses:', error);
+        this.loadingCourses = false;
+        this.courses = [];
+        // Не показываем ошибку пользователю, просто оставляем пустой список
+        // Ошибка будет видна в модальном окне
+      }
+    });
+  }
+
+  openAddToCourseModal(material: Material): void {
+    this.selectedMaterial = material;
+    
+    // Загружаем курсы только при открытии модального окна (ленивая загрузка)
+    if (this.courses.length === 0 && !this.loadingCourses) {
+      this.loadCourses();
+    }
+    
+    this.showAddToCourseModal = true;
+    this.selectedCourseId = null;
+  }
+
+  closeAddToCourseModal(): void {
+    this.showAddToCourseModal = false;
+    this.selectedMaterial = null;
+    this.selectedCourseId = null;
+  }
+
+  addMaterialToCourse(): void {
+    if (!this.selectedMaterial || !this.selectedCourseId) {
+      this.notificationService.error('Veuillez sélectionner un cours');
+      return;
+    }
+
+    const courseId = this.selectedCourseId.toString();
+    
+    // Для текстовых материалов создаем файл напрямую
+    if (this.selectedMaterial.type === 'text') {
+      // Создаем текстовый файл в курсе
+      const textBlob = new Blob([this.selectedMaterial.content], { type: 'text/plain' });
+      const textFile = new File([textBlob], `${this.selectedMaterial.title}.txt`, { type: 'text/plain' });
+      
+      this.fileUploadService.uploadFileAsCourse(textFile, courseId).subscribe({
+        next: (response) => {
+          this.notificationService.success(`Matériau "${this.selectedMaterial?.title}" ajouté au cours avec succès!`);
+          this.closeAddToCourseModal();
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de l\'ajout du matériau au cours:', error);
+          this.notificationService.error('Erreur lors de l\'ajout du matériau au cours');
+        }
+      });
+      return;
+    }
+
+    // Для файловых материалов нужно загрузить файл с courseId
+    // Загружаем файл по URL материала
+    if (this.selectedMaterial.content) {
+      fetch(this.selectedMaterial.content)
+        .then(response => response.blob())
+        .then(blob => {
+          const fileExtension = this.getFileExtensionFromUrl(this.selectedMaterial!.content);
+          const fileName = `${this.selectedMaterial!.title}${fileExtension}`;
+          const file = new File([blob], fileName, { type: blob.type });
+          
+          this.fileUploadService.uploadFileAsCourse(file, courseId).subscribe({
+            next: (response) => {
+              this.notificationService.success(`Matériau "${this.selectedMaterial?.title}" ajouté au cours avec succès!`);
+              this.closeAddToCourseModal();
+            },
+            error: (error) => {
+              console.error('❌ Erreur lors de l\'ajout du matériau au cours:', error);
+              this.notificationService.error('Erreur lors de l\'ajout du matériau au cours');
+            }
+          });
+        })
+        .catch(error => {
+          console.error('❌ Erreur lors du téléchargement du fichier:', error);
+          this.notificationService.error('Erreur lors du téléchargement du fichier');
+        });
+    }
+  }
+
+  private getFileExtensionFromUrl(url: string): string {
+    const match = url.match(/\.([a-zA-Z0-9]+)(\?|$)/);
+    return match ? `.${match[1]}` : '';
+  }
+
+  navigateToAddCourse(): void {
+    const route = this.isTeacher() 
+      ? '/cabinet/teacher/teacher/add-course'
+      : '/cabinet/school/admin/add-course';
+    this.router.navigate([route]);
   }
 
   private updateSEOTags(): void {

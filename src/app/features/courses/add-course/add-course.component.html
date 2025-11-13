@@ -1,0 +1,601 @@
+<div class="add-course-container">
+  <!-- Header -->
+  <div class="course-header">
+    <h1 class="page-title">
+      <i class="fas fa-graduation-cap"></i>
+      Mes cours
+    </h1>
+    <p class="page-subtitle">Créez et gérez vos cours avec des matériaux pédagogiques</p>
+  </div>
+
+  <!-- Add Course Button (if no course) -->
+  <div *ngIf="!courseId && !showCreateCourseForm" class="add-course-button-section">
+    <button 
+      class="btn btn-primary btn-lg add-course-btn"
+      (click)="showCreateCourseForm = true">
+      <i class="fas fa-plus"></i>
+      Ajouter un cours
+    </button>
+  </div>
+
+  <!-- Course Creation Form -->
+  <div *ngIf="showCreateCourseForm && !courseId" class="course-form-section">
+    <div class="form-card">
+      <h2>
+        <i class="fas fa-info-circle"></i>
+        Informations du cours
+      </h2>
+      
+      <div class="form-group">
+        <label>Titre du cours *</label>
+        <input 
+          type="text" 
+          [(ngModel)]="courseTitle"
+          placeholder="Ex: Cours DELF B1"
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea 
+          [(ngModel)]="courseDescription"
+          (ngModelChange)="markAsChanged()"
+          placeholder="Description du cours..."
+          class="form-control"
+          rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Niveau</label>
+        <select [(ngModel)]="courseLevel" (ngModelChange)="markAsChanged()" class="form-control">
+          <option value="">Sélectionner un niveau</option>
+          <option value="A1">A1</option>
+          <option value="A2">A2</option>
+          <option value="B1">B1</option>
+          <option value="B2">B2</option>
+          <option value="C1">C1</option>
+          <option value="C2">C2</option>
+        </select>
+      </div>
+
+      <!-- Cover Image -->
+      <div class="form-group">
+        <label>Image de couverture</label>
+        <div class="cover-image-container">
+          <div *ngIf="coverImage" class="cover-image-preview">
+            <img [src]="coverImage" alt="Cover" class="cover-image">
+            <button type="button" class="remove-cover-btn" (click)="removeCoverImage()" title="Supprimer">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div *ngIf="!coverImage" class="cover-image-upload">
+            <input 
+              type="file" 
+              id="coverImageInput"
+              accept="image/*"
+              (change)="onCoverImageSelected($event)"
+              class="file-input">
+            <label for="coverImageInput" class="cover-upload-label">
+              <i class="fas fa-image"></i>
+              <span>Choisir une image de couverture</span>
+            </label>
+          </div>
+          <button 
+            *ngIf="coverImageFile && courseId"
+            type="button"
+            class="btn btn-sm btn-primary mt-2"
+            (click)="uploadCoverImage()"
+            [disabled]="uploadingCover">
+            <i class="fas fa-upload"></i>
+            {{ uploadingCover ? 'Upload en cours...' : 'Uploader l\'image' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="isPublished" (ngModelChange)="markAsChanged()">
+          Publier le cours immédiatement
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          class="btn btn-primary btn-lg"
+          (click)="createCourse()"
+          [disabled]="!courseTitle.trim()">
+          <i class="fas fa-check"></i>
+          Créer le cours
+        </button>
+        <button 
+          class="btn btn-secondary btn-lg"
+          (click)="showCreateCourseForm = false; courseTitle = ''; courseDescription = ''; courseLevel = ''; isPublished = false;">
+          Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course Card (shown after course creation) -->
+  <div *ngIf="courseId" class="course-card-section">
+    <div class="course-card">
+      <div class="course-card-header">
+        <div class="course-title-section">
+          <h2>
+            <i class="fas fa-book"></i>
+            {{ courseTitle }}
+          </h2>
+          <div class="course-meta">
+            <span *ngIf="courseLevel" class="course-level">{{ courseLevel }}</span>
+            <span class="course-status" [class.published]="isPublished">
+              {{ isPublished ? 'Publié' : 'Brouillon' }}
+            </span>
+          </div>
+        </div>
+        <div class="course-actions-header">
+          <button 
+            *ngIf="hasUnsavedChanges"
+            class="btn btn-success"
+            (click)="updateCourse()"
+            [disabled]="!courseTitle.trim()">
+            <i class="fas fa-save"></i>
+            Enregistrer les modifications
+          </button>
+          <button 
+            class="btn btn-danger"
+            (click)="deleteCourse()">
+            <i class="fas fa-trash"></i>
+            Supprimer
+          </button>
+          <button 
+            class="btn btn-secondary"
+            (click)="showCreateCourseForm = true">
+            <i class="fas fa-plus"></i>
+            Ajouter un autre cours
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="courseDescription" class="course-description">
+        <p>{{ courseDescription }}</p>
+      </div>
+
+      <div *ngIf="coverImage" class="course-cover">
+        <img [src]="coverImage" alt="Cover" class="cover-image-display">
+      </div>
+
+      <!-- Course Edit Form (collapsible) -->
+      <div class="course-edit-section">
+        <button 
+          class="btn btn-link edit-toggle-btn"
+          (click)="showCreateCourseForm = !showCreateCourseForm">
+          <i class="fas" [class.fa-chevron-down]="!showCreateCourseForm" [class.fa-chevron-up]="showCreateCourseForm"></i>
+          {{ showCreateCourseForm ? 'Masquer' : 'Modifier' }} les informations du cours
+        </button>
+
+        <div *ngIf="showCreateCourseForm" class="course-edit-form">
+          <div class="form-group">
+            <label>Titre du cours *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="courseTitle"
+              (ngModelChange)="markAsChanged()"
+              placeholder="Ex: Cours DELF B1"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea 
+              [(ngModel)]="courseDescription"
+              (ngModelChange)="markAsChanged()"
+              placeholder="Description du cours..."
+              class="form-control"
+              rows="4"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Niveau</label>
+            <select [(ngModel)]="courseLevel" (ngModelChange)="markAsChanged()" class="form-control">
+              <option value="">Sélectionner un niveau</option>
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+              <option value="B1">B1</option>
+              <option value="B2">B2</option>
+              <option value="C1">C1</option>
+              <option value="C2">C2</option>
+            </select>
+          </div>
+
+          <!-- Cover Image -->
+          <div class="form-group">
+            <label>Image de couverture</label>
+            <div class="cover-image-container">
+              <div *ngIf="coverImage" class="cover-image-preview">
+                <img [src]="coverImage" alt="Cover" class="cover-image">
+                <button type="button" class="remove-cover-btn" (click)="removeCoverImage()" title="Supprimer">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div *ngIf="!coverImage" class="cover-image-upload">
+                <input 
+                  type="file" 
+                  id="coverImageInput"
+                  accept="image/*"
+                  (change)="onCoverImageSelected($event)"
+                  class="file-input">
+                <label for="coverImageInput" class="cover-upload-label">
+                  <i class="fas fa-image"></i>
+                  <span>Choisir une image de couverture</span>
+                </label>
+              </div>
+              <button 
+                *ngIf="coverImageFile"
+                type="button"
+                class="btn btn-sm btn-primary mt-2"
+                (click)="uploadCoverImage()"
+                [disabled]="uploadingCover">
+                <i class="fas fa-upload"></i>
+                {{ uploadingCover ? 'Upload en cours...' : 'Uploader l\'image' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="isPublished" (ngModelChange)="markAsChanged()">
+              Publier le cours immédiatement
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Materials Section (shown after course creation) -->
+  <div *ngIf="courseId" class="materials-section">
+    <div class="section-header">
+      <h2>
+        <i class="fas fa-folder-open"></i>
+        Matériaux du cours
+      </h2>
+    </div>
+
+    <!-- Warning if no sections -->
+    <div *ngIf="sections.length === 0" class="no-sections-warning">
+      <div class="warning-content">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+          <h4>Ajoutez d'abord une section</h4>
+          <p>Vous devez créer au moins une section avant de pouvoir ajouter des matériaux au cours.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Materials List -->
+    <div *ngIf="materials.length > 0" class="materials-list">
+      <h3>Matériaux ajoutés ({{ materials.length }})</h3>
+      <div class="materials-grid">
+        <div *ngFor="let material of materials" class="material-item">
+          <div class="material-icon">
+            <i [class]="getMaterialTypeIcon(getMaterialTypeFromMime(material.mimetype))"></i>
+          </div>
+          <div class="material-info">
+            <h4>{{ material.filename }}</h4>
+            <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
+            <span *ngIf="material.tag" class="material-tag">{{ material.tag }}</span>
+          </div>
+          <div class="material-actions">
+            <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-link" title="Ouvrir">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+            <button 
+              class="btn btn-sm btn-danger"
+              (click)="deleteMaterial(material)"
+              title="Supprimer">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="materials.length === 0" class="no-materials">
+      <p><i class="fas fa-info-circle"></i> Aucun matériau ajouté pour le moment.</p>
+    </div>
+
+    <!-- Sections Management -->
+    <div class="sections-management">
+      <div class="sections-header">
+        <h3>
+          <i class="fas fa-list"></i>
+          Sections du cours
+        </h3>
+        <button 
+          class="btn btn-primary btn-lg add-section-btn"
+          (click)="showAddSectionDropdown = !showAddSectionDropdown">
+          <i class="fas fa-plus-circle"></i>
+          Ajouter une section
+        </button>
+      </div>
+
+      <!-- Section Dropdown -->
+      <div *ngIf="showAddSectionDropdown" class="add-section-dropdown">
+        <select class="form-select" (change)="addSection($event); showAddSectionDropdown = false">
+          <option value="" selected disabled>Choisir une section</option>
+          <option *ngFor="let option of sectionsOptions" [value]="option">{{ option }}</option>
+        </select>
+      </div>
+      
+      <div class="add-section-controls" *ngIf="sections.length > 0">
+
+        <!-- Display sections -->
+        <div *ngFor="let section of sections" class="section-item" 
+             (mouseover)="hoveredSection = section"
+             (mouseleave)="hoveredSection = null">
+          <div class="section-item-header">
+            <span class="fw-bold section-name">{{ section }}</span>
+            <div class="section-actions">
+              <button 
+                class="btn btn-primary btn-sm"
+                (click)="openAddMaterialForSection(section)">
+                <i class="fas fa-plus"></i>
+                Ajouter un matériau
+              </button>
+              <button 
+                class="btn btn-danger btn-sm"
+                (click)="removeSection(section)"
+                title="Supprimer la section">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Create Material Form Modal -->
+    <div *ngIf="showCreateMaterialForm" class="create-form-modal">
+      <div class="modal-overlay" (click)="clearMaterialForm()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-plus-circle"></i>
+            Ajouter un Matériau
+          </h3>
+          <button class="close-btn" (click)="clearMaterialForm()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Tabs for new/existing materials -->
+        <div class="modal-tabs">
+          <button 
+            class="tab-btn"
+            [class.active]="!showExistingMaterials"
+            (click)="showExistingMaterials = false">
+            <i class="fas fa-plus"></i>
+            Nouveau matériau
+          </button>
+          <button 
+            class="tab-btn"
+            [class.active]="showExistingMaterials"
+            (click)="toggleExistingMaterials()">
+            <i class="fas fa-folder-open"></i>
+            Matériaux existants
+            <span *ngIf="trainerMaterials.length > 0" class="badge">{{ trainerMaterials.length }}</span>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Existing Materials List -->
+          <div *ngIf="showExistingMaterials" class="existing-materials-list">
+            <div *ngIf="loadingTrainerMaterials" class="loading-message">
+              <i class="fas fa-spinner fa-spin"></i>
+              Chargement des matériaux...
+            </div>
+            
+            <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length === 0" class="no-materials-message">
+              <p><i class="fas fa-info-circle"></i> Vous n'avez pas encore de matériaux dans Entraînement.</p>
+              <p>Créez d'abord des matériaux dans la section Entraînement.</p>
+            </div>
+
+            <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length > 0" class="materials-grid-mini">
+              <div 
+                *ngFor="let material of trainerMaterials"
+                class="material-card-mini"
+                (click)="addExistingMaterialToCourse(material)">
+                <div class="material-header-mini">
+                  <div class="material-type-mini">
+                    <i [class]="getMaterialTypeIcon(material.type)"></i>
+                    <span>{{ material.type.toUpperCase() }}</span>
+                  </div>
+                </div>
+                <div class="material-body-mini">
+                  <h5>{{ material.title }}</h5>
+                  <p *ngIf="material.description" class="material-description-mini">
+                    {{ material.description }}
+                  </p>
+                  <div *ngIf="material.tags && material.tags.length > 0" class="material-tags-mini">
+                    <span *ngFor="let tag of material.tags" class="tag-mini">{{ tag }}</span>
+                  </div>
+                </div>
+                <div class="material-footer-mini">
+                  <button class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Ajouter au cours
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Create New Material Form -->
+          <div *ngIf="!showExistingMaterials">
+          <div class="form-group">
+            <label>Titre du matériau *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="newMaterial.title"
+              placeholder="Ex: Grammaire - Le subjonctif"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Type de matériau</label>
+            <select [(ngModel)]="newMaterial.type" class="form-control">
+              <option value="text">📄 Texte</option>
+              <option value="audio">🎧 Audio</option>
+              <option value="video">🎬 Vidéo</option>
+              <option value="pdf">📋 PDF</option>
+              <option value="image">🖼️ Image</option>
+            </select>
+          </div>
+
+          <!-- File Upload for specific types -->
+          <div class="form-group" *ngIf="needsFileUpload()">
+            <label>Fichier à télécharger</label>
+            <div class="file-upload-container" 
+                 (dragover)="onDragOver($event)" 
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)"
+                 [class.drag-over]="isDragOver">
+              <input 
+                type="file" 
+                id="materialFile"
+                (change)="onFileSelected($event)"
+                [accept]="getAcceptedFileTypes()"
+                class="file-input">
+              <label for="materialFile" class="file-upload-label">
+                <div class="upload-content">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <div class="upload-text">
+                    <span *ngIf="!selectedFile" class="upload-main">Choisir un fichier</span>
+                    <span *ngIf="selectedFile" class="upload-main">{{ selectedFile.name }}</span>
+                    <small class="upload-hint">ou glissez-déposez ici</small>
+                  </div>
+                </div>
+              </label>
+            </div>
+            
+            <!-- File Preview -->
+            <div *ngIf="selectedFile && filePreview" class="file-preview">
+              <div class="preview-header">
+                <h5>Aperçu du fichier</h5>
+                <button type="button" class="remove-file-btn" (click)="removeSelectedFile()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="preview-content">
+                <img *ngIf="newMaterial.type === 'image'" [src]="filePreview" alt="Aperçu" class="image-preview">
+                <div *ngIf="newMaterial.type === 'pdf'" class="file-info">
+                  <i class="fas fa-file-pdf"></i>
+                  <span>{{ selectedFile.name }}</span>
+                  <small>{{ formatFileSize(selectedFile.size) }}</small>
+                </div>
+                <div *ngIf="newMaterial.type === 'audio'" class="file-info">
+                  <i class="fas fa-music"></i>
+                  <span>{{ selectedFile.name }}</span>
+                  <small>{{ formatFileSize(selectedFile.size) }}</small>
+                </div>
+                <div *ngIf="newMaterial.type === 'video'" class="file-info">
+                  <i class="fas fa-video"></i>
+                  <span>{{ selectedFile.name }}</span>
+                  <small>{{ formatFileSize(selectedFile.size) }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Text content for text type -->
+          <div class="form-group" *ngIf="newMaterial.type === 'text'">
+            <label>Contenu du texte *</label>
+            <textarea 
+              [(ngModel)]="newMaterial.content"
+              placeholder="Saisissez le contenu du texte..."
+              class="form-control"
+              rows="6"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea 
+              [(ngModel)]="newMaterial.description"
+              placeholder="Description du matériau..."
+              class="form-control"
+              rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Tag (optionnel)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="newMaterial.tag"
+              placeholder="Ex: grammaire, vocabulaire..."
+              class="form-control">
+          </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="clearMaterialForm()">
+            Annuler
+          </button>
+          <button 
+            *ngIf="!showExistingMaterials"
+            class="btn btn-primary"
+            (click)="createMaterial()"
+            [disabled]="!newMaterial.title.trim() || sections.length === 0 || !selectedSection || (needsFileUpload() && !selectedFile) || (newMaterial.type === 'text' && !newMaterial.content.trim())">
+            <i class="fas fa-check"></i>
+            Créer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Modal (for sections) -->
+    <div *ngIf="isUploadModalOpen" class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Ajouter média</h5>
+            <button type="button" class="btn-close" (click)="closeUploadModal()"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="mediaName" class="form-label">Название медиа*</label>
+                <input type="text" class="form-control" id="mediaName" [(ngModel)]="newMaterial.title" name="mediaTitle" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="mediaTag" class="form-label">Тег (опционально)</label>
+                <input type="text" class="form-control" id="mediaTag" [(ngModel)]="newMaterial.tag" name="mediaTag">
+              </div>
+
+              <div class="mb-3">
+                <label for="mediaDescription" class="form-label">Описание (опционально)</label>
+                <textarea class="form-control" id="mediaDescription" [(ngModel)]="newMaterial.description" name="mediaDescription"></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label for="coverImage" class="form-label">Обложка (опционально)</label>
+                <input type="file" class="form-control" id="coverImage" (change)="selectCoverImage($event)">
+              </div>
+
+              <div class="mb-3">
+                <label for="mediaFile" class="form-label">Выберите файл*</label>
+                <input type="file" class="form-control" id="mediaFile" (change)="selectFile($event)" required>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">Отмена</button>
+            <button type="button" class="btn btn-primary" (click)="confirmUpload()">Загрузить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -256,6 +256,13 @@
               title="Attacher au cours">
               <i class="fas fa-link"></i>
             </button>
+            <button 
+              *ngIf="isTeacher()"
+              class="action-btn course-btn"
+              (click)="openAddToCourseModal(material)"
+              title="Ajouter au cours">
+              <i class="fas fa-graduation-cap"></i>
+            </button>
             <button class="action-btn delete-btn" title="Supprimer">
               <i class="fas fa-trash"></i>
             </button>
@@ -1104,6 +1111,64 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for adding material to course -->
+<div *ngIf="showAddToCourseModal" class="create-form-modal">
+  <div class="modal-overlay" (click)="closeAddToCourseModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>
+        <i class="fas fa-graduation-cap"></i>
+        Ajouter le matériau au cours
+      </h3>
+      <button class="close-btn" (click)="closeAddToCourseModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div *ngIf="selectedMaterial" class="material-preview">
+        <h4>{{ selectedMaterial.title }}</h4>
+        <p *ngIf="selectedMaterial.description">{{ selectedMaterial.description }}</p>
+        <span class="badge">{{ selectedMaterial.type.toUpperCase() }}</span>
+      </div>
+
+      <div class="form-group">
+        <label>Sélectionner un cours *</label>
+        <select 
+          [(ngModel)]="selectedCourseId" 
+          class="form-control"
+          [disabled]="loadingCourses">
+          <option [value]="null" disabled>Sélectionner un cours</option>
+          <option *ngFor="let course of courses" [value]="course.id">
+            {{ course.title }} {{ course.level ? '(' + course.level + ')' : '' }}
+          </option>
+        </select>
+      </div>
+
+      <div *ngIf="courses.length === 0 && !loadingCourses" class="no-courses-message">
+        <p><i class="fas fa-info-circle"></i> Vous n'avez pas encore de cours créé.</p>
+        <button class="btn btn-primary" (click)="navigateToAddCourse()">
+          <i class="fas fa-plus"></i>
+          Créer un cours
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAddToCourseModal()">
+        Annuler
+      </button>
+      <button 
+        class="btn btn-primary"
+        (click)="addMaterialToCourse()"
+        [disabled]="!selectedCourseId || loadingCourses">
+        <i class="fas fa-check"></i>
+        Ajouter au cours
+      </button>
     </div>
   </div>
 </div>
