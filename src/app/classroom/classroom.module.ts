@@ -61,6 +61,6 @@ const routes: Routes = [
     RouterModule.forChild(routes) // Маршрут компонента
   ],
   providers: [DatePipe, VideoCallService],
-  exports: [VideoCallComponent]
+  exports: [VideoCallComponent, HomeworkModalComponent]
 })
 export class ClassroomModule { }

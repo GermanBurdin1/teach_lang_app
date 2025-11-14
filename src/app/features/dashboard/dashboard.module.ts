@@ -62,6 +62,7 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
 import { ClassroomRedirectComponent } from '../../classroom/classroom-redirect.component';
 import { LessonResolverService } from '../../classroom/lesson-resolver.service';
 import { AddCourseComponent } from '../courses/add-course/add-course.component';
+import { ClassroomModule } from '../../classroom/classroom.module';
 
 @NgModule({
   declarations: [
@@ -128,7 +129,8 @@ import { AddCourseComponent } from '../courses/add-course/add-course.component';
     MatPaginatorModule,
     MatDialogModule,
     BackToHomeButtonComponent,
-    BsDatepickerModule.forRoot()
+    BsDatepickerModule.forRoot(),
+    ClassroomModule
   ],
   exports: [ReviewListComponent],
   providers: [

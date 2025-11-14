@@ -8,6 +8,8 @@ import { API_ENDPOINTS } from '../../../core/constants/api.constants';
 import { CourseService } from '../../../services/course.service';
 import { MaterialService, Material } from '../../../services/material.service';
 import { HttpClient } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
 import { RoleService } from '../../../services/role.service';
 
 @Component({
@@ -84,7 +86,8 @@ export class AddCourseComponent implements OnInit {
     private router: Router,
     private title: Title,
     private meta: Meta,
-    private http: HttpClient
+    private http: HttpClient,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -1522,8 +1525,24 @@ export class AddCourseComponent implements OnInit {
 
   // Открыть модалку для добавления домашнего задания
   openAddHomeworkForLesson(section: string, lesson: string): void {
-    // TODO: Реализовать логику добавления домашнего задания
-    this.notificationService.info('Fonctionnalité d\'ajout de devoir à venir');
+    const dialogData: HomeworkModalData = {
+      type: 'material',
+      title: lesson,
+      itemId: `${this.courseId}_${section}_${lesson}`
+    };
+
+    const dialogRef = this.dialog.open(HomeworkModalComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('✅ Devoir créé:', result);
+        this.notificationService.success(`Devoir "${result.title}" créé avec succès!`);
+      }
+    });
   }
 
   // Получить материалы без раздела
