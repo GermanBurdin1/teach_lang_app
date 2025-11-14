@@ -742,19 +742,38 @@ export class AddCourseComponent implements OnInit {
     }
   }
 
-  addLesson(section: string): void {
-    // Инициализируем массив уроков, если его еще нет
-    if (!this.lessons[section]) {
-      this.lessons[section] = [];
+  addLesson(section: string, subSection?: string): void {
+    let lessonName: string;
+    
+    if (subSection) {
+      // Добавляем урок в sous-section
+      if (!this.lessonsInSubSections[section]) {
+        this.lessonsInSubSections[section] = {};
+      }
+      if (!this.lessonsInSubSections[section][subSection]) {
+        this.lessonsInSubSections[section][subSection] = [];
+      }
+      
+      // Автоматически нумеруем уроки в sous-section
+      const lessonNumber = this.lessonsInSubSections[section][subSection].length + 1;
+      lessonName = `Leçon ${lessonNumber}`;
+      
+      this.lessonsInSubSections[section][subSection].push(lessonName);
+    } else {
+      // Добавляем урок на уровне секции
+      if (!this.lessons[section]) {
+        this.lessons[section] = [];
+      }
+      
+      // Автоматически нумеруем уроки
+      const lessonNumber = this.lessons[section].length + 1;
+      lessonName = `Leçon ${lessonNumber}`;
+      
+      this.lessons[section].push(lessonName);
     }
     
-    // Автоматически нумеруем уроки
-    const lessonNumber = this.lessons[section].length + 1;
-    const lessonName = `Leçon ${lessonNumber}`;
-    
-    this.lessons[section].push(lessonName);
     this.saveSections();
-    this.notificationService.success(`"${lessonName}" ajoutée avec succès!`);
+    this.notificationService.success(`Leçon "${lessonName}" ajoutée avec succès!`);
   }
 
   removeLesson(section: string, lessonName: string, subSection?: string): void {

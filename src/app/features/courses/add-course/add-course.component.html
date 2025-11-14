@@ -450,6 +450,13 @@
                 </span>
                 <div class="subsection-actions">
                   <button 
+                    class="btn btn-link btn-xs btn-lesson-subsection"
+                    (click)="addLesson(section, subSection)"
+                    title="Ajouter une leçon">
+                    <i class="fas fa-plus"></i>
+                    Leçon
+                  </button>
+                  <button 
                     class="btn btn-xs btn-danger btn-delete-subsection"
                     (click)="removeSubSection(section, subSection)"
                     title="Supprimer la sous-section">
