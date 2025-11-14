@@ -442,12 +442,21 @@
                   <i class="fas fa-folder"></i>
                   {{ subSection }}
                 </span>
-                <button 
-                  class="btn btn-sm btn-danger"
-                  (click)="removeSubSection(section, subSection)"
-                  title="Supprimer la sous-section">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <div class="subsection-actions">
+                  <button 
+                    class="btn btn-link btn-xs btn-material-subsection"
+                    (click)="openAddMaterialForSubSection(section, subSection)"
+                    title="Ajouter un matériau">
+                    <i class="fas fa-plus"></i>
+                    Matériau
+                  </button>
+                  <button 
+                    class="btn btn-xs btn-danger btn-delete-subsection"
+                    (click)="removeSubSection(section, subSection)"
+                    title="Supprimer la sous-section">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

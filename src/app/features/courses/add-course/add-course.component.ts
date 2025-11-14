@@ -522,6 +522,9 @@ export class AddCourseComponent implements OnInit {
         return;
       }
 
+      // Формируем tag: если есть подсекция, используем её, иначе используем секцию
+      const tag = this.selectedSubSection || this.selectedSection || undefined;
+      
       const uploadedFile: UploadedFile = {
         id: Date.now(),
         filename: this.newMaterial.title,
@@ -529,7 +532,7 @@ export class AddCourseComponent implements OnInit {
         mimetype: this.newMaterial.type,
         courseId: this.courseId,
         createdAt: new Date().toISOString(),
-        tag: this.selectedSection || undefined, // Сохраняем раздел в поле tag
+        tag: tag, // Сохраняем раздел или подраздел в поле tag
         description: this.newMaterial.description || undefined
       };
 
@@ -689,6 +692,14 @@ export class AddCourseComponent implements OnInit {
   openAddMaterialForSection(section: string): void {
     // Устанавливаем выбранную секцию и открываем модалку
     this.selectedSection = section;
+    this.selectedSubSection = null;
+    this.showCreateMaterialForm = true;
+  }
+
+  openAddMaterialForSubSection(section: string, subSection: string): void {
+    // Устанавливаем выбранную секцию и подсекцию, открываем модалку
+    this.selectedSection = section;
+    this.selectedSubSection = subSection;
     this.showCreateMaterialForm = true;
   }
 
@@ -896,14 +907,15 @@ export class AddCourseComponent implements OnInit {
         const textBlob = new Blob([material.content], { type: 'text/plain' });
         const textFile = new File([textBlob], `${material.title}.txt`, { type: 'text/plain' });
         
-        this.fileUploadService.uploadFileAsCourse(textFile, courseId, this.selectedSection || undefined).subscribe({
+        const tag = this.selectedSubSection || this.selectedSection || undefined;
+        this.fileUploadService.uploadFileAsCourse(textFile, courseId, tag).subscribe({
           next: (response) => {
             const uploadedFile: UploadedFile = {
               id: response.id,
               filename: material.title,
               url: response.url,
               mimetype: material.type,
-              tag: this.selectedSection || undefined, // Сохраняем раздел в поле tag
+                    tag: this.selectedSubSection || this.selectedSection || undefined, // Сохраняем раздел или подраздел в поле tag
               description: material.description || undefined,
               courseId: courseId,
               createdAt: response.createdAt,
@@ -937,7 +949,8 @@ export class AddCourseComponent implements OnInit {
           return;
         }
         
-        this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, this.selectedSection || undefined).subscribe({
+        const tag = this.selectedSubSection || this.selectedSection || undefined;
+        this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag).subscribe({
           next: (response) => {
             console.log('✅ Материал связан с курсом:', response);
             this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
@@ -951,7 +964,7 @@ export class AddCourseComponent implements OnInit {
               mimetype: this.getMimeTypeFromExtension(this.getFileExtensionFromUrl(material.content)),
               courseId: courseId,
               createdAt: response.createdAt.toString(),
-              tag: this.selectedSection || undefined, // Сохраняем раздел в поле tag
+                    tag: this.selectedSubSection || this.selectedSection || undefined, // Сохраняем раздел или подраздел в поле tag
               description: material.description || undefined,
             };
             
@@ -1018,7 +1031,8 @@ export class AddCourseComponent implements OnInit {
         const file = new File([blob], fileName, { type: mimeType });
         console.log('📤 Загрузка файла в курс:', fileName, 'тип:', mimeType);
         
-        this.fileUploadService.uploadFileAsCourse(file, courseId, this.selectedSection || undefined).subscribe({
+        const tag = this.selectedSubSection || this.selectedSection || undefined;
+        this.fileUploadService.uploadFileAsCourse(file, courseId, tag).subscribe({
           next: (response) => {
             console.log('✅ Материал добавлен в курс:', response);
             this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);

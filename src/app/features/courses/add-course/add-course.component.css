@@ -639,6 +639,54 @@
   font-size: 0.9rem;
 }
 
+.subsection-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-xs {
+  padding: 0.15rem 0.35rem;
+  font-size: 0.7rem;
+  min-width: auto;
+  line-height: 1.2;
+}
+
+.btn-material-subsection {
+  background: none;
+  border: none;
+  color: #6c757d;
+  text-decoration: none;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.7rem;
+  transition: all 0.2s ease;
+}
+
+.btn-material-subsection:hover {
+  color: var(--galaxy-primary);
+  background: rgba(74, 144, 226, 0.1);
+  border-radius: 4px;
+}
+
+.btn-material-subsection i {
+  font-size: 0.65rem;
+  margin-right: 0.2rem;
+}
+
+.btn-delete-subsection {
+  padding: 0.15rem 0.35rem;
+  font-size: 0.7rem;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete-subsection i {
+  font-size: 0.65rem;
+}
+
 .btn-info {
   background: #17a2b8;
   color: white;
