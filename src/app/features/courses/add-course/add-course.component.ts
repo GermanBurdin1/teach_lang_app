@@ -1327,6 +1327,9 @@ export class AddCourseComponent implements OnInit {
     document.querySelectorAll('.subsection-item').forEach(el => {
       el.classList.remove('drag-over');
     });
+    document.querySelectorAll('.lessons-container').forEach(el => {
+      el.classList.remove('drag-over');
+    });
   }
 
   onLessonDragOver(event: DragEvent): void {
@@ -1401,6 +1404,126 @@ export class AddCourseComponent implements OnInit {
     this.saveSections();
     this.notificationService.success(`Leçon "${lesson}" déplacée vers "${targetSubSection}" avec succès!`);
     this.draggedLesson = null;
+  }
+
+  // Drag-n-Drop для перемещения урока обратно на уровень секции
+  onSectionDragOver(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onSectionDragEnter(event: DragEvent): void {
+    event.preventDefault();
+    if (event.currentTarget) {
+      (event.currentTarget as HTMLElement).classList.add('drag-over');
+    }
+  }
+
+  onSectionDragLeave(event: DragEvent): void {
+    // Проверяем, что мы действительно покинули контейнер, а не перешли на дочерний элемент
+    const currentTarget = event.currentTarget as HTMLElement;
+    const relatedTarget = event.relatedTarget as HTMLElement;
+    
+    if (currentTarget && (!relatedTarget || !currentTarget.contains(relatedTarget))) {
+      currentTarget.classList.remove('drag-over');
+    }
+  }
+
+  onDropLessonToSection(event: DragEvent, targetSection: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (event.currentTarget) {
+      (event.currentTarget as HTMLElement).classList.remove('drag-over');
+    }
+
+    if (!this.draggedLesson) {
+      console.log('⚠️ Нет перетаскиваемого урока');
+      return;
+    }
+
+    const { section: sourceSection, subSection: sourceSubSection, lesson } = this.draggedLesson;
+    
+    console.log('📦 Перемещение урока:', {
+      lesson,
+      from: { section: sourceSection, subSection: sourceSubSection },
+      to: { section: targetSection, subSection: null }
+    });
+
+    // Если урок уже в этой секции (не в sous-section), ничего не делаем
+    if (sourceSection === targetSection && !sourceSubSection) {
+      console.log('ℹ️ Урок уже находится на уровне секции');
+      this.draggedLesson = null;
+      return;
+    }
+
+    // Удаляем урок из исходного места
+    if (sourceSubSection) {
+      // Удаляем из sous-section
+      if (this.lessonsInSubSections[sourceSection] && this.lessonsInSubSections[sourceSection][sourceSubSection]) {
+        this.lessonsInSubSections[sourceSection][sourceSubSection] = 
+          this.lessonsInSubSections[sourceSection][sourceSubSection].filter(l => l !== lesson);
+        if (this.lessonsInSubSections[sourceSection][sourceSubSection].length === 0) {
+          delete this.lessonsInSubSections[sourceSection][sourceSubSection];
+        }
+        if (Object.keys(this.lessonsInSubSections[sourceSection]).length === 0) {
+          delete this.lessonsInSubSections[sourceSection];
+        }
+      }
+    } else {
+      // Удаляем из другой секции
+      if (this.lessons[sourceSection]) {
+        this.lessons[sourceSection] = this.lessons[sourceSection].filter(l => l !== lesson);
+        if (this.lessons[sourceSection].length === 0) {
+          delete this.lessons[sourceSection];
+        }
+      }
+    }
+
+    // Добавляем урок в целевую секцию (на уровень секции, не в sous-section)
+    if (!this.lessons[targetSection]) {
+      this.lessons[targetSection] = [];
+    }
+    this.lessons[targetSection].push(lesson);
+
+    this.saveSections();
+    this.notificationService.success(`Leçon "${lesson}" déplacée vers "${targetSection}" avec succès!`);
+    this.draggedLesson = null;
+  }
+
+  // Получить сводку по урокам по секциям
+  getLessonsSummary(): { section: string; count: number }[] {
+    const summary: { section: string; count: number }[] = [];
+    
+    this.sections.forEach(section => {
+      let count = 0;
+      
+      // Уроки на уровне секции
+      if (this.lessons[section]) {
+        count += this.lessons[section].length;
+      }
+      
+      // Уроки в sous-section этой секции
+      if (this.lessonsInSubSections[section]) {
+        Object.values(this.lessonsInSubSections[section]).forEach(lessonArray => {
+          count += lessonArray.length;
+        });
+      }
+      
+      if (count > 0) {
+        summary.push({ section, count });
+      }
+    });
+    
+    return summary;
+  }
+
+  // Открыть модалку для добавления домашнего задания
+  openAddHomeworkForLesson(section: string, lesson: string): void {
+    // TODO: Реализовать логику добавления домашнего задания
+    this.notificationService.info('Fonctionnalité d\'ajout de devoir à venir');
   }
 
   // Получить материалы без раздела

@@ -141,6 +141,11 @@
               {{ isPublished ? 'Publié' : 'Brouillon' }}
             </span>
           </div>
+          <div class="course-lessons-summary" *ngIf="getLessonsSummary().length > 0">
+            <span *ngFor="let summary of getLessonsSummary(); let last = last" class="lesson-summary-item">
+              {{ summary.section }} - {{ summary.count }} {{ summary.count === 1 ? 'leçon' : 'leçons' }}<span *ngIf="!last">, </span>
+            </span>
+          </div>
         </div>
         <div class="course-actions-header" (click)="$event.stopPropagation()">
           <button 
@@ -482,6 +487,13 @@
                         Matériaux
                       </button>
                       <button 
+                        class="btn btn-link btn-xs btn-homework-lesson"
+                        (click)="openAddHomeworkForLesson(section, lesson)"
+                        title="Ajouter un devoir">
+                        <i class="fas fa-tasks"></i>
+                        Devoir
+                      </button>
+                      <button 
                         class="btn btn-xs btn-danger btn-delete-lesson"
                         (click)="removeLesson(section, lesson, subSection)"
                         title="Supprimer la leçon">
@@ -531,7 +543,16 @@
           </div>
           
           <!-- Lessons (not in sub-sections) -->
-          <div class="lessons-container" *ngIf="getLessonsInSection(section).length > 0">
+          <div class="lessons-container" 
+               (dragover)="onSectionDragOver($event)"
+               (drop)="onDropLessonToSection($event, section)"
+               (dragenter)="onSectionDragEnter($event)"
+               (dragleave)="onSectionDragLeave($event)"
+               [class.has-lessons]="getLessonsInSection(section).length > 0"
+               [class.empty-drop-zone]="getLessonsInSection(section).length === 0">
+            <div *ngIf="getLessonsInSection(section).length === 0" class="empty-lessons-hint">
+              <p class="text-muted"><i class="fas fa-info-circle"></i> Glissez-déposez les leçons ici pour les déplacer au niveau de la section</p>
+            </div>
             <div *ngFor="let lesson of getLessonsInSection(section); let lessonIndex = index" 
                  class="lesson-item"
                  [attr.data-lesson-index]="lessonIndex"
@@ -552,6 +573,13 @@
                     title="Ajouter des matériaux">
                     <i class="fas fa-plus"></i>
                     Matériaux
+                  </button>
+                  <button 
+                    class="btn btn-link btn-xs btn-homework-lesson"
+                    (click)="openAddHomeworkForLesson(section, lesson)"
+                    title="Ajouter un devoir">
+                    <i class="fas fa-tasks"></i>
+                    Devoir
                   </button>
                   <button 
                     class="btn btn-xs btn-danger btn-delete-lesson"
