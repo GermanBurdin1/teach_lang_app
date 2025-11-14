@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 import { FileUploadService, UploadedFile } from '../../../services/file-upload.service';
 import { AuthService } from '../../../services/auth.service';
@@ -90,7 +90,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     private title: Title,
     private meta: Meta,
     private http: HttpClient,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -1607,10 +1608,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.sections.forEach(section => {
       let count = 0;
       
-      // Уроки на уровне секции
-      if (this.lessons[section]) {
-        count += this.lessons[section].length;
-      }
+      // Уроки на уровне секции (только те, которые не находятся в sous-section)
+      const lessonsInSection = this.getLessonsInSection(section);
+      count += lessonsInSection.length;
       
       // Уроки в sous-section этой секции
       if (this.lessonsInSubSections[section]) {
@@ -1700,6 +1700,83 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       // Исключаем материалы, которые привязаны к секциям или урокам
       return !this.sections.includes(m.tag) && !allLessons.includes(m.tag);
     });
+  }
+
+  // Получить описание урока из localStorage
+  getLessonDescription(section: string, subSection: string | null, lesson: string): string {
+    const key = `lesson_description_${this.courseId}_${section}_${subSection ? subSection + '_' : ''}${lesson}`;
+    return localStorage.getItem(key) || '';
+  }
+
+  // Получить длительность материалов урока
+  getLessonDuration(section: string, subSection: string | null, lesson: string): number {
+    const materials = this.getMaterialsByLesson(lesson);
+    let totalDuration = 0;
+    
+    materials.forEach(material => {
+      const type = this.getMaterialTypeFromMime(material.mimetype);
+      if (type === 'audio' || type === 'video') {
+        // Получаем длительность из кэша или вычисляем
+        const duration = this.getMaterialDuration(material);
+        if (duration > 0) {
+          totalDuration += duration;
+        }
+      }
+    });
+    
+    return totalDuration;
+  }
+
+  // Кэш для длительности материалов
+  private materialDurations: Map<number, number> = new Map();
+
+  // Получить длительность материала (аудио/видео)
+  getMaterialDuration(material: UploadedFile): number {
+    if (this.materialDurations.has(material.id)) {
+      return this.materialDurations.get(material.id) || 0;
+    }
+    
+    const type = this.getMaterialTypeFromMime(material.mimetype);
+    if (type !== 'audio' && type !== 'video') {
+      return 0;
+    }
+    
+    // Создаем скрытый элемент для получения метаданных
+    const element = type === 'audio' 
+      ? document.createElement('audio') 
+      : document.createElement('video');
+    
+    element.preload = 'metadata';
+    element.src = this.getFileUrl(material.url);
+    
+    element.addEventListener('loadedmetadata', () => {
+      if (element.duration && isFinite(element.duration)) {
+        this.materialDurations.set(material.id, element.duration);
+        // Обновляем компонент после загрузки метаданных
+        this.cdr.detectChanges();
+      }
+    });
+    
+    element.load();
+    
+    return 0; // Возвращаем 0 до загрузки метаданных
+  }
+
+  // Форматировать длительность в читаемый формат
+  formatDuration(seconds: number): string {
+    if (seconds === 0) return '';
+    
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}min`;
+    } else if (minutes > 0) {
+      return `${minutes}min ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
   }
 }
 

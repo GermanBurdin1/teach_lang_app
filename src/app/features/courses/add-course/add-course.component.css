@@ -1007,6 +1007,94 @@
   text-align: center;
 }
 
+/* Новые стили для информации об уроке */
+.lesson-info-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.lesson-info-wrapper.expanded {
+  max-height: 500px;
+}
+
+.lesson-info-content {
+  padding: 0.75rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lesson-description-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.lesson-description-info i {
+  color: var(--galaxy-primary);
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.lesson-materials-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.materials-list-compact {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.materials-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: var(--space-blue);
+  flex-shrink: 0;
+}
+
+.materials-label i {
+  color: var(--galaxy-primary);
+}
+
+.materials-names {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.lesson-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #e3f2fd;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.lesson-duration i {
+  color: #1976d2;
+}
+
+.lesson-info-empty {
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
 .lesson-header .expand-icon {
   margin-left: 0.5rem;
   color: #6c757d;
