@@ -51,6 +51,7 @@ export class AddCourseComponent implements OnInit {
   // Sections management (like in materials component)
   sections: string[] = [];
   hoveredSection: string | null = null;
+  collapsedSections: Set<string> = new Set(); // Свернутые секции (по умолчанию все развернуты)
   subSections: { [key: string]: string[] } = {};
   sectionsOptions = ['Grammaire', 'Phonétique', 'Vocabulaire', 'Conseils'];
   selectedSection: string | null = null;
@@ -224,6 +225,21 @@ export class AddCourseComponent implements OnInit {
     if (this.isCourseCardExpanded) {
       this.isMaterialsSectionExpanded = true;
     }
+  }
+
+  toggleSection(section: string): void {
+    if (this.collapsedSections.has(section)) {
+      // Секция была свернута, разворачиваем её
+      this.collapsedSections.delete(section);
+    } else {
+      // Секция была развернута, сворачиваем её
+      this.collapsedSections.add(section);
+    }
+  }
+
+  isSectionExpanded(section: string): boolean {
+    // По умолчанию все секции развернуты (если секция не в списке свернутых)
+    return !this.collapsedSections.has(section);
   }
 
   onCoverImageSelected(event: Event): void {
