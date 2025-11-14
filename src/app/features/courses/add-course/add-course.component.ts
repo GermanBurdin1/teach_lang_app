@@ -63,6 +63,8 @@ export class AddCourseComponent implements OnInit {
   courseId: string | null = null; // Will be set after course creation
   showCreateCourseForm = false; // Показывать ли форму создания курса
   hasUnsavedChanges = false; // Есть ли несохраненные изменения
+  isCourseCardExpanded = false; // Развернута ли карточка курса (по умолчанию скрыта)
+  isMaterialsSectionExpanded = false; // Развернута ли секция материалов (по умолчанию скрыта)
 
   constructor(
     private fileUploadService: FileUploadService,
@@ -136,6 +138,9 @@ export class AddCourseComponent implements OnInit {
         localStorage.setItem('currentCourseId', this.courseId);
         this.showCreateCourseForm = false;
         this.hasUnsavedChanges = false;
+        // Автоматически разворачиваем карточку курса и секцию материалов после создания
+        this.isCourseCardExpanded = true;
+        this.isMaterialsSectionExpanded = true;
         this.notificationService.success('Cours créé avec succès!');
         // After course creation, enable file uploads
         this.loadFiles();
@@ -211,6 +216,14 @@ export class AddCourseComponent implements OnInit {
 
   markAsChanged(): void {
     this.hasUnsavedChanges = true;
+  }
+
+  toggleCourseCard(): void {
+    this.isCourseCardExpanded = !this.isCourseCardExpanded;
+    // При разворачивании карточки автоматически разворачиваем секцию материалов
+    if (this.isCourseCardExpanded) {
+      this.isMaterialsSectionExpanded = true;
+    }
   }
 
   onCoverImageSelected(event: Event): void {

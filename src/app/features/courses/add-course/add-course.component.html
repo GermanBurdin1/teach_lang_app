@@ -116,10 +116,20 @@
     </div>
   </div>
 
+  <!-- Add Another Course Button (outside course card) -->
+  <div *ngIf="courseId" class="add-another-course-section">
+    <button 
+      class="btn btn-secondary btn-lg"
+      (click)="showCreateCourseForm = true; isCourseCardExpanded = false">
+      <i class="fas fa-plus"></i>
+      Ajouter un autre cours
+    </button>
+  </div>
+
   <!-- Course Card (shown after course creation) -->
   <div *ngIf="courseId" class="course-card-section">
-    <div class="course-card">
-      <div class="course-card-header">
+    <div class="course-card" [class.expanded]="isCourseCardExpanded">
+      <div class="course-card-header" (click)="toggleCourseCard()">
         <div class="course-title-section">
           <h2>
             <i class="fas fa-book"></i>
@@ -132,48 +142,45 @@
             </span>
           </div>
         </div>
-        <div class="course-actions-header">
+        <div class="course-actions-header" (click)="$event.stopPropagation()">
           <button 
             *ngIf="hasUnsavedChanges"
-            class="btn btn-success"
+            class="btn btn-success btn-icon"
             (click)="updateCourse()"
-            [disabled]="!courseTitle.trim()">
+            [disabled]="!courseTitle.trim()"
+            title="Enregistrer les modifications">
             <i class="fas fa-save"></i>
-            Enregistrer les modifications
           </button>
           <button 
-            class="btn btn-danger"
-            (click)="deleteCourse()">
+            class="btn btn-secondary btn-icon"
+            (click)="showCreateCourseForm = !showCreateCourseForm"
+            title="Modifier les informations du cours">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button 
+            class="btn btn-danger btn-icon"
+            (click)="deleteCourse()"
+            title="Supprimer le cours">
             <i class="fas fa-trash"></i>
-            Supprimer
           </button>
-          <button 
-            class="btn btn-secondary"
-            (click)="showCreateCourseForm = true">
-            <i class="fas fa-plus"></i>
-            Ajouter un autre cours
-          </button>
+          <i class="fas expand-icon" 
+             [class.fa-chevron-down]="!isCourseCardExpanded" 
+             [class.fa-chevron-up]="isCourseCardExpanded"></i>
         </div>
       </div>
 
-      <div *ngIf="courseDescription" class="course-description">
-        <p>{{ courseDescription }}</p>
-      </div>
+      <div *ngIf="isCourseCardExpanded" class="course-card-content">
+        <div *ngIf="courseDescription" class="course-description">
+          <p>{{ courseDescription }}</p>
+        </div>
 
-      <div *ngIf="coverImage" class="course-cover">
-        <img [src]="coverImage" alt="Cover" class="cover-image-display">
-      </div>
+        <div *ngIf="coverImage" class="course-cover">
+          <img [src]="coverImage" alt="Cover" class="cover-image-display">
+        </div>
 
-      <!-- Course Edit Form (collapsible) -->
-      <div class="course-edit-section">
-        <button 
-          class="btn btn-link edit-toggle-btn"
-          (click)="showCreateCourseForm = !showCreateCourseForm">
-          <i class="fas" [class.fa-chevron-down]="!showCreateCourseForm" [class.fa-chevron-up]="showCreateCourseForm"></i>
-          {{ showCreateCourseForm ? 'Masquer' : 'Modifier' }} les informations du cours
-        </button>
-
-        <div *ngIf="showCreateCourseForm" class="course-edit-form">
+        <!-- Course Edit Form (collapsible) -->
+        <div class="course-edit-section">
+          <div *ngIf="showCreateCourseForm" class="course-edit-form">
           <div class="form-group">
             <label>Titre du cours *</label>
             <input 
@@ -249,19 +256,21 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Materials Section (shown after course creation) -->
-  <div *ngIf="courseId" class="materials-section">
-    <div class="section-header">
-      <h2>
-        <i class="fas fa-folder-open"></i>
-        Matériaux du cours
-      </h2>
-    </div>
+      <!-- Materials Section (inside course card, expandable) -->
+      <div class="materials-section" [class.expanded]="isMaterialsSectionExpanded">
+        <div class="materials-section-header" (click)="isMaterialsSectionExpanded = !isMaterialsSectionExpanded">
+          <h2>
+            <i class="fas fa-folder-open"></i>
+            Matériaux du cours
+          </h2>
+          <i class="fas expand-icon" 
+             [class.fa-chevron-down]="!isMaterialsSectionExpanded" 
+             [class.fa-chevron-up]="isMaterialsSectionExpanded"></i>
+        </div>
 
-    <!-- Warning if no sections -->
+        <div *ngIf="isMaterialsSectionExpanded" class="materials-section-content">
+          <!-- Warning if no sections -->
     <div *ngIf="sections.length === 0" class="no-sections-warning">
       <div class="warning-content">
         <i class="fas fa-exclamation-triangle"></i>
@@ -377,10 +386,8 @@
         </div>
       </div>
 
-    </div>
-
-    <!-- Create Material Form Modal -->
-    <div *ngIf="showCreateMaterialForm" class="create-form-modal">
+          <!-- Create Material Form Modal -->
+          <div *ngIf="showCreateMaterialForm" class="create-form-modal">
       <div class="modal-overlay" (click)="clearMaterialForm()"></div>
       <div class="modal-content">
         <div class="modal-header">
@@ -617,6 +624,8 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">Отмена</button>
             <button type="button" class="btn btn-primary" (click)="confirmUpload()">Загрузить</button>
+          </div>
+        </div>
           </div>
         </div>
       </div>
