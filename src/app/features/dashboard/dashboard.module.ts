@@ -62,6 +62,7 @@ import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-
 import { ClassroomRedirectComponent } from '../../classroom/classroom-redirect.component';
 import { LessonResolverService } from '../../classroom/lesson-resolver.service';
 import { AddCourseComponent } from '../courses/add-course/add-course.component';
+import { LessonPreviewModalComponent } from '../courses/lesson-preview-modal/lesson-preview-modal.component';
 import { ClassroomModule } from '../../classroom/classroom.module';
 
 @NgModule({
@@ -94,7 +95,8 @@ import { ClassroomModule } from '../../classroom/classroom.module';
     AdminLessonsManagementComponent,
     AdminPlatformAnalyticsComponent,
     ClassroomRedirectComponent,
-    AddCourseComponent
+    AddCourseComponent,
+    LessonPreviewModalComponent
   ],
   imports: [
     LayoutModule,

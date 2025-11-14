@@ -1,0 +1,155 @@
+<div class="lesson-preview-modal">
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <i class="fas fa-book-open"></i>
+      {{ data.lessonName }}
+    </h2>
+    <button mat-icon-button (click)="close()" class="close-button" aria-label="Fermer">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <!-- Описание урока -->
+    <div class="lesson-description-section">
+      <div class="section-header">
+        <h3>
+          <i class="fas fa-align-left"></i>
+          Description de la leçon
+        </h3>
+        <button 
+          *ngIf="!isEditingDescription"
+          class="btn btn-sm btn-link"
+          (click)="toggleEditDescription()"
+          title="Modifier la description">
+          <i class="fas fa-edit"></i>
+          Modifier
+        </button>
+      </div>
+      
+      <div *ngIf="!isEditingDescription" class="description-display">
+        <p *ngIf="lessonDescription" class="description-text">{{ lessonDescription }}</p>
+        <p *ngIf="!lessonDescription" class="description-placeholder text-muted">
+          <i class="fas fa-info-circle"></i>
+          Aucune description. Cliquez sur "Modifier" pour ajouter une description.
+        </p>
+      </div>
+      
+      <div *ngIf="isEditingDescription" class="description-edit">
+        <textarea 
+          [(ngModel)]="lessonDescription"
+          class="form-control description-textarea"
+          rows="4"
+          placeholder="Entrez la description de la leçon..."></textarea>
+        <div class="description-actions">
+          <button class="btn btn-sm btn-primary" (click)="saveDescription()">
+            <i class="fas fa-save"></i>
+            Enregistrer
+          </button>
+          <button class="btn btn-sm btn-secondary" (click)="cancelEditDescription()">
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Материалы урока -->
+    <div class="lesson-materials-section">
+      <div class="section-header">
+        <h3>
+          <i class="fas fa-file-alt"></i>
+          Matériaux ({{ data.materials.length }})
+        </h3>
+      </div>
+      
+      <div *ngIf="data.materials.length > 0" class="materials-list">
+        <div *ngFor="let material of data.materials" class="material-item">
+          <div class="material-icon">
+            <i [class]="getMaterialTypeIcon(material.mimetype)"></i>
+          </div>
+          <div class="material-info">
+            <h4>{{ material.filename }}</h4>
+            <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
+          </div>
+          <div class="material-preview">
+            <!-- Аудио -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'audio'" class="audio-preview">
+              <audio controls [src]="getFileUrl(material.url)" class="audio-player">
+                Votre navigateur ne supporte pas l'élément audio.
+              </audio>
+            </div>
+            
+            <!-- Видео -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'video'" class="video-preview">
+              <video controls [src]="getFileUrl(material.url)" class="video-player">
+                Votre navigateur ne supporte pas l'élément vidéo.
+              </video>
+            </div>
+            
+            <!-- Изображение -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'image'" class="image-preview">
+              <img [src]="getFileUrl(material.url)" [alt]="material.filename" class="material-image">
+            </div>
+            
+            <!-- PDF -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'pdf'" class="pdf-preview">
+              <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-primary">
+                <i class="fas fa-file-pdf"></i>
+                Ouvrir le PDF
+              </a>
+            </div>
+            
+            <!-- Текст -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'text'" class="text-preview">
+              <p class="text-content">{{ material.description || 'Contenu texte' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="data.materials.length === 0" class="no-materials">
+        <i class="fas fa-folder-open"></i>
+        <p class="text-muted">Aucun matériau dans cette leçon</p>
+      </div>
+    </div>
+
+    <!-- Домашние задания -->
+    <div class="lesson-homework-section">
+      <div class="section-header">
+        <h3>
+          <i class="fas fa-tasks"></i>
+          Devoirs ({{ homeworkItems.length }})
+        </h3>
+      </div>
+      
+      <div *ngIf="loadingHomework" class="loading-homework">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Chargement des devoirs...</span>
+      </div>
+      
+      <div *ngIf="!loadingHomework && homeworkItems.length > 0" class="homework-list">
+        <div *ngFor="let homework of homeworkItems" class="homework-item">
+          <div class="homework-header">
+            <h4>{{ homework.title || 'Devoir sans titre' }}</h4>
+            <span *ngIf="homework.dueDate" class="homework-due-date">
+              <i class="fas fa-calendar"></i>
+              Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}
+            </span>
+          </div>
+          <div *ngIf="homework.description" class="homework-description">
+            {{ homework.description }}
+          </div>
+          <div *ngIf="homework.type" class="homework-type">
+            <span class="badge badge-info">{{ homework.type }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="!loadingHomework && homeworkItems.length === 0" class="no-homework">
+        <i class="fas fa-clipboard-list"></i>
+        <p class="text-muted">Aucun devoir pour cette leçon</p>
+      </div>
+    </div>
+  </div>
+</div>
+

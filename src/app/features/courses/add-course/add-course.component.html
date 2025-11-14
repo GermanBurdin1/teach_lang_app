@@ -299,9 +299,6 @@
             <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
           </div>
           <div class="material-actions">
-            <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-link" title="Ouvrir">
-              <i class="fas fa-external-link-alt"></i>
-            </a>
             <button 
               class="btn btn-sm btn-danger"
               (click)="deleteMaterial(material)"
@@ -397,9 +394,6 @@
                     <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
                   </div>
                   <div class="material-actions">
-                    <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-link" title="Ouvrir">
-                      <i class="fas fa-external-link-alt"></i>
-                    </a>
                     <button 
                       class="btn btn-sm btn-danger"
                       (click)="deleteMaterial(material)"
@@ -480,6 +474,12 @@
                     </div>
                     <div class="lesson-actions" (click)="$event.stopPropagation()">
                       <button 
+                        class="btn btn-link btn-xs btn-preview-lesson"
+                        (click)="openLessonPreview(section, lesson, subSection)"
+                        title="Prévisualiser la leçon">
+                        <i class="fas fa-external-link-alt"></i>
+                      </button>
+                      <button 
                         class="btn btn-link btn-xs btn-material-lesson"
                         (click)="openAddMaterialForLesson(section, lesson)"
                         title="Ajouter des matériaux">
@@ -520,9 +520,6 @@
                             <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
                           </div>
                           <div class="material-actions">
-                            <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-link" title="Ouvrir">
-                              <i class="fas fa-external-link-alt"></i>
-                            </a>
                             <button 
                               class="btn btn-sm btn-danger"
                               (click)="deleteMaterial(material)"
@@ -568,6 +565,12 @@
                 </div>
                 <div class="lesson-actions" (click)="$event.stopPropagation()">
                   <button 
+                    class="btn btn-link btn-xs btn-preview-lesson"
+                    (click)="openLessonPreview(section, lesson)"
+                    title="Prévisualiser la leçon">
+                    <i class="fas fa-external-link-alt"></i>
+                  </button>
+                  <button 
                     class="btn btn-link btn-xs btn-material-lesson"
                     (click)="openAddMaterialForLesson(section, lesson)"
                     title="Ajouter des matériaux">
@@ -608,9 +611,6 @@
                         <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
                       </div>
                       <div class="material-actions">
-                        <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-link" title="Ouvrir">
-                          <i class="fas fa-external-link-alt"></i>
-                        </a>
                         <button 
                           class="btn btn-sm btn-danger"
                           (click)="deleteMaterial(material)"

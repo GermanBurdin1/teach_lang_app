@@ -1,0 +1,251 @@
+.lesson-preview-modal {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  background: linear-gradient(135deg, var(--galaxy-primary) 0%, var(--stellar-purple) 100%);
+  color: white;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.close-button {
+  color: white;
+}
+
+.modal-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.lesson-description-section,
+.lesson-materials-section,
+.lesson-homework-section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--galaxy-primary);
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--space-blue);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.description-display {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  min-height: 60px;
+}
+
+.description-text {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.description-placeholder {
+  margin: 0;
+  font-style: italic;
+}
+
+.description-edit {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.description-textarea {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.description-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.materials-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.material-item {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.material-item .material-info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.material-item .material-info h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.material-item .material-info .material-desc {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.material-icon {
+  font-size: 1.5rem;
+  color: var(--galaxy-primary);
+  margin-bottom: 0.5rem;
+}
+
+.material-preview {
+  margin-top: 0.5rem;
+}
+
+.audio-preview,
+.video-preview {
+  width: 100%;
+}
+
+.audio-player,
+.video-player {
+  width: 100%;
+  max-width: 100%;
+}
+
+.image-preview {
+  width: 100%;
+  text-align: center;
+}
+
+.material-image {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-preview {
+  text-align: center;
+}
+
+.text-preview {
+  padding: 1rem;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.text-content {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.no-materials,
+.no-homework {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+}
+
+.no-materials i,
+.no-homework i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.homework-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.homework-item {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--galaxy-primary);
+}
+
+.homework-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.homework-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.homework-due-date {
+  font-size: 0.85rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.homework-description {
+  margin-bottom: 0.5rem;
+  color: #495057;
+  line-height: 1.5;
+}
+
+.homework-type {
+  margin-top: 0.5rem;
+}
+
+.loading-homework {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading-homework i {
+  font-size: 2rem;
+}
+

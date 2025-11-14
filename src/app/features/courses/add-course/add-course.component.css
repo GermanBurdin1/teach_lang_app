@@ -911,6 +911,25 @@
   margin-right: 0.2rem;
 }
 
+.btn-preview-lesson {
+  color: var(--galaxy-primary);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-preview-lesson:hover {
+  color: var(--stellar-purple);
+  transform: scale(1.1);
+}
+
+.btn-preview-lesson i {
+  font-size: 0.9rem;
+}
+
 .btn-homework-lesson {
   background: none;
   border: none;

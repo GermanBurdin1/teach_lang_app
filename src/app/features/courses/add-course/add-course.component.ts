@@ -10,6 +10,7 @@ import { MaterialService, Material } from '../../../services/material.service';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
+import { LessonPreviewModalComponent, LessonPreviewModalData } from '../lesson-preview-modal/lesson-preview-modal.component';
 import { RoleService } from '../../../services/role.service';
 
 @Component({
@@ -1541,6 +1542,30 @@ export class AddCourseComponent implements OnInit {
       if (result) {
         console.log('✅ Devoir créé:', result);
         this.notificationService.success(`Devoir "${result.title}" créé avec succès!`);
+      }
+    });
+  }
+
+  openLessonPreview(section: string, lesson: string, subSection?: string): void {
+    const materials = this.getMaterialsByLesson(lesson);
+    const dialogData: LessonPreviewModalData = {
+      lessonName: lesson,
+      section: section,
+      subSection: subSection,
+      materials: materials,
+      courseId: this.courseId || ''
+    };
+
+    const dialogRef = this.dialog.open(LessonPreviewModalComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('✅ Превью урока закрыто:', result);
       }
     });
   }
