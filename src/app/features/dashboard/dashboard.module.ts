@@ -63,6 +63,7 @@ import { ClassroomRedirectComponent } from '../../classroom/classroom-redirect.c
 import { LessonResolverService } from '../../classroom/lesson-resolver.service';
 import { AddCourseComponent } from '../courses/add-course/add-course.component';
 import { LessonPreviewModalComponent } from '../courses/lesson-preview-modal/lesson-preview-modal.component';
+import { AddMaterialModalComponent } from '../courses/add-material-modal/add-material-modal.component';
 import { ClassroomModule } from '../../classroom/classroom.module';
 
 @NgModule({
@@ -96,7 +97,8 @@ import { ClassroomModule } from '../../classroom/classroom.module';
     AdminPlatformAnalyticsComponent,
     ClassroomRedirectComponent,
     AddCourseComponent,
-    LessonPreviewModalComponent
+    LessonPreviewModalComponent,
+    AddMaterialModalComponent
   ],
   imports: [
     LayoutModule,

@@ -1,0 +1,195 @@
+<div class="add-material-modal">
+  <div class="modal-header">
+    <h3>
+      <i class="fas fa-plus-circle"></i>
+      Ajouter un Matériau
+    </h3>
+    <button class="close-btn" (click)="cancel()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Tabs for new/existing materials -->
+  <div class="modal-tabs">
+    <button 
+      class="tab-btn"
+      [class.active]="!showExistingMaterials"
+      (click)="showExistingMaterials = false">
+      <i class="fas fa-plus"></i>
+      Nouveau matériau
+    </button>
+    <button 
+      class="tab-btn"
+      [class.active]="showExistingMaterials"
+      (click)="toggleExistingMaterials()">
+      <i class="fas fa-folder-open"></i>
+      Matériaux existants
+      <span *ngIf="data.trainerMaterials.length > 0" class="badge">{{ data.trainerMaterials.length }}</span>
+    </button>
+  </div>
+  
+  <div class="modal-body">
+    <!-- Existing Materials List -->
+    <div *ngIf="showExistingMaterials" class="existing-materials-list">
+      <div *ngIf="data.loadingTrainerMaterials" class="loading-message">
+        <i class="fas fa-spinner fa-spin"></i>
+        Chargement des matériaux...
+      </div>
+      
+      <div *ngIf="!data.loadingTrainerMaterials && data.trainerMaterials.length === 0" class="no-materials-message">
+        <p><i class="fas fa-info-circle"></i> Vous n'avez pas encore de matériaux dans Entraînement.</p>
+        <p>Créez d'abord des matériaux dans la section Entraînement.</p>
+      </div>
+
+      <div *ngIf="!data.loadingTrainerMaterials && data.trainerMaterials.length > 0" class="materials-grid-mini">
+        <div 
+          *ngFor="let material of data.trainerMaterials"
+          class="material-card-mini"
+          (click)="addExistingMaterial(material)">
+          <div class="material-header-mini">
+            <div class="material-type-mini">
+              <i [class]="getMaterialTypeIcon(material.type)"></i>
+              <span>{{ material.type.toUpperCase() }}</span>
+            </div>
+          </div>
+          <div class="material-body-mini">
+            <h5>{{ material.title }}</h5>
+            <p *ngIf="material.description" class="material-description-mini">
+              {{ material.description }}
+            </p>
+            <div *ngIf="material.tags && material.tags.length > 0" class="material-tags-mini">
+              <span *ngFor="let tag of material.tags" class="tag-mini">{{ tag }}</span>
+            </div>
+          </div>
+          <div class="material-footer-mini">
+            <button class="btn btn-sm btn-primary">
+              <i class="fas fa-plus"></i>
+              Ajouter au cours
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create New Material Form -->
+    <div *ngIf="!showExistingMaterials">
+      <div class="form-group">
+        <label>Titre du matériau *</label>
+        <input 
+          type="text" 
+          [(ngModel)]="newMaterial.title"
+          placeholder="Ex: Grammaire - Le subjonctif"
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Type de matériau</label>
+        <select [(ngModel)]="newMaterial.type" class="form-control">
+          <option value="text">📄 Texte</option>
+          <option value="audio">🎧 Audio</option>
+          <option value="video">🎬 Vidéo</option>
+          <option value="pdf">📋 PDF</option>
+          <option value="image">🖼️ Image</option>
+        </select>
+      </div>
+
+      <!-- File Upload for specific types -->
+      <div class="form-group" *ngIf="needsFileUpload()">
+        <label>Fichier à télécharger</label>
+        <div class="file-upload-container" 
+             (dragover)="onDragOver($event)" 
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)"
+             [class.drag-over]="isDragOver">
+          <input 
+            type="file" 
+            id="materialFile"
+            (change)="onFileSelected($event)"
+            [accept]="getAcceptedFileTypes()"
+            class="file-input">
+          <label for="materialFile" class="file-upload-label">
+            <div class="upload-content">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <div class="upload-text">
+                <span *ngIf="!selectedFile" class="upload-main">Choisir un fichier</span>
+                <span *ngIf="selectedFile" class="upload-main">{{ selectedFile.name }}</span>
+                <small class="upload-hint">ou glissez-déposez ici</small>
+              </div>
+            </div>
+          </label>
+        </div>
+        
+        <!-- File Preview -->
+        <div *ngIf="selectedFile && filePreview" class="file-preview">
+          <div class="preview-header">
+            <h5>Aperçu du fichier</h5>
+            <button type="button" class="remove-file-btn" (click)="removeSelectedFile()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="preview-content">
+            <img *ngIf="newMaterial.type === 'image'" [src]="filePreview" alt="Aperçu" class="image-preview">
+            <div *ngIf="newMaterial.type === 'pdf'" class="file-info">
+              <i class="fas fa-file-pdf"></i>
+              <span>{{ selectedFile.name }}</span>
+              <small>{{ formatFileSize(selectedFile.size) }}</small>
+            </div>
+            <div *ngIf="newMaterial.type === 'audio'" class="file-info">
+              <i class="fas fa-music"></i>
+              <span>{{ selectedFile.name }}</span>
+              <small>{{ formatFileSize(selectedFile.size) }}</small>
+            </div>
+            <div *ngIf="newMaterial.type === 'video'" class="file-info">
+              <i class="fas fa-video"></i>
+              <span>{{ selectedFile.name }}</span>
+              <small>{{ formatFileSize(selectedFile.size) }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text content for text type -->
+      <div class="form-group" *ngIf="newMaterial.type === 'text'">
+        <label>Contenu du texte *</label>
+        <textarea 
+          [(ngModel)]="newMaterial.content"
+          placeholder="Saisissez le contenu du texte..."
+          class="form-control"
+          rows="6"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea 
+          [(ngModel)]="newMaterial.description"
+          placeholder="Description du matériau..."
+          class="form-control"
+          rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Tag (optionnel)</label>
+        <input 
+          type="text" 
+          [(ngModel)]="newMaterial.tag"
+          placeholder="Ex: grammaire, vocabulaire..."
+          class="form-control">
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="cancel()">
+      Annuler
+    </button>
+    <button 
+      *ngIf="!showExistingMaterials"
+      class="btn btn-primary"
+      (click)="createMaterial()"
+      [disabled]="!newMaterial.title.trim() || (needsFileUpload() && !selectedFile) || (newMaterial.type === 'text' && !newMaterial.content.trim())">
+      <i class="fas fa-check"></i>
+      Créer
+    </button>
+  </div>
+</div>
+

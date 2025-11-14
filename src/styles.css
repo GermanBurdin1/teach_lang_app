@@ -2,13 +2,21 @@
 
 /* ======================== МОДАЛКА МАТЕРИАЛОВ ПОВЕРХ MATDIALOG ======================== */
 /* Модалка добавления материалов должна быть ВЫШЕ MatDialog (z-index 1000) */
-::ng-deep .create-form-modal {
-  z-index: 10000 !important;
-  position: fixed !important;
+::ng-deep .add-material-modal-dialog {
+  z-index: 1001 !important;
 }
 
-::ng-deep .create-form-modal .modal-content {
-  z-index: 10001 !important;
+::ng-deep .add-material-modal-backdrop {
+  z-index: 1000 !important;
+}
+
+/* Убеждаемся, что CDK overlay для модалки материалов выше, чем для lesson-preview */
+::ng-deep .cdk-overlay-container:has(.add-material-modal-dialog) {
+  z-index: 1001 !important;
+}
+
+::ng-deep .cdk-overlay-backdrop:has(+ .cdk-overlay-pane .add-material-modal-dialog) {
+  z-index: 1000 !important;
 }
 
 /* ==================== ACCESSIBILITY (WCAG 2.1) IMPROVEMENTS ==================== */

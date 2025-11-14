@@ -8,9 +8,10 @@ import { API_ENDPOINTS } from '../../../core/constants/api.constants';
 import { CourseService } from '../../../services/course.service';
 import { MaterialService, Material } from '../../../services/material.service';
 import { HttpClient } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
 import { LessonPreviewModalComponent, LessonPreviewModalData } from '../lesson-preview-modal/lesson-preview-modal.component';
+import { AddMaterialModalComponent, AddMaterialModalData } from '../add-material-modal/add-material-modal.component';
 import { RoleService } from '../../../services/role.service';
 
 @Component({
@@ -96,10 +97,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     // Слушаем событие открытия модалки материалов из lesson-preview-modal
     this.materialModalListener = ((event: CustomEvent) => {
       if (event.detail && event.detail.action === 'addMaterial') {
-        this.selectedSection = event.detail.section;
-        this.selectedLesson = event.detail.lesson;
-        this.selectedSubSection = event.detail.subSection || null;
-        this.showCreateMaterialForm = true;
+        const section = event.detail.section;
+        const lesson = event.detail.lesson;
+        const subSection = event.detail.subSection || null;
+        this.openMaterialModal(section, lesson, subSection);
       }
     }) as EventListener;
     window.addEventListener('openMaterialModal', this.materialModalListener);
@@ -837,27 +838,15 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   openAddMaterialForLesson(section: string, lessonName: string): void {
-    // Устанавливаем выбранную секцию и урок, открываем модалку
-    this.selectedSection = section;
-    this.selectedSubSection = null;
-    this.selectedLesson = lessonName;
-    this.showCreateMaterialForm = true;
+    this.openMaterialModal(section, lessonName);
   }
 
   openAddMaterialForSection(section: string): void {
-    // Устанавливаем выбранную секцию и открываем модалку
-    this.selectedSection = section;
-    this.selectedSubSection = null;
-    this.selectedLesson = null;
-    this.showCreateMaterialForm = true;
+    this.openMaterialModal(section);
   }
 
   openAddMaterialForSubSection(section: string, subSection: string): void {
-    // Устанавливаем выбранную секцию и подсекцию, открываем модалку
-    this.selectedSection = section;
-    this.selectedSubSection = subSection;
-    this.selectedLesson = null;
-    this.showCreateMaterialForm = true;
+    this.openMaterialModal(section, undefined, subSection);
   }
 
   openUploadModal(type: string, section: string, subSection?: string): void {
@@ -865,6 +854,50 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.selectedSection = section;
     this.selectedSubSection = subSection || null;
     this.isUploadModalOpen = true;
+  }
+
+  private openMaterialModal(section: string, lesson?: string, subSection?: string): void {
+    const dialogData: AddMaterialModalData = {
+      section: section,
+      lesson: lesson,
+      subSection: subSection,
+      courseId: this.courseId || '',
+      trainerMaterials: this.trainerMaterials,
+      loadingTrainerMaterials: this.loadingTrainerMaterials
+    };
+
+    const dialogConfig: MatDialogConfig = {
+      width: '700px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: dialogData,
+      panelClass: 'add-material-modal-dialog', // Для установки более высокого z-index
+      disableClose: false,
+      hasBackdrop: true,
+      backdropClass: 'add-material-modal-backdrop'
+    };
+
+    const dialogRef = this.dialog.open(AddMaterialModalComponent, dialogConfig);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.action === 'create') {
+          // Создание нового материала
+          this.selectedSection = section;
+          this.selectedLesson = lesson || null;
+          this.selectedSubSection = subSection || null;
+          this.newMaterial = { ...result.material };
+          this.selectedFile = result.material.file || null;
+          this.createMaterial();
+        } else if (result.action === 'addExisting') {
+          // Добавление существующего материала
+          this.selectedSection = section;
+          this.selectedLesson = lesson || null;
+          this.selectedSubSection = subSection || null;
+          this.addExistingMaterialToCourse(result.material);
+        }
+      }
+    });
   }
 
   closeUploadModal(): void {
