@@ -760,6 +760,148 @@
   transform: translateY(-1px);
 }
 
+/* ==================== LESSONS ==================== */
+.lessons-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.lesson-item {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.lesson-item:hover {
+  border-color: var(--galaxy-primary);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.1);
+}
+
+.lesson-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.lesson-header:hover {
+  background: rgba(74, 144, 226, 0.05);
+}
+
+.lesson-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.lesson-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--space-blue);
+}
+
+.lesson-name i {
+  color: var(--galaxy-primary);
+  font-size: 0.85rem;
+}
+
+.lesson-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-lesson {
+  background: none;
+  border: none;
+  color: #6c757d;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.btn-lesson:hover {
+  color: var(--galaxy-primary);
+  background: rgba(74, 144, 226, 0.1);
+  border-radius: 4px;
+}
+
+.btn-lesson i {
+  font-size: 0.75rem;
+  margin-right: 0.25rem;
+}
+
+.btn-material-lesson {
+  background: none;
+  border: none;
+  color: #6c757d;
+  text-decoration: none;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.7rem;
+  transition: all 0.2s ease;
+}
+
+.btn-material-lesson:hover {
+  color: var(--galaxy-primary);
+  background: rgba(74, 144, 226, 0.1);
+  border-radius: 4px;
+}
+
+.btn-material-lesson i {
+  font-size: 0.65rem;
+  margin-right: 0.2rem;
+}
+
+.btn-delete-lesson {
+  padding: 0.15rem 0.35rem;
+  font-size: 0.7rem;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete-lesson i {
+  font-size: 0.65rem;
+}
+
+.lesson-materials-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.lesson-materials-wrapper.expanded {
+  max-height: 5000px;
+}
+
+.lesson-materials {
+  padding: 0.75rem 1rem 1rem 1rem;
+}
+
+.lesson-materials-empty {
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+.lesson-header .expand-icon {
+  margin-left: 0.5rem;
+  color: #6c757d;
+  font-size: 0.75rem;
+  transition: transform 0.3s ease;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }

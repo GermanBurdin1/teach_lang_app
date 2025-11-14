@@ -56,10 +56,13 @@ export class AddCourseComponent implements OnInit {
   sectionsOptions = ['Grammaire', 'Phonétique', 'Vocabulaire', 'Conseils'];
   selectedSection: string | null = null;
   selectedSubSection: string | null = null;
+  selectedLesson: string | null = null; // Выбранный урок для добавления материалов
   isUploadModalOpen = false;
   showAddSectionDropdown = false;
   showAddSubSectionInput: { [key: string]: boolean } = {}; // Показывать ли input для добавления подсекции
   newSubSectionName: { [key: string]: string } = {}; // Имя новой подсекции для каждой секции
+  lessons: { [key: string]: string[] } = {}; // Уроки для каждой секции: { sectionName: ['Leçon 1', 'Leçon 2', ...] }
+  collapsedLessons: Set<string> = new Set(); // Свернутые уроки
 
   // Current user
   currentUser: any = null;
@@ -487,8 +490,11 @@ export class AddCourseComponent implements OnInit {
       return;
     }
 
-    if (!this.selectedSection) {
-      this.notificationService.error('Veuillez sélectionner une section');
+    // Если добавляем материал в урок, проверяем наличие урока
+    if (this.selectedLesson) {
+      // Все хорошо, добавляем материал в урок
+    } else if (!this.selectedSection) {
+      this.notificationService.error('Veuillez sélectionner une section ou une leçon');
       return;
     }
 
@@ -522,8 +528,8 @@ export class AddCourseComponent implements OnInit {
         return;
       }
 
-      // Формируем tag: если есть подсекция, используем её, иначе используем секцию
-      const tag = this.selectedSubSection || this.selectedSection || undefined;
+      // Формируем tag: приоритет - урок > подсекция > секция
+      const tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
       
       const uploadedFile: UploadedFile = {
         id: Date.now(),
@@ -540,6 +546,11 @@ export class AddCourseComponent implements OnInit {
       this.notificationService.success('Matériel créé avec succès!');
       // Перезагружаем файлы чтобы обновить список
       this.loadFiles();
+      // Если материал был добавлен в урок, разворачиваем урок
+      if (this.selectedLesson) {
+        const lessonId = this.selectedSection + '_' + this.selectedLesson;
+        this.collapsedLessons.delete(lessonId);
+      }
     } catch (error) {
       console.error('❌ Erreur lors de la création du matériel:', error);
       this.notificationService.error('Erreur lors de la création du matériel');
@@ -562,6 +573,9 @@ export class AddCourseComponent implements OnInit {
     this.filePreview = null;
     this.showCreateMaterialForm = false;
     this.showExistingMaterials = false;
+    this.selectedSection = null;
+    this.selectedSubSection = null;
+    this.selectedLesson = null;
   }
 
   // ==================== SECTIONS MANAGEMENT ====================
@@ -605,6 +619,7 @@ export class AddCourseComponent implements OnInit {
   removeSection(sectionName: string): void {
     this.sections = this.sections.filter(sec => sec !== sectionName);
     delete this.subSections[sectionName];
+    delete this.lessons[sectionName];
     this.saveSections();
   }
 
@@ -679,6 +694,7 @@ export class AddCourseComponent implements OnInit {
       // Сохраняем в localStorage для быстрого доступа
       localStorage.setItem(`sections_${this.courseId}`, JSON.stringify(this.sections));
       localStorage.setItem(`subSections_${this.courseId}`, JSON.stringify(this.subSections));
+      localStorage.setItem(`lessons_${this.courseId}`, JSON.stringify(this.lessons));
       
       // Сохраняем в БД через API
       this.courseService.updateCourse(parseInt(this.courseId, 10), {
@@ -700,6 +716,7 @@ export class AddCourseComponent implements OnInit {
       // Если нет в БД, загружаем из localStorage как fallback
       const savedSections = localStorage.getItem(`sections_${this.courseId}`);
       const savedSubSections = localStorage.getItem(`subSections_${this.courseId}`);
+      const savedLessons = localStorage.getItem(`lessons_${this.courseId}`);
 
       if (savedSections && this.sections.length === 0) {
         this.sections = JSON.parse(savedSections);
@@ -707,13 +724,68 @@ export class AddCourseComponent implements OnInit {
       if (savedSubSections) {
         this.subSections = JSON.parse(savedSubSections);
       }
+      if (savedLessons) {
+        this.lessons = JSON.parse(savedLessons);
+      }
     }
+  }
+
+  addLesson(section: string): void {
+    // Инициализируем массив уроков, если его еще нет
+    if (!this.lessons[section]) {
+      this.lessons[section] = [];
+    }
+    
+    // Автоматически нумеруем уроки
+    const lessonNumber = this.lessons[section].length + 1;
+    const lessonName = `Leçon ${lessonNumber}`;
+    
+    this.lessons[section].push(lessonName);
+    this.saveSections();
+    this.notificationService.success(`"${lessonName}" ajoutée avec succès!`);
+  }
+
+  removeLesson(section: string, lessonName: string): void {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la leçon "${lessonName}"?`)) {
+      if (this.lessons[section]) {
+        this.lessons[section] = this.lessons[section].filter(
+          lesson => lesson !== lessonName
+        );
+        // Если массив уроков стал пустым, можно удалить ключ (опционально)
+        if (this.lessons[section].length === 0) {
+          delete this.lessons[section];
+        }
+        this.saveSections();
+        this.notificationService.success(`Leçon "${lessonName}" supprimée avec succès!`);
+      }
+    }
+  }
+
+  toggleLesson(lessonId: string): void {
+    if (this.collapsedLessons.has(lessonId)) {
+      this.collapsedLessons.delete(lessonId);
+    } else {
+      this.collapsedLessons.add(lessonId);
+    }
+  }
+
+  isLessonExpanded(lessonId: string): boolean {
+    return !this.collapsedLessons.has(lessonId);
+  }
+
+  openAddMaterialForLesson(section: string, lessonName: string): void {
+    // Устанавливаем выбранную секцию и урок, открываем модалку
+    this.selectedSection = section;
+    this.selectedSubSection = null;
+    this.selectedLesson = lessonName;
+    this.showCreateMaterialForm = true;
   }
 
   openAddMaterialForSection(section: string): void {
     // Устанавливаем выбранную секцию и открываем модалку
     this.selectedSection = section;
     this.selectedSubSection = null;
+    this.selectedLesson = null;
     this.showCreateMaterialForm = true;
   }
 
@@ -721,6 +793,7 @@ export class AddCourseComponent implements OnInit {
     // Устанавливаем выбранную секцию и подсекцию, открываем модалку
     this.selectedSection = section;
     this.selectedSubSection = subSection;
+    this.selectedLesson = null;
     this.showCreateMaterialForm = true;
   }
 
@@ -911,8 +984,11 @@ export class AddCourseComponent implements OnInit {
       return;
     }
 
-    if (!this.selectedSection) {
-      this.notificationService.error('Veuillez sélectionner une section');
+    // Если добавляем материал в урок, проверяем наличие урока
+    if (this.selectedLesson) {
+      // Все хорошо, добавляем материал в урок
+    } else if (!this.selectedSection) {
+      this.notificationService.error('Veuillez sélectionner une section ou une leçon');
       return;
     }
     if (!this.courseId) {
@@ -928,7 +1004,7 @@ export class AddCourseComponent implements OnInit {
         const textBlob = new Blob([material.content], { type: 'text/plain' });
         const textFile = new File([textBlob], `${material.title}.txt`, { type: 'text/plain' });
         
-        const tag = this.selectedSubSection || this.selectedSection || undefined;
+        const tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
         this.fileUploadService.uploadFileAsCourse(textFile, courseId, tag).subscribe({
           next: (response) => {
             const uploadedFile: UploadedFile = {
@@ -970,7 +1046,7 @@ export class AddCourseComponent implements OnInit {
           return;
         }
         
-        const tag = this.selectedSubSection || this.selectedSection || undefined;
+        const tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
         this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag).subscribe({
           next: (response) => {
             console.log('✅ Материал связан с курсом:', response);
@@ -1052,7 +1128,7 @@ export class AddCourseComponent implements OnInit {
         const file = new File([blob], fileName, { type: mimeType });
         console.log('📤 Загрузка файла в курс:', fileName, 'тип:', mimeType);
         
-        const tag = this.selectedSubSection || this.selectedSection || undefined;
+        const tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
         this.fileUploadService.uploadFileAsCourse(file, courseId, tag).subscribe({
           next: (response) => {
             console.log('✅ Материал добавлен в курс:', response);
@@ -1178,9 +1254,24 @@ export class AddCourseComponent implements OnInit {
     return this.materials.filter(m => m.tag === section);
   }
 
+  // Получить материалы для конкретного урока
+  getMaterialsByLesson(lessonName: string): UploadedFile[] {
+    return this.materials.filter(m => m.tag === lessonName);
+  }
+
   // Получить материалы без раздела
   getMaterialsWithoutSection(): UploadedFile[] {
-    return this.materials.filter(m => !m.tag || !this.sections.includes(m.tag || ''));
+    // Получаем все имена уроков
+    const allLessons: string[] = [];
+    Object.values(this.lessons).forEach(lessonArray => {
+      allLessons.push(...lessonArray);
+    });
+    
+    return this.materials.filter(m => {
+      if (!m.tag) return true;
+      // Исключаем материалы, которые привязаны к секциям или урокам
+      return !this.sections.includes(m.tag) && !allLessons.includes(m.tag);
+    });
   }
 }
 
