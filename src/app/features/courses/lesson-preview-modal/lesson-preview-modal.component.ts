@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UploadedFile } from '../../../services/file-upload.service';
 import { HomeworkService } from '../../../services/homework.service';
 import { AuthService } from '../../../services/auth.service';
+import { RoleService } from '../../../services/role.service';
 import { HttpClient } from '@angular/common/http';
 
 export interface LessonPreviewModalData {
@@ -29,6 +30,7 @@ export class LessonPreviewModalComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: LessonPreviewModalData,
     private homeworkService: HomeworkService,
     private authService: AuthService,
+    private roleService: RoleService,
     private http: HttpClient
   ) {}
 
@@ -55,7 +57,7 @@ export class LessonPreviewModalComponent implements OnInit {
     }
 
     // Загружаем домашние задания для текущего пользователя в зависимости от роли
-    const homeworkObservable = currentUser.role === 'teacher' 
+    const homeworkObservable = this.roleService.isTeacher()
       ? this.homeworkService.getHomeworkForTeacher(currentUser.id)
       : this.homeworkService.getHomeworkForStudent(currentUser.id);
 
