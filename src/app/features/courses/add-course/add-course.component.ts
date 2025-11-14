@@ -58,6 +58,8 @@ export class AddCourseComponent implements OnInit {
   selectedSubSection: string | null = null;
   isUploadModalOpen = false;
   showAddSectionDropdown = false;
+  showAddSubSectionInput: { [key: string]: boolean } = {}; // Показывать ли input для добавления подсекции
+  newSubSectionName: { [key: string]: string } = {}; // Имя новой подсекции для каждой секции
 
   // Current user
   currentUser: any = null;
@@ -582,11 +584,69 @@ export class AddCourseComponent implements OnInit {
     this.saveSections();
   }
 
+  toggleAddSubSectionInput(sectionName: string): void {
+    this.showAddSubSectionInput[sectionName] = !this.showAddSubSectionInput[sectionName];
+    if (this.showAddSubSectionInput[sectionName]) {
+      this.newSubSectionName[sectionName] = '';
+      // Фокус на input после небольшой задержки для рендеринга
+      setTimeout(() => {
+        const input = document.getElementById(`subSectionInput_${sectionName}`);
+        if (input) {
+          input.focus();
+        }
+      }, 100);
+    }
+  }
+
+  confirmAddSubSection(sectionName: string): void {
+    const subSectionName = this.newSubSectionName[sectionName]?.trim();
+    if (!subSectionName) {
+      this.notificationService.error('Veuillez entrer un nom pour la sous-section');
+      return;
+    }
+
+    // Инициализируем массив подсекций, если его еще нет
+    if (!this.subSections[sectionName]) {
+      this.subSections[sectionName] = [];
+    }
+
+    // Проверяем, не существует ли уже такая подсекция
+    if (this.subSections[sectionName].includes(subSectionName)) {
+      this.notificationService.error('Cette sous-section existe déjà');
+      return;
+    }
+
+    this.subSections[sectionName].push(subSectionName);
+    this.saveSections();
+    this.notificationService.success(`Sous-section "${subSectionName}" ajoutée avec succès!`);
+    
+    // Скрываем input и очищаем поле
+    this.showAddSubSectionInput[sectionName] = false;
+    this.newSubSectionName[sectionName] = '';
+  }
+
+  cancelAddSubSection(sectionName: string): void {
+    this.showAddSubSectionInput[sectionName] = false;
+    this.newSubSectionName[sectionName] = '';
+  }
+
   addSubSection(sectionName: string): void {
-    const newSubSection = prompt(`Введите название подраздела для ${sectionName}:`);
-    if (newSubSection) {
-      this.subSections[sectionName].push(newSubSection);
-      this.saveSections();
+    this.toggleAddSubSectionInput(sectionName);
+  }
+
+  removeSubSection(sectionName: string, subSectionName: string): void {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la sous-section "${subSectionName}"?`)) {
+      if (this.subSections[sectionName]) {
+        this.subSections[sectionName] = this.subSections[sectionName].filter(
+          sub => sub !== subSectionName
+        );
+        // Если массив подсекций стал пустым, можно удалить ключ (опционально)
+        if (this.subSections[sectionName].length === 0) {
+          delete this.subSections[sectionName];
+        }
+        this.saveSections();
+        this.notificationService.success(`Sous-section "${subSectionName}" supprimée avec succès!`);
+      }
     }
   }
 

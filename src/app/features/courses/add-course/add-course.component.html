@@ -355,13 +355,20 @@
             </div>
             <div class="section-actions">
               <button 
-                class="btn btn-primary btn-sm"
-                (click)="openAddMaterialForSection(section)">
-                <i class="fas fa-plus"></i>
-                Ajouter un matériau
+                class="btn btn-link btn-sm btn-subsection"
+                (click)="addSubSection(section)"
+                title="Ajouter une sous-section">
+                <i class="fas fa-plus-circle"></i>
+                Sous-section
               </button>
               <button 
-                class="btn btn-danger btn-sm"
+                class="btn btn-link btn-sm btn-material"
+                (click)="openAddMaterialForSection(section)">
+                <i class="fas fa-plus"></i>
+                Matériau
+              </button>
+              <button 
+                class="btn btn-danger btn-sm btn-delete"
                 (click)="removeSection(section)"
                 title="Supprimer la section">
                 <i class="fas fa-trash"></i>
@@ -398,6 +405,53 @@
               </div>
             </div>
           </div>
+          
+          <!-- Add Sub-section Input -->
+          <div class="add-subsection-input-container" *ngIf="showAddSubSectionInput[section]">
+            <div class="add-subsection-input-wrapper">
+              <input 
+                type="text"
+                id="subSectionInput_{{ section }}"
+                [(ngModel)]="newSubSectionName[section]"
+                (keyup.enter)="confirmAddSubSection(section)"
+                (keyup.escape)="cancelAddSubSection(section)"
+                placeholder="Nom de la sous-section"
+                class="form-control form-control-sm add-subsection-input">
+              <div class="add-subsection-actions">
+                <button 
+                  class="btn btn-sm btn-success"
+                  (click)="confirmAddSubSection(section)"
+                  title="Ajouter">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button 
+                  class="btn btn-sm btn-secondary"
+                  (click)="cancelAddSubSection(section)"
+                  title="Annuler">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub-sections -->
+          <div class="subsections-container" *ngIf="subSections[section] && subSections[section].length > 0">
+            <div *ngFor="let subSection of subSections[section]" class="subsection-item">
+              <div class="subsection-header">
+                <span class="subsection-name">
+                  <i class="fas fa-folder"></i>
+                  {{ subSection }}
+                </span>
+                <button 
+                  class="btn btn-sm btn-danger"
+                  (click)="removeSubSection(section, subSection)"
+                  title="Supprimer la sous-section">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
           <div class="section-materials-empty" *ngIf="getMaterialsBySection(section).length === 0">
             <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette section</p>
           </div>
