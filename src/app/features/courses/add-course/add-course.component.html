@@ -334,7 +334,8 @@
       <div class="add-section-controls" *ngIf="sections.length > 0">
 
         <!-- Display sections -->
-        <div *ngFor="let section of sections" class="section-item" 
+        <div *ngFor="let section of sections; let i = index" class="section-item" 
+             [attr.data-section-index]="i" 
              (mouseover)="hoveredSection = section"
              (mouseleave)="hoveredSection = null">
           <div class="section-item-header">

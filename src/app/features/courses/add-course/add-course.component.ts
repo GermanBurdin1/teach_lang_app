@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 import { FileUploadService, UploadedFile } from '../../../services/file-upload.service';
 import { AuthService } from '../../../services/auth.service';
@@ -574,10 +574,31 @@ export class AddCourseComponent implements OnInit {
     const target = event.target as HTMLSelectElement;
     const sectionName = target.value;
 
-    if (sectionName && !this.sections.includes(sectionName)) {
-      this.sections.push(sectionName);
-      this.subSections[sectionName] = [];
+    // Разрешаем добавлять одну и ту же секцию несколько раз
+    if (sectionName) {
+      // Создаем уникальный ключ для секции, если она уже существует
+      let uniqueSectionName = sectionName;
+      let counter = 1;
+      while (this.sections.includes(uniqueSectionName)) {
+        uniqueSectionName = `${sectionName} (${counter})`;
+        counter++;
+      }
+      
+      this.sections.push(uniqueSectionName);
+      this.subSections[uniqueSectionName] = [];
       this.saveSections();
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    // Закрываем dropdown при клике вне его области
+    const target = event.target as HTMLElement;
+    const dropdown = document.querySelector('.add-section-dropdown');
+    const button = document.querySelector('.add-section-btn');
+    
+    if (dropdown && button && !dropdown.contains(target) && !button.contains(target)) {
+      this.showAddSectionDropdown = false;
     }
   }
 
