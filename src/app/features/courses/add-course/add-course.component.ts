@@ -62,7 +62,9 @@ export class AddCourseComponent implements OnInit {
   showAddSubSectionInput: { [key: string]: boolean } = {}; // Показывать ли input для добавления подсекции
   newSubSectionName: { [key: string]: string } = {}; // Имя новой подсекции для каждой секции
   lessons: { [key: string]: string[] } = {}; // Уроки для каждой секции: { sectionName: ['Leçon 1', 'Leçon 2', ...] }
+  lessonsInSubSections: { [section: string]: { [subSection: string]: string[] } } = {}; // Уроки в sous-section: { sectionName: { subSectionName: ['Leçon 1', ...] } }
   collapsedLessons: Set<string> = new Set(); // Свернутые уроки
+  draggedLesson: { section: string; subSection: string | null; lesson: string } | null = null; // Перетаскиваемый урок
 
   // Current user
   currentUser: any = null;
@@ -695,6 +697,7 @@ export class AddCourseComponent implements OnInit {
       localStorage.setItem(`sections_${this.courseId}`, JSON.stringify(this.sections));
       localStorage.setItem(`subSections_${this.courseId}`, JSON.stringify(this.subSections));
       localStorage.setItem(`lessons_${this.courseId}`, JSON.stringify(this.lessons));
+      localStorage.setItem(`lessonsInSubSections_${this.courseId}`, JSON.stringify(this.lessonsInSubSections));
       
       // Сохраняем в БД через API
       this.courseService.updateCourse(parseInt(this.courseId, 10), {
@@ -727,6 +730,11 @@ export class AddCourseComponent implements OnInit {
       if (savedLessons) {
         this.lessons = JSON.parse(savedLessons);
       }
+      
+      const savedLessonsInSubSections = localStorage.getItem(`lessonsInSubSections_${this.courseId}`);
+      if (savedLessonsInSubSections) {
+        this.lessonsInSubSections = JSON.parse(savedLessonsInSubSections);
+      }
     }
   }
 
@@ -745,19 +753,34 @@ export class AddCourseComponent implements OnInit {
     this.notificationService.success(`"${lessonName}" ajoutée avec succès!`);
   }
 
-  removeLesson(section: string, lessonName: string): void {
+  removeLesson(section: string, lessonName: string, subSection?: string): void {
     if (confirm(`Êtes-vous sûr de vouloir supprimer la leçon "${lessonName}"?`)) {
-      if (this.lessons[section]) {
-        this.lessons[section] = this.lessons[section].filter(
-          lesson => lesson !== lessonName
-        );
-        // Если массив уроков стал пустым, можно удалить ключ (опционально)
-        if (this.lessons[section].length === 0) {
-          delete this.lessons[section];
+      if (subSection) {
+        // Удаляем урок из sous-section
+        if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
+          this.lessonsInSubSections[section][subSection] = this.lessonsInSubSections[section][subSection].filter(
+            lesson => lesson !== lessonName
+          );
+          if (this.lessonsInSubSections[section][subSection].length === 0) {
+            delete this.lessonsInSubSections[section][subSection];
+          }
+          if (Object.keys(this.lessonsInSubSections[section]).length === 0) {
+            delete this.lessonsInSubSections[section];
+          }
         }
-        this.saveSections();
-        this.notificationService.success(`Leçon "${lessonName}" supprimée avec succès!`);
+      } else {
+        // Удаляем урок из секции
+        if (this.lessons[section]) {
+          this.lessons[section] = this.lessons[section].filter(
+            lesson => lesson !== lessonName
+          );
+          if (this.lessons[section].length === 0) {
+            delete this.lessons[section];
+          }
+        }
       }
+      this.saveSections();
+      this.notificationService.success(`Leçon "${lessonName}" supprimée avec succès!`);
     }
   }
 
@@ -1259,12 +1282,140 @@ export class AddCourseComponent implements OnInit {
     return this.materials.filter(m => m.tag === lessonName);
   }
 
+  // Получить уроки в sous-section
+  getLessonsInSubSection(section: string, subSection: string): string[] {
+    if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
+      return this.lessonsInSubSections[section][subSection];
+    }
+    return [];
+  }
+
+  // Получить уроки в секции (не в sous-section)
+  getLessonsInSection(section: string): string[] {
+    // Получаем все уроки из sous-section для этой секции
+    const lessonsInSubSections: string[] = [];
+    if (this.lessonsInSubSections[section]) {
+      Object.values(this.lessonsInSubSections[section]).forEach(lessonArray => {
+        lessonsInSubSections.push(...lessonArray);
+      });
+    }
+    
+    // Возвращаем только уроки, которые не находятся в sous-section
+    if (this.lessons[section]) {
+      return this.lessons[section].filter(lesson => !lessonsInSubSections.includes(lesson));
+    }
+    return [];
+  }
+
+  // Drag-n-Drop handlers
+  onDragStart(event: DragEvent, section: string, subSection: string | null, lesson: string): void {
+    this.draggedLesson = { section, subSection, lesson };
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', '');
+    }
+    if (event.target) {
+      (event.target as HTMLElement).style.opacity = '0.5';
+    }
+  }
+
+  onDragEnd(event: DragEvent): void {
+    if (event.target) {
+      (event.target as HTMLElement).style.opacity = '1';
+    }
+    // Убираем класс drag-over со всех элементов
+    document.querySelectorAll('.subsection-item').forEach(el => {
+      el.classList.remove('drag-over');
+    });
+  }
+
+  onLessonDragOver(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onLessonDragEnter(event: DragEvent): void {
+    event.preventDefault();
+    if (event.currentTarget) {
+      (event.currentTarget as HTMLElement).classList.add('drag-over');
+    }
+  }
+
+  onLessonDragLeave(event: DragEvent): void {
+    if (event.currentTarget) {
+      (event.currentTarget as HTMLElement).classList.remove('drag-over');
+    }
+  }
+
+  onDropLesson(event: DragEvent, targetSection: string, targetSubSection: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (event.currentTarget) {
+      (event.currentTarget as HTMLElement).classList.remove('drag-over');
+    }
+
+    if (!this.draggedLesson) {
+      return;
+    }
+
+    const { section: sourceSection, subSection: sourceSubSection, lesson } = this.draggedLesson;
+
+    // Если урок уже в этой sous-section, ничего не делаем
+    if (sourceSection === targetSection && sourceSubSection === targetSubSection) {
+      this.draggedLesson = null;
+      return;
+    }
+
+    // Удаляем урок из исходного места
+    if (sourceSubSection) {
+      // Удаляем из sous-section
+      if (this.lessonsInSubSections[sourceSection] && this.lessonsInSubSections[sourceSection][sourceSubSection]) {
+        this.lessonsInSubSections[sourceSection][sourceSubSection] = 
+          this.lessonsInSubSections[sourceSection][sourceSubSection].filter(l => l !== lesson);
+        if (this.lessonsInSubSections[sourceSection][sourceSubSection].length === 0) {
+          delete this.lessonsInSubSections[sourceSection][sourceSubSection];
+        }
+      }
+    } else {
+      // Удаляем из секции
+      if (this.lessons[sourceSection]) {
+        this.lessons[sourceSection] = this.lessons[sourceSection].filter(l => l !== lesson);
+        if (this.lessons[sourceSection].length === 0) {
+          delete this.lessons[sourceSection];
+        }
+      }
+    }
+
+    // Добавляем урок в целевую sous-section
+    if (!this.lessonsInSubSections[targetSection]) {
+      this.lessonsInSubSections[targetSection] = {};
+    }
+    if (!this.lessonsInSubSections[targetSection][targetSubSection]) {
+      this.lessonsInSubSections[targetSection][targetSubSection] = [];
+    }
+    this.lessonsInSubSections[targetSection][targetSubSection].push(lesson);
+
+    this.saveSections();
+    this.notificationService.success(`Leçon "${lesson}" déplacée vers "${targetSubSection}" avec succès!`);
+    this.draggedLesson = null;
+  }
+
   // Получить материалы без раздела
   getMaterialsWithoutSection(): UploadedFile[] {
     // Получаем все имена уроков
     const allLessons: string[] = [];
     Object.values(this.lessons).forEach(lessonArray => {
       allLessons.push(...lessonArray);
+    });
+    
+    // Получаем все уроки из sous-section
+    Object.values(this.lessonsInSubSections).forEach(sectionLessons => {
+      Object.values(sectionLessons).forEach(lessonArray => {
+        allLessons.push(...lessonArray);
+      });
     });
     
     return this.materials.filter(m => {

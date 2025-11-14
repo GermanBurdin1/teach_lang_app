@@ -671,10 +671,18 @@
 .subsection-item {
   background: #f8f9fa;
   border-radius: 8px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 0.75rem;
   border: 1px solid #e0e0e0;
   transition: all 0.3s ease;
+  min-width: 100%;
+  position: relative;
+}
+
+.subsection-item.drag-over {
+  border-color: var(--galaxy-primary);
+  background: rgba(74, 144, 226, 0.1);
+  border-style: dashed;
 }
 
 .subsection-item:hover {
@@ -900,6 +908,25 @@
   color: #6c757d;
   font-size: 0.75rem;
   transition: transform 0.3s ease;
+}
+
+.lessons-in-subsection {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.lesson-in-subsection {
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.lesson-item[draggable="true"] {
+  cursor: move;
+}
+
+.lesson-item[draggable="true"]:hover {
+  opacity: 0.8;
 }
 
 .cursor-pointer {
