@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 import { FileUploadService, UploadedFile } from '../../../services/file-upload.service';
 import { AuthService } from '../../../services/auth.service';
@@ -18,9 +18,10 @@ import { RoleService } from '../../../services/role.service';
   templateUrl: './add-course.component.html',
   styleUrls: ['./add-course.component.css']
 })
-export class AddCourseComponent implements OnInit {
+export class AddCourseComponent implements OnInit, OnDestroy {
   // Course form data
   courseTitle = '';
+  private materialModalListener?: EventListener;
   courseDescription = '';
   courseLevel = '';
   isPublished = false;
@@ -92,6 +93,17 @@ export class AddCourseComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Слушаем событие открытия модалки материалов из lesson-preview-modal
+    this.materialModalListener = ((event: CustomEvent) => {
+      if (event.detail && event.detail.action === 'addMaterial') {
+        this.selectedSection = event.detail.section;
+        this.selectedLesson = event.detail.lesson;
+        this.selectedSubSection = event.detail.subSection || null;
+        this.showCreateMaterialForm = true;
+      }
+    }) as EventListener;
+    window.addEventListener('openMaterialModal', this.materialModalListener);
+    
     this.updateSEOTags();
     this.currentUser = this.authService.getCurrentUser();
     
@@ -548,6 +560,11 @@ export class AddCourseComponent implements OnInit {
         description: this.newMaterial.description || undefined
       };
 
+      // Обновляем материалы в модалке превью урока через событие
+      window.dispatchEvent(new CustomEvent('materialAdded', {
+        detail: { material: uploadedFile }
+      }));
+
       this.clearMaterialForm();
       this.notificationService.success('Matériel créé avec succès!');
       // Перезагружаем файлы чтобы обновить список
@@ -895,6 +912,12 @@ export class AddCourseComponent implements OnInit {
           };
 
           this.saveFile(uploadedFile);
+          
+          // Обновляем материалы в модалке превью урока через событие
+          window.dispatchEvent(new CustomEvent('materialAdded', {
+            detail: { material: uploadedFile }
+          }));
+          
           this.closeUploadModal();
           this.clearMaterialForm();
         },
@@ -1064,6 +1087,11 @@ export class AddCourseComponent implements OnInit {
               createdAt: response.createdAt,
             };
 
+            // Обновляем материалы в модалке превью урока через событие
+            window.dispatchEvent(new CustomEvent('materialAdded', {
+              detail: { material: uploadedFile }
+            }));
+
             this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
             this.showExistingMaterials = false;
             // Перезагружаем файлы чтобы обновить список
@@ -1096,8 +1124,6 @@ export class AddCourseComponent implements OnInit {
         this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag).subscribe({
           next: (response) => {
             console.log('✅ Материал связан с курсом:', response);
-            this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
-            this.showExistingMaterials = false;
             
             // Добавляем файл в локальный массив сразу для мгновенного обновления UI
             const uploadedFile: UploadedFile = {
@@ -1110,6 +1136,14 @@ export class AddCourseComponent implements OnInit {
                     tag: this.selectedSubSection || this.selectedSection || undefined, // Сохраняем раздел или подраздел в поле tag
               description: material.description || undefined,
             };
+            
+            // Обновляем материалы в модалке превью урока через событие
+            window.dispatchEvent(new CustomEvent('materialAdded', {
+              detail: { material: uploadedFile }
+            }));
+            
+            this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
+            this.showExistingMaterials = false;
             
             // Проверяем, нет ли уже такого файла в списке
             if (!this.materials.find(m => m.id === uploadedFile.id)) {
@@ -1178,6 +1212,23 @@ export class AddCourseComponent implements OnInit {
         this.fileUploadService.uploadFileAsCourse(file, courseId, tag).subscribe({
           next: (response) => {
             console.log('✅ Материал добавлен в курс:', response);
+            
+            const uploadedFile: UploadedFile = {
+              id: response.id,
+              filename: material.title,
+              url: response.url,
+              mimetype: mimeType,
+              tag: tag,
+              description: material.description || undefined,
+              courseId: courseId,
+              createdAt: response.createdAt,
+            };
+            
+            // Обновляем материалы в модалке превью урока через событие
+            window.dispatchEvent(new CustomEvent('materialAdded', {
+              detail: { material: uploadedFile }
+            }));
+            
             this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
             this.showExistingMaterials = false;
             // Перезагружаем файлы чтобы обновить список
@@ -1587,6 +1638,13 @@ export class AddCourseComponent implements OnInit {
         console.log('✅ Превью урока закрыто:', result);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    // Удаляем слушатель события при уничтожении компонента
+    if (this.materialModalListener) {
+      window.removeEventListener('openMaterialModal', this.materialModalListener);
+    }
   }
 
   // Получить материалы без раздела

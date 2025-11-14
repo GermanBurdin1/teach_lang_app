@@ -1,5 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* ======================== МОДАЛКА МАТЕРИАЛОВ ПОВЕРХ MATDIALOG ======================== */
+/* Модалка добавления материалов должна быть ВЫШЕ MatDialog (z-index 1000) */
+::ng-deep .create-form-modal {
+  z-index: 10000 !important;
+  position: fixed !important;
+}
+
+::ng-deep .create-form-modal .modal-content {
+  z-index: 10001 !important;
+}
+
 /* ==================== ACCESSIBILITY (WCAG 2.1) IMPROVEMENTS ==================== */
 
 /* Focus styles for accessibility */

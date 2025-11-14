@@ -1,10 +1,12 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UploadedFile } from '../../../services/file-upload.service';
 import { HomeworkService } from '../../../services/homework.service';
 import { AuthService } from '../../../services/auth.service';
 import { RoleService } from '../../../services/role.service';
 import { HttpClient } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
 
 export interface LessonPreviewModalData {
   lessonName: string;
@@ -19,11 +21,12 @@ export interface LessonPreviewModalData {
   templateUrl: './lesson-preview-modal.component.html',
   styleUrls: ['./lesson-preview-modal.component.css']
 })
-export class LessonPreviewModalComponent implements OnInit {
+export class LessonPreviewModalComponent implements OnInit, OnDestroy {
   lessonDescription = '';
   isEditingDescription = false;
   homeworkItems: any[] = [];
   loadingHomework = false;
+  private materialAddedListener?: EventListener;
 
   constructor(
     public dialogRef: MatDialogRef<LessonPreviewModalComponent>,
@@ -31,7 +34,8 @@ export class LessonPreviewModalComponent implements OnInit {
     private homeworkService: HomeworkService,
     private authService: AuthService,
     private roleService: RoleService,
-    private http: HttpClient
+    private http: HttpClient,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -40,6 +44,28 @@ export class LessonPreviewModalComponent implements OnInit {
     const savedDescription = localStorage.getItem(`lesson_description_${this.data.courseId}_${this.data.section}_${this.data.lessonName}`);
     if (savedDescription) {
       this.lessonDescription = savedDescription;
+    }
+    
+    // Слушаем событие добавления материала для обновления списка
+    this.materialAddedListener = ((event: CustomEvent) => {
+      if (event.detail && event.detail.material) {
+        const material = event.detail.material;
+        // Проверяем, относится ли материал к текущему уроку
+        if (material.tag === this.data.lessonName) {
+          // Добавляем материал в список, если его там еще нет
+          if (!this.data.materials.find(m => m.id === material.id)) {
+            this.data.materials.push(material);
+          }
+        }
+      }
+    }) as EventListener;
+    window.addEventListener('materialAdded', this.materialAddedListener);
+  }
+
+  ngOnDestroy(): void {
+    // Удаляем слушатель события при уничтожении компонента
+    if (this.materialAddedListener) {
+      window.removeEventListener('materialAdded', this.materialAddedListener);
     }
   }
 
@@ -130,6 +156,42 @@ export class LessonPreviewModalComponent implements OnInit {
     if (mimetype.includes('text')) return 'text';
     
     return 'file';
+  }
+
+  openAddMaterial(): void {
+    // Не закрываем текущее модальное окно, а передаем данные через событие для открытия модалки материалов поверх
+    const event = new CustomEvent('openMaterialModal', {
+      detail: {
+        action: 'addMaterial',
+        section: this.data.section,
+        lesson: this.data.lessonName,
+        subSection: this.data.subSection
+      }
+    });
+    window.dispatchEvent(event);
+  }
+
+  openAddHomework(): void {
+    const itemId = `${this.data.courseId}_${this.data.section}_${this.data.lessonName}`;
+    const dialogData: HomeworkModalData = {
+      type: 'material',
+      title: this.data.lessonName,
+      itemId: itemId
+    };
+
+    const homeworkDialogRef = this.dialog.open(HomeworkModalComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      data: dialogData
+    });
+
+    homeworkDialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('✅ Devoir créé:', result);
+        // Перезагружаем домашние задания
+        this.loadHomework();
+      }
+    });
   }
 
   close(): void {

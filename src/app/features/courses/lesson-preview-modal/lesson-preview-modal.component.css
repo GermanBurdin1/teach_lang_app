@@ -49,6 +49,12 @@
   border-bottom: 2px solid var(--galaxy-primary);
 }
 
+.section-header .btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .section-header h3 {
   margin: 0;
   font-size: 1.2rem;
