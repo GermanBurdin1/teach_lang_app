@@ -14,6 +14,8 @@ import { LessonPreviewModalComponent, LessonPreviewModalData } from '../lesson-p
 import { AddMaterialModalComponent, AddMaterialModalData } from '../add-material-modal/add-material-modal.component';
 import { LessonTypeSelectorComponent, LessonType } from '../lesson-type-selector/lesson-type-selector.component';
 import { RoleService } from '../../../services/role.service';
+import { HomeworkService } from '../../../services/homework.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-add-course',
@@ -88,6 +90,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     private courseService: CourseService,
     private materialService: MaterialService,
     private roleService: RoleService,
+    private homeworkService: HomeworkService,
     private router: Router,
     private title: Title,
     private meta: Meta,
@@ -96,7 +99,22 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) { }
 
+  // Кэш для домашних заданий
+  private homeworkCache: { [key: string]: any[] } = {};
+  private homeworkCacheLoaded = false;
+
   ngOnInit(): void {
+    // Загружаем кэш домашних заданий
+    this.loadHomeworkCache();
+    
+    // Слушаем событие создания домашнего задания для обновления кэша
+    window.addEventListener('homeworkCreated', ((event: CustomEvent) => {
+      if (event.detail && event.detail.itemId) {
+        // Перезагружаем кэш
+        this.loadHomeworkCache();
+      }
+    }) as EventListener);
+    
     // Слушаем событие открытия модалки материалов из lesson-preview-modal
     this.materialModalListener = ((event: CustomEvent) => {
       if (event.detail && event.detail.action === 'addMaterial') {
@@ -139,6 +157,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           this.sections = course.sections || [];
           this.hasUnsavedChanges = false;
           this.loadFiles();
+          // Загружаем кэш домашних заданий после загрузки курса
+          this.loadHomeworkCache();
         },
         error: (error) => {
           console.error('❌ Error loading saved course:', error);
@@ -170,6 +190,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.courseId = course.id.toString();
         // Сохраняем courseId в localStorage
         localStorage.setItem('currentCourseId', this.courseId);
+        // Загружаем кэш домашних заданий после создания курса
+        this.loadHomeworkCache();
         this.showCreateCourseForm = false;
         this.hasUnsavedChanges = false;
         // Автоматически разворачиваем карточку курса и секцию материалов после создания
@@ -1716,6 +1738,90 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     return summary;
   }
 
+  // Загрузить кэш домашних заданий (шаблоны курсов)
+  loadHomeworkCache(): void {
+    if (!this.courseId) return;
+    
+    // Собираем все sourceItemId для урока и всех материалов
+    const sourceItemIds: string[] = [];
+    
+    // Добавляем sourceItemId для каждого урока в каждой секции
+    this.sections.forEach(section => {
+      // Уроки на уровне секции
+      const lessonsInSection = this.getLessonsInSection(section);
+      lessonsInSection.forEach(lesson => {
+        const lessonItemId = `${this.courseId}_${section}_${lesson.name}`;
+        sourceItemIds.push(lessonItemId);
+        
+        // Материалы для этого урока
+        const materials = this.getMaterialsByLesson(lesson.name);
+        materials.forEach(material => {
+          const materialItemId = `${this.courseId}_${section}_${lesson.name}_material_${material.id}`;
+          sourceItemIds.push(materialItemId);
+        });
+      });
+      
+      // Уроки в sous-section
+      if (this.lessonsInSubSections[section]) {
+        Object.keys(this.lessonsInSubSections[section]).forEach(subSection => {
+          const lessonsInSubSection = this.getLessonsInSubSection(section, subSection);
+          lessonsInSubSection.forEach(lesson => {
+            const lessonItemId = `${this.courseId}_${section}_${subSection}_${lesson.name}`;
+            sourceItemIds.push(lessonItemId);
+            
+            // Материалы для этого урока
+            const materials = this.getMaterialsByLesson(lesson.name);
+            materials.forEach(material => {
+              const materialItemId = `${this.courseId}_${section}_${subSection}_${lesson.name}_material_${material.id}`;
+              sourceItemIds.push(materialItemId);
+            });
+          });
+        });
+      }
+    });
+    
+    if (sourceItemIds.length === 0) {
+      this.homeworkCache = {};
+      this.homeworkCacheLoaded = true;
+      return;
+    }
+    
+    // Загружаем шаблоны курсов для всех sourceItemId
+    const homeworkObservables = sourceItemIds.map(itemId => 
+      this.homeworkService.getCourseTemplateHomeworkBySourceItemId(itemId)
+    );
+    
+    forkJoin(homeworkObservables).subscribe({
+        next: (homeworkArrays) => {
+          // Группируем задания по itemId
+          this.homeworkCache = {};
+          homeworkArrays.forEach((homeworkList, index) => {
+            const itemId = sourceItemIds[index];
+            if (!this.homeworkCache[itemId]) {
+              this.homeworkCache[itemId] = [];
+            }
+            this.homeworkCache[itemId].push(...homeworkList);
+          });
+          this.homeworkCacheLoaded = true;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Ошибка загрузки домашних заданий:', error);
+          this.homeworkCache = {};
+          this.homeworkCacheLoaded = true;
+        }
+      });
+  }
+
+  // Получить количество заданий для материала
+  getHomeworkCountForMaterial(materialId: number, lessonName: string, section: string, subSection?: string): number {
+    if (!this.courseId) return 0;
+    
+    const subSectionPart = subSection ? `${subSection}_` : '';
+    const itemId = `${this.courseId}_${section}_${subSectionPart}${lessonName}_material_${materialId}`;
+    return this.homeworkCache[itemId]?.length || 0;
+  }
+
   // Открыть модалку для добавления домашнего задания
   openAddHomeworkForLesson(section: string, lesson: string): void {
     const dialogData: HomeworkModalData = {
@@ -1734,6 +1840,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       if (result) {
         console.log('✅ Devoir créé:', result);
         this.notificationService.success(`Devoir "${result.title}" créé avec succès!`);
+        // Обновляем кэш
+        this.loadHomeworkCache();
       }
     });
   }

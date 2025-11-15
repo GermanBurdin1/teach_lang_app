@@ -61,6 +61,7 @@ const routes: Routes = [
     RouterModule.forChild(routes) // Маршрут компонента
   ],
   providers: [DatePipe, VideoCallService],
+  // HomeworkService и AuthService доступны через providedIn: 'root', не нужно добавлять в providers
   exports: [VideoCallComponent, HomeworkModalComponent]
 })
 export class ClassroomModule { }

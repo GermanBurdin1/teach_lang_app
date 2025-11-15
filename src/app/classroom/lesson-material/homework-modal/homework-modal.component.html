@@ -51,8 +51,8 @@
           required>
       </mat-form-field>
 
-      <!-- Info sur le statut -->
-      <div class="status-info">
+      <!-- Info sur le statut (только для обычных заданий, не для шаблонов курсов) -->
+      <div class="status-info" *ngIf="!data.isCourseTemplate">
         <mat-icon class="status-icon">info</mat-icon>
         <span>Ce devoir sera créé avec le statut "Non terminé" et sera visible dans l'espace d'entraînement de l'étudiant.</span>
       </div>

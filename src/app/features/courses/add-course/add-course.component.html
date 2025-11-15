@@ -522,6 +522,9 @@
                                 : {{ formatDuration(getMaterialDuration(material)) }}
                               </span>
                             </div>
+                            <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) > 0">
+                              {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -603,6 +606,9 @@
                           <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
                             : {{ formatDuration(getMaterialDuration(material)) }}
                           </span>
+                        </div>
+                        <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section) > 0">
+                          {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
                         </div>
                       </div>
                     </div>

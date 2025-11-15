@@ -7,6 +7,7 @@ import { RoleService } from '../../../services/role.service';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
+import { forkJoin } from 'rxjs';
 
 export interface LessonPreviewModalData {
   lessonName: string;
@@ -70,36 +71,77 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
     }
   }
 
+  homeworkByMaterial: { [materialId: string]: any[] } = {};
+  lessonHomeworkItems: any[] = [];
+
   loadHomework(): void {
     this.loadingHomework = true;
-    const itemId = `${this.data.courseId}_${this.data.section}_${this.data.lessonName}`;
+    const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
+    const lessonItemId = `${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}`;
     
-    // Получаем текущего пользователя
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) {
-      console.warn('Пользователь не авторизован');
-      this.homeworkItems = [];
-      this.loadingHomework = false;
-      return;
-    }
-
-    // Загружаем домашние задания для текущего пользователя в зависимости от роли
-    const homeworkObservable = this.roleService.isTeacher()
-      ? this.homeworkService.getHomeworkForTeacher(currentUser.id)
-      : this.homeworkService.getHomeworkForStudent(currentUser.id);
-
-    homeworkObservable.subscribe({
-      next: (homeworkList) => {
-        // Фильтруем домашние задания по sourceItemId
-        this.homeworkItems = homeworkList.filter(hw => hw.sourceItemId === itemId);
-        this.loadingHomework = false;
-      },
-      error: (error) => {
-        console.error('Ошибка загрузки домашних заданий:', error);
-        this.homeworkItems = [];
-        this.loadingHomework = false;
-      }
+    // Загружаем шаблоны курсов для урока и всех материалов
+    const sourceItemIds: string[] = [lessonItemId];
+    
+    // Добавляем sourceItemId для каждого материала
+    this.data.materials.forEach(material => {
+      const materialItemId = `${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}_material_${material.id}`;
+      sourceItemIds.push(materialItemId);
     });
+
+    // Загружаем шаблоны курсов для всех sourceItemId
+    const homeworkObservables = sourceItemIds.map(itemId => 
+      this.homeworkService.getCourseTemplateHomeworkBySourceItemId(itemId)
+    );
+
+    // Объединяем все запросы
+    forkJoin(homeworkObservables).subscribe({
+        next: (homeworkArrays) => {
+          // Разделяем задания на привязанные к материалам и общие к уроку
+          this.homeworkByMaterial = {};
+          this.lessonHomeworkItems = [];
+          
+          homeworkArrays.forEach((homeworkList, index) => {
+            const itemId = sourceItemIds[index];
+            homeworkList.forEach(hw => {
+              // Преобразуем формат из backend в формат для фронтенда
+              const homeworkItem = {
+                ...hw,
+                sourceItemId: itemId,
+                dueDate: hw.dueDate ? new Date(hw.dueDate) : null
+              };
+              
+              if (itemId.includes('_material_')) {
+                const materialId = itemId.split('_material_')[1];
+                if (!this.homeworkByMaterial[materialId]) {
+                  this.homeworkByMaterial[materialId] = [];
+                }
+                this.homeworkByMaterial[materialId].push(homeworkItem);
+              } else if (itemId === lessonItemId) {
+                this.lessonHomeworkItems.push(homeworkItem);
+              }
+            });
+          });
+          
+          // Все задания для общего подсчета
+          this.homeworkItems = [...this.lessonHomeworkItems];
+          Object.values(this.homeworkByMaterial).forEach(materialHw => {
+            this.homeworkItems.push(...materialHw);
+          });
+          
+          this.loadingHomework = false;
+        },
+        error: (error) => {
+          console.error('Ошибка загрузки домашних заданий:', error);
+          this.homeworkItems = [];
+          this.homeworkByMaterial = {};
+          this.lessonHomeworkItems = [];
+          this.loadingHomework = false;
+        }
+      });
+  }
+
+  getHomeworkForMaterial(materialId: number): any[] {
+    return this.homeworkByMaterial[materialId?.toString()] || [];
   }
 
   saveDescription(): void {
@@ -185,14 +227,21 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
       title = material ? material.filename : this.data.lessonName;
     } else {
       // Общее задание к уроку
-      itemId = `${this.data.courseId}_${this.data.section}_${this.data.lessonName}`;
+      const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
+      itemId = `${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}`;
       title = this.data.lessonName;
     }
+    
+    // Получаем текущего пользователя для сохранения на сервер
+    const currentUser = this.authService.getCurrentUser();
     
     const dialogData: HomeworkModalData = {
       type: 'material',
       title: title,
-      itemId: itemId
+      itemId: itemId,
+      isCourseTemplate: true, // Помечаем как шаблон курса
+      courseId: this.data.courseId,
+      createdBy: currentUser?.id || ''
     };
 
     const homeworkDialogRef = this.dialog.open(HomeworkModalComponent, {
@@ -204,8 +253,10 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
     homeworkDialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('✅ Devoir créé:', result);
-        // Перезагружаем домашние задания
-        this.loadHomework();
+        // Перезагружаем домашние задания после создания
+        setTimeout(() => {
+          this.loadHomework();
+        }, 500); // Небольшая задержка для обновления на сервере
       }
     });
   }

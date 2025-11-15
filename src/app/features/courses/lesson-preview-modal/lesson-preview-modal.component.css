@@ -258,6 +258,57 @@
   gap: 1rem;
 }
 
+.material-homework-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.material-homework-header {
+  margin-bottom: 0.5rem;
+}
+
+.material-homework-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #856404;
+}
+
+.material-homework-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.material-homework-item {
+  padding: 0.75rem;
+  background: #fff3cd;
+  border-radius: 6px;
+  border-left: 3px solid #ffc107;
+}
+
+.material-homework-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.material-homework-description {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.material-homework-due-date {
+  font-size: 0.75rem;
+  color: #856404;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .homework-item {
   padding: 1rem;
   background: #f8f9fa;

@@ -1,11 +1,16 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { environment } from '../../../../../environment';
+import { HomeworkService, Homework } from '../../../services/homework.service';
+import { AuthService } from '../../../services/auth.service';
 
 export interface HomeworkModalData {
   type: 'task' | 'question' | 'material';
   title: string;
   itemId: string;
+  isCourseTemplate?: boolean; // true для шаблонов курсов (создаются через lesson-preview-modal)
+  courseId?: string; // ID курса для шаблонов
+  createdBy?: string; // ID создателя для сохранения на сервер
 }
 
 @Component({
@@ -21,8 +26,9 @@ export class HomeworkModalComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<HomeworkModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: HomeworkModalData
-    // homeworkService удален, так как не используется
+    @Inject(MAT_DIALOG_DATA) public data: HomeworkModalData,
+    private homeworkService: HomeworkService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -70,18 +76,58 @@ export class HomeworkModalComponent implements OnInit {
       createdAt: new Date()
     };
 
-    // Simulation de la sauvegarde
-    window.setTimeout(() => {
-      if (!environment.production) {
-        console.log('💾 Sauvegarde du devoir:', homeworkData);
-      }
-      
-      // TODO: Sauvegarde réelle via HomeworkService
-      // this.homeworkService.createHomework(homeworkData).subscribe(...)
-      
-      this.isSaving = false;
-      this.dialogRef.close(homeworkData);
-    }, 1000);
+    // Если это шаблон курса, сохраняем на сервер
+    if (this.data.isCourseTemplate && this.data.createdBy) {
+      this.homeworkService.createCourseTemplateHomework({
+        title: homeworkData.title,
+        description: homeworkData.description,
+        dueDate: homeworkData.dueDate,
+        itemType: this.data.type,
+        createdBy: this.data.createdBy,
+        sourceItemId: this.data.itemId
+      }).subscribe({
+        next: (savedHomework: Homework) => {
+          if (!environment.production) {
+            console.log('💾 Шаблон домашнего задания сохранен на сервер:', savedHomework);
+          }
+          
+          // Отправляем событие о создании домашнего задания
+          window.dispatchEvent(new CustomEvent('homeworkCreated', {
+            detail: {
+              itemId: this.data.itemId,
+              homework: savedHomework
+            }
+          }));
+          
+          this.isSaving = false;
+          this.dialogRef.close(savedHomework);
+        },
+        error: (error: any) => {
+          console.error('❌ Ошибка сохранения шаблона домашнего задания:', error);
+          this.isSaving = false;
+          // Все равно закрываем модалку с данными для локального использования
+          this.dialogRef.close(homeworkData);
+        }
+      });
+    } else {
+      // Для обычных заданий сохраняем локально (существующий функционал)
+      window.setTimeout(() => {
+        if (!environment.production) {
+          console.log('💾 Sauvegarde du devoir:', homeworkData);
+        }
+        
+        // Отправляем событие о создании домашнего задания
+        window.dispatchEvent(new CustomEvent('homeworkCreated', {
+          detail: {
+            itemId: this.data.itemId,
+            homework: homeworkData
+          }
+        }));
+        
+        this.isSaving = false;
+        this.dialogRef.close(homeworkData);
+      }, 1000);
+    }
   }
 
   onCancel() {

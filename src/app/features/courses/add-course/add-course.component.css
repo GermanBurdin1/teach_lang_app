@@ -1140,6 +1140,14 @@
   font-weight: 600;
 }
 
+.material-homework-count {
+  margin-left: 1rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #856404;
+  font-style: italic;
+}
+
 .lesson-info-empty {
   padding: 0.75rem 1rem;
   text-align: center;

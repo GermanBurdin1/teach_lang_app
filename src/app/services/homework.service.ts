@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of as _of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environment';
 
@@ -197,6 +197,54 @@ export class HomeworkService {
     console.log(`📋 [FRONTEND SERVICE] teacherId: ${teacherId}`);
     
     return this.http.get<Homework[]>(url);
+  }
+
+  // Создание шаблона домашнего задания для курса
+  createCourseTemplateHomework(data: {
+    title: string;
+    description: string;
+    dueDate: Date;
+    itemType: 'task' | 'question' | 'material';
+    originalItemId?: string | null;
+    createdBy: string;
+    sourceItemId?: string;
+  }): Observable<Homework> {
+    const url = `${this.baseUrl}/course-template/homework`;
+    console.log('📝 Создаем шаблон домашнего задания для курса:', {
+      url,
+      data
+    });
+    
+    return this.http.post<Homework>(url, {
+      title: data.title,
+      description: data.description,
+      dueDate: data.dueDate.toISOString(),
+      itemType: data.itemType,
+      originalItemId: data.originalItemId || null,
+      createdBy: data.createdBy,
+      sourceItemId: data.sourceItemId
+    }).pipe(
+      tap((response: Homework) => {
+        console.log('✅ [SERVICE] createCourseTemplateHomework response:', response);
+      })
+    );
+  }
+
+  // Получение шаблонов домашних заданий для курса по sourceItemId
+  getCourseTemplateHomeworkBySourceItemId(sourceItemId: string): Observable<Homework[]> {
+    const url = `${this.baseUrl}/course-template/homework/${encodeURIComponent(sourceItemId)}`;
+    console.log('📋 [SERVICE] Получаем шаблоны домашних заданий для курса:', url);
+    
+    return this.http.get<Homework[]>(url).pipe(
+      tap((response: Homework[]) => {
+        console.log('✅ [SERVICE] getCourseTemplateHomeworkBySourceItemId response:', response.length, 'шаблонов');
+      }),
+      catchError((error: any) => {
+        console.warn('⚠️ [SERVICE] Ошибка при получении шаблонов домашних заданий (возвращаем пустой массив):', error);
+        // Если домашних заданий нет или произошла ошибка, возвращаем пустой массив
+        return of([]);
+      })
+    );
   }
 
   // Создание домашнего задания

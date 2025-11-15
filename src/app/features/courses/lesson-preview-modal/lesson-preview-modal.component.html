@@ -108,6 +108,25 @@
               <p class="text-content">{{ material.description || 'Contenu texte' }}</p>
             </div>
           </div>
+          
+          <!-- Домашние задания к материалу -->
+          <div class="material-homework-section" *ngIf="getHomeworkForMaterial(material.id).length > 0">
+            <div class="material-homework-header">
+              <span class="material-homework-count">
+                {{ getHomeworkForMaterial(material.id).length }} {{ getHomeworkForMaterial(material.id).length === 1 ? 'devoir' : 'devoirs' }}
+              </span>
+            </div>
+            <div class="material-homework-list">
+              <div *ngFor="let homework of getHomeworkForMaterial(material.id)" class="material-homework-item">
+                <div class="material-homework-title">{{ homework.title }}</div>
+                <div class="material-homework-description" *ngIf="homework.description">{{ homework.description }}</div>
+                <div class="material-homework-due-date" *ngIf="homework.dueDate">
+                  <i class="fas fa-calendar"></i>
+                  {{ homework.dueDate | date:'dd/MM/yyyy' }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
