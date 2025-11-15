@@ -136,17 +136,17 @@
       </div>
     </div>
 
-    <!-- Домашние задания -->
+    <!-- Домашние задания (только общие задания урока, не задания к материалам) -->
     <div class="lesson-homework-section">
       <div class="section-header">
         <h3>
           <i class="fas fa-tasks"></i>
-          Devoirs ({{ homeworkItems.length }})
+          Devoirs pour la leçon ({{ lessonHomeworkItems.length }})
         </h3>
         <button 
           class="btn btn-sm btn-primary"
           (click)="openAddHomework()"
-          title="Ajouter un devoir">
+          title="Ajouter un devoir pour la leçon">
           <i class="fas fa-plus"></i>
           Ajouter un devoir
         </button>
@@ -157,8 +157,8 @@
         <span>Chargement des devoirs...</span>
       </div>
       
-      <div *ngIf="!loadingHomework && homeworkItems.length > 0" class="homework-list">
-        <div *ngFor="let homework of homeworkItems" class="homework-item">
+      <div *ngIf="!loadingHomework && lessonHomeworkItems.length > 0" class="homework-list">
+        <div *ngFor="let homework of lessonHomeworkItems" class="homework-item">
           <div class="homework-header">
             <h4>{{ homework.title || 'Devoir sans titre' }}</h4>
             <span *ngIf="homework.dueDate" class="homework-due-date">
@@ -175,7 +175,7 @@
         </div>
       </div>
       
-      <div *ngIf="!loadingHomework && homeworkItems.length === 0" class="no-homework">
+      <div *ngIf="!loadingHomework && lessonHomeworkItems.length === 0" class="no-homework">
         <i class="fas fa-clipboard-list"></i>
         <p class="text-muted">Aucun devoir pour cette leçon</p>
       </div>

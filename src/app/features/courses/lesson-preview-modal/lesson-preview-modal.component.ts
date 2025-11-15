@@ -16,6 +16,7 @@ export interface LessonPreviewModalData {
   materials: UploadedFile[];
   courseId: string;
   description?: string;
+  lessonType?: 'self' | 'call'; // Тип урока
 }
 
 @Component({
@@ -87,10 +88,11 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
     const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
     const lessonItemId = `${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}`;
     
-    // Загружаем шаблоны курсов для урока и всех материалов
+    // ВСЕГДА загружаем задания к материалам (для отображения под материалами)
+    // И общие задания урока (для отображения в lesson-homework-section)
     const sourceItemIds: string[] = [lessonItemId];
     
-    // Добавляем sourceItemId для каждого материала
+    // Добавляем sourceItemId для каждого материала (для всех типов уроков)
     this.data.materials.forEach(material => {
       const materialItemId = `${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}_material_${material.id}`;
       sourceItemIds.push(materialItemId);
@@ -119,18 +121,22 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
               };
               
               if (itemId.includes('_material_')) {
+                // Задания к материалам (отображаются под каждым материалом)
                 const materialId = itemId.split('_material_')[1];
                 if (!this.homeworkByMaterial[materialId]) {
                   this.homeworkByMaterial[materialId] = [];
                 }
                 this.homeworkByMaterial[materialId].push(homeworkItem);
               } else if (itemId === lessonItemId) {
+                // Общие задания урока (отображаются в lesson-homework-section)
                 this.lessonHomeworkItems.push(homeworkItem);
               }
             });
           });
           
-          // Все задания для общего подсчета
+          // homeworkItems используется только для общего подсчета в заголовке
+          // Для уроков типа 'self' в lesson-homework-section показываем только lessonHomeworkItems
+          // Для уроков типа 'call' можно показывать все, но мы все равно показываем только lessonHomeworkItems
           this.homeworkItems = [...this.lessonHomeworkItems];
           Object.values(this.homeworkByMaterial).forEach(materialHw => {
             this.homeworkItems.push(...materialHw);

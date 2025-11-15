@@ -1896,6 +1896,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     return count;
   }
 
+  // Получить количество общих заданий для урока
+  getHomeworkCountForLesson(lessonName: string, section: string, subSection?: string): number {
+    if (!this.courseId) return 0;
+    
+    // Формируем itemId для урока (без _material_)
+    const subSectionPart = subSection ? `${subSection}_` : '';
+    const itemId = `${this.courseId}_${section}_${subSectionPart}${lessonName}`;
+    
+    return this.homeworkCache[itemId]?.length || 0;
+  }
+
   // ==================== QUICK STRUCTURE EDITOR METHODS ====================
 
   addSectionQuick(): void {
@@ -2092,13 +2103,29 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   openLessonPreview(section: string, lesson: string, subSection?: string): void {
     const materials = this.getMaterialsByLesson(lesson);
     const description = this.getLessonDescription(section, subSection || null, lesson);
+    
+    // Находим тип урока
+    let lessonType: 'self' | 'call' = 'self';
+    if (subSection) {
+      const lessonObj = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson);
+      if (lessonObj) {
+        lessonType = lessonObj.type;
+      }
+    } else {
+      const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
+      if (lessonObj) {
+        lessonType = lessonObj.type;
+      }
+    }
+    
     const dialogData: LessonPreviewModalData = {
       lessonName: lesson,
       section: section,
       subSection: subSection,
       materials: materials,
       courseId: this.courseId || '',
-      description: description
+      description: description,
+      lessonType: lessonType
     };
 
     const dialogRef = this.dialog.open(LessonPreviewModalComponent, {
