@@ -19,6 +19,25 @@
   z-index: 1000 !important;
 }
 
+/* ======================== LESSON PREVIEW FULLSCREEN ======================== */
+/* Стили для полноэкранного режима lesson-preview-modal */
+::ng-deep .lesson-preview-fullscreen {
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+::ng-deep .lesson-preview-fullscreen .lesson-preview-modal {
+  max-height: 100vh !important;
+  height: 100vh !important;
+}
+
+::ng-deep .lesson-preview-fullscreen .modal-content {
+  max-height: calc(100vh - 80px) !important;
+  height: calc(100vh - 80px) !important;
+}
+
 /* ==================== ACCESSIBILITY (WCAG 2.1) IMPROVEMENTS ==================== */
 
 /* Focus styles for accessibility */

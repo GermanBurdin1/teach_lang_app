@@ -26,6 +26,7 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
   isEditingDescription = false;
   homeworkItems: any[] = [];
   loadingHomework = false;
+  isFullscreen = false;
   private materialAddedListener?: EventListener;
 
   constructor(
@@ -192,6 +193,20 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
         this.loadHomework();
       }
     });
+  }
+
+  toggleFullscreen(): void {
+    this.isFullscreen = !this.isFullscreen;
+    
+    if (this.isFullscreen) {
+      // Разворачиваем на полный экран
+      this.dialogRef.updateSize('100vw', '100vh');
+      this.dialogRef.addPanelClass('lesson-preview-fullscreen');
+    } else {
+      // Восстанавливаем обычный размер
+      this.dialogRef.updateSize('900px', '90vh');
+      this.dialogRef.removePanelClass('lesson-preview-fullscreen');
+    }
   }
 
   close(): void {

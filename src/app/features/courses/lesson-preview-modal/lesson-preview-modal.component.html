@@ -4,9 +4,19 @@
       <i class="fas fa-book-open"></i>
       {{ data.lessonName }}
     </h2>
-    <button mat-icon-button (click)="close()" class="close-button" aria-label="Fermer">
-      <i class="fas fa-times"></i>
-    </button>
+    <div class="header-actions">
+      <button 
+        mat-icon-button 
+        (click)="toggleFullscreen()" 
+        class="restore-button" 
+        [title]="isFullscreen ? 'Restaurer' : 'Plein écran'"
+        aria-label="Toggle fullscreen">
+        <i [class]="isFullscreen ? 'fas fa-compress' : 'fas fa-expand'"></i>
+      </button>
+      <button mat-icon-button (click)="close()" class="close-button" aria-label="Fermer">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
   </div>
 
   <div class="modal-content">
