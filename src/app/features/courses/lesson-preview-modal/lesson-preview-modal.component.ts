@@ -23,7 +23,6 @@ export interface LessonPreviewModalData {
 })
 export class LessonPreviewModalComponent implements OnInit, OnDestroy {
   lessonDescription = '';
-  isEditingDescription = false;
   homeworkItems: any[] = [];
   loadingHomework = false;
   isFullscreen = false;
@@ -42,7 +41,8 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadHomework();
     // Загрузить сохраненное описание урока из localStorage или API
-    const savedDescription = localStorage.getItem(`lesson_description_${this.data.courseId}_${this.data.section}_${this.data.lessonName}`);
+    const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
+    const savedDescription = localStorage.getItem(`lesson_description_${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}`);
     if (savedDescription) {
       this.lessonDescription = savedDescription;
     }
@@ -102,22 +102,23 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleEditDescription(): void {
-    this.isEditingDescription = !this.isEditingDescription;
-  }
-
   saveDescription(): void {
-    const key = `lesson_description_${this.data.courseId}_${this.data.section}_${this.data.lessonName}`;
+    const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
+    const key = `lesson_description_${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}`;
     localStorage.setItem(key, this.lessonDescription);
-    this.isEditingDescription = false;
+    // Отправляем событие для обновления карточки урока
+    window.dispatchEvent(new CustomEvent('lessonDescriptionUpdated', {
+      detail: {
+        courseId: this.data.courseId,
+        section: this.data.section,
+        subSection: this.data.subSection,
+        lessonName: this.data.lessonName,
+        description: this.lessonDescription
+      }
+    }));
     // TODO: Сохранить описание на сервер через API
   }
 
-  cancelEditDescription(): void {
-    const savedDescription = localStorage.getItem(`lesson_description_${this.data.courseId}_${this.data.section}_${this.data.lessonName}`);
-    this.lessonDescription = savedDescription || '';
-    this.isEditingDescription = false;
-  }
 
   getFileUrl(url: string | null | undefined): string {
     if (!url) return '#';

@@ -503,16 +503,10 @@
                     </div>
                   </div>
                   
-                  <!-- Lesson info (description, materials list, duration) -->
+                  <!-- Lesson info (materials list, duration) -->
                   <div class="lesson-info-wrapper" 
                        [class.expanded]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)">
                     <div class="lesson-info-content">
-                      <!-- Описание урока -->
-                      <div class="lesson-description-info" *ngIf="getLessonDescription(section, subSection, lessonObj.name)">
-                        <i class="fas fa-align-left"></i>
-                        <span>{{ getLessonDescription(section, subSection, lessonObj.name) }}</span>
-                      </div>
-                      
                       <!-- Список материалов с типом и длительностью -->
                       <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name).length > 0">
                         <div class="materials-label">
@@ -533,7 +527,7 @@
                       </div>
                       
                       <!-- Пустое состояние -->
-                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && !getLessonDescription(section, subSection, lessonObj.name)">
+                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0">
                         <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
                       </div>
                     </div>
@@ -591,16 +585,10 @@
                 </div>
               </div>
               
-              <!-- Lesson info (description, materials list, duration) -->
+              <!-- Lesson info (materials list, duration) -->
               <div class="lesson-info-wrapper" 
                    [class.expanded]="isLessonExpanded(section + '_' + lessonObj.name)">
                 <div class="lesson-info-content">
-                  <!-- Описание урока -->
-                  <div class="lesson-description-info" *ngIf="getLessonDescription(section, null, lessonObj.name)">
-                    <i class="fas fa-align-left"></i>
-                    <span>{{ getLessonDescription(section, null, lessonObj.name) }}</span>
-                  </div>
-                  
                   <!-- Список материалов с типом и длительностью -->
                   <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name).length > 0">
                     <div class="materials-label">
@@ -621,7 +609,7 @@
                   </div>
                   
                   <!-- Пустое состояние -->
-                  <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && !getLessonDescription(section, null, lessonObj.name)">
+                  <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0">
                     <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
                   </div>
                 </div>

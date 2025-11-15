@@ -108,6 +108,12 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }) as EventListener;
     window.addEventListener('openMaterialModal', this.materialModalListener);
     
+    // Слушаем событие обновления описания урока
+    window.addEventListener('lessonDescriptionUpdated', () => {
+      // Принудительно обновляем представление для отображения нового описания
+      this.cdr.detectChanges();
+    });
+    
     this.updateSEOTags();
     this.currentUser = this.authService.getCurrentUser();
     

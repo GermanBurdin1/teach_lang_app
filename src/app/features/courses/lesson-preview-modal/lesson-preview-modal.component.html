@@ -27,39 +27,15 @@
           <i class="fas fa-align-left"></i>
           Description de la leçon
         </h3>
-        <button 
-          *ngIf="!isEditingDescription"
-          class="btn btn-sm btn-link"
-          (click)="toggleEditDescription()"
-          title="Modifier la description">
-          <i class="fas fa-edit"></i>
-          Modifier
-        </button>
       </div>
       
-      <div *ngIf="!isEditingDescription" class="description-display">
-        <p *ngIf="lessonDescription" class="description-text">{{ lessonDescription }}</p>
-        <p *ngIf="!lessonDescription" class="description-placeholder text-muted">
-          <i class="fas fa-info-circle"></i>
-          Aucune description. Cliquez sur "Modifier" pour ajouter une description.
-        </p>
-      </div>
-      
-      <div *ngIf="isEditingDescription" class="description-edit">
+      <div class="description-edit">
         <textarea 
           [(ngModel)]="lessonDescription"
+          (blur)="saveDescription()"
           class="form-control description-textarea"
           rows="4"
           placeholder="Entrez la description de la leçon..."></textarea>
-        <div class="description-actions">
-          <button class="btn btn-sm btn-primary" (click)="saveDescription()">
-            <i class="fas fa-save"></i>
-            Enregistrer
-          </button>
-          <button class="btn btn-sm btn-secondary" (click)="cancelEditDescription()">
-            Annuler
-          </button>
-        </div>
       </div>
     </div>
 
