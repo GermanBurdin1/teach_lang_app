@@ -15,6 +15,7 @@ export interface LessonPreviewModalData {
   subSection?: string;
   materials: UploadedFile[];
   courseId: string;
+  description?: string;
 }
 
 @Component({
@@ -41,11 +42,18 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadHomework();
-    // Загрузить сохраненное описание урока из localStorage или API
-    const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
-    const savedDescription = localStorage.getItem(`lesson_description_${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}`);
-    if (savedDescription) {
-      this.lessonDescription = savedDescription;
+    // Загружаем описание урока из data (передается из структуры lessons)
+    if (this.data.description) {
+      this.lessonDescription = this.data.description;
+    } else {
+      // Для обратной совместимости проверяем localStorage
+      const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
+      const savedDescription = localStorage.getItem(`lesson_description_${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}`);
+      if (savedDescription) {
+        this.lessonDescription = savedDescription;
+        // Миграция: сохраняем описание из localStorage в структуру lessons при первом открытии
+        this.saveDescription();
+      }
     }
     
     // Слушаем событие добавления материала для обновления списка
@@ -145,10 +153,7 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
   }
 
   saveDescription(): void {
-    const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
-    const key = `lesson_description_${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}`;
-    localStorage.setItem(key, this.lessonDescription);
-    // Отправляем событие для обновления карточки урока
+    // Отправляем событие для обновления структуры lessons и сохранения в БД
     window.dispatchEvent(new CustomEvent('lessonDescriptionUpdated', {
       detail: {
         courseId: this.data.courseId,
@@ -158,7 +163,6 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
         description: this.lessonDescription
       }
     }));
-    // TODO: Сохранить описание на сервер через API
   }
 
 

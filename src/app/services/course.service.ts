@@ -12,9 +12,12 @@ export interface Course {
   isPublished: boolean;
   coverImage: string | null;
   sections: string[] | null;
+  subSections?: { [key: string]: string[] } | null;
+  lessons?: { [key: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } | null;
+  lessonsInSubSections?: { [section: string]: { [subSection: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } } | null;
   createdAt: Date;
   updatedAt: Date;
-  lessons?: any[];
+  courseLessons?: any[];
 }
 
 export interface CreateCourseRequest {
@@ -31,6 +34,9 @@ export interface UpdateCourseRequest {
   isPublished?: boolean;
   coverImage?: string | null;
   sections?: string[] | null;
+  subSections?: { [key: string]: string[] } | null;
+  lessons?: { [key: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } | null;
+  lessonsInSubSections?: { [section: string]: { [subSection: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } } | null;
 }
 
 @Injectable({

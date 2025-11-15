@@ -127,9 +127,32 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     window.addEventListener('openMaterialModal', this.materialModalListener);
     
     // Слушаем событие обновления описания урока
-    window.addEventListener('lessonDescriptionUpdated', () => {
-      // Принудительно обновляем представление для отображения нового описания
-      this.cdr.detectChanges();
+    window.addEventListener('lessonDescriptionUpdated', (event: any) => {
+      // Обновляем описание урока в структуре lessons
+      const { courseId, section, subSection, lessonName, description } = event.detail;
+      if (courseId === this.courseId) {
+        if (subSection) {
+          // Обновляем описание в lessonsInSubSections
+          if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
+            const lessonIndex = this.lessonsInSubSections[section][subSection].findIndex(l => l.name === lessonName);
+            if (lessonIndex !== -1) {
+              this.lessonsInSubSections[section][subSection][lessonIndex].description = description;
+            }
+          }
+        } else {
+          // Обновляем описание в lessons
+          if (this.lessons[section]) {
+            const lessonIndex = this.lessons[section].findIndex(l => l.name === lessonName);
+            if (lessonIndex !== -1) {
+              this.lessons[section][lessonIndex].description = description;
+            }
+          }
+        }
+        // Сохраняем изменения в БД
+        this.saveSections();
+        // Принудительно обновляем представление
+        this.cdr.detectChanges();
+      }
     });
     
     this.updateSEOTags();
@@ -155,6 +178,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           this.isPublished = course.isPublished;
           this.coverImage = course.coverImage;
           this.sections = course.sections || [];
+          // Загружаем подсекции из БД
+          if (course.subSections) {
+            this.subSections = course.subSections;
+          }
+          // Загружаем уроки из БД
+          if (course.lessons) {
+            this.lessons = course.lessons;
+          }
+          if (course.lessonsInSubSections) {
+            this.lessonsInSubSections = course.lessonsInSubSections;
+          }
           this.hasUnsavedChanges = false;
           this.loadFiles();
           // Загружаем кэш домашних заданий после загрузки курса
@@ -754,13 +788,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       
       // Сохраняем в БД через API
       this.courseService.updateCourse(parseInt(this.courseId, 10), {
-        sections: this.sections.length > 0 ? this.sections : null
+        sections: this.sections.length > 0 ? this.sections : null,
+        subSections: Object.keys(this.subSections).length > 0 ? this.subSections : null,
+        lessons: Object.keys(this.lessons).length > 0 ? this.lessons : null,
+        lessonsInSubSections: Object.keys(this.lessonsInSubSections).length > 0 ? this.lessonsInSubSections : null
       }).subscribe({
         next: () => {
-          console.log('✅ Sections saved to database');
+          console.log('✅ Sections and lessons saved to database');
         },
         error: (error) => {
-          console.error('❌ Error saving sections:', error);
+          console.error('❌ Error saving sections and lessons:', error);
         }
       });
     }
@@ -1076,6 +1113,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           this.materials = [];
           console.log('⚠️ Список файлов пуст. Возможно, файлы еще не синхронизированы с БД.');
         }
+        
+        // Обновляем кэш домашних заданий после загрузки файлов
+        this.loadHomeworkCache();
       },
       error: (err) => {
         console.error('❌ Ошибка загрузки файлов:', err);
@@ -1817,9 +1857,20 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   getHomeworkCountForMaterial(materialId: number, lessonName: string, section: string, subSection?: string): number {
     if (!this.courseId) return 0;
     
+    // Формируем itemId в том же формате, что и в loadHomeworkCache
     const subSectionPart = subSection ? `${subSection}_` : '';
     const itemId = `${this.courseId}_${section}_${subSectionPart}${lessonName}_material_${materialId}`;
-    return this.homeworkCache[itemId]?.length || 0;
+    
+    const count = this.homeworkCache[itemId]?.length || 0;
+    
+    // Отладочный лог
+    console.log(`📊 [Homework Count] Material ${materialId}, Lesson "${lessonName}", Section "${section}", SubSection "${subSection || 'none'}"`);
+    console.log(`   ItemId: ${itemId}`);
+    console.log(`   Cache keys:`, Object.keys(this.homeworkCache));
+    console.log(`   Found in cache:`, !!this.homeworkCache[itemId]);
+    console.log(`   Count: ${count}`);
+    
+    return count;
   }
 
   // Открыть модалку для добавления домашнего задания
@@ -1848,12 +1899,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
   openLessonPreview(section: string, lesson: string, subSection?: string): void {
     const materials = this.getMaterialsByLesson(lesson);
+    const description = this.getLessonDescription(section, subSection || null, lesson);
     const dialogData: LessonPreviewModalData = {
       lessonName: lesson,
       section: section,
       subSection: subSection,
       materials: materials,
-      courseId: this.courseId || ''
+      courseId: this.courseId || '',
+      description: description
     };
 
     const dialogRef = this.dialog.open(LessonPreviewModalComponent, {
@@ -1899,10 +1952,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Получить описание урока из localStorage
+  // Получить описание урока из структуры lessons
   getLessonDescription(section: string, subSection: string | null, lesson: string): string {
-    const key = `lesson_description_${this.courseId}_${section}_${subSection ? subSection + '_' : ''}${lesson}`;
-    return localStorage.getItem(key) || '';
+    if (subSection) {
+      const lessons = this.getLessonsInSubSection(section, subSection);
+      const lessonObj = lessons.find(l => l.name === lesson);
+      return lessonObj?.description || '';
+    } else {
+      const lessons = this.getLessonsInSection(section);
+      const lessonObj = lessons.find(l => l.name === lesson);
+      return lessonObj?.description || '';
+    }
   }
 
   // Получить длительность материалов урока
