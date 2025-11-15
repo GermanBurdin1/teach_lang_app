@@ -1,0 +1,89 @@
+<div class="call-lesson-settings-modal">
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <i class="fas fa-phone-alt"></i>
+      Paramètres de la leçon "{{ data.lessonName }}"
+    </h2>
+    <button mat-icon-button (click)="close()" class="close-button" aria-label="Fermer">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <!-- Планируемая длительность занятия -->
+    <div class="settings-section">
+      <div class="section-header">
+        <h3>
+          <i class="fas fa-clock"></i>
+          Durée planifiée de la leçon
+        </h3>
+      </div>
+      
+      <div class="form-group">
+        <label>Durée (en minutes)</label>
+        <input 
+          type="number" 
+          [(ngModel)]="plannedDurationMinutes"
+          class="form-control"
+          placeholder="Ex: 60"
+          min="1"
+          max="480">
+        <small class="form-text text-muted">
+          Durée prévue pour cette leçon en minutes (ex: 30, 45, 60)
+        </small>
+      </div>
+    </div>
+
+    <!-- Домашние задания -->
+    <div class="settings-section">
+      <div class="section-header">
+        <h3>
+          <i class="fas fa-tasks"></i>
+          Devoirs ({{ homeworkItems.length }})
+        </h3>
+        <button 
+          class="btn btn-sm btn-primary"
+          (click)="openAddHomework()"
+          title="Ajouter un devoir">
+          <i class="fas fa-plus"></i>
+          Ajouter un devoir
+        </button>
+      </div>
+      
+      <div *ngIf="loadingHomework" class="loading-homework">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Chargement des devoirs...</span>
+      </div>
+      
+      <div *ngIf="!loadingHomework && homeworkItems.length > 0" class="homework-list">
+        <div *ngFor="let homework of homeworkItems" class="homework-item">
+          <div class="homework-header">
+            <h4>{{ homework.title || 'Devoir sans titre' }}</h4>
+            <span *ngIf="homework.dueDate" class="homework-due-date">
+              <i class="fas fa-calendar"></i>
+              Échéance: {{ homework.dueDate | date:'dd/MM/yyyy' }}
+            </span>
+          </div>
+          <div *ngIf="homework.description" class="homework-description">
+            {{ homework.description }}
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="!loadingHomework && homeworkItems.length === 0" class="no-homework">
+        <i class="fas fa-clipboard-list"></i>
+        <p class="text-muted">Aucun devoir pour cette leçon</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn btn-secondary" (click)="close()">
+      Annuler
+    </button>
+    <button class="btn btn-primary" (click)="saveSettings()">
+      <i class="fas fa-save"></i>
+      Enregistrer
+    </button>
+  </div>
+</div>

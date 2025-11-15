@@ -13,6 +13,7 @@ import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/le
 import { LessonPreviewModalComponent, LessonPreviewModalData } from '../lesson-preview-modal/lesson-preview-modal.component';
 import { AddMaterialModalComponent, AddMaterialModalData } from '../add-material-modal/add-material-modal.component';
 import { LessonTypeSelectorComponent, LessonType } from '../lesson-type-selector/lesson-type-selector.component';
+import { CallLessonSettingsModalComponent, CallLessonSettingsModalData } from '../call-lesson-settings-modal/call-lesson-settings-modal.component';
 import { RoleService } from '../../../services/role.service';
 import { HomeworkService } from '../../../services/homework.service';
 import { forkJoin } from 'rxjs';
@@ -2104,42 +2105,76 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     const materials = this.getMaterialsByLesson(lesson);
     const description = this.getLessonDescription(section, subSection || null, lesson);
     
-    // Находим тип урока
+    // Находим тип урока и его настройки
     let lessonType: 'self' | 'call' = 'self';
+    let courseLessonId: string | undefined;
+    let plannedDurationMinutes: number | null = null;
+    
     if (subSection) {
       const lessonObj = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson);
       if (lessonObj) {
         lessonType = lessonObj.type;
+        courseLessonId = (lessonObj as any).courseLessonId;
+        plannedDurationMinutes = (lessonObj as any).plannedDurationMinutes || null;
       }
     } else {
       const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
       if (lessonObj) {
         lessonType = lessonObj.type;
+        courseLessonId = (lessonObj as any).courseLessonId;
+        plannedDurationMinutes = (lessonObj as any).plannedDurationMinutes || null;
       }
     }
     
-    const dialogData: LessonPreviewModalData = {
-      lessonName: lesson,
-      section: section,
-      subSection: subSection,
-      materials: materials,
-      courseId: this.courseId || '',
-      description: description,
-      lessonType: lessonType
-    };
+    // Для уроков типа 'call' открываем модалку настроек
+    if (lessonType === 'call') {
+      const callLessonData: CallLessonSettingsModalData = {
+        courseId: this.courseId || '',
+        courseLessonId: courseLessonId,
+        lessonName: lesson,
+        section: section,
+        subSection: subSection,
+        plannedDurationMinutes: plannedDurationMinutes
+      };
 
-    const dialogRef = this.dialog.open(LessonPreviewModalComponent, {
-      width: '900px',
-      maxWidth: '95vw',
-      maxHeight: '90vh',
-      data: dialogData
-    });
+      const dialogRef = this.dialog.open(CallLessonSettingsModalComponent, {
+        width: '700px',
+        maxWidth: '95vw',
+        maxHeight: '90vh',
+        data: callLessonData
+      });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log('✅ Превью урока закрыто:', result);
-      }
-    });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          console.log('✅ Call lesson settings saved:', result);
+          // Обновляем данные урока если нужно
+        }
+      });
+    } else {
+      // Для уроков типа 'self' открываем обычную модалку предпросмотра
+      const dialogData: LessonPreviewModalData = {
+        lessonName: lesson,
+        section: section,
+        subSection: subSection,
+        materials: materials,
+        courseId: this.courseId || '',
+        description: description,
+        lessonType: lessonType
+      };
+
+      const dialogRef = this.dialog.open(LessonPreviewModalComponent, {
+        width: '900px',
+        maxWidth: '95vw',
+        maxHeight: '90vh',
+        data: dialogData
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          console.log('✅ Превью урока закрыто:', result);
+        }
+      });
+    }
   }
 
   ngOnDestroy(): void {

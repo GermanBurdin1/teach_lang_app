@@ -72,5 +72,11 @@ export class CourseService {
     formData.append('cover', file);
     return this.http.post<{ coverImage: string }>(`${this.baseUrl}/${courseId}/cover`, formData);
   }
+
+  updateCallLessonSettings(courseLessonId: string, plannedDurationMinutes: number | null): Observable<any> {
+    return this.http.put(`${this.baseUrl}/call-lesson/${courseLessonId}/settings`, {
+      plannedDurationMinutes
+    });
+  }
 }
 
