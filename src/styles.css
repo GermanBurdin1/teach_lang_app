@@ -36,6 +36,16 @@
 ::ng-deep .lesson-preview-fullscreen .modal-content {
   max-height: calc(100vh - 80px) !important;
   height: calc(100vh - 80px) !important;
+  overflow-y: auto !important;
+}
+
+/* Видео в полноэкранном режиме должно подстраиваться под размер экрана */
+::ng-deep .lesson-preview-fullscreen .video-preview {
+  max-height: calc(100vh - 200px) !important;
+}
+
+::ng-deep .lesson-preview-fullscreen .video-player {
+  max-height: calc(100vh - 200px) !important;
 }
 
 /* ==================== ACCESSIBILITY (WCAG 2.1) IMPROVEMENTS ==================== */
