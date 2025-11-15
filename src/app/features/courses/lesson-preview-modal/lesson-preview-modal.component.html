@@ -57,12 +57,23 @@
       
       <div *ngIf="data.materials.length > 0" class="materials-list">
         <div *ngFor="let material of data.materials" class="material-item">
-          <div class="material-icon">
-            <i [class]="getMaterialTypeIcon(material.mimetype)"></i>
-          </div>
-          <div class="material-info">
-            <h4>{{ material.filename }}</h4>
-            <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
+          <div class="material-header-row">
+            <div class="material-icon">
+              <i [class]="getMaterialTypeIcon(material.mimetype)"></i>
+            </div>
+            <div class="material-info">
+              <h4>{{ material.filename }}</h4>
+              <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
+            </div>
+            <div class="material-actions">
+              <button 
+                class="btn btn-xs btn-link"
+                (click)="openAddHomework(material.id)"
+                title="Ajouter un devoir à ce matériau">
+                <i class="fas fa-plus"></i>
+                Devoir
+              </button>
+            </div>
           </div>
           <div class="material-preview">
             <!-- Аудио -->

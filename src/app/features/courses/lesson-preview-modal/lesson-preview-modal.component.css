@@ -133,10 +133,23 @@
   border: 1px solid #dee2e6;
 }
 
+.material-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .material-item .material-info {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.material-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .material-item .material-info h4 {

@@ -173,11 +173,25 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
     window.dispatchEvent(event);
   }
 
-  openAddHomework(): void {
-    const itemId = `${this.data.courseId}_${this.data.section}_${this.data.lessonName}`;
+  openAddHomework(materialId?: number): void {
+    let itemId: string;
+    let title: string;
+    
+    if (materialId) {
+      // Задание к конкретному материалу
+      const subSectionPart = this.data.subSection ? `${this.data.subSection}_` : '';
+      itemId = `${this.data.courseId}_${this.data.section}_${subSectionPart}${this.data.lessonName}_material_${materialId}`;
+      const material = this.data.materials.find(m => m.id === materialId);
+      title = material ? material.filename : this.data.lessonName;
+    } else {
+      // Общее задание к уроку
+      itemId = `${this.data.courseId}_${this.data.section}_${this.data.lessonName}`;
+      title = this.data.lessonName;
+    }
+    
     const dialogData: HomeworkModalData = {
       type: 'material',
-      title: this.data.lessonName,
+      title: title,
       itemId: itemId
     };
 
