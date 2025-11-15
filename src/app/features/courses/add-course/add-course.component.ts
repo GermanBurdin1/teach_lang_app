@@ -1306,7 +1306,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               mimetype: this.getMimeTypeFromExtension(this.getFileExtensionFromUrl(material.content)),
               courseId: courseId,
               createdAt: response.createdAt.toString(),
-                    tag: this.selectedSubSection || this.selectedSection || undefined, // Сохраняем раздел или подраздел в поле tag
+              tag: this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined, // Сохраняем урок, подсекцию или секцию в поле tag
               description: material.description || undefined,
             };
             
@@ -1526,7 +1526,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
   // Получить материалы для конкретного урока
   getMaterialsByLesson(lessonName: string): UploadedFile[] {
-    return this.materials.filter(m => m.tag === lessonName);
+    const filtered = this.materials.filter(m => m.tag === lessonName);
+    // Отладочный лог для диагностики
+    if (filtered.length === 0 && this.materials.length > 0) {
+      console.log(`⚠️ Не найдено материалов для урока "${lessonName}"`);
+      console.log(`   Всего материалов в курсе: ${this.materials.length}`);
+      console.log(`   Теги материалов:`, this.materials.map(m => ({ filename: m.filename, tag: m.tag })));
+    }
+    return filtered;
   }
 
   // Получить уроки в sous-section
