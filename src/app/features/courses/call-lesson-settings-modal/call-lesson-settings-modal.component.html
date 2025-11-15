@@ -10,6 +10,28 @@
   </div>
 
   <div class="modal-content">
+    <!-- Описание урока -->
+    <div class="settings-section">
+      <div class="section-header">
+        <h3>
+          <i class="fas fa-align-left"></i>
+          Description de la leçon
+        </h3>
+      </div>
+      
+      <div class="form-group">
+        <label>Description</label>
+        <textarea 
+          [(ngModel)]="description"
+          class="form-control"
+          placeholder="Décrivez le contenu de cette leçon..."
+          rows="4"></textarea>
+        <small class="form-text text-muted">
+          Description détaillée de la leçon pour les étudiants
+        </small>
+      </div>
+    </div>
+
     <!-- Планируемая длительность занятия -->
     <div class="settings-section">
       <div class="section-header">
@@ -31,6 +53,37 @@
         <small class="form-text text-muted">
           Durée prévue pour cette leçon en minutes (ex: 30, 45, 60)
         </small>
+      </div>
+    </div>
+
+    <!-- Материалы для ознакомления -->
+    <div class="settings-section">
+      <div class="section-header">
+        <h3>
+          <i class="fas fa-file-alt"></i>
+          Matériaux pour consultation ({{ materials.length }})
+        </h3>
+        <button 
+          class="btn btn-sm btn-primary"
+          (click)="openAddMaterial()"
+          title="Ajouter un matériau">
+          <i class="fas fa-plus"></i>
+          Ajouter un matériau
+        </button>
+      </div>
+      
+      <div *ngIf="materials.length > 0" class="materials-list">
+        <div *ngFor="let material of materials" class="material-item">
+          <div class="material-name">{{ material.filename }}</div>
+          <div class="material-meta">
+            <span class="material-type-badge">{{ material.mimetype }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="materials.length === 0" class="no-materials">
+        <i class="fas fa-folder-open"></i>
+        <p class="text-muted">Aucun matériau pour cette leçon</p>
       </div>
     </div>
 

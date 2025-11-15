@@ -1392,6 +1392,34 @@
   margin-left: 1.5rem;
 }
 
+/* Информация для урока типа 'call' */
+.lesson-call-info {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #dee2e6;
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.call-info-item {
+  font-size: 0.85rem;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.call-info-item i {
+  color: var(--galaxy-primary);
+  width: 16px;
+}
+
+.call-info-item span {
+  font-weight: 500;
+}
+
 .lesson-info-empty {
   padding: 0.75rem 1rem;
   text-align: center;

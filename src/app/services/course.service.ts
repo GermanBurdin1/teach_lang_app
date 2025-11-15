@@ -73,9 +73,10 @@ export class CourseService {
     return this.http.post<{ coverImage: string }>(`${this.baseUrl}/${courseId}/cover`, formData);
   }
 
-  updateCallLessonSettings(courseLessonId: string, plannedDurationMinutes: number | null): Observable<any> {
+  updateCallLessonSettings(courseLessonId: string, plannedDurationMinutes: number | null, description?: string | null): Observable<any> {
     return this.http.put(`${this.baseUrl}/call-lesson/${courseLessonId}/settings`, {
-      plannedDurationMinutes
+      plannedDurationMinutes,
+      description: description || null
     });
   }
 }

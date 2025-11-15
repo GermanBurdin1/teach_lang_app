@@ -1908,6 +1908,11 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     return this.homeworkCache[itemId]?.length || 0;
   }
 
+  // Получить планируемую длительность для урока типа 'call'
+  getPlannedDurationMinutes(lessonObj: any): number | null {
+    return lessonObj?.plannedDurationMinutes || null;
+  }
+
   // ==================== QUICK STRUCTURE EDITOR METHODS ====================
 
   addSectionQuick(): void {
@@ -2128,13 +2133,28 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     
     // Для уроков типа 'call' открываем модалку настроек
     if (lessonType === 'call') {
+      // Находим описание из структуры урока
+      let lessonDescription: string | null = null;
+      if (subSection) {
+        const lessonObj = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson);
+        if (lessonObj) {
+          lessonDescription = lessonObj.description || null;
+        }
+      } else {
+        const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
+        if (lessonObj) {
+          lessonDescription = lessonObj.description || null;
+        }
+      }
+      
       const callLessonData: CallLessonSettingsModalData = {
         courseId: this.courseId || '',
         courseLessonId: courseLessonId,
         lessonName: lesson,
         section: section,
         subSection: subSection,
-        plannedDurationMinutes: plannedDurationMinutes
+        plannedDurationMinutes: plannedDurationMinutes,
+        description: lessonDescription
       };
 
       const dialogRef = this.dialog.open(CallLessonSettingsModalComponent, {
@@ -2147,7 +2167,52 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           console.log('✅ Call lesson settings saved:', result);
-          // Обновляем данные урока если нужно
+          // Обновляем данные урока в локальной структуре
+          if (subSection) {
+            const lessonObj = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson);
+            if (lessonObj) {
+              lessonObj.description = result.description || undefined;
+              (lessonObj as any).plannedDurationMinutes = result.plannedDurationMinutes;
+            }
+          } else {
+            const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
+            if (lessonObj) {
+              lessonObj.description = result.description || undefined;
+              (lessonObj as any).plannedDurationMinutes = result.plannedDurationMinutes;
+            }
+          }
+          // Обновляем курс в БД (не ждем завершения, так как updateCourse асинхронный)
+          this.updateCourse();
+          
+          // Перезагружаем курс из БД после небольшой задержки, чтобы получить актуальные данные
+          setTimeout(() => {
+            if (this.courseId) {
+              this.courseService.getCourseById(parseInt(this.courseId, 10)).subscribe({
+                next: (course) => {
+                  // Обновляем уроки из БД
+                  if (course.lessons) {
+                    this.lessons = course.lessons;
+                  }
+                  if (course.lessonsInSubSections) {
+                    this.lessonsInSubSections = course.lessonsInSubSections;
+                  }
+                  // Перезагружаем файлы и домашние задания
+                  this.loadFiles();
+                  this.loadHomeworkCache();
+                  // Принудительно обновляем представление
+                  this.cdr.detectChanges();
+                },
+                error: (error) => {
+                  console.error('❌ Ошибка перезагрузки курса:', error);
+                  // Принудительно обновляем представление даже при ошибке
+                  this.cdr.detectChanges();
+                }
+              });
+            } else {
+              // Если нет courseId, просто обновляем представление
+              this.cdr.detectChanges();
+            }
+          }, 500);
         }
       });
     } else {

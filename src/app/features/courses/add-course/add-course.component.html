@@ -672,9 +672,24 @@
                         </div>
                       </div>
                       
+                      <!-- Информация для урока типа 'call' в подсекции -->
+                      <div class="lesson-call-info" *ngIf="lessonObj.type === 'call'">
+                        <div class="call-info-item" *ngIf="getPlannedDurationMinutes(lessonObj)">
+                          <i class="fas fa-clock"></i>
+                          <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
+                        </div>
+                        <div class="call-info-item" *ngIf="getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
+                          <i class="fas fa-tasks"></i>
+                          <span>{{ getHomeworkCountForLesson(lessonObj.name, section, subSection) }} {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}</span>
+                        </div>
+                      </div>
+                      
                       <!-- Пустое состояние -->
-                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0">
+                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && lessonObj.type !== 'call'">
                         <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
+                      </div>
+                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && lessonObj.type === 'call'">
+                        <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau pour consultation dans cette leçon</p>
                       </div>
                     </div>
                   </div>
@@ -757,21 +772,36 @@
                     </div>
                   </div>
                   
-                  <!-- Общие задания для урока типа 'self' на уровне секции -->
-                  <div class="lesson-homework-for-self" *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
-                    <div class="lesson-homework-label">
-                      <i class="fas fa-tasks"></i>
-                      Devoirs pour tout le cours:
-                    </div>
-                    <div class="lesson-homework-count">
-                      {{ getHomeworkCountForLesson(lessonObj.name, section) }} {{ getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
-                    </div>
-                  </div>
-                  
-                  <!-- Пустое состояние -->
-                  <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0">
-                    <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
-                  </div>
+                      <!-- Общие задания для урока типа 'self' на уровне секции -->
+                      <div class="lesson-homework-for-self" *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
+                        <div class="lesson-homework-label">
+                          <i class="fas fa-tasks"></i>
+                          Devoirs pour tout le cours:
+                        </div>
+                        <div class="lesson-homework-count">
+                          {{ getHomeworkCountForLesson(lessonObj.name, section) }} {{ getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
+                        </div>
+                      </div>
+                      
+                      <!-- Информация для урока типа 'call' на уровне секции -->
+                      <div class="lesson-call-info" *ngIf="lessonObj.type === 'call'">
+                        <div class="call-info-item" *ngIf="getPlannedDurationMinutes(lessonObj)">
+                          <i class="fas fa-clock"></i>
+                          <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
+                        </div>
+                        <div class="call-info-item" *ngIf="getHomeworkCountForLesson(lessonObj.name, section) > 0">
+                          <i class="fas fa-tasks"></i>
+                          <span>{{ getHomeworkCountForLesson(lessonObj.name, section) }} {{ getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}</span>
+                        </div>
+                      </div>
+                      
+                      <!-- Пустое состояние -->
+                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && lessonObj.type !== 'call'">
+                        <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
+                      </div>
+                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && lessonObj.type === 'call'">
+                        <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau pour consultation dans cette leçon</p>
+                      </div>
                 </div>
               </div>
             </div>
