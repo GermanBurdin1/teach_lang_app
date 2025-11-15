@@ -2,12 +2,16 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { HttpClient } from '@angular/common/http';
 import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
 import { AddMaterialModalComponent, AddMaterialModalData } from '../add-material-modal/add-material-modal.component';
 import { HomeworkService } from '../../../services/homework.service';
 import { AuthService } from '../../../services/auth.service';
 import { CourseService } from '../../../services/course.service';
 import { FileUploadService, UploadedFile } from '../../../services/file-upload.service';
+import { NotificationService } from '../../../services/notification.service';
+import { MaterialService, Material } from '../../../services/material.service';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
 
 export interface CallLessonSettingsModalData {
   courseId: string;
@@ -33,6 +37,8 @@ export class CallLessonSettingsModalComponent implements OnInit {
   homeworkItems: any[] = [];
   loadingHomework = false;
   materials: UploadedFile[] = [];
+  trainerMaterials: Material[] = [];
+  loadingTrainerMaterials = false;
 
   constructor(
     public dialogRef: MatDialogRef<CallLessonSettingsModalComponent>,
@@ -41,7 +47,10 @@ export class CallLessonSettingsModalComponent implements OnInit {
     private homeworkService: HomeworkService,
     private authService: AuthService,
     private courseService: CourseService,
-    private fileUploadService: FileUploadService
+    private fileUploadService: FileUploadService,
+    private http: HttpClient,
+    private notificationService: NotificationService,
+    private materialService: MaterialService
   ) {}
 
   ngOnInit(): void {
@@ -57,6 +66,31 @@ export class CallLessonSettingsModalComponent implements OnInit {
     this.loadHomework();
     // Загружаем материалы для урока
     this.loadMaterials();
+    // Загружаем материалы из Training
+    this.loadTrainerMaterials();
+  }
+  
+  loadTrainerMaterials(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.id) {
+      this.trainerMaterials = [];
+      this.loadingTrainerMaterials = false;
+      return;
+    }
+    
+    this.loadingTrainerMaterials = true;
+    this.materialService.getMaterialsForTeacher(currentUser.id).subscribe({
+      next: (materials) => {
+        this.trainerMaterials = materials;
+        this.loadingTrainerMaterials = false;
+        console.log('✅ Trainer materials loaded:', materials);
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки материалов из Training:', error);
+        this.trainerMaterials = [];
+        this.loadingTrainerMaterials = false;
+      }
+    });
   }
   
   loadMaterials(): void {
@@ -65,12 +99,11 @@ export class CallLessonSettingsModalComponent implements OnInit {
     this.fileUploadService.getFiles(this.data.courseId).subscribe({
       next: (files: UploadedFile[]) => {
         // Фильтруем материалы по уроку
+        // Материалы привязаны к уроку через tag = lessonName (как в getMaterialsByLesson)
         const lessonName = this.data.lessonName;
         this.materials = files.filter((file: UploadedFile) => {
-          // Проверяем, что материал привязан к этому уроку
-          // Материалы хранятся с tag = section и lesson в названии или метаданных
-          return file.tag === this.data.section && 
-                 (file.filename.includes(lessonName) || file.description?.includes(lessonName));
+          // Проверяем, что материал привязан к этому уроку через tag
+          return file.tag === lessonName;
         });
       },
       error: (error: any) => {
@@ -135,8 +168,8 @@ export class CallLessonSettingsModalComponent implements OnInit {
       lesson: this.data.lessonName,
       subSection: this.data.subSection,
       courseId: this.data.courseId,
-      trainerMaterials: [],
-      loadingTrainerMaterials: false
+      trainerMaterials: this.trainerMaterials,
+      loadingTrainerMaterials: this.loadingTrainerMaterials
     };
 
     const dialogRef = this.dialog.open(AddMaterialModalComponent, {
@@ -151,10 +184,13 @@ export class CallLessonSettingsModalComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('✅ Matériau ajouté:', result);
-        // Перезагружаем материалы после добавления
-        setTimeout(() => {
-          this.loadMaterials();
-        }, 500);
+        if (result.action === 'create') {
+          // Создание нового материала
+          this.createMaterial(result.material);
+        } else if (result.action === 'addExisting') {
+          // Добавление существующего материала
+          this.addExistingMaterialToCourse(result.material);
+        }
       }
     });
   }
@@ -192,5 +228,171 @@ export class CallLessonSettingsModalComponent implements OnInit {
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  async createMaterial(materialData: any): Promise<void> {
+    if (!materialData.title?.trim()) {
+      this.notificationService.error('Veuillez saisir un titre pour le matériel');
+      return;
+    }
+
+    if (!this.data.courseId) {
+      this.notificationService.error('Veuillez d\'abord créer le cours');
+      return;
+    }
+
+    try {
+      if (materialData.file) {
+        // Загружаем файл
+        const tag = this.data.lessonName; // Используем имя урока как tag
+        this.fileUploadService.uploadFileAsCourse(materialData.file, this.data.courseId, tag).subscribe({
+          next: (response) => {
+            console.log('✅ Материал создан:', response);
+            this.notificationService.success('Matériel créé avec succès!');
+            // Перезагружаем материалы
+            setTimeout(() => {
+              this.loadMaterials();
+            }, 500);
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la création du matériel:', error);
+            this.notificationService.error('Erreur lors de la création du matériel');
+          }
+        });
+      } else if (materialData.type === 'text' && materialData.content) {
+        // Для текстовых материалов создаем файл
+        const tag = this.data.lessonName;
+        const uploadedFile: UploadedFile = {
+          id: Date.now(),
+          filename: materialData.title,
+          url: materialData.content,
+          mimetype: 'text/plain',
+          courseId: this.data.courseId,
+          createdAt: new Date().toISOString(),
+          tag: tag,
+          description: materialData.description || undefined
+        };
+        
+        // Отправляем событие для обновления материалов в родительском компоненте
+        window.dispatchEvent(new CustomEvent('materialAdded', {
+          detail: { material: uploadedFile }
+        }));
+        
+        this.notificationService.success('Matériel créé avec succès!');
+        setTimeout(() => {
+          this.loadMaterials();
+        }, 500);
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de la création du matériel:', error);
+      this.notificationService.error('Erreur lors de la création du matériel');
+    }
+  }
+
+  addExistingMaterialToCourse(material: Material): void {
+    if (!this.data.courseId) {
+      this.notificationService.error('Veuillez d\'abord créer le cours');
+      return;
+    }
+
+    try {
+      const fileUrl = material.content;
+      if (fileUrl) {
+        const courseIdNum = parseInt(this.data.courseId, 10);
+        if (isNaN(courseIdNum)) {
+          this.notificationService.error('ID курса некорректен');
+          return;
+        }
+        
+        const tag = this.data.lessonName; // Используем имя урока как tag
+        this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag).subscribe({
+          next: (response) => {
+            console.log('✅ Материал связан с курсом:', response);
+            this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
+            // Перезагружаем материалы
+            setTimeout(() => {
+              this.loadMaterials();
+            }, 500);
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la liaison du matériau au cours:', error);
+            // Если связывание не удалось, пробуем загрузить файл заново
+            this.downloadAndUploadFile(material);
+          }
+        });
+      } else {
+        this.notificationService.error('Le matériau n\'a pas de contenu');
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'ajout du matériau:', error);
+      this.notificationService.error('Erreur lors de l\'ajout du matériau');
+    }
+  }
+
+  private downloadAndUploadFile(material: Material): void {
+    let fileUrl = material.content;
+    
+    if (fileUrl.startsWith('/files') || !fileUrl.startsWith('http')) {
+      if (fileUrl.startsWith('/files')) {
+        fileUrl = fileUrl.substring(6);
+      }
+      fileUrl = `${API_ENDPOINTS.FILES}${fileUrl}`;
+    }
+    
+    this.http.get(fileUrl, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const fileExtension = this.getFileExtensionFromUrl(material.content);
+        const fileName = `${material.title}${fileExtension}`;
+        
+        let mimeType = blob.type;
+        if (!mimeType || mimeType === 'application/octet-stream') {
+          mimeType = this.getMimeTypeFromExtension(fileExtension);
+        }
+        
+        const file = new File([blob], fileName, { type: mimeType });
+        const tag = this.data.lessonName;
+        
+        this.fileUploadService.uploadFileAsCourse(file, this.data.courseId, tag).subscribe({
+          next: (response) => {
+            console.log('✅ Материал добавлен в курс:', response);
+            this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
+            setTimeout(() => {
+              this.loadMaterials();
+            }, 500);
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de l\'ajout du matériau au cours:', error);
+            this.notificationService.error('Erreur lors de l\'ajout du matériau au cours');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du téléchargement du fichier:', error);
+        this.notificationService.error(`Impossible de télécharger le fichier: ${error.message || 'Erreur de connexion'}`);
+      }
+    });
+  }
+
+  private getFileExtensionFromUrl(url: string): string {
+    const match = url.match(/\.([a-zA-Z0-9]+)(\?|$)/);
+    return match ? `.${match[1]}` : '';
+  }
+
+  private getMimeTypeFromExtension(extension: string): string {
+    const mimeTypes: { [key: string]: string } = {
+      '.mp3': 'audio/mpeg',
+      '.wav': 'audio/wav',
+      '.ogg': 'audio/ogg',
+      '.mp4': 'video/mp4',
+      '.avi': 'video/x-msvideo',
+      '.mov': 'video/quicktime',
+      '.pdf': 'application/pdf',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.txt': 'text/plain',
+    };
+    return mimeTypes[extension.toLowerCase()] || 'application/octet-stream';
   }
 }
