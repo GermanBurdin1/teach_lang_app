@@ -615,6 +615,10 @@
                       <div class="lesson-description-short" *ngIf="getLessonDescription(section, subSection, lessonObj.name)">
                         {{ getLessonDescription(section, subSection, lessonObj.name) }}
                       </div>
+                      <div class="lesson-duration-short" *ngIf="lessonObj.type === 'call' && getPlannedDurationMinutes(lessonObj)">
+                        <i class="fas fa-clock"></i>
+                        <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
+                      </div>
                     </div>
                     <div class="lesson-actions" (click)="$event.stopPropagation()">
                       <button 
@@ -673,12 +677,8 @@
                       </div>
                       
                       <!-- Информация для урока типа 'call' в подсекции -->
-                      <div class="lesson-call-info" *ngIf="lessonObj.type === 'call'">
-                        <div class="call-info-item" *ngIf="getPlannedDurationMinutes(lessonObj)">
-                          <i class="fas fa-clock"></i>
-                          <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
-                        </div>
-                        <div class="call-info-item" *ngIf="getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
+                      <div class="lesson-call-info" *ngIf="lessonObj.type === 'call' && getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
+                        <div class="call-info-item">
                           <i class="fas fa-tasks"></i>
                           <span>{{ getHomeworkCountForLesson(lessonObj.name, section, subSection) }} {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}</span>
                         </div>
@@ -725,6 +725,10 @@
                   </span>
                   <div class="lesson-description-short" *ngIf="getLessonDescription(section, null, lessonObj.name)">
                     {{ getLessonDescription(section, null, lessonObj.name) }}
+                  </div>
+                  <div class="lesson-duration-short" *ngIf="lessonObj.type === 'call' && getPlannedDurationMinutes(lessonObj)">
+                    <i class="fas fa-clock"></i>
+                    <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
                   </div>
                 </div>
                 <div class="lesson-actions" (click)="$event.stopPropagation()">
@@ -784,12 +788,8 @@
                       </div>
                       
                       <!-- Информация для урока типа 'call' на уровне секции -->
-                      <div class="lesson-call-info" *ngIf="lessonObj.type === 'call'">
-                        <div class="call-info-item" *ngIf="getPlannedDurationMinutes(lessonObj)">
-                          <i class="fas fa-clock"></i>
-                          <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
-                        </div>
-                        <div class="call-info-item" *ngIf="getHomeworkCountForLesson(lessonObj.name, section) > 0">
+                      <div class="lesson-call-info" *ngIf="lessonObj.type === 'call' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
+                        <div class="call-info-item">
                           <i class="fas fa-tasks"></i>
                           <span>{{ getHomeworkCountForLesson(lessonObj.name, section) }} {{ getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}</span>
                         </div>

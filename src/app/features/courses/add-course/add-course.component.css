@@ -1112,6 +1112,24 @@
   white-space: nowrap;
 }
 
+.lesson-duration-short {
+  font-size: 0.85rem;
+  color: #495057;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lesson-duration-short i {
+  color: var(--galaxy-primary);
+  width: 14px;
+}
+
+.lesson-duration-short span {
+  font-weight: 500;
+}
+
 /* Стили для разных типов уроков */
 .lesson-type-self {
   border-left: 4px solid #28a745;

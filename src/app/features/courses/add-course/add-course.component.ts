@@ -1885,16 +1885,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     const subSectionPart = subSection ? `${subSection}_` : '';
     const itemId = `${this.courseId}_${section}_${subSectionPart}${lessonName}_material_${materialId}`;
     
-    const count = this.homeworkCache[itemId]?.length || 0;
-    
-    // Отладочный лог
-    console.log(`📊 [Homework Count] Material ${materialId}, Lesson "${lessonName}", Section "${section}", SubSection "${subSection || 'none'}"`);
-    console.log(`   ItemId: ${itemId}`);
-    console.log(`   Cache keys:`, Object.keys(this.homeworkCache));
-    console.log(`   Found in cache:`, !!this.homeworkCache[itemId]);
-    console.log(`   Count: ${count}`);
-    
-    return count;
+    return this.homeworkCache[itemId]?.length || 0;
   }
 
   // Получить количество общих заданий для урока
