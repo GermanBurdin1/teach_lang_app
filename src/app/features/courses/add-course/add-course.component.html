@@ -508,24 +508,22 @@
                         <span>{{ getLessonDescription(section, subSection, lesson) }}</span>
                       </div>
                       
-                      <!-- Список материалов -->
+                      <!-- Список материалов с типом и длительностью -->
                       <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lesson).length > 0">
-                        <div class="materials-list-compact">
-                          <span class="materials-label">
-                            <i class="fas fa-file-alt"></i>
-                            Matériaux:
-                          </span>
-                          <span class="materials-names">
-                            <span *ngFor="let material of getMaterialsByLesson(lesson); let last = last">
-                              {{ material.filename }}<span *ngIf="!last">, </span>
-                            </span>
-                          </span>
+                        <div class="materials-label">
+                          <i class="fas fa-file-alt"></i>
+                          Matériaux:
                         </div>
-                        
-                        <!-- Длительность материалов -->
-                        <div class="lesson-duration" *ngIf="getLessonDuration(section, subSection, lesson) > 0">
-                          <i class="fas fa-clock"></i>
-                          <span>{{ formatDuration(getLessonDuration(section, subSection, lesson)) }}</span>
+                        <div class="materials-list-vertical">
+                          <div *ngFor="let material of getMaterialsByLesson(lesson)" class="material-item-vertical">
+                            <div class="material-name">{{ material.filename }}</div>
+                            <div class="material-meta">
+                              <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
+                              <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
+                                : {{ formatDuration(getMaterialDuration(material)) }}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       
@@ -593,24 +591,22 @@
                     <span>{{ getLessonDescription(section, null, lesson) }}</span>
                   </div>
                   
-                  <!-- Список материалов -->
+                  <!-- Список материалов с типом и длительностью -->
                   <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lesson).length > 0">
-                    <div class="materials-list-compact">
-                      <span class="materials-label">
-                        <i class="fas fa-file-alt"></i>
-                        Matériaux:
-                      </span>
-                      <span class="materials-names">
-                        <span *ngFor="let material of getMaterialsByLesson(lesson); let last = last">
-                          {{ material.filename }}<span *ngIf="!last">, </span>
-                        </span>
-                      </span>
+                    <div class="materials-label">
+                      <i class="fas fa-file-alt"></i>
+                      Matériaux:
                     </div>
-                    
-                    <!-- Длительность материалов -->
-                    <div class="lesson-duration" *ngIf="getLessonDuration(section, null, lesson) > 0">
-                      <i class="fas fa-clock"></i>
-                      <span>{{ formatDuration(getLessonDuration(section, null, lesson)) }}</span>
+                    <div class="materials-list-vertical">
+                      <div *ngFor="let material of getMaterialsByLesson(lesson)" class="material-item-vertical">
+                        <div class="material-name">{{ material.filename }}</div>
+                        <div class="material-meta">
+                          <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
+                          <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
+                            : {{ formatDuration(getMaterialDuration(material)) }}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   

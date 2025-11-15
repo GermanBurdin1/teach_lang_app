@@ -1778,5 +1778,19 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       return `${secs}s`;
     }
   }
+
+  // Получить метку типа материала
+  getMaterialTypeLabel(mimetype: string): string {
+    const type = this.getMaterialTypeFromMime(mimetype);
+    const labels: { [key: string]: string } = {
+      'audio': 'audio',
+      'video': 'video',
+      'image': 'image',
+      'pdf': 'PDF',
+      'text': 'texte',
+      'file': 'fichier'
+    };
+    return labels[type] || 'fichier';
+  }
 }
 
