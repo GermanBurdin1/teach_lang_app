@@ -12,6 +12,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
 import { LessonPreviewModalComponent, LessonPreviewModalData } from '../lesson-preview-modal/lesson-preview-modal.component';
 import { AddMaterialModalComponent, AddMaterialModalData } from '../add-material-modal/add-material-modal.component';
+import { LessonTypeSelectorComponent, LessonType } from '../lesson-type-selector/lesson-type-selector.component';
 import { RoleService } from '../../../services/role.service';
 
 @Component({
@@ -66,8 +67,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   showAddSectionDropdown = false;
   showAddSubSectionInput: { [key: string]: boolean } = {}; // Показывать ли input для добавления подсекции
   newSubSectionName: { [key: string]: string } = {}; // Имя новой подсекции для каждой секции
-  lessons: { [key: string]: string[] } = {}; // Уроки для каждой секции: { sectionName: ['Leçon 1', 'Leçon 2', ...] }
-  lessonsInSubSections: { [section: string]: { [subSection: string]: string[] } } = {}; // Уроки в sous-section: { sectionName: { subSectionName: ['Leçon 1', ...] } }
+  // Структура урока: { name: string, type: 'self' | 'call', description?: string }
+  lessons: { [key: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } = {}; // Уроки для каждой секции
+  lessonsInSubSections: { [section: string]: { [subSection: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } } = {}; // Уроки в sous-section
   collapsedLessons: Set<string> = new Set(); // Свернутые уроки
   draggedLesson: { section: string; subSection: string | null; lesson: string } | null = null; // Перетаскиваемый урок
 
@@ -751,48 +753,93 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.subSections = JSON.parse(savedSubSections);
       }
       if (savedLessons) {
-        this.lessons = JSON.parse(savedLessons);
+        const parsed = JSON.parse(savedLessons);
+        // Миграция: если данные в старом формате (строки), конвертируем в новый формат (объекты)
+        if (parsed && typeof parsed === 'object') {
+          const migrated: { [key: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } = {};
+          Object.keys(parsed).forEach(section => {
+            migrated[section] = parsed[section].map((lesson: any) => {
+              if (typeof lesson === 'string') {
+                return { name: lesson, type: 'self' as const };
+              }
+              return lesson;
+            });
+          });
+          this.lessons = migrated;
+        }
       }
       
       const savedLessonsInSubSections = localStorage.getItem(`lessonsInSubSections_${this.courseId}`);
       if (savedLessonsInSubSections) {
-        this.lessonsInSubSections = JSON.parse(savedLessonsInSubSections);
+        const parsed = JSON.parse(savedLessonsInSubSections);
+        // Миграция: если данные в старом формате (строки), конвертируем в новый формат (объекты)
+        if (parsed && typeof parsed === 'object') {
+          const migrated: { [section: string]: { [subSection: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } } = {};
+          Object.keys(parsed).forEach(section => {
+            migrated[section] = {};
+            Object.keys(parsed[section]).forEach(subSection => {
+              migrated[section][subSection] = parsed[section][subSection].map((lesson: any) => {
+                if (typeof lesson === 'string') {
+                  return { name: lesson, type: 'self' as const };
+                }
+                return lesson;
+              });
+            });
+          });
+          this.lessonsInSubSections = migrated;
+        }
       }
     }
   }
 
   addLesson(section: string, subSection?: string): void {
-    let lessonName: string;
-    
-    if (subSection) {
-      // Добавляем урок в sous-section
-      if (!this.lessonsInSubSections[section]) {
-        this.lessonsInSubSections[section] = {};
-      }
-      if (!this.lessonsInSubSections[section][subSection]) {
-        this.lessonsInSubSections[section][subSection] = [];
-      }
-      
-      // Автоматически нумеруем уроки в sous-section
-      const lessonNumber = this.lessonsInSubSections[section][subSection].length + 1;
-      lessonName = `Leçon ${lessonNumber}`;
-      
-      this.lessonsInSubSections[section][subSection].push(lessonName);
-    } else {
-      // Добавляем урок на уровне секции
-      if (!this.lessons[section]) {
-        this.lessons[section] = [];
+    // Открываем модальное окно для выбора типа урока
+    const dialogRef = this.dialog.open(LessonTypeSelectorComponent, {
+      width: '500px',
+      maxWidth: '90vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe((type: LessonType | null) => {
+      if (!type) {
+        return; // Пользователь отменил
       }
       
-      // Автоматически нумеруем уроки
-      const lessonNumber = this.lessons[section].length + 1;
-      lessonName = `Leçon ${lessonNumber}`;
+      let lessonName: string;
+      const lessonObj: { name: string; type: 'self' | 'call'; description?: string } = { name: '', type };
       
-      this.lessons[section].push(lessonName);
-    }
-    
-    this.saveSections();
-    this.notificationService.success(`Leçon "${lessonName}" ajoutée avec succès!`);
+      if (subSection) {
+        // Добавляем урок в sous-section
+        if (!this.lessonsInSubSections[section]) {
+          this.lessonsInSubSections[section] = {};
+        }
+        if (!this.lessonsInSubSections[section][subSection]) {
+          this.lessonsInSubSections[section][subSection] = [];
+        }
+        
+        // Автоматически нумеруем уроки в sous-section
+        const lessonNumber = this.lessonsInSubSections[section][subSection].length + 1;
+        lessonName = `Leçon ${lessonNumber}`;
+        lessonObj.name = lessonName;
+        
+        this.lessonsInSubSections[section][subSection].push(lessonObj);
+      } else {
+        // Добавляем урок на уровне секции
+        if (!this.lessons[section]) {
+          this.lessons[section] = [];
+        }
+        
+        // Автоматически нумеруем уроки
+        const lessonNumber = this.lessons[section].length + 1;
+        lessonName = `Leçon ${lessonNumber}`;
+        lessonObj.name = lessonName;
+        
+        this.lessons[section].push(lessonObj);
+      }
+      
+      this.saveSections();
+      this.notificationService.success(`Leçon "${lessonName}" ajoutée avec succès!`);
+    });
   }
 
   removeLesson(section: string, lessonName: string, subSection?: string): void {
@@ -801,7 +848,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         // Удаляем урок из sous-section
         if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
           this.lessonsInSubSections[section][subSection] = this.lessonsInSubSections[section][subSection].filter(
-            lesson => lesson !== lessonName
+            lesson => lesson.name !== lessonName
           );
           if (this.lessonsInSubSections[section][subSection].length === 0) {
             delete this.lessonsInSubSections[section][subSection];
@@ -814,7 +861,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         // Удаляем урок из секции
         if (this.lessons[section]) {
           this.lessons[section] = this.lessons[section].filter(
-            lesson => lesson !== lessonName
+            lesson => lesson.name !== lessonName
           );
           if (this.lessons[section].length === 0) {
             delete this.lessons[section];
@@ -1391,7 +1438,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   // Получить уроки в sous-section
-  getLessonsInSubSection(section: string, subSection: string): string[] {
+  getLessonsInSubSection(section: string, subSection: string): Array<{ name: string; type: 'self' | 'call'; description?: string }> {
     if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
       return this.lessonsInSubSections[section][subSection];
     }
@@ -1399,20 +1446,33 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   // Получить уроки в секции (не в sous-section)
-  getLessonsInSection(section: string): string[] {
-    // Получаем все уроки из sous-section для этой секции
-    const lessonsInSubSections: string[] = [];
+  getLessonsInSection(section: string): Array<{ name: string; type: 'self' | 'call'; description?: string }> {
+    // Получаем все имена уроков из sous-section для этой секции
+    const lessonNamesInSubSections: string[] = [];
     if (this.lessonsInSubSections[section]) {
       Object.values(this.lessonsInSubSections[section]).forEach(lessonArray => {
-        lessonsInSubSections.push(...lessonArray);
+        lessonArray.forEach(lesson => lessonNamesInSubSections.push(lesson.name));
       });
     }
     
     // Возвращаем только уроки, которые не находятся в sous-section
     if (this.lessons[section]) {
-      return this.lessons[section].filter(lesson => !lessonsInSubSections.includes(lesson));
+      return this.lessons[section].filter(lesson => !lessonNamesInSubSections.includes(lesson.name));
     }
     return [];
+  }
+
+  // Получить тип урока
+  getLessonType(section: string, lessonName: string, subSection?: string): 'self' | 'call' {
+    if (subSection) {
+      const lessons = this.getLessonsInSubSection(section, subSection);
+      const lesson = lessons.find(l => l.name === lessonName);
+      return lesson?.type || 'self';
+    } else {
+      const lessons = this.getLessonsInSection(section);
+      const lesson = lessons.find(l => l.name === lessonName);
+      return lesson?.type || 'self';
+    }
   }
 
   // Drag-n-Drop handlers
@@ -1480,12 +1540,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Удаляем урок из исходного места
+    // Удаляем урок из исходного места и сохраняем его объект
+    let lessonObj: { name: string; type: 'self' | 'call'; description?: string } | undefined;
+    
     if (sourceSubSection) {
       // Удаляем из sous-section
       if (this.lessonsInSubSections[sourceSection] && this.lessonsInSubSections[sourceSection][sourceSubSection]) {
+        const lessons = [...this.lessonsInSubSections[sourceSection][sourceSubSection]];
+        lessonObj = lessons.find(l => l.name === lesson);
         this.lessonsInSubSections[sourceSection][sourceSubSection] = 
-          this.lessonsInSubSections[sourceSection][sourceSubSection].filter(l => l !== lesson);
+          this.lessonsInSubSections[sourceSection][sourceSubSection].filter(l => l.name !== lesson);
         if (this.lessonsInSubSections[sourceSection][sourceSubSection].length === 0) {
           delete this.lessonsInSubSections[sourceSection][sourceSubSection];
         }
@@ -1493,7 +1557,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     } else {
       // Удаляем из секции
       if (this.lessons[sourceSection]) {
-        this.lessons[sourceSection] = this.lessons[sourceSection].filter(l => l !== lesson);
+        const lessons = [...this.lessons[sourceSection]];
+        lessonObj = lessons.find(l => l.name === lesson);
+        this.lessons[sourceSection] = this.lessons[sourceSection].filter(l => l.name !== lesson);
         if (this.lessons[sourceSection].length === 0) {
           delete this.lessons[sourceSection];
         }
@@ -1507,7 +1573,13 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (!this.lessonsInSubSections[targetSection][targetSubSection]) {
       this.lessonsInSubSections[targetSection][targetSubSection] = [];
     }
-    this.lessonsInSubSections[targetSection][targetSubSection].push(lesson);
+    
+    if (lessonObj) {
+      this.lessonsInSubSections[targetSection][targetSubSection].push(lessonObj);
+    } else {
+      // Fallback: создаем новый объект урока
+      this.lessonsInSubSections[targetSection][targetSubSection].push({ name: lesson, type: 'self' });
+    }
 
     this.saveSections();
     this.notificationService.success(`Leçon "${lesson}" déplacée vers "${targetSubSection}" avec succès!`);
@@ -1567,12 +1639,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Удаляем урок из исходного места
+    // Удаляем урок из исходного места и сохраняем его объект
+    let lessonObj: { name: string; type: 'self' | 'call'; description?: string } | undefined;
+    
     if (sourceSubSection) {
       // Удаляем из sous-section
       if (this.lessonsInSubSections[sourceSection] && this.lessonsInSubSections[sourceSection][sourceSubSection]) {
+        const lessons = [...this.lessonsInSubSections[sourceSection][sourceSubSection]];
+        lessonObj = lessons.find(l => l.name === lesson);
         this.lessonsInSubSections[sourceSection][sourceSubSection] = 
-          this.lessonsInSubSections[sourceSection][sourceSubSection].filter(l => l !== lesson);
+          this.lessonsInSubSections[sourceSection][sourceSubSection].filter(l => l.name !== lesson);
         if (this.lessonsInSubSections[sourceSection][sourceSubSection].length === 0) {
           delete this.lessonsInSubSections[sourceSection][sourceSubSection];
         }
@@ -1583,7 +1659,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     } else {
       // Удаляем из другой секции
       if (this.lessons[sourceSection]) {
-        this.lessons[sourceSection] = this.lessons[sourceSection].filter(l => l !== lesson);
+        const lessons = [...this.lessons[sourceSection]];
+        lessonObj = lessons.find(l => l.name === lesson);
+        this.lessons[sourceSection] = this.lessons[sourceSection].filter(l => l.name !== lesson);
         if (this.lessons[sourceSection].length === 0) {
           delete this.lessons[sourceSection];
         }
@@ -1594,7 +1672,12 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (!this.lessons[targetSection]) {
       this.lessons[targetSection] = [];
     }
-    this.lessons[targetSection].push(lesson);
+    if (lessonObj) {
+      this.lessons[targetSection].push(lessonObj);
+    } else {
+      // Fallback: создаем новый объект урока
+      this.lessons[targetSection].push({ name: lesson, type: 'self' });
+    }
 
     this.saveSections();
     this.notificationService.success(`Leçon "${lesson}" déplacée vers "${targetSection}" avec succès!`);
@@ -1685,13 +1768,13 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     // Получаем все имена уроков
     const allLessons: string[] = [];
     Object.values(this.lessons).forEach(lessonArray => {
-      allLessons.push(...lessonArray);
+      lessonArray.forEach(lesson => allLessons.push(lesson.name));
     });
     
     // Получаем все уроки из sous-section
     Object.values(this.lessonsInSubSections).forEach(sectionLessons => {
       Object.values(sectionLessons).forEach(lessonArray => {
-        allLessons.push(...lessonArray);
+        lessonArray.forEach(lesson => allLessons.push(lesson.name));
       });
     });
     

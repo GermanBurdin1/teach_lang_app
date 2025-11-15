@@ -1,0 +1,140 @@
+.lesson-type-selector-dialog {
+  min-width: 400px;
+}
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--space-blue);
+}
+
+h2[mat-dialog-title] i {
+  color: var(--galaxy-primary);
+}
+
+mat-dialog-content {
+  padding: 1rem 0;
+}
+
+.lesson-type-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lesson-type-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.lesson-type-option:hover {
+  border-color: var(--galaxy-primary);
+  background: rgba(74, 144, 226, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lesson-type-option.selected {
+  border-color: var(--galaxy-primary);
+  background: rgba(74, 144, 226, 0.1);
+}
+
+.option-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(74, 144, 226, 0.1);
+  flex-shrink: 0;
+}
+
+.lesson-type-option.selected .option-icon {
+  background: var(--galaxy-primary);
+}
+
+.option-icon i {
+  font-size: 1.5rem;
+  color: var(--galaxy-primary);
+}
+
+.lesson-type-option.selected .option-icon i {
+  color: white;
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-content h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--space-blue);
+}
+
+.option-content p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.option-check {
+  color: var(--galaxy-primary);
+  font-size: 1.5rem;
+}
+
+.lesson-type-option:first-child.selected .option-icon {
+  background: #28a745;
+}
+
+.lesson-type-option:first-child.selected .option-icon i {
+  color: white;
+}
+
+.lesson-type-option:first-child.selected .option-check {
+  color: #28a745;
+}
+
+.lesson-type-option:last-child.selected .option-icon {
+  background: #ffc107;
+}
+
+.lesson-type-option:last-child.selected .option-icon i {
+  color: white;
+}
+
+.lesson-type-option:last-child.selected .option-check {
+  color: #ffc107;
+}
+
+mat-dialog-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.btn-cancel {
+  color: #6c757d;
+}
+
+.btn-confirm {
+  background: var(--galaxy-primary);
+  color: white;
+}
+
+.btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

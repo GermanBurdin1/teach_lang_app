@@ -1,0 +1,57 @@
+<div class="lesson-type-selector-dialog">
+  <h2 mat-dialog-title>
+    <i class="fas fa-book"></i>
+    Choisissez le type de leçon
+  </h2>
+  
+  <mat-dialog-content>
+    <div class="lesson-type-options">
+      <div 
+        class="lesson-type-option" 
+        [class.selected]="selectedType === 'self'"
+        (click)="selectType('self')">
+        <div class="option-icon">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <div class="option-content">
+          <h3>Leçon autonome</h3>
+          <p>Apprentissage indépendant</p>
+        </div>
+        <div class="option-check" *ngIf="selectedType === 'self'">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+      
+      <div 
+        class="lesson-type-option" 
+        [class.selected]="selectedType === 'call'"
+        (click)="selectType('call')">
+        <div class="option-icon">
+          <i class="fas fa-phone-alt"></i>
+        </div>
+        <div class="option-content">
+          <h3>Leçon avec appel</h3>
+          <p>Appel avec étudiant</p>
+        </div>
+        <div class="option-check" *ngIf="selectedType === 'call'">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()" class="btn-cancel">
+      Annuler
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="confirm()" 
+      [disabled]="!selectedType"
+      class="btn-confirm">
+      Confirmer
+    </button>
+  </mat-dialog-actions>
+</div>
+

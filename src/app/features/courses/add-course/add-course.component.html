@@ -467,55 +467,60 @@
               
               <!-- Lessons in this sub-section -->
               <div class="lessons-in-subsection" *ngIf="getLessonsInSubSection(section, subSection).length > 0">
-                <div *ngFor="let lesson of getLessonsInSubSection(section, subSection); let lessonIndex = index" 
+                <div *ngFor="let lessonObj of getLessonsInSubSection(section, subSection); let lessonIndex = index" 
                      class="lesson-item lesson-in-subsection"
+                     [class.lesson-type-self]="lessonObj.type === 'self'"
+                     [class.lesson-type-call]="lessonObj.type === 'call'"
                      draggable="true"
-                     (dragstart)="onDragStart($event, section, subSection, lesson)"
+                     (dragstart)="onDragStart($event, section, subSection, lessonObj.name)"
                      (dragend)="onDragEnd($event)">
-                  <div class="lesson-header" (click)="toggleLesson(section + '_' + subSection + '_' + lesson)">
+                  <div class="lesson-header" (click)="toggleLesson(section + '_' + subSection + '_' + lessonObj.name)">
                     <div class="lesson-name-wrapper">
                       <span class="lesson-name">
-                        <i class="fas fa-book-open"></i>
-                        {{ lesson }}
+                        <i [class]="lessonObj.type === 'self' ? 'fas fa-user-graduate' : 'fas fa-phone-alt'"></i>
+                        {{ lessonObj.name }}
                       </span>
+                      <div class="lesson-description-short" *ngIf="getLessonDescription(section, subSection, lessonObj.name)">
+                        {{ getLessonDescription(section, subSection, lessonObj.name) }}
+                      </div>
                     </div>
                     <div class="lesson-actions" (click)="$event.stopPropagation()">
                       <button 
                         class="btn btn-link btn-xs btn-preview-lesson"
-                        (click)="openLessonPreview(section, lesson, subSection)"
+                        (click)="openLessonPreview(section, lessonObj.name, subSection)"
                         title="Gérer la leçon">
                         <i class="fas fa-cog"></i>
                       </button>
                       <button 
                         class="btn btn-xs btn-danger btn-delete-lesson"
-                        (click)="removeLesson(section, lesson, subSection)"
+                        (click)="removeLesson(section, lessonObj.name, subSection)"
                         title="Supprimer la leçon">
                         <i class="fas fa-trash"></i>
                       </button>
                       <i class="fas expand-icon" 
-                         [class.fa-chevron-down]="!isLessonExpanded(section + '_' + subSection + '_' + lesson)" 
-                         [class.fa-chevron-up]="isLessonExpanded(section + '_' + subSection + '_' + lesson)"></i>
+                         [class.fa-chevron-down]="!isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)" 
+                         [class.fa-chevron-up]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)"></i>
                     </div>
                   </div>
                   
                   <!-- Lesson info (description, materials list, duration) -->
                   <div class="lesson-info-wrapper" 
-                       [class.expanded]="isLessonExpanded(section + '_' + subSection + '_' + lesson)">
+                       [class.expanded]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)">
                     <div class="lesson-info-content">
                       <!-- Описание урока -->
-                      <div class="lesson-description-info" *ngIf="getLessonDescription(section, subSection, lesson)">
+                      <div class="lesson-description-info" *ngIf="getLessonDescription(section, subSection, lessonObj.name)">
                         <i class="fas fa-align-left"></i>
-                        <span>{{ getLessonDescription(section, subSection, lesson) }}</span>
+                        <span>{{ getLessonDescription(section, subSection, lessonObj.name) }}</span>
                       </div>
                       
                       <!-- Список материалов с типом и длительностью -->
-                      <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lesson).length > 0">
+                      <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name).length > 0">
                         <div class="materials-label">
                           <i class="fas fa-file-alt"></i>
                           Matériaux:
                         </div>
                         <div class="materials-list-vertical">
-                          <div *ngFor="let material of getMaterialsByLesson(lesson)" class="material-item-vertical">
+                          <div *ngFor="let material of getMaterialsByLesson(lessonObj.name)" class="material-item-vertical">
                             <div class="material-name">{{ material.filename }}</div>
                             <div class="material-meta">
                               <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
@@ -528,7 +533,7 @@
                       </div>
                       
                       <!-- Пустое состояние -->
-                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lesson).length === 0 && !getLessonDescription(section, subSection, lesson)">
+                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && !getLessonDescription(section, subSection, lessonObj.name)">
                         <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
                       </div>
                     </div>
@@ -549,56 +554,61 @@
             <div *ngIf="getLessonsInSection(section).length === 0" class="empty-lessons-hint">
               <p class="text-muted"><i class="fas fa-info-circle"></i> Glissez-déposez les leçons ici pour les déplacer au niveau de la section</p>
             </div>
-            <div *ngFor="let lesson of getLessonsInSection(section); let lessonIndex = index" 
+            <div *ngFor="let lessonObj of getLessonsInSection(section); let lessonIndex = index" 
                  class="lesson-item"
+                 [class.lesson-type-self]="lessonObj.type === 'self'"
+                 [class.lesson-type-call]="lessonObj.type === 'call'"
                  [attr.data-lesson-index]="lessonIndex"
                  draggable="true"
-                 (dragstart)="onDragStart($event, section, null, lesson)"
+                 (dragstart)="onDragStart($event, section, null, lessonObj.name)"
                  (dragend)="onDragEnd($event)">
-              <div class="lesson-header" (click)="toggleLesson(section + '_' + lesson)">
+              <div class="lesson-header" (click)="toggleLesson(section + '_' + lessonObj.name)">
                 <div class="lesson-name-wrapper">
                   <span class="lesson-name">
-                    <i class="fas fa-book-open"></i>
-                    {{ lesson }}
+                    <i [class]="lessonObj.type === 'self' ? 'fas fa-user-graduate' : 'fas fa-phone-alt'"></i>
+                    {{ lessonObj.name }}
                   </span>
+                  <div class="lesson-description-short" *ngIf="getLessonDescription(section, null, lessonObj.name)">
+                    {{ getLessonDescription(section, null, lessonObj.name) }}
+                  </div>
                 </div>
                 <div class="lesson-actions" (click)="$event.stopPropagation()">
                   <button 
                     class="btn btn-link btn-xs btn-preview-lesson"
-                    (click)="openLessonPreview(section, lesson)"
+                    (click)="openLessonPreview(section, lessonObj.name)"
                     title="Gérer la leçon">
                     <i class="fas fa-cog"></i>
                   </button>
                   <button 
                     class="btn btn-xs btn-danger btn-delete-lesson"
-                    (click)="removeLesson(section, lesson)"
+                    (click)="removeLesson(section, lessonObj.name)"
                     title="Supprimer la leçon">
                     <i class="fas fa-trash"></i>
                   </button>
                   <i class="fas expand-icon" 
-                     [class.fa-chevron-down]="!isLessonExpanded(section + '_' + lesson)" 
-                     [class.fa-chevron-up]="isLessonExpanded(section + '_' + lesson)"></i>
+                     [class.fa-chevron-down]="!isLessonExpanded(section + '_' + lessonObj.name)" 
+                     [class.fa-chevron-up]="isLessonExpanded(section + '_' + lessonObj.name)"></i>
                 </div>
               </div>
               
               <!-- Lesson info (description, materials list, duration) -->
               <div class="lesson-info-wrapper" 
-                   [class.expanded]="isLessonExpanded(section + '_' + lesson)">
+                   [class.expanded]="isLessonExpanded(section + '_' + lessonObj.name)">
                 <div class="lesson-info-content">
                   <!-- Описание урока -->
-                  <div class="lesson-description-info" *ngIf="getLessonDescription(section, null, lesson)">
+                  <div class="lesson-description-info" *ngIf="getLessonDescription(section, null, lessonObj.name)">
                     <i class="fas fa-align-left"></i>
-                    <span>{{ getLessonDescription(section, null, lesson) }}</span>
+                    <span>{{ getLessonDescription(section, null, lessonObj.name) }}</span>
                   </div>
                   
                   <!-- Список материалов с типом и длительностью -->
-                  <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lesson).length > 0">
+                  <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name).length > 0">
                     <div class="materials-label">
                       <i class="fas fa-file-alt"></i>
                       Matériaux:
                     </div>
                     <div class="materials-list-vertical">
-                      <div *ngFor="let material of getMaterialsByLesson(lesson)" class="material-item-vertical">
+                      <div *ngFor="let material of getMaterialsByLesson(lessonObj.name)" class="material-item-vertical">
                         <div class="material-name">{{ material.filename }}</div>
                         <div class="material-meta">
                           <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
@@ -611,7 +621,7 @@
                   </div>
                   
                   <!-- Пустое состояние -->
-                  <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lesson).length === 0 && !getLessonDescription(section, null, lesson)">
+                  <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && !getLessonDescription(section, null, lessonObj.name)">
                     <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
                   </div>
                 </div>

@@ -64,6 +64,7 @@ import { LessonResolverService } from '../../classroom/lesson-resolver.service';
 import { AddCourseComponent } from '../courses/add-course/add-course.component';
 import { LessonPreviewModalComponent } from '../courses/lesson-preview-modal/lesson-preview-modal.component';
 import { AddMaterialModalComponent } from '../courses/add-material-modal/add-material-modal.component';
+import { LessonTypeSelectorComponent } from '../courses/lesson-type-selector/lesson-type-selector.component';
 import { ClassroomModule } from '../../classroom/classroom.module';
 
 @NgModule({
@@ -98,7 +99,8 @@ import { ClassroomModule } from '../../classroom/classroom.module';
     ClassroomRedirectComponent,
     AddCourseComponent,
     LessonPreviewModalComponent,
-    AddMaterialModalComponent
+    AddMaterialModalComponent,
+    LessonTypeSelectorComponent
   ],
   imports: [
     LayoutModule,

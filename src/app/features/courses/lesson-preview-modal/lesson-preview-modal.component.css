@@ -161,7 +161,12 @@
   margin-top: 0.5rem;
 }
 
-.audio-preview,
+.audio-preview {
+  width: 100%;
+  display: block;
+  margin: 1rem 0;
+}
+
 .video-preview {
   width: 100%;
   display: flex;
@@ -171,7 +176,19 @@
   overflow: hidden;
 }
 
-.audio-player,
+.audio-player {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  display: block !important;
+  outline: none;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 1;
+}
+
 .video-player {
   width: 100%;
   max-width: 100%;
