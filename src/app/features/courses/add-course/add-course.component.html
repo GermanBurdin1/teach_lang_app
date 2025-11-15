@@ -135,6 +135,36 @@
             <i class="fas fa-book"></i>
             {{ courseTitle }}
           </h2>
+          <!-- Course Description (editable inline) -->
+          <div class="course-description-inline">
+            <div *ngIf="!isEditingDescription" class="course-description-display">
+              <p *ngIf="courseDescription" class="description-text" (click)="isEditingDescription = true">
+                {{ courseDescription }}
+                <i class="fas fa-edit edit-icon-small"></i>
+              </p>
+              <p *ngIf="!courseDescription" class="description-placeholder" (click)="isEditingDescription = true">
+                <i class="fas fa-plus"></i> Ajouter une description
+              </p>
+            </div>
+            <div *ngIf="isEditingDescription" class="course-description-edit">
+              <textarea 
+                [(ngModel)]="courseDescription"
+                (blur)="saveDescription()"
+                (keydown.escape)="cancelEditDescription()"
+                class="form-control description-textarea"
+                placeholder="Description du cours..."
+                rows="3"
+                #descriptionInput></textarea>
+              <div class="description-edit-actions">
+                <button class="btn btn-sm btn-success" (click)="saveDescription()">
+                  <i class="fas fa-check"></i> Enregistrer
+                </button>
+                <button class="btn btn-sm btn-secondary" (click)="cancelEditDescription()">
+                  <i class="fas fa-times"></i> Annuler
+                </button>
+              </div>
+            </div>
+          </div>
           <div class="course-meta">
             <span *ngIf="courseLevel" class="course-level">{{ courseLevel }}</span>
             <span class="course-status" [class.published]="isPublished">
@@ -175,16 +205,118 @@
       </div>
 
       <div *ngIf="isCourseCardExpanded" class="course-card-content">
-        <div *ngIf="courseDescription" class="course-description">
-          <p>{{ courseDescription }}</p>
-        </div>
-
         <div *ngIf="coverImage" class="course-cover">
           <img [src]="coverImage" alt="Cover" class="cover-image-display">
         </div>
 
         <!-- Course Edit Form (collapsible) -->
         <div class="course-edit-section">
+          <!-- Quick Structure Editor Toggle -->
+          <div class="quick-structure-toggle">
+            <button 
+              class="btn btn-primary"
+              (click)="showQuickStructureEditor = !showQuickStructureEditor">
+              <i class="fas" [class.fa-sitemap]="!showQuickStructureEditor" [class.fa-times]="showQuickStructureEditor"></i>
+              {{ showQuickStructureEditor ? 'Masquer l\'éditeur' : 'Éditeur rapide de structure' }}
+            </button>
+          </div>
+
+          <!-- Quick Structure Editor -->
+          <div *ngIf="showQuickStructureEditor" class="quick-structure-editor">
+            <h3><i class="fas fa-sitemap"></i> Structure du cours</h3>
+            <div class="structure-tree">
+              <div *ngFor="let section of sections; let sectionIndex = index" class="tree-node tree-section">
+                <div class="tree-node-header">
+                  <i class="fas fa-folder tree-icon"></i>
+                  <span class="tree-label">{{ section }}</span>
+                  <div class="tree-actions">
+                    <button class="btn-icon-small btn-edit" (click)="editSectionQuick(section); $event.stopPropagation()" title="Modifier">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon-small btn-danger" (click)="removeSectionQuick(section); $event.stopPropagation()" title="Supprimer">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="btn-icon-small btn-add" (click)="addSubSectionQuick(section); $event.stopPropagation()" title="Ajouter sous-section">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="btn-icon-small btn-add" (click)="addLessonQuick(section); $event.stopPropagation()" title="Ajouter leçon">
+                      <i class="fas fa-graduation-cap"></i>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Sub-sections -->
+                <div *ngIf="subSections[section] && subSections[section].length > 0" class="tree-children">
+                  <div *ngFor="let subSection of subSections[section]" class="tree-node tree-subsection">
+                    <div class="tree-node-header">
+                      <i class="fas fa-folder-open tree-icon"></i>
+                      <span class="tree-label">{{ subSection }}</span>
+                      <div class="tree-actions">
+                        <button class="btn-icon-small btn-edit" (click)="editSubSectionQuick(section, subSection); $event.stopPropagation()" title="Modifier">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon-small btn-danger" (click)="removeSubSectionQuick(section, subSection); $event.stopPropagation()" title="Supprimer">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn-icon-small btn-add" (click)="addLessonQuick(section, subSection); $event.stopPropagation()" title="Ajouter leçon">
+                          <i class="fas fa-graduation-cap"></i>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <!-- Lessons in sub-section -->
+                    <div *ngIf="lessonsInSubSections[section] && lessonsInSubSections[section][subSection]" class="tree-children">
+                      <div *ngFor="let lesson of lessonsInSubSections[section][subSection]" class="tree-node tree-lesson">
+                        <div class="tree-node-header">
+                          <i class="fas fa-graduation-cap tree-icon" [class.icon-self]="lesson.type === 'self'" [class.icon-call]="lesson.type === 'call'"></i>
+                          <span class="tree-label">{{ lesson.name }}</span>
+                          <span *ngIf="lesson.description" class="tree-description">{{ lesson.description }}</span>
+                          <div class="tree-actions">
+                            <button class="btn-icon-small btn-edit" (click)="editLessonQuick(section, subSection, lesson); $event.stopPropagation()" title="Modifier">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon-small btn-danger" (click)="removeLessonQuick(section, subSection, lesson.name); $event.stopPropagation()" title="Supprimer">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Lessons in section (not in sub-sections) -->
+                <div *ngIf="getLessonsInSection(section).length > 0" class="tree-children">
+                  <div *ngFor="let lesson of getLessonsInSection(section)" class="tree-node tree-lesson">
+                    <div class="tree-node-header">
+                      <i class="fas fa-graduation-cap tree-icon" [class.icon-self]="lesson.type === 'self'" [class.icon-call]="lesson.type === 'call'"></i>
+                      <span class="tree-label">{{ lesson.name }}</span>
+                      <span *ngIf="lesson.description" class="tree-description">{{ lesson.description }}</span>
+                      <div class="tree-actions">
+                        <button class="btn-icon-small btn-edit" (click)="editLessonQuick(section, null, lesson); $event.stopPropagation()" title="Modifier">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon-small btn-danger" (click)="removeLessonQuick(section, null, lesson.name); $event.stopPropagation()" title="Supprimer">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Add Section Button -->
+              <div class="tree-add-section" *ngIf="sections.length === 0">
+                <p class="text-muted">Aucune section créée</p>
+              </div>
+              <div class="tree-add-section">
+                <button class="btn btn-secondary btn-sm" (click)="addSectionQuick()">
+                  <i class="fas fa-plus"></i> Ajouter une section
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div *ngIf="showCreateCourseForm" class="course-edit-form">
           <div class="form-group">
             <label>Titre du cours *</label>
@@ -267,7 +399,7 @@
         <div class="materials-section-header" (click)="isMaterialsSectionExpanded = !isMaterialsSectionExpanded">
           <h2>
             <i class="fas fa-folder-open"></i>
-            Matériaux du cours
+            Contenu du cours
           </h2>
           <i class="fas expand-icon" 
              [class.fa-chevron-down]="!isMaterialsSectionExpanded" 

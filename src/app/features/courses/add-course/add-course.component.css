@@ -270,6 +270,221 @@
   line-height: 1.6;
 }
 
+/* ==================== INLINE COURSE DESCRIPTION ==================== */
+.course-description-inline {
+  margin: 1rem 0;
+}
+
+.course-description-display {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.course-description-display:hover {
+  background-color: #f0f0f0;
+}
+
+.description-text {
+  margin: 0;
+  color: #495057;
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-icon-small {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.course-description-display:hover .edit-icon-small {
+  opacity: 1;
+}
+
+.description-placeholder {
+  margin: 0;
+  color: #6c757d;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.description-placeholder i {
+  font-size: 0.875rem;
+}
+
+.course-description-edit {
+  padding: 0.5rem;
+}
+
+.description-textarea {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.description-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ==================== QUICK STRUCTURE EDITOR ==================== */
+.quick-structure-toggle {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.quick-structure-editor {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.quick-structure-editor h3 {
+  margin: 0 0 1rem 0;
+  color: var(--space-blue);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.structure-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tree-node {
+  margin-left: 0;
+}
+
+.tree-section {
+  background: white;
+  border-left: 4px solid var(--galaxy-primary);
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.tree-subsection {
+  background: #f0f0f0;
+  border-left: 4px solid #6c757d;
+  padding: 0.5rem;
+  margin-left: 1.5rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+
+.tree-lesson {
+  background: #f8f9fa;
+  border-left: 3px solid #28a745;
+  padding: 0.5rem;
+  margin-left: 3rem;
+  border-radius: 4px;
+  margin-top: 0.25rem;
+}
+
+.tree-node-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tree-icon {
+  font-size: 1rem;
+  color: var(--galaxy-primary);
+  min-width: 20px;
+}
+
+.tree-icon.icon-self {
+  color: #17a2b8;
+}
+
+.tree-icon.icon-call {
+  color: #ffc107;
+}
+
+.tree-label {
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  min-width: 150px;
+}
+
+.tree-description {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-style: italic;
+  flex: 1;
+}
+
+.tree-actions {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.btn-icon-small {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon-small.btn-edit {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-icon-small.btn-edit:hover {
+  background: #138496;
+}
+
+.btn-icon-small.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-icon-small.btn-danger:hover {
+  background: #c82333;
+}
+
+.btn-icon-small.btn-add {
+  background: #28a745;
+  color: white;
+}
+
+.btn-icon-small.btn-add:hover {
+  background: #218838;
+}
+
+.tree-children {
+  margin-top: 0.5rem;
+}
+
+.tree-add-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed #ccc;
+  text-align: center;
+}
+
 .course-cover {
   margin: 1.5rem 0;
   text-align: center;

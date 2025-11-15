@@ -29,6 +29,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   courseDescription = '';
   courseLevel = '';
   isPublished = false;
+  isEditingDescription = false;
+  showQuickStructureEditor = false;
   coverImage: string | null = null;
   coverImageFile: File | null = null;
   uploadingCover = false;
@@ -240,6 +242,27 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.notificationService.error('Erreur lors de la création du cours');
       }
     });
+  }
+
+  saveDescription(): void {
+    this.isEditingDescription = false;
+    this.markAsChanged();
+    // Автоматически сохраняем при потере фокуса
+    if (this.courseId && this.hasUnsavedChanges) {
+      this.updateCourse();
+    }
+  }
+
+  cancelEditDescription(): void {
+    // Восстанавливаем описание из сохраненного курса
+    if (this.courseId) {
+      this.courseService.getCourseById(parseInt(this.courseId, 10)).subscribe({
+        next: (course) => {
+          this.courseDescription = course.description || '';
+        }
+      });
+    }
+    this.isEditingDescription = false;
   }
 
   async updateCourse(): Promise<void> {
@@ -1871,6 +1894,175 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     console.log(`   Count: ${count}`);
     
     return count;
+  }
+
+  // ==================== QUICK STRUCTURE EDITOR METHODS ====================
+
+  addSectionQuick(): void {
+    const sectionName = prompt('Nom de la section:');
+    if (sectionName && sectionName.trim()) {
+      let uniqueSectionName = sectionName.trim();
+      let counter = 1;
+      while (this.sections.includes(uniqueSectionName)) {
+        uniqueSectionName = `${sectionName.trim()} (${counter})`;
+        counter++;
+      }
+      this.sections.push(uniqueSectionName);
+      this.subSections[uniqueSectionName] = [];
+      this.saveSections();
+    }
+  }
+
+  editSectionQuick(section: string): void {
+    const newName = prompt('Nouveau nom de la section:', section);
+    if (newName && newName.trim() && newName.trim() !== section) {
+      const index = this.sections.indexOf(section);
+      if (index !== -1) {
+        this.sections[index] = newName.trim();
+        // Обновляем ключи в subSections и lessons
+        if (this.subSections[section]) {
+          this.subSections[newName.trim()] = this.subSections[section];
+          delete this.subSections[section];
+        }
+        if (this.lessons[section]) {
+          this.lessons[newName.trim()] = this.lessons[section];
+          delete this.lessons[section];
+        }
+        if (this.lessonsInSubSections[section]) {
+          this.lessonsInSubSections[newName.trim()] = this.lessonsInSubSections[section];
+          delete this.lessonsInSubSections[section];
+        }
+        this.saveSections();
+      }
+    }
+  }
+
+  removeSectionQuick(section: string): void {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la section "${section}" et tout son contenu ?`)) {
+      this.removeSection(section);
+    }
+  }
+
+  addSubSectionQuick(section: string): void {
+    const subSectionName = prompt('Nom de la sous-section:');
+    if (subSectionName && subSectionName.trim()) {
+      if (!this.subSections[section]) {
+        this.subSections[section] = [];
+      }
+      let uniqueSubSectionName = subSectionName.trim();
+      let counter = 1;
+      while (this.subSections[section].includes(uniqueSubSectionName)) {
+        uniqueSubSectionName = `${subSectionName.trim()} (${counter})`;
+        counter++;
+      }
+      this.subSections[section].push(uniqueSubSectionName);
+      this.saveSections();
+    }
+  }
+
+  editSubSectionQuick(section: string, subSection: string): void {
+    const newName = prompt('Nouveau nom de la sous-section:', subSection);
+    if (newName && newName.trim() && newName.trim() !== subSection) {
+      const index = this.subSections[section].indexOf(subSection);
+      if (index !== -1) {
+        this.subSections[section][index] = newName.trim();
+        // Обновляем ключи в lessonsInSubSections
+        if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
+          this.lessonsInSubSections[section][newName.trim()] = this.lessonsInSubSections[section][subSection];
+          delete this.lessonsInSubSections[section][subSection];
+        }
+        this.saveSections();
+      }
+    }
+  }
+
+  removeSubSectionQuick(section: string, subSection: string): void {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la sous-section "${subSection}" et tout son contenu ?`)) {
+      this.subSections[section] = this.subSections[section].filter(sub => sub !== subSection);
+      if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
+        delete this.lessonsInSubSections[section][subSection];
+      }
+      this.saveSections();
+    }
+  }
+
+  addLessonQuick(section: string, subSection?: string): void {
+    const lessonName = prompt('Nom de la leçon:');
+    if (lessonName && lessonName.trim()) {
+      // Открываем диалог выбора типа урока
+      const dialogRef = this.dialog.open(LessonTypeSelectorComponent, {
+        width: '400px',
+        data: {}
+      });
+
+      dialogRef.afterClosed().subscribe((lessonType: LessonType | null) => {
+        if (lessonType) {
+          const description = prompt('Description de la leçon (optionnel):') || undefined;
+          const lessonData = {
+            name: lessonName.trim(),
+            type: lessonType,
+            description: description
+          };
+
+          if (subSection) {
+            if (!this.lessonsInSubSections[section]) {
+              this.lessonsInSubSections[section] = {};
+            }
+            if (!this.lessonsInSubSections[section][subSection]) {
+              this.lessonsInSubSections[section][subSection] = [];
+            }
+            this.lessonsInSubSections[section][subSection].push(lessonData);
+          } else {
+            if (!this.lessons[section]) {
+              this.lessons[section] = [];
+            }
+            this.lessons[section].push(lessonData);
+          }
+          this.saveSections();
+        }
+      });
+    }
+  }
+
+  editLessonQuick(section: string, subSection: string | null, lesson: { name: string; type: 'self' | 'call'; description?: string }): void {
+    const newName = prompt('Nouveau nom de la leçon:', lesson.name);
+    const newDescription = prompt('Description de la leçon (optionnel):', lesson.description || '');
+    
+    if (newName && newName.trim()) {
+      if (subSection) {
+        const lessonIndex = this.lessonsInSubSections[section][subSection].findIndex(l => l.name === lesson.name);
+        if (lessonIndex !== -1) {
+          this.lessonsInSubSections[section][subSection][lessonIndex].name = newName.trim();
+          if (newDescription !== null) {
+            this.lessonsInSubSections[section][subSection][lessonIndex].description = newDescription.trim() || undefined;
+          }
+        }
+      } else {
+        const lessonIndex = this.lessons[section].findIndex(l => l.name === lesson.name);
+        if (lessonIndex !== -1) {
+          this.lessons[section][lessonIndex].name = newName.trim();
+          if (newDescription !== null) {
+            this.lessons[section][lessonIndex].description = newDescription.trim() || undefined;
+          }
+        }
+      }
+      this.saveSections();
+    }
+  }
+
+  removeLessonQuick(section: string, subSection: string | null, lessonName: string): void {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la leçon "${lessonName}" ?`)) {
+      if (subSection) {
+        if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
+          this.lessonsInSubSections[section][subSection] = this.lessonsInSubSections[section][subSection].filter(l => l.name !== lessonName);
+        }
+      } else {
+        if (this.lessons[section]) {
+          this.lessons[section] = this.lessons[section].filter(l => l.name !== lessonName);
+        }
+      }
+      this.saveSections();
+    }
   }
 
   // Открыть модалку для добавления домашнего задания
