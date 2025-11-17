@@ -6,11 +6,22 @@
   color: #1f2a37;
 }
 
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f0f2f8;
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
 .mindmap-landing {
   padding: 2.5rem clamp(1rem, 5vw, 4rem);
   background: radial-gradient(circle at top, rgba(111, 66, 193, 0.07), transparent 50%),
               #f7f8fb;
-  min-height: calc(100vh - 120px);
+  min-height: 100%;
 }
 
 .mindmap-header {

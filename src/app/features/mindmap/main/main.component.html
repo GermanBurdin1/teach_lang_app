@@ -1,82 +1,100 @@
-<div class="mindmap-landing">
-  <header class="mindmap-header mat-elevation-z4">
-    <div class="header-content">
-      <div>
-        <p class="eyebrow">Espace pédagogique</p>
-        <h1>Centre Mindmap</h1>
-        <p class="mindmap-subtitle">
-          Choisissez le type de mindmap à créer ou à reprendre pour votre séance.
-        </p>
-      </div>
-      <div class="header-actions">
-        <button mat-raised-button color="primary" (click)="startInstantMindmap()">
-          <mat-icon>flash_on</mat-icon>
-          Lancer une mindmap rapide
-        </button>
-      </div>
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-content">
+    <div class="mindmap-landing">
+      <header class="mindmap-header mat-elevation-z4">
+        <div class="header-content">
+          <div>
+            <p class="eyebrow">Espace pédagogique</p>
+            <h1>Centre Mindmap</h1>
+            <p class="mindmap-subtitle">
+              Choisissez le type de mindmap à créer ou à reprendre pour votre séance.
+            </p>
+          </div>
+          <div class="header-actions">
+            <button mat-raised-button color="primary" (click)="startInstantMindmap()">
+              <mat-icon>flash_on</mat-icon>
+              Lancer une mindmap rapide
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section class="cards-grid">
+        <mat-card class="mindmap-card mat-elevation-z4">
+          <mat-card-header>
+            <div mat-card-avatar class="card-icon">
+              <mat-icon>library_add</mat-icon>
+            </div>
+            <mat-card-title>Mindmaps de cours</mat-card-title>
+            <mat-card-subtitle>Structurer l'ensemble du parcours</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Organisez les idées clés de vos parcours pédagogiques. Chaque mindmap est liée à un cours précis
+              et reste disponible pour tous les enseignants du cours.
+            </p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-flat-button color="primary" (click)="createCourseMindmap()">
+              <mat-icon>add</mat-icon>
+              Créer pour un cours
+            </button>
+            <button mat-stroked-button color="primary">
+              <mat-icon>folder_open</mat-icon>
+              Voir mes mindmaps
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="mindmap-card mat-elevation-z4 highlight-card">
+          <mat-card-header>
+            <div mat-card-avatar class="card-icon">
+              <mat-icon>bolt</mat-icon>
+            </div>
+            <mat-card-title>Mindmaps instantanées</mat-card-title>
+            <mat-card-subtitle>Support rapide pour un atelier</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Utilisez ces mindmaps temporaires pendant un cours ou un atelier. Elles ne sont pas sauvegardées
+              et disparaissent lorsque la session est terminée.
+            </p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="accent" (click)="startInstantMindmap()">
+              <mat-icon>play_arrow</mat-icon>
+              Démarrer une mindmap instantanée
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="mindmap-card mat-elevation-z4">
+          <mat-card-header>
+            <div mat-card-avatar class="card-icon">
+              <mat-icon>lock</mat-icon>
+            </div>
+            <mat-card-title>Mindmaps personnelles</mat-card-title>
+            <mat-card-subtitle>Préparer vos notes privées</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Gardez vos idées privées et préparez vos contenus à votre rythme. Vous seul pouvez accéder à ces mindmaps.
+            </p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-flat-button color="primary">
+              <mat-icon>person_add</mat-icon>
+              Créer une mindmap
+            </button>
+            <button mat-stroked-button color="primary">
+              <mat-icon>list_alt</mat-icon>
+              Consulter mes mindmaps
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </section>
     </div>
-  </header>
-
-  <section class="cards-grid">
-    <mat-card class="mindmap-card mat-elevation-z4">
-      <mat-card-header>
-        <div mat-card-avatar class="card-icon">
-          <mat-icon>library_add</mat-icon>
-        </div>
-        <mat-card-title>Mindmaps de cours</mat-card-title>
-        <mat-card-subtitle>Structurer l'ensemble du parcours</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-          Organisez les idées clés de vos parcours pédagogiques. Chaque mindmap est liée à un cours précis
-          et reste disponible pour tous les enseignants du cours.
-        </p>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-flat-button color="primary">Créer pour un cours</button>
-        <button mat-stroked-button color="primary">Voir mes mindmaps</button>
-      </mat-card-actions>
-    </mat-card>
-
-    <mat-card class="mindmap-card mat-elevation-z4 highlight-card">
-      <mat-card-header>
-        <div mat-card-avatar class="card-icon">
-          <mat-icon>bolt</mat-icon>
-        </div>
-        <mat-card-title>Mindmaps instantanées</mat-card-title>
-        <mat-card-subtitle>Support rapide pour un atelier</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-          Utilisez ces mindmaps temporaires pendant un cours ou un atelier. Elles ne sont pas sauvegardées
-          et disparaissent lorsque la session est terminée.
-        </p>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button color="accent" (click)="startInstantMindmap()">
-          <mat-icon>play_arrow</mat-icon>
-          Démarrer une mindmap instantanée
-        </button>
-      </mat-card-actions>
-    </mat-card>
-
-    <mat-card class="mindmap-card mat-elevation-z4">
-      <mat-card-header>
-        <div mat-card-avatar class="card-icon">
-          <mat-icon>lock</mat-icon>
-        </div>
-        <mat-card-title>Mindmaps personnelles</mat-card-title>
-        <mat-card-subtitle>Préparer vos notes privées</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-          Gardez vos idées privées et préparez vos contenus à votre rythme. Vous seul pouvez accéder à ces mindmaps.
-        </p>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-flat-button color="primary">Créer une mindmap</button>
-        <button mat-stroked-button color="primary">Consulter mes mindmaps</button>
-      </mat-card-actions>
-    </mat-card>
-  </section>
+  </div>
 </div>

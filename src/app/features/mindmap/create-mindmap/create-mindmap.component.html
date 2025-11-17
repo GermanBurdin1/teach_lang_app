@@ -1,0 +1,43 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-content">
+    <div class="create-wrapper">
+      <header class="create-header">
+        <div>
+          <p class="eyebrow">Mindmap de cours</p>
+          <h1>Nouvelle mindmap pédagogique</h1>
+          <p class="subtitle">
+            Préparez le squelette de votre leçon avant de passer à l’éditeur visuel.
+          </p>
+        </div>
+        <div class="actions">
+          <button mat-stroked-button color="primary" routerLink="/mindmap">
+            <mat-icon>arrow_back</mat-icon>
+            Retour au centre
+          </button>
+        </div>
+      </header>
+
+      <section class="create-content mat-elevation-z2">
+        <div class="form-placeholder">
+          <mat-icon>construction</mat-icon>
+          <h2>Zone de configuration en préparation</h2>
+          <p>
+            Ici vous pourrez sélectionner un cours, définir le titre, préciser la durée et préparer la structure de base de la mindmap.
+          </p>
+        </div>
+
+        <div class="steps">
+          <div class="step-card" *ngFor="let step of steps; let idx = index">
+            <div class="step-index">0{{ idx + 1 }}</div>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+

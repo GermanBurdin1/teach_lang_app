@@ -2,10 +2,12 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MindmapWrapperComponent } from './mindmap-wrapper.component';
 import { MainComponent } from './main/main.component';
+import { CreateMindmapComponent } from './create-mindmap/create-mindmap.component';
 
 const routes: Routes = [
   { path: '', component: MainComponent },
-  { path: 'instant', component: MindmapWrapperComponent }
+  { path: 'instant', component: MindmapWrapperComponent },
+  { path: 'course/new', component: CreateMindmapComponent }
 ];
 
 @NgModule({
