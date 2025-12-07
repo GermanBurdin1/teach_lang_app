@@ -1026,32 +1026,6 @@
   transition: all 0.3s ease;
 }
 
-.lessons-container.empty-drop-zone {
-  min-height: 80px;
-  border: 2px dashed #e0e0e0;
-  border-radius: 8px;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.lessons-container.drag-over {
-  border: 2px dashed var(--galaxy-primary) !important;
-  border-radius: 8px;
-  background: rgba(74, 144, 226, 0.1) !important;
-  padding: 1rem;
-}
-
-.empty-lessons-hint {
-  text-align: center;
-  padding: 1rem;
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.empty-lessons-hint i {
-  margin-right: 0.5rem;
-  color: var(--galaxy-primary);
-}
 
 .lesson-item {
   background: white;
@@ -1467,6 +1441,55 @@
 
 .lesson-item[draggable="true"]:hover {
   opacity: 0.8;
+}
+
+/* CDK DragDrop styles */
+.lesson-item {
+  position: relative;
+}
+
+.lesson-item.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.lessons-in-subsection.cdk-drop-list-dragging .lesson-item:not(.cdk-drag-placeholder),
+.lessons-list-section.cdk-drop-list-dragging .lesson-item:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.lesson-drag-handle {
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  cursor: grab;
+  padding: 0.5rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lesson-drag-handle:active {
+  cursor: grabbing;
+}
+
+.lesson-drag-handle i {
+  font-size: 1rem;
+}
+
+.lesson-item {
+  padding-left: 2.5rem; /* Отступ для drag handle */
+}
+
+.lesson-placeholder {
+  background: #e0e7ff;
+  border: 2px dashed #6366f1;
+  border-radius: 8px;
+  min-height: 60px;
+  margin-bottom: 0.75rem;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .cursor-pointer {

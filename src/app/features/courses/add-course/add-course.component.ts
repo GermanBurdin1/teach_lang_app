@@ -17,6 +17,7 @@ import { CallLessonSettingsModalComponent, CallLessonSettingsModalData } from '.
 import { RoleService } from '../../../services/role.service';
 import { HomeworkService } from '../../../services/homework.service';
 import { forkJoin } from 'rxjs';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-add-course',
@@ -1707,6 +1708,121 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     
     if (currentTarget && (!relatedTarget || !currentTarget.contains(relatedTarget))) {
       currentTarget.classList.remove('drag-over');
+    }
+  }
+
+  // Получить список связанных подсекций для CDK drag-drop
+  getConnectedSubsectionLists(section: string): string[] {
+    if (!this.subSections[section] || this.subSections[section].length === 0) {
+      return [];
+    }
+    return this.subSections[section].map(subSection => `subsection-${section}-${subSection}`);
+  }
+
+  // Получить список связанных списков для подсекции (секция + другие подсекции)
+  getConnectedListsForSubsection(section: string, currentSubSection: string): string[] {
+    const connected: string[] = [`section-${section}`];
+    if (this.subSections[section] && this.subSections[section].length > 0) {
+      this.subSections[section].forEach(subSection => {
+        if (subSection !== currentSubSection) {
+          connected.push(`subsection-${section}-${subSection}`);
+        }
+      });
+    }
+    return connected;
+  }
+
+  // CDK DragDrop для изменения порядка уроков внутри подсекции или перемещения между подсекцией и секцией
+  dropLessonInSubSection(event: CdkDragDrop<any[]>, section: string, subSection: string): void {
+    // Если перемещение внутри той же подсекции - просто меняем порядок
+    if (event.previousContainer === event.container) {
+      const lessons = this.getLessonsInSubSection(section, subSection);
+      moveItemInArray(lessons, event.previousIndex, event.currentIndex);
+      
+      if (!this.lessonsInSubSections[section]) {
+        this.lessonsInSubSections[section] = {};
+      }
+      this.lessonsInSubSections[section][subSection] = lessons;
+      this.saveSections();
+      return;
+    }
+
+    // Если перемещение из другой подсекции или из секции
+    const previousContainerId = event.previousContainer.id;
+    const previousIndex = event.previousIndex;
+    const currentIndex = event.currentIndex;
+
+    let lessonObj: { name: string; type: 'self' | 'call'; description?: string } | undefined;
+
+    // Определяем источник
+    if (previousContainerId === `section-${section}`) {
+      // Перемещение из секции в подсекцию (внутри той же секции)
+      const lessons = this.getLessonsInSection(section);
+      lessonObj = lessons[previousIndex];
+      lessons.splice(previousIndex, 1);
+      this.lessons[section] = lessons;
+    } else if (previousContainerId.startsWith(`subsection-${section}-`)) {
+      // Перемещение из другой подсекции в эту подсекцию
+      const sourceSubSection = previousContainerId.replace(`subsection-${section}-`, '');
+      const lessons = this.getLessonsInSubSection(section, sourceSubSection);
+      lessonObj = lessons[previousIndex];
+      lessons.splice(previousIndex, 1);
+      this.lessonsInSubSections[section][sourceSubSection] = lessons;
+      if (lessons.length === 0) {
+        delete this.lessonsInSubSections[section][sourceSubSection];
+      }
+    }
+
+    // Добавляем урок в целевую подсекцию
+    if (lessonObj) {
+      if (!this.lessonsInSubSections[section]) {
+        this.lessonsInSubSections[section] = {};
+      }
+      if (!this.lessonsInSubSections[section][subSection]) {
+        this.lessonsInSubSections[section][subSection] = [];
+      }
+      const targetLessons = this.lessonsInSubSections[section][subSection];
+      targetLessons.splice(currentIndex, 0, lessonObj);
+      this.saveSections();
+    }
+  }
+
+  // CDK DragDrop для изменения порядка уроков внутри секции или перемещения из подсекции в секцию
+  dropLessonInSection(event: CdkDragDrop<any[]>, section: string): void {
+    // Если перемещение внутри той же секции - просто меняем порядок
+    if (event.previousContainer === event.container) {
+      const lessons = this.getLessonsInSection(section);
+      moveItemInArray(lessons, event.previousIndex, event.currentIndex);
+      this.lessons[section] = lessons;
+      this.saveSections();
+      return;
+    }
+
+    // Если перемещение из подсекции в секцию (внутри той же секции)
+    const previousContainerId = event.previousContainer.id;
+    const previousIndex = event.previousIndex;
+    const currentIndex = event.currentIndex;
+
+    // Проверяем, что перемещение происходит внутри той же секции
+    if (previousContainerId.startsWith(`subsection-${section}-`)) {
+      const sourceSubSection = previousContainerId.replace(`subsection-${section}-`, '');
+      const lessons = this.getLessonsInSubSection(section, sourceSubSection);
+      const lessonObj = lessons[previousIndex];
+      
+      // Удаляем из подсекции
+      lessons.splice(previousIndex, 1);
+      this.lessonsInSubSections[section][sourceSubSection] = lessons;
+      if (lessons.length === 0) {
+        delete this.lessonsInSubSections[section][sourceSubSection];
+      }
+
+      // Добавляем в секцию
+      if (!this.lessons[section]) {
+        this.lessons[section] = [];
+      }
+      const sectionLessons = this.lessons[section];
+      sectionLessons.splice(currentIndex, 0, lessonObj);
+      this.saveSections();
     }
   }
 

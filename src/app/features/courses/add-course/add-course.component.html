@@ -598,14 +598,19 @@
               </div>
               
               <!-- Lessons in this sub-section -->
-              <div class="lessons-in-subsection" *ngIf="getLessonsInSubSection(section, subSection).length > 0">
+              <div class="lessons-in-subsection" 
+                   cdkDropList
+                   [id]="'subsection-' + section + '-' + subSection"
+                   [cdkDropListConnectedTo]="getConnectedListsForSubsection(section, subSection)"
+                   (cdkDropListDropped)="dropLessonInSubSection($event, section, subSection)">
                 <div *ngFor="let lessonObj of getLessonsInSubSection(section, subSection); let lessonIndex = index" 
                      class="lesson-item lesson-in-subsection"
                      [class.lesson-type-self]="lessonObj.type === 'self'"
                      [class.lesson-type-call]="lessonObj.type === 'call'"
-                     draggable="true"
-                     (dragstart)="onDragStart($event, section, subSection, lessonObj.name)"
-                     (dragend)="onDragEnd($event)">
+                     cdkDrag>
+                  <div class="lesson-drag-handle" cdkDragHandle>
+                    <i class="fas fa-grip-vertical"></i>
+                  </div>
                   <div class="lesson-header" (click)="toggleLesson(section + '_' + subSection + '_' + lessonObj.name)">
                     <div class="lesson-name-wrapper">
                       <span class="lesson-name">
@@ -693,6 +698,7 @@
                       </div>
                     </div>
                   </div>
+                  <div *cdkDragPlaceholder class="lesson-placeholder"></div>
                 </div>
               </div>
             </div>
@@ -700,23 +706,21 @@
           
           <!-- Lessons (not in sub-sections) -->
           <div class="lessons-container" 
-               (dragover)="onSectionDragOver($event)"
-               (drop)="onDropLessonToSection($event, section)"
-               (dragenter)="onSectionDragEnter($event)"
-               (dragleave)="onSectionDragLeave($event)"
-               [class.has-lessons]="getLessonsInSection(section).length > 0"
-               [class.empty-drop-zone]="getLessonsInSection(section).length === 0">
-            <div *ngIf="getLessonsInSection(section).length === 0" class="empty-lessons-hint">
-              <p class="text-muted"><i class="fas fa-info-circle"></i> Glissez-déposez les leçons ici pour les déplacer au niveau de la section</p>
-            </div>
-            <div *ngFor="let lessonObj of getLessonsInSection(section); let lessonIndex = index" 
-                 class="lesson-item"
-                 [class.lesson-type-self]="lessonObj.type === 'self'"
-                 [class.lesson-type-call]="lessonObj.type === 'call'"
-                 [attr.data-lesson-index]="lessonIndex"
-                 draggable="true"
-                 (dragstart)="onDragStart($event, section, null, lessonObj.name)"
-                 (dragend)="onDragEnd($event)">
+               [class.has-lessons]="getLessonsInSection(section).length > 0">
+            <div class="lessons-list-section"
+                 cdkDropList
+                 [id]="'section-' + section"
+                 [cdkDropListConnectedTo]="getConnectedSubsectionLists(section)"
+                 (cdkDropListDropped)="dropLessonInSection($event, section)">
+              <div *ngFor="let lessonObj of getLessonsInSection(section); let lessonIndex = index" 
+                   class="lesson-item"
+                   [class.lesson-type-self]="lessonObj.type === 'self'"
+                   [class.lesson-type-call]="lessonObj.type === 'call'"
+                   [attr.data-lesson-index]="lessonIndex"
+                   cdkDrag>
+                <div class="lesson-drag-handle" cdkDragHandle>
+                  <i class="fas fa-grip-vertical"></i>
+                </div>
               <div class="lesson-header" (click)="toggleLesson(section + '_' + lessonObj.name)">
                 <div class="lesson-name-wrapper">
                   <span class="lesson-name">
@@ -804,6 +808,7 @@
                       </div>
                 </div>
               </div>
+              <div *cdkDragPlaceholder class="lesson-placeholder"></div>
             </div>
           </div>
           
