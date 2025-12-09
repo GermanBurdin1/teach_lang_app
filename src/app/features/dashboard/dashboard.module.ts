@@ -66,6 +66,8 @@ import { AddCourseComponent } from '../courses/add-course/add-course.component';
 import { LessonPreviewModalComponent } from '../courses/lesson-preview-modal/lesson-preview-modal.component';
 import { AddMaterialModalComponent } from '../courses/add-material-modal/add-material-modal.component';
 import { LessonTypeSelectorComponent } from '../courses/lesson-type-selector/lesson-type-selector.component';
+import { PromptDialogComponent } from '../courses/prompt-dialog/prompt-dialog.component';
+import { ConfirmDialogComponent } from '../courses/prompt-dialog/confirm-dialog.component';
 import { ClassroomModule } from '../../classroom/classroom.module';
 
 @NgModule({
@@ -101,7 +103,9 @@ import { ClassroomModule } from '../../classroom/classroom.module';
     AddCourseComponent,
     LessonPreviewModalComponent,
     AddMaterialModalComponent,
-    LessonTypeSelectorComponent
+    LessonTypeSelectorComponent,
+    PromptDialogComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     LayoutModule,

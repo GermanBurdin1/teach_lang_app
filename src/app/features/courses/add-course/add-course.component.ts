@@ -16,8 +16,10 @@ import { LessonTypeSelectorComponent, LessonType } from '../lesson-type-selector
 import { CallLessonSettingsModalComponent, CallLessonSettingsModalData } from '../call-lesson-settings-modal/call-lesson-settings-modal.component';
 import { RoleService } from '../../../services/role.service';
 import { HomeworkService } from '../../../services/homework.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, firstValueFrom } from 'rxjs';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { PromptDialogComponent, PromptDialogData } from '../prompt-dialog/prompt-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../prompt-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-add-course',
@@ -2077,38 +2079,66 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
   // ==================== QUICK STRUCTURE EDITOR METHODS ====================
 
-  addSectionQuick(): void {
-    const sectionName = prompt('Nom de la section:');
-    if (sectionName && sectionName.trim()) {
-      let uniqueSectionName = sectionName.trim();
-      let counter = 1;
-      while (this.sections.includes(uniqueSectionName)) {
-        uniqueSectionName = `${sectionName.trim()} (${counter})`;
-        counter++;
-      }
-      this.sections.push(uniqueSectionName);
-      this.subSections[uniqueSectionName] = [];
-      this.saveSections();
+  private async openTextPrompt(data: PromptDialogData): Promise<string | undefined> {
+    const dialogRef = this.dialog.open(PromptDialogComponent, {
+      width: '420px',
+      data
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (typeof result === 'string' && result.trim()) {
+      return result.trim();
     }
+    return undefined;
   }
 
-  editSectionQuick(section: string): void {
-    const newName = prompt('Nouveau nom de la section:', section);
-    if (newName && newName.trim() && newName.trim() !== section) {
+  private async openConfirmDialog(data: ConfirmDialogData): Promise<boolean> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '380px',
+      data
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
+  }
+
+  async addSectionQuick(): Promise<void> {
+    const sectionName = await this.openTextPrompt({
+      title: 'Nom de la section',
+      label: 'Nom',
+      placeholder: 'Ex: Section 1'
+    });
+    if (!sectionName) return;
+
+    let uniqueSectionName = sectionName;
+    let counter = 1;
+    while (this.sections.includes(uniqueSectionName)) {
+      uniqueSectionName = `${sectionName} (${counter})`;
+      counter++;
+    }
+    this.sections.push(uniqueSectionName);
+    this.subSections[uniqueSectionName] = [];
+    this.saveSections();
+  }
+
+  async editSectionQuick(section: string): Promise<void> {
+    const newName = await this.openTextPrompt({
+      title: 'Nouveau nom de la section',
+      label: 'Nom',
+      defaultValue: section
+    });
+    if (newName && newName !== section) {
       const index = this.sections.indexOf(section);
       if (index !== -1) {
-        this.sections[index] = newName.trim();
-        // Обновляем ключи в subSections и lessons
+        this.sections[index] = newName;
         if (this.subSections[section]) {
-          this.subSections[newName.trim()] = this.subSections[section];
+          this.subSections[newName] = this.subSections[section];
           delete this.subSections[section];
         }
         if (this.lessons[section]) {
-          this.lessons[newName.trim()] = this.lessons[section];
+          this.lessons[newName] = this.lessons[section];
           delete this.lessons[section];
         }
         if (this.lessonsInSubSections[section]) {
-          this.lessonsInSubSections[newName.trim()] = this.lessonsInSubSections[section];
+          this.lessonsInSubSections[newName] = this.lessonsInSubSections[section];
           delete this.lessonsInSubSections[section];
         }
         this.saveSections();
@@ -2116,22 +2146,32 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeSectionQuick(section: string): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer la section "${section}" et tout son contenu ?`)) {
+  async removeSectionQuick(section: string): Promise<void> {
+    const confirmed = await this.openConfirmDialog({
+      title: 'Supprimer la section',
+      message: `Êtes-vous sûr de vouloir supprimer la section "${section}" et tout son contenu ?`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler'
+    });
+    if (confirmed) {
       this.removeSection(section);
     }
   }
 
-  addSubSectionQuick(section: string): void {
-    const subSectionName = prompt('Nom de la sous-section:');
-    if (subSectionName && subSectionName.trim()) {
+  async addSubSectionQuick(section: string): Promise<void> {
+    const subSectionName = await this.openTextPrompt({
+      title: 'Nom de la sous-section',
+      label: 'Sous-section',
+      placeholder: 'Ex: Introduction'
+    });
+    if (subSectionName) {
       if (!this.subSections[section]) {
         this.subSections[section] = [];
       }
-      let uniqueSubSectionName = subSectionName.trim();
+      let uniqueSubSectionName = subSectionName;
       let counter = 1;
       while (this.subSections[section].includes(uniqueSubSectionName)) {
-        uniqueSubSectionName = `${subSectionName.trim()} (${counter})`;
+        uniqueSubSectionName = `${subSectionName} (${counter})`;
         counter++;
       }
       this.subSections[section].push(uniqueSubSectionName);
@@ -2139,15 +2179,18 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
   }
 
-  editSubSectionQuick(section: string, subSection: string): void {
-    const newName = prompt('Nouveau nom de la sous-section:', subSection);
-    if (newName && newName.trim() && newName.trim() !== subSection) {
+  async editSubSectionQuick(section: string, subSection: string): Promise<void> {
+    const newName = await this.openTextPrompt({
+      title: 'Nouveau nom de la sous-section',
+      label: 'Sous-section',
+      defaultValue: subSection
+    });
+    if (newName && newName !== subSection) {
       const index = this.subSections[section].indexOf(subSection);
       if (index !== -1) {
-        this.subSections[section][index] = newName.trim();
-        // Обновляем ключи в lessonsInSubSections
+        this.subSections[section][index] = newName;
         if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
-          this.lessonsInSubSections[section][newName.trim()] = this.lessonsInSubSections[section][subSection];
+          this.lessonsInSubSections[section][newName] = this.lessonsInSubSections[section][subSection];
           delete this.lessonsInSubSections[section][subSection];
         }
         this.saveSections();
@@ -2155,8 +2198,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeSubSectionQuick(section: string, subSection: string): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer la sous-section "${subSection}" et tout son contenu ?`)) {
+  async removeSubSectionQuick(section: string, subSection: string): Promise<void> {
+    const confirmed = await this.openConfirmDialog({
+      title: 'Supprimer la sous-section',
+      message: `Êtes-vous sûr de vouloir supprimer la sous-section "${subSection}" et tout son contenu ?`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler'
+    });
+    if (confirmed) {
       this.subSections[section] = this.subSections[section].filter(sub => sub !== subSection);
       if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
         delete this.lessonsInSubSections[section][subSection];
@@ -2165,22 +2214,29 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
   }
 
-  addLessonQuick(section: string, subSection?: string): void {
-    const lessonName = prompt('Nom de la leçon:');
-    if (lessonName && lessonName.trim()) {
-      // Открываем диалог выбора типа урока
+  async addLessonQuick(section: string, subSection?: string): Promise<void> {
+    const lessonName = await this.openTextPrompt({
+      title: 'Nom de la leçon',
+      label: 'Leçon',
+      placeholder: 'Ex: Leçon 1'
+    });
+    if (lessonName) {
       const dialogRef = this.dialog.open(LessonTypeSelectorComponent, {
         width: '400px',
         data: {}
       });
 
-      dialogRef.afterClosed().subscribe((lessonType: LessonType | null) => {
+      dialogRef.afterClosed().subscribe(async (lessonType: LessonType | null) => {
         if (lessonType) {
-          const description = prompt('Description de la leçon (optionnel):') || undefined;
+          const description = await this.openTextPrompt({
+            title: 'Description de la leçon (optionnel)',
+            label: 'Description',
+            defaultValue: ''
+          });
           const lessonData = {
-            name: lessonName.trim(),
+            name: lessonName,
             type: lessonType,
-            description: description
+            description: description || undefined
           };
 
           if (subSection) {
@@ -2203,45 +2259,55 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
   }
 
-  editLessonQuick(section: string, subSection: string | null, lesson: { name: string; type: 'self' | 'call'; description?: string }): void {
-    const newName = prompt('Nouveau nom de la leçon:', lesson.name);
-    const newDescription = prompt('Description de la leçon (optionnel):', lesson.description || '');
+  async editLessonQuick(section: string, subSection: string | null, lesson: { name: string; type: 'self' | 'call'; description?: string }): Promise<void> {
+    const newName = await this.openTextPrompt({
+      title: 'Nouveau nom de la leçon',
+      label: 'Leçon',
+      defaultValue: lesson.name
+    });
+    if (!newName) return;
+
+    const newDescription = await this.openTextPrompt({
+      title: 'Description de la leçon (optionnel)',
+      label: 'Description',
+      defaultValue: lesson.description || ''
+    });
     
-    if (newName && newName.trim()) {
-      if (subSection) {
-        const lessonIndex = this.lessonsInSubSections[section][subSection].findIndex(l => l.name === lesson.name);
-        if (lessonIndex !== -1) {
-          this.lessonsInSubSections[section][subSection][lessonIndex].name = newName.trim();
-          if (newDescription !== null) {
-            this.lessonsInSubSections[section][subSection][lessonIndex].description = newDescription.trim() || undefined;
-          }
-        }
-      } else {
-        const lessonIndex = this.lessons[section].findIndex(l => l.name === lesson.name);
-        if (lessonIndex !== -1) {
-          this.lessons[section][lessonIndex].name = newName.trim();
-          if (newDescription !== null) {
-            this.lessons[section][lessonIndex].description = newDescription.trim() || undefined;
-          }
-        }
+    if (subSection) {
+      const lessonIndex = this.lessonsInSubSections[section][subSection].findIndex(l => l.name === lesson.name);
+      if (lessonIndex !== -1) {
+        this.lessonsInSubSections[section][subSection][lessonIndex].name = newName;
+        this.lessonsInSubSections[section][subSection][lessonIndex].description = newDescription || undefined;
       }
-      this.saveSections();
+    } else {
+      const lessonIndex = this.lessons[section].findIndex(l => l.name === lesson.name);
+      if (lessonIndex !== -1) {
+        this.lessons[section][lessonIndex].name = newName;
+        this.lessons[section][lessonIndex].description = newDescription || undefined;
+      }
     }
+    this.saveSections();
   }
 
-  removeLessonQuick(section: string, subSection: string | null, lessonName: string): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer la leçon "${lessonName}" ?`)) {
-      if (subSection) {
-        if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
-          this.lessonsInSubSections[section][subSection] = this.lessonsInSubSections[section][subSection].filter(l => l.name !== lessonName);
-        }
-      } else {
-        if (this.lessons[section]) {
-          this.lessons[section] = this.lessons[section].filter(l => l.name !== lessonName);
-        }
+  async removeLessonQuick(section: string, subSection: string | null, lessonName: string): Promise<void> {
+    const confirmed = await this.openConfirmDialog({
+      title: 'Supprimer la leçon',
+      message: `Êtes-vous sûr de vouloir supprimer la leçon "${lessonName}" ?`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler'
+    });
+    if (!confirmed) return;
+
+    if (subSection) {
+      if (this.lessonsInSubSections[section] && this.lessonsInSubSections[section][subSection]) {
+        this.lessonsInSubSections[section][subSection] = this.lessonsInSubSections[section][subSection].filter(l => l.name !== lessonName);
       }
-      this.saveSections();
+    } else {
+      if (this.lessons[section]) {
+        this.lessons[section] = this.lessons[section].filter(l => l.name !== lessonName);
+      }
     }
+    this.saveSections();
   }
 
   // Открыть модалку для добавления домашнего задания
