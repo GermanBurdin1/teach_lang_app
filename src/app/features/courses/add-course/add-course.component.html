@@ -530,12 +530,6 @@
                 Sous-section
               </button>
               <button
-                class="btn btn-link btn-sm btn-lesson"
-                (click)="addLesson(section)">
-                <i class="fas fa-plus"></i>
-                Leçon
-              </button>
-              <button
                 class="btn btn-danger btn-sm btn-delete"
                 (click)="removeSection(section)"
                 title="Supprimer la section">
@@ -750,6 +744,19 @@
           <!-- Lessons (not in sub-sections) -->
           <div class="lessons-container"
                [class.has-lessons]="getLessonsInSection(section).length > 0">
+            <div class="lessons-section-header">
+              <div class="lessons-section-title">
+                <i class="fas fa-graduation-cap"></i>
+                Leçons de la section (hors sous-section)
+              </div>
+              <button
+                class="btn btn-link btn-sm btn-lesson"
+                (click)="addLesson(section)"
+                title="Ajouter une leçon à la section">
+                <i class="fas fa-plus"></i>
+                Ajouter une leçon
+              </button>
+            </div>
             <div class="lessons-list-section"
                  cdkDropList
                  [id]="'section-' + section"
