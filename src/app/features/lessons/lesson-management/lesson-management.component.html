@@ -21,6 +21,16 @@
             </mat-button-toggle-group>
 
             <mat-form-field appearance="fill" class="filter-item">
+              <mat-label>📚 Cours</mat-label>
+              <mat-select [(ngModel)]="selectedCourse" (selectionChange)="onCourseSelected($event.value)">
+                <mat-option [value]="null">Tous les cours</mat-option>
+                <mat-option *ngFor="let course of courses" [value]="course.id">
+                  {{ course.title }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="filter-item">
               <mat-label>👨‍🏫 Professeur</mat-label>
               <mat-select [(ngModel)]="selectedTeacher">
                 <mat-option value="">Tous les professeurs</mat-option>
@@ -53,13 +63,26 @@
               <mat-card-title>
                 <div class="lesson-card-header">
                   <mat-icon class="lesson-icon">school</mat-icon>
-                  <span class="lesson-title">Cours avec {{ lesson.teacherName || 'Professeur' }}</span>
+                  <span class="lesson-title">
+                    <span *ngIf="lesson.isFromCourse && lesson.courseTitle">{{ lesson.courseTitle }} - </span>
+                    {{ lesson.lessonName || ('Cours avec ' + (lesson.teacherName || 'Professeur')) }}
+                  </span>
                   <span class="status-badge" [ngClass]="getStatusClass(lesson.status)">
                     {{ getStatusText(lesson.status) }}
                   </span>
                 </div>
               </mat-card-title>
               <mat-card-subtitle>
+                <div *ngIf="lesson.isFromCourse && (lesson.section || lesson.subSection)" class="lesson-course-info">
+                  <span *ngIf="lesson.section">📁 Section: {{ lesson.section }}</span>
+                  <span *ngIf="lesson.subSection"> - Sous-section: {{ lesson.subSection }}</span>
+                </div>
+                <div *ngIf="lesson.description" class="lesson-description-short">
+                  {{ lesson.description }}
+                </div>
+                <div *ngIf="lesson.plannedDurationMinutes" class="lesson-duration-info">
+                  ⏱️ Durée prévue: {{ lesson.plannedDurationMinutes }} min
+                </div>
                 📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
               </mat-card-subtitle>
             </mat-card-header>
@@ -135,7 +158,18 @@
         <div class="lesson-header mat-elevation-z2">
           <div class="lesson-header-content">
             <div class="lesson-info">
-              <h2>📚 Cours avec {{ currentLesson.teacherName || 'le professeur' }}</h2>
+              <h2>
+                <span *ngIf="currentLesson.isFromCourse && currentLesson.courseTitle">{{ currentLesson.courseTitle }} - </span>
+                {{ currentLesson.lessonName || ('📚 Cours avec ' + (currentLesson.teacherName || 'le professeur')) }}
+              </h2>
+              <div *ngIf="currentLesson.isFromCourse && (currentLesson.section || currentLesson.subSection)" class="lesson-course-details">
+                <p *ngIf="currentLesson.section"><strong>📁 Section:</strong> {{ currentLesson.section }}</p>
+                <p *ngIf="currentLesson.subSection"><strong>📂 Sous-section:</strong> {{ currentLesson.subSection }}</p>
+              </div>
+              <p *ngIf="currentLesson.description" class="lesson-description-full">{{ currentLesson.description }}</p>
+              <p *ngIf="currentLesson.plannedDurationMinutes" class="lesson-duration-full">
+                ⏱️ <strong>Durée prévue:</strong> {{ currentLesson.plannedDurationMinutes }} min
+              </p>
               <p>📅 {{ currentLesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
               <div class="status-container">
                 <span class="status-label">📊 Statut:</span>

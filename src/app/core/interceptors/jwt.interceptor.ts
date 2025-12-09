@@ -48,6 +48,15 @@ export class JwtInterceptor implements HttpInterceptor {
 
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
+        // Подавляем логирование 404 для эндпоинта /courses/{id}/lessons, так как это ожидаемое поведение
+        // (эндпоинт может не существовать, и мы используем fallback)
+        const isCourseLessonsEndpoint = /\/courses\/\d+\/lessons$/.test(req.url);
+        if (error.status === 404 && isCourseLessonsEndpoint) {
+          // Не логируем ошибку для этого эндпоинта, просто пробрасываем дальше
+          // Сервис обработает её и вернет пустой массив
+          return throwError(() => error);
+        }
+        
         console.log('[JwtInterceptor] Request failed:', {
           url: req.url,
           status: error.status,

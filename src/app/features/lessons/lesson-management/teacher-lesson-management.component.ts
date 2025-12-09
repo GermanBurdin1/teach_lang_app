@@ -3,11 +3,13 @@ import { HomeworkService } from '../../../services/homework.service';
 import { LessonService } from '../../../services/lesson.service';
 import { AuthService } from '../../../services/auth.service';
 import { MaterialService } from '../../../services/material.service';
+import { CourseService, Course } from '../../../services/course.service';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call.service';
 import { LessonNotesService, LessonNote, LessonNotesData } from '../../../services/lesson-notes.service';
 import { Subscription } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { LessonTabsService } from '../../../services/lesson-tabs.service';
 import { API_ENDPOINTS } from '../../../core/constants/api.constants';
 
@@ -88,6 +90,15 @@ interface Lesson {
   tasks: Task[];
   questions: Question[];
   materials: Material[];
+  // Дополнительные поля для уроков из курса
+  courseId?: number;
+  courseTitle?: string;
+  section?: string;
+  subSection?: string;
+  lessonName?: string;
+  plannedDurationMinutes?: number | null;
+  description?: string | null;
+  isFromCourse?: boolean;
 }
 
 @Component({
@@ -99,6 +110,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   // UI состояние
   filter: string = 'future';
   selectedStudent: string | null = null;
+  selectedCourse: number | null = null;
   highlightedLessonId: string | null = null;
   activePanel: 'cours' | 'settings' | 'stats' = 'cours';
   hideTabs = true;
@@ -110,6 +122,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
 
   // Данные
   lessons: Lesson[] = [];
+  courseLessons: Lesson[] = []; // Уроки из курсов
+  courses: Course[] = [];
   currentLesson: Lesson | null = null;
   
   // Формы для добавления
@@ -145,6 +159,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     private lessonService: LessonService,
     private authService: AuthService,
     private materialService: MaterialService,
+    private courseService: CourseService,
     private route: ActivatedRoute,
     private router: Router,
     private videoCallService: VideoCallService,
@@ -166,6 +181,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     });
     
     this.loadTeacherLessons();
+    this.loadCourses();
 
     // Если есть выделенный урок из URL, загружаем его
     if (this.highlightedLessonIdFromUrl) {
@@ -211,6 +227,187 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
+
+  // Загрузка курсов
+  loadCourses(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.id) return;
+
+    this.courseService.getCoursesByTeacher().subscribe({
+      next: (courses) => {
+        this.courses = courses;
+        console.log('📚 [Teacher] Загружены курсы:', courses);
+      },
+      error: (error) => {
+        console.error('❌ [Teacher] Ошибка загрузки курсов:', error);
+      }
+    });
+  }
+
+  // Загрузка уроков из курса
+  loadCourseLessons(courseId: number): void {
+    if (!courseId) {
+      this.courseLessons = [];
+      return;
+    }
+
+    this.loading = true;
+    
+    // Загружаем полную информацию о курсе
+    this.courseService.getCourseById(courseId).subscribe({
+      next: (course) => {
+        console.log('📚 [Teacher] Загружен курс:', course);
+        
+        // Эндпоинт /courses/{id}/lessons не существует на бэкенде (возвращает 404)
+        // Поэтому сразу используем fallback - извлекаем уроки из структуры курса
+        // Это избежит ошибки 404 в консоли API Gateway
+        console.log('ℹ️ [Teacher] Извлекаем уроки из структуры курса');
+        this.extractLessonsFromCourseStructure(course, courseId);
+        
+        // Загружаем задачи и вопросы для уроков из курса
+        this.loadTasksAndQuestionsForCourseLessons();
+        
+        this.loading = false;
+        console.log('📚 [Teacher] Уроки из курса обработаны:', this.courseLessons.length);
+        console.log('📚 [Teacher] Детали уроков:', this.courseLessons.map(l => ({
+          id: l.id,
+          lessonName: l.lessonName,
+          section: l.section,
+          subSection: l.subSection,
+          isFromCourse: l.isFromCourse
+        })));
+      },
+      error: (error) => {
+        console.error('❌ [Teacher] Ошибка загрузки курса:', error);
+        this.loading = false;
+      }
+    });
+  }
+
+  // Извлечение уроков из структуры курса (fallback)
+  extractLessonsFromCourseStructure(course: Course, courseId: number): void {
+    this.courseLessons = [];
+    console.log('📚 [Teacher] Извлечение уроков из структуры курса:', { courseId, course });
+    
+    // Обрабатываем уроки на уровне секций
+    if (course.lessons) {
+      Object.keys(course.lessons).forEach(section => {
+        course.lessons![section].forEach(lessonObj => {
+          if (lessonObj.type === 'call') {
+            console.log('📝 [Teacher] Найден call lesson в секции:', { section, lesson: lessonObj });
+              // Устанавливаем дату в будущем для уроков из курса, чтобы они проходили фильтр "À venir"
+              const futureDate = new Date();
+              futureDate.setFullYear(futureDate.getFullYear() + 1);
+              
+              const lesson: Lesson = {
+                id: `course-${courseId}-${section}-${lessonObj.name}`,
+                teacherId: course.teacherId,
+                studentId: '',
+                scheduledAt: futureDate,
+                status: 'planned',
+                studentName: '',
+                tasks: [],
+                questions: [],
+                materials: [],
+                courseId: courseId,
+                courseTitle: course.title,
+                section: section,
+                subSection: undefined,
+                lessonName: lessonObj.name,
+                plannedDurationMinutes: (lessonObj as any).plannedDurationMinutes || null,
+                description: lessonObj.description || null,
+                isFromCourse: true
+              };
+            this.courseLessons.push(lesson);
+            console.log('✅ [Teacher] Добавлен урок из секции:', lesson);
+          }
+        });
+      });
+    }
+    
+    // Обрабатываем уроки в подсекциях
+    if (course.lessonsInSubSections) {
+      Object.keys(course.lessonsInSubSections).forEach(section => {
+        Object.keys(course.lessonsInSubSections![section]).forEach(subSection => {
+          course.lessonsInSubSections![section][subSection].forEach(lessonObj => {
+            if (lessonObj.type === 'call') {
+              console.log('📝 [Teacher] Найден call lesson в подсекции:', { section, subSection, lesson: lessonObj });
+              // Устанавливаем дату в будущем для уроков из курса, чтобы они проходили фильтр "À venir"
+              const futureDate = new Date();
+              futureDate.setFullYear(futureDate.getFullYear() + 1);
+              
+              const lesson: Lesson = {
+                id: `course-${courseId}-${section}-${subSection}-${lessonObj.name}`,
+                teacherId: course.teacherId,
+                studentId: '',
+                scheduledAt: futureDate,
+                status: 'planned',
+                studentName: '',
+                tasks: [],
+                questions: [],
+                materials: [],
+                courseId: courseId,
+                courseTitle: course.title,
+                section: section,
+                subSection: subSection,
+                lessonName: lessonObj.name,
+                plannedDurationMinutes: (lessonObj as any).plannedDurationMinutes || null,
+                description: lessonObj.description || null,
+                isFromCourse: true
+              };
+              this.courseLessons.push(lesson);
+              console.log('✅ [Teacher] Добавлен урок из подсекции:', lesson);
+            }
+          });
+        });
+      });
+    }
+    
+    console.log('📚 [Teacher] Всего уроков извлечено из структуры курса:', this.courseLessons.length);
+  }
+
+  // Загрузка задач и вопросов для уроков из курса
+  loadTasksAndQuestionsForCourseLessons(): void {
+    if (this.courseLessons.length === 0) {
+      return;
+    }
+
+    const loadPromises = this.courseLessons.map(lesson => {
+      if (!lesson.id || lesson.id.startsWith('course-')) {
+        // Для уроков из курса без реального lessonId пропускаем загрузку
+        return Promise.resolve();
+      }
+      
+      return Promise.all([
+        this.lessonService.getTasksForLesson(lesson.id).toPromise().catch(() => []),
+        this.lessonService.getQuestionsForLesson(lesson.id).toPromise().catch(() => []),
+        this.getMaterialsForLesson(lesson.id).catch(() => [])
+      ]).then(([tasks, questions, materials]) => {
+        lesson.tasks = (tasks || []) as Task[];
+        lesson.questions = (questions || []) as Question[];
+        lesson.materials = materials || [];
+      });
+    });
+
+    Promise.all(loadPromises).then(() => {
+      console.log('📚 [Teacher] Задачи, вопросы и материалы загружены для уроков из курса');
+    }).catch(error => {
+      console.error('❌ [Teacher] Ошибка загрузки задач, вопросов и материалов для уроков из курса:', error);
+    });
+  }
+
+  // Обработка выбора курса
+  onCourseSelected(courseId: number | null): void {
+    console.log('📚 [Teacher] Выбран курс:', courseId);
+    this.selectedCourse = courseId;
+    if (courseId) {
+      this.loadCourseLessons(courseId);
+    } else {
+      console.log('📚 [Teacher] Курс не выбран, очищаем список уроков курса');
+      this.courseLessons = [];
+    }
+    this.currentPage = 1; // Сброс на первую страницу
   }
 
   // Загрузка уроков преподавателя
@@ -273,11 +470,12 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   loadLesson(lessonId: string): void {
     this.loading = true;
     
-    // Сначала пытаемся найти урок в уже загруженном списке
-    const lessonInList = this.lessons.find(l => l.id === lessonId);
+    // Сначала пытаемся найти урок в уже загруженном списке (обычные уроки или из курса)
+    const allLessons = [...this.lessons, ...this.courseLessons];
+    const lessonInList = allLessons.find(l => l.id === lessonId);
     
     if (lessonInList) {
-      // Если урок найден в списке, используем его (там уже есть studentName)
+      // Если урок найден в списке, используем его
       this.currentLesson = { ...lessonInList };
       this.highlightedLessonId = lessonId;
       
@@ -451,10 +649,47 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     return allFiltered.slice(startIndex, endIndex);
   }
 
+  // Получить все уроки (обычные + из курса)
+  getAllLessons(): Lesson[] {
+    if (this.selectedCourse) {
+      // Если выбран курс, показываем только уроки из этого курса
+      console.log('📚 [Teacher] Выбран курс, показываем уроки из курса:', this.courseLessons.length);
+      console.log('📚 [Teacher] Детали уроков из курса:', this.courseLessons.map(l => ({
+        id: l.id,
+        lessonName: l.lessonName,
+        section: l.section,
+        subSection: l.subSection,
+        scheduledAt: l.scheduledAt,
+        isFromCourse: l.isFromCourse
+      })));
+      return this.courseLessons;
+    }
+    // Иначе показываем обычные уроки
+    console.log('📚 [Teacher] Курс не выбран, показываем обычные уроки:', this.lessons.length);
+    return this.lessons;
+  }
+
   get fullFilteredLessons() {
-    //console.log(`📊 Teacher: Применяем фильтр "${this.filter}" к ${this.lessons.length} урокам`);
+    // Получаем все уроки (обычные или из курса)
+    const allLessons = this.getAllLessons();
+    console.log('📚 [Teacher] Всего уроков для фильтрации:', allLessons.length);
     
-    const result = this.lessons.filter(lesson => this.matchesCurrentFilter(lesson));
+    const result = allLessons.filter(lesson => {
+      const matches = this.matchesCurrentFilter(lesson);
+      if (!matches && lesson.isFromCourse) {
+        console.log('❌ [Teacher] Урок из курса не прошел фильтр:', {
+          id: lesson.id,
+          lessonName: lesson.lessonName,
+          filter: this.filter,
+          scheduledAt: lesson.scheduledAt,
+          selectedStudent: this.selectedStudent,
+          searchTerm: this.searchTerm
+        });
+      }
+      return matches;
+    });
+    
+    console.log('📚 [Teacher] После фильтрации осталось уроков:', result.length);
     
     // console.log(`📊 Teacher: После фильтрации: ${result.length} уроков`, result.map(l => ({
     //   id: l.id, 
@@ -499,38 +734,45 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
     const now = new Date();
     const lessonDate = new Date(lesson.scheduledAt);
     
-    // Фильтр по времени
-    if (this.filter === 'future') {
-      // À venir: ТОЛЬКО предстоящие уроки по времени
-      const isFutureTime = lessonDate > now;
-      
-      // console.log(`🔍 Teacher Фильтр Future для урока ${lesson.id}:`, {
-      //   lessonDate: lessonDate.toISOString(),
-      //   now: now.toISOString(), 
-      //   status: lesson.status,
-      //   isFutureTime,
-      //   studentName: lesson.studentName
-      // });
-      
-      if (!isFutureTime) return false;
-    } else if (this.filter === 'past') {
-      // Passés: ТОЛЬКО прошедшие по времени
-      const isPastTime = lessonDate <= now;
-      
-      console.log(`🕐 Teacher Фильтр Past для урока ${lesson.id}:`, {
-        lessonDate: lessonDate.toISOString(),
-        now: now.toISOString(),
-        status: lesson.status,
-        isPastTime,
-        studentName: lesson.studentName
-      });
-      
-      if (!isPastTime) return false;
+    // Для уроков из курса всегда показываем их (они запланированы, но без конкретной даты)
+    if (lesson.isFromCourse) {
+      // Уроки из курса показываем всегда, независимо от фильтра по времени
+      // Но применяем другие фильтры (по студенту, дате, поиску)
+    } else {
+      // Для обычных уроков применяем фильтр по времени
+      // Фильтр по времени
+      if (this.filter === 'future') {
+        // À venir: ТОЛЬКО предстоящие уроки по времени
+        const isFutureTime = lessonDate > now;
+        
+        // console.log(`🔍 Teacher Фильтр Future для урока ${lesson.id}:`, {
+        //   lessonDate: lessonDate.toISOString(),
+        //   now: now.toISOString(), 
+        //   status: lesson.status,
+        //   isFutureTime,
+        //   studentName: lesson.studentName
+        // });
+        
+        if (!isFutureTime) return false;
+      } else if (this.filter === 'past') {
+        // Passés: ТОЛЬКО прошедшие по времени
+        const isPastTime = lessonDate <= now;
+        
+        console.log(`🕐 Teacher Фильтр Past для урока ${lesson.id}:`, {
+          lessonDate: lessonDate.toISOString(),
+          now: now.toISOString(),
+          status: lesson.status,
+          isPastTime,
+          studentName: lesson.studentName
+        });
+        
+        if (!isPastTime) return false;
+      }
+      // 'all' - показываем все (предстоящие, прошедшие, отмененные, ожидающие подтверждения)
     }
-    // 'all' - показываем все (предстоящие, прошедшие, отмененные, ожидающие подтверждения)
 
-    // Фильтр по студенту
-    if (this.selectedStudent && lesson.studentName !== this.selectedStudent) {
+    // Фильтр по студенту (не применяется к урокам из курса, так как у них нет studentName)
+    if (this.selectedStudent && !lesson.isFromCourse && lesson.studentName !== this.selectedStudent) {
       return false;
     }
 
@@ -558,7 +800,16 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
         question.question.toLowerCase().includes(searchLower)
       );
       
-      if (!hasMatchInTasks && !hasMatchInQuestions) return false;
+      // Для уроков из курса также проверяем название урока, описание, секцию и подсекцию
+      const hasMatchInCourseLesson = lesson.isFromCourse && (
+        (lesson.lessonName && lesson.lessonName.toLowerCase().includes(searchLower)) ||
+        (lesson.description && lesson.description.toLowerCase().includes(searchLower)) ||
+        (lesson.section && lesson.section.toLowerCase().includes(searchLower)) ||
+        (lesson.subSection && lesson.subSection.toLowerCase().includes(searchLower)) ||
+        (lesson.courseTitle && lesson.courseTitle.toLowerCase().includes(searchLower))
+      );
+      
+      if (!hasMatchInTasks && !hasMatchInQuestions && !hasMatchInCourseLesson) return false;
     }
 
     return true;

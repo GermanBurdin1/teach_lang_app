@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../core/constants/api.constants';
 
 export interface Course {
@@ -78,6 +79,21 @@ export class CourseService {
       plannedDurationMinutes,
       description: description || null
     });
+  }
+
+  getCourseLessons(courseId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${courseId}/lessons`).pipe(
+      catchError((error) => {
+        // Если эндпоинт не существует (404), возвращаем пустой массив без ошибки
+        if (error.status === 404) {
+          // Не логируем ошибку, просто возвращаем пустой массив
+          return of([]);
+        }
+        // Для других ошибок также возвращаем пустой массив
+        console.warn('⚠️ [CourseService] Ошибка загрузки уроков курса:', error.status);
+        return of([]);
+      })
+    );
   }
 }
 
