@@ -372,6 +372,7 @@
   border-left: 4px solid var(--galaxy-primary);
   padding: 0.75rem;
   border-radius: 8px;
+  position: relative;
 }
 
 .tree-subsection {

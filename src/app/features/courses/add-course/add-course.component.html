@@ -224,9 +224,15 @@
           <!-- Quick Structure Editor -->
           <div *ngIf="showQuickStructureEditor" class="quick-structure-editor">
             <h3><i class="fas fa-sitemap"></i> Structure du cours</h3>
-            <div class="structure-tree">
-              <div *ngFor="let section of sections; let sectionIndex = index" class="tree-node tree-section">
+            <div class="structure-tree"
+                 cdkDropList
+                 [cdkDropListData]="sections"
+                 (cdkDropListDropped)="dropSectionQuick($event)">
+              <div *ngFor="let section of sections; let sectionIndex = index"
+                   class="tree-node tree-section"
+                   cdkDrag>
                 <div class="tree-node-header">
+                  <span class="tree-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
                   <i class="fas fa-folder tree-icon"></i>
                   <span class="tree-label">{{ section }}</span>
                   <div class="tree-actions">
