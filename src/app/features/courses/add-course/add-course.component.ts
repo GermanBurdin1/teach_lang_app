@@ -343,6 +343,24 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
   }
 
+  toggleMaterialsSection(): void {
+    const nextState = !this.isMaterialsSectionExpanded;
+    console.log('[materials-section] toggle click', {
+      prev: this.isMaterialsSectionExpanded,
+      next: nextState
+    });
+    this.isMaterialsSectionExpanded = nextState;
+    this.cdr.detectChanges();
+  }
+
+  get materialsChevronIcon(): string {
+    return this.isMaterialsSectionExpanded ? 'fa-chevron-up' : 'fa-chevron-down';
+  }
+
+  get materialsChevronTitle(): string {
+    return this.isMaterialsSectionExpanded ? 'Réduire le contenu' : 'Développer le contenu';
+  }
+
   toggleSection(section: string): void {
     if (this.collapsedSections.has(section)) {
       // Секция была свернута, разворачиваем её
