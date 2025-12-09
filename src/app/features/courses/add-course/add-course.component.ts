@@ -1837,6 +1837,36 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.saveSections();
   }
 
+  // Перемещение уроков внутри подсекции (structure-tree)
+  dropLessonQuickInSubSection(event: CdkDragDrop<any[]>, section: string, subSection: string): void {
+    if (event.previousContainer !== event.container) {
+      // В быстром редакторе поддерживаем только перестановку внутри одной подсекции
+      return;
+    }
+
+    const lessons = this.getLessonsInSubSection(section, subSection);
+    moveItemInArray(lessons, event.previousIndex, event.currentIndex);
+
+    if (!this.lessonsInSubSections[section]) {
+      this.lessonsInSubSections[section] = {};
+    }
+    this.lessonsInSubSections[section][subSection] = [...lessons];
+    this.saveSections();
+  }
+
+  // Перемещение уроков внутри секции (structure-tree)
+  dropLessonQuickInSection(event: CdkDragDrop<any[]>, section: string): void {
+    if (event.previousContainer !== event.container) {
+      // В быстром редакторе поддерживаем только перестановку внутри секции
+      return;
+    }
+
+    const lessons = this.getLessonsInSection(section);
+    moveItemInArray(lessons, event.previousIndex, event.currentIndex);
+    this.lessons[section] = [...lessons];
+    this.saveSections();
+  }
+
   // Перемещение секций целиком (structure-tree)
   dropSectionQuick(event: CdkDragDrop<string[]>): void {
     moveItemInArray(this.sections, event.previousIndex, event.currentIndex);

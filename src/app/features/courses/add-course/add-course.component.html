@@ -10,7 +10,7 @@
 
   <!-- Add Course Button (if no course) -->
   <div *ngIf="!courseId && !showCreateCourseForm" class="add-course-button-section">
-    <button 
+    <button
       class="btn btn-primary btn-lg add-course-btn"
       (click)="showCreateCourseForm = true">
       <i class="fas fa-plus"></i>
@@ -25,11 +25,11 @@
         <i class="fas fa-info-circle"></i>
         Informations du cours
       </h2>
-      
+
       <div class="form-group">
         <label>Titre du cours *</label>
-        <input 
-          type="text" 
+        <input
+          type="text"
           [(ngModel)]="courseTitle"
           placeholder="Ex: Cours DELF B1"
           class="form-control">
@@ -37,7 +37,7 @@
 
       <div class="form-group">
         <label>Description</label>
-        <textarea 
+        <textarea
           [(ngModel)]="courseDescription"
           (ngModelChange)="markAsChanged()"
           placeholder="Description du cours..."
@@ -69,8 +69,8 @@
             </button>
           </div>
           <div *ngIf="!coverImage" class="cover-image-upload">
-            <input 
-              type="file" 
+            <input
+              type="file"
               id="coverImageInput"
               accept="image/*"
               (change)="onCoverImageSelected($event)"
@@ -80,7 +80,7 @@
               <span>Choisir une image de couverture</span>
             </label>
           </div>
-          <button 
+          <button
             *ngIf="coverImageFile && courseId"
             type="button"
             class="btn btn-sm btn-primary mt-2"
@@ -100,14 +100,14 @@
       </div>
 
       <div class="form-actions">
-        <button 
+        <button
           class="btn btn-primary btn-lg"
           (click)="createCourse()"
           [disabled]="!courseTitle.trim()">
           <i class="fas fa-check"></i>
           Créer le cours
         </button>
-        <button 
+        <button
           class="btn btn-secondary btn-lg"
           (click)="showCreateCourseForm = false; courseTitle = ''; courseDescription = ''; courseLevel = ''; isPublished = false;">
           Annuler
@@ -118,7 +118,7 @@
 
   <!-- Add Another Course Button (outside course card) -->
   <div *ngIf="courseId" class="add-another-course-section">
-    <button 
+    <button
       class="btn btn-secondary btn-lg"
       (click)="showCreateCourseForm = true; isCourseCardExpanded = false">
       <i class="fas fa-plus"></i>
@@ -147,7 +147,7 @@
               </p>
             </div>
             <div *ngIf="isEditingDescription" class="course-description-edit">
-              <textarea 
+              <textarea
                 [(ngModel)]="courseDescription"
                 (blur)="saveDescription()"
                 (keydown.escape)="cancelEditDescription()"
@@ -178,7 +178,7 @@
           </div>
         </div>
         <div class="course-actions-header" (click)="$event.stopPropagation()">
-          <button 
+          <button
             *ngIf="hasUnsavedChanges"
             class="btn btn-success btn-icon"
             (click)="updateCourse()"
@@ -186,20 +186,20 @@
             title="Enregistrer les modifications">
             <i class="fas fa-save"></i>
           </button>
-          <button 
+          <button
             class="btn btn-secondary btn-icon"
             (click)="showCreateCourseForm = !showCreateCourseForm"
             title="Modifier les informations du cours">
             <i class="fas fa-edit"></i>
           </button>
-          <button 
+          <button
             class="btn btn-danger btn-icon"
             (click)="deleteCourse()"
             title="Supprimer le cours">
             <i class="fas fa-trash"></i>
           </button>
-          <i class="fas expand-icon" 
-             [class.fa-chevron-down]="!isCourseCardExpanded" 
+          <i class="fas expand-icon"
+             [class.fa-chevron-down]="!isCourseCardExpanded"
              [class.fa-chevron-up]="isCourseCardExpanded"></i>
         </div>
       </div>
@@ -213,7 +213,7 @@
         <div class="course-edit-section">
           <!-- Quick Structure Editor Toggle -->
           <div class="quick-structure-toggle">
-            <button 
+            <button
               class="btn btn-primary"
               (click)="showQuickStructureEditor = !showQuickStructureEditor">
               <i class="fas" [class.fa-sitemap]="!showQuickStructureEditor" [class.fa-times]="showQuickStructureEditor"></i>
@@ -250,7 +250,7 @@
                     </button>
                   </div>
                 </div>
-                
+
                 <!-- Sub-sections -->
                 <div *ngIf="subSections[section] && subSections[section].length > 0"
                      class="tree-children"
@@ -274,11 +274,17 @@
                         </button>
                       </div>
                     </div>
-                    
+
                     <!-- Lessons in sub-section -->
-                    <div *ngIf="lessonsInSubSections[section] && lessonsInSubSections[section][subSection]" class="tree-children">
-                      <div *ngFor="let lesson of lessonsInSubSections[section][subSection]" class="tree-node tree-lesson">
+                    <div *ngIf="lessonsInSubSections[section] && lessonsInSubSections[section][subSection]"
+                         class="tree-children"
+                         cdkDropList
+                         [id]="'quick-subsection-' + section + '-' + subSection"
+                         [cdkDropListData]="lessonsInSubSections[section][subSection]"
+                         (cdkDropListDropped)="dropLessonQuickInSubSection($event, section, subSection)">
+                      <div *ngFor="let lesson of lessonsInSubSections[section][subSection]" class="tree-node tree-lesson" cdkDrag>
                         <div class="tree-node-header">
+                          <span class="tree-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
                           <i class="fas fa-graduation-cap tree-icon" [class.icon-self]="lesson.type === 'self'" [class.icon-call]="lesson.type === 'call'"></i>
                           <span class="tree-label">{{ lesson.name }}</span>
                           <span *ngIf="lesson.description" class="tree-description">{{ lesson.description }}</span>
@@ -291,15 +297,22 @@
                             </button>
                           </div>
                         </div>
+                        <div *cdkDragPlaceholder class="tree-node tree-lesson tree-lesson-placeholder"></div>
                       </div>
                     </div>
                   </div>
                 </div>
-                
+
                 <!-- Lessons in section (not in sub-sections) -->
-                <div *ngIf="getLessonsInSection(section).length > 0" class="tree-children">
-                  <div *ngFor="let lesson of getLessonsInSection(section)" class="tree-node tree-lesson">
+                <div *ngIf="getLessonsInSection(section).length > 0"
+                     class="tree-children"
+                     cdkDropList
+                     [id]="'quick-section-' + section"
+                     [cdkDropListData]="getLessonsInSection(section)"
+                     (cdkDropListDropped)="dropLessonQuickInSection($event, section)">
+                  <div *ngFor="let lesson of getLessonsInSection(section)" class="tree-node tree-lesson" cdkDrag>
                     <div class="tree-node-header">
+                      <span class="tree-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
                       <i class="fas fa-graduation-cap tree-icon" [class.icon-self]="lesson.type === 'self'" [class.icon-call]="lesson.type === 'call'"></i>
                       <span class="tree-label">{{ lesson.name }}</span>
                       <span *ngIf="lesson.description" class="tree-description">{{ lesson.description }}</span>
@@ -312,10 +325,11 @@
                         </button>
                       </div>
                     </div>
+                    <div *cdkDragPlaceholder class="tree-node tree-lesson tree-lesson-placeholder"></div>
                   </div>
                 </div>
               </div>
-              
+
               <!-- Add Section Button -->
               <div class="tree-add-section" *ngIf="sections.length === 0">
                 <p class="text-muted">Aucune section créée</p>
@@ -331,8 +345,8 @@
           <div *ngIf="showCreateCourseForm" class="course-edit-form">
           <div class="form-group">
             <label>Titre du cours *</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               [(ngModel)]="courseTitle"
               (ngModelChange)="markAsChanged()"
               placeholder="Ex: Cours DELF B1"
@@ -341,7 +355,7 @@
 
           <div class="form-group">
             <label>Description</label>
-            <textarea 
+            <textarea
               [(ngModel)]="courseDescription"
               (ngModelChange)="markAsChanged()"
               placeholder="Description du cours..."
@@ -373,8 +387,8 @@
                 </button>
               </div>
               <div *ngIf="!coverImage" class="cover-image-upload">
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   id="coverImageInput"
                   accept="image/*"
                   (change)="onCoverImageSelected($event)"
@@ -384,7 +398,7 @@
                   <span>Choisir une image de couverture</span>
                 </label>
               </div>
-              <button 
+              <button
                 *ngIf="coverImageFile"
                 type="button"
                 class="btn btn-sm btn-primary mt-2"
@@ -412,8 +426,8 @@
             <i class="fas fa-folder-open"></i>
             Contenu du cours
           </h2>
-          <i class="fas expand-icon" 
-             [class.fa-chevron-down]="!isMaterialsSectionExpanded" 
+          <i class="fas expand-icon"
+             [class.fa-chevron-down]="!isMaterialsSectionExpanded"
              [class.fa-chevron-up]="isMaterialsSectionExpanded"></i>
         </div>
 
@@ -442,7 +456,7 @@
             <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
           </div>
           <div class="material-actions">
-            <button 
+            <button
               class="btn btn-sm btn-danger"
               (click)="deleteMaterial(material)"
               title="Supprimer">
@@ -460,7 +474,7 @@
           <i class="fas fa-list"></i>
           Sections du cours
         </h3>
-        <button 
+        <button
           class="btn btn-primary btn-lg add-section-btn"
           (click)="showAddSectionDropdown = !showAddSectionDropdown">
           <i class="fas fa-plus-circle"></i>
@@ -475,23 +489,23 @@
           <option *ngFor="let option of sectionsOptions" [value]="option">{{ option }}</option>
         </select>
       </div>
-      
+
       <div class="add-section-controls" *ngIf="sections.length > 0">
 
         <!-- Display sections -->
-        <div *ngFor="let section of sections; let i = index" class="section-item" 
-             [attr.data-section-index]="i" 
+        <div *ngFor="let section of sections; let i = index" class="section-item"
+             [attr.data-section-index]="i"
              (mouseover)="hoveredSection = section"
              (mouseleave)="hoveredSection = null">
           <div class="section-item-header">
             <div class="section-name-wrapper">
-              <button 
+              <button
                 class="btn btn-link section-toggle-btn"
                 (click)="toggleSection(section)"
                 *ngIf="getMaterialsBySection(section).length > 0"
                 title="Afficher/Masquer les matériaux">
-                <i class="fas" 
-                   [class.fa-chevron-down]="!isSectionExpanded(section)" 
+                <i class="fas"
+                   [class.fa-chevron-down]="!isSectionExpanded(section)"
                    [class.fa-chevron-up]="isSectionExpanded(section)"></i>
               </button>
               <span class="fw-bold section-name">{{ section }}</span>
@@ -500,20 +514,20 @@
               </span>
             </div>
             <div class="section-actions">
-              <button 
+              <button
                 class="btn btn-link btn-sm btn-subsection"
                 (click)="addSubSection(section)"
                 title="Ajouter une sous-section">
                 <i class="fas fa-plus-circle"></i>
                 Sous-section
               </button>
-              <button 
+              <button
                 class="btn btn-link btn-sm btn-lesson"
                 (click)="addLesson(section)">
                 <i class="fas fa-plus"></i>
                 Leçon
               </button>
-              <button 
+              <button
                 class="btn btn-danger btn-sm btn-delete"
                 (click)="removeSection(section)"
                 title="Supprimer la section">
@@ -521,9 +535,9 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Materials in this section (collapsible) -->
-          <div class="section-materials-wrapper" 
+          <div class="section-materials-wrapper"
                [class.expanded]="isSectionExpanded(section)"
                *ngIf="getMaterialsBySection(section).length > 0">
             <div class="section-materials">
@@ -537,7 +551,7 @@
                     <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
                   </div>
                   <div class="material-actions">
-                    <button 
+                    <button
                       class="btn btn-sm btn-danger"
                       (click)="deleteMaterial(material)"
                       title="Supprimer">
@@ -548,11 +562,11 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Add Sub-section Input -->
           <div class="add-subsection-input-container" *ngIf="showAddSubSectionInput[section]">
             <div class="add-subsection-input-wrapper">
-              <input 
+              <input
                 type="text"
                 id="subSectionInput_{{ section }}"
                 [(ngModel)]="newSubSectionName[section]"
@@ -561,13 +575,13 @@
                 placeholder="Nom de la sous-section"
                 class="form-control form-control-sm add-subsection-input">
               <div class="add-subsection-actions">
-                <button 
+                <button
                   class="btn btn-sm btn-success"
                   (click)="confirmAddSubSection(section)"
                   title="Ajouter">
                   <i class="fas fa-check"></i>
                 </button>
-                <button 
+                <button
                   class="btn btn-sm btn-secondary"
                   (click)="cancelAddSubSection(section)"
                   title="Annuler">
@@ -579,7 +593,7 @@
 
           <!-- Sub-sections -->
           <div class="subsections-container" *ngIf="subSections[section] && subSections[section].length > 0">
-            <div *ngFor="let subSection of subSections[section]; let subIndex = index" 
+            <div *ngFor="let subSection of subSections[section]; let subIndex = index"
                  class="subsection-item"
                  [attr.data-subsection-index]="subIndex"
                  (dragover)="onLessonDragOver($event)"
@@ -592,14 +606,14 @@
                   {{ subIndex + 1 }}. {{ subSection }}
                 </span>
                 <div class="subsection-actions">
-                  <button 
+                  <button
                     class="btn btn-link btn-xs btn-lesson-subsection"
                     (click)="addLesson(section, subSection)"
                     title="Ajouter une leçon">
                     <i class="fas fa-plus"></i>
                     Leçon
                   </button>
-                  <button 
+                  <button
                     class="btn btn-xs btn-danger btn-delete-subsection"
                     (click)="removeSubSection(section, subSection)"
                     title="Supprimer la sous-section">
@@ -607,14 +621,14 @@
                   </button>
                 </div>
               </div>
-              
+
               <!-- Lessons in this sub-section -->
-              <div class="lessons-in-subsection" 
+              <div class="lessons-in-subsection"
                    cdkDropList
                    [id]="'subsection-' + section + '-' + subSection"
                    [cdkDropListConnectedTo]="getConnectedListsForSubsection(section, subSection)"
                    (cdkDropListDropped)="dropLessonInSubSection($event, section, subSection)">
-                <div *ngFor="let lessonObj of getLessonsInSubSection(section, subSection); let lessonIndex = index" 
+                <div *ngFor="let lessonObj of getLessonsInSubSection(section, subSection); let lessonIndex = index"
                      class="lesson-item lesson-in-subsection"
                      [class.lesson-type-self]="lessonObj.type === 'self'"
                      [class.lesson-type-call]="lessonObj.type === 'call'"
@@ -637,26 +651,26 @@
                       </div>
                     </div>
                     <div class="lesson-actions" (click)="$event.stopPropagation()">
-                      <button 
+                      <button
                         class="btn btn-link btn-xs btn-preview-lesson"
                         (click)="openLessonPreview(section, lessonObj.name, subSection)"
                         title="Gérer la leçon">
                         <i class="fas fa-cog"></i>
                       </button>
-                      <button 
+                      <button
                         class="btn btn-xs btn-danger btn-delete-lesson"
                         (click)="removeLesson(section, lessonObj.name, subSection)"
                         title="Supprimer la leçon">
                         <i class="fas fa-trash"></i>
                       </button>
-                      <i class="fas expand-icon" 
-                         [class.fa-chevron-down]="!isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)" 
+                      <i class="fas expand-icon"
+                         [class.fa-chevron-down]="!isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)"
                          [class.fa-chevron-up]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)"></i>
                     </div>
                   </div>
-                  
+
                   <!-- Lesson info (materials list, duration) -->
-                  <div class="lesson-info-wrapper" 
+                  <div class="lesson-info-wrapper"
                        [class.expanded]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)">
                     <div class="lesson-info-content">
                       <!-- Список материалов с типом и длительностью -->
@@ -680,7 +694,7 @@
                           </div>
                         </div>
                       </div>
-                      
+
                       <!-- Общие задания для урока типа 'self' в подсекции -->
                       <div class="lesson-homework-for-self" *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
                         <div class="lesson-homework-label">
@@ -691,7 +705,7 @@
                           {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) }} {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}
                         </div>
                       </div>
-                      
+
                       <!-- Информация для урока типа 'call' в подсекции -->
                       <div class="lesson-call-info" *ngIf="lessonObj.type === 'call' && getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
                         <div class="call-info-item">
@@ -699,7 +713,7 @@
                           <span>{{ getHomeworkCountForLesson(lessonObj.name, section, subSection) }} {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}</span>
                         </div>
                       </div>
-                      
+
                       <!-- Пустое состояние -->
                       <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && lessonObj.type !== 'call'">
                         <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
@@ -714,16 +728,16 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Lessons (not in sub-sections) -->
-          <div class="lessons-container" 
+          <div class="lessons-container"
                [class.has-lessons]="getLessonsInSection(section).length > 0">
             <div class="lessons-list-section"
                  cdkDropList
                  [id]="'section-' + section"
                  [cdkDropListConnectedTo]="getConnectedSubsectionLists(section)"
                  (cdkDropListDropped)="dropLessonInSection($event, section)">
-              <div *ngFor="let lessonObj of getLessonsInSection(section); let lessonIndex = index" 
+              <div *ngFor="let lessonObj of getLessonsInSection(section); let lessonIndex = index"
                    class="lesson-item"
                    [class.lesson-type-self]="lessonObj.type === 'self'"
                    [class.lesson-type-call]="lessonObj.type === 'call'"
@@ -747,26 +761,26 @@
                   </div>
                 </div>
                 <div class="lesson-actions" (click)="$event.stopPropagation()">
-                  <button 
+                  <button
                     class="btn btn-link btn-xs btn-preview-lesson"
                     (click)="openLessonPreview(section, lessonObj.name)"
                     title="Gérer la leçon">
                     <i class="fas fa-cog"></i>
                   </button>
-                  <button 
+                  <button
                     class="btn btn-xs btn-danger btn-delete-lesson"
                     (click)="removeLesson(section, lessonObj.name)"
                     title="Supprimer la leçon">
                     <i class="fas fa-trash"></i>
                   </button>
-                  <i class="fas expand-icon" 
-                     [class.fa-chevron-down]="!isLessonExpanded(section + '_' + lessonObj.name)" 
+                  <i class="fas expand-icon"
+                     [class.fa-chevron-down]="!isLessonExpanded(section + '_' + lessonObj.name)"
                      [class.fa-chevron-up]="isLessonExpanded(section + '_' + lessonObj.name)"></i>
                 </div>
               </div>
-              
+
               <!-- Lesson info (materials list, duration) -->
-              <div class="lesson-info-wrapper" 
+              <div class="lesson-info-wrapper"
                    [class.expanded]="isLessonExpanded(section + '_' + lessonObj.name)">
                 <div class="lesson-info-content">
                   <!-- Список материалов с типом и длительностью -->
@@ -790,7 +804,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                       <!-- Общие задания для урока типа 'self' на уровне секции -->
                       <div class="lesson-homework-for-self" *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
                         <div class="lesson-homework-label">
@@ -801,7 +815,7 @@
                           {{ getHomeworkCountForLesson(lessonObj.name, section) }} {{ getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
                         </div>
                       </div>
-                      
+
                       <!-- Информация для урока типа 'call' на уровне секции -->
                       <div class="lesson-call-info" *ngIf="lessonObj.type === 'call' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
                         <div class="call-info-item">
@@ -809,7 +823,7 @@
                           <span>{{ getHomeworkCountForLesson(lessonObj.name, section) }} {{ getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}</span>
                         </div>
                       </div>
-                      
+
                       <!-- Пустое состояние -->
                       <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name).length === 0 && lessonObj.type !== 'call'">
                         <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
@@ -822,7 +836,7 @@
               <div *cdkDragPlaceholder class="lesson-placeholder"></div>
             </div>
           </div>
-          
+
           <div class="section-materials-empty" *ngIf="getMaterialsBySection(section).length === 0 && (!lessons[section] || lessons[section].length === 0)">
             <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette section</p>
           </div>
@@ -845,14 +859,14 @@
 
         <!-- Tabs for new/existing materials -->
         <div class="modal-tabs">
-          <button 
+          <button
             class="tab-btn"
             [class.active]="!showExistingMaterials"
             (click)="showExistingMaterials = false">
             <i class="fas fa-plus"></i>
             Nouveau matériau
           </button>
-          <button 
+          <button
             class="tab-btn"
             [class.active]="showExistingMaterials"
             (click)="toggleExistingMaterials()">
@@ -861,7 +875,7 @@
             <span *ngIf="trainerMaterials.length > 0" class="badge">{{ trainerMaterials.length }}</span>
           </button>
         </div>
-        
+
         <div class="modal-body">
           <!-- Existing Materials List -->
           <div *ngIf="showExistingMaterials" class="existing-materials-list">
@@ -869,14 +883,14 @@
               <i class="fas fa-spinner fa-spin"></i>
               Chargement des matériaux...
             </div>
-            
+
             <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length === 0" class="no-materials-message">
               <p><i class="fas fa-info-circle"></i> Vous n'avez pas encore de matériaux dans Entraînement.</p>
               <p>Créez d'abord des matériaux dans la section Entraînement.</p>
             </div>
 
             <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length > 0" class="materials-grid-mini">
-              <div 
+              <div
                 *ngFor="let material of trainerMaterials"
                 class="material-card-mini"
                 (click)="addExistingMaterialToCourse(material)">
@@ -909,8 +923,8 @@
           <div *ngIf="!showExistingMaterials">
           <div class="form-group">
             <label>Titre du matériau *</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               [(ngModel)]="newMaterial.title"
               placeholder="Ex: Grammaire - Le subjonctif"
               class="form-control">
@@ -930,13 +944,13 @@
           <!-- File Upload for specific types -->
           <div class="form-group" *ngIf="needsFileUpload()">
             <label>Fichier à télécharger</label>
-            <div class="file-upload-container" 
-                 (dragover)="onDragOver($event)" 
+            <div class="file-upload-container"
+                 (dragover)="onDragOver($event)"
                  (dragleave)="onDragLeave($event)"
                  (drop)="onDrop($event)"
                  [class.drag-over]="isDragOver">
-              <input 
-                type="file" 
+              <input
+                type="file"
                 id="materialFile"
                 (change)="onFileSelected($event)"
                 [accept]="getAcceptedFileTypes()"
@@ -952,7 +966,7 @@
                 </div>
               </label>
             </div>
-            
+
             <!-- File Preview -->
             <div *ngIf="selectedFile && filePreview" class="file-preview">
               <div class="preview-header">
@@ -985,7 +999,7 @@
           <!-- Text content for text type -->
           <div class="form-group" *ngIf="newMaterial.type === 'text'">
             <label>Contenu du texte *</label>
-            <textarea 
+            <textarea
               [(ngModel)]="newMaterial.content"
               placeholder="Saisissez le contenu du texte..."
               class="form-control"
@@ -994,7 +1008,7 @@
 
           <div class="form-group">
             <label>Description</label>
-            <textarea 
+            <textarea
               [(ngModel)]="newMaterial.description"
               placeholder="Description du matériau..."
               class="form-control"
@@ -1003,8 +1017,8 @@
 
           <div class="form-group">
             <label>Tag (optionnel)</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               [(ngModel)]="newMaterial.tag"
               placeholder="Ex: grammaire, vocabulaire..."
               class="form-control">
@@ -1016,7 +1030,7 @@
           <button class="btn btn-secondary" (click)="clearMaterialForm()">
             Annuler
           </button>
-          <button 
+          <button
             *ngIf="!showExistingMaterials"
             class="btn btn-primary"
             (click)="createMaterial()"
