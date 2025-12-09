@@ -85,7 +85,45 @@
                 <div *ngIf="lesson.isFromCourse && lesson.plannedDurationMinutes" class="lesson-duration">
                   ⏱️ <strong>Durée prévue:</strong> {{ lesson.plannedDurationMinutes }} min
                 </div>
-                📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
+                <div class="lesson-date">
+                  <div *ngIf="editingDateForLesson !== lesson.id">
+                    <span *ngIf="lesson.scheduledAt">
+                      📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
+                      <button *ngIf="lesson.isFromCourse" 
+                              mat-icon-button 
+                              (click)="openDatePicker(lesson)"
+                              matTooltip="Modifier la date"
+                              style="padding: 0; width: 24px; height: 24px; margin-left: 8px;">
+                        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">edit</mat-icon>
+                      </button>
+                    </span>
+                    <span *ngIf="!lesson.scheduledAt && lesson.isFromCourse" class="no-date">
+                      📅 Date non définie - 
+                      <button mat-button color="primary" (click)="openDatePicker(lesson)" style="padding: 0; min-width: auto; line-height: 1.2; margin-left: 4px;">
+                        Ajouter une date
+                      </button>
+                    </span>
+                    <span *ngIf="!lesson.scheduledAt && !lesson.isFromCourse">
+                      📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
+                    </span>
+                  </div>
+                  <div *ngIf="editingDateForLesson === lesson.id" class="date-editor" style="display: flex; align-items: center; gap: 8px;">
+                    <mat-form-field appearance="fill" style="width: 150px;">
+                      <mat-label>Date</mat-label>
+                      <input matInput type="date" [(ngModel)]="newLessonDate">
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" style="width: 100px;">
+                      <mat-label>Heure</mat-label>
+                      <input matInput type="time" [(ngModel)]="newLessonTime">
+                    </mat-form-field>
+                    <button mat-icon-button color="primary" (click)="saveLessonDate(lesson)" matTooltip="Enregistrer">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="cancelDateEdit()" matTooltip="Annuler">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
@@ -167,7 +205,39 @@
               <p *ngIf="currentLesson.plannedDurationMinutes" class="lesson-duration-full">
                 ⏱️ <strong>Durée prévue:</strong> {{ currentLesson.plannedDurationMinutes }} min
               </p>
-              <p>📅 {{ currentLesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</p>
+              <div class="lesson-date-full">
+                <div *ngIf="editingDateForLesson !== currentLesson.id">
+                  <p>
+                    📅 <span *ngIf="currentLesson.scheduledAt">{{ currentLesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                    <span *ngIf="!currentLesson.scheduledAt && currentLesson.isFromCourse" class="no-date">
+                      Date non définie
+                    </span>
+                    <button *ngIf="currentLesson.isFromCourse" 
+                            mat-icon-button 
+                            (click)="openDatePicker(currentLesson)"
+                            matTooltip="Modifier la date"
+                            style="margin-left: 8px;">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </p>
+                </div>
+                <div *ngIf="editingDateForLesson === currentLesson.id" class="date-editor" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                  <mat-form-field appearance="fill" style="width: 150px;">
+                    <mat-label>Date</mat-label>
+                    <input matInput type="date" [(ngModel)]="newLessonDate">
+                  </mat-form-field>
+                  <mat-form-field appearance="fill" style="width: 100px;">
+                    <mat-label>Heure</mat-label>
+                    <input matInput type="time" [(ngModel)]="newLessonTime">
+                  </mat-form-field>
+                  <button mat-icon-button color="primary" (click)="saveLessonDate(currentLesson)" matTooltip="Enregistrer">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="cancelDateEdit()" matTooltip="Annuler">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
               <div class="status-container">
                 <span class="status-label">📊 Statut:</span>
                 <span class="status-badge" [ngClass]="getStatusClass(currentLesson.status)">

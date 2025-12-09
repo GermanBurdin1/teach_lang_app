@@ -146,6 +146,11 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   expandedQuestions: Set<string> = new Set();
   expandedMaterials: Set<string> = new Set();
   
+  // Редактирование даты урока
+  editingDateForLesson: string | null = null;
+  newLessonDate: string = '';
+  newLessonTime: string = '';
+  
   // Для совместимости со старым кодом
   resolvedItemsPerLesson: { [key: string]: string[] } = {};
   questionDropListIds: string[] = [];
@@ -296,15 +301,12 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
         course.lessons![section].forEach(lessonObj => {
           if (lessonObj.type === 'call') {
             console.log('📝 [Teacher] Найден call lesson в секции:', { section, lesson: lessonObj });
-              // Устанавливаем дату в будущем для уроков из курса, чтобы они проходили фильтр "À venir"
-              const futureDate = new Date();
-              futureDate.setFullYear(futureDate.getFullYear() + 1);
-              
+              // Для уроков из курса дата не устанавливается автоматически - пользователь должен добавить её сам
               const lesson: Lesson = {
                 id: `course-${courseId}-${section}-${lessonObj.name}`,
                 teacherId: course.teacherId,
                 studentId: '',
-                scheduledAt: futureDate,
+                scheduledAt: undefined as any, // Дата будет установлена пользователем
                 status: 'planned',
                 studentName: '',
                 tasks: [],
@@ -333,15 +335,12 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
           course.lessonsInSubSections![section][subSection].forEach(lessonObj => {
             if (lessonObj.type === 'call') {
               console.log('📝 [Teacher] Найден call lesson в подсекции:', { section, subSection, lesson: lessonObj });
-              // Устанавливаем дату в будущем для уроков из курса, чтобы они проходили фильтр "À venir"
-              const futureDate = new Date();
-              futureDate.setFullYear(futureDate.getFullYear() + 1);
-              
+              // Для уроков из курса дата не устанавливается автоматически - пользователь должен добавить её сам
               const lesson: Lesson = {
                 id: `course-${courseId}-${section}-${subSection}-${lessonObj.name}`,
                 teacherId: course.teacherId,
                 studentId: '',
-                scheduledAt: futureDate,
+                scheduledAt: undefined as any, // Дата будет установлена пользователем
                 status: 'planned',
                 studentName: '',
                 tasks: [],
@@ -470,6 +469,9 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   loadLesson(lessonId: string): void {
     this.loading = true;
     
+    // Проверяем, является ли это уроком из курса (ID начинается с "course-")
+    const isCourseLesson = lessonId.startsWith('course-');
+    
     // Сначала пытаемся найти урок в уже загруженном списке (обычные уроки или из курса)
     const allLessons = [...this.lessons, ...this.courseLessons];
     const lessonInList = allLessons.find(l => l.id === lessonId);
@@ -479,21 +481,29 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
       this.currentLesson = { ...lessonInList };
       this.highlightedLessonId = lessonId;
       
-      // Загружаем задачи, вопросы и материалы
-      this.loadTasksAndQuestions(lessonId);
+      // Для уроков из курса не загружаем задачи и вопросы через API (ID не является UUID)
+      if (isCourseLesson) {
+        // Уроки из курса не имеют реальных задач и вопросов в базе данных
+        // Они только отображаются для планирования
+        this.loading = false;
+        console.log('ℹ️ [Teacher] Урок из курса загружен (без API запросов):', lessonId);
+      } else {
+        // Для обычных уроков загружаем задачи, вопросы и материалы через API
+        this.loadTasksAndQuestions(lessonId);
+      }
       
       setTimeout(() => {
         this.highlightedLessonId = null;
       }, 5000);
-    } else {
-      // Если урока нет в списке, загружаем через API
+    } else if (!isCourseLesson) {
+      // Если урока нет в списке и это не урок из курса, загружаем через API
       this.lessonService.getLessonDetails(lessonId).subscribe({
         next: (lesson) => {
           this.currentLesson = lesson as unknown as Lesson;
           this.highlightedLessonId = lessonId;
           
-                // Загружаем задачи, вопросы, домашние задания и заметки
-      this.loadTasksAndQuestions(lessonId);
+          // Загружаем задачи, вопросы, домашние задания и заметки
+          this.loadTasksAndQuestions(lessonId);
           
           setTimeout(() => {
             this.highlightedLessonId = null;
@@ -504,11 +514,25 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
           this.loading = false;
         }
       });
+    } else {
+      // Урок из курса не найден в списке - это не должно происходить
+      console.error('❌ [Teacher] Урок из курса не найден в списке:', lessonId);
+      this.loading = false;
     }
   }
 
   // Загрузка задач, вопросов, материалов, домашних заданий и заметок для урока
   loadTasksAndQuestions(lessonId: string): void {
+    // Проверяем, является ли это уроком из курса (ID начинается с "course-")
+    const isCourseLesson = lessonId.startsWith('course-');
+    
+    if (isCourseLesson) {
+      // Для уроков из курса не загружаем данные через API (ID не является UUID)
+      console.log('ℹ️ [Teacher] Пропускаем загрузку задач/вопросов для урока из курса:', lessonId);
+      this.loading = false;
+      return;
+    }
+    
     Promise.all([
       this.lessonService.getTasksForLesson(lessonId).toPromise(),
       this.lessonService.getQuestionsForLesson(lessonId).toPromise(),
@@ -732,14 +756,37 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
 
   private matchesCurrentFilter(lesson: Lesson): boolean {
     const now = new Date();
-    const lessonDate = new Date(lesson.scheduledAt);
+    
+    // Получаем дату урока, если она есть
+    const lessonDate = lesson.scheduledAt ? new Date(lesson.scheduledAt) : null;
     
     // Для уроков из курса всегда показываем их (они запланированы, но без конкретной даты)
     if (lesson.isFromCourse) {
       // Уроки из курса показываем всегда, независимо от фильтра по времени
       // Но применяем другие фильтры (по студенту, дате, поиску)
+      // Если дата установлена, применяем фильтры по дате начала/окончания
+      if (lessonDate) {
+        // Фильтр по дате начала
+        if (this.startDate) {
+          const filterDate = new Date(this.startDate);
+          if (lessonDate < filterDate) return false;
+        }
+        
+        // Фильтр по дате окончания
+        if (this.endDate) {
+          const filterDate = new Date(this.endDate);
+          filterDate.setHours(23, 59, 59, 999);
+          if (lessonDate > filterDate) return false;
+        }
+      }
+      // Если дата не установлена, пропускаем проверку по дате начала/окончания
     } else {
       // Для обычных уроков применяем фильтр по времени
+      if (!lessonDate) {
+        // Обычный урок без даты - не показываем
+        return false;
+      }
+      
       // Фильтр по времени
       if (this.filter === 'future') {
         // À venir: ТОЛЬКО предстоящие уроки по времени
@@ -769,24 +816,24 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
         if (!isPastTime) return false;
       }
       // 'all' - показываем все (предстоящие, прошедшие, отмененные, ожидающие подтверждения)
+      
+      // Фильтр по дате начала
+      if (this.startDate) {
+        const filterDate = new Date(this.startDate);
+        if (lessonDate < filterDate) return false;
+      }
+
+      // Фильтр по дате окончания
+      if (this.endDate) {
+        const filterDate = new Date(this.endDate);
+        filterDate.setHours(23, 59, 59, 999); // Конец дня
+        if (lessonDate > filterDate) return false;
+      }
     }
 
     // Фильтр по студенту (не применяется к урокам из курса, так как у них нет studentName)
     if (this.selectedStudent && !lesson.isFromCourse && lesson.studentName !== this.selectedStudent) {
       return false;
-    }
-
-    // Фильтр по дате начала
-    if (this.startDate) {
-      const filterDate = new Date(this.startDate);
-      if (lessonDate < filterDate) return false;
-    }
-
-    // Фильтр по дате окончания
-    if (this.endDate) {
-      const filterDate = new Date(this.endDate);
-      filterDate.setHours(23, 59, 59, 999); // Конец дня
-      if (lessonDate > filterDate) return false;
     }
 
     // Фильтр по поисковому запросу
@@ -1330,6 +1377,71 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
   formatHomeworkDueDate(homework: unknown): Date | null {
     const date = (homework as {dueDate?: string | Date})?.['dueDate'];
     return date ? new Date(date) : null;
+  }
+
+  // Открыть редактор даты для урока
+  openDatePicker(lesson: Lesson): void {
+    this.editingDateForLesson = lesson.id;
+    
+    if (lesson.scheduledAt) {
+      // Если дата уже установлена, используем её
+      const date = new Date(lesson.scheduledAt);
+      this.newLessonDate = date.toISOString().split('T')[0];
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      this.newLessonTime = `${hours}:${minutes}`;
+    } else {
+      // Иначе устанавливаем текущую дату и время по умолчанию
+      const now = new Date();
+      this.newLessonDate = now.toISOString().split('T')[0];
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      this.newLessonTime = `${hours}:${minutes}`;
+    }
+  }
+
+  // Сохранить дату урока
+  saveLessonDate(lesson: Lesson): void {
+    if (!this.newLessonDate) {
+      return;
+    }
+    
+    // Объединяем дату и время
+    const dateTimeString = `${this.newLessonDate}T${this.newLessonTime || '00:00'}:00`;
+    const newDate = new Date(dateTimeString);
+    
+    // Обновляем дату урока
+    lesson.scheduledAt = newDate;
+    
+    // Если это текущий открытый урок, обновляем его тоже
+    if (this.currentLesson && this.currentLesson.id === lesson.id) {
+      this.currentLesson.scheduledAt = newDate;
+    }
+    
+    // Сохраняем в список уроков
+    const lessonInLessons = this.lessons.find(l => l.id === lesson.id);
+    if (lessonInLessons) {
+      lessonInLessons.scheduledAt = newDate;
+    }
+    
+    const lessonInCourseLessons = this.courseLessons.find(l => l.id === lesson.id);
+    if (lessonInCourseLessons) {
+      lessonInCourseLessons.scheduledAt = newDate;
+    }
+    
+    // TODO: Сохранить дату на бэкенде через API, если нужно
+    
+    // Закрываем редактор
+    this.cancelDateEdit();
+    
+    console.log('✅ [Teacher] Дата урока обновлена:', { lessonId: lesson.id, newDate });
+  }
+
+  // Отменить редактирование даты
+  cancelDateEdit(): void {
+    this.editingDateForLesson = null;
+    this.newLessonDate = '';
+    this.newLessonTime = '';
   }
 
   // Функция для преобразования URL файлов на локальный сервер
