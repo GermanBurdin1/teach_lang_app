@@ -392,6 +392,18 @@
   margin-top: 0.25rem;
 }
 
+.tree-drag-handle {
+  color: #94a3b8;
+  cursor: grab;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.35rem;
+}
+
+.tree-drag-handle:active {
+  cursor: grabbing;
+}
+
 .tree-node-header {
   display: flex;
   align-items: center;

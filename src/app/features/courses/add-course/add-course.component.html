@@ -246,9 +246,14 @@
                 </div>
                 
                 <!-- Sub-sections -->
-                <div *ngIf="subSections[section] && subSections[section].length > 0" class="tree-children">
-                  <div *ngFor="let subSection of subSections[section]" class="tree-node tree-subsection">
+                <div *ngIf="subSections[section] && subSections[section].length > 0"
+                     class="tree-children"
+                     cdkDropList
+                     [cdkDropListData]="subSections[section]"
+                     (cdkDropListDropped)="dropSubSectionQuick($event, section)">
+                  <div *ngFor="let subSection of subSections[section]" class="tree-node tree-subsection" cdkDrag>
                     <div class="tree-node-header">
+                      <span class="tree-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
                       <i class="fas fa-folder-open tree-icon"></i>
                       <span class="tree-label">{{ subSection }}</span>
                       <div class="tree-actions">

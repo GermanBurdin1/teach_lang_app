@@ -1826,6 +1826,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Перемещение подсекций внутри секции (structure-tree)
+  dropSubSectionQuick(event: CdkDragDrop<string[]>, section: string): void {
+    const subs = this.subSections[section];
+    if (!subs) {
+      return;
+    }
+    moveItemInArray(subs, event.previousIndex, event.currentIndex);
+    this.subSections[section] = [...subs];
+    this.saveSections();
+  }
+
   onDropLessonToSection(event: DragEvent, targetSection: string): void {
     event.preventDefault();
     event.stopPropagation();
