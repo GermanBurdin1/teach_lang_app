@@ -490,15 +490,23 @@
         </select>
       </div>
 
-      <div class="add-section-controls" *ngIf="sections.length > 0">
+      <div class="add-section-controls" *ngIf="sections.length > 0"
+           cdkDropList
+           [id]="'main-sections-list'"
+           [cdkDropListData]="sections"
+           (cdkDropListDropped)="dropSectionQuick($event)">
 
         <!-- Display sections -->
         <div *ngFor="let section of sections; let i = index" class="section-item"
              [attr.data-section-index]="i"
              (mouseover)="hoveredSection = section"
-             (mouseleave)="hoveredSection = null">
+             (mouseleave)="hoveredSection = null"
+             cdkDrag>
           <div class="section-item-header">
             <div class="section-name-wrapper">
+              <span class="section-drag-handle" cdkDragHandle title="Déplacer la section">
+                <i class="fas fa-grip-vertical"></i>
+              </span>
               <button
                 class="btn btn-link section-toggle-btn"
                 (click)="toggleSection(section)"
@@ -592,16 +600,25 @@
           </div>
 
           <!-- Sub-sections -->
-          <div class="subsections-container" *ngIf="subSections[section] && subSections[section].length > 0">
+          <div class="subsections-container"
+               *ngIf="subSections[section] && subSections[section].length > 0"
+               cdkDropList
+               [id]="'main-subsections-' + section"
+               [cdkDropListData]="subSections[section]"
+               (cdkDropListDropped)="dropSubSectionQuick($event, section)">
             <div *ngFor="let subSection of subSections[section]; let subIndex = index"
                  class="subsection-item"
                  [attr.data-subsection-index]="subIndex"
                  (dragover)="onLessonDragOver($event)"
                  (drop)="onDropLesson($event, section, subSection)"
                  (dragenter)="onLessonDragEnter($event)"
-                 (dragleave)="onLessonDragLeave($event)">
+                 (dragleave)="onLessonDragLeave($event)"
+                 cdkDrag>
               <div class="subsection-header">
                 <span class="subsection-name">
+                  <span class="subsection-drag-handle" cdkDragHandle title="Déplacer la sous-section">
+                    <i class="fas fa-grip-vertical"></i>
+                  </span>
                   <i class="fas fa-folder"></i>
                   {{ subIndex + 1 }}. {{ subSection }}
                 </span>
@@ -726,6 +743,7 @@
                   <div *cdkDragPlaceholder class="lesson-placeholder"></div>
                 </div>
               </div>
+              <div *cdkDragPlaceholder class="subsection-placeholder subsection-item"></div>
             </div>
           </div>
 
