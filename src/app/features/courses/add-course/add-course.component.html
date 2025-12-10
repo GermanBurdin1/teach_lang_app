@@ -8,8 +8,50 @@
     <p class="page-subtitle">Créez et gérez vos cours avec des matériaux pédagogiques</p>
   </div>
 
+  <!-- Список всех курсов преподавателя -->
+  <div *ngIf="!showCreateCourseForm" class="courses-list-section">
+    <div class="courses-list-header">
+      <h3>Mes formations</h3>
+      <button
+        class="btn btn-primary btn-lg add-course-btn"
+        (click)="showCreateCourseForm = true">
+        <i class="fas fa-plus"></i>
+        Ajouter un cours
+      </button>
+    </div>
+    
+    <div *ngIf="loadingCourses" class="loading-courses">
+      <p>Chargement des cours...</p>
+    </div>
+    
+    <div *ngIf="!loadingCourses && allTeacherCourses.length > 0" class="courses-grid">
+      <div 
+        *ngFor="let course of allTeacherCourses" 
+        class="course-item-card"
+        [class.active]="courseId === course.id.toString()"
+        (click)="switchToCourse(course.id)">
+        <div class="course-item-header">
+          <h4>{{ course.title }}</h4>
+          <span class="course-status-badge" [class.published]="course.isPublished" [class.unpublished]="!course.isPublished">
+            <mat-icon>{{ course.isPublished ? 'public' : 'lock' }}</mat-icon>
+            {{ course.isPublished ? 'Publié' : 'Non publié' }}
+          </span>
+        </div>
+        <div class="course-item-content">
+          <p *ngIf="course.level" class="course-level-item">📊 {{ course.level }}</p>
+          <p *ngIf="course.description" class="course-description-item">{{ course.description }}</p>
+          <p class="course-date-item">Créé le {{ course.createdAt | date:'dd/MM/yyyy' }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="!loadingCourses && allTeacherCourses.length === 0 && !courseId" class="no-courses-message">
+      <p>Aucun cours créé. Cliquez sur "Ajouter un cours" pour commencer.</p>
+    </div>
+  </div>
+
   <!-- Add Course Button (if no course) -->
-  <div *ngIf="!courseId && !showCreateCourseForm" class="add-course-button-section">
+  <div *ngIf="!courseId && !showCreateCourseForm && allTeacherCourses.length === 0" class="add-course-button-section">
     <button
       class="btn btn-primary btn-lg add-course-btn"
       (click)="showCreateCourseForm = true">

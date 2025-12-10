@@ -30,7 +30,8 @@ import { LayoutModule } from '../../layout/layout.module';
 @NgModule({
   declarations: [LessonCardComponent, LessonManagementComponent, TeacherLessonManagementComponent, TeacherLessonCardComponent, GabaritComponent, StudentCoursesComponent, CourseDetailsModalComponent],
   exports: [
-    GabaritComponent // ✅ Добавь это
+    GabaritComponent, // ✅ Добавь это
+    CourseDetailsModalComponent // Экспортируем для использования в других модулях
   ],
   imports: [
     LayoutModule,

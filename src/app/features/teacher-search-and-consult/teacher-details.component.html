@@ -6,6 +6,48 @@
   <p><strong>Expérience :</strong> {{ teacher.experienceYears }} ans</p>
   <p><strong>Certificats :</strong> {{ teacher.certificates.join(', ') }}</p>
   <p class="bio">{{ teacher.bio }}</p>
+
+  <!-- Курсы преподавателя -->
+  <div class="teacher-courses-section mt-5">
+    <h4>📚 Formations en ligne</h4>
+    <div *ngIf="loadingCourses" class="loading-courses">
+      <p>Chargement des formations...</p>
+    </div>
+    <div *ngIf="!loadingCourses && teacherCourses.length > 0" class="courses-list">
+      <p class="courses-count">
+        <strong>{{ teacherCourses.length }}</strong> formation{{ teacherCourses.length > 1 ? 's' : '' }} disponible{{ teacherCourses.length > 1 ? 's' : '' }}
+      </p>
+      <div class="courses-grid">
+        <div *ngFor="let course of teacherCourses" class="course-card" (click)="viewCourseDetails(course.id)">
+          <div class="course-card-header">
+            <h5>{{ course.title }}</h5>
+            <span class="course-status-badge published">
+              <mat-icon>public</mat-icon>
+              Publié
+            </span>
+          </div>
+          <div class="course-card-content">
+            <p *ngIf="course.level" class="course-level">
+              📊 Niveau: {{ course.level }}
+            </p>
+            <p *ngIf="course.description" class="course-description">
+              {{ course.description }}
+            </p>
+            <div *ngIf="course.sections && course.sections.length > 0" class="course-sections-preview">
+              <small>{{ course.sections.length }} section{{ course.sections.length > 1 ? 's' : '' }}</small>
+            </div>
+          </div>
+          <div class="course-card-footer">
+            <button class="btn btn-sm btn-primary">Voir les détails</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="!loadingCourses && teacherCourses.length === 0" class="no-courses">
+      <p class="text-muted">Ce professeur n'a pas encore publié de formations en ligne.</p>
+    </div>
+  </div>
+
   <h4 class="mt-5">Avis des étudiants</h4>
   <app-review-list [reviews]="reviews"></app-review-list>
 

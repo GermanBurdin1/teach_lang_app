@@ -68,6 +68,18 @@
   color: #666;
 }
 
+.teacher-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  color: #333;
+}
+
+.teacher-name mat-icon {
+  color: #673ab7;
+}
+
 .no-courses {
   margin-top: 40px;
 }

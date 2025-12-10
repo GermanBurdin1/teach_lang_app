@@ -7,6 +7,9 @@ import { AuthService } from '../../services/auth.service';
 import { LessonService, TeacherTimeSlot } from '../../services/lesson.service';
 import { NotificationService } from '../../services/notification.service';
 import { PaymentService } from '../../services/payment.service';
+import { CourseService, Course } from '../../services/course.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CourseDetailsModalComponent, CourseDetailsModalData } from '../lessons/student-courses/course-details-modal/course-details-modal.component';
 
 interface PaymentData {
   id: string;
@@ -29,7 +32,9 @@ export class TeacherDetailsComponent implements OnInit {
     private authService: AuthService,
     private lessonService: LessonService,
     private notificationService: NotificationService,
-    private paymentService: PaymentService
+    private paymentService: PaymentService,
+    private courseService: CourseService,
+    private dialog: MatDialog
   ) { }
 
   messageText: string = '';
@@ -41,6 +46,8 @@ export class TeacherDetailsComponent implements OnInit {
   showBookingModal = false;
   showPaymentModal = false;
   lessonDuration: number = 60; // в минутах
+  teacherCourses: Course[] = [];
+  loadingCourses = false;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -51,7 +58,55 @@ export class TeacherDetailsComponent implements OnInit {
       this.teacherService.getReviewsByTeacher(id).subscribe(reviews => {
         this.reviews = reviews;
       });
+      // Загружаем курсы преподавателя
+      this.loadTeacherCourses(id);
     }
+  }
+
+  // Загрузка курсов преподавателя
+  loadTeacherCourses(teacherId: string): void {
+    this.loadingCourses = true;
+    // Получаем все курсы и фильтруем по teacherId
+    this.courseService.getCoursesByTeacher().subscribe({
+      next: (courses) => {
+        // Фильтруем только опубликованные курсы этого преподавателя
+        // Предполагаем, что teacherId совпадает с course.teacherId
+        this.teacherCourses = courses.filter(course => 
+          course.isPublished && course.teacherId === teacherId
+        );
+        this.loadingCourses = false;
+        console.log('📚 Загружены курсы преподавателя:', this.teacherCourses);
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки курсов преподавателя:', error);
+        this.teacherCourses = [];
+        this.loadingCourses = false;
+      }
+    });
+  }
+
+  // Просмотр деталей курса
+  viewCourseDetails(courseId: number): void {
+    console.log('📚 Просмотр деталей курса:', courseId);
+    
+    // Загружаем полную информацию о курсе
+    this.courseService.getCourseById(courseId).subscribe({
+      next: (course) => {
+        console.log('📚 Загружен курс для просмотра:', course);
+        
+        // Открываем модальное окно с деталями курса
+        const dialogRef = this.dialog.open(CourseDetailsModalComponent, {
+          width: '900px',
+          maxWidth: '90vw',
+          data: { course } as CourseDetailsModalData,
+          panelClass: 'course-details-dialog'
+        });
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки деталей курса:', error);
+        this.notificationService.error('Erreur lors du chargement des détails du cours');
+      }
+    });
   }
 
 

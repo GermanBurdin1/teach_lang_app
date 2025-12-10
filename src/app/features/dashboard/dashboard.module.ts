@@ -70,6 +70,7 @@ import { LessonTypeSelectorComponent } from '../courses/lesson-type-selector/les
 import { PromptDialogComponent } from '../courses/prompt-dialog/prompt-dialog.component';
 import { ConfirmDialogComponent } from '../courses/prompt-dialog/confirm-dialog.component';
 import { ClassroomModule } from '../../classroom/classroom.module';
+import { LessonsModule } from '../lessons/lessons.module';
 
 @NgModule({
   declarations: [
@@ -144,7 +145,8 @@ import { ClassroomModule } from '../../classroom/classroom.module';
     DragDropModule,
     BackToHomeButtonComponent,
     BsDatepickerModule.forRoot(),
-    ClassroomModule
+    ClassroomModule,
+    LessonsModule
   ],
   exports: [ReviewListComponent],
   providers: [

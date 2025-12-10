@@ -5,7 +5,7 @@ import { AuthService } from '../../../services/auth.service';
 import { NotificationService } from '../../../services/notification.service';
 import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../core/constants/api.constants';
-import { CourseService } from '../../../services/course.service';
+import { CourseService, Course } from '../../../services/course.service';
 import { MaterialService, Material } from '../../../services/material.service';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -88,6 +88,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   hasUnsavedChanges = false; // Есть ли несохраненные изменения
   isCourseCardExpanded = false; // Развернута ли карточка курса (по умолчанию скрыта)
   isMaterialsSectionExpanded = false; // Развернута ли секция материалов (по умолчанию скрыта)
+  
+  // Все курсы преподавателя
+  allTeacherCourses: Course[] = [];
+  loadingCourses = false;
 
   constructor(
     private fileUploadService: FileUploadService,
@@ -164,6 +168,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.updateSEOTags();
     this.currentUser = this.authService.getCurrentUser();
     
+    // Загружаем все курсы преподавателя
+    this.loadAllTeacherCourses();
+    
     // Загружаем сохраненный курс из localStorage
     this.loadSavedCourse();
     
@@ -171,42 +178,82 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.loadTrainerMaterials();
   }
 
+  // Загрузка всех курсов преподавателя
+  loadAllTeacherCourses(): void {
+    this.loadingCourses = true;
+    this.courseService.getCoursesByTeacher().subscribe({
+      next: (courses) => {
+        this.allTeacherCourses = courses;
+        this.loadingCourses = false;
+        console.log('📚 Загружены все курсы преподавателя:', this.allTeacherCourses);
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки курсов преподавателя:', error);
+        this.allTeacherCourses = [];
+        this.loadingCourses = false;
+      }
+    });
+  }
+
+  // Переключение на другой курс
+  switchToCourse(courseId: number): void {
+    // Проверяем, есть ли несохраненные изменения
+    if (this.hasUnsavedChanges) {
+      const confirm = window.confirm('Vous avez des modifications non enregistrées. Voulez-vous continuer sans sauvegarder?');
+      if (!confirm) {
+        return;
+      }
+    }
+
+    // Сохраняем ID выбранного курса
+    localStorage.setItem('currentCourseId', courseId.toString());
+    this.courseId = courseId.toString();
+    
+    // Загружаем данные выбранного курса
+    this.loadCourseData(courseId);
+  }
+
+  // Загрузка данных курса
+  loadCourseData(courseId: number): void {
+    this.courseService.getCourseById(courseId).subscribe({
+      next: (course) => {
+        this.courseTitle = course.title;
+        this.courseDescription = course.description || '';
+        this.courseLevel = course.level || '';
+        this.isPublished = course.isPublished;
+        this.coverImage = course.coverImage;
+        this.sections = course.sections || [];
+        // Загружаем подсекции из БД
+        if (course.subSections) {
+          this.subSections = course.subSections;
+        }
+        // Загружаем уроки из БД
+        if (course.lessons) {
+          this.lessons = course.lessons;
+        }
+        if (course.lessonsInSubSections) {
+          this.lessonsInSubSections = course.lessonsInSubSections;
+        }
+        this.hasUnsavedChanges = false;
+        this.isCourseCardExpanded = true;
+        this.loadFiles();
+        // Загружаем кэш домашних заданий после загрузки курса
+        this.loadHomeworkCache();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('❌ Error loading course:', error);
+        this.notificationService.error('Erreur lors du chargement du cours');
+      }
+    });
+  }
+
   loadSavedCourse(): void {
     const savedCourseId = localStorage.getItem('currentCourseId');
     if (savedCourseId) {
       this.courseId = savedCourseId;
       // Загружаем данные курса
-      this.courseService.getCourseById(parseInt(savedCourseId, 10)).subscribe({
-        next: (course) => {
-          this.courseTitle = course.title;
-          this.courseDescription = course.description || '';
-          this.courseLevel = course.level || '';
-          this.isPublished = course.isPublished;
-          this.coverImage = course.coverImage;
-          this.sections = course.sections || [];
-          // Загружаем подсекции из БД
-          if (course.subSections) {
-            this.subSections = course.subSections;
-          }
-          // Загружаем уроки из БД
-          if (course.lessons) {
-            this.lessons = course.lessons;
-          }
-          if (course.lessonsInSubSections) {
-            this.lessonsInSubSections = course.lessonsInSubSections;
-          }
-          this.hasUnsavedChanges = false;
-          this.loadFiles();
-          // Загружаем кэш домашних заданий после загрузки курса
-          this.loadHomeworkCache();
-        },
-        error: (error) => {
-          console.error('❌ Error loading saved course:', error);
-          // Если курс не найден, очищаем сохраненный ID
-          localStorage.removeItem('currentCourseId');
-          this.courseId = null;
-        }
-      });
+      this.loadCourseData(parseInt(savedCourseId, 10));
     }
   }
 
@@ -240,6 +287,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.notificationService.success('Cours créé avec succès!');
         // After course creation, enable file uploads
         this.loadFiles();
+        // Обновляем список всех курсов
+        this.loadAllTeacherCourses();
       },
       error: (error) => {
         console.error('❌ Erreur lors de la création du cours:', error);
@@ -347,6 +396,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           this.courseDescription = '';
           this.courseLevel = '';
           this.isPublished = false;
+          // Обновляем список всех курсов
+          this.loadAllTeacherCourses();
           this.coverImage = null;
           this.materials = [];
           this.showCreateCourseForm = false;

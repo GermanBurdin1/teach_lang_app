@@ -34,6 +34,11 @@
               </div>
               <mat-card-title>{{ course.title }}</mat-card-title>
               <mat-card-subtitle>
+                <span *ngIf="course.teacherName" class="teacher-name">
+                  <mat-icon style="font-size: 16px; width: 16px; height: 16px; vertical-align: middle;">person</mat-icon>
+                  {{ course.teacherName }}
+                </span>
+                <span *ngIf="course.teacherName && course.level"> • </span>
                 <span *ngIf="course.level">📊 Niveau: {{ course.level }}</span>
                 <span *ngIf="course.level && course.description"> • </span>
                 <span *ngIf="course.description">{{ course.description }}</span>

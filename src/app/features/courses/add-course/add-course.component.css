@@ -8,6 +8,133 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* ==================== COURSES LIST SECTION ==================== */
+.courses-list-section {
+  margin-bottom: 2rem;
+}
+
+.courses-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.courses-list-header h3 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.loading-courses {
+  text-align: center;
+  padding: 2rem;
+  color: white;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.course-item-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.course-item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--space-blue-light);
+}
+
+.course-item-card.active {
+  border-color: var(--galaxy-primary);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 16px rgba(103, 58, 183, 0.3);
+}
+
+.course-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.course-item-header h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--space-blue);
+  flex: 1;
+}
+
+.course-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.course-status-badge.published {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.course-status-badge.unpublished {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.course-status-badge mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.course-item-content {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.course-level-item {
+  margin: 0.5rem 0;
+  font-weight: 500;
+}
+
+.course-description-item {
+  margin: 0.5rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.course-date-item {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.no-courses-message {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  color: #666;
+}
+
 /* ==================== HEADER ==================== */
 .course-header {
   text-align: center;
