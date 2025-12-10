@@ -58,6 +58,7 @@ import { AdminLessonsManagementComponent } from './school-dashboard/admin-lesson
 import { AdminPlatformAnalyticsComponent } from './school-dashboard/admin-platform-analytics/admin-platform-analytics.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { BackToHomeButtonComponent } from '../../shared/components/back-to-home-button/back-to-home-button.component';
 import { ClassroomRedirectComponent } from '../../classroom/classroom-redirect.component';
@@ -139,6 +140,7 @@ import { ClassroomModule } from '../../classroom/classroom.module';
     MatTooltipModule,
     MatPaginatorModule,
     MatDialogModule,
+    MatSlideToggleModule,
     DragDropModule,
     BackToHomeButtonComponent,
     BsDatepickerModule.forRoot(),

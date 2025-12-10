@@ -129,8 +129,8 @@
   <!-- Course Card (shown after course creation) -->
   <div *ngIf="courseId" class="course-card-section">
     <div class="course-card" [class.expanded]="isCourseCardExpanded">
-      <div class="course-card-header" (click)="toggleCourseCard()">
-        <div class="course-title-section">
+      <div class="course-card-header">
+        <div class="course-title-section" (click)="toggleCourseCard()">
           <h2>
             <i class="fas fa-book"></i>
             {{ courseTitle }}
@@ -167,8 +167,9 @@
           </div>
           <div class="course-meta">
             <span *ngIf="courseLevel" class="course-level">{{ courseLevel }}</span>
-            <span class="course-status" [class.published]="isPublished">
-              {{ isPublished ? 'Publié' : 'Brouillon' }}
+            <span class="course-status" [class.published]="isPublished" [class.unpublished]="!isPublished">
+              <mat-icon>{{ isPublished ? 'public' : 'lock' }}</mat-icon>
+              {{ isPublished ? 'Publié' : 'Non publié' }}
             </span>
           </div>
           <div class="course-lessons-summary" *ngIf="getLessonsSummary().length > 0">
@@ -207,6 +208,21 @@
       </div>
 
       <div *ngIf="isCourseCardExpanded" class="course-card-content">
+        <!-- Управление публикацией -->
+        <div class="publication-control-section">
+          <div class="publication-control">
+            <label class="publication-toggle-label">
+              <mat-slide-toggle [(ngModel)]="isPublished" (change)="togglePublication()" [color]="'primary'">
+                {{ isPublished ? 'Cours publié' : 'Cours non publié' }}
+              </mat-slide-toggle>
+            </label>
+            <p class="publication-hint">
+              <mat-icon>{{ isPublished ? 'info' : 'info' }}</mat-icon>
+              {{ isPublished ? 'Le cours est visible par tous les étudiants' : 'Le cours n\'est pas visible par les étudiants' }}
+            </p>
+          </div>
+        </div>
+
         <div *ngIf="coverImage" class="course-cover">
           <img [src]="coverImage" alt="Cover" class="cover-image-display">
         </div>

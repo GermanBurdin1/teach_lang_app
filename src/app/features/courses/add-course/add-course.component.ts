@@ -288,11 +288,40 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         // Обновляем данные курса
         this.coverImage = course.coverImage;
         this.sections = course.sections || [];
+        this.isPublished = course.isPublished; // Обновляем статус публикации
         this.hasUnsavedChanges = false;
       },
       error: (error) => {
         console.error('❌ Erreur lors de la mise à jour du cours:', error);
         this.notificationService.error('Erreur lors de la mise à jour du cours');
+      }
+    });
+  }
+
+  // Переключение статуса публикации
+  togglePublication(): void {
+    if (!this.courseId) {
+      return;
+    }
+
+    const courseData = {
+      isPublished: this.isPublished
+    };
+
+    this.courseService.updateCourse(parseInt(this.courseId, 10), courseData).subscribe({
+      next: (course) => {
+        this.isPublished = course.isPublished;
+        if (this.isPublished) {
+          this.notificationService.success('Cours publié avec succès!');
+        } else {
+          this.notificationService.info('Cours retiré de la publication');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la mise à jour du statut de publication:', error);
+        // Откатываем изменение в случае ошибки
+        this.isPublished = !this.isPublished;
+        this.notificationService.error('Erreur lors de la mise à jour du statut de publication');
       }
     });
   }
