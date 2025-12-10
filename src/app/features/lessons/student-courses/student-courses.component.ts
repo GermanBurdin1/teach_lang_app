@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CourseService, Course } from '../../../services/course.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CourseDetailsModalComponent, CourseDetailsModalData } from './course-details-modal/course-details-modal.component';
 
 @Component({
   selector: 'app-student-courses',
@@ -11,7 +13,10 @@ export class StudentCoursesComponent implements OnInit {
   courseSearchTerm = '';
   loading = false;
 
-  constructor(private courseService: CourseService) { }
+  constructor(
+    private courseService: CourseService,
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit(): void {
     this.loadAllCourses();
@@ -52,10 +57,26 @@ export class StudentCoursesComponent implements OnInit {
 
   // Просмотр деталей курса
   viewCourseDetails(courseId: number): void {
-    // Можно открыть модальное окно или перейти на страницу курса
-    console.log('📚 Просмотр деталей курса:', courseId);
-    // TODO: Реализовать просмотр деталей курса
-    // Например, можно открыть модальное окно или перейти на страницу курса
+    console.log('📚 Загрузка деталей курса:', courseId);
+    
+    // Загружаем полную информацию о курсе
+    this.courseService.getCourseById(courseId).subscribe({
+      next: (course) => {
+        console.log('📚 Загружен курс для просмотра:', course);
+        
+        // Открываем модальное окно с деталями курса
+        const dialogRef = this.dialog.open(CourseDetailsModalComponent, {
+          width: '900px',
+          maxWidth: '90vw',
+          data: { course } as CourseDetailsModalData,
+          panelClass: 'course-details-dialog'
+        });
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки деталей курса:', error);
+        // TODO: Показать сообщение об ошибке пользователю
+      }
+    });
   }
 }
 

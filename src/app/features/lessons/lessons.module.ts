@@ -6,6 +6,7 @@ import { LessonManagementComponent } from './lesson-management/lesson-management
 import { TeacherLessonManagementComponent } from './lesson-management/teacher-lesson-management.component';
 import { TeacherLessonCardComponent } from './lesson-management/teacher-lesson-card.component';
 import { StudentCoursesComponent } from './student-courses/student-courses.component';
+import { CourseDetailsModalComponent } from './student-courses/course-details-modal/course-details-modal.component';
 import { FormsModule } from '@angular/forms';
 import { LessonsRoutingModule } from './lessons-routing.module';
 import { GabaritComponent } from './lesson-management/gabarit/gabarit-component';
@@ -21,12 +22,13 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
 import { LayoutModule } from '../../layout/layout.module';
 
 
 
 @NgModule({
-  declarations: [LessonCardComponent, LessonManagementComponent, TeacherLessonManagementComponent, TeacherLessonCardComponent, GabaritComponent, StudentCoursesComponent],
+  declarations: [LessonCardComponent, LessonManagementComponent, TeacherLessonManagementComponent, TeacherLessonCardComponent, GabaritComponent, StudentCoursesComponent, CourseDetailsModalComponent],
   exports: [
     GabaritComponent // ✅ Добавь это
   ],
@@ -47,7 +49,8 @@ import { LayoutModule } from '../../layout/layout.module';
     MatTabsModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDialogModule
   ]
 })
 export class LessonsModule { }

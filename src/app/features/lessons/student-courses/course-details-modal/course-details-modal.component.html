@@ -1,0 +1,105 @@
+<div class="course-details-modal">
+  <div class="modal-header">
+    <h2 mat-dialog-title>
+      <mat-icon class="course-icon">cast_for_education</mat-icon>
+      {{ course.title }}
+    </h2>
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <div class="course-info">
+      <div *ngIf="course.level" class="info-item">
+        <strong>📊 Niveau:</strong> {{ course.level }}
+      </div>
+      <div *ngIf="course.description" class="info-item">
+        <strong>📝 Description:</strong> {{ course.description }}
+      </div>
+      <div class="info-item">
+        <strong>📅 Créé le:</strong> {{ course.createdAt | date:'dd/MM/yyyy' }}
+      </div>
+    </div>
+
+    <!-- Структура курса -->
+    <div class="course-structure" *ngIf="course.sections && course.sections.length > 0">
+      <h3>📚 Structure du cours</h3>
+      
+      <div class="structure-tree">
+        <div *ngFor="let section of course.sections" class="structure-section">
+          <!-- Секция -->
+          <div class="section-header" (click)="toggleSection(section)">
+            <span class="expand-icon">
+              {{ isSectionExpanded(section) ? '˄' : '˅' }}
+            </span>
+            <mat-icon class="section-icon">folder</mat-icon>
+            <span class="section-name">{{ section }}</span>
+            <span class="lessons-count" *ngIf="getLessonsInSection(section).length > 0">
+              ({{ getLessonsInSection(section).length }} leçon{{ getLessonsInSection(section).length > 1 ? 's' : '' }})
+            </span>
+          </div>
+
+          <!-- Контент секции (развернутый) -->
+          <div *ngIf="isSectionExpanded(section)" class="section-content">
+            <!-- Уроки в секции -->
+            <div *ngIf="getLessonsInSection(section).length > 0" class="lessons-in-section">
+              <div *ngFor="let lesson of getLessonsInSection(section)" class="lesson-item">
+                <mat-icon class="lesson-type-icon" [class.lesson-self]="lesson.type === 'self'" [class.lesson-call]="lesson.type === 'call'">
+                  {{ lesson.type === 'self' ? 'menu_book' : 'video_call' }}
+                </mat-icon>
+                <span class="lesson-name">{{ lesson.name }}</span>
+                <span class="lesson-type-badge" [class.type-self]="lesson.type === 'self'" [class.type-call]="lesson.type === 'call'">
+                  {{ lesson.type === 'self' ? 'Autonome' : 'Avec appel' }}
+                </span>
+                <span *ngIf="lesson.description" class="lesson-description">{{ lesson.description }}</span>
+              </div>
+            </div>
+
+            <!-- Подсекции -->
+            <div *ngIf="getSubSectionsForSection(section).length > 0" class="subsections-container">
+              <div *ngFor="let subSection of getSubSectionsForSection(section)" class="subsection-item">
+                <div class="subsection-header" (click)="toggleSubSection(section, subSection)">
+                  <span class="expand-icon">
+                    {{ isSubSectionExpanded(section, subSection) ? '˄' : '˅' }}
+                  </span>
+                  <mat-icon class="subsection-icon">folder_open</mat-icon>
+                  <span class="subsection-name">{{ subSection }}</span>
+                  <span class="lessons-count" *ngIf="getLessonsInSubSection(section, subSection).length > 0">
+                    ({{ getLessonsInSubSection(section, subSection).length }} leçon{{ getLessonsInSubSection(section, subSection).length > 1 ? 's' : '' }})
+                  </span>
+                </div>
+
+                <!-- Уроки в подсекции -->
+                <div *ngIf="isSubSectionExpanded(section, subSection) && getLessonsInSubSection(section, subSection).length > 0" 
+                     class="lessons-in-subsection">
+                  <div *ngFor="let lesson of getLessonsInSubSection(section, subSection)" class="lesson-item">
+                    <mat-icon class="lesson-type-icon" [class.lesson-self]="lesson.type === 'self'" [class.lesson-call]="lesson.type === 'call'">
+                      {{ lesson.type === 'self' ? 'menu_book' : 'video_call' }}
+                    </mat-icon>
+                    <span class="lesson-name">{{ lesson.name }}</span>
+                    <span class="lesson-type-badge" [class.type-self]="lesson.type === 'self'" [class.type-call]="lesson.type === 'call'">
+                      {{ lesson.type === 'self' ? 'Autonome' : 'Avec appel' }}
+                    </span>
+                    <span *ngIf="lesson.description" class="lesson-description">{{ lesson.description }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Сообщение если структура пустая -->
+    <div *ngIf="!course.sections || course.sections.length === 0" class="no-structure">
+      <mat-icon>info</mat-icon>
+      <p>Ce cours n'a pas encore de structure définie.</p>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="close()">Fermer</button>
+  </mat-dialog-actions>
+</div>
+
