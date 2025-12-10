@@ -159,6 +159,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         this.highlightedLessonIdFromUrl = params['lessonId'];
         console.log('📋 LessonManagement: Получен lessonId из query params:', this.highlightedLessonIdFromUrl);
       }
+      
     });
 
     this.loadStudentLessons();

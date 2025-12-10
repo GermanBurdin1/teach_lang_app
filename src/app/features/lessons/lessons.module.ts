@@ -5,6 +5,7 @@ import { LessonCardComponent } from './lesson-card/lesson-card.component';
 import { LessonManagementComponent } from './lesson-management/lesson-management.component';
 import { TeacherLessonManagementComponent } from './lesson-management/teacher-lesson-management.component';
 import { TeacherLessonCardComponent } from './lesson-management/teacher-lesson-card.component';
+import { StudentCoursesComponent } from './student-courses/student-courses.component';
 import { FormsModule } from '@angular/forms';
 import { LessonsRoutingModule } from './lessons-routing.module';
 import { GabaritComponent } from './lesson-management/gabarit/gabarit-component';
@@ -25,7 +26,7 @@ import { LayoutModule } from '../../layout/layout.module';
 
 
 @NgModule({
-  declarations: [LessonCardComponent, LessonManagementComponent, TeacherLessonManagementComponent, TeacherLessonCardComponent, GabaritComponent],
+  declarations: [LessonCardComponent, LessonManagementComponent, TeacherLessonManagementComponent, TeacherLessonCardComponent, GabaritComponent, StudentCoursesComponent],
   exports: [
     GabaritComponent // ✅ Добавь это
   ],

@@ -1,0 +1,69 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+  <div class="dashboard-content">
+    <div class="courses-management">
+      <!-- Индикатор загрузки -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Chargement des formations...</p>
+      </div>
+
+      <!-- Контент курсов -->
+      <div *ngIf="!loading" class="courses-content">
+        <!-- Заголовок страницы -->
+        <div class="page-header" style="margin-bottom: 24px;">
+          <h1 style="margin: 0; font-size: 28px; font-weight: 500; color: #333;">📚 Formations en ligne</h1>
+          <p style="margin: 8px 0 0 0; color: #666;">Découvrez tous les cours en ligne disponibles</p>
+        </div>
+
+        <!-- Поисковое поле -->
+        <div class="course-search-container mat-elevation-z1" style="margin-bottom: 20px; padding: 20px;">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>🔍 Rechercher une formation</mat-label>
+            <input matInput [(ngModel)]="courseSearchTerm" placeholder="Rechercher par titre, description, niveau...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Список курсов -->
+        <div class="courses-list">
+          <mat-card *ngFor="let course of filteredCourses" class="course-card" style="margin-bottom: 16px;">
+            <mat-card-header>
+              <div mat-card-avatar *ngIf="course.coverImage" class="course-cover">
+                <img [src]="course.coverImage" [alt]="course.title" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+              <mat-card-title>{{ course.title }}</mat-card-title>
+              <mat-card-subtitle>
+                <span *ngIf="course.level">📊 Niveau: {{ course.level }}</span>
+                <span *ngIf="course.level && course.description"> • </span>
+                <span *ngIf="course.description">{{ course.description }}</span>
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div *ngIf="course.sections && course.sections.length > 0" class="course-sections">
+                <p><strong>Sections:</strong> {{ course.sections.join(', ') }}</p>
+              </div>
+              <div class="course-meta">
+                <small>Créé le {{ course.createdAt | date:'dd/MM/yyyy' }}</small>
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button color="primary" (click)="viewCourseDetails(course.id)">
+                Voir les détails
+              </button>
+            </mat-card-actions>
+          </mat-card>
+
+          <!-- Message si aucune formation -->
+          <div *ngIf="filteredCourses.length === 0 && !loading" class="no-courses" style="text-align: center; padding: 40px;">
+            <mat-icon style="font-size: 64px; width: 64px; height: 64px; color: #ccc;">book</mat-icon>
+            <h3>Aucune formation trouvée</h3>
+            <p *ngIf="courseSearchTerm">Aucune formation ne correspond à votre recherche "{{ courseSearchTerm }}".</p>
+            <p *ngIf="!courseSearchTerm">Aucune formation en ligne disponible pour le moment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
