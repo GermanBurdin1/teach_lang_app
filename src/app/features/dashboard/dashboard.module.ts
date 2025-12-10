@@ -69,6 +69,7 @@ import { AddMaterialModalComponent } from '../courses/add-material-modal/add-mat
 import { LessonTypeSelectorComponent } from '../courses/lesson-type-selector/lesson-type-selector.component';
 import { PromptDialogComponent } from '../courses/prompt-dialog/prompt-dialog.component';
 import { ConfirmDialogComponent } from '../courses/prompt-dialog/confirm-dialog.component';
+import { CourseSettingsModalComponent } from '../courses/add-course/course-settings-modal/course-settings-modal.component';
 import { ClassroomModule } from '../../classroom/classroom.module';
 import { LessonsModule } from '../lessons/lessons.module';
 
@@ -107,7 +108,8 @@ import { LessonsModule } from '../lessons/lessons.module';
     AddMaterialModalComponent,
     LessonTypeSelectorComponent,
     PromptDialogComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    CourseSettingsModalComponent
   ],
   imports: [
     LayoutModule,

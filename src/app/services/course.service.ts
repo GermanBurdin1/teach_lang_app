@@ -19,6 +19,11 @@ export interface Course {
   createdAt: Date;
   updatedAt: Date;
   courseLessons?: any[];
+  price?: number;
+  currency?: string;
+  paymentMethod?: string;
+  paymentDescription?: string;
+  isFree?: boolean;
 }
 
 export interface CreateCourseRequest {
@@ -38,6 +43,11 @@ export interface UpdateCourseRequest {
   subSections?: { [key: string]: string[] } | null;
   lessons?: { [key: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } | null;
   lessonsInSubSections?: { [section: string]: { [subSection: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } } | null;
+  price?: number;
+  currency?: string;
+  paymentMethod?: string;
+  paymentDescription?: string;
+  isFree?: boolean;
 }
 
 @Injectable({

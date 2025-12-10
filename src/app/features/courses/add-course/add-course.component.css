@@ -281,6 +281,40 @@
   transition: all 0.3s ease;
 }
 
+.course-card-section {
+  position: relative;
+}
+
+.course-settings-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.course-settings-button:hover {
+  background: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.course-settings-button mat-icon {
+  color: #673ab7;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
 .course-card-header {
   padding: 1.5rem 2rem;
   display: flex;
@@ -425,6 +459,30 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
+}
+
+.course-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.75rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.course-price mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.course-price.free {
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 .course-actions-header {

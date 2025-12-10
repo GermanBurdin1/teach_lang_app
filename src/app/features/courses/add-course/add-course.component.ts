@@ -20,6 +20,7 @@ import { forkJoin, firstValueFrom } from 'rxjs';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { PromptDialogComponent, PromptDialogData } from '../prompt-dialog/prompt-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../prompt-dialog/confirm-dialog.component';
+import { CourseSettingsModalComponent, CourseSettingsModalData } from './course-settings-modal/course-settings-modal.component';
 
 @Component({
   selector: 'app-add-course',
@@ -92,6 +93,13 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   // Все курсы преподавателя
   allTeacherCourses: Course[] = [];
   loadingCourses = false;
+  
+  // Настройки оплаты курса
+  coursePrice: number = 0;
+  courseCurrency: string = 'EUR';
+  coursePaymentMethod: string = 'stripe';
+  coursePaymentDescription: string = '';
+  isCourseFree: boolean = true; // По умолчанию курс бесплатный
 
   constructor(
     private fileUploadService: FileUploadService,
@@ -234,6 +242,25 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         if (course.lessonsInSubSections) {
           this.lessonsInSubSections = course.lessonsInSubSections;
         }
+        // Загружаем настройки оплаты (если они есть в курсе)
+        if ((course as any).price !== undefined) {
+          this.coursePrice = (course as any).price || 0;
+        }
+        if ((course as any).currency) {
+          this.courseCurrency = (course as any).currency || 'EUR';
+        }
+        if ((course as any).paymentMethod) {
+          this.coursePaymentMethod = (course as any).paymentMethod || 'stripe';
+        }
+        if ((course as any).paymentDescription) {
+          this.coursePaymentDescription = (course as any).paymentDescription || '';
+        }
+        // Определяем, бесплатный ли курс
+        if ((course as any).isFree !== undefined) {
+          this.isCourseFree = (course as any).isFree;
+        } else {
+          this.isCourseFree = !this.coursePrice || this.coursePrice === 0;
+        }
         this.hasUnsavedChanges = false;
         this.isCourseCardExpanded = true;
         this.loadFiles();
@@ -371,6 +398,40 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         // Откатываем изменение в случае ошибки
         this.isPublished = !this.isPublished;
         this.notificationService.error('Erreur lors de la mise à jour du statut de publication');
+      }
+    });
+  }
+
+  // Открытие модального окна настроек курса
+  openCourseSettings(): void {
+    if (!this.courseId) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(CourseSettingsModalComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      data: {
+        courseId: parseInt(this.courseId, 10),
+        currentPrice: this.coursePrice,
+        currentCurrency: this.courseCurrency,
+        currentPaymentMethod: this.coursePaymentMethod,
+        currentPaymentDescription: this.coursePaymentDescription,
+        isFree: this.isCourseFree
+      } as CourseSettingsModalData,
+      panelClass: 'course-settings-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Обновляем локальные значения настроек
+        this.coursePrice = result.price || 0;
+        this.courseCurrency = result.currency || 'EUR';
+        this.coursePaymentMethod = result.paymentMethod || 'stripe';
+        this.coursePaymentDescription = result.paymentDescription || '';
+        this.isCourseFree = result.isFree !== undefined ? result.isFree : (!this.coursePrice || this.coursePrice === 0);
+        console.log('📚 Настройки курса обновлены:', result);
+        this.cdr.detectChanges();
       }
     });
   }

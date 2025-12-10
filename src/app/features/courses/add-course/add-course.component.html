@@ -170,6 +170,10 @@
 
   <!-- Course Card (shown after course creation) -->
   <div *ngIf="courseId" class="course-card-section">
+    <!-- Иконка настроек курса -->
+    <div class="course-settings-button" (click)="openCourseSettings()" matTooltip="Paramètres de paiement">
+      <mat-icon>settings</mat-icon>
+    </div>
     <div class="course-card" [class.expanded]="isCourseCardExpanded">
       <div class="course-card-header">
         <div class="course-title-section" (click)="toggleCourseCard()">
@@ -212,6 +216,12 @@
             <span class="course-status" [class.published]="isPublished" [class.unpublished]="!isPublished">
               <mat-icon>{{ isPublished ? 'public' : 'lock' }}</mat-icon>
               {{ isPublished ? 'Publié' : 'Non publié' }}
+            </span>
+            <!-- Информация о стоимости курса -->
+            <span class="course-price" [class.free]="isCourseFree || coursePrice === 0">
+              <mat-icon>{{ isCourseFree || coursePrice === 0 ? 'free_breakfast' : 'euro' }}</mat-icon>
+              <span *ngIf="isCourseFree || coursePrice === 0">Gratuit</span>
+              <span *ngIf="!isCourseFree && coursePrice > 0">{{ coursePrice }} {{ courseCurrency }}</span>
             </span>
           </div>
           <div class="course-lessons-summary" *ngIf="getLessonsSummary().length > 0">
