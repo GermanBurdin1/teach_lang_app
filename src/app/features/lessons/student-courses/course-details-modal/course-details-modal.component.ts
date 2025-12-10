@@ -77,3 +77,4 @@ export class CourseDetailsModalComponent implements OnInit {
   }
 }
 
+
