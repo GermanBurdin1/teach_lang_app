@@ -16,13 +16,45 @@
           <p style="margin: 8px 0 0 0; color: #666;">Découvrez tous les cours en ligne disponibles</p>
         </div>
 
-        <!-- Поисковое поле -->
+        <!-- Поисковое поле и фильтры -->
         <div class="course-search-container mat-elevation-z1" style="margin-bottom: 20px; padding: 20px;">
-          <mat-form-field appearance="fill" class="full-width">
+          <mat-form-field appearance="fill" class="full-width" style="margin-bottom: 20px;">
             <mat-label>🔍 Rechercher une formation</mat-label>
             <input matInput [(ngModel)]="courseSearchTerm" placeholder="Rechercher par titre, description, niveau...">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
+
+          <!-- Фильтры по цене -->
+          <div class="price-filters">
+            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 500; color: #333;">💰 Filtrer par prix</h3>
+            
+            <!-- Чекбокс для бесплатных курсов -->
+            <div class="free-courses-filter" style="margin-bottom: 20px;">
+              <mat-checkbox [(ngModel)]="showFreeCourses" color="primary">
+                Afficher les cours gratuits
+              </mat-checkbox>
+            </div>
+
+            <!-- Слайдер для фильтрации по цене -->
+            <div class="price-slider-container">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #666;">
+                Prix maximum: <strong>{{ priceFilter }} {{ courses.length > 0 ? (courses[0].currency || 'EUR') : 'EUR' }}</strong>
+              </label>
+              <mat-slider
+                [min]="0"
+                [max]="maxPrice"
+                [step]="10"
+                [(ngModel)]="priceFilter"
+                [displayWith]="formatPriceLabel"
+                discrete>
+                <input matSliderThumb>
+              </mat-slider>
+              <div class="price-range-labels" style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 12px; color: #999;">
+                <span>0</span>
+                <span>{{ maxPrice }} {{ courses.length > 0 ? (courses[0].currency || 'EUR') : 'EUR' }}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Список курсов -->
@@ -50,6 +82,11 @@
               </div>
               <div class="course-meta">
                 <small>Créé le {{ course.createdAt | date:'dd/MM/yyyy' }}</small>
+                <!-- Цена курса -->
+                <span class="course-price-badge" [class.free]="isCourseFree(course)">
+                  <mat-icon>{{ isCourseFree(course) ? 'free_breakfast' : 'euro' }}</mat-icon>
+                  {{ getCoursePrice(course) }}
+                </span>
               </div>
             </mat-card-content>
             <mat-card-actions>

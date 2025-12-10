@@ -23,6 +23,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { LayoutModule } from '../../layout/layout.module';
 
 
@@ -51,7 +53,9 @@ import { LayoutModule } from '../../layout/layout.module';
     MatProgressSpinnerModule,
     MatDividerModule,
     MatTooltipModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSliderModule,
+    MatCheckboxModule
   ]
 })
 export class LessonsModule { }

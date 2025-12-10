@@ -19,6 +19,11 @@ export class StudentCoursesComponent implements OnInit {
   courses: CourseWithTeacher[] = [];
   courseSearchTerm = '';
   loading = false;
+  
+  // Фильтры по цене
+  maxPrice: number = 1000; // Максимальная цена по умолчанию
+  priceFilter: number = 1000; // Текущее значение фильтра
+  showFreeCourses: boolean = true; // Показывать бесплатные курсы
 
   constructor(
     private courseService: CourseService,
@@ -84,6 +89,18 @@ export class StudentCoursesComponent implements OnInit {
           teacherName: teacherMap.get(course.teacherId) || 'Professeur'
         }));
 
+        // Определяем максимальную цену для слайдера
+        const prices = this.courses
+          .map(course => course.price || 0)
+          .filter(price => price > 0);
+        if (prices.length > 0) {
+          this.maxPrice = Math.max(...prices);
+          this.priceFilter = this.maxPrice;
+        } else {
+          this.maxPrice = 1000;
+          this.priceFilter = 1000;
+        }
+
         console.log('📚 Загружены все опубликованные курсы с именами преподавателей:', this.courses);
         this.loading = false;
       },
@@ -99,20 +116,60 @@ export class StudentCoursesComponent implements OnInit {
     });
   }
 
-  // Получить отфильтрованные курсы по поисковому запросу
+  // Получить отфильтрованные курсы по поисковому запросу и цене
   get filteredCourses(): CourseWithTeacher[] {
-    if (!this.courseSearchTerm) {
-      return this.courses;
+    let filtered = this.courses;
+
+    // Фильтр по поисковому запросу
+    if (this.courseSearchTerm) {
+      const searchLower = this.courseSearchTerm.toLowerCase();
+      filtered = filtered.filter(course => {
+        const titleMatch = course.title?.toLowerCase().includes(searchLower);
+        const descriptionMatch = course.description?.toLowerCase().includes(searchLower);
+        const levelMatch = course.level?.toLowerCase().includes(searchLower);
+        const teacherMatch = course.teacherName?.toLowerCase().includes(searchLower);
+        return titleMatch || descriptionMatch || levelMatch || teacherMatch;
+      });
+    }
+
+    // Фильтр по цене
+    filtered = filtered.filter(course => {
+      const coursePrice = course.price || 0;
+      const isFree = course.isFree || coursePrice === 0;
+      
+      // Если курс бесплатный
+      if (isFree) {
+        return this.showFreeCourses;
+      }
+      
+      // Если курс платный, проверяем цену
+      return coursePrice <= this.priceFilter;
+    });
+
+    return filtered;
+  }
+
+  // Получить цену курса для отображения
+  getCoursePrice(course: CourseWithTeacher): string {
+    const coursePrice = course.price || 0;
+    const isFree = course.isFree || coursePrice === 0;
+    
+    if (isFree) {
+      return 'Gratuit';
     }
     
-    const searchLower = this.courseSearchTerm.toLowerCase();
-    return this.courses.filter(course => {
-      const titleMatch = course.title?.toLowerCase().includes(searchLower);
-      const descriptionMatch = course.description?.toLowerCase().includes(searchLower);
-      const levelMatch = course.level?.toLowerCase().includes(searchLower);
-      const teacherMatch = course.teacherName?.toLowerCase().includes(searchLower);
-      return titleMatch || descriptionMatch || levelMatch || teacherMatch;
-    });
+    return `${coursePrice} ${course.currency || 'EUR'}`;
+  }
+
+  // Проверить, бесплатный ли курс
+  isCourseFree(course: CourseWithTeacher): boolean {
+    const coursePrice = course.price || 0;
+    return course.isFree || coursePrice === 0;
+  }
+
+  // Форматирование метки для слайдера цены
+  formatPriceLabel(value: number): string {
+    return `${value}`;
   }
 
   // Просмотр деталей курса
