@@ -489,7 +489,7 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
         console.log('ℹ️ [Teacher] Урок из курса загружен (без API запросов):', lessonId);
       } else {
         // Для обычных уроков загружаем задачи, вопросы и материалы через API
-        this.loadTasksAndQuestions(lessonId);
+      this.loadTasksAndQuestions(lessonId);
       }
       
       setTimeout(() => {
@@ -502,8 +502,8 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
           this.currentLesson = lesson as unknown as Lesson;
           this.highlightedLessonId = lessonId;
           
-          // Загружаем задачи, вопросы, домашние задания и заметки
-          this.loadTasksAndQuestions(lessonId);
+                // Загружаем задачи, вопросы, домашние задания и заметки
+      this.loadTasksAndQuestions(lessonId);
           
           setTimeout(() => {
             this.highlightedLessonId = null;
@@ -786,48 +786,48 @@ export class TeacherLessonManagementComponent implements OnInit, OnDestroy {
         // Обычный урок без даты - не показываем
         return false;
       }
+    
+    // Фильтр по времени
+    if (this.filter === 'future') {
+      // À venir: ТОЛЬКО предстоящие уроки по времени
+      const isFutureTime = lessonDate > now;
       
-      // Фильтр по времени
-      if (this.filter === 'future') {
-        // À venir: ТОЛЬКО предстоящие уроки по времени
-        const isFutureTime = lessonDate > now;
-        
-        // console.log(`🔍 Teacher Фильтр Future для урока ${lesson.id}:`, {
-        //   lessonDate: lessonDate.toISOString(),
-        //   now: now.toISOString(), 
-        //   status: lesson.status,
-        //   isFutureTime,
-        //   studentName: lesson.studentName
-        // });
-        
-        if (!isFutureTime) return false;
-      } else if (this.filter === 'past') {
-        // Passés: ТОЛЬКО прошедшие по времени
-        const isPastTime = lessonDate <= now;
-        
-        console.log(`🕐 Teacher Фильтр Past для урока ${lesson.id}:`, {
-          lessonDate: lessonDate.toISOString(),
-          now: now.toISOString(),
-          status: lesson.status,
-          isPastTime,
-          studentName: lesson.studentName
-        });
-        
-        if (!isPastTime) return false;
-      }
-      // 'all' - показываем все (предстоящие, прошедшие, отмененные, ожидающие подтверждения)
+      // console.log(`🔍 Teacher Фильтр Future для урока ${lesson.id}:`, {
+      //   lessonDate: lessonDate.toISOString(),
+      //   now: now.toISOString(), 
+      //   status: lesson.status,
+      //   isFutureTime,
+      //   studentName: lesson.studentName
+      // });
       
-      // Фильтр по дате начала
-      if (this.startDate) {
-        const filterDate = new Date(this.startDate);
-        if (lessonDate < filterDate) return false;
-      }
+      if (!isFutureTime) return false;
+    } else if (this.filter === 'past') {
+      // Passés: ТОЛЬКО прошедшие по времени
+      const isPastTime = lessonDate <= now;
+      
+      console.log(`🕐 Teacher Фильтр Past для урока ${lesson.id}:`, {
+        lessonDate: lessonDate.toISOString(),
+        now: now.toISOString(),
+        status: lesson.status,
+        isPastTime,
+        studentName: lesson.studentName
+      });
+      
+      if (!isPastTime) return false;
+    }
+    // 'all' - показываем все (предстоящие, прошедшие, отмененные, ожидающие подтверждения)
 
-      // Фильтр по дате окончания
-      if (this.endDate) {
-        const filterDate = new Date(this.endDate);
-        filterDate.setHours(23, 59, 59, 999); // Конец дня
-        if (lessonDate > filterDate) return false;
+    // Фильтр по дате начала
+    if (this.startDate) {
+      const filterDate = new Date(this.startDate);
+      if (lessonDate < filterDate) return false;
+    }
+
+    // Фильтр по дате окончания
+    if (this.endDate) {
+      const filterDate = new Date(this.endDate);
+      filterDate.setHours(23, 59, 59, 999); // Конец дня
+      if (lessonDate > filterDate) return false;
       }
     }
 

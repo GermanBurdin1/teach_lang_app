@@ -28,7 +28,7 @@
               <mat-option *ngFor="let s of uniqueStudents" [value]="s">{{ s }}</mat-option>
             </mat-select>
           </mat-form-field>
-
+    
           <mat-form-field appearance="fill" class="filter-item">
             <mat-label>📚 Cours</mat-label>
             <mat-select [(ngModel)]="selectedCourse" (selectionChange)="onCourseSelected($event.value)">
@@ -104,7 +104,7 @@
                       </button>
                     </span>
                     <span *ngIf="!lesson.scheduledAt && !lesson.isFromCourse">
-                      📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
+                📅 {{ lesson.scheduledAt | date:'dd/MM/yyyy à HH:mm' }}
                     </span>
                   </div>
                   <div *ngIf="editingDateForLesson === lesson.id" class="date-editor" style="display: flex; align-items: center; gap: 8px;">
