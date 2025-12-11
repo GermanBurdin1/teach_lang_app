@@ -25,7 +25,7 @@
           Cours gratuits ({{ freeCourses.length }})
         </h5>
         <div class="courses-grid">
-          <div *ngFor="let course of freeCourses" class="course-card free-course-card" (click)="viewCourseDetails(course.id)">
+          <div *ngFor="let course of displayedFreeCourses" class="course-card free-course-card" (click)="viewCourseDetails(course.id)">
             <div class="course-card-header">
               <h5>{{ course.title }}</h5>
               <span class="course-status-badge published">
@@ -53,6 +53,14 @@
             </div>
           </div>
         </div>
+        
+        <!-- Кнопка "Voir plus" для бесплатных курсов -->
+        <div *ngIf="hasMoreFreeCourses" class="load-more-container" style="text-align: center; margin-top: 20px;">
+          <button mat-raised-button color="primary" (click)="loadMoreFreeCourses()" class="load-more-button">
+            <mat-icon>expand_more</mat-icon>
+            Voir plus ({{ freeCourses.length - displayedFreeCoursesCount }} restant{{ freeCourses.length - displayedFreeCoursesCount > 1 ? 's' : '' }})
+          </button>
+        </div>
       </div>
 
       <!-- Платные курсы -->
@@ -62,7 +70,7 @@
           Cours payants ({{ paidCourses.length }})
         </h5>
         <div class="courses-grid">
-          <div *ngFor="let course of paidCourses" class="course-card paid-course-card" (click)="viewCourseDetails(course.id)">
+          <div *ngFor="let course of displayedPaidCourses" class="course-card paid-course-card" (click)="viewCourseDetails(course.id)">
             <div class="course-card-header">
               <h5>{{ course.title }}</h5>
               <span class="course-status-badge published">
@@ -89,6 +97,14 @@
               <button class="btn btn-sm btn-primary">Voir les détails</button>
             </div>
           </div>
+        </div>
+        
+        <!-- Кнопка "Voir plus" для платных курсов -->
+        <div *ngIf="hasMorePaidCourses" class="load-more-container" style="text-align: center; margin-top: 20px;">
+          <button mat-raised-button color="primary" (click)="loadMorePaidCourses()" class="load-more-button">
+            <mat-icon>expand_more</mat-icon>
+            Voir plus ({{ paidCourses.length - displayedPaidCoursesCount }} restant{{ paidCourses.length - displayedPaidCoursesCount > 1 ? 's' : '' }})
+          </button>
         </div>
       </div>
     </div>

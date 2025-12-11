@@ -482,6 +482,21 @@ h2 {
   color: var(--text-secondary);
 }
 
+.load-more-container {
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.load-more-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.load-more-button mat-icon {
+  margin-right: 8px;
+}
+
 /* Стили для разделения бесплатных и платных курсов */
 .courses-group {
   margin-bottom: 2rem;

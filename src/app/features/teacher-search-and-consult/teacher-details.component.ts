@@ -143,6 +143,43 @@ export class TeacherDetailsComponent implements OnInit {
     return this.teacherCourses.filter(course => !this.isCourseFree(course));
   }
 
+  // Пагинация для бесплатных курсов
+  displayedFreeCoursesCount: number = 4;
+  coursesPerPage: number = 4;
+
+  // Пагинация для платных курсов
+  displayedPaidCoursesCount: number = 4;
+
+  // Получить отображаемые бесплатные курсы
+  get displayedFreeCourses(): Course[] {
+    return this.freeCourses.slice(0, this.displayedFreeCoursesCount);
+  }
+
+  // Получить отображаемые платные курсы
+  get displayedPaidCourses(): Course[] {
+    return this.paidCourses.slice(0, this.displayedPaidCoursesCount);
+  }
+
+  // Проверить, есть ли еще бесплатные курсы для загрузки
+  get hasMoreFreeCourses(): boolean {
+    return this.displayedFreeCoursesCount < this.freeCourses.length;
+  }
+
+  // Проверить, есть ли еще платные курсы для загрузки
+  get hasMorePaidCourses(): boolean {
+    return this.displayedPaidCoursesCount < this.paidCourses.length;
+  }
+
+  // Загрузить еще бесплатные курсы
+  loadMoreFreeCourses(): void {
+    this.displayedFreeCoursesCount += this.coursesPerPage;
+  }
+
+  // Загрузить еще платные курсы
+  loadMorePaidCourses(): void {
+    this.displayedPaidCoursesCount += this.coursesPerPage;
+  }
+
 
   openMessageModal() {
     this.showMessageModal = true;
