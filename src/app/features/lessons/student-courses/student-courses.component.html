@@ -20,46 +20,53 @@
         <div class="course-search-container mat-elevation-z1" style="margin-bottom: 20px; padding: 20px;">
           <mat-form-field appearance="fill" class="full-width" style="margin-bottom: 20px;">
             <mat-label>🔍 Rechercher une formation</mat-label>
-            <input matInput [(ngModel)]="courseSearchTerm" placeholder="Rechercher par titre, description, niveau...">
+            <input matInput [(ngModel)]="courseSearchTerm" (ngModelChange)="resetPagination()" placeholder="Rechercher par titre, description, niveau...">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
           <!-- Фильтры по цене -->
           <div class="price-filters">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 500; color: #333;">💰 Filtrer par prix</h3>
+            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 500; color: #333;">💰 Filtrer les formations</h3>
             
-            <!-- Чекбокс для бесплатных курсов -->
-            <div class="free-courses-filter" style="margin-bottom: 20px;">
-              <mat-checkbox [(ngModel)]="showFreeCourses" color="primary">
-                Afficher uniquement les cours gratuits
-              </mat-checkbox>
+            <!-- Фильтр типа курсов -->
+            <div class="course-type-filter" style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #666;">Type de cours:</label>
+              <mat-radio-group [(ngModel)]="courseTypeFilter" (ngModelChange)="resetPagination()" class="course-type-radio-group">
+                <mat-radio-button value="all" class="course-type-radio">
+                  <mat-icon>apps</mat-icon>
+                  Tous les cours
+                </mat-radio-button>
+                <mat-radio-button value="free" class="course-type-radio">
+                  <mat-icon>free_breakfast</mat-icon>
+                  Cours gratuits uniquement
+                </mat-radio-button>
+                <mat-radio-button value="paid" class="course-type-radio">
+                  <mat-icon>euro</mat-icon>
+                  Cours payants uniquement
+                </mat-radio-button>
+              </mat-radio-group>
             </div>
 
-            <!-- Слайдер для фильтрации по цене -->
-            <div class="price-slider-container">
+            <!-- Фильтр по максимальной цене (только для платных курсов) -->
+            <div class="price-filter-container" *ngIf="courseTypeFilter === 'paid' || courseTypeFilter === 'all'">
               <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #666;">
-                Prix maximum: <strong>{{ priceFilter }} {{ courses.length > 0 ? (courses[0].currency || 'EUR') : 'EUR' }}</strong>
+                Prix maximum:
               </label>
-              <mat-slider
-                [min]="0"
-                [max]="maxPrice"
-                [step]="10"
-                [(ngModel)]="priceFilter"
-                [displayWith]="formatPriceLabel"
-                discrete>
-                <input matSliderThumb>
-              </mat-slider>
-              <div class="price-range-labels" style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 12px; color: #999;">
-                <span>0</span>
-                <span>{{ maxPrice }} {{ courses.length > 0 ? (courses[0].currency || 'EUR') : 'EUR' }}</span>
-              </div>
+              
+              <!-- Поле ввода для максимальной цены -->
+              <mat-form-field appearance="fill" class="price-input-field">
+                <mat-label>Prix maximum</mat-label>
+                <input matInput type="number" [(ngModel)]="priceFilter" (ngModelChange)="onPriceFilterChange()" 
+                  [min]="0" [step]="10" placeholder="Entrez le prix maximum">
+                <span matSuffix>{{ courses.length > 0 ? (courses[0].currency || 'EUR') : 'EUR' }}</span>
+              </mat-form-field>
             </div>
           </div>
         </div>
 
         <!-- Список курсов -->
         <div class="courses-list">
-          <mat-card *ngFor="let course of filteredCourses" class="course-card" style="margin-bottom: 16px;">
+          <mat-card *ngFor="let course of displayedCourses" class="course-card" style="margin-bottom: 16px;">
             <mat-card-header>
               <div mat-card-avatar *ngIf="course.coverImage" class="course-cover">
                 <img [src]="course.coverImage" [alt]="course.title" style="width: 100%; height: 100%; object-fit: cover;">
@@ -102,6 +109,14 @@
             <h3>Aucune formation trouvée</h3>
             <p *ngIf="courseSearchTerm">Aucune formation ne correspond à votre recherche "{{ courseSearchTerm }}".</p>
             <p *ngIf="!courseSearchTerm">Aucune formation en ligne disponible pour le moment.</p>
+          </div>
+
+          <!-- Кнопка "Voir plus" -->
+          <div *ngIf="hasMoreCourses && !loading && filteredCourses.length > 0" class="load-more-container" style="text-align: center; margin-top: 24px;">
+            <button mat-raised-button color="primary" (click)="loadMoreCourses()" class="load-more-button">
+              <mat-icon>expand_more</mat-icon>
+              Voir plus ({{ filteredCourses.length - displayedCoursesCount }} restant{{ filteredCourses.length - displayedCoursesCount > 1 ? 's' : '' }})
+            </button>
           </div>
         </div>
       </div>

@@ -100,12 +100,35 @@
   border-top: 1px solid #e0e0e0;
 }
 
-.free-courses-filter {
+.course-type-filter {
   margin-bottom: 16px;
 }
 
-.price-slider-container {
-  padding: 0 8px;
+.course-type-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.course-type-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.course-type-radio mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #673ab7;
+}
+
+.price-filter-container {
+  margin-bottom: 16px;
+}
+
+.price-input-field {
+  width: 100%;
 }
 
 .teacher-name {
@@ -145,5 +168,20 @@
 .loading-container p {
   margin-top: 16px;
   color: #666;
+}
+
+.load-more-container {
+  margin-top: 24px;
+  padding: 20px;
+}
+
+.load-more-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.load-more-button mat-icon {
+  margin-right: 8px;
 }
 

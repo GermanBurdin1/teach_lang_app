@@ -21,9 +21,13 @@ export class StudentCoursesComponent implements OnInit {
   loading = false;
   
   // Фильтры по цене
-  maxPrice: number = 1000; // Максимальная цена по умолчанию
-  priceFilter: number = 1000; // Текущее значение фильтра
-  showFreeCourses: boolean = true; // Показывать бесплатные курсы
+  maxPrice: number = 1000; // Максимальная цена по умолчанию для слайдера
+  priceFilter: number = 1000; // Текущее значение фильтра (может быть любым)
+  courseTypeFilter: 'all' | 'free' | 'paid' = 'all'; // Фильтр типа курсов: все, только бесплатные, только платные
+  
+  // Пагинация
+  coursesPerPage: number = 3; // Количество курсов на странице (для теста)
+  displayedCoursesCount: number = 3; // Количество отображаемых курсов (для теста)
 
   constructor(
     private courseService: CourseService,
@@ -139,28 +143,53 @@ export class StudentCoursesComponent implements OnInit {
       });
     }
 
-    // Фильтр по цене
+    // Фильтр по типу курсов и цене
     filtered = filtered.filter(course => {
       const coursePrice = course.price || 0;
       const isFree = this.isCourseFree(course);
       
-      // Если включен фильтр "только бесплатные курсы"
-      if (this.showFreeCourses) {
+      // Фильтр по типу курсов
+      if (this.courseTypeFilter === 'free') {
         // Показываем ТОЛЬКО бесплатные курсы
         return isFree;
+      } else if (this.courseTypeFilter === 'paid') {
+        // Показываем ТОЛЬКО платные курсы
+        if (isFree) {
+          return false;
+        }
+        // Фильтруем платные курсы по максимальной цене
+        return coursePrice > 0 && coursePrice <= this.priceFilter;
+      } else {
+        // Показываем все курсы (и бесплатные, и платные)
+        if (isFree) {
+          return true; // Бесплатные курсы всегда показываем
+        }
+        // Платные курсы фильтруем по максимальной цене
+        return coursePrice > 0 && coursePrice <= this.priceFilter;
       }
-      
-      // Если фильтр бесплатных выключен - показываем только платные курсы
-      // Фильтруем по максимальной цене
-      if (isFree) {
-        return false; // Не показываем бесплатные курсы
-      }
-      
-      // Показываем платные курсы, если цена не превышает фильтр
-      return coursePrice > 0 && coursePrice <= this.priceFilter;
     });
 
     return filtered;
+  }
+
+  // Получить курсы для отображения (с учетом пагинации)
+  get displayedCourses(): CourseWithTeacher[] {
+    return this.filteredCourses.slice(0, this.displayedCoursesCount);
+  }
+
+  // Проверить, есть ли еще курсы для загрузки
+  get hasMoreCourses(): boolean {
+    return this.displayedCoursesCount < this.filteredCourses.length;
+  }
+
+  // Загрузить еще курсы
+  loadMoreCourses(): void {
+    this.displayedCoursesCount += this.coursesPerPage;
+  }
+
+  // Сбросить пагинацию при изменении фильтров
+  resetPagination(): void {
+    this.displayedCoursesCount = this.coursesPerPage;
   }
 
   // Получить цену курса для отображения
@@ -193,6 +222,19 @@ export class StudentCoursesComponent implements OnInit {
   // Форматирование метки для слайдера цены
   formatPriceLabel(value: number): string {
     return `${value}`;
+  }
+
+  // Обработка изменения фильтра цены через поле ввода
+  onPriceFilterChange(): void {
+    // Валидация: цена не может быть отрицательной
+    if (this.priceFilter < 0) {
+      this.priceFilter = 0;
+    }
+    // Если цена больше максимальной среди курсов, обновляем maxPrice для слайдера
+    if (this.priceFilter > this.maxPrice) {
+      this.maxPrice = Math.ceil(this.priceFilter / 100) * 100; // Округляем до сотен
+    }
+    this.resetPagination();
   }
 
   // Просмотр деталей курса

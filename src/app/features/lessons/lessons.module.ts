@@ -25,6 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
 import { LayoutModule } from '../../layout/layout.module';
 
 
@@ -55,7 +56,8 @@ import { LayoutModule } from '../../layout/layout.module';
     MatTooltipModule,
     MatDialogModule,
     MatSliderModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatRadioModule
   ]
 })
 export class LessonsModule { }
