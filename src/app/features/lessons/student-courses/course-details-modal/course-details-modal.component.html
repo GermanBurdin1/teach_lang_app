@@ -20,6 +20,14 @@
       <div class="info-item">
         <strong>📅 Créé le:</strong> {{ course.createdAt | date:'dd/MM/yyyy' }}
       </div>
+      <!-- Цена курса -->
+      <div class="info-item course-price-info">
+        <strong>💰 Prix:</strong>
+        <span class="course-price-display" [class.free]="isCourseFree()" [class.paid]="!isCourseFree()">
+          <mat-icon>{{ isCourseFree() ? 'free_breakfast' : 'euro' }}</mat-icon>
+          {{ getCoursePrice() }}
+        </span>
+      </div>
     </div>
 
     <!-- Структура курса -->

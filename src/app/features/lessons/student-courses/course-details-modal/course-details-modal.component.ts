@@ -72,6 +72,30 @@ export class CourseDetailsModalComponent implements OnInit {
     return this.course.subSections?.[section] || [];
   }
 
+  // Проверить, бесплатный ли курс
+  isCourseFree(): boolean {
+    if (this.course.isFree === true) {
+      return true;
+    }
+    if (this.course.isFree === false) {
+      return false;
+    }
+    const coursePrice = this.course.price || 0;
+    return coursePrice === 0;
+  }
+
+  // Получить цену курса для отображения
+  getCoursePrice(): string {
+    const coursePrice = this.course.price || 0;
+    const isFree = this.isCourseFree();
+    
+    if (isFree) {
+      return 'Gratuit';
+    }
+    
+    return `${coursePrice} ${this.course.currency || 'EUR'}`;
+  }
+
   close(): void {
     this.dialogRef.close();
   }

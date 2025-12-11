@@ -109,6 +109,40 @@ export class TeacherDetailsComponent implements OnInit {
     });
   }
 
+  // Проверить, бесплатный ли курс
+  isCourseFree(course: Course): boolean {
+    if (course.isFree === true) {
+      return true;
+    }
+    if (course.isFree === false) {
+      return false;
+    }
+    const coursePrice = course.price || 0;
+    return coursePrice === 0;
+  }
+
+  // Получить цену курса для отображения
+  getCoursePrice(course: Course): string {
+    const coursePrice = course.price || 0;
+    const isFree = this.isCourseFree(course);
+    
+    if (isFree) {
+      return 'Gratuit';
+    }
+    
+    return `${coursePrice} ${course.currency || 'EUR'}`;
+  }
+
+  // Получить бесплатные курсы
+  get freeCourses(): Course[] {
+    return this.teacherCourses.filter(course => this.isCourseFree(course));
+  }
+
+  // Получить платные курсы
+  get paidCourses(): Course[] {
+    return this.teacherCourses.filter(course => !this.isCourseFree(course));
+  }
+
 
   openMessageModal() {
     this.showMessageModal = true;

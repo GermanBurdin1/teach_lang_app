@@ -17,28 +17,77 @@
       <p class="courses-count">
         <strong>{{ teacherCourses.length }}</strong> formation{{ teacherCourses.length > 1 ? 's' : '' }} disponible{{ teacherCourses.length > 1 ? 's' : '' }}
       </p>
-      <div class="courses-grid">
-        <div *ngFor="let course of teacherCourses" class="course-card" (click)="viewCourseDetails(course.id)">
-          <div class="course-card-header">
-            <h5>{{ course.title }}</h5>
-            <span class="course-status-badge published">
-              <mat-icon>public</mat-icon>
-              Publié
-            </span>
-          </div>
-          <div class="course-card-content">
-            <p *ngIf="course.level" class="course-level">
-              📊 Niveau: {{ course.level }}
-            </p>
-            <p *ngIf="course.description" class="course-description">
-              {{ course.description }}
-            </p>
-            <div *ngIf="course.sections && course.sections.length > 0" class="course-sections-preview">
-              <small>{{ course.sections.length }} section{{ course.sections.length > 1 ? 's' : '' }}</small>
+      
+      <!-- Бесплатные курсы -->
+      <div *ngIf="freeCourses.length > 0" class="courses-group free-courses-group">
+        <h5 class="courses-group-title">
+          <mat-icon class="group-icon free-icon">free_breakfast</mat-icon>
+          Cours gratuits ({{ freeCourses.length }})
+        </h5>
+        <div class="courses-grid">
+          <div *ngFor="let course of freeCourses" class="course-card free-course-card" (click)="viewCourseDetails(course.id)">
+            <div class="course-card-header">
+              <h5>{{ course.title }}</h5>
+              <span class="course-status-badge published">
+                <mat-icon>public</mat-icon>
+                Publié
+              </span>
+            </div>
+            <div class="course-card-content">
+              <p *ngIf="course.level" class="course-level">
+                📊 Niveau: {{ course.level }}
+              </p>
+              <p *ngIf="course.description" class="course-description">
+                {{ course.description }}
+              </p>
+              <div *ngIf="course.sections && course.sections.length > 0" class="course-sections-preview">
+                <small>{{ course.sections.length }} section{{ course.sections.length > 1 ? 's' : '' }}</small>
+              </div>
+              <div class="course-price-badge free">
+                <mat-icon>free_breakfast</mat-icon>
+                <span>Gratuit</span>
+              </div>
+            </div>
+            <div class="course-card-footer">
+              <button class="btn btn-sm btn-primary">Voir les détails</button>
             </div>
           </div>
-          <div class="course-card-footer">
-            <button class="btn btn-sm btn-primary">Voir les détails</button>
+        </div>
+      </div>
+
+      <!-- Платные курсы -->
+      <div *ngIf="paidCourses.length > 0" class="courses-group paid-courses-group">
+        <h5 class="courses-group-title">
+          <mat-icon class="group-icon paid-icon">euro</mat-icon>
+          Cours payants ({{ paidCourses.length }})
+        </h5>
+        <div class="courses-grid">
+          <div *ngFor="let course of paidCourses" class="course-card paid-course-card" (click)="viewCourseDetails(course.id)">
+            <div class="course-card-header">
+              <h5>{{ course.title }}</h5>
+              <span class="course-status-badge published">
+                <mat-icon>public</mat-icon>
+                Publié
+              </span>
+            </div>
+            <div class="course-card-content">
+              <p *ngIf="course.level" class="course-level">
+                📊 Niveau: {{ course.level }}
+              </p>
+              <p *ngIf="course.description" class="course-description">
+                {{ course.description }}
+              </p>
+              <div *ngIf="course.sections && course.sections.length > 0" class="course-sections-preview">
+                <small>{{ course.sections.length }} section{{ course.sections.length > 1 ? 's' : '' }}</small>
+              </div>
+              <div class="course-price-badge paid">
+                <mat-icon>euro</mat-icon>
+                <span>{{ getCoursePrice(course) }}</span>
+              </div>
+            </div>
+            <div class="course-card-footer">
+              <button class="btn btn-sm btn-primary">Voir les détails</button>
+            </div>
           </div>
         </div>
       </div>

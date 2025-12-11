@@ -481,3 +481,73 @@ h2 {
   padding: 2rem;
   color: var(--text-secondary);
 }
+
+/* Стили для разделения бесплатных и платных курсов */
+.courses-group {
+  margin-bottom: 2rem;
+}
+
+.courses-group:last-child {
+  margin-bottom: 0;
+}
+
+.courses-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.group-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.group-icon.free-icon {
+  color: #2e7d32;
+}
+
+.group-icon.paid-icon {
+  color: #1976d2;
+}
+
+.free-course-card {
+  border-left: 4px solid #2e7d32;
+}
+
+.paid-course-card {
+  border-left: 4px solid #1976d2;
+}
+
+.course-price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.course-price-badge mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.course-price-badge.free {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.course-price-badge.paid {
+  background: #e3f2fd;
+  color: #1976d2;
+}
