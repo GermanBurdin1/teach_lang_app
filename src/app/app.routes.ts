@@ -54,7 +54,14 @@ export const routes: Routes = [
   {
     path: 'constructeurs',
     loadChildren: () => import('./features/mindmap/mindmap.module').then(m => m.MindmapModule),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['teacher'] }
+  },
+  {
+    path: 'mindmap',
+    loadChildren: () => import('./features/mindmap/mindmap.module').then(m => m.MindmapModule),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['student'] }
   },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
