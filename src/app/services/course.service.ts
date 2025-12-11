@@ -31,6 +31,11 @@ export interface CreateCourseRequest {
   description?: string;
   level?: string;
   isPublished?: boolean;
+  isFree?: boolean;
+  price?: number | null;
+  currency?: string | null;
+  paymentMethod?: string | null;
+  paymentDescription?: string | null;
 }
 
 export interface UpdateCourseRequest {
@@ -43,10 +48,10 @@ export interface UpdateCourseRequest {
   subSections?: { [key: string]: string[] } | null;
   lessons?: { [key: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } | null;
   lessonsInSubSections?: { [section: string]: { [subSection: string]: Array<{ name: string; type: 'self' | 'call'; description?: string }> } } | null;
-  price?: number;
-  currency?: string;
-  paymentMethod?: string;
-  paymentDescription?: string;
+  price?: number | null;
+  currency?: string | null;
+  paymentMethod?: string | null;
+  paymentDescription?: string | null;
   isFree?: boolean;
 }
 

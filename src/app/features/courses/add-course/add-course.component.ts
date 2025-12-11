@@ -244,23 +244,33 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         }
         // Загружаем настройки оплаты (если они есть в курсе)
         if ((course as any).price !== undefined) {
-          this.coursePrice = (course as any).price || 0;
+          this.coursePrice = (course as any).price !== null ? (course as any).price : 0;
         }
-        if ((course as any).currency) {
-          this.courseCurrency = (course as any).currency || 'EUR';
+        if ((course as any).currency !== undefined) {
+          this.courseCurrency = (course as any).currency !== null ? (course as any).currency : 'EUR';
         }
-        if ((course as any).paymentMethod) {
-          this.coursePaymentMethod = (course as any).paymentMethod || 'stripe';
+        if ((course as any).paymentMethod !== undefined) {
+          this.coursePaymentMethod = (course as any).paymentMethod !== null ? (course as any).paymentMethod : 'stripe';
         }
-        if ((course as any).paymentDescription) {
-          this.coursePaymentDescription = (course as any).paymentDescription || '';
+        if ((course as any).paymentDescription !== undefined) {
+          this.coursePaymentDescription = (course as any).paymentDescription !== null ? (course as any).paymentDescription : '';
         }
-        // Определяем, бесплатный ли курс
+        // Определяем, бесплатный ли курс - приоритет у поля isFree из БД
         if ((course as any).isFree !== undefined) {
           this.isCourseFree = (course as any).isFree;
         } else {
-          this.isCourseFree = !this.coursePrice || this.coursePrice === 0;
+          // Если isFree не указан, определяем по цене
+          const coursePrice = (course as any).price;
+          this.isCourseFree = coursePrice === null || coursePrice === undefined || coursePrice === 0;
         }
+        
+        console.log('💰 Загружены настройки оплаты курса:', {
+          price: this.coursePrice,
+          currency: this.courseCurrency,
+          paymentMethod: this.coursePaymentMethod,
+          paymentDescription: this.coursePaymentDescription,
+          isFree: this.isCourseFree
+        });
         this.hasUnsavedChanges = false;
         this.isCourseCardExpanded = true;
         this.loadFiles();
@@ -296,7 +306,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       title: this.courseTitle,
       description: this.courseDescription || undefined,
       level: this.courseLevel || undefined,
-      isPublished: this.isPublished
+      isPublished: this.isPublished,
+      // Добавляем данные о цене курса при создании (опционально)
+      isFree: this.isCourseFree,
+      // Если курс бесплатный, передаем null для price и связанных полей
+      price: this.isCourseFree ? null : (this.coursePrice || null),
+      currency: this.isCourseFree ? null : (this.courseCurrency || null),
+      paymentMethod: this.isCourseFree ? null : (this.coursePaymentMethod || null),
+      paymentDescription: this.isCourseFree ? null : (this.coursePaymentDescription || null)
     };
 
     this.courseService.createCourse(courseData).subscribe({
@@ -304,6 +321,22 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.courseId = course.id.toString();
         // Сохраняем courseId в localStorage
         localStorage.setItem('currentCourseId', this.courseId);
+        // Загружаем данные о цене из ответа сервера
+        if ((course as any).price !== undefined) {
+          this.coursePrice = (course as any).price || 0;
+        }
+        if ((course as any).currency !== undefined) {
+          this.courseCurrency = (course as any).currency || 'EUR';
+        }
+        if ((course as any).paymentMethod !== undefined) {
+          this.coursePaymentMethod = (course as any).paymentMethod || 'stripe';
+        }
+        if ((course as any).paymentDescription !== undefined) {
+          this.coursePaymentDescription = (course as any).paymentDescription || '';
+        }
+        if ((course as any).isFree !== undefined) {
+          this.isCourseFree = (course as any).isFree;
+        }
         // Загружаем кэш домашних заданий после создания курса
         this.loadHomeworkCache();
         this.showCreateCourseForm = false;
@@ -355,16 +388,51 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       title: this.courseTitle,
       description: this.courseDescription || undefined,
       level: this.courseLevel || undefined,
-      isPublished: this.isPublished
+      isPublished: this.isPublished,
+      // Добавляем данные о цене курса
+      isFree: this.isCourseFree,
+      // Если курс бесплатный, передаем null для price и связанных полей
+      price: this.isCourseFree ? null : (this.coursePrice || null),
+      currency: this.isCourseFree ? null : (this.courseCurrency || null),
+      paymentMethod: this.isCourseFree ? null : (this.coursePaymentMethod || null),
+      paymentDescription: this.isCourseFree ? null : (this.coursePaymentDescription || null)
     };
 
+    console.log('💾 Сохранение курса с данными о цене:', courseData);
+    
     this.courseService.updateCourse(parseInt(this.courseId, 10), courseData).subscribe({
       next: (course) => {
+        console.log('✅ Курс обновлен, ответ сервера:', course);
         this.notificationService.success('Cours mis à jour avec succès!');
         // Обновляем данные курса
         this.coverImage = course.coverImage;
         this.sections = course.sections || [];
         this.isPublished = course.isPublished; // Обновляем статус публикации
+        // Обновляем данные о цене из ответа сервера
+        if ((course as any).price !== undefined) {
+          this.coursePrice = (course as any).price !== null ? (course as any).price : 0;
+        }
+        if ((course as any).currency !== undefined) {
+          this.courseCurrency = (course as any).currency !== null ? (course as any).currency : 'EUR';
+        }
+        if ((course as any).paymentMethod !== undefined) {
+          this.coursePaymentMethod = (course as any).paymentMethod !== null ? (course as any).paymentMethod : 'stripe';
+        }
+        if ((course as any).paymentDescription !== undefined) {
+          this.coursePaymentDescription = (course as any).paymentDescription !== null ? (course as any).paymentDescription : '';
+        }
+        if ((course as any).isFree !== undefined) {
+          this.isCourseFree = (course as any).isFree;
+        }
+        
+        console.log('💰 Обновлены настройки оплаты после сохранения:', {
+          price: this.coursePrice,
+          currency: this.courseCurrency,
+          paymentMethod: this.coursePaymentMethod,
+          paymentDescription: this.coursePaymentDescription,
+          isFree: this.isCourseFree
+        });
+        
         this.hasUnsavedChanges = false;
       },
       error: (error) => {
@@ -424,13 +492,22 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Обновляем локальные значения настроек
-        this.coursePrice = result.price || 0;
-        this.courseCurrency = result.currency || 'EUR';
-        this.coursePaymentMethod = result.paymentMethod || 'stripe';
-        this.coursePaymentDescription = result.paymentDescription || '';
-        this.isCourseFree = result.isFree !== undefined ? result.isFree : (!this.coursePrice || this.coursePrice === 0);
-        console.log('📚 Настройки курса обновлены:', result);
+        console.log('📚 Результат закрытия модального окна настроек:', result);
+        // Обновляем локальные значения настроек из результата модального окна
+        this.coursePrice = result.price !== undefined && result.price !== null ? result.price : 0;
+        this.courseCurrency = result.currency !== undefined && result.currency !== null ? result.currency : 'EUR';
+        this.coursePaymentMethod = result.paymentMethod !== undefined && result.paymentMethod !== null ? result.paymentMethod : 'stripe';
+        this.coursePaymentDescription = result.paymentDescription !== undefined && result.paymentDescription !== null ? result.paymentDescription : '';
+        this.isCourseFree = result.isFree !== undefined ? result.isFree : (this.coursePrice === 0 || this.coursePrice === null);
+        
+        console.log('💰 Обновлены настройки оплаты после закрытия модального окна:', {
+          price: this.coursePrice,
+          currency: this.courseCurrency,
+          paymentMethod: this.coursePaymentMethod,
+          paymentDescription: this.coursePaymentDescription,
+          isFree: this.isCourseFree
+        });
+        
         this.cdr.detectChanges();
       }
     });

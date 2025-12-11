@@ -50,23 +50,34 @@ export class CourseSettingsModalComponent implements OnInit {
   }
 
   saveSettings(): void {
-    // Если курс бесплатный, устанавливаем цену в 0
-    const finalPrice = this.isFree ? 0 : this.price;
+    // Если курс бесплатный, устанавливаем цену в null, иначе используем указанную цену
+    const finalPrice = this.isFree ? null : (this.price || null);
     
     // Сохраняем настройки курса
     const settingsData = {
       price: finalPrice,
-      currency: this.currency,
-      paymentMethod: this.paymentMethod,
-      paymentDescription: this.paymentDescription,
+      currency: this.isFree ? null : (this.currency || null),
+      paymentMethod: this.isFree ? null : (this.paymentMethod || null),
+      paymentDescription: this.isFree ? null : (this.paymentDescription || null),
       isFree: this.isFree
     };
 
+    console.log('💾 Сохранение настроек курса через модальное окно:', settingsData);
+
     // Используем updateCourse для сохранения настроек оплаты
     this.courseService.updateCourse(this.courseId, settingsData).subscribe({
-      next: () => {
+      next: (course) => {
+        console.log('✅ Настройки курса сохранены, ответ сервера:', course);
         this.notificationService.success('Paramètres du cours enregistrés avec succès!');
-        this.dialogRef.close(settingsData);
+        // Возвращаем обновленные данные из ответа сервера
+        const result = {
+          price: (course as any).price !== undefined ? (course as any).price : null,
+          currency: (course as any).currency || null,
+          paymentMethod: (course as any).paymentMethod || null,
+          paymentDescription: (course as any).paymentDescription || null,
+          isFree: (course as any).isFree !== undefined ? (course as any).isFree : true
+        };
+        this.dialogRef.close(result);
       },
       error: (error) => {
         console.error('❌ Erreur lors de la sauvegarde des paramètres:', error);
