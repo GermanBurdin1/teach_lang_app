@@ -14,7 +14,7 @@ Disallow: /_/
 Allow: /classroom/
 Allow: /lessons/
 Allow: /wordsTeaching/
-Allow: /mindmap/
+Allow: /constructeurs/
 
 # Crawl delay for better server performance
 Crawl-delay: 1

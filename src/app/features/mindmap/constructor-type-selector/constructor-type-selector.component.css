@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:host {
+  display: block;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  color: #1f2a37;
+}
+
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f0f2f8;
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.selector-wrapper {
+  padding: 2.5rem clamp(1rem, 5vw, 4rem);
+  background: radial-gradient(circle at top, rgba(111, 66, 193, 0.07), transparent 50%),
+              #f7f8fb;
+  min-height: 100%;
+}
+
+.selector-header {
+  background: linear-gradient(135deg, #5c6ac4, #4c51bf);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  color: white;
+  margin-bottom: 2.5rem;
+}
+
+.selector-header > div:first-child {
+  flex: 1;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.75;
+}
+
+.selector-header h1 {
+  margin: 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  opacity: 0.9;
+  max-width: 600px;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.type-card {
+  border-radius: 18px !important;
+  padding-bottom: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.type-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+.type-card mat-card-header {
+  align-items: center;
+  padding-bottom: 0.5rem;
+}
+
+.type-card mat-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.type-card mat-card-content {
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  min-height: 60px;
+}
+
+.type-card mat-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0 0.5rem;
+}
+
+.type-icon {
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+
+.type-icon mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 768px) {
+  .selector-header {
+    padding: 1.5rem;
+  }
+
+  .selector-header > div:first-child {
+    margin-bottom: 1rem;
+  }
+
+  .subtitle {
+    max-width: 100%;
+  }
+
+  .types-grid {
+    grid-template-columns: 1fr;
+  }
+}

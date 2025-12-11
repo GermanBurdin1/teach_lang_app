@@ -17,10 +17,22 @@ export class MainComponent {
   constructor(private router: Router) {}
 
   startInstantMindmap(): void {
-    this.router.navigate(['/mindmap', 'instant']);
+    this.router.navigate(['/constructeurs', 'instant']);
   }
 
   createCourseMindmap(): void {
-    this.router.navigate(['/mindmap', 'course', 'new']);
+    this.router.navigate(['/constructeurs', 'create'], {
+      queryParams: { type: 'mindmap' }
+    });
+  }
+
+  createPersonalMindmap(): void {
+    this.router.navigate(['/constructeurs', 'create'], {
+      queryParams: { type: 'mindmap' }
+    });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/constructeurs']);
   }
 }

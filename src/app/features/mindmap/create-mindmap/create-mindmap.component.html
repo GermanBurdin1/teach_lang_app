@@ -3,25 +3,160 @@
 
   <div class="dashboard-content">
     <div class="create-wrapper">
-      <header class="create-header">
+      <header class="create-header" *ngIf="typeConfig">
         <div>
-          <p class="eyebrow">Mindmap de cours</p>
-          <h1>Nouvelle mindmap pédagogique</h1>
+          <p class="eyebrow">Création de constructeur</p>
+          <h1>{{ typeConfig.title }}</h1>
           <p class="subtitle">
-            Préparez le squelette de votre leçon avant de passer à l’éditeur visuel.
+            {{ typeConfig.description }}
           </p>
         </div>
         <div class="actions">
-          <button mat-stroked-button color="primary" routerLink="/mindmap">
+          <button mat-stroked-button color="primary" type="button" (click)="goBack($event)">
             <mat-icon>arrow_back</mat-icon>
-            Retour au centre
+            Retour
           </button>
         </div>
       </header>
 
-      <section class="create-content mat-elevation-z2">
-        <div class="form-placeholder">
-          <mat-icon>construction</mat-icon>
+      <section class="create-content mat-elevation-z2" *ngIf="typeConfig">
+        <!-- Пример структуры для Drill-grid -->
+        <div class="example-preview" *ngIf="constructorType === 'drill_grid'">
+          <h3 class="example-title">Exemple de structure Drill-grid</h3>
+          <div class="drill-grid-example">
+            <div class="drill-table">
+              <div class="drill-header-row">
+                <div class="drill-cell header-cell"></div>
+                <div class="drill-cell header-cell">Je</div>
+                <div class="drill-cell header-cell">Tu</div>
+                <div class="drill-cell header-cell">Il/Elle</div>
+                <div class="drill-cell header-cell">Nous</div>
+                <div class="drill-cell header-cell">Ils/Elles</div>
+              </div>
+              <div class="drill-row">
+                <div class="drill-cell header-cell">Présent</div>
+                <div class="drill-cell">parle</div>
+                <div class="drill-cell">parles</div>
+                <div class="drill-cell">parle</div>
+                <div class="drill-cell">parlons</div>
+                <div class="drill-cell">parlent</div>
+              </div>
+              <div class="drill-row">
+                <div class="drill-cell header-cell">Passé composé</div>
+                <div class="drill-cell">ai parlé</div>
+                <div class="drill-cell">as parlé</div>
+                <div class="drill-cell">a parlé</div>
+                <div class="drill-cell">avons parlé</div>
+                <div class="drill-cell">ont parlé</div>
+              </div>
+              <div class="drill-row">
+                <div class="drill-cell header-cell">Futur</div>
+                <div class="drill-cell">parlerai</div>
+                <div class="drill-cell">parleras</div>
+                <div class="drill-cell">parlera</div>
+                <div class="drill-cell">parlerons</div>
+                <div class="drill-cell">parleront</div>
+              </div>
+            </div>
+            <p class="example-description">
+              Créez une matrice interactive où les étudiants peuvent s'entraîner à conjuguer les verbes ou utiliser le vocabulaire dans différents contextes.
+            </p>
+          </div>
+        </div>
+
+        <!-- Пример структуры для Flowchart -->
+        <div class="example-preview" *ngIf="constructorType === 'flowchart'">
+          <h3 class="example-title">Exemple de structure Flowchart</h3>
+          <div class="flowchart-example">
+            <div class="flowchart-container">
+              <div class="flowchart-node start-node">
+                <div class="node-content">Début</div>
+              </div>
+              <div class="flowchart-arrow">↓</div>
+              <div class="flowchart-node decision-node">
+                <div class="node-content">Quel temps ?</div>
+              </div>
+              <div class="flowchart-branches">
+                <div class="flowchart-branch">
+                  <div class="branch-label">Présent</div>
+                  <div class="flowchart-arrow">→</div>
+                  <div class="flowchart-node action-node">
+                    <div class="node-content">Utiliser la forme de base</div>
+                  </div>
+                </div>
+                <div class="flowchart-branch">
+                  <div class="branch-label">Passé</div>
+                  <div class="flowchart-arrow">→</div>
+                  <div class="flowchart-node action-node">
+                    <div class="node-content">Ajouter "avoir" + participe</div>
+                  </div>
+                </div>
+                <div class="flowchart-branch">
+                  <div class="branch-label">Futur</div>
+                  <div class="flowchart-arrow">→</div>
+                  <div class="flowchart-node action-node">
+                    <div class="node-content">Ajouter la terminaison future</div>
+                  </div>
+                </div>
+              </div>
+              <div class="flowchart-arrow">↓</div>
+              <div class="flowchart-node result-node">
+                <div class="node-content">Résultat</div>
+              </div>
+            </div>
+            <p class="example-description">
+              Guidez les étudiants à travers un processus de décision étape par étape pour choisir la bonne forme grammaticale.
+            </p>
+          </div>
+        </div>
+
+        <!-- Пример структуры для Pattern-card -->
+        <div class="example-preview" *ngIf="constructorType === 'pattern_card'">
+          <h3 class="example-title">Exemple de structure Pattern-card</h3>
+          <div class="pattern-card-example">
+            <div class="pattern-template">
+              <div class="pattern-header">
+                <span class="pattern-label">Modèle:</span>
+                <span class="pattern-text">Je voudrais <span class="blank">[VERB]</span> <span class="blank">[OBJECT]</span></span>
+              </div>
+              <div class="pattern-example">
+                <span class="pattern-label">Exemple:</span>
+                <span class="pattern-text">Je voudrais <span class="filled">acheter</span> <span class="filled">un livre</span></span>
+              </div>
+            </div>
+            <div class="pattern-blanks">
+              <div class="blank-item">
+                <span class="blank-id">[VERB]</span>
+                <span class="blank-hint">→ acheter, lire, écrire...</span>
+              </div>
+              <div class="blank-item">
+                <span class="blank-id">[OBJECT]</span>
+                <span class="blank-hint">→ un livre, une voiture, un café...</span>
+              </div>
+            </div>
+            <div class="pattern-stages">
+              <div class="stage-item">
+                <span class="stage-number">1</span>
+                <span class="stage-text">Voir l'exemple complet</span>
+              </div>
+              <div class="stage-item">
+                <span class="stage-number">2</span>
+                <span class="stage-text">Remplir les emplacements</span>
+              </div>
+              <div class="stage-item">
+                <span class="stage-number">3</span>
+                <span class="stage-text">Créer ses propres phrases</span>
+              </div>
+            </div>
+            <p class="example-description">
+              Aidez les étudiants à automatiser des structures de phrases courantes en français à travers des exercices progressifs.
+            </p>
+          </div>
+        </div>
+
+        <!-- Placeholder для Mindmap (можно оставить как есть или добавить пример) -->
+        <div class="form-placeholder" *ngIf="constructorType === 'mindmap'">
+          <mat-icon>{{ typeConfig.icon }}</mat-icon>
           <h2>Zone de configuration en préparation</h2>
           <p>
             Ici vous pourrez sélectionner un cours, définir le titre, préciser la durée et préparer la structure de base de la mindmap.
@@ -39,5 +174,3 @@
     </div>
   </div>
 </div>
-
-

@@ -399,7 +399,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     };
 
     console.log('💾 Сохранение курса с данными о цене:', courseData);
-    
+
     this.courseService.updateCourse(parseInt(this.courseId, 10), courseData).subscribe({
       next: (course) => {
         console.log('✅ Курс обновлен, ответ сервера:', course);

@@ -52,7 +52,7 @@ export const routes: Routes = [
   { path: 'classroom', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule), canActivate: [AuthGuard] },
   { path: 'student', loadChildren: () => import('./classroom/classroom.module').then(m => m.ClassroomModule), canActivate: [AuthGuard] },
   {
-    path: 'mindmap',
+    path: 'constructeurs',
     loadChildren: () => import('./features/mindmap/mindmap.module').then(m => m.MindmapModule),
     canActivate: [AuthGuard]
   },

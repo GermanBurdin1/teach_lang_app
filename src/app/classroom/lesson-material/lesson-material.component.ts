@@ -721,7 +721,7 @@ export class LessonMaterialComponent implements OnInit, OnDestroy {
   goToMindmap(item: string) {
     console.log('🧠 Переход к mindmap для:', item);
     // TODO: Реализовать переход к mindmap
-    // this.router.navigate(['/mindmap'], { queryParams: { item: item } });
+    // this.router.navigate(['/constructeurs'], { queryParams: { item: item } });
   }
 
   goToDictionary(item: string) {

@@ -3,11 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { MindmapWrapperComponent } from './mindmap-wrapper.component';
 import { MainComponent } from './main/main.component';
 import { CreateMindmapComponent } from './create-mindmap/create-mindmap.component';
+import { ConstructorTypeSelectorComponent } from './constructor-type-selector/constructor-type-selector.component';
 
 const routes: Routes = [
-  { path: '', component: MainComponent },
+  { path: '', component: ConstructorTypeSelectorComponent },
+  { path: 'mindmap', component: MainComponent },
   { path: 'instant', component: MindmapWrapperComponent },
-  { path: 'course/new', component: CreateMindmapComponent }
+  { path: 'create', component: CreateMindmapComponent }
 ];
 
 @NgModule({

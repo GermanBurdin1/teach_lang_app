@@ -80,9 +80,9 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Mindmap -->
+  <!-- Constructeurs pédagogiques -->
   <url>
-    <loc>https://linguaconnect.com/mindmap</loc>
+    <loc>https://linguaconnect.com/constructeurs</loc>
     <lastmod>2024-01-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

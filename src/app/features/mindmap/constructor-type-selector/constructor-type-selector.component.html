@@ -1,0 +1,41 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-content">
+    <div class="selector-wrapper">
+      <header class="selector-header mat-elevation-z4">
+        <div>
+          <p class="eyebrow">Constructeurs pédagogiques</p>
+          <h1>Choisissez le type de constructeur</h1>
+          <p class="subtitle">
+            Sélectionnez le type de constructeur pédagogique que vous souhaitez créer pour votre cours.
+          </p>
+        </div>
+      </header>
+
+      <section class="types-grid">
+        <mat-card 
+          *ngFor="let constructorType of constructorTypes" 
+          class="type-card mat-elevation-z2"
+          [style.border-left-color]="constructorType.color"
+          (click)="selectType(constructorType.type)">
+          <mat-card-header>
+            <div mat-card-avatar class="type-icon" [style.background-color]="constructorType.color + '20'">
+              <mat-icon [style.color]="constructorType.color">{{ constructorType.icon }}</mat-icon>
+            </div>
+            <mat-card-title>{{ constructorType.title }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{ constructorType.description }}</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-flat-button [style.color]="constructorType.color" [style.border-color]="constructorType.color">
+              <mat-icon>add</mat-icon>
+              Créer
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </section>
+    </div>
+  </div>
+</div>

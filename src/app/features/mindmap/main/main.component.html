@@ -13,6 +13,10 @@
             </p>
           </div>
           <div class="header-actions">
+            <button mat-stroked-button color="primary" (click)="goBack()" style="margin-right: 1rem;">
+              <mat-icon>arrow_back</mat-icon>
+              Retour
+            </button>
             <button mat-raised-button color="primary" (click)="startInstantMindmap()">
               <mat-icon>flash_on</mat-icon>
               Lancer une mindmap rapide
@@ -84,7 +88,7 @@
             </p>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-flat-button color="primary">
+            <button mat-flat-button color="primary" (click)="createPersonalMindmap()">
               <mat-icon>person_add</mat-icon>
               Créer une mindmap
             </button>

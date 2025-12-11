@@ -74,7 +74,7 @@ export class SitemapService {
         priority: 0.8
       },
       {
-        loc: `${this.baseUrl}/mindmap`,
+        loc: `${this.baseUrl}/constructeurs`,
         lastmod: new Date().toISOString().split('T')[0],
         changefreq: 'weekly',
         priority: 0.7

@@ -70,6 +70,281 @@
   margin-bottom: 1rem;
 }
 
+/* Примеры структур конструкторов */
+.example-preview {
+  border-radius: 16px;
+  padding: 2rem;
+  background: #f8faff;
+  border: 1px solid #e0e7ff;
+}
+
+.example-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.example-description {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e7ff;
+  color: #475467;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* Drill-grid пример */
+.drill-grid-example {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.drill-table {
+  display: inline-block;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #e0e7ff;
+  background: white;
+}
+
+.drill-header-row,
+.drill-row {
+  display: flex;
+}
+
+.drill-cell {
+  padding: 0.75rem 1rem;
+  border-right: 1px solid #e0e7ff;
+  border-bottom: 1px solid #e0e7ff;
+  min-width: 100px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.drill-cell:last-child {
+  border-right: none;
+}
+
+.drill-row:last-child .drill-cell {
+  border-bottom: none;
+}
+
+.drill-cell.header-cell {
+  background: #eef2ff;
+  font-weight: 600;
+  color: #4c51bf;
+}
+
+.drill-cell:not(.header-cell) {
+  background: #fafbff;
+  color: #374151;
+}
+
+/* Flowchart пример */
+.flowchart-example {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #e0e7ff;
+}
+
+.flowchart-node {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  min-width: 200px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.start-node {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 2px solid #3b82f6;
+}
+
+.decision-node {
+  background: #fef3c7;
+  color: #92400e;
+  border: 2px solid #f59e0b;
+  border-radius: 50px;
+}
+
+.action-node {
+  background: #d1fae5;
+  color: #065f46;
+  border: 2px solid #10b981;
+}
+
+.result-node {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 2px solid #6366f1;
+}
+
+.flowchart-arrow {
+  color: #6366f1;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.flowchart-branches {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.flowchart-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.branch-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Pattern-card пример */
+.pattern-card-example {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pattern-template {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #e0e7ff;
+}
+
+.pattern-header,
+.pattern-example {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pattern-header:last-child,
+.pattern-example:last-child {
+  margin-bottom: 0;
+}
+
+.pattern-label {
+  font-weight: 600;
+  color: #4c51bf;
+  min-width: 80px;
+}
+
+.pattern-text {
+  flex: 1;
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+.pattern-text .blank {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 1px dashed #f59e0b;
+}
+
+.pattern-text .filled {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.pattern-blanks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #e0e7ff;
+}
+
+.blank-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #f8faff;
+  border-radius: 8px;
+}
+
+.blank-id {
+  font-weight: 600;
+  color: #4c51bf;
+  background: #eef2ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+}
+
+.blank-hint {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.pattern-stages {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.stage-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #eef2ff;
+  border-radius: 8px;
+  border: 1px solid #c7d2fe;
+}
+
+.stage-number {
+  background: #6366f1;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.stage-text {
+  color: #1f2937;
+  font-size: 0.9rem;
+}
+
 .steps {
   display: flex;
   flex-direction: column;
