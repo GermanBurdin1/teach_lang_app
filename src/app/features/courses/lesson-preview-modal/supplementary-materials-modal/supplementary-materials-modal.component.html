@@ -14,13 +14,18 @@
       <!-- Drill-grids Tab -->
       <mat-tab label="Drill-grids">
         <div class="materials-content">
-          <div *ngIf="savedDrillGrids.length === 0" class="no-materials">
+          <div *ngIf="loadingDrillGrids" class="loading-state">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Chargement des drill-grids...</p>
+          </div>
+
+          <div *ngIf="!loadingDrillGrids && savedDrillGrids.length === 0" class="no-materials">
             <mat-icon>grid_on</mat-icon>
             <p>Aucune drill-grid sauvegardée</p>
             <p class="hint">Créez d'abord une drill-grid dans le constructeur.</p>
           </div>
 
-          <div *ngIf="savedDrillGrids.length > 0" class="materials-grid">
+          <div *ngIf="!loadingDrillGrids && savedDrillGrids.length > 0" class="materials-grid">
             <mat-card 
               *ngFor="let grid of savedDrillGrids" 
               class="material-card drill-grid-card"

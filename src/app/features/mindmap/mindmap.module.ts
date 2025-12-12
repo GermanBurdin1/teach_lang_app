@@ -8,6 +8,11 @@ import { MindmapRoutingModule } from './mindmap-routing.module';
 import { LayoutModule } from '../../layout/layout.module';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { ConstructorTypeSelectorComponent } from './constructor-type-selector/constructor-type-selector.component';
+import { StudentMindmapComponent } from './student-mindmap/student-mindmap.component';
+import { MindmapRouterComponent } from './mindmap-router.component';
+import { MainComponent } from './main/main.component';
+import { CreateMindmapComponent } from './create-mindmap/create-mindmap.component';
 
 @NgModule({
   declarations: [MindmapComponent, NodeComponent, MindmapWrapperComponent],
@@ -17,7 +22,13 @@ import { MatIconModule } from '@angular/material/icon';
     MindmapRoutingModule,
     LayoutModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    // Standalone компоненты
+    ConstructorTypeSelectorComponent,
+    StudentMindmapComponent,
+    MindmapRouterComponent,
+    MainComponent,
+    CreateMindmapComponent
   ]
 })
 export class MindmapModule {}

@@ -11,6 +11,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { LayoutModule } from '../../../layout/layout.module';
 import { AuthService } from '../../../services/auth.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
+import { NotificationService } from '../../../services/notification.service';
 
 type ConstructorType = 'mindmap' | 'drill_grid' | 'pattern_card' | 'flowchart';
 
@@ -115,7 +118,9 @@ export class CreateMindmapComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -149,7 +154,57 @@ export class CreateMindmapComponent implements OnInit {
   loadSavedDrillGrids(): void {
     const user = this.authService.getCurrentUser();
     const userId = user?.id?.toString();
+    const token = this.authService.getAccessToken();
     
+    if (!token || !userId) {
+      console.warn('⚠️ Не удалось загрузить drill-grids: отсутствует токен или userId');
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    // Загружаем все drill-grids текущего пользователя через специальный endpoint
+    this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/drill-grid/my`, { headers }).subscribe({
+      next: (drillGrids: any) => {
+        console.log('✅ Загружены drill-grids из БД:', drillGrids);
+        
+        if (Array.isArray(drillGrids) && drillGrids.length > 0) {
+          const loadedGrids: DrillGrid[] = drillGrids
+            .filter((dg: any) => dg && !dg.error)
+            .map((dg: any) => {
+              const constructor = dg.constructorRef || {};
+              return {
+                id: dg.id,
+                name: constructor.title || 'Sans nom',
+                rows: dg.rows || [],
+                columns: dg.columns || [],
+                cells: dg.cells || [],
+                createdAt: constructor.createdAt ? new Date(constructor.createdAt) : new Date(),
+                type: (dg.purpose === 'homework' ? 'homework' : 'info') as 'info' | 'homework',
+                userId: dg.studentUserId || constructor.userId,
+                originalId: dg.originalId || undefined // originalId должен быть null для info, установлен для homework
+              };
+            });
+
+          console.log('✅ Загружены drill-grids из БД:', loadedGrids.length);
+          this.savedDrillGrids = loadedGrids;
+        } else {
+          console.log('ℹ️ Нет drill-grids для загрузки');
+          // Fallback на localStorage
+          this.loadFromLocalStorage(userId);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки drill-grids:', error);
+        // Fallback на localStorage если БД недоступна
+        this.loadFromLocalStorage(userId);
+      }
+    });
+  }
+
+  private loadFromLocalStorage(userId?: string): void {
     // Загружаем info drill-grids (общие для всех)
     const savedInfo = localStorage.getItem('savedDrillGrids_info');
     let infoGrids: DrillGrid[] = [];
@@ -297,51 +352,234 @@ export class CreateMindmapComponent implements OnInit {
   
   saveDrillGrid(): void {
     if (!this.drillGridName.trim()) {
-      alert('Veuillez nommer la drill-grid avant de la sauvegarder.');
+      this.notificationService.error('Veuillez nommer la drill-grid avant de la sauvegarder.');
       return;
     }
     
     const user = this.authService.getCurrentUser();
     const userId = user?.id?.toString();
+    const token = this.authService.getAccessToken();
     
-    const newGrid: DrillGrid = {
-      id: Date.now().toString(),
-      name: this.drillGridName,
-      rows: [...this.drillGridRows],
-      columns: [...this.drillGridColumns],
-      cells: { ...this.drillGridCells },
-      createdAt: new Date(),
-      type: 'info', // По умолчанию сохраняем как info (read-only)
-      userId: userId
+    if (!token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    // Преобразуем cells из объекта в массив для API
+    const cellsArray = Object.keys(this.drillGridCells).map(key => ({
+      rowIndex: parseInt(key.split('_')[0]),
+      colIndex: parseInt(key.split('_')[1]),
+      value: this.drillGridCells[key]
+    }));
+
+    // Сначала создаем конструктор
+    const constructorPayload = {
+      title: this.drillGridName,
+      type: 'drill_grid' as const,
+      courseId: null,
+      description: null
     };
-    
-    this.savedDrillGrids.push(newGrid);
-    this.saveDrillGrids();
-    
-    alert(`Drill-grid "${this.drillGridName}" sauvegardée avec succès!`);
-    this.drillGridName = '';
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    // Создаем конструктор и затем drill-grid
+    this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}`, constructorPayload, { headers }).subscribe({
+      next: (constructor: any) => {
+        const constructorId = constructor?.id || constructor?.data?.id;
+        
+        if (!constructorId) {
+          console.error('❌ Конструктор создан, но ID отсутствует:', constructor);
+          this.notificationService.error('Erreur: ID du constructeur manquant');
+          return;
+        }
+
+        // Теперь создаем drill-grid в БД
+        // Преобразуем rows и columns в правильный формат согласно entity
+        const rows = this.drillGridRows.map((row, index) => ({
+          id: `row_${index}`,
+          label: row || `Ligne ${index + 1}`,
+          examples: []
+        }));
+        
+        const columns = this.drillGridColumns.map((col, index) => ({
+          id: `col_${index}`,
+          label: col || `Colonne ${index + 1}`,
+          examples: []
+        }));
+        
+        // Преобразуем cells в правильный формат
+        const cells = Object.keys(this.drillGridCells).map(key => {
+          const [rowIdx, colIdx] = key.split('_').map(Number);
+          return {
+            rowId: `row_${rowIdx}`,
+            colId: `col_${colIdx}`,
+            content: this.drillGridCells[key] || '',
+            correctAnswer: undefined,
+            hints: [],
+            difficulty: undefined as 'easy' | 'medium' | 'hard' | undefined
+          };
+        });
+        
+        const drillGridPayload = {
+          rows,
+          columns,
+          cells,
+          settings: null,
+          purpose: 'info' as const,
+          originalId: null // Для новых info drill-grids originalId = null (это шаблоны)
+        };
+
+        this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, drillGridPayload, { headers }).subscribe({
+          next: (drillGrid: any) => {
+            console.log('✅ Drill-grid сохранен в БД:', drillGrid);
+            
+            // Сохраняем также в localStorage для обратной совместимости
+            const newGrid: DrillGrid = {
+              id: constructorId,
+              name: this.drillGridName,
+              rows: [...this.drillGridRows],
+              columns: [...this.drillGridColumns],
+              cells: { ...this.drillGridCells },
+              createdAt: new Date(),
+              type: 'info',
+              userId: userId
+            };
+            
+            this.savedDrillGrids.push(newGrid);
+            this.saveDrillGrids();
+            
+            this.notificationService.success(`Drill-grid "${this.drillGridName}" sauvegardée avec succès!`);
+            this.drillGridName = '';
+          },
+          error: (error) => {
+            console.error('❌ Ошибка сохранения drill-grid в БД:', error);
+            this.notificationService.error(`Erreur lors de la sauvegarde du drill-grid: ${error.message || 'Erreur inconnue'}`);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('❌ Ошибка создания конструктора:', error);
+        this.notificationService.error(`Erreur lors de la création du constructeur: ${error.message || 'Erreur inconnue'}`);
+      }
+    });
   }
   
   duplicateDrillGrid(grid: DrillGrid): void {
     const user = this.authService.getCurrentUser();
     const userId = user?.id?.toString();
+    const token = this.authService.getAccessToken();
     
-    const duplicatedGrid: DrillGrid = {
-      id: Date.now().toString(),
-      name: `${grid.name} (copie)`,
-      rows: [...grid.rows],
-      columns: [...grid.columns],
-      cells: { ...grid.cells },
-      createdAt: new Date(),
-      type: grid.type,
-      userId: userId,
-      originalId: grid.originalId || grid.id
+    if (!token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    // Определяем originalId: если это копия info drill-grid, originalId = grid.id
+    // Если это копия homework drill-grid, сохраняем его originalId
+    const originalId = grid.type === 'info' ? grid.id : (grid.originalId || grid.id);
+
+    // Преобразуем cells из объекта в массив для API
+    const cellsArray = Array.isArray(grid.cells) 
+      ? grid.cells 
+      : Object.keys(grid.cells).map(key => {
+          const [rowIdx, colIdx] = key.split('_').map(Number);
+          return {
+            rowId: `row_${rowIdx}`,
+            colId: `col_${colIdx}`,
+            content: (grid.cells as any)[key] || '',
+            correctAnswer: undefined,
+            hints: [],
+            difficulty: undefined as 'easy' | 'medium' | 'hard' | undefined
+          };
+        });
+
+    // Преобразуем rows и columns в правильный формат
+    const rows = Array.isArray(grid.rows) && grid.rows.length > 0 && typeof grid.rows[0] === 'string'
+      ? grid.rows.map((row: string, index: number) => ({
+          id: `row_${index}`,
+          label: row || `Ligne ${index + 1}`,
+          examples: []
+        }))
+      : grid.rows;
+
+    const columns = Array.isArray(grid.columns) && grid.columns.length > 0 && typeof grid.columns[0] === 'string'
+      ? grid.columns.map((col: string, index: number) => ({
+          id: `col_${index}`,
+          label: col || `Colonne ${index + 1}`,
+          examples: []
+        }))
+      : grid.columns;
+
+    // Создаем конструктор для дубликата
+    const constructorPayload = {
+      title: `${grid.name} (copie)`,
+      type: 'drill_grid' as const,
+      courseId: null,
+      description: null
     };
-    
-    this.savedDrillGrids.push(duplicatedGrid);
-    this.saveDrillGrids();
-    
-    alert(`Drill-grid "${duplicatedGrid.name}" dupliquée avec succès!`);
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    // Создаем конструктор и затем drill-grid
+    this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}`, constructorPayload, { headers }).subscribe({
+      next: (constructor: any) => {
+        const constructorId = constructor?.id || constructor?.data?.id;
+        
+        if (!constructorId) {
+          console.error('❌ Конструктор создан, но ID отсутствует:', constructor);
+          this.notificationService.error('Erreur: ID du constructeur manquant');
+          return;
+        }
+
+        // Создаем drill-grid с originalId
+        const drillGridPayload = {
+          rows,
+          columns,
+          cells: cellsArray,
+          settings: null,
+          purpose: grid.type === 'homework' ? 'homework' as const : 'info' as const,
+          originalId: originalId // Передаем originalId для связи с оригиналом
+        };
+
+        this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, drillGridPayload, { headers }).subscribe({
+          next: (drillGrid: any) => {
+            console.log('✅ Drill-grid дублирован в БД:', drillGrid);
+            
+            // Обновляем локальный список
+            const duplicatedGrid: DrillGrid = {
+              id: constructorId,
+              name: `${grid.name} (copie)`,
+              rows: grid.rows,
+              columns: grid.columns,
+              cells: grid.cells,
+              createdAt: new Date(),
+              type: grid.type,
+              userId: userId,
+              originalId: originalId
+            };
+            
+            this.savedDrillGrids.push(duplicatedGrid);
+            this.saveDrillGrids();
+            
+            this.notificationService.success(`Drill-grid "${duplicatedGrid.name}" dupliquée avec succès!`);
+          },
+          error: (error) => {
+            console.error('❌ Ошибка дублирования drill-grid в БД:', error);
+            this.notificationService.error(`Erreur lors de la duplication: ${error.message || 'Erreur inconnue'}`);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('❌ Ошибка создания конструктора для дубликата:', error);
+        this.notificationService.error(`Erreur lors de la création du constructeur: ${error.message || 'Erreur inconnue'}`);
+      }
+    });
   }
   
   /**

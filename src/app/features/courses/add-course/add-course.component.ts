@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../../core/constants/api.constants';
 import { CourseService, Course } from '../../../services/course.service';
 import { MaterialService, Material } from '../../../services/material.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
 import { LessonPreviewModalComponent, LessonPreviewModalData } from '../lesson-preview-modal/lesson-preview-modal.component';
@@ -1422,33 +1422,69 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
 
     const currentMaterialsCount = this.materials.length;
+    console.log('📥 Загрузка файлов для курса:', this.courseId);
     this.fileUploadService.getFiles(this.courseId).subscribe({
       next: async (files) => {
+        console.log('✅ Получены файлы с сервера:', files.length, 'файлов');
+        console.log('   Файлы:', files.map(f => ({ id: f.id, filename: f.filename, tag: f.tag, mimetype: f.mimetype })));
         
-        // Восстанавливаем данные drill-grid из JSON файлов
+        // Восстанавливаем данные drill-grid из JSON файлов или БД
         const filesWithData = await Promise.all(files.map(async (file) => {
-          // Если это JSON файл с drill-grid данными, загружаем и восстанавливаем структуру
+          // Если это JSON файл с drill-grid данными
           if (file.mimetype === 'application/json' && file.url) {
             try {
               const fileUrl = this.getFileUrl(file.url);
-              console.log(`📥 Загрузка JSON файла для восстановления drill-grid: ${file.filename}`, fileUrl);
               const response = await fetch(fileUrl);
               if (response.ok) {
                 const jsonData = await response.json();
-                console.log(`📦 Загруженные JSON данные для ${file.filename}:`, jsonData);
                 
                 // Проверяем, что это данные drill-grid
                 if (jsonData.type === 'drill_grid' && jsonData.data) {
-                  console.log(`✅ Восстановлен drill-grid из файла: ${file.filename}`);
+                  console.log(`✅ Восстановлен drill-grid из файла: ${file.filename} с тегом: ${file.tag}`);
+                  
+                  // Если есть constructorId, пытаемся загрузить полные данные из БД
+                  const constructorId = (file as any).constructorId;
+                  if (constructorId) {
+                    try {
+                      const currentUser = this.authService.getCurrentUser();
+                      const token = this.authService.getAccessToken();
+                      if (currentUser?.id && token) {
+                        const headers = new HttpHeaders({
+                          'Authorization': `Bearer ${token}`
+                        });
+                        
+                        const dbData = await firstValueFrom(
+                          this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, { headers })
+                        );
+                        
+                        console.log(`✅ Загружен drill-grid из БД для ${file.filename}`);
+                        // Используем данные из БД, если они есть
+                        return {
+                          ...file,
+                          drillGridData: {
+                            type: 'drill_grid',
+                            data: {
+                              id: (dbData as any).id,
+                              name: file.filename,
+                              rows: (dbData as any).rows,
+                              columns: (dbData as any).columns,
+                              cells: (dbData as any).cells,
+                              settings: (dbData as any).settings
+                            }
+                          }
+                        } as UploadedFile;
+                      }
+                    } catch (dbError) {
+                      console.warn('⚠️ Не удалось загрузить drill-grid из БД, используем данные из файла:', dbError);
+                    }
+                  }
+                  
+                  // Используем данные из JSON файла
                   return {
                     ...file,
                     drillGridData: jsonData
                   } as UploadedFile;
-                } else {
-                  console.log(`⚠️ JSON файл ${file.filename} не является drill-grid (type: ${jsonData.type})`);
                 }
-              } else {
-                console.error(`❌ Ошибка загрузки файла ${file.filename}: HTTP ${response.status}`);
               }
             } catch (error) {
               console.error(`❌ Ошибка загрузки данных drill-grid из файла ${file.filename}:`, error);
@@ -1463,17 +1499,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           const uniqueFiles = Array.from(
             new Map(filesWithData.map(f => [f.id, f])).values()
           );
+          console.log('✅ Обновление массива материалов:', uniqueFiles.length, 'уникальных файлов');
+          console.log('   Материалы с тегами:', uniqueFiles.map(f => ({ filename: f.filename, tag: f.tag, mimetype: f.mimetype })));
           this.materials = uniqueFiles;
         } else if (currentMaterialsCount > 0) {
           // Если сервер вернул пустой массив, но у нас есть локальные материалы,
           // не перезаписываем массив - возможно, это проблема синхронизации
-          // Логируем только в режиме разработки
-          const isDevMode = !window.location.hostname.includes('production');
-          if (isDevMode) {
-            console.warn('⚠️ Сервер вернул пустой массив, но есть локальные материалы');
-          }
+          console.warn('⚠️ Сервер вернул пустой массив, но есть локальные материалы:', currentMaterialsCount);
         } else {
           // Если и сервер пустой, и локально пусто - это нормально
+          console.log('📭 Нет материалов для курса');
           this.materials = [];
         }
         
@@ -1890,7 +1925,20 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     });
     const allMaterials = Array.from(allMaterialsMap.values());
     
-    // Убрали логирование - оно вызывалось слишком часто при каждом рендере
+    // Логирование только для диагностики (можно убрать после исправления)
+    if (allMaterials.length === 0 && this.materials.length > 0) {
+      console.log(`🔍 Поиск материалов для урока "${lessonName}":`, {
+        totalMaterials: this.materials.length,
+        regularMaterialsCount: regularMaterials.length,
+        supplementaryMaterialsCount: supplementaryMaterials.length,
+        materialTags: this.materials.map(m => ({ 
+          filename: m.filename, 
+          tag: m.tag, 
+          mimetype: m.mimetype,
+          hasDrillGridData: !!(m as any).drillGridData
+        }))
+      });
+    }
     
     return allMaterials;
   }
@@ -2693,10 +2741,25 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   openLessonPreview(section: string, lesson: string, subSection?: string): void {
     // Убеждаемся, что материалы загружены перед открытием модалки
     if (this.courseId && this.materials.length === 0) {
+      console.log('📥 Материалы не загружены, загружаем перед открытием модалки...');
       this.loadFiles();
+      // Ждем загрузки файлов перед открытием модалки
+      setTimeout(() => {
+        this.openLessonPreviewModal(section, lesson, subSection);
+      }, 500);
+      return;
     }
     
+    this.openLessonPreviewModal(section, lesson, subSection);
+  }
+
+  private openLessonPreviewModal(section: string, lesson: string, subSection?: string): void {
     const materials = this.getMaterialsByLesson(lesson);
+    console.log(`📋 Открытие модалки для урока "${lesson}":`, {
+      foundMaterials: materials.length,
+      totalMaterials: this.materials.length,
+      materials: materials.map(m => ({ filename: m.filename, tag: m.tag, mimetype: m.mimetype }))
+    });
     const description = this.getLessonDescription(section, subSection || null, lesson);
     
     // Находим тип урока и его настройки
@@ -2838,7 +2901,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Сохраняет материал из конструктора (drill-grid и т.д.) на сервер
+   * Сохраняет материал из конструктора (drill-grid и т.д.) в БД через API конструкторов
    */
   private saveConstructorMaterial(material: UploadedFile): void {
     if (!this.courseId) {
@@ -2847,56 +2910,224 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
 
     const drillGridData = (material as any).drillGridData;
-    if (!drillGridData) {
+    if (!drillGridData || !drillGridData.data) {
       console.warn('⚠️ Материал не содержит drillGridData:', material);
       return;
     }
 
-    // Логируем только в режиме разработки
-    const isDevMode = !window.location.hostname.includes('production');
-    if (isDevMode) {
-      console.log('💾 Сохранение drill-grid на сервер:', {
-        filename: material.filename,
-        tag: material.tag,
-        courseId: this.courseId
-      });
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.id) {
+      console.error('⚠️ Пользователь не авторизован');
+      return;
     }
 
-    // Создаем JSON файл из данных drill-grid
-    const jsonContent = JSON.stringify(drillGridData);
-    const blob = new Blob([jsonContent], { type: 'application/json' });
-    const file = new File([blob], material.filename || 'drill-grid.json', { type: 'application/json' });
+    console.log('💾 Сохранение drill-grid в БД:', {
+      filename: material.filename,
+      tag: material.tag,
+      courseId: this.courseId,
+      userId: currentUser.id
+    });
 
-    // Загружаем файл на сервер с правильным тегом
-    this.fileUploadService.uploadFileAsCourse(file, this.courseId, material.tag).subscribe({
-      next: (response) => {
-        // Обновляем материал с реальным ID и URL с сервера, сохраняя drillGridData
-        const index = this.materials.findIndex(m => 
-          m.id === material.id || (m.filename === material.filename && m.tag === material.tag)
-        );
+    // Извлекаем данные drill-grid из структуры drillGridData.data
+    // Преобразуем в правильный формат согласно entity
+    let rows = drillGridData.data.rows || [];
+    let columns = drillGridData.data.columns || [];
+    let cells = drillGridData.data.cells || [];
+    
+    // Если данные в старом формате (массивы строк), преобразуем их
+    if (Array.isArray(rows) && rows.length > 0 && typeof rows[0] === 'string') {
+      rows = rows.map((row: string, index: number) => ({
+        id: `row_${index}`,
+        label: row || `Ligne ${index + 1}`,
+        examples: []
+      }));
+    }
+    
+    if (Array.isArray(columns) && columns.length > 0 && typeof columns[0] === 'string') {
+      columns = columns.map((col: string, index: number) => ({
+        id: `col_${index}`,
+        label: col || `Colonne ${index + 1}`,
+        examples: []
+      }));
+    }
+    
+    // Если cells в формате объекта { "0_1": "value" }, преобразуем в массив
+    if (cells && typeof cells === 'object' && !Array.isArray(cells)) {
+      cells = Object.keys(cells).map(key => {
+        const [rowIdx, colIdx] = key.split('_').map(Number);
+        return {
+          rowId: `row_${rowIdx}`,
+          colId: `col_${colIdx}`,
+          content: cells[key] || '',
+          correctAnswer: undefined,
+          hints: [],
+          difficulty: undefined as 'easy' | 'medium' | 'hard' | undefined
+        };
+      });
+    }
+    
+    const drillGridPayload = {
+      rows,
+      columns,
+      cells,
+      settings: drillGridData.data.settings || null,
+      purpose: 'info' as const // По умолчанию сохраняем как info (read-only шаблон)
+    };
+
+    // Сначала создаем конструктор
+    const constructorPayload = {
+      title: material.filename || 'Drill-grid',
+      type: 'drill_grid' as const,
+      courseId: parseInt(this.courseId, 10),
+      description: material.description || null,
+      userId: currentUser.id // Добавляем userId для бэкенда
+    };
+
+    // Создаем конструктор и затем drill-grid
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      console.error('⚠️ Токен доступа отсутствует');
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    console.log('📤 Отправка запроса на создание конструктора:', {
+      url: `${API_ENDPOINTS.CONSTRUCTORS}`,
+      payload: constructorPayload,
+      userId: currentUser.id,
+      hasUserId: !!constructorPayload.userId
+    });
+
+    this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}`, constructorPayload, { headers }).subscribe({
+      next: (constructor: any) => {
+        console.log('✅ Конструктор создан:', constructor);
+        console.log('📋 Тип ответа:', typeof constructor);
+        console.log('📋 Ключи объекта:', constructor ? Object.keys(constructor) : 'null');
+        console.log('📋 ID конструктора:', constructor?.id);
         
-        const updatedMaterial: UploadedFile = {
-          ...material,
-          id: response.id,
-          url: response.url,
-          createdAt: response.createdAt,
-          courseId: this.courseId,
-          drillGridData: drillGridData // Сохраняем drillGridData для локального использования
-        } as UploadedFile;
-        
-        if (index !== -1) {
-          this.materials[index] = updatedMaterial;
-        } else {
-          // Если материала нет в массиве, добавляем его
-          this.materials.push(updatedMaterial);
+        // Проверяем наличие ошибки
+        if (constructor?.error) {
+          console.error('❌ Ошибка при создании конструктора:', constructor.error);
+          this.notificationService.error(`Erreur: ${constructor.error}`);
+          return;
         }
         
-        // Принудительно обновляем представление
-        this.cdr.detectChanges();
+        // Проверяем наличие сообщения об ошибке в ответе
+        if (constructor?.message && constructor.message.includes('User ID not found')) {
+          console.error('❌ Ошибка: User ID not found in request');
+          console.error('📋 Отправленный payload:', constructorPayload);
+          this.notificationService.error('Erreur: ID utilisateur manquant dans la requête');
+          return;
+        }
+        
+        // Извлекаем ID из ответа (может быть напрямую в объекте или вложен)
+        const actualId = constructor?.id || constructor?.data?.id;
+        
+        if (!actualId) {
+          console.error('❌ Конструктор создан, но ID отсутствует:', {
+            constructor,
+            keys: constructor ? Object.keys(constructor) : [],
+            hasError: constructor?.error,
+            stringified: JSON.stringify(constructor, null, 2)
+          });
+          this.notificationService.error('Erreur: ID du constructeur manquant');
+          return;
+        }
+        
+        console.log('✅ ID конструктора извлечен:', actualId);
+        
+        // Теперь создаем drill-grid
+        console.log('📤 Отправка запроса на создание drill-grid:', {
+          url: `${API_ENDPOINTS.CONSTRUCTORS}/${actualId}/drill-grid`,
+          payload: drillGridPayload,
+          constructorId: actualId
+        });
+
+        this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${actualId}/drill-grid`, drillGridPayload, { headers }).subscribe({
+          next: (drillGrid: any) => {
+            console.log('✅ Drill-grid сохранен в БД:', drillGrid);
+            
+            // Также создаем JSON файл для отображения в списке материалов урока
+            if (!this.courseId) {
+              console.error('⚠️ courseId отсутствует при сохранении файла');
+              return;
+            }
+
+            // Добавляем constructorId в drillGridData для последующей загрузки
+            const drillGridDataWithConstructorId = {
+              ...drillGridData,
+              data: {
+                ...drillGridData.data,
+                constructorId: actualId // Сохраняем ID конструктора
+              }
+            };
+
+            const jsonContent = JSON.stringify(drillGridDataWithConstructorId);
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const file = new File([blob], material.filename || 'drill-grid.json', { type: 'application/json' });
+
+            // Сохраняем файл для отображения в списке материалов
+            this.fileUploadService.uploadFileAsCourse(file, this.courseId, material.tag || '').subscribe({
+              next: (fileResponse) => {
+                // Обновляем материал с реальным ID и URL с сервера
+                const index = this.materials.findIndex(m => 
+                  m.id === material.id || (m.filename === material.filename && m.tag === material.tag)
+                );
+                
+                const updatedMaterial: UploadedFile = {
+                  ...material,
+                  id: fileResponse.id,
+                  url: fileResponse.url,
+                  createdAt: fileResponse.createdAt,
+                  courseId: this.courseId,
+                  drillGridData: drillGridDataWithConstructorId,
+                  // Сохраняем ID конструктора для связи с БД
+                  constructorId: actualId
+                } as UploadedFile;
+                
+                if (index !== -1) {
+                  this.materials[index] = updatedMaterial;
+                } else {
+                  this.materials.push(updatedMaterial);
+                }
+                
+                this.cdr.detectChanges();
+                this.notificationService.success('Drill-grid sauvegardé avec succès');
+              },
+              error: (fileError) => {
+                console.error('❌ Ошибка сохранения файла для отображения:', fileError);
+                // Drill-grid уже сохранен в БД, это не критично
+              }
+            });
+          },
+          error: (drillGridError) => {
+            console.error('❌ Ошибка сохранения drill-grid в БД:', drillGridError);
+            console.error('❌ Детали ошибки:', {
+              status: drillGridError.status,
+              statusText: drillGridError.statusText,
+              message: drillGridError.message,
+              error: drillGridError.error,
+              url: drillGridError.url
+            });
+            this.notificationService.error(`Erreur lors de la sauvegarde du drill-grid: ${drillGridError.status || 'Unknown'} - ${drillGridError.message || 'Erreur inconnue'}`);
+          }
+        });
       },
-      error: (error) => {
-        console.error('❌ Ошибка сохранения материала из конструктора:', error);
-        this.notificationService.error('Erreur lors de la sauvegarde du matériau');
+      error: (constructorError) => {
+        console.error('❌ Ошибка создания конструктора:', constructorError);
+        console.error('❌ Детали ошибки:', {
+          status: constructorError.status,
+          statusText: constructorError.statusText,
+          message: constructorError.message,
+          error: constructorError.error,
+          url: constructorError.url
+        });
+        this.notificationService.error(`Erreur lors de la création du constructeur: ${constructorError.status || 'Unknown'} - ${constructorError.message || 'Erreur inconnue'}`);
       }
     });
   }

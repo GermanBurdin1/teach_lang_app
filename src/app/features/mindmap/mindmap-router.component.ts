@@ -27,26 +27,35 @@ export class MindmapRouterComponent implements OnInit {
   ngOnInit(): void {
     // Проверяем путь - если это /mindmap, то студент, если /constructeurs - преподаватель
     const url = this.router.url;
+    console.log('🔍 MindmapRouterComponent - URL:', url);
     
-    if (url.includes('/mindmap') && !url.includes('/mindmap/student') && !url.includes('/mindmap/create')) {
-      // Это путь для студентов - показываем студентский компонент
-      this.isStudent = true;
-    } else if (url.includes('/constructeurs')) {
+    if (url.includes('/constructeurs')) {
       // Это путь для преподавателей
+      console.log('✅ Определен как преподаватель по URL');
       this.isTeacher = true;
+    } else if (url.includes('/mindmap') && !url.includes('/constructeurs')) {
+      // Это путь для студентов
+      console.log('✅ Определен как студент по URL');
+      this.isStudent = true;
     } else {
       // Fallback - проверяем роль пользователя
       const user = this.authService.getCurrentUser();
       const currentRole = this.authService.currentRole;
+      console.log('🔍 Fallback - роль пользователя:', currentRole, 'user:', user);
 
       if (currentRole === 'student' || user?.roles?.includes('student')) {
+        console.log('✅ Определен как студент по роли');
         this.isStudent = true;
       } else if (currentRole === 'teacher' || user?.roles?.includes('teacher')) {
+        console.log('✅ Определен как преподаватель по роли');
         this.isTeacher = true;
       } else {
         // Default to teacher
+        console.log('⚠️ Роль не определена, по умолчанию преподаватель');
         this.isTeacher = true;
       }
     }
+    
+    console.log('📊 Результат:', { isTeacher: this.isTeacher, isStudent: this.isStudent });
   }
 }
