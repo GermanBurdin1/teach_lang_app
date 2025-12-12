@@ -7,7 +7,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
 import { LayoutModule } from '../../../layout/layout.module';
+import { AuthService } from '../../../services/auth.service';
 
 type ConstructorType = 'mindmap' | 'drill_grid' | 'pattern_card' | 'flowchart';
 
@@ -25,6 +28,9 @@ export interface DrillGrid {
   columns: string[];
   cells: { [key: string]: string }; // ключ: "row_index-column_index", значение: содержимое ячейки
   createdAt: Date;
+  type: 'info' | 'homework'; // Тип: для информации (read-only) или для домашних заданий
+  userId?: string; // Для homework drill-grids - ID студента (если есть)
+  originalId?: string; // Для homework drill-grids - ID оригинального шаблона от преподавателя
 }
 
 @Component({
@@ -37,7 +43,9 @@ export interface DrillGrid {
     MatButtonModule, 
     MatIconModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatTabsModule,
+    MatChipsModule
   ],
   templateUrl: './create-mindmap.component.html',
   styleUrls: ['./create-mindmap.component.css']
@@ -53,6 +61,8 @@ export class CreateMindmapComponent implements OnInit {
   drillGridCells: { [key: string]: string } = {};
   showMyDrillGrids: boolean = false;
   savedDrillGrids: DrillGrid[] = [];
+  drillGridFilter: 'all' | 'info' | 'homework' = 'all';
+  drillGridTabIndex: number = 0;
   
   // Matrix configuration
   numRows: number = 3;
@@ -104,7 +114,8 @@ export class CreateMindmapComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private location: Location
+    private location: Location,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -136,22 +147,73 @@ export class CreateMindmapComponent implements OnInit {
   }
   
   loadSavedDrillGrids(): void {
-    const saved = localStorage.getItem('savedDrillGrids');
-    if (saved) {
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id?.toString();
+    
+    // Загружаем info drill-grids (общие для всех)
+    const savedInfo = localStorage.getItem('savedDrillGrids_info');
+    let infoGrids: DrillGrid[] = [];
+    if (savedInfo) {
       try {
-        this.savedDrillGrids = JSON.parse(saved).map((grid: any) => ({
+        infoGrids = JSON.parse(savedInfo).map((grid: any) => ({
           ...grid,
-          createdAt: new Date(grid.createdAt)
+          createdAt: new Date(grid.createdAt),
+          type: 'info' as const
         }));
       } catch (e) {
-        console.error('Error loading saved drill-grids:', e);
-        this.savedDrillGrids = [];
+        console.error('Error loading saved info drill-grids:', e);
       }
     }
+    
+    // Загружаем homework drill-grids для текущего пользователя
+    let homeworkGrids: DrillGrid[] = [];
+    if (userId) {
+      const savedHomework = localStorage.getItem(`savedDrillGrids_homework_${userId}`);
+      if (savedHomework) {
+        try {
+          homeworkGrids = JSON.parse(savedHomework).map((grid: any) => ({
+            ...grid,
+            createdAt: new Date(grid.createdAt),
+            type: 'homework' as const
+          }));
+        } catch (e) {
+          console.error('Error loading saved homework drill-grids:', e);
+        }
+      }
+    }
+    
+    this.savedDrillGrids = [...infoGrids, ...homeworkGrids];
   }
   
   saveDrillGrids(): void {
-    localStorage.setItem('savedDrillGrids', JSON.stringify(this.savedDrillGrids));
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id?.toString();
+    
+    // Разделяем на info и homework
+    const infoGrids = this.savedDrillGrids.filter(g => g.type === 'info');
+    const homeworkGrids = userId 
+      ? this.savedDrillGrids.filter(g => g.type === 'homework' && g.userId === userId)
+      : [];
+    
+    localStorage.setItem('savedDrillGrids_info', JSON.stringify(infoGrids));
+    if (userId) {
+      localStorage.setItem(`savedDrillGrids_homework_${userId}`, JSON.stringify(homeworkGrids));
+    }
+  }
+  
+  get filteredDrillGrids(): DrillGrid[] {
+    if (this.drillGridFilter === 'all') {
+      return this.savedDrillGrids;
+    }
+    return this.savedDrillGrids.filter(g => g.type === this.drillGridFilter);
+  }
+  
+  get infoDrillGrids(): DrillGrid[] {
+    return this.savedDrillGrids.filter(g => g.type === 'info');
+  }
+  
+  get homeworkDrillGrids(): DrillGrid[] {
+    return this.savedDrillGrids.filter(g => g.type === 'homework');
   }
   
   createMatrix(): void {
@@ -239,13 +301,18 @@ export class CreateMindmapComponent implements OnInit {
       return;
     }
     
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id?.toString();
+    
     const newGrid: DrillGrid = {
       id: Date.now().toString(),
       name: this.drillGridName,
       rows: [...this.drillGridRows],
       columns: [...this.drillGridColumns],
       cells: { ...this.drillGridCells },
-      createdAt: new Date()
+      createdAt: new Date(),
+      type: 'info', // По умолчанию сохраняем как info (read-only)
+      userId: userId
     };
     
     this.savedDrillGrids.push(newGrid);
@@ -255,11 +322,73 @@ export class CreateMindmapComponent implements OnInit {
     this.drillGridName = '';
   }
   
+  duplicateDrillGrid(grid: DrillGrid): void {
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id?.toString();
+    
+    const duplicatedGrid: DrillGrid = {
+      id: Date.now().toString(),
+      name: `${grid.name} (copie)`,
+      rows: [...grid.rows],
+      columns: [...grid.columns],
+      cells: { ...grid.cells },
+      createdAt: new Date(),
+      type: grid.type,
+      userId: userId,
+      originalId: grid.originalId || grid.id
+    };
+    
+    this.savedDrillGrids.push(duplicatedGrid);
+    this.saveDrillGrids();
+    
+    alert(`Drill-grid "${duplicatedGrid.name}" dupliquée avec succès!`);
+  }
+  
+  /**
+   * Создает homework drill-grid для студента на основе шаблона от преподавателя
+   * Используется при добавлении домашнего задания через lesson-preview-modal
+   * 
+   * @param templateGrid - Шаблон drill-grid от преподавателя (type: 'info')
+   * @param studentUserId - ID студента, для которого создается homework
+   * @returns Созданный homework drill-grid
+   * 
+   * Пример использования из lesson-preview-modal:
+   * const component = this.createMindmapComponentRef;
+   * const homeworkGrid = component.createHomeworkDrillGrid(templateGrid, studentId);
+   */
+  createHomeworkDrillGrid(templateGrid: DrillGrid, studentUserId: string): DrillGrid {
+    const homeworkGrid: DrillGrid = {
+      id: Date.now().toString(),
+      name: `${templateGrid.name} (devoir)`,
+      rows: [...templateGrid.rows],
+      columns: [...templateGrid.columns],
+      cells: {}, // Пустые ячейки для студента - он будет их заполнять
+      createdAt: new Date(),
+      type: 'homework',
+      userId: studentUserId,
+      originalId: templateGrid.id
+    };
+    
+    // Сохраняем в localStorage студента
+    const savedHomework = localStorage.getItem(`savedDrillGrids_homework_${studentUserId}`);
+    let homeworkGrids: DrillGrid[] = savedHomework ? JSON.parse(savedHomework) : [];
+    homeworkGrids.push(homeworkGrid);
+    localStorage.setItem(`savedDrillGrids_homework_${studentUserId}`, JSON.stringify(homeworkGrids));
+    
+    return homeworkGrid;
+  }
+  
   toggleMyDrillGrids(): void {
     this.showMyDrillGrids = !this.showMyDrillGrids;
   }
   
   loadDrillGrid(grid: DrillGrid): void {
+    // Для info drill-grids только просмотр (read-only), не загружаем для редактирования
+    if (grid.type === 'info') {
+      alert('Cette drill-grid est en lecture seule. Utilisez "Dupliquer" pour créer une copie modifiable.');
+      return;
+    }
+    
     this.drillGridName = grid.name;
     this.drillGridRows = [...grid.rows];
     this.drillGridColumns = [...grid.columns];
@@ -273,6 +402,16 @@ export class CreateMindmapComponent implements OnInit {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette drill-grid?')) {
       this.savedDrillGrids = this.savedDrillGrids.filter(g => g.id !== gridId);
       this.saveDrillGrids();
+    }
+  }
+  
+  onTabChange(index: number): void {
+    if (index === 0) {
+      this.drillGridFilter = 'all';
+    } else if (index === 1) {
+      this.drillGridFilter = 'info';
+    } else if (index === 2) {
+      this.drillGridFilter = 'homework';
     }
   }
 

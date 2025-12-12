@@ -33,26 +33,117 @@
           <!-- Saved Drill-grids List -->
           <div class="saved-grids-list" *ngIf="showMyDrillGrids">
             <h4>Mes drill-grids sauvegardées</h4>
-            <div class="grids-grid">
-              <div class="saved-grid-card" *ngFor="let grid of savedDrillGrids">
-                <div class="grid-card-header">
-                  <h5>{{ grid.name }}</h5>
-                  <div class="grid-card-actions">
-                    <button mat-icon-button color="primary" (click)="loadDrillGrid(grid)" title="Charger">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" (click)="deleteDrillGrid(grid.id)" title="Supprimer">
-                      <mat-icon>delete</mat-icon>
-                    </button>
+            
+            <!-- Tabs for filtering -->
+            <mat-tab-group [(selectedIndex)]="drillGridTabIndex" (selectedIndexChange)="onTabChange($event)">
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  Toutes ({{ savedDrillGrids.length }})
+                </ng-template>
+                <div class="grids-grid">
+                  <div class="saved-grid-card" *ngFor="let grid of filteredDrillGrids" [class.homework-grid]="grid.type === 'homework'">
+                    <div class="grid-card-header">
+                      <h5>{{ grid.name }}</h5>
+                      <mat-chip [class]="grid.type === 'info' ? 'info-chip' : 'homework-chip'">
+                        {{ grid.type === 'info' ? 'Information' : 'Devoir' }}
+                      </mat-chip>
+                    </div>
+                    <div class="grid-card-actions">
+                      <button mat-icon-button color="primary" (click)="loadDrillGrid(grid)" [disabled]="grid.type === 'info'" title="Charger">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="accent" (click)="duplicateDrillGrid(grid)" title="Dupliquer">
+                        <mat-icon>content_copy</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteDrillGrid(grid.id)" title="Supprimer">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                    <p class="grid-info">{{ grid.rows.length }} lignes × {{ grid.columns.length }} colonnes</p>
+                    <p class="grid-date">{{ grid.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                    <p class="grid-note" *ngIf="grid.type === 'info'">
+                      <mat-icon class="info-icon">info</mat-icon>
+                      Lecture seule - pour information
+                    </p>
+                    <p class="grid-note" *ngIf="grid.type === 'homework'">
+                      <mat-icon class="homework-icon">assignment</mat-icon>
+                      Devoir - modifiable
+                    </p>
                   </div>
                 </div>
-                <p class="grid-info">{{ grid.rows.length }} lignes × {{ grid.columns.length }} colonnes</p>
-                <p class="grid-date">{{ grid.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
-              </div>
-            </div>
-            <div *ngIf="savedDrillGrids.length === 0" class="no-grids">
-              <p>Aucune drill-grid sauvegardée</p>
-            </div>
+                <div *ngIf="filteredDrillGrids.length === 0" class="no-grids">
+                  <p>Aucune drill-grid sauvegardée</p>
+                </div>
+              </mat-tab>
+              
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  Information ({{ infoDrillGrids.length }})
+                </ng-template>
+                <div class="grids-grid">
+                  <div class="saved-grid-card" *ngFor="let grid of infoDrillGrids">
+                    <div class="grid-card-header">
+                      <h5>{{ grid.name }}</h5>
+                      <mat-chip class="info-chip">Information</mat-chip>
+                    </div>
+                    <div class="grid-card-actions">
+                      <button mat-icon-button color="primary" (click)="loadDrillGrid(grid)" disabled title="Lecture seule">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                      <button mat-icon-button color="accent" (click)="duplicateDrillGrid(grid)" title="Dupliquer">
+                        <mat-icon>content_copy</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteDrillGrid(grid.id)" title="Supprimer">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                    <p class="grid-info">{{ grid.rows.length }} lignes × {{ grid.columns.length }} colonnes</p>
+                    <p class="grid-date">{{ grid.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                    <p class="grid-note">
+                      <mat-icon class="info-icon">info</mat-icon>
+                      Lecture seule - pour information
+                    </p>
+                  </div>
+                </div>
+                <div *ngIf="infoDrillGrids.length === 0" class="no-grids">
+                  <p>Aucune drill-grid d'information</p>
+                </div>
+              </mat-tab>
+              
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  Devoirs ({{ homeworkDrillGrids.length }})
+                </ng-template>
+                <div class="grids-grid">
+                  <div class="saved-grid-card homework-grid" *ngFor="let grid of homeworkDrillGrids">
+                    <div class="grid-card-header">
+                      <h5>{{ grid.name }}</h5>
+                      <mat-chip class="homework-chip">Devoir</mat-chip>
+                    </div>
+                    <div class="grid-card-actions">
+                      <button mat-icon-button color="primary" (click)="loadDrillGrid(grid)" title="Modifier">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="accent" (click)="duplicateDrillGrid(grid)" title="Dupliquer">
+                        <mat-icon>content_copy</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteDrillGrid(grid.id)" title="Supprimer">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                    <p class="grid-info">{{ grid.rows.length }} lignes × {{ grid.columns.length }} colonnes</p>
+                    <p class="grid-date">{{ grid.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                    <p class="grid-note">
+                      <mat-icon class="homework-icon">assignment</mat-icon>
+                      Devoir - modifiable
+                    </p>
+                  </div>
+                </div>
+                <div *ngIf="homeworkDrillGrids.length === 0" class="no-grids">
+                  <p>Aucun devoir drill-grid</p>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
           </div>
 
           <!-- Step 1: Name the drill-grid -->

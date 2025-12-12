@@ -193,17 +193,60 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .grid-card-header h5 {
   margin: 0;
   font-size: 1rem;
   color: var(--space-blue);
+  flex: 1;
+  min-width: 150px;
 }
 
 .grid-card-actions {
   display: flex;
   gap: 0.25rem;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.info-chip {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+}
+
+.homework-chip {
+  background-color: #fff3e0 !important;
+  color: #f57c00 !important;
+}
+
+.homework-grid {
+  border-left: 4px solid #ff9800;
+}
+
+.grid-note {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.grid-note mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.info-icon {
+  color: #2196f3;
+}
+
+.homework-icon {
+  color: #ff9800;
 }
 
 .grid-info {
