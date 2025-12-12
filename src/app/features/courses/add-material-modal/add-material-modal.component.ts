@@ -10,6 +10,7 @@ export interface AddMaterialModalData {
   courseId: string;
   trainerMaterials: Material[];
   loadingTrainerMaterials: boolean;
+  isSupplementary?: boolean; // Флаг для дополнительных материалов
 }
 
 @Component({

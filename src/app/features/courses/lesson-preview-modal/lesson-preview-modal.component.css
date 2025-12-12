@@ -53,6 +53,7 @@
 
 .lesson-description-section,
 .lesson-materials-section,
+.lesson-supplementary-materials-section,
 .lesson-homework-section {
   margin-bottom: 2rem;
 }
@@ -236,6 +237,79 @@
 .text-content {
   margin: 0;
   white-space: pre-wrap;
+}
+
+/* Drill-grid preview styles */
+.drill-grid-preview {
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e7ff;
+}
+
+.drill-grid-header {
+  margin-bottom: 1rem;
+}
+
+.drill-grid-header h5 {
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--space-blue);
+}
+
+.drill-grid-description {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.drill-grid-table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.drill-grid-preview .drill-table {
+  display: inline-block;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e0e7ff;
+  background: white;
+  min-width: 100%;
+}
+
+.drill-grid-preview .drill-header-row,
+.drill-grid-preview .drill-row {
+  display: flex;
+}
+
+.drill-grid-preview .drill-cell {
+  padding: 0.75rem 1rem;
+  border-right: 1px solid #e0e7ff;
+  border-bottom: 1px solid #e0e7ff;
+  min-width: 100px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.drill-grid-preview .drill-cell:last-child {
+  border-right: none;
+}
+
+.drill-grid-preview .drill-row:last-child .drill-cell {
+  border-bottom: none;
+}
+
+.drill-grid-preview .drill-cell.header-cell {
+  background: #eef2ff;
+  font-weight: 600;
+  color: #4c51bf;
+}
+
+.drill-grid-preview .drill-cell:not(.header-cell) {
+  background: #fafbff;
+  color: #374151;
 }
 
 .no-materials,

@@ -44,7 +44,7 @@
       <div class="section-header">
         <h3>
           <i class="fas fa-file-alt"></i>
-          Matériaux ({{ data.materials.length }})
+          Matériaux ({{ regularMaterials.length }})
         </h3>
         <button 
           class="btn btn-sm btn-primary"
@@ -55,8 +55,8 @@
         </button>
       </div>
       
-      <div *ngIf="data.materials.length > 0" class="materials-list">
-        <div *ngFor="let material of data.materials" class="material-item">
+      <div *ngIf="regularMaterials.length > 0" class="materials-list">
+        <div *ngFor="let material of regularMaterials" class="material-item">
           <div class="material-header-row">
             <div class="material-icon">
               <i [class]="getMaterialTypeIcon(material.mimetype)"></i>
@@ -130,9 +130,133 @@
         </div>
       </div>
       
-      <div *ngIf="data.materials.length === 0" class="no-materials">
+      <div *ngIf="regularMaterials.length === 0" class="no-materials">
         <i class="fas fa-folder-open"></i>
         <p class="text-muted">Aucun matériau dans cette leçon</p>
+      </div>
+    </div>
+
+    <!-- Дополнительные материалы -->
+    <div class="lesson-supplementary-materials-section">
+      <div class="section-header">
+        <h3>
+          <i class="fas fa-folder-plus"></i>
+          Matériaux supplémentaires ({{ supplementaryMaterials.length }})
+        </h3>
+        <button 
+          class="btn btn-sm btn-primary"
+          (click)="openAddSupplementaryMaterial()"
+          title="Ajouter un matériau supplémentaire">
+          <i class="fas fa-plus"></i>
+          Ajouter un matériau supplémentaire
+        </button>
+      </div>
+      
+      <div *ngIf="supplementaryMaterials.length > 0" class="materials-list">
+        <div *ngFor="let material of supplementaryMaterials" class="material-item">
+          <div class="material-header-row">
+            <div class="material-icon">
+              <i [class]="getMaterialTypeIcon(material.mimetype)"></i>
+            </div>
+            <div class="material-info">
+              <h4>{{ material.filename }}</h4>
+              <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
+            </div>
+            <div class="material-actions">
+              <button 
+                class="btn btn-xs btn-link"
+                (click)="openAddHomework(material.id)"
+                title="Ajouter un devoir à ce matériau">
+                <i class="fas fa-plus"></i>
+                Devoir
+              </button>
+            </div>
+          </div>
+          <div class="material-preview">
+            <!-- Аудио -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'audio'" class="audio-preview">
+              <audio controls [src]="getFileUrl(material.url)" class="audio-player">
+                Votre navigateur ne supporte pas l'élément audio.
+              </audio>
+            </div>
+            
+            <!-- Видео -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'video'" class="video-preview">
+              <video controls [src]="getFileUrl(material.url)" class="video-player">
+                Votre navigateur ne supporte pas l'élément vidéo.
+              </video>
+            </div>
+            
+            <!-- Изображение -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'image'" class="image-preview">
+              <img [src]="getFileUrl(material.url)" [alt]="material.filename" class="material-image">
+            </div>
+            
+            <!-- PDF -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'pdf'" class="pdf-preview">
+              <a [href]="getFileUrl(material.url)" target="_blank" class="btn btn-sm btn-primary">
+                <i class="fas fa-file-pdf"></i>
+                Ouvrir le PDF
+              </a>
+            </div>
+            
+            <!-- Текст -->
+            <div *ngIf="getMaterialTypeFromMime(material.mimetype) === 'text'" class="text-preview">
+              <p class="text-content">{{ material.description || 'Contenu texte' }}</p>
+            </div>
+            
+            <!-- Drill-grid -->
+            <div *ngIf="isDrillGrid(material)" class="drill-grid-preview">
+              <div class="drill-grid-header">
+                <h5>
+                  <i class="fas fa-grid-on"></i>
+                  {{ material.filename }}
+                </h5>
+                <p *ngIf="material.description" class="drill-grid-description">{{ material.description }}</p>
+              </div>
+              <div class="drill-grid-table-container" *ngIf="getDrillGridData(material)">
+                <div class="drill-table">
+                  <div class="drill-header-row">
+                    <div class="drill-cell header-cell"></div>
+                    <div class="drill-cell header-cell" *ngFor="let col of getDrillGridData(material).columns">
+                      {{ col || 'Colonne' }}
+                    </div>
+                  </div>
+                  <div class="drill-row" *ngFor="let row of getDrillGridData(material).rows; let rowIdx = index">
+                    <div class="drill-cell header-cell">{{ row || 'Ligne' }}</div>
+                    <div class="drill-cell" *ngFor="let col of getDrillGridData(material).columns; let colIdx = index">
+                      {{ getDrillGridData(material).cells[rowIdx + '-' + colIdx] || '' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Домашние задания к дополнительному материалу -->
+          <div class="material-homework-section" *ngIf="getHomeworkForMaterial(material.id).length > 0">
+            <div class="material-homework-header">
+              <span class="material-homework-count">
+                {{ getHomeworkForMaterial(material.id).length }} {{ getHomeworkForMaterial(material.id).length === 1 ? 'devoir' : 'devoirs' }}
+              </span>
+            </div>
+            <div class="material-homework-list">
+              <div *ngFor="let homework of getHomeworkForMaterial(material.id)" class="material-homework-item">
+                <div class="material-homework-title">{{ homework.title }}</div>
+                <div class="material-homework-description" *ngIf="homework.description">{{ homework.description }}</div>
+                <div class="material-homework-due-date" *ngIf="homework.dueDate">
+                  <i class="fas fa-calendar"></i>
+                  {{ homework.dueDate | date:'dd/MM/yyyy' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="supplementaryMaterials.length === 0" class="no-materials">
+        <i class="fas fa-folder-open"></i>
+        <p class="text-muted">Aucun matériau supplémentaire dans cette leçon</p>
       </div>
     </div>
 

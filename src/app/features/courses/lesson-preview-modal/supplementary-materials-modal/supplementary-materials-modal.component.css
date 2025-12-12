@@ -1,0 +1,122 @@
+.supplementary-materials-modal {
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--space-blue);
+  font-size: 1.25rem;
+}
+
+.close-btn {
+  color: #666;
+}
+
+.modal-body {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.materials-content {
+  padding: 1rem;
+  min-height: 300px;
+}
+
+.no-materials {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+}
+
+.no-materials mat-icon {
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  color: #ccc;
+  margin-bottom: 1rem;
+}
+
+.no-materials p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #999;
+  font-style: italic;
+}
+
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.material-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.material-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: var(--galaxy-primary);
+}
+
+.drill-grid-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grid-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.info-item mat-icon {
+  font-size: 1.2rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--galaxy-primary);
+}
+
+mat-card-actions {
+  padding: 0.5rem 1rem 1rem 1rem;
+  margin: 0;
+}
+
+mat-card-actions button {
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  overflow: visible !important;
+}
+

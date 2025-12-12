@@ -1,0 +1,80 @@
+<div class="supplementary-materials-modal">
+  <div class="modal-header">
+    <h3>
+      <mat-icon>folder_plus</mat-icon>
+      Ajouter un matériau supplémentaire
+    </h3>
+    <button mat-icon-button (click)="cancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <mat-tab-group [(selectedIndex)]="selectedTab">
+      <!-- Drill-grids Tab -->
+      <mat-tab label="Drill-grids">
+        <div class="materials-content">
+          <div *ngIf="savedDrillGrids.length === 0" class="no-materials">
+            <mat-icon>grid_on</mat-icon>
+            <p>Aucune drill-grid sauvegardée</p>
+            <p class="hint">Créez d'abord une drill-grid dans le constructeur.</p>
+          </div>
+
+          <div *ngIf="savedDrillGrids.length > 0" class="materials-grid">
+            <mat-card 
+              *ngFor="let grid of savedDrillGrids" 
+              class="material-card drill-grid-card"
+              (click)="selectDrillGrid(grid)">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>grid_on</mat-icon>
+                  {{ grid.name }}
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="grid-info">
+                  <span class="info-item">
+                    <mat-icon>table_chart</mat-icon>
+                    {{ grid.rows.length }} lignes × {{ grid.columns.length }} colonnes
+                  </span>
+                  <span class="info-item">
+                    <mat-icon>calendar_today</mat-icon>
+                    {{ grid.createdAt | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button color="primary" (click)="selectDrillGrid(grid)">
+                  <mat-icon>add</mat-icon>
+                  Ajouter
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Future tabs for other constructor materials -->
+      <!-- 
+      <mat-tab label="Mindmaps">
+        <div class="materials-content">
+          <p>Mindmaps будут добавлены позже</p>
+        </div>
+      </mat-tab>
+      
+      <mat-tab label="Pattern Cards">
+        <div class="materials-content">
+          <p>Pattern Cards seront ajoutées plus tard</p>
+        </div>
+      </mat-tab>
+      
+      <mat-tab label="Flowcharts">
+        <div class="materials-content">
+          <p>Flowcharts seront ajoutés plus tard</p>
+        </div>
+      </mat-tab>
+      -->
+    </mat-tab-group>
+  </div>
+</div>
+

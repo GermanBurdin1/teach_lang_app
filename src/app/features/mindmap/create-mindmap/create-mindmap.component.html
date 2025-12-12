@@ -20,47 +20,149 @@
       </header>
 
       <section class="create-content mat-elevation-z2" *ngIf="typeConfig">
-        <!-- Пример структуры для Drill-grid -->
-        <div class="example-preview" *ngIf="constructorType === 'drill_grid'">
-          <h3 class="example-title">Exemple de structure Drill-grid</h3>
-          <div class="drill-grid-example">
-            <div class="drill-table">
-              <div class="drill-header-row">
-                <div class="drill-cell header-cell"></div>
-                <div class="drill-cell header-cell">Je</div>
-                <div class="drill-cell header-cell">Tu</div>
-                <div class="drill-cell header-cell">Il/Elle</div>
-                <div class="drill-cell header-cell">Nous</div>
-                <div class="drill-cell header-cell">Ils/Elles</div>
-              </div>
-              <div class="drill-row">
-                <div class="drill-cell header-cell">Présent</div>
-                <div class="drill-cell">parle</div>
-                <div class="drill-cell">parles</div>
-                <div class="drill-cell">parle</div>
-                <div class="drill-cell">parlons</div>
-                <div class="drill-cell">parlent</div>
-              </div>
-              <div class="drill-row">
-                <div class="drill-cell header-cell">Passé composé</div>
-                <div class="drill-cell">ai parlé</div>
-                <div class="drill-cell">as parlé</div>
-                <div class="drill-cell">a parlé</div>
-                <div class="drill-cell">avons parlé</div>
-                <div class="drill-cell">ont parlé</div>
-              </div>
-              <div class="drill-row">
-                <div class="drill-cell header-cell">Futur</div>
-                <div class="drill-cell">parlerai</div>
-                <div class="drill-cell">parleras</div>
-                <div class="drill-cell">parlera</div>
-                <div class="drill-cell">parlerons</div>
-                <div class="drill-cell">parleront</div>
+        <!-- Drill-grid Creator -->
+        <div class="drill-grid-creator" *ngIf="constructorType === 'drill_grid'">
+          <div class="creator-header">
+            <h3>Créer votre drill-grid</h3>
+            <button mat-stroked-button color="primary" (click)="toggleMyDrillGrids()">
+              <mat-icon>folder</mat-icon>
+              Consulter mes drill-grids ({{ savedDrillGrids.length }})
+            </button>
+          </div>
+
+          <!-- Saved Drill-grids List -->
+          <div class="saved-grids-list" *ngIf="showMyDrillGrids">
+            <h4>Mes drill-grids sauvegardées</h4>
+            <div class="grids-grid">
+              <div class="saved-grid-card" *ngFor="let grid of savedDrillGrids">
+                <div class="grid-card-header">
+                  <h5>{{ grid.name }}</h5>
+                  <div class="grid-card-actions">
+                    <button mat-icon-button color="primary" (click)="loadDrillGrid(grid)" title="Charger">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="deleteDrillGrid(grid.id)" title="Supprimer">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <p class="grid-info">{{ grid.rows.length }} lignes × {{ grid.columns.length }} colonnes</p>
+                <p class="grid-date">{{ grid.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
               </div>
             </div>
-            <p class="example-description">
-              Créez une matrice interactive où les étudiants peuvent s'entraîner à conjuguer les verbes ou utiliser le vocabulaire dans différents contextes.
-            </p>
+            <div *ngIf="savedDrillGrids.length === 0" class="no-grids">
+              <p>Aucune drill-grid sauvegardée</p>
+            </div>
+          </div>
+
+          <!-- Step 1: Name the drill-grid -->
+          <div class="drill-grid-step">
+            <h4>1. Nommer la drill-grid</h4>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nom de la drill-grid</mat-label>
+              <input matInput [(ngModel)]="drillGridName" placeholder="Ex: Conjugaison des verbes réguliers">
+            </mat-form-field>
+          </div>
+
+          <!-- Step 2: Configure Matrix -->
+          <div class="drill-grid-step">
+            <h4>2. Configurer la matrice</h4>
+            <div class="matrix-config">
+              <div class="config-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Nombre de lignes</mat-label>
+                  <input matInput type="number" [(ngModel)]="numRows" min="1" max="20" (change)="createMatrix()">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Nombre de colonnes</mat-label>
+                  <input matInput type="number" [(ngModel)]="numColumns" min="1" max="20" (change)="createMatrix()">
+                </mat-form-field>
+                <button mat-raised-button color="primary" (click)="createMatrix()">
+                  <mat-icon>refresh</mat-icon>
+                  Créer la matrice
+                </button>
+              </div>
+            </div>
+
+            <!-- Matrix Editor -->
+            <div class="matrix-editor" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
+              <div class="drill-table-editable">
+                <!-- Header row with column labels -->
+                <div class="drill-header-row">
+                  <div class="drill-cell header-cell corner-cell"></div>
+                  <div class="drill-cell header-cell" *ngFor="let col of drillGridColumns; let colIdx = index">
+                    <input 
+                      type="text" 
+                      [(ngModel)]="drillGridColumns[colIdx]" 
+                      placeholder="Colonne {{ colIdx + 1 }}"
+                      class="header-input">
+                    <button 
+                      mat-icon-button 
+                      *ngIf="drillGridColumns.length > 1"
+                      (click)="removeColumn(colIdx)"
+                      class="remove-btn"
+                      title="Supprimer la colonne">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                  <button mat-icon-button color="primary" (click)="addColumn()" class="add-btn" title="Ajouter une colonne">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+
+                <!-- Data rows -->
+                <div class="drill-row" *ngFor="let row of drillGridRows; let rowIdx = index">
+                  <div class="drill-cell header-cell">
+                    <input 
+                      type="text" 
+                      [(ngModel)]="drillGridRows[rowIdx]" 
+                      placeholder="Ligne {{ rowIdx + 1 }}"
+                      class="header-input">
+                    <button 
+                      mat-icon-button 
+                      *ngIf="drillGridRows.length > 1"
+                      (click)="removeRow(rowIdx)"
+                      class="remove-btn"
+                      title="Supprimer la ligne">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                  <div 
+                    class="drill-cell editable-cell" 
+                    *ngFor="let col of drillGridColumns; let colIdx = index">
+                    <input 
+                      type="text" 
+                      [value]="getCellValue(rowIdx, colIdx)"
+                      (input)="updateCell(rowIdx, colIdx, $any($event.target).value)"
+                      placeholder="..."
+                      class="cell-input">
+                  </div>
+                </div>
+
+                <!-- Add row button -->
+                <div class="add-row-container">
+                  <button mat-raised-button color="primary" (click)="addRow()">
+                    <mat-icon>add</mat-icon>
+                    Ajouter une ligne
+                  </button>
+                </div>
+              </div>
+
+              <!-- Save button -->
+              <div class="save-container">
+                <button mat-raised-button color="accent" (click)="saveDrillGrid()" [disabled]="!drillGridName.trim()">
+                  <mat-icon>save</mat-icon>
+                  Sauvegarder la drill-grid
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Choose course (optional) -->
+          <div class="drill-grid-step">
+            <h4>3. Choisir un cours (optionnel)</h4>
+            <p class="step-description">Associez la drill-grid à un parcours existant quand vous le souhaitez.</p>
+            <!-- Course selection will be added later -->
           </div>
         </div>
 

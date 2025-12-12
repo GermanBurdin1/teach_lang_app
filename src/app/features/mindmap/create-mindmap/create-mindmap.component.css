@@ -144,6 +144,240 @@
   color: #374151;
 }
 
+/* Drill-grid Creator Styles */
+.drill-grid-creator {
+  padding: 2rem;
+}
+
+.creator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.creator-header h3 {
+  margin: 0;
+  color: var(--space-blue);
+}
+
+.saved-grids-list {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.saved-grids-list h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--space-blue);
+}
+
+.grids-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.saved-grid-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.grid-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.grid-card-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--space-blue);
+}
+
+.grid-card-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.grid-info {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.grid-date {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #adb5bd;
+}
+
+.no-grids {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+}
+
+.drill-grid-step {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e7ff;
+}
+
+.drill-grid-step h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--space-blue);
+}
+
+.step-description {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.matrix-config {
+  margin-bottom: 1.5rem;
+}
+
+.config-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.matrix-editor {
+  margin-top: 1.5rem;
+}
+
+.drill-table-editable {
+  display: inline-block;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #e0e7ff;
+  background: white;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.drill-header-row {
+  display: flex;
+  position: relative;
+}
+
+.drill-header-row .corner-cell {
+  min-width: 120px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #eef2ff;
+}
+
+.drill-header-row .header-cell {
+  position: relative;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.drill-header-row .add-btn {
+  min-width: 48px;
+  flex-shrink: 0;
+}
+
+.header-input {
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-weight: 600;
+  color: #4c51bf;
+  padding: 0.5rem;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.header-input:focus {
+  outline: 2px solid var(--galaxy-primary);
+  border-radius: 4px;
+}
+
+.remove-btn {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 16px;
+  padding: 0;
+  opacity: 0.6;
+}
+
+.remove-btn:hover {
+  opacity: 1;
+}
+
+.drill-row {
+  display: flex;
+  position: relative;
+}
+
+.drill-row .header-cell {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #eef2ff;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.editable-cell {
+  min-width: 120px;
+  padding: 0.5rem;
+  background: #fafbff;
+}
+
+.cell-input {
+  width: 100%;
+  border: 1px solid #e0e7ff;
+  border-radius: 4px;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  background: white;
+}
+
+.cell-input:focus {
+  outline: 2px solid var(--galaxy-primary);
+  border-color: var(--galaxy-primary);
+}
+
+.add-row-container {
+  padding: 1rem;
+  text-align: center;
+  border-top: 2px solid #e0e7ff;
+}
+
+.save-container {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
 /* Flowchart пример */
 .flowchart-example {
   display: flex;

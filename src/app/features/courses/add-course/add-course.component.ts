@@ -72,6 +72,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   selectedSection: string | null = null;
   selectedSubSection: string | null = null;
   selectedLesson: string | null = null; // Выбранный урок для добавления материалов
+  isSupplementaryMaterial: boolean = false; // Флаг для дополнительных материалов
   isUploadModalOpen = false;
   showAddSectionDropdown = false;
   showAddSubSectionInput: { [key: string]: boolean } = {}; // Показывать ли input для добавления подсекции
@@ -139,7 +140,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         const section = event.detail.section;
         const lesson = event.detail.lesson;
         const subSection = event.detail.subSection || null;
-        this.openMaterialModal(section, lesson, subSection);
+        const isSupplementary = event.detail.isSupplementary || false;
+        this.openMaterialModal(section, lesson, subSection, isSupplementary);
       }
     }) as EventListener;
     window.addEventListener('openMaterialModal', this.materialModalListener);
@@ -876,7 +878,11 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       }
 
       // Формируем tag: приоритет - урок > подсекция > секция
-      const tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
+      // Если это дополнительный материал, добавляем суффикс _supplementary
+      let tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
+      if (tag && this.isSupplementaryMaterial) {
+        tag = `${tag}_supplementary`;
+      }
       
       const uploadedFile: UploadedFile = {
         id: Date.now(),
@@ -927,6 +933,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.showExistingMaterials = false;
     this.selectedSection = null;
     this.selectedSubSection = null;
+    this.isSupplementaryMaterial = false;
     this.selectedLesson = null;
   }
 
@@ -1232,14 +1239,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.isUploadModalOpen = true;
   }
 
-  private openMaterialModal(section: string, lesson?: string, subSection?: string): void {
+  private openMaterialModal(section: string, lesson?: string, subSection?: string, isSupplementary: boolean = false): void {
+    this.isSupplementaryMaterial = isSupplementary;
     const dialogData: AddMaterialModalData = {
       section: section,
       lesson: lesson,
       subSection: subSection,
       courseId: this.courseId || '',
       trainerMaterials: this.trainerMaterials,
-      loadingTrainerMaterials: this.loadingTrainerMaterials
+      loadingTrainerMaterials: this.loadingTrainerMaterials,
+      isSupplementary: isSupplementary
     };
 
     const dialogConfig: MatDialogConfig = {
@@ -1262,6 +1271,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           this.selectedSection = section;
           this.selectedLesson = lesson || null;
           this.selectedSubSection = subSection || null;
+          this.isSupplementaryMaterial = isSupplementary;
           this.newMaterial = { ...result.material };
           this.selectedFile = result.material.file || null;
           this.createMaterial();
@@ -1270,6 +1280,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           this.selectedSection = section;
           this.selectedLesson = lesson || null;
           this.selectedSubSection = subSection || null;
+          this.isSupplementaryMaterial = isSupplementary;
           this.addExistingMaterialToCourse(result.material);
         }
       }
@@ -1485,7 +1496,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         const textBlob = new Blob([material.content], { type: 'text/plain' });
         const textFile = new File([textBlob], `${material.title}.txt`, { type: 'text/plain' });
         
-        const tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
+        let tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
+        if (tag && this.isSupplementaryMaterial) {
+          tag = `${tag}_supplementary`;
+        }
         this.fileUploadService.uploadFileAsCourse(textFile, courseId, tag).subscribe({
           next: (response) => {
             const uploadedFile: UploadedFile = {
@@ -1493,7 +1507,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               filename: material.title,
               url: response.url,
               mimetype: material.type,
-                    tag: this.selectedSubSection || this.selectedSection || undefined, // Сохраняем раздел или подраздел в поле tag
+              tag: tag, // Сохраняем раздел или подраздел в поле tag
               description: material.description || undefined,
               courseId: courseId,
               createdAt: response.createdAt,
@@ -1532,7 +1546,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           return;
         }
         
-        const tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
+        let tag = this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined;
+        if (tag && this.isSupplementaryMaterial) {
+          tag = `${tag}_supplementary`;
+        }
         this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag).subscribe({
           next: (response) => {
             console.log('✅ Материал связан с курсом:', response);
@@ -1545,7 +1562,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               mimetype: this.getMimeTypeFromExtension(this.getFileExtensionFromUrl(material.content)),
               courseId: courseId,
               createdAt: response.createdAt.toString(),
-              tag: this.selectedLesson || this.selectedSubSection || this.selectedSection || undefined, // Сохраняем урок, подсекцию или секцию в поле tag
+              tag: tag, // Сохраняем урок, подсекцию или секцию в поле tag
               description: material.description || undefined,
             };
             
