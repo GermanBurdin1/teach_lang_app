@@ -285,17 +285,22 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
         // Создаем материал с правильным tag для дополнительных материалов
         const supplementaryMaterial: UploadedFile = {
           ...material,
-          tag: `${this.data.lessonName}_supplementary`
+          tag: `${this.data.lessonName}_supplementary`,
+          courseId: this.data.courseId
         };
 
-        // Добавляем материал в список
-        if (!this.data.materials.find(m => m.id === material.id)) {
+        // Проверяем, что материала еще нет в списке (по ID)
+        const existingMaterial = this.data.materials.find(m => m.id === material.id);
+        if (!existingMaterial) {
           this.data.materials.push(supplementaryMaterial);
           
-          // Отправляем событие для обновления материалов
-          window.dispatchEvent(new CustomEvent('materialAdded', {
-            detail: { material: supplementaryMaterial }
-          }));
+          // НЕ отправляем materialAdded здесь - это вызовет дублирование
+          // Материал будет сохранен на сервер через saveConstructorMaterial в add-course.component
+          // и обновлен через lessonMaterialsUpdated при закрытии модалки
+        } else {
+          // Если материал уже есть, обновляем его вместо добавления дубликата
+          const index = this.data.materials.indexOf(existingMaterial);
+          this.data.materials[index] = supplementaryMaterial;
         }
       }
     });
@@ -362,6 +367,17 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
   }
 
   close(): void {
+    // При закрытии модалки отправляем событие для сохранения материалов в структуру курса
+    window.dispatchEvent(new CustomEvent('lessonMaterialsUpdated', {
+      detail: {
+        courseId: this.data.courseId,
+        section: this.data.section,
+        subSection: this.data.subSection,
+        lessonName: this.data.lessonName,
+        materials: this.data.materials
+      }
+    }));
+    
     this.dialogRef.close();
   }
 }

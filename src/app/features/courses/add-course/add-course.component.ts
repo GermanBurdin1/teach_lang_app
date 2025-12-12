@@ -31,6 +31,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   // Course form data
   courseTitle = '';
   private materialModalListener?: EventListener;
+  private materialAddedListener?: EventListener;
+  private lessonMaterialsUpdatedListener?: EventListener;
   courseDescription = '';
   courseLevel = '';
   isPublished = false;
@@ -174,6 +176,60 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+
+    // Слушаем событие добавления материала (включая материалы из конструкторов)
+    this.materialAddedListener = ((event: CustomEvent) => {
+      if (event.detail && event.detail.material) {
+        const material = event.detail.material;
+        
+        // Проверяем, что материал относится к текущему курсу
+        if (material.courseId === this.courseId) {
+          // Добавляем материал в общий массив, если его там еще нет
+          if (!this.materials.find(m => m.id === material.id)) {
+            this.materials.push(material);
+            
+            // Если это материал из конструктора (drill-grid и т.д.), сохраняем его на сервер
+            if ((material as any).drillGridData) {
+              this.saveConstructorMaterial(material);
+            } else {
+              // Для обычных файлов материал уже должен быть сохранен на сервер
+              // Просто обновляем список
+              this.cdr.detectChanges();
+            }
+          }
+        }
+      }
+    }) as EventListener;
+    window.addEventListener('materialAdded', this.materialAddedListener);
+
+    // Слушаем событие обновления материалов урока при закрытии модалки
+    this.lessonMaterialsUpdatedListener = ((event: CustomEvent) => {
+      const { courseId, materials } = event.detail;
+      if (courseId === this.courseId) {
+        // Обновляем материалы в общем массиве
+        // Используем Map для избежания дублирования по ID
+        const materialsMap = new Map<number, UploadedFile>();
+        
+        // Сначала добавляем существующие материалы
+        this.materials.forEach(m => materialsMap.set(m.id, m));
+        
+        // Затем обновляем/добавляем материалы из события
+        materials.forEach((material: UploadedFile) => {
+          materialsMap.set(material.id, material);
+          
+          // Если это материал из конструктора, сохраняем его на сервер
+          if ((material as any).drillGridData && !material.url) {
+            // Материал еще не сохранен на сервер, сохраняем его
+            this.saveConstructorMaterial(material);
+          }
+        });
+        
+        // Обновляем массив материалов без дубликатов
+        this.materials = Array.from(materialsMap.values());
+        this.cdr.detectChanges();
+      }
+    }) as EventListener;
+    window.addEventListener('lessonMaterialsUpdated', this.lessonMaterialsUpdatedListener);
     
     this.updateSEOTags();
     this.currentUser = this.authService.getCurrentUser();
@@ -1365,31 +1421,65 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('📥 Загрузка файлов для курса:', this.courseId);
     const currentMaterialsCount = this.materials.length;
     this.fileUploadService.getFiles(this.courseId).subscribe({
-      next: (files) => {
-        console.log('✅ Полученные файлы курса:', files);
-        console.log(`   Найдено файлов: ${files.length}`);
-        console.log(`   Текущее количество материалов в массиве до обновления: ${currentMaterialsCount}`);
+      next: async (files) => {
+        
+        // Восстанавливаем данные drill-grid из JSON файлов
+        const filesWithData = await Promise.all(files.map(async (file) => {
+          // Если это JSON файл с drill-grid данными, загружаем и восстанавливаем структуру
+          if (file.mimetype === 'application/json' && file.url) {
+            try {
+              const fileUrl = this.getFileUrl(file.url);
+              console.log(`📥 Загрузка JSON файла для восстановления drill-grid: ${file.filename}`, fileUrl);
+              const response = await fetch(fileUrl);
+              if (response.ok) {
+                const jsonData = await response.json();
+                console.log(`📦 Загруженные JSON данные для ${file.filename}:`, jsonData);
+                
+                // Проверяем, что это данные drill-grid
+                if (jsonData.type === 'drill_grid' && jsonData.data) {
+                  console.log(`✅ Восстановлен drill-grid из файла: ${file.filename}`);
+                  return {
+                    ...file,
+                    drillGridData: jsonData
+                  } as UploadedFile;
+                } else {
+                  console.log(`⚠️ JSON файл ${file.filename} не является drill-grid (type: ${jsonData.type})`);
+                }
+              } else {
+                console.error(`❌ Ошибка загрузки файла ${file.filename}: HTTP ${response.status}`);
+              }
+            } catch (error) {
+              console.error(`❌ Ошибка загрузки данных drill-grid из файла ${file.filename}:`, error);
+            }
+          }
+          return file;
+        }));
         
         // Если сервер вернул файлы, обновляем массив
-        if (files.length > 0) {
-          this.materials = files;
-          console.log('✅ Материалы обновлены в UI из сервера');
+        if (filesWithData.length > 0) {
+          // Убираем дубликаты по ID перед обновлением
+          const uniqueFiles = Array.from(
+            new Map(filesWithData.map(f => [f.id, f])).values()
+          );
+          this.materials = uniqueFiles;
         } else if (currentMaterialsCount > 0) {
           // Если сервер вернул пустой массив, но у нас есть локальные материалы,
           // не перезаписываем массив - возможно, это проблема синхронизации
-          console.log('⚠️ Сервер вернул пустой массив, но есть локальные материалы. Сохраняем локальные данные.');
-          console.log('   Локальные материалы:', this.materials.map(m => ({ id: m.id, filename: m.filename })));
+          // Логируем только в режиме разработки
+          const isDevMode = !window.location.hostname.includes('production');
+          if (isDevMode) {
+            console.warn('⚠️ Сервер вернул пустой массив, но есть локальные материалы');
+          }
         } else {
           // Если и сервер пустой, и локально пусто - это нормально
           this.materials = [];
-          console.log('⚠️ Список файлов пуст. Возможно, файлы еще не синхронизированы с БД.');
         }
         
         // Обновляем кэш домашних заданий после загрузки файлов
         this.loadHomeworkCache();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('❌ Ошибка загрузки файлов:', err);
@@ -1780,16 +1870,29 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     return this.materials.filter(m => m.tag === section);
   }
 
-  // Получить материалы для конкретного урока
+  // Получить материалы для конкретного урока (включая дополнительные материалы)
   getMaterialsByLesson(lessonName: string): UploadedFile[] {
-    const filtered = this.materials.filter(m => m.tag === lessonName);
-    // Отладочный лог для диагностики
-    if (filtered.length === 0 && this.materials.length > 0) {
-      console.log(`⚠️ Не найдено материалов для урока "${lessonName}"`);
-      console.log(`   Всего материалов в курсе: ${this.materials.length}`);
-      console.log(`   Теги материалов:`, this.materials.map(m => ({ filename: m.filename, tag: m.tag })));
-    }
-    return filtered;
+    // Обычные материалы с тегом равным имени урока
+    const regularMaterials = this.materials.filter(m => m.tag === lessonName);
+    
+    // Дополнительные материалы с тегом `${lessonName}_supplementary`
+    const supplementaryMaterials = this.materials.filter(m => 
+      m.tag && m.tag.includes('_supplementary') && 
+      m.tag.replace('_supplementary', '') === lessonName
+    );
+    
+    // Объединяем оба типа материалов и убираем дубликаты по ID
+    const allMaterialsMap = new Map<number, UploadedFile>();
+    [...regularMaterials, ...supplementaryMaterials].forEach(m => {
+      if (!allMaterialsMap.has(m.id)) {
+        allMaterialsMap.set(m.id, m);
+      }
+    });
+    const allMaterials = Array.from(allMaterialsMap.values());
+    
+    // Убрали логирование - оно вызывалось слишком часто при каждом рендере
+    
+    return allMaterials;
   }
 
   // Получить уроки в sous-section
@@ -2588,6 +2691,11 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   openLessonPreview(section: string, lesson: string, subSection?: string): void {
+    // Убеждаемся, что материалы загружены перед открытием модалки
+    if (this.courseId && this.materials.length === 0) {
+      this.loadFiles();
+    }
+    
     const materials = this.getMaterialsByLesson(lesson);
     const description = this.getLessonDescription(section, subSection || null, lesson);
     
@@ -2718,15 +2826,91 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           console.log('✅ Превью урока закрыто:', result);
+          // Перезагружаем файлы после закрытия модалки для обновления списка материалов
+          if (this.courseId) {
+            setTimeout(() => {
+              this.loadFiles();
+            }, 300);
+          }
         }
       });
     }
   }
 
+  /**
+   * Сохраняет материал из конструктора (drill-grid и т.д.) на сервер
+   */
+  private saveConstructorMaterial(material: UploadedFile): void {
+    if (!this.courseId) {
+      console.error('⚠️ Нельзя сохранить материал: courseId отсутствует');
+      return;
+    }
+
+    const drillGridData = (material as any).drillGridData;
+    if (!drillGridData) {
+      console.warn('⚠️ Материал не содержит drillGridData:', material);
+      return;
+    }
+
+    // Логируем только в режиме разработки
+    const isDevMode = !window.location.hostname.includes('production');
+    if (isDevMode) {
+      console.log('💾 Сохранение drill-grid на сервер:', {
+        filename: material.filename,
+        tag: material.tag,
+        courseId: this.courseId
+      });
+    }
+
+    // Создаем JSON файл из данных drill-grid
+    const jsonContent = JSON.stringify(drillGridData);
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const file = new File([blob], material.filename || 'drill-grid.json', { type: 'application/json' });
+
+    // Загружаем файл на сервер с правильным тегом
+    this.fileUploadService.uploadFileAsCourse(file, this.courseId, material.tag).subscribe({
+      next: (response) => {
+        // Обновляем материал с реальным ID и URL с сервера, сохраняя drillGridData
+        const index = this.materials.findIndex(m => 
+          m.id === material.id || (m.filename === material.filename && m.tag === material.tag)
+        );
+        
+        const updatedMaterial: UploadedFile = {
+          ...material,
+          id: response.id,
+          url: response.url,
+          createdAt: response.createdAt,
+          courseId: this.courseId,
+          drillGridData: drillGridData // Сохраняем drillGridData для локального использования
+        } as UploadedFile;
+        
+        if (index !== -1) {
+          this.materials[index] = updatedMaterial;
+        } else {
+          // Если материала нет в массиве, добавляем его
+          this.materials.push(updatedMaterial);
+        }
+        
+        // Принудительно обновляем представление
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('❌ Ошибка сохранения материала из конструктора:', error);
+        this.notificationService.error('Erreur lors de la sauvegarde du matériau');
+      }
+    });
+  }
+
   ngOnDestroy(): void {
-    // Удаляем слушатель события при уничтожении компонента
+    // Удаляем слушатели событий при уничтожении компонента
     if (this.materialModalListener) {
       window.removeEventListener('openMaterialModal', this.materialModalListener);
+    }
+    if (this.materialAddedListener) {
+      window.removeEventListener('materialAdded', this.materialAddedListener);
+    }
+    if (this.lessonMaterialsUpdatedListener) {
+      window.removeEventListener('lessonMaterialsUpdated', this.lessonMaterialsUpdatedListener);
     }
   }
 
