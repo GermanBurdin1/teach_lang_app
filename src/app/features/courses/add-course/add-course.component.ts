@@ -332,6 +332,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.hasUnsavedChanges = false;
         this.isCourseCardExpanded = true;
         this.loadFiles();
+        // loadCourseConstructors вызывается внутри loadFiles после загрузки файлов
         // Загружаем кэш домашних заданий после загрузки курса
         this.loadHomeworkCache();
         this.cdr.detectChanges();
@@ -1415,6 +1416,186 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Загрузка конструкторов курса из mindmap-service
+  // Загружает конструкторы с courseLessonId (привязанные к урокам) и без (непривязанные)
+  loadCourseConstructors(courseId: number): void {
+    if (!this.courseId) {
+      return;
+    }
+
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.id) {
+      return;
+    }
+
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      return;
+    }
+    
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    // Загружаем все конструкторы курса типа drill_grid
+    this.http.get<any[]>(`${API_ENDPOINTS.CONSTRUCTORS}?type=drill_grid`, { headers }).subscribe({
+      next: async (constructors) => {
+        // Фильтруем по courseId
+        const courseConstructors = constructors.filter(c => c.courseId === courseId);
+        
+        if (courseConstructors.length === 0) {
+          return;
+        }
+
+        // Собираем все courseLessonId из структуры уроков для маппинга
+        const lessonMap = new Map<string, { lessonName: string; section: string; subSection: string | null }>();
+        
+        // Уроки в секциях
+        Object.entries(this.lessons).forEach(([section, lessonArray]) => {
+          lessonArray.forEach(lesson => {
+            const courseLessonId = (lesson as any).courseLessonId;
+            if (courseLessonId) {
+              lessonMap.set(courseLessonId, {
+                lessonName: lesson.name,
+                section: section,
+                subSection: null
+              });
+            }
+          });
+        });
+        
+        // Уроки в подсекциях
+        Object.entries(this.lessonsInSubSections).forEach(([section, subSections]) => {
+          Object.entries(subSections).forEach(([subSection, lessonArray]) => {
+            lessonArray.forEach(lesson => {
+              const courseLessonId = (lesson as any).courseLessonId;
+              if (courseLessonId) {
+                lessonMap.set(courseLessonId, {
+                  lessonName: lesson.name,
+                  section: section,
+                  subSection: subSection
+                });
+              }
+            });
+          });
+        });
+
+        // Загружаем drill-grid данные для каждого конструктора
+        const materialPromises = courseConstructors.map(async (constructor) => {
+          try {
+            const drillGridResponse = await firstValueFrom(
+              this.http.get<any>(`${API_ENDPOINTS.CONSTRUCTORS}/${constructor.id}/drill-grid`, { headers })
+            );
+
+            // Определяем, к какому уроку привязан конструктор (если привязан)
+            let lessonName = '';
+            let section = '';
+            let subSection: string | null = null;
+            let tag = '';
+
+            // Если конструктор привязан к уроку, проверяем, существует ли урок
+            if (constructor.courseLessonId) {
+              const lessonInfo = lessonMap.get(constructor.courseLessonId);
+              if (!lessonInfo) {
+                // Конструктор привязан к уроку, но урок не найден - пропускаем этот конструктор
+                // Это может произойти, если урок был удален, но конструктор остался привязанным
+                return null;
+              }
+              lessonName = lessonInfo.lessonName;
+              section = lessonInfo.section;
+              subSection = lessonInfo.subSection;
+              tag = `${lessonName}_supplementary`;
+            }
+            // Если courseLessonId нет - материал будет без тега (попадет в "Matériaux sans section")
+
+            // Проверяем, есть ли уже материал с таким constructorId
+            const existingMaterial = this.materials.find(m => 
+              (m as any).constructorId === constructor.id
+            );
+
+            if (existingMaterial) {
+              // Обновляем существующий материал данными из БД
+              const updatedMaterial: UploadedFile = {
+                ...existingMaterial,
+                drillGridData: {
+                  type: 'drill_grid',
+                  data: {
+                    id: drillGridResponse.id || constructor.id,
+                    name: constructor.title,
+                    rows: drillGridResponse.rows || [],
+                    columns: drillGridResponse.columns || [],
+                    cells: drillGridResponse.cells || [],
+                    settings: drillGridResponse.settings || null,
+                    constructorId: constructor.id
+                  }
+                },
+                constructorId: constructor.id,
+                courseLessonId: constructor.courseLessonId || null,
+                tag: tag // Обновляем тег на основе данных из БД
+              } as UploadedFile;
+
+              const index = this.materials.indexOf(existingMaterial);
+              if (index !== -1) {
+                this.materials[index] = updatedMaterial;
+              }
+              return updatedMaterial;
+            }
+
+            // Создаем новый материал из конструктора
+            const newMaterial: UploadedFile = {
+              id: Date.now() + Math.random(),
+              filename: constructor.title,
+              url: '',
+              mimetype: 'application/json',
+              courseId: this.courseId!,
+              createdAt: constructor.createdAt || new Date().toISOString(),
+              tag: tag, // Будет пустым, если конструктор не привязан к уроку (попадет в "Matériaux sans section")
+              description: constructor.description || `Drill-grid: ${drillGridResponse.rows?.length || 0} lignes × ${drillGridResponse.columns?.length || 0} colonnes`,
+              drillGridData: {
+                type: 'drill_grid',
+                data: {
+                  id: drillGridResponse.id || constructor.id,
+                  name: constructor.title,
+                  rows: drillGridResponse.rows || [],
+                  columns: drillGridResponse.columns || [],
+                  cells: drillGridResponse.cells || [],
+                  settings: drillGridResponse.settings || null,
+                  constructorId: constructor.id
+                }
+              },
+              constructorId: constructor.id,
+              courseLessonId: constructor.courseLessonId || null
+            } as UploadedFile;
+
+            return newMaterial;
+          } catch (error) {
+            return null;
+          }
+        });
+
+        const newMaterials = (await Promise.all(materialPromises)).filter(m => m !== null) as UploadedFile[];
+        
+        // Добавляем новые материалы, избегая дубликатов
+        newMaterials.forEach(newMaterial => {
+          const existingIndex = this.materials.findIndex(m => 
+            (m as any).constructorId === (newMaterial as any).constructorId
+          );
+          if (existingIndex === -1) {
+            this.materials.push(newMaterial);
+          } else {
+            // Если материал уже существует, обновляем его
+            this.materials[existingIndex] = newMaterial;
+          }
+        });
+
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки конструкторов курса:', error);
+      }
+    });
+  }
+
   loadFiles(): void {
     if (!this.courseId) {
       console.log('⚠️ loadFiles: courseId отсутствует');
@@ -1426,12 +1607,40 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.fileUploadService.getFiles(this.courseId).subscribe({
       next: async (files) => {
         console.log('✅ Получены файлы с сервера:', files.length, 'файлов');
-        console.log('   Файлы:', files.map(f => ({ id: f.id, filename: f.filename, tag: f.tag, mimetype: f.mimetype })));
+        console.log('   Полный список файлов с деталями:', files.map(f => ({ 
+          id: f.id, 
+          filename: f.filename, 
+          tag: f.tag, 
+          mimetype: f.mimetype,
+          url: f.url,
+          courseId: f.courseId
+        })));
+        
+        // Проверяем наличие JSON файлов
+        const jsonFiles = files.filter(f => f.mimetype === 'application/json');
+        console.log(`📄 Найдено JSON файлов: ${jsonFiles.length}`, jsonFiles.map(f => ({
+          id: f.id,
+          filename: f.filename,
+          tag: f.tag,
+          url: f.url
+        })));
+        
+        // Проверяем наличие файлов с тегом _supplementary
+        const supplementaryFiles = files.filter(f => f.tag && f.tag.includes('_supplementary'));
+        console.log(`📦 Найдено файлов с тегом _supplementary: ${supplementaryFiles.length}`, supplementaryFiles.map(f => ({
+          id: f.id,
+          filename: f.filename,
+          tag: f.tag,
+          mimetype: f.mimetype
+        })));
         
         // Восстанавливаем данные drill-grid из JSON файлов или БД
         const filesWithData = await Promise.all(files.map(async (file) => {
+          console.log(`🔍 Обработка файла: ${file.filename}, mimetype: ${file.mimetype}, tag: ${file.tag}`);
+          
           // Если это JSON файл с drill-grid данными
           if (file.mimetype === 'application/json' && file.url) {
+            console.log(`📄 Обнаружен JSON файл: ${file.filename}, пытаемся загрузить данные...`);
             try {
               const fileUrl = this.getFileUrl(file.url);
               const response = await fetch(fileUrl);
@@ -1440,10 +1649,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 
                 // Проверяем, что это данные drill-grid
                 if (jsonData.type === 'drill_grid' && jsonData.data) {
-                  console.log(`✅ Восстановлен drill-grid из файла: ${file.filename} с тегом: ${file.tag}`);
-                  
-                  // Если есть constructorId, пытаемся загрузить полные данные из БД
-                  const constructorId = (file as any).constructorId;
+                  // Извлекаем constructorId из JSON данных
+                  const constructorId = jsonData.data?.constructorId || jsonData.data?.id;
                   if (constructorId) {
                     try {
                       const currentUser = this.authService.getCurrentUser();
@@ -1457,8 +1664,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                           this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, { headers })
                         );
                         
-                        console.log(`✅ Загружен drill-grid из БД для ${file.filename}`);
-                        // Используем данные из БД, если они есть
+                        // Используем данные из БД
                         return {
                           ...file,
                           drillGridData: {
@@ -1469,26 +1675,42 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                               rows: (dbData as any).rows,
                               columns: (dbData as any).columns,
                               cells: (dbData as any).cells,
-                              settings: (dbData as any).settings
+                              settings: (dbData as any).settings,
+                              constructorId: constructorId
                             }
-                          }
+                          },
+                          constructorId: constructorId
                         } as UploadedFile;
                       }
                     } catch (dbError) {
-                      console.warn('⚠️ Не удалось загрузить drill-grid из БД, используем данные из файла:', dbError);
+                      // Продолжаем с данными из файла
                     }
                   }
                   
                   // Используем данные из JSON файла
+                  const constructorIdFromJson = jsonData.data?.constructorId || jsonData.data?.id;
+                  
                   return {
                     ...file,
-                    drillGridData: jsonData
+                    drillGridData: {
+                      ...jsonData,
+                      data: {
+                        ...jsonData.data,
+                        constructorId: constructorIdFromJson
+                      }
+                    },
+                    constructorId: constructorIdFromJson
                   } as UploadedFile;
                 }
               }
-            } catch (error) {
-              console.error(`❌ Ошибка загрузки данных drill-grid из файла ${file.filename}:`, error);
-            }
+              } catch (error) {
+                console.error(`❌ Ошибка загрузки данных drill-grid из файла ${file.filename}:`, error);
+                // Даже если не удалось загрузить JSON, возвращаем файл как есть
+                return file;
+              }
+          } else if (file.mimetype === 'application/json') {
+            // JSON файл без URL - возможно, он еще не загружен на сервер
+            console.warn(`⚠️ JSON файл ${file.filename} не имеет URL, пропускаем загрузку данных`);
           }
           return file;
         }));
@@ -1500,7 +1722,28 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             new Map(filesWithData.map(f => [f.id, f])).values()
           );
           console.log('✅ Обновление массива материалов:', uniqueFiles.length, 'уникальных файлов');
-          console.log('   Материалы с тегами:', uniqueFiles.map(f => ({ filename: f.filename, tag: f.tag, mimetype: f.mimetype })));
+          console.log('   Материалы с тегами:', uniqueFiles.map(f => ({ 
+            filename: f.filename, 
+            tag: f.tag, 
+            mimetype: f.mimetype,
+            hasDrillGridData: !!(f as any).drillGridData,
+            constructorId: (f as any).constructorId,
+            drillGridConstructorId: (f as any).drillGridData?.data?.constructorId
+          })));
+          
+          // Проверяем наличие дополнительных материалов (supplementary)
+          const supplementaryFiles = uniqueFiles.filter(f => 
+            f.tag && f.tag.includes('_supplementary')
+          );
+          console.log(`📦 Найдено дополнительных материалов: ${supplementaryFiles.length}`, 
+            supplementaryFiles.map(f => ({ 
+              filename: f.filename, 
+              tag: f.tag,
+              constructorId: (f as any).constructorId,
+              drillGridConstructorId: (f as any).drillGridData?.data?.constructorId
+            }))
+          );
+          
           this.materials = uniqueFiles;
         } else if (currentMaterialsCount > 0) {
           // Если сервер вернул пустой массив, но у нас есть локальные материалы,
@@ -1514,6 +1757,13 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         
         // Обновляем кэш домашних заданий после загрузки файлов
         this.loadHomeworkCache();
+        
+        // Загружаем конструкторы курса из mindmap-service ПОСЛЕ загрузки файлов
+        // чтобы можно было сопоставить конструкторы с файлами по constructorId
+        if (this.courseId) {
+          this.loadCourseConstructors(parseInt(this.courseId, 10));
+        }
+        
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -1847,41 +2097,188 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   async deleteMaterial(material: UploadedFile): Promise<void> {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce matériau du cours ? Le fichier restera disponible dans Entraînement.')) {
+    // Проверяем, является ли это материалом конструктора
+    const constructorId = (material as any).constructorId;
+    const isConstructorMaterial = !!constructorId;
+
+    if (isConstructorMaterial) {
+      // Для материалов конструктора предлагаем отвязать от курса или удалить полностью
+      const action = confirm('Ce matériau provient d\'un constructeur. Voulez-vous le supprimer complètement ou simplement l\'enlever du cours ?\n\nOK = Supprimer complètement\nAnnuler = Enlever du cours seulement');
+      
+      if (!this.courseId) {
+        this.notificationService.error('Aucun cours sélectionné');
+        return;
+      }
+
+      const currentUser = this.authService.getCurrentUser();
+      const token = this.authService.getAccessToken();
+      if (!currentUser?.id || !token) {
+        this.notificationService.error('Erreur d\'authentification');
+        return;
+      }
+
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+
+      // Сохраняем копию материала на случай ошибки
+      const materialCopy = { ...material };
+      const materialIndex = this.materials.findIndex(m => m.id === material.id);
+      
+      if (action) {
+        // Удаляем конструктор полностью
+        if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement ce constructeur ? Cette action est irréversible.')) {
+          return;
+        }
+
+        // Удаляем из массива сразу
+        if (materialIndex !== -1) {
+          this.materials.splice(materialIndex, 1);
+        }
+
+        this.http.delete(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, { headers }).subscribe({
+          next: () => {
+            // Также удаляем файл, если он есть
+            if (material.id) {
+              this.fileUploadService.deleteFile(material.id, this.courseId!).subscribe({
+                next: () => {},
+                error: () => {} // Игнорируем ошибку удаления файла
+              });
+            }
+            this.notificationService.success('Constructeur supprimé avec succès');
+            this.cdr.detectChanges();
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la suppression du constructeur:', error);
+            // В случае ошибки возвращаем элемент обратно
+            if (materialIndex !== -1) {
+              this.materials.splice(materialIndex, 0, materialCopy);
+            }
+            this.notificationService.error('Erreur lors de la suppression du constructeur');
+          }
+        });
+      } else {
+        // Отвязываем от курса (убираем courseId и courseLessonId)
+        if (materialIndex !== -1) {
+          this.materials.splice(materialIndex, 1);
+        }
+
+        this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, {
+          courseId: null,
+          courseLessonId: null
+        }, { headers }).subscribe({
+          next: () => {
+            // Также удаляем файл из курса
+            if (material.id) {
+              this.fileUploadService.deleteFile(material.id, this.courseId!).subscribe({
+                next: () => {},
+                error: () => {} // Игнорируем ошибку удаления файла
+              });
+            }
+            this.notificationService.success('Matériau retiré du cours avec succès');
+            this.cdr.detectChanges();
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors du retrait du matériau du cours:', error);
+            // В случае ошибки возвращаем элемент обратно
+            if (materialIndex !== -1) {
+              this.materials.splice(materialIndex, 0, materialCopy);
+            }
+            this.notificationService.error('Erreur lors du retrait du matériau du cours');
+          }
+        });
+      }
+    } else {
+      // Обычный файл - удаляем как раньше
+      if (!confirm('Êtes-vous sûr de vouloir supprimer ce matériau du cours ? Le fichier restera disponible dans Entraînement.')) {
+        return;
+      }
+
+      if (!this.courseId) {
+        this.notificationService.error('Aucun cours sélectionné');
+        return;
+      }
+
+      // Сохраняем копию материала на случай ошибки
+      const materialCopy = { ...material };
+      
+      // Удаляем элемент из массива сразу для мгновенного обновления UI
+      const materialIndex = this.materials.findIndex(m => m.id === material.id);
+      if (materialIndex !== -1) {
+        this.materials.splice(materialIndex, 1);
+      }
+
+      // Удаляем только связь с курсом, файл остается в системе
+      this.fileUploadService.deleteFile(material.id, this.courseId).subscribe({
+        next: () => {
+          // Успешно удалено из курса - список уже обновлен
+          this.notificationService.success('Matériau supprimé du cours avec succès! Le fichier reste disponible dans Entraînement.');
+          // Опционально: перезагружаем файлы для синхронизации с сервером
+          setTimeout(() => {
+            this.loadFiles();
+          }, 500);
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la suppression du matériau du cours:', error);
+          // В случае ошибки возвращаем элемент обратно в массив
+          if (materialIndex !== -1) {
+            this.materials.splice(materialIndex, 0, materialCopy);
+          }
+          this.notificationService.error('Erreur lors de la suppression du matériau du cours');
+        }
+      });
+    }
+  }
+
+  // Отвязать материал конструктора от урока (убрать courseLessonId)
+  async detachConstructorMaterialFromLesson(material: UploadedFile): Promise<void> {
+    const constructorId = (material as any).constructorId;
+    if (!constructorId) {
+      this.notificationService.error('Ce matériau n\'est pas un constructeur');
       return;
     }
 
-    if (!this.courseId) {
-      this.notificationService.error('Aucun cours sélectionné');
+    if (!confirm('Voulez-vous retirer ce matériau de ce cours ? Il restera disponible dans vos constructeurs.')) {
       return;
     }
+
+    const currentUser = this.authService.getCurrentUser();
+    const token = this.authService.getAccessToken();
+    if (!currentUser?.id || !token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
 
     // Сохраняем копию материала на случай ошибки
     const materialCopy = { ...material };
-    
-    // Удаляем элемент из массива сразу для мгновенного обновления UI
     const materialIndex = this.materials.findIndex(m => m.id === material.id);
+    
+    // Удаляем из массива сразу
     if (materialIndex !== -1) {
       this.materials.splice(materialIndex, 1);
     }
 
-    // Удаляем только связь с курсом, файл остается в системе
-    this.fileUploadService.deleteFile(material.id, this.courseId).subscribe({
+    // Убираем courseLessonId (отвязываем от урока), но оставляем courseId
+    this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, {
+      courseLessonId: null
+    }, { headers }).subscribe({
       next: () => {
-        // Успешно удалено из курса - список уже обновлен
-        this.notificationService.success('Matériau supprimé du cours avec succès! Le fichier reste disponible dans Entraînement.');
-        // Опционально: перезагружаем файлы для синхронизации с сервером
-        setTimeout(() => {
-          this.loadFiles();
-        }, 500);
+        this.notificationService.success('Matériau retiré de la leçon avec succès');
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('❌ Erreur lors de la suppression du matériau du cours:', error);
-        // В случае ошибки возвращаем элемент обратно в массив
+        console.error('❌ Erreur lors du retrait du matériau de la leçon:', error);
+        // В случае ошибки возвращаем элемент обратно
         if (materialIndex !== -1) {
           this.materials.splice(materialIndex, 0, materialCopy);
         }
-        this.notificationService.error('Erreur lors de la suppression du matériau du cours');
+        this.notificationService.error('Erreur lors du retrait du matériau de la leçon');
       }
     });
   }
@@ -1906,15 +2303,32 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   // Получить материалы для конкретного урока (включая дополнительные материалы)
-  getMaterialsByLesson(lessonName: string): UploadedFile[] {
+  // Получить courseLessonId из объекта урока
+  getCourseLessonId(lessonObj: any): string | undefined {
+    return lessonObj?.courseLessonId;
+  }
+
+  getMaterialsByLesson(lessonName: string, section?: string, subSection?: string | null, courseLessonId?: string): UploadedFile[] {
     // Обычные материалы с тегом равным имени урока
     const regularMaterials = this.materials.filter(m => m.tag === lessonName);
     
     // Дополнительные материалы с тегом `${lessonName}_supplementary`
-    const supplementaryMaterials = this.materials.filter(m => 
-      m.tag && m.tag.includes('_supplementary') && 
-      m.tag.replace('_supplementary', '') === lessonName
-    );
+    // Для конструкторов проверяем courseLessonId для точной идентификации урока
+    const supplementaryMaterials = this.materials.filter(m => {
+      if (!m.tag || !m.tag.includes('_supplementary')) {
+        return false;
+      }
+      
+      const materialLessonName = m.tag.replace('_supplementary', '');
+      
+      // Если это материал конструктора и есть courseLessonId - проверяем точное совпадение
+      if ((m as any).courseLessonId && courseLessonId) {
+        return (m as any).courseLessonId === courseLessonId;
+      }
+      
+      // Для обычных материалов проверяем только имя урока
+      return materialLessonName === lessonName;
+    });
     
     // Объединяем оба типа материалов и убираем дубликаты по ID
     const allMaterialsMap = new Map<number, UploadedFile>();
@@ -1926,19 +2340,19 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     const allMaterials = Array.from(allMaterialsMap.values());
     
     // Логирование только для диагностики (можно убрать после исправления)
-    if (allMaterials.length === 0 && this.materials.length > 0) {
-      console.log(`🔍 Поиск материалов для урока "${lessonName}":`, {
-        totalMaterials: this.materials.length,
-        regularMaterialsCount: regularMaterials.length,
-        supplementaryMaterialsCount: supplementaryMaterials.length,
-        materialTags: this.materials.map(m => ({ 
-          filename: m.filename, 
-          tag: m.tag, 
-          mimetype: m.mimetype,
-          hasDrillGridData: !!(m as any).drillGridData
-        }))
-      });
-    }
+    // if (allMaterials.length === 0 && this.materials.length > 0) {
+    //   console.log(`🔍 Поиск материалов для урока "${lessonName}":`, {
+    //     totalMaterials: this.materials.length,
+    //     regularMaterialsCount: regularMaterials.length,
+    //     supplementaryMaterialsCount: supplementaryMaterials.length,
+    //     materialTags: this.materials.map(m => ({ 
+    //       filename: m.filename, 
+    //       tag: m.tag, 
+    //       mimetype: m.mimetype,
+    //       hasDrillGridData: !!(m as any).drillGridData
+    //     }))
+    //   });
+    // }
     
     return allMaterials;
   }
@@ -2395,7 +2809,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         sourceItemIds.push(lessonItemId);
         
         // Материалы для этого урока
-        const materials = this.getMaterialsByLesson(lesson.name);
+        const lessonObj = this.lessons[section]?.find(l => l.name === lesson.name);
+        const courseLessonId = (lessonObj as any)?.courseLessonId;
+        const materials = this.getMaterialsByLesson(lesson.name, section, null, courseLessonId);
         materials.forEach(material => {
           const materialItemId = `${this.courseId}_${section}_${lesson.name}_material_${material.id}`;
           sourceItemIds.push(materialItemId);
@@ -2411,7 +2827,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             sourceItemIds.push(lessonItemId);
             
             // Материалы для этого урока
-            const materials = this.getMaterialsByLesson(lesson.name);
+            const lessonObjSub = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson.name);
+            const courseLessonIdSub = (lessonObjSub as any)?.courseLessonId;
+            const materials = this.getMaterialsByLesson(lesson.name, section, subSection, courseLessonIdSub);
             materials.forEach(material => {
               const materialItemId = `${this.courseId}_${section}_${subSection}_${lesson.name}_material_${material.id}`;
               sourceItemIds.push(materialItemId);
@@ -2754,7 +3172,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   private openLessonPreviewModal(section: string, lesson: string, subSection?: string): void {
-    const materials = this.getMaterialsByLesson(lesson);
+    // Находим courseLessonId для точной идентификации урока
+    let courseLessonId: string | undefined;
+    if (subSection) {
+      const lessonObj = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson);
+      courseLessonId = (lessonObj as any)?.courseLessonId;
+    } else {
+      const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
+      courseLessonId = (lessonObj as any)?.courseLessonId;
+    }
+    
+    const materials = this.getMaterialsByLesson(lesson, section, subSection || null, courseLessonId);
     console.log(`📋 Открытие модалки для урока "${lesson}":`, {
       foundMaterials: materials.length,
       totalMaterials: this.materials.length,
@@ -2764,21 +3192,21 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     
     // Находим тип урока и его настройки
     let lessonType: 'self' | 'call' = 'self';
-    let courseLessonId: string | undefined;
     let plannedDurationMinutes: number | null = null;
+    let courseLessonIdForType: string | undefined;
     
     if (subSection) {
       const lessonObj = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson);
       if (lessonObj) {
         lessonType = lessonObj.type;
-        courseLessonId = (lessonObj as any).courseLessonId;
+        courseLessonIdForType = (lessonObj as any).courseLessonId;
         plannedDurationMinutes = (lessonObj as any).plannedDurationMinutes || null;
       }
     } else {
       const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
       if (lessonObj) {
         lessonType = lessonObj.type;
-        courseLessonId = (lessonObj as any).courseLessonId;
+        courseLessonIdForType = (lessonObj as any).courseLessonId;
         plannedDurationMinutes = (lessonObj as any).plannedDurationMinutes || null;
       }
     }
@@ -2875,6 +3303,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         subSection: subSection,
         materials: materials,
         courseId: this.courseId || '',
+        courseLessonId: courseLessonId,
         description: description,
         lessonType: lessonType
       };
@@ -2979,6 +3408,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       title: material.filename || 'Drill-grid',
       type: 'drill_grid' as const,
       courseId: parseInt(this.courseId, 10),
+      courseLessonId: (material as any).courseLessonId || null, // Связь с уроком курса
       description: material.description || null,
       userId: currentUser.id // Добавляем userId для бэкенда
     };
@@ -3000,7 +3430,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       url: `${API_ENDPOINTS.CONSTRUCTORS}`,
       payload: constructorPayload,
       userId: currentUser.id,
-      hasUserId: !!constructorPayload.userId
+      hasUserId: !!constructorPayload.userId,
+      courseLessonId: constructorPayload.courseLessonId,
+      materialCourseLessonId: (material as any).courseLessonId
     });
 
     this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}`, constructorPayload, { headers }).subscribe({
@@ -3071,9 +3503,26 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             const blob = new Blob([jsonContent], { type: 'application/json' });
             const file = new File([blob], material.filename || 'drill-grid.json', { type: 'application/json' });
 
+            console.log('💾 Сохранение JSON файла drill-grid:', {
+              filename: material.filename,
+              tag: material.tag,
+              courseId: this.courseId,
+              fileSize: file.size,
+              constructorId: actualId,
+              drillGridData: drillGridDataWithConstructorId
+            });
+
             // Сохраняем файл для отображения в списке материалов
             this.fileUploadService.uploadFileAsCourse(file, this.courseId, material.tag || '').subscribe({
               next: (fileResponse) => {
+                console.log('✅ JSON файл drill-grid успешно сохранен на сервер:', {
+                  fileId: fileResponse.id,
+                  url: fileResponse.url,
+                  filename: material.filename,
+                  tag: material.tag,
+                  constructorId: actualId
+                });
+                
                 // Обновляем материал с реальным ID и URL с сервера
                 const index = this.materials.findIndex(m => 
                   m.id === material.id || (m.filename === material.filename && m.tag === material.tag)
@@ -3086,22 +3535,55 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                   createdAt: fileResponse.createdAt,
                   courseId: this.courseId,
                   drillGridData: drillGridDataWithConstructorId,
-                  // Сохраняем ID конструктора для связи с БД
-                  constructorId: actualId
+                  // Сохраняем ID конструктора и courseLessonId для связи с БД
+                  constructorId: actualId,
+                  courseLessonId: (material as any).courseLessonId || null
                 } as UploadedFile;
                 
                 if (index !== -1) {
+                  console.log(`🔄 Обновление существующего материала с индексом ${index}`);
                   this.materials[index] = updatedMaterial;
                 } else {
+                  console.log('➕ Добавление нового материала в массив');
                   this.materials.push(updatedMaterial);
                 }
+                
+                console.log(`📦 Всего материалов после сохранения: ${this.materials.length}`);
+                console.log(`📦 Материалы с тегом "${material.tag}":`, 
+                  this.materials.filter(m => m.tag === material.tag).map(m => ({
+                    id: m.id,
+                    filename: m.filename,
+                    tag: m.tag,
+                    hasDrillGridData: !!(m as any).drillGridData
+                  }))
+                );
+                
+                // Отправляем событие для обновления материала в модалке урока
+                // Это гарантирует, что модалка получит обновленный материал с правильным ID и URL
+                window.dispatchEvent(new CustomEvent('materialUpdated', {
+                  detail: {
+                    oldId: material.id,
+                    newMaterial: updatedMaterial
+                  }
+                }));
                 
                 this.cdr.detectChanges();
                 this.notificationService.success('Drill-grid sauvegardé avec succès');
               },
               error: (fileError) => {
                 console.error('❌ Ошибка сохранения файла для отображения:', fileError);
-                // Drill-grid уже сохранен в БД, это не критично
+                console.error('❌ Детали ошибки сохранения файла:', {
+                  status: fileError.status,
+                  statusText: fileError.statusText,
+                  message: fileError.message,
+                  error: fileError.error,
+                  filename: material.filename,
+                  tag: material.tag,
+                  courseId: this.courseId
+                });
+                // Drill-grid уже сохранен в БД, но файл для отображения не сохранился
+                // Это может привести к тому, что материал не будет отображаться при следующей загрузке
+                this.notificationService.error('Erreur lors de la sauvegarde du fichier d\'affichage. Le drill-grid est sauvegardé dans la base de données, mais peut ne pas apparaître lors du rechargement.');
               }
             });
           },
@@ -3162,8 +3644,28 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     
     return this.materials.filter(m => {
       if (!m.tag) return true;
-      // Исключаем материалы, которые привязаны к секциям или урокам
-      return !this.sections.includes(m.tag) && !allLessons.includes(m.tag);
+      
+      // Проверяем, привязан ли материал к секции
+      if (this.sections.includes(m.tag)) {
+        return false;
+      }
+      
+      // Проверяем, привязан ли материал к уроку (обычный материал)
+      if (allLessons.includes(m.tag)) {
+        return false;
+      }
+      
+      // Проверяем, привязан ли материал к уроку как дополнительный материал (_supplementary)
+      const isSupplementary = m.tag.includes('_supplementary');
+      if (isSupplementary) {
+        const lessonName = m.tag.replace('_supplementary', '');
+        if (allLessons.includes(lessonName)) {
+          return false; // Материал привязан к уроку, не показываем в "Matériaux sans section"
+        }
+      }
+      
+      // Если материал не привязан ни к секции, ни к уроку - показываем в "Matériaux sans section"
+      return true;
     });
   }
 
@@ -3182,7 +3684,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
   // Получить длительность материалов урока
   getLessonDuration(section: string, subSection: string | null, lesson: string): number {
-    const materials = this.getMaterialsByLesson(lesson);
+    // Находим courseLessonId для точной идентификации урока
+    let courseLessonId: string | undefined;
+    if (subSection) {
+      const lessonObj = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson);
+      courseLessonId = (lessonObj as any)?.courseLessonId;
+    } else {
+      const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
+      courseLessonId = (lessonObj as any)?.courseLessonId;
+    }
+    
+    const materials = this.getMaterialsByLesson(lesson, section, subSection, courseLessonId);
     let totalDuration = 0;
     
     materials.forEach(material => {

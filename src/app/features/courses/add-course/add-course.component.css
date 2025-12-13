@@ -1581,12 +1581,49 @@
 
 .material-item-vertical {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.5rem;
   background: #f8f9fa;
   border-radius: 6px;
   border-left: 3px solid var(--galaxy-primary);
+  position: relative;
+}
+
+.material-item-vertical:hover {
+  background: #f0f0f0;
+}
+
+.material-info-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.material-delete-btn {
+  flex-shrink: 0;
+  padding: 0.25rem 0.4rem;
+  min-width: auto;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.material-item-vertical:hover .material-delete-btn {
+  opacity: 1;
+}
+
+.material-delete-btn:hover {
+  color: #c82333;
+  background: rgba(220, 53, 69, 0.1);
+  border-radius: 4px;
 }
 
 .material-name {

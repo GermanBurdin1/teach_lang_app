@@ -16,6 +16,7 @@ export interface LessonPreviewModalData {
   subSection?: string;
   materials: UploadedFile[];
   courseId: string;
+  courseLessonId?: string; // ID урока курса (course_lessons.id)
   description?: string;
   lessonType?: 'self' | 'call'; // Тип урока
 }
@@ -91,6 +92,30 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
       }
     }) as EventListener;
     window.addEventListener('materialAdded', this.materialAddedListener);
+    
+    // Слушаем событие обновления материала (когда материал сохраняется на сервер)
+    window.addEventListener('materialUpdated', ((event: CustomEvent) => {
+      if (event.detail && event.detail.oldId && event.detail.newMaterial) {
+        const { oldId, newMaterial } = event.detail;
+        // Проверяем, относится ли материал к текущему уроку
+        const isRegularMaterial = newMaterial.tag === this.data.lessonName;
+        const isSupplementaryMaterial = newMaterial.tag && newMaterial.tag.includes('_supplementary') && 
+          newMaterial.tag.replace('_supplementary', '') === this.data.lessonName;
+        
+        if (isRegularMaterial || isSupplementaryMaterial) {
+          // Находим материал по старому ID и обновляем его
+          const index = this.data.materials.findIndex(m => m.id === oldId);
+          if (index !== -1) {
+            console.log(`🔄 Обновление материала в модалке: старый ID ${oldId} -> новый ID ${newMaterial.id}`);
+            this.data.materials[index] = newMaterial;
+          } else {
+            // Если материал не найден по старому ID, добавляем новый
+            console.log(`➕ Добавление обновленного материала в модалку: ID ${newMaterial.id}`);
+            this.data.materials.push(newMaterial);
+          }
+        }
+      }
+    }) as EventListener);
   }
 
   ngOnDestroy(): void {
@@ -266,7 +291,8 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
       section: this.data.section,
       lesson: this.data.lessonName,
       subSection: this.data.subSection,
-      courseId: this.data.courseId
+      courseId: this.data.courseId,
+      courseLessonId: this.data.courseLessonId
     };
 
     const dialogRef = this.dialog.open(SupplementaryMaterialsModalComponent, {

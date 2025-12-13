@@ -51,6 +51,7 @@ export interface SupplementaryMaterialsModalData {
   lesson: string;
   subSection?: string;
   courseId: string;
+  courseLessonId?: string; // ID урока курса (course_lessons.id)
 }
 
 @Component({
@@ -110,23 +111,37 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
     // userId берется из токена на бэкенде, передаем только type в query параметрах
     const url = `${API_ENDPOINTS.CONSTRUCTORS}?type=drill_grid`;
 
-    console.log('📥 Загрузка drill-grids из БД:', { url, userId: currentUser.id, courseId: this.data.courseId });
+    console.log('📥 Загрузка drill-grids из БД:', { 
+      url, 
+      userId: currentUser.id, 
+      courseId: this.data.courseId
+    });
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (response) => {
         // API может возвращать массив напрямую или в обёртке { data: [...] }
-        const constructors: ConstructorFromDB[] = Array.isArray(response) 
+        let constructors: ConstructorFromDB[] = Array.isArray(response) 
           ? response 
           : (response.data || response.constructors || []);
         
         console.log('✅ Конструкторы загружены из БД:', constructors);
-        console.log('📊 Количество конструкторов:', constructors.length);
+        console.log('📊 Количество конструкторов до фильтрации:', constructors.length);
+        
+        // Фильтруем по userId текущего залогиненного преподавателя
+        if (currentUser.id && constructors.length > 0) {
+          const beforeFilter = constructors.length;
+          constructors = constructors.filter(c => c.userId === currentUser.id);
+          console.log(`🔍 Фильтрация по userId текущего преподавателя (${currentUser.id}): ${beforeFilter} -> ${constructors.length} конструкторов`);
+        }
+        
+        console.log('📊 Количество конструкторов после фильтрации:', constructors.length);
         console.log('📋 Полный ответ API:', response);
         
         if (!constructors || constructors.length === 0) {
-          console.warn('⚠️ Конструкторы не найдены, пробуем загрузить без фильтра userId');
-          // Пробуем загрузить все drill-grids без фильтра по userId
-          this.loadAllDrillGrids(headers);
+          console.warn('⚠️ Конструкторы не найдены после фильтрации');
+          this.loadingDrillGrids = false;
+          // Fallback к localStorage
+          this.loadSavedDrillGrids();
           return;
         }
 
@@ -152,58 +167,13 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
           message: error.message,
           error: error.error
         });
-        // Пробуем загрузить все drill-grids без фильтра
-        this.loadAllDrillGrids(headers);
-      }
-    });
-  }
-
-  loadAllDrillGrids(headers: HttpHeaders): void {
-    // Пробуем загрузить все drill-grids без фильтра по userId
-    const url = `${API_ENDPOINTS.CONSTRUCTORS}?type=drill_grid`;
-    console.log('📥 Попытка загрузить все drill-grids:', url);
-
-    this.http.get<any>(url, { headers }).subscribe({
-      next: (response) => {
-        // API может возвращать массив напрямую или в обёртке { data: [...] }
-        const constructors: ConstructorFromDB[] = Array.isArray(response) 
-          ? response 
-          : (response.data || response.constructors || []);
-        
-        console.log('✅ Все конструкторы загружены (без фильтра userId):', constructors);
-        console.log('📊 Количество конструкторов:', constructors.length);
-        console.log('📋 Полный ответ API:', response);
-        
-        if (!constructors || constructors.length === 0) {
-          this.loadingDrillGrids = false;
-          // Fallback к localStorage если в БД нет данных
-          this.loadSavedDrillGrids();
-          return;
-        }
-
-        // Загружаем drill-grid данные для каждого конструктора
-        const drillGridPromises = constructors.map(constructor => 
-          this.loadDrillGridData(constructor.id, constructor, headers)
-        );
-
-        Promise.all(drillGridPromises).then(() => {
-          this.loadingDrillGrids = false;
-          console.log('✅ Все drill-grids загружены:', this.savedDrillGrids.length);
-        }).catch(error => {
-          console.error('❌ Ошибка при загрузке drill-grids:', error);
-          this.loadingDrillGrids = false;
-          // Fallback к localStorage при ошибке
-          this.loadSavedDrillGrids();
-        });
-      },
-      error: (error) => {
-        console.error('❌ Ошибка загрузки всех конструкторов:', error);
         this.loadingDrillGrids = false;
         // Fallback к localStorage при ошибке
         this.loadSavedDrillGrids();
       }
     });
   }
+
 
   loadDrillGridData(constructorId: string, constructor: ConstructorFromDB, headers: HttpHeaders): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -346,7 +316,8 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
     const materialWithData = {
       ...material,
       drillGridData: drillGridData,
-      constructorId: finalConstructorId // Также сохраняем на уровне материала
+      constructorId: finalConstructorId, // Также сохраняем на уровне материала
+      courseLessonId: this.data.courseLessonId // Сохраняем ID урока для связи с конструктором
     } as UploadedFile;
 
     this.dialogRef.close({
