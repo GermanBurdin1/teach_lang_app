@@ -1567,10 +1567,26 @@
   font-weight: 600;
   color: var(--space-blue);
   font-size: 0.9rem;
+  margin-bottom: 0.5rem;
 }
 
 .materials-label i {
   color: var(--galaxy-primary);
+}
+
+.materials-label.constructor-label {
+  color: var(--stellar-purple);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e7ff;
+}
+
+.materials-label.constructor-label i {
+  color: var(--stellar-purple);
+}
+
+.constructor-materials-section {
+  margin-top: 0.5rem;
 }
 
 .materials-list-vertical {
@@ -1649,6 +1665,20 @@
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: lowercase;
+}
+
+.material-type-badge.constructor-badge {
+  background: var(--stellar-purple);
+  text-transform: capitalize;
+}
+
+.material-item-vertical.constructor-material {
+  border-left-color: var(--stellar-purple);
+  background: #f8f4ff;
+}
+
+.material-item-vertical.constructor-material:hover {
+  background: #f0e8ff;
 }
 
 .material-duration-badge {

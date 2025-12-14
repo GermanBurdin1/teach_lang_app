@@ -3963,5 +3963,63 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     };
     return labels[type] || 'fichier';
   }
+
+  // Проверить, является ли материал конструктором
+  isConstructorMaterial(material: UploadedFile): boolean {
+    return !!(material as any).constructorId || !!(material as any).drillGridData;
+  }
+
+  // Получить тип конструктора
+  getConstructorType(material: UploadedFile): string | null {
+    if (!this.isConstructorMaterial(material)) {
+      return null;
+    }
+
+    const drillGridData = (material as any).drillGridData;
+    if (drillGridData) {
+      if (drillGridData.type === 'drill_grid') {
+        return 'drill-grid';
+      }
+      if (drillGridData.type === 'mindmap') {
+        return 'mindmap';
+      }
+      if (drillGridData.type === 'pattern_card') {
+        return 'pattern-card';
+      }
+      if (drillGridData.type === 'flowchart') {
+        return 'flowchart';
+      }
+    }
+
+    // Если есть constructorId, но нет drillGridData, пытаемся определить по mimetype
+    if (material.mimetype === 'application/json') {
+      return 'drill-grid'; // По умолчанию для JSON файлов
+    }
+
+    return 'constructeur';
+  }
+
+  // Получить обычные материалы (не конструкторы)
+  getRegularMaterials(materials: UploadedFile[]): UploadedFile[] {
+    return materials.filter(m => !this.isConstructorMaterial(m));
+  }
+
+  // Получить материалы конструкторов
+  getConstructorMaterials(materials: UploadedFile[]): UploadedFile[] {
+    return materials.filter(m => this.isConstructorMaterial(m));
+  }
+
+  // Получить метку типа конструктора для отображения
+  getConstructorTypeLabel(material: UploadedFile): string {
+    const type = this.getConstructorType(material);
+    const labels: { [key: string]: string } = {
+      'drill-grid': 'Drill-grid',
+      'mindmap': 'Mindmap',
+      'pattern-card': 'Carte de pattern',
+      'flowchart': 'Organigramme',
+      'constructeur': 'Constructeur'
+    };
+    return labels[type || 'constructeur'] || 'Constructeur';
+  }
 }
 

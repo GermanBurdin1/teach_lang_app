@@ -762,30 +762,63 @@
                     <div class="lesson-info-content">
                       <!-- Список материалов с типом и длительностью -->
                       <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)).length > 0">
-                        <div class="materials-label">
-                          <i class="fas fa-file-alt"></i>
-                          Matériaux:
-                        </div>
-                        <div class="materials-list-vertical">
-                          <div *ngFor="let material of getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj))" class="material-item-vertical">
-                            <div class="material-info-wrapper">
-                              <div class="material-name">{{ material.filename }}</div>
-                              <div class="material-meta">
-                                <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
-                                <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
-                                  : {{ formatDuration(getMaterialDuration(material)) }}
-                                </span>
+                        <!-- Обычные материалы -->
+                        <div *ngIf="getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj))).length > 0">
+                          <div class="materials-label">
+                            <i class="fas fa-file-alt"></i>
+                            Matériaux:
+                          </div>
+                          <div class="materials-list-vertical">
+                            <div *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))" class="material-item-vertical">
+                              <div class="material-info-wrapper">
+                                <div class="material-name">{{ material.filename }}</div>
+                                <div class="material-meta">
+                                  <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
+                                  <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
+                                    : {{ formatDuration(getMaterialDuration(material)) }}
+                                  </span>
+                                </div>
+                                <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) > 0">
+                                  {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}
+                                </div>
                               </div>
-                              <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) > 0">
-                                {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}
-                              </div>
+                              <button 
+                                class="btn btn-sm btn-danger material-delete-btn"
+                                (click)="deleteMaterial(material)"
+                                title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                              </button>
                             </div>
-                            <button 
-                              class="btn btn-sm btn-danger material-delete-btn"
-                              (click)="deleteMaterial(material)"
-                              title="Supprimer">
-                              <i class="fas fa-trash"></i>
-                            </button>
+                          </div>
+                        </div>
+
+                        <!-- Материалы конструкторов -->
+                        <div *ngIf="getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj))).length > 0" class="constructor-materials-section">
+                          <div class="materials-label constructor-label">
+                            <i class="fas fa-puzzle-piece"></i>
+                            Matériaux constructeurs:
+                          </div>
+                          <div class="materials-list-vertical">
+                            <div *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))" class="material-item-vertical constructor-material">
+                              <div class="material-info-wrapper">
+                                <div class="material-name">{{ material.filename }}</div>
+                                <div class="material-meta">
+                                  <span class="material-type-badge constructor-badge">{{ getConstructorTypeLabel(material) }}</span>
+                                  <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
+                                    : {{ formatDuration(getMaterialDuration(material)) }}
+                                  </span>
+                                </div>
+                                <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) > 0">
+                                  {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}
+                                </div>
+                              </div>
+                              <button 
+                                class="btn btn-sm btn-danger material-delete-btn"
+                                (click)="deleteMaterial(material)"
+                                title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -894,35 +927,68 @@
               <div class="lesson-info-wrapper"
                    [class.expanded]="isLessonExpanded(section + '_' + lessonObj.name)">
                 <div class="lesson-info-content">
-                  <!-- Список материалов с типом и длительностью -->
-                  <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)).length > 0">
-                    <div class="materials-label">
-                      <i class="fas fa-file-alt"></i>
-                      Matériaux:
-                    </div>
-                    <div class="materials-list-vertical">
-                      <div *ngFor="let material of getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj))" class="material-item-vertical">
-                        <div class="material-info-wrapper">
-                          <div class="material-name">{{ material.filename }}</div>
-                          <div class="material-meta">
-                            <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
-                            <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
-                              : {{ formatDuration(getMaterialDuration(material)) }}
-                            </span>
+                      <!-- Список материалов с типом и длительностью -->
+                      <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)).length > 0">
+                        <!-- Обычные материалы -->
+                        <div *ngIf="getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj))).length > 0">
+                          <div class="materials-label">
+                            <i class="fas fa-file-alt"></i>
+                            Matériaux:
                           </div>
-                          <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section) > 0">
-                            {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
+                          <div class="materials-list-vertical">
+                            <div *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))" class="material-item-vertical">
+                              <div class="material-info-wrapper">
+                                <div class="material-name">{{ material.filename }}</div>
+                                <div class="material-meta">
+                                  <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
+                                  <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
+                                    : {{ formatDuration(getMaterialDuration(material)) }}
+                                  </span>
+                                </div>
+                                <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section) > 0">
+                                  {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
+                                </div>
+                              </div>
+                              <button 
+                                class="btn btn-sm btn-danger material-delete-btn"
+                                (click)="deleteMaterial(material)"
+                                title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
                           </div>
                         </div>
-                        <button 
-                          class="btn btn-sm btn-danger material-delete-btn"
-                          (click)="deleteMaterial(material)"
-                          title="Supprimer">
-                          <i class="fas fa-trash"></i>
-                        </button>
+
+                        <!-- Материалы конструкторов -->
+                        <div *ngIf="getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj))).length > 0" class="constructor-materials-section">
+                          <div class="materials-label constructor-label">
+                            <i class="fas fa-puzzle-piece"></i>
+                            Matériaux constructeurs:
+                          </div>
+                          <div class="materials-list-vertical">
+                            <div *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))" class="material-item-vertical constructor-material">
+                              <div class="material-info-wrapper">
+                                <div class="material-name">{{ material.filename }}</div>
+                                <div class="material-meta">
+                                  <span class="material-type-badge constructor-badge">{{ getConstructorTypeLabel(material) }}</span>
+                                  <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
+                                    : {{ formatDuration(getMaterialDuration(material)) }}
+                                  </span>
+                                </div>
+                                <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section) > 0">
+                                  {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
+                                </div>
+                              </div>
+                              <button 
+                                class="btn btn-sm btn-danger material-delete-btn"
+                                (click)="deleteMaterial(material)"
+                                title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
                       <!-- Общие задания для урока типа 'self' на уровне секции -->
                       <div class="lesson-homework-for-self" *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
