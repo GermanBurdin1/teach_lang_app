@@ -49,13 +49,24 @@
                       </mat-chip>
                     </div>
                     <div class="grid-card-actions">
-                      <button mat-icon-button color="primary" (click)="loadDrillGrid(grid)" [disabled]="grid.type === 'info'" title="Charger">
+                      <button 
+                        mat-icon-button 
+                        color="primary" 
+                        (click)="loadDrillGrid(grid)" 
+                        title="Modifier">
                         <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="primary" (click)="viewDrillGrid(grid)" title="Voir">
+                        <mat-icon>visibility</mat-icon>
                       </button>
                       <button mat-icon-button color="accent" (click)="duplicateDrillGrid(grid)" title="Dupliquer">
                         <mat-icon>content_copy</mat-icon>
                       </button>
-                      <button mat-icon-button color="warn" (click)="deleteDrillGrid(grid.id)" title="Supprimer">
+                      <button 
+                        mat-icon-button 
+                        color="warn" 
+                        (click)="deleteDrillGrid(grid.id)" 
+                        title="Supprimer">
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
@@ -87,13 +98,24 @@
                       <mat-chip class="info-chip">Information</mat-chip>
                     </div>
                     <div class="grid-card-actions">
-                      <button mat-icon-button color="primary" (click)="loadDrillGrid(grid)" disabled title="Lecture seule">
+                      <button 
+                        mat-icon-button 
+                        color="primary" 
+                        (click)="loadDrillGrid(grid)" 
+                        title="Modifier">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="primary" (click)="viewDrillGrid(grid)" title="Voir">
                         <mat-icon>visibility</mat-icon>
                       </button>
                       <button mat-icon-button color="accent" (click)="duplicateDrillGrid(grid)" title="Dupliquer">
                         <mat-icon>content_copy</mat-icon>
                       </button>
-                      <button mat-icon-button color="warn" (click)="deleteDrillGrid(grid.id)" title="Supprimer">
+                      <button 
+                        mat-icon-button 
+                        color="warn" 
+                        (click)="deleteDrillGrid(grid.id)" 
+                        title="Supprimer">
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
@@ -127,7 +149,12 @@
                       <button mat-icon-button color="accent" (click)="duplicateDrillGrid(grid)" title="Dupliquer">
                         <mat-icon>content_copy</mat-icon>
                       </button>
-                      <button mat-icon-button color="warn" (click)="deleteDrillGrid(grid.id)" title="Supprimer">
+                      <button 
+                        mat-icon-button 
+                        color="warn" 
+                        (click)="deleteDrillGrid(grid.id)" 
+                        [disabled]="!isTeacher()"
+                        title="Supprimer">
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
@@ -146,18 +173,131 @@
             </mat-tab-group>
           </div>
 
+          <!-- Режим просмотра drill-grid -->
+          <div class="drill-grid-step" *ngIf="viewingDrillGrid">
+            <h3>Voir la drill-grid: {{ viewingDrillGrid.name }}</h3>
+            <div class="drill-grid-viewer">
+              <div class="drill-grid-table">
+                <!-- Header row -->
+                <div class="drill-row">
+                  <div class="drill-cell header-cell empty-header"></div>
+                  <div class="drill-cell header-cell" *ngFor="let col of getGridColumnsArray(viewingDrillGrid)">
+                    {{ col }}
+                  </div>
+                </div>
+                <!-- Data rows -->
+                <div class="drill-row" *ngFor="let row of getGridRowsArray(viewingDrillGrid); let rowIdx = index">
+                  <div class="drill-cell header-cell">
+                    {{ row }}
+                  </div>
+                  <div class="drill-cell view-cell" *ngFor="let col of getGridColumnsArray(viewingDrillGrid); let colIdx = index">
+                    <div class="cell-content">
+                      {{ getViewCellContent(viewingDrillGrid, rowIdx, colIdx) }}
+                    </div>
+                    <div class="cell-answer" *ngIf="getViewCellCorrectAnswer(viewingDrillGrid, rowIdx, colIdx)">
+                      <mat-icon class="check-icon">check_circle</mat-icon>
+                      Réponse: {{ getViewCellCorrectAnswer(viewingDrillGrid, rowIdx, colIdx) }}
+                    </div>
+                    <div class="cell-editable-badge" *ngIf="getViewCellEditable(viewingDrillGrid, rowIdx, colIdx)">
+                      <mat-icon>edit</mat-icon>
+                      Modifiable
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="view-actions">
+              <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="loadDrillGrid(viewingDrillGrid)">
+                <mat-icon>edit</mat-icon>
+                Modifier
+              </button>
+              <button mat-raised-button (click)="viewingDrillGrid = null">
+                Fermer
+              </button>
+            </div>
+          </div>
+
           <!-- Step 1: Name the drill-grid -->
-          <div class="drill-grid-step">
+          <div class="drill-grid-step" *ngIf="!viewingDrillGrid">
             <h4>1. Nommer la drill-grid</h4>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Nom de la drill-grid</mat-label>
               <input matInput [(ngModel)]="drillGridName" placeholder="Ex: Conjugaison des verbes réguliers">
             </mat-form-field>
+            
+            <!-- Выбор purpose -->
+            <div class="purpose-selector" *ngIf="(editingDrillGrid || drillGridRows.length > 0) && isTeacher()">
+              <h5>Type de drill-grid:</h5>
+              <mat-form-field appearance="outline">
+                <mat-label>Purpose</mat-label>
+                <mat-select [(ngModel)]="drillGridPurpose" (selectionChange)="changeDrillGridPurpose($event.value)">
+                  <mat-option value="info">Information (lecture seule pour étudiants)</mat-option>
+                  <mat-option value="homework">Devoir (modifiable par étudiant et professeur)</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Step 3: Choose course (optional) -->
+          <div class="drill-grid-step">
+            <h4>3. Choisir un cours (optionnel)</h4>
+            <p class="step-description">Associez la drill-grid à un parcours existant quand vous le souhaitez.</p>
+            <!-- Course selection will be added later -->
           </div>
 
           <!-- Step 2: Configure Matrix -->
           <div class="drill-grid-step">
-            <h4>2. Configurer la matrice</h4>
+            <div class="step-header-with-toggle">
+              <h4>2. Configurer la matrice</h4>
+              <div class="view-mode-toggle" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  (click)="openMatrixModal('config')">
+                  <mat-icon>edit</mat-icon>
+                  Configuration
+                </button>
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  (click)="openMatrixModal('preview')">
+                  <mat-icon>visibility</mat-icon>
+                  Aperçu final
+                </button>
+              </div>
+            </div>
+            
+            <!-- Мини-превью таблицы -->
+            <div class="matrix-mini-preview" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
+              <div class="mini-preview-header">
+                <h5>Aperçu de la matrice</h5>
+              </div>
+              <div class="mini-preview-table-wrapper">
+                <div class="mini-preview-table">
+                  <!-- Header row -->
+                  <div class="mini-preview-row">
+                    <div class="mini-preview-cell mini-preview-header-cell"></div>
+                    <div class="mini-preview-cell mini-preview-header-cell" *ngFor="let col of drillGridColumns; let colIdx = index">
+                      {{ col || 'Colonne ' + (colIdx + 1) }}
+                    </div>
+                  </div>
+                  <!-- Data rows -->
+                  <div class="mini-preview-row" *ngFor="let row of drillGridRows; let rowIdx = index">
+                    <div class="mini-preview-cell mini-preview-header-cell">
+                      {{ row || 'Ligne ' + (rowIdx + 1) }}
+                    </div>
+                    <div class="mini-preview-cell" *ngFor="let col of drillGridColumns; let colIdx = index">
+                      {{ getCellValue(rowIdx, colIdx) || '...' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Matrix Configuration -->
             <div class="matrix-config">
               <div class="config-row">
                 <mat-form-field appearance="outline">
@@ -175,8 +315,16 @@
               </div>
             </div>
 
-            <!-- Matrix Editor -->
-            <div class="matrix-editor" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
+            <!-- Matrix Editor Preview (мини-превью) -->
+            <div class="matrix-editor-preview" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
+              <p class="preview-hint">
+                <mat-icon>info</mat-icon>
+                Cliquez sur "Configuration" ou "Aperçu final" pour ouvrir la matrice en plein écran
+              </p>
+            </div>
+
+            <!-- Matrix Editor (старый код, можно удалить после тестирования) -->
+            <div class="matrix-editor" *ngIf="false && drillGridRows.length > 0 && drillGridColumns.length > 0">
               <div class="drill-table-editable">
                 <!-- Header row with column labels -->
                 <div class="drill-header-row">
@@ -220,18 +368,45 @@
                   </div>
                   <div 
                     class="drill-cell editable-cell" 
+                    [class.has-correct-answer]="getCellData(rowIdx, colIdx).correctAnswer"
+                    [class.is-editable]="getCellData(rowIdx, colIdx).isEditable"
                     *ngFor="let col of drillGridColumns; let colIdx = index">
-                    <input 
-                      type="text" 
-                      [value]="getCellValue(rowIdx, colIdx)"
-                      (input)="updateCell(rowIdx, colIdx, $any($event.target).value)"
-                      placeholder="..."
-                      class="cell-input">
+                    <div class="cell-input-wrapper">
+                      <input 
+                        type="text" 
+                        [value]="getCellValue(rowIdx, colIdx)"
+                        (input)="updateCell(rowIdx, colIdx, $any($event.target).value)"
+                        placeholder="..."
+                        class="cell-input"
+                        [readonly]="false">
+                      <div class="cell-controls">
+                        <button 
+                          mat-icon-button 
+                          [color]="getCellData(rowIdx, colIdx).isEditable ? 'primary' : ''"
+                          (click)="toggleCellEditable(rowIdx, colIdx)"
+                          [title]="getCellData(rowIdx, colIdx).isEditable ? 'Rendre non modifiable' : 'Rendre modifiable'"
+                          class="cell-control-btn">
+                          <mat-icon>{{ getCellData(rowIdx, colIdx).isEditable ? 'lock_open' : 'lock' }}</mat-icon>
+                        </button>
+                        <button 
+                          mat-icon-button 
+                          [color]="getCellData(rowIdx, colIdx).correctAnswer ? 'accent' : ''"
+                          (click)="openCorrectAnswerDialog(rowIdx, colIdx)"
+                          title="Définir la réponse correcte"
+                          class="cell-control-btn">
+                          <mat-icon>check_circle</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="cell-answer-display" *ngIf="getCellData(rowIdx, colIdx).correctAnswer">
+                      <mat-icon class="check-icon">check</mat-icon>
+                      {{ getCellData(rowIdx, colIdx).correctAnswer }}
+                    </div>
                   </div>
                 </div>
 
                 <!-- Add row button -->
-                <div class="add-row-container">
+                <div class="add-row-container" *ngIf="matrixViewMode === 'config'">
                   <button mat-raised-button color="primary" (click)="addRow()">
                     <mat-icon>add</mat-icon>
                     Ajouter une ligne
@@ -240,20 +415,17 @@
               </div>
 
               <!-- Save button -->
-              <div class="save-container">
-                <button mat-raised-button color="accent" (click)="saveDrillGrid()" [disabled]="!drillGridName.trim()">
+              <div class="save-container" *ngIf="matrixViewMode === 'config'">
+                <button 
+                  mat-raised-button 
+                  color="accent" 
+                  (click)="saveDrillGrid()" 
+                  [disabled]="!drillGridName.trim()">
                   <mat-icon>save</mat-icon>
-                  Sauvegarder la drill-grid
+                  {{ editingDrillGrid ? 'Mettre à jour' : 'Sauvegarder' }} la drill-grid
                 </button>
               </div>
             </div>
-          </div>
-
-          <!-- Step 3: Choose course (optional) -->
-          <div class="drill-grid-step">
-            <h4>3. Choisir un cours (optionnel)</h4>
-            <p class="step-description">Associez la drill-grid à un parcours existant quand vous le souhaitez.</p>
-            <!-- Course selection will be added later -->
           </div>
         </div>
 

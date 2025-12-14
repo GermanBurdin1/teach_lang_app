@@ -1,0 +1,98 @@
+<div class="drill-grid-modal-container">
+  <div class="modal-header">
+    <h2>
+      <mat-icon>{{ mode === 'config' ? 'edit' : 'visibility' }}</mat-icon>
+      {{ mode === 'config' ? 'Configuration de la matrice' : 'Aperçu final' }}
+    </h2>
+    <button mat-icon-button (click)="close()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <!-- Режим предпросмотра -->
+    <div class="preview-mode" *ngIf="mode === 'preview'">
+      <div class="drill-grid-viewer">
+        <div class="drill-grid-table">
+          <!-- Header row -->
+          <div class="drill-row">
+            <div class="drill-cell header-cell empty-header"></div>
+            <div class="drill-cell header-cell" *ngFor="let col of getGridColumnsArray(getCurrentMatrixForPreview())">
+              {{ col }}
+            </div>
+          </div>
+          <!-- Data rows -->
+          <div class="drill-row" *ngFor="let row of getGridRowsArray(getCurrentMatrixForPreview()); let rowIdx = index">
+            <div class="drill-cell header-cell">
+              {{ row }}
+            </div>
+            <div class="drill-cell view-cell" *ngFor="let col of getGridColumnsArray(getCurrentMatrixForPreview()); let colIdx = index">
+              <div class="cell-content">
+                {{ getViewCellContent(getCurrentMatrixForPreview(), rowIdx, colIdx) }}
+              </div>
+              <div class="cell-answer" *ngIf="getViewCellCorrectAnswer(getCurrentMatrixForPreview(), rowIdx, colIdx)">
+                <mat-icon class="check-icon">check_circle</mat-icon>
+                Réponse: {{ getViewCellCorrectAnswer(getCurrentMatrixForPreview(), rowIdx, colIdx) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Режим конфигурации -->
+    <div class="config-mode" *ngIf="mode === 'config'">
+      <div class="matrix-editor">
+        <div class="drill-table-editable">
+          <!-- Header row with column labels -->
+          <div class="drill-header-row">
+            <div class="drill-cell header-cell corner-cell"></div>
+            <div class="drill-cell header-cell" *ngFor="let col of drillGridColumns; let colIdx = index">
+              <input 
+                type="text" 
+                [ngModel]="drillGridColumns[colIdx]" 
+                (ngModelChange)="drillGridColumns[colIdx] = $event"
+                placeholder="Colonne {{ colIdx + 1 }}"
+                class="header-input">
+            </div>
+          </div>
+
+          <!-- Data rows -->
+          <div class="drill-row" *ngFor="let row of drillGridRows; let rowIdx = index">
+            <div class="drill-cell header-cell">
+              <input 
+                type="text" 
+                [ngModel]="drillGridRows[rowIdx]" 
+                (ngModelChange)="drillGridRows[rowIdx] = $event"
+                placeholder="Ligne {{ rowIdx + 1 }}"
+                class="header-input">
+            </div>
+            <div 
+              class="drill-cell editable-cell" 
+              *ngFor="let col of drillGridColumns; let colIdx = index">
+              <div class="cell-input-wrapper">
+                <input 
+                  type="text" 
+                  [value]="getCellValue(rowIdx, colIdx)"
+                  (input)="updateCell(rowIdx, colIdx, $any($event.target).value)"
+                  placeholder="..."
+                  class="cell-input">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer" *ngIf="mode === 'config'">
+    <button mat-raised-button (click)="close()">
+      Annuler
+    </button>
+    <button mat-raised-button color="primary" (click)="save()">
+      <mat-icon>save</mat-icon>
+      {{ editingDrillGrid ? 'Mettre à jour' : 'Sauvegarder' }}
+    </button>
+  </div>
+</div>
+
