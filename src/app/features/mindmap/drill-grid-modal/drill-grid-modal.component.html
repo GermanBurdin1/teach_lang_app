@@ -47,23 +47,23 @@
           <!-- Header row with column labels -->
           <div class="drill-header-row">
             <div class="drill-cell header-cell corner-cell"></div>
-            <div class="drill-cell header-cell" *ngFor="let col of drillGridColumns; let colIdx = index">
+            <div class="drill-cell header-cell" *ngFor="let col of drillGridColumns; let colIdx = index; trackBy: trackByIndex">
               <input 
                 type="text" 
-                [ngModel]="drillGridColumns[colIdx]" 
-                (ngModelChange)="drillGridColumns[colIdx] = $event"
+                [value]="drillGridColumns[colIdx]" 
+                (input)="drillGridColumns[colIdx] = $any($event.target).value"
                 placeholder="Colonne {{ colIdx + 1 }}"
                 class="header-input">
             </div>
           </div>
 
           <!-- Data rows -->
-          <div class="drill-row" *ngFor="let row of drillGridRows; let rowIdx = index">
+          <div class="drill-row" *ngFor="let row of drillGridRows; let rowIdx = index; trackBy: trackByIndex">
             <div class="drill-cell header-cell">
               <input 
                 type="text" 
-                [ngModel]="drillGridRows[rowIdx]" 
-                (ngModelChange)="drillGridRows[rowIdx] = $event"
+                [value]="drillGridRows[rowIdx]" 
+                (input)="drillGridRows[rowIdx] = $any($event.target).value"
                 placeholder="Ligne {{ rowIdx + 1 }}"
                 class="header-input">
             </div>

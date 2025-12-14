@@ -91,6 +91,10 @@ export class DrillGridModalComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  trackByIndex(index: number): number {
+    return index;
+  }
+
   getCellValue(rowIndex: number, colIndex: number): string {
     const key = `${rowIndex}-${colIndex}`;
     return this.drillGridCells[key] || '';
