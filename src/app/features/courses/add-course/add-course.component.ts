@@ -2103,11 +2103,193 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
     if (isConstructorMaterial) {
       // Для материалов конструктора предлагаем отвязать от курса или удалить полностью
-      const action = confirm('Ce matériau provient d\'un constructeur. Voulez-vous le supprimer complètement ou simplement l\'enlever du cours ?\n\nOK = Supprimer complètement\nAnnuler = Enlever du cours seulement');
-      
-      if (!this.courseId) {
-        this.notificationService.error('Aucun cours sélectionné');
-        return;
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '500px',
+        data: {
+          title: 'Suppression de matériau',
+          message: 'Ce matériau provient d\'un constructeur. Voulez-vous le supprimer complètement ou simplement l\'enlever du cours ?',
+          confirmText: 'Supprimer complètement',
+          cancelText: 'Enlever du cours seulement'
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(action => {
+        if (action === undefined) {
+          return; // Пользователь закрыл диалог без выбора
+        }
+
+        if (!this.courseId) {
+          this.notificationService.error('Aucun cours sélectionné');
+          return;
+        }
+
+        const currentUser = this.authService.getCurrentUser();
+        const token = this.authService.getAccessToken();
+        if (!currentUser?.id || !token) {
+          this.notificationService.error('Erreur d\'authentification');
+          return;
+        }
+
+        const headers = new HttpHeaders({
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+
+        // Сохраняем копию материала на случай ошибки
+        const materialCopy = { ...material };
+        const materialIndex = this.materials.findIndex(m => m.id === material.id);
+        
+        if (action) {
+          // Удаляем конструктор полностью - запрашиваем подтверждение
+          const confirmDeleteRef = this.dialog.open(ConfirmDialogComponent, {
+            width: '500px',
+            data: {
+              title: 'Confirmation de suppression',
+              message: 'Êtes-vous sûr de vouloir supprimer définitivement ce constructeur ? Cette action est irréversible.',
+              confirmText: 'Supprimer',
+              cancelText: 'Annuler'
+            }
+          });
+
+          confirmDeleteRef.afterClosed().subscribe(confirmed => {
+            if (!confirmed) {
+              return; // Пользователь отменил удаление
+            }
+
+            // Удаляем из массива сразу
+            if (materialIndex !== -1) {
+              this.materials.splice(materialIndex, 1);
+            }
+
+            this.http.delete(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, { headers }).subscribe({
+              next: () => {
+                // Также удаляем файл, если он есть
+                if (material.id) {
+                  this.fileUploadService.deleteFile(material.id, this.courseId!).subscribe({
+                    next: () => {},
+                    error: () => {} // Игнорируем ошибку удаления файла
+                  });
+                }
+                this.notificationService.success('Constructeur supprimé avec succès');
+                this.cdr.detectChanges();
+              },
+              error: (error) => {
+                console.error('❌ Erreur lors de la suppression du constructeur:', error);
+                // В случае ошибки возвращаем элемент обратно
+                if (materialIndex !== -1) {
+                  this.materials.splice(materialIndex, 0, materialCopy);
+                }
+                this.notificationService.error('Erreur lors de la suppression du constructeur');
+              }
+            });
+          });
+        } else {
+          // Отвязываем от курса (убираем courseId и courseLessonId)
+          if (materialIndex !== -1) {
+            this.materials.splice(materialIndex, 1);
+          }
+
+          this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, {
+            courseId: null,
+            courseLessonId: null
+          }, { headers }).subscribe({
+            next: () => {
+              // Также удаляем файл из курса
+              if (material.id) {
+                this.fileUploadService.deleteFile(material.id, this.courseId!).subscribe({
+                  next: () => {},
+                  error: () => {} // Игнорируем ошибку удаления файла
+                });
+              }
+              this.notificationService.success('Matériau retiré du cours avec succès');
+              this.cdr.detectChanges();
+            },
+            error: (error) => {
+              console.error('❌ Erreur lors du retrait du matériau du cours:', error);
+              // В случае ошибки возвращаем элемент обратно
+              if (materialIndex !== -1) {
+                this.materials.splice(materialIndex, 0, materialCopy);
+              }
+              this.notificationService.error('Erreur lors du retrait du matériau du cours');
+            }
+          });
+        }
+      });
+    } else {
+      // Обычный файл - удаляем как раньше
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '500px',
+        data: {
+          title: 'Suppression de matériau',
+          message: 'Êtes-vous sûr de vouloir supprimer ce matériau du cours ? Le fichier restera disponible dans Entraînement.',
+          confirmText: 'Supprimer',
+          cancelText: 'Annuler'
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(confirmed => {
+        if (!confirmed) {
+          return; // Пользователь отменил удаление
+        }
+
+        if (!this.courseId) {
+          this.notificationService.error('Aucun cours sélectionné');
+          return;
+        }
+
+        // Сохраняем копию материала на случай ошибки
+        const materialCopy = { ...material };
+        
+        // Удаляем элемент из массива сразу для мгновенного обновления UI
+        const materialIndex = this.materials.findIndex(m => m.id === material.id);
+        if (materialIndex !== -1) {
+          this.materials.splice(materialIndex, 1);
+        }
+
+        // Удаляем только связь с курсом, файл остается в системе
+        this.fileUploadService.deleteFile(material.id, this.courseId).subscribe({
+          next: () => {
+            // Успешно удалено из курса - список уже обновлен
+            this.notificationService.success('Matériau supprimé du cours avec succès! Le fichier reste disponible dans Entraînement.');
+            // Опционально: перезагружаем файлы для синхронизации с сервером
+            setTimeout(() => {
+              this.loadFiles();
+            }, 500);
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la suppression du matériau du cours:', error);
+            // В случае ошибки возвращаем элемент обратно в массив
+            if (materialIndex !== -1) {
+              this.materials.splice(materialIndex, 0, materialCopy);
+            }
+            this.notificationService.error('Erreur lors de la suppression du matériau du cours');
+          }
+        });
+      });
+    }
+  }
+
+  // Отвязать материал конструктора от урока (убрать courseLessonId)
+  async detachConstructorMaterialFromLesson(material: UploadedFile): Promise<void> {
+    const constructorId = (material as any).constructorId;
+    if (!constructorId) {
+      this.notificationService.error('Ce matériau n\'est pas un constructeur');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Retirer le matériau',
+        message: 'Voulez-vous retirer ce matériau de ce cours ? Il restera disponible dans vos constructeurs.',
+        confirmText: 'Retirer',
+        cancelText: 'Annuler'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) {
+        return; // Пользователь отменил действие
       }
 
       const currentUser = this.authService.getCurrentUser();
@@ -2126,160 +2308,28 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       const materialCopy = { ...material };
       const materialIndex = this.materials.findIndex(m => m.id === material.id);
       
-      if (action) {
-        // Удаляем конструктор полностью
-        if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement ce constructeur ? Cette action est irréversible.')) {
-          return;
-        }
-
-        // Удаляем из массива сразу
-        if (materialIndex !== -1) {
-          this.materials.splice(materialIndex, 1);
-        }
-
-        this.http.delete(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, { headers }).subscribe({
-          next: () => {
-            // Также удаляем файл, если он есть
-            if (material.id) {
-              this.fileUploadService.deleteFile(material.id, this.courseId!).subscribe({
-                next: () => {},
-                error: () => {} // Игнорируем ошибку удаления файла
-              });
-            }
-            this.notificationService.success('Constructeur supprimé avec succès');
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('❌ Erreur lors de la suppression du constructeur:', error);
-            // В случае ошибки возвращаем элемент обратно
-            if (materialIndex !== -1) {
-              this.materials.splice(materialIndex, 0, materialCopy);
-            }
-            this.notificationService.error('Erreur lors de la suppression du constructeur');
-          }
-        });
-      } else {
-        // Отвязываем от курса (убираем courseId и courseLessonId)
-        if (materialIndex !== -1) {
-          this.materials.splice(materialIndex, 1);
-        }
-
-        this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, {
-          courseId: null,
-          courseLessonId: null
-        }, { headers }).subscribe({
-          next: () => {
-            // Также удаляем файл из курса
-            if (material.id) {
-              this.fileUploadService.deleteFile(material.id, this.courseId!).subscribe({
-                next: () => {},
-                error: () => {} // Игнорируем ошибку удаления файла
-              });
-            }
-            this.notificationService.success('Matériau retiré du cours avec succès');
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('❌ Erreur lors du retrait du matériau du cours:', error);
-            // В случае ошибки возвращаем элемент обратно
-            if (materialIndex !== -1) {
-              this.materials.splice(materialIndex, 0, materialCopy);
-            }
-            this.notificationService.error('Erreur lors du retrait du matériau du cours');
-          }
-        });
-      }
-    } else {
-      // Обычный файл - удаляем как раньше
-      if (!confirm('Êtes-vous sûr de vouloir supprimer ce matériau du cours ? Le fichier restera disponible dans Entraînement.')) {
-        return;
-      }
-
-      if (!this.courseId) {
-        this.notificationService.error('Aucun cours sélectionné');
-        return;
-      }
-
-      // Сохраняем копию материала на случай ошибки
-      const materialCopy = { ...material };
-      
-      // Удаляем элемент из массива сразу для мгновенного обновления UI
-      const materialIndex = this.materials.findIndex(m => m.id === material.id);
+      // Удаляем из массива сразу
       if (materialIndex !== -1) {
         this.materials.splice(materialIndex, 1);
       }
 
-      // Удаляем только связь с курсом, файл остается в системе
-      this.fileUploadService.deleteFile(material.id, this.courseId).subscribe({
+      // Убираем courseLessonId (отвязываем от урока), но оставляем courseId
+      this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, {
+        courseLessonId: null
+      }, { headers }).subscribe({
         next: () => {
-          // Успешно удалено из курса - список уже обновлен
-          this.notificationService.success('Matériau supprimé du cours avec succès! Le fichier reste disponible dans Entraînement.');
-          // Опционально: перезагружаем файлы для синхронизации с сервером
-          setTimeout(() => {
-            this.loadFiles();
-          }, 500);
+          this.notificationService.success('Matériau retiré de la leçon avec succès');
+          this.cdr.detectChanges();
         },
         error: (error) => {
-          console.error('❌ Erreur lors de la suppression du matériau du cours:', error);
-          // В случае ошибки возвращаем элемент обратно в массив
+          console.error('❌ Erreur lors du retrait du matériau de la leçon:', error);
+          // В случае ошибки возвращаем элемент обратно
           if (materialIndex !== -1) {
             this.materials.splice(materialIndex, 0, materialCopy);
           }
-          this.notificationService.error('Erreur lors de la suppression du matériau du cours');
+          this.notificationService.error('Erreur lors du retrait du matériau de la leçon');
         }
       });
-    }
-  }
-
-  // Отвязать материал конструктора от урока (убрать courseLessonId)
-  async detachConstructorMaterialFromLesson(material: UploadedFile): Promise<void> {
-    const constructorId = (material as any).constructorId;
-    if (!constructorId) {
-      this.notificationService.error('Ce matériau n\'est pas un constructeur');
-      return;
-    }
-
-    if (!confirm('Voulez-vous retirer ce matériau de ce cours ? Il restera disponible dans vos constructeurs.')) {
-      return;
-    }
-
-    const currentUser = this.authService.getCurrentUser();
-    const token = this.authService.getAccessToken();
-    if (!currentUser?.id || !token) {
-      this.notificationService.error('Erreur d\'authentification');
-      return;
-    }
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-
-    // Сохраняем копию материала на случай ошибки
-    const materialCopy = { ...material };
-    const materialIndex = this.materials.findIndex(m => m.id === material.id);
-    
-    // Удаляем из массива сразу
-    if (materialIndex !== -1) {
-      this.materials.splice(materialIndex, 1);
-    }
-
-    // Убираем courseLessonId (отвязываем от урока), но оставляем courseId
-    this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, {
-      courseLessonId: null
-    }, { headers }).subscribe({
-      next: () => {
-        this.notificationService.success('Matériau retiré de la leçon avec succès');
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('❌ Erreur lors du retrait du matériau de la leçon:', error);
-        // В случае ошибки возвращаем элемент обратно
-        if (materialIndex !== -1) {
-          this.materials.splice(materialIndex, 0, materialCopy);
-        }
-        this.notificationService.error('Erreur lors du retrait du matériau de la leçon');
-      }
     });
   }
 

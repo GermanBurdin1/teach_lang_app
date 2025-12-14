@@ -213,6 +213,13 @@
                   {{ material.filename }}
                 </h5>
                 <p *ngIf="material.description" class="drill-grid-description">{{ material.description }}</p>
+                <button 
+                  class="btn btn-sm btn-primary"
+                  (click)="openDrillGridFullscreen(material)"
+                  title="Ouvrir en mode plein écran">
+                  <i class="fas fa-expand"></i>
+                  Ouvrir en plein écran
+                </button>
               </div>
               <div class="drill-grid-table-container" *ngIf="getDrillGridData(material)">
                 <div class="drill-table">

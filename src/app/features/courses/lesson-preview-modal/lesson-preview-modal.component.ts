@@ -1,13 +1,15 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
 import { UploadedFile } from '../../../services/file-upload.service';
 import { HomeworkService } from '../../../services/homework.service';
 import { AuthService } from '../../../services/auth.service';
 import { RoleService } from '../../../services/role.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { HomeworkModalComponent, HomeworkModalData } from '../../../classroom/lesson-material/homework-modal/homework-modal.component';
 import { SupplementaryMaterialsModalComponent, SupplementaryMaterialsModalData } from './supplementary-materials-modal/supplementary-materials-modal.component';
+import { DrillGridModalComponent, DrillGridModalData, DrillGrid, DrillGridCell } from '../../mindmap/drill-grid-modal/drill-grid-modal.component';
+import { API_ENDPOINTS } from '../../../core/constants/api.constants';
 import { forkJoin } from 'rxjs';
 
 export interface LessonPreviewModalData {
@@ -269,6 +271,116 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
   // Получить данные drill-grid из материала
   getDrillGridData(material: UploadedFile): any {
     return (material as any).drillGridData?.data || null;
+  }
+
+  // Открыть drill-grid в полном режиме просмотра
+  openDrillGridFullscreen(material: UploadedFile): void {
+    const constructorId = (material as any).constructorId;
+    if (!constructorId) {
+      console.error('❌ ConstructorId не найден для материала:', material);
+      return;
+    }
+
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      console.error('❌ Токен не найден');
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    // Загружаем данные drill-grid с сервера
+    this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, { headers }).subscribe({
+      next: (drillGridData: any) => {
+        // Получаем данные конструктора для названия
+        this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, { headers }).subscribe({
+          next: (constructor: any) => {
+            // Преобразуем данные в формат для модалки
+            const drillGrid: DrillGrid = {
+              id: constructorId,
+              name: constructor.name || material.filename,
+              rows: drillGridData.rows || [],
+              columns: drillGridData.columns || [],
+              cells: drillGridData.cells || {},
+              purpose: drillGridData.purpose || 'info',
+              type: drillGridData.purpose || 'info',
+              createdAt: new Date(constructor.createdAt || Date.now()),
+              constructorId: constructorId
+            };
+
+            // Преобразуем rows и columns в массивы строк
+            const drillGridRows: string[] = Array.isArray(drillGrid.rows) 
+              ? (typeof drillGrid.rows[0] === 'object' 
+                  ? (drillGrid.rows as Array<{id: string; label: string}>).map(r => r.label)
+                  : drillGrid.rows as string[])
+              : [];
+
+            const drillGridColumns: string[] = Array.isArray(drillGrid.columns)
+              ? (typeof drillGrid.columns[0] === 'object'
+                  ? (drillGrid.columns as Array<{id: string; label: string}>).map(c => c.label)
+                  : drillGrid.columns as string[])
+              : [];
+
+            // Преобразуем cells в нужный формат
+            let drillGridCells: { [key: string]: string } = {};
+            let drillGridCellsData: DrillGridCell[] = [];
+
+            if (Array.isArray(drillGrid.cells)) {
+              // Новый формат: массив DrillGridCell
+              drillGridCellsData = drillGrid.cells as DrillGridCell[];
+              drillGridCellsData.forEach(cell => {
+                const rowIdx = parseInt(cell.rowId.replace('row_', ''));
+                const colIdx = parseInt(cell.colId.replace('col_', ''));
+                drillGridCells[`${rowIdx}-${colIdx}`] = cell.content || '';
+              });
+            } else if (typeof drillGrid.cells === 'object') {
+              // Старый формат: объект { "0-0": "content" }
+              drillGridCells = drillGrid.cells as { [key: string]: string };
+              Object.keys(drillGridCells).forEach(key => {
+                const [rowIdx, colIdx] = key.split('-').map(Number);
+                drillGridCellsData.push({
+                  rowId: `row_${rowIdx}`,
+                  colId: `col_${colIdx}`,
+                  content: drillGridCells[key] || '',
+                  correctAnswer: undefined,
+                  isEditable: true
+                });
+              });
+            }
+
+            const dialogConfig: MatDialogConfig = {
+              width: '100vw',
+              height: '100vh',
+              maxWidth: '100vw',
+              maxHeight: '100vh',
+              panelClass: 'drill-grid-fullscreen-modal',
+              data: {
+                mode: 'preview' as 'preview',
+                drillGridName: drillGrid.name,
+                drillGridRows: drillGridRows,
+                drillGridColumns: drillGridColumns,
+                drillGridCells: drillGridCells,
+                drillGridCellsData: drillGridCellsData,
+                drillGridPurpose: drillGrid.purpose || 'info',
+                editingDrillGrid: drillGrid
+              } as DrillGridModalData,
+              disableClose: false,
+              hasBackdrop: true
+            };
+
+            this.dialog.open(DrillGridModalComponent, dialogConfig);
+          },
+          error: (error) => {
+            console.error('❌ Ошибка загрузки конструктора:', error);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('❌ Ошибка загрузки drill-grid:', error);
+      }
+    });
   }
 
   openAddMaterial(): void {
