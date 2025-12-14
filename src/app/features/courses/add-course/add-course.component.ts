@@ -21,6 +21,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { PromptDialogComponent, PromptDialogData } from '../prompt-dialog/prompt-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../prompt-dialog/confirm-dialog.component';
 import { CourseSettingsModalComponent, CourseSettingsModalData } from './course-settings-modal/course-settings-modal.component';
+import { MaterialPreviewModalComponent, MaterialPreviewModalData } from '../material-preview-modal/material-preview-modal.component';
 
 @Component({
   selector: 'app-add-course',
@@ -4020,6 +4021,23 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       'constructeur': 'Constructeur'
     };
     return labels[type || 'constructeur'] || 'Constructeur';
+  }
+
+  // Открыть предпросмотр материала
+  openMaterialPreview(material: UploadedFile, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    const dialogRef = this.dialog.open(MaterialPreviewModalComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      maxHeight: '90vh',
+      data: {
+        material: material
+      } as MaterialPreviewModalData,
+      panelClass: 'material-preview-modal-dialog'
+    });
   }
 }
 

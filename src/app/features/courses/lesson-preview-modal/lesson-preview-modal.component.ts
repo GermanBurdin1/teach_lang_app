@@ -589,8 +589,11 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  close(): void {
-    // При закрытии модалки отправляем событие для сохранения материалов в структуру курса
+  saveLessonInfo(): void {
+    // Сохраняем описание урока
+    this.saveDescription();
+    
+    // Отправляем событие для сохранения материалов в структуру курса
     window.dispatchEvent(new CustomEvent('lessonMaterialsUpdated', {
       detail: {
         courseId: this.data.courseId,
@@ -600,7 +603,10 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
         materials: this.data.materials
       }
     }));
-    
+  }
+
+  close(): void {
+    // При закрытии модалки НЕ сохраняем автоматически - только закрываем
     this.dialogRef.close();
   }
 }

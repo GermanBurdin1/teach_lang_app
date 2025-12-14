@@ -769,7 +769,10 @@
                             Matériaux:
                           </div>
                           <div class="materials-list-vertical">
-                            <div *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))" class="material-item-vertical">
+                            <div *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))" 
+                                 class="material-item-vertical"
+                                 (click)="openMaterialPreview(material, $event)"
+                                 [style.cursor]="'pointer'">
                               <div class="material-info-wrapper">
                                 <div class="material-name">{{ material.filename }}</div>
                                 <div class="material-meta">
@@ -784,7 +787,7 @@
                               </div>
                               <button 
                                 class="btn btn-sm btn-danger material-delete-btn"
-                                (click)="deleteMaterial(material)"
+                                (click)="deleteMaterial(material); $event.stopPropagation()"
                                 title="Supprimer">
                                 <i class="fas fa-trash"></i>
                               </button>
@@ -799,7 +802,10 @@
                             Matériaux constructeurs:
                           </div>
                           <div class="materials-list-vertical">
-                            <div *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))" class="material-item-vertical constructor-material">
+                            <div *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))" 
+                                 class="material-item-vertical constructor-material"
+                                 (click)="openMaterialPreview(material, $event)"
+                                 [style.cursor]="'pointer'">
                               <div class="material-info-wrapper">
                                 <div class="material-name">{{ material.filename }}</div>
                                 <div class="material-meta">
@@ -814,7 +820,7 @@
                               </div>
                               <button 
                                 class="btn btn-sm btn-danger material-delete-btn"
-                                (click)="deleteMaterial(material)"
+                                (click)="deleteMaterial(material); $event.stopPropagation()"
                                 title="Supprimer">
                                 <i class="fas fa-trash"></i>
                               </button>
@@ -936,7 +942,10 @@
                             Matériaux:
                           </div>
                           <div class="materials-list-vertical">
-                            <div *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))" class="material-item-vertical">
+                            <div *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))" 
+                                 class="material-item-vertical"
+                                 (click)="openMaterialPreview(material, $event)"
+                                 [style.cursor]="'pointer'">
                               <div class="material-info-wrapper">
                                 <div class="material-name">{{ material.filename }}</div>
                                 <div class="material-meta">
@@ -951,7 +960,7 @@
                               </div>
                               <button 
                                 class="btn btn-sm btn-danger material-delete-btn"
-                                (click)="deleteMaterial(material)"
+                                (click)="deleteMaterial(material); $event.stopPropagation()"
                                 title="Supprimer">
                                 <i class="fas fa-trash"></i>
                               </button>
@@ -966,7 +975,10 @@
                             Matériaux constructeurs:
                           </div>
                           <div class="materials-list-vertical">
-                            <div *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))" class="material-item-vertical constructor-material">
+                            <div *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))" 
+                                 class="material-item-vertical constructor-material"
+                                 (click)="openMaterialPreview(material, $event)"
+                                 [style.cursor]="'pointer'">
                               <div class="material-info-wrapper">
                                 <div class="material-name">{{ material.filename }}</div>
                                 <div class="material-meta">
@@ -981,7 +993,7 @@
                               </div>
                               <button 
                                 class="btn btn-sm btn-danger material-delete-btn"
-                                (click)="deleteMaterial(material)"
+                                (click)="deleteMaterial(material); $event.stopPropagation()"
                                 title="Supprimer">
                                 <i class="fas fa-trash"></i>
                               </button>
