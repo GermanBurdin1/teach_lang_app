@@ -225,14 +225,14 @@
                 <div class="drill-table">
                   <div class="drill-header-row">
                     <div class="drill-cell header-cell"></div>
-                    <div class="drill-cell header-cell" *ngFor="let col of getDrillGridData(material).columns">
+                    <div class="drill-cell header-cell" *ngFor="let col of getDrillGridColumnsArray(material)">
                       {{ col || 'Colonne' }}
                     </div>
                   </div>
-                  <div class="drill-row" *ngFor="let row of getDrillGridData(material).rows; let rowIdx = index">
+                  <div class="drill-row" *ngFor="let row of getDrillGridRowsArray(material); let rowIdx = index">
                     <div class="drill-cell header-cell">{{ row || 'Ligne' }}</div>
-                    <div class="drill-cell" *ngFor="let col of getDrillGridData(material).columns; let colIdx = index">
-                      {{ getDrillGridData(material).cells[rowIdx + '-' + colIdx] || '' }}
+                    <div class="drill-cell" *ngFor="let col of getDrillGridColumnsArray(material); let colIdx = index">
+                      {{ getDrillGridCellContent(material, rowIdx, colIdx) }}
                     </div>
                   </div>
                 </div>

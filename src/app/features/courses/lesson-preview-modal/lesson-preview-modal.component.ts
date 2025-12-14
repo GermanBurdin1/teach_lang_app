@@ -273,6 +273,91 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
     return (material as any).drillGridData?.data || null;
   }
 
+  // Получить массив строк для rows (поддержка обоих форматов)
+  getDrillGridRowsArray(material: UploadedFile): string[] {
+    const data = this.getDrillGridData(material);
+    if (!data || !data.rows) {
+      return [];
+    }
+    if (Array.isArray(data.rows)) {
+      if (data.rows.length > 0 && typeof data.rows[0] === 'object' && 'label' in data.rows[0]) {
+        return (data.rows as Array<{id: string; label: string}>).map(r => r.label);
+      } else {
+        return data.rows as string[];
+      }
+    }
+    return [];
+  }
+
+  // Получить массив строк для columns (поддержка обоих форматов)
+  getDrillGridColumnsArray(material: UploadedFile): string[] {
+    const data = this.getDrillGridData(material);
+    if (!data || !data.columns) {
+      return [];
+    }
+    if (Array.isArray(data.columns)) {
+      if (data.columns.length > 0 && typeof data.columns[0] === 'object' && 'label' in data.columns[0]) {
+        return (data.columns as Array<{id: string; label: string}>).map(c => c.label);
+      } else {
+        return data.columns as string[];
+      }
+    }
+    return [];
+  }
+
+  // Получить содержимое ячейки (поддержка обоих форматов cells)
+  getDrillGridCellContent(material: UploadedFile, rowIdx: number, colIdx: number): string {
+    const data = this.getDrillGridData(material);
+    if (!data || !data.cells) {
+      return '';
+    }
+
+    // Новый формат: массив DrillGridCell
+    if (Array.isArray(data.cells)) {
+      const expectedRowId = `row_${rowIdx}`;
+      const expectedColId = `col_${colIdx}`;
+      
+      const cell = data.cells.find((c: any) => 
+        c.rowId === expectedRowId && c.colId === expectedColId
+      );
+      
+      if (cell && cell.content) {
+        return cell.content;
+      }
+      
+      // Если не нашли, логируем для отладки (только в режиме разработки)
+      if (cell && !cell.content) {
+        console.warn('⚠️ Ячейка найдена, но content пустой', {
+          material: material.filename,
+          rowIdx,
+          colIdx,
+          cell
+        });
+      }
+    }
+
+    // Старый формат: объект { "0-0": "content" } или { "0_1": "content" }
+    if (typeof data.cells === 'object' && !Array.isArray(data.cells)) {
+      // Пробуем разные форматы ключей
+      const keys = [`${rowIdx}-${colIdx}`, `${rowIdx}_${colIdx}`];
+      for (const key of keys) {
+        const value = data.cells[key];
+        if (value !== undefined) {
+          // Если значение - объект, пытаемся извлечь content
+          if (typeof value === 'object' && value !== null && 'content' in value) {
+            return value.content || '';
+          }
+          // Если значение - строка, возвращаем её
+          if (typeof value === 'string') {
+            return value;
+          }
+        }
+      }
+    }
+
+    return '';
+  }
+
   // Открыть drill-grid в полном режиме просмотра
   openDrillGridFullscreen(material: UploadedFile): void {
     const constructorId = (material as any).constructorId;

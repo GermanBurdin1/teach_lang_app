@@ -1487,6 +1487,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               this.http.get<any>(`${API_ENDPOINTS.CONSTRUCTORS}/${constructor.id}/drill-grid`, { headers })
             );
 
+            console.log('📥 Загружены данные drill-grid из БД в loadCourseConstructors:', {
+              constructorId: constructor.id,
+              title: constructor.title,
+              cellsCount: Array.isArray(drillGridResponse.cells) ? drillGridResponse.cells.length : 'not array',
+              cellsType: typeof drillGridResponse.cells,
+              cellsSample: Array.isArray(drillGridResponse.cells) && drillGridResponse.cells.length > 0 
+                ? drillGridResponse.cells[0] 
+                : drillGridResponse.cells
+            });
+
             // Определяем, к какому уроку привязан конструктор (если привязан)
             let lessonName = '';
             let section = '';
@@ -1515,6 +1525,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
             if (existingMaterial) {
               // Обновляем существующий материал данными из БД
+              // Убеждаемся, что cells в правильном формате массива
+              let cellsData = drillGridResponse.cells || [];
+              if (!Array.isArray(cellsData)) {
+                console.warn('⚠️ cells не является массивом, преобразуем:', {
+                  constructorId: constructor.id,
+                  cellsType: typeof cellsData,
+                  cells: cellsData
+                });
+                cellsData = [];
+              }
+              
               const updatedMaterial: UploadedFile = {
                 ...existingMaterial,
                 drillGridData: {
@@ -1524,7 +1545,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                     name: constructor.title,
                     rows: drillGridResponse.rows || [],
                     columns: drillGridResponse.columns || [],
-                    cells: drillGridResponse.cells || [],
+                    cells: cellsData,
                     settings: drillGridResponse.settings || null,
                     constructorId: constructor.id
                   }
@@ -1533,6 +1554,12 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 courseLessonId: constructor.courseLessonId || null,
                 tag: tag // Обновляем тег на основе данных из БД
               } as UploadedFile;
+              
+              console.log('✅ Обновлен материал с данными из БД:', {
+                filename: updatedMaterial.filename,
+                cellsCount: cellsData.length,
+                cellsSample: cellsData.length > 0 ? cellsData[0] : 'empty'
+              });
 
               const index = this.materials.indexOf(existingMaterial);
               if (index !== -1) {
@@ -1542,6 +1569,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             }
 
             // Создаем новый материал из конструктора
+            // Убеждаемся, что cells в правильном формате массива
+            let cellsData = drillGridResponse.cells || [];
+            if (!Array.isArray(cellsData)) {
+              console.warn('⚠️ cells не является массивом при создании нового материала, преобразуем:', {
+                constructorId: constructor.id,
+                cellsType: typeof cellsData,
+                cells: cellsData
+              });
+              cellsData = [];
+            }
+            
             const newMaterial: UploadedFile = {
               id: Date.now() + Math.random(),
               filename: constructor.title,
@@ -1558,7 +1596,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                   name: constructor.title,
                   rows: drillGridResponse.rows || [],
                   columns: drillGridResponse.columns || [],
-                  cells: drillGridResponse.cells || [],
+                  cells: cellsData,
                   settings: drillGridResponse.settings || null,
                   constructorId: constructor.id
                 }
@@ -1566,6 +1604,12 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               constructorId: constructor.id,
               courseLessonId: constructor.courseLessonId || null
             } as UploadedFile;
+            
+            console.log('✅ Создан новый материал из конструктора:', {
+              filename: newMaterial.filename,
+              cellsCount: cellsData.length,
+              cellsSample: cellsData.length > 0 ? cellsData[0] : 'empty'
+            });
 
             return newMaterial;
           } catch (error) {
@@ -1576,15 +1620,48 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         const newMaterials = (await Promise.all(materialPromises)).filter(m => m !== null) as UploadedFile[];
         
         // Добавляем новые материалы, избегая дубликатов
+        // Проверяем не только по constructorId, но и по наличию в materials
         newMaterials.forEach(newMaterial => {
-          const existingIndex = this.materials.findIndex(m => 
-            (m as any).constructorId === (newMaterial as any).constructorId
+          const constructorId = (newMaterial as any).constructorId;
+          if (!constructorId) {
+            return; // Пропускаем материалы без constructorId
+          }
+
+          // Проверяем наличие материала по constructorId
+          const existingByConstructorId = this.materials.findIndex(m => 
+            (m as any).constructorId === constructorId
           );
-          if (existingIndex === -1) {
-            this.materials.push(newMaterial);
+          
+          // Также проверяем по ID файла (если материал был создан из файла)
+          const existingByFileId = newMaterial.id ? this.materials.findIndex(m => 
+            m.id === newMaterial.id
+          ) : -1;
+
+          // Проверяем по filename и tag (для случаев, когда файл уже был загружен из file-service)
+          const existingByFilenameAndTag = this.materials.findIndex(m => 
+            m.filename === newMaterial.filename && 
+            m.tag === newMaterial.tag &&
+            m.mimetype === 'application/json'
+          );
+          
+          if (existingByConstructorId !== -1) {
+            // Материал уже существует по constructorId - обновляем его данными из БД
+            this.materials[existingByConstructorId] = newMaterial;
+          } else if (existingByFileId !== -1) {
+            // Материал уже существует по ID файла - обновляем его данными из БД
+            this.materials[existingByFileId] = newMaterial;
+          } else if (existingByFilenameAndTag !== -1) {
+            // Материал уже существует по filename и tag - обновляем его данными из БД и добавляем constructorId
+            const existing = this.materials[existingByFilenameAndTag];
+            this.materials[existingByFilenameAndTag] = {
+              ...existing,
+              ...newMaterial,
+              id: existing.id, // Сохраняем оригинальный ID файла
+              constructorId: constructorId // Добавляем constructorId если его не было
+            } as UploadedFile;
           } else {
-            // Если материал уже существует, обновляем его
-            this.materials[existingIndex] = newMaterial;
+            // Материал действительно новый - добавляем
+            this.materials.push(newMaterial);
           }
         });
 
@@ -1664,7 +1741,34 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                           this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, { headers })
                         );
                         
+                        console.log('📥 Загружены данные drill-grid из БД:', {
+                          constructorId,
+                          filename: file.filename,
+                          cellsCount: Array.isArray((dbData as any).cells) ? (dbData as any).cells.length : 'not array',
+                          cellsType: typeof (dbData as any).cells,
+                          cellsSample: Array.isArray((dbData as any).cells) && (dbData as any).cells.length > 0 
+                            ? (dbData as any).cells[0] 
+                            : (dbData as any).cells
+                        });
+                        
                         // Используем данные из БД
+                        let cellsData = (dbData as any).cells || [];
+                        if (!Array.isArray(cellsData)) {
+                          console.warn('⚠️ cells из БД не является массивом, преобразуем:', {
+                            constructorId,
+                            filename: file.filename,
+                            cellsType: typeof cellsData
+                          });
+                          cellsData = [];
+                        }
+                        
+                        console.log('📥 Загружены данные drill-grid из БД (loadFiles):', {
+                          constructorId,
+                          filename: file.filename,
+                          cellsCount: cellsData.length,
+                          cellsSample: cellsData.length > 0 ? cellsData[0] : 'empty'
+                        });
+                        
                         return {
                           ...file,
                           drillGridData: {
@@ -1672,10 +1776,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                             data: {
                               id: (dbData as any).id,
                               name: file.filename,
-                              rows: (dbData as any).rows,
-                              columns: (dbData as any).columns,
-                              cells: (dbData as any).cells,
-                              settings: (dbData as any).settings,
+                              rows: (dbData as any).rows || [],
+                              columns: (dbData as any).columns || [],
+                              cells: cellsData,
+                              settings: (dbData as any).settings || null,
                               constructorId: constructorId
                             }
                           },
@@ -3430,19 +3534,52 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       }));
     }
     
-    // Если cells в формате объекта { "0_1": "value" }, преобразуем в массив
+    // Если cells в формате объекта { "0-0": "value" } или { "0_1": "value" }, преобразуем в массив
     if (cells && typeof cells === 'object' && !Array.isArray(cells)) {
       cells = Object.keys(cells).map(key => {
-        const [rowIdx, colIdx] = key.split('_').map(Number);
+        // Поддерживаем оба формата: "0-0" (дефис) и "0_1" (подчеркивание)
+        let rowIdx: number, colIdx: number;
+        if (key.includes('-')) {
+          [rowIdx, colIdx] = key.split('-').map(Number);
+        } else if (key.includes('_')) {
+          [rowIdx, colIdx] = key.split('_').map(Number);
+        } else {
+          // Если формат не распознан, пропускаем эту ячейку
+          console.warn('⚠️ Неизвестный формат ключа ячейки:', key);
+          return null;
+        }
+        
+        const cellValue = cells[key];
+        const content = typeof cellValue === 'string' ? cellValue : (cellValue?.content || '');
+        
         return {
           rowId: `row_${rowIdx}`,
           colId: `col_${colIdx}`,
-          content: cells[key] || '',
-          correctAnswer: undefined,
-          hints: [],
+          content: content,
+          correctAnswer: typeof cellValue === 'object' && cellValue?.correctAnswer ? cellValue.correctAnswer : undefined,
+          hints: typeof cellValue === 'object' && cellValue?.hints ? cellValue.hints : [],
           difficulty: undefined as 'easy' | 'medium' | 'hard' | undefined
         };
-      });
+      }).filter(cell => cell !== null); // Убираем null значения
+    }
+    
+    // Если cells уже массив, убеждаемся что он в правильном формате
+    if (Array.isArray(cells)) {
+      cells = cells.map((cell: any) => {
+        // Если ячейка уже в правильном формате, возвращаем как есть
+        if (cell && typeof cell === 'object' && 'rowId' in cell && 'colId' in cell) {
+          return {
+            rowId: cell.rowId,
+            colId: cell.colId,
+            content: cell.content || '',
+            correctAnswer: cell.correctAnswer,
+            hints: cell.hints || [],
+            difficulty: cell.difficulty
+          };
+        }
+        // Если формат не распознан, возвращаем null
+        return null;
+      }).filter(cell => cell !== null);
     }
     
     const drillGridPayload = {
