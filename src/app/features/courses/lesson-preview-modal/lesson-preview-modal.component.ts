@@ -79,13 +79,32 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
     this.materialAddedListener = ((event: CustomEvent) => {
       if (event.detail && event.detail.material) {
         const material = event.detail.material;
-        // Проверяем, относится ли материал к текущему уроку
-        // Поддерживаем как обычные материалы, так и дополнительные
-        const isRegularMaterial = material.tag === this.data.lessonName;
-        const isSupplementaryMaterial = material.tag && material.tag.includes('_supplementary') && 
-          material.tag.replace('_supplementary', '') === this.data.lessonName;
         
-        if (isRegularMaterial || isSupplementaryMaterial) {
+        // ИСПОЛЬЗУЕМ courseLessonId КАК ОСНОВНОЙ ИДЕНТИФИКАТОР
+        // Поддерживаем many-to-many: один файл может быть привязан к нескольким урокам
+        const materialCourseLessonIds = (material as any).courseLessonIds || [];
+        const materialCourseLessonId = material.courseLessonId; // Для обратной совместимости
+        
+        const hasMatchingCourseLessonId = this.data.courseLessonId && (
+          materialCourseLessonId === this.data.courseLessonId ||
+          materialCourseLessonIds.includes(this.data.courseLessonId)
+        );
+        
+        // Fallback: проверка по тегу (для обратной совместимости)
+        let expectedTag: string;
+        if (this.data.subSection) {
+          // Урок в подсекции - тег должен быть `${subSection}_${lessonName}`
+          expectedTag = `${this.data.subSection}_${this.data.lessonName}`;
+        } else {
+          // Урок без подсекции - тег просто имя урока
+          expectedTag = this.data.lessonName;
+        }
+        
+        const isRegularMaterial = !hasMatchingCourseLessonId && material.tag === expectedTag;
+        const isSupplementaryMaterial = !hasMatchingCourseLessonId && material.tag && material.tag.includes('_supplementary') && 
+          material.tag.replace('_supplementary', '') === expectedTag;
+        
+        if (hasMatchingCourseLessonId || isRegularMaterial || isSupplementaryMaterial) {
           // Добавляем материал в список, если его там еще нет
           if (!this.data.materials.find(m => m.id === material.id)) {
             this.data.materials.push(material);
@@ -100,11 +119,29 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
       if (event.detail && event.detail.oldId && event.detail.newMaterial) {
         const { oldId, newMaterial } = event.detail;
         // Проверяем, относится ли материал к текущему уроку
-        const isRegularMaterial = newMaterial.tag === this.data.lessonName;
-        const isSupplementaryMaterial = newMaterial.tag && newMaterial.tag.includes('_supplementary') && 
-          newMaterial.tag.replace('_supplementary', '') === this.data.lessonName;
+        // ИСПОЛЬЗУЕМ courseLessonId КАК ОСНОВНОЙ ИДЕНТИФИКАТОР
+        // Поддерживаем many-to-many: один файл может быть привязан к нескольким урокам
+        const newMaterialCourseLessonIds = (newMaterial as any).courseLessonIds || [];
+        const newMaterialCourseLessonId = newMaterial.courseLessonId; // Для обратной совместимости
         
-        if (isRegularMaterial || isSupplementaryMaterial) {
+        const hasMatchingCourseLessonId = this.data.courseLessonId && (
+          newMaterialCourseLessonId === this.data.courseLessonId ||
+          newMaterialCourseLessonIds.includes(this.data.courseLessonId)
+        );
+        
+        // Fallback: проверка по тегу (для обратной совместимости)
+        let expectedTag: string;
+        if (this.data.subSection) {
+          expectedTag = `${this.data.subSection}_${this.data.lessonName}`;
+        } else {
+          expectedTag = this.data.lessonName;
+        }
+        
+        const isRegularMaterial = !hasMatchingCourseLessonId && newMaterial.tag === expectedTag;
+        const isSupplementaryMaterial = !hasMatchingCourseLessonId && newMaterial.tag && newMaterial.tag.includes('_supplementary') && 
+          newMaterial.tag.replace('_supplementary', '') === expectedTag;
+        
+        if (hasMatchingCourseLessonId || isRegularMaterial || isSupplementaryMaterial) {
           // Находим материал по старому ID и обновляем его
           const index = this.data.materials.findIndex(m => m.id === oldId);
           if (index !== -1) {
@@ -505,10 +542,18 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
         // Добавляем drill-grid как дополнительный материал
         const material = result.material;
         
+        // Формируем тег с учетом подсекции
+        let tagBase: string;
+        if (this.data.subSection) {
+          tagBase = `${this.data.subSection}_${this.data.lessonName}`;
+        } else {
+          tagBase = this.data.lessonName;
+        }
+        
         // Создаем материал с правильным tag для дополнительных материалов
         const supplementaryMaterial: UploadedFile = {
           ...material,
-          tag: `${this.data.lessonName}_supplementary`,
+          tag: `${tagBase}_supplementary`,
           courseId: this.data.courseId
         };
 

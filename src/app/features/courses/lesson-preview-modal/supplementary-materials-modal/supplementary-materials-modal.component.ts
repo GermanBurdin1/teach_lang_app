@@ -72,6 +72,7 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
   selectedTab: number = 0;
   savedDrillGrids: DrillGrid[] = [];
   loadingDrillGrids: boolean = false;
+  private loadedConstructorIds = new Set<string>(); // Отслеживаем уже загруженные ID для защиты от дубликатов
   
   // В будущем здесь будут другие типы материалов из конструктора
   // savedMindmaps: Mindmap[] = [];
@@ -90,15 +91,25 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
   }
 
   loadDrillGridsFromDB(): void {
+    // Защита от повторных вызовов во время загрузки
+    if (this.loadingDrillGrids) {
+      console.warn('⚠️ Загрузка drill-grids уже выполняется, пропускаем повторный вызов');
+      return;
+    }
+    
     this.loadingDrillGrids = true;
+    // Очищаем массив и Set перед загрузкой, чтобы избежать дубликатов
+    this.savedDrillGrids = [];
+    this.loadedConstructorIds.clear();
+    
+    console.log('🔄 Начало загрузки drill-grids из БД');
+    
     const currentUser = this.authService.getCurrentUser();
     const token = this.authService.getAccessToken();
     
     if (!currentUser?.id || !token) {
       console.error('⚠️ Пользователь не авторизован');
       this.loadingDrillGrids = false;
-      // Fallback к localStorage
-      this.loadSavedDrillGrids();
       return;
     }
 
@@ -126,38 +137,86 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
         
         console.log('✅ Конструкторы загружены из БД:', constructors);
         console.log('📊 Количество конструкторов до фильтрации:', constructors.length);
+        console.log('📋 Полный ответ API (первые 5):', constructors.slice(0, 5));
+        console.log('📋 Все ID конструкторов:', constructors.map(c => c.id));
         
         // Фильтруем по userId текущего залогиненного преподавателя
         if (currentUser.id && constructors.length > 0) {
           const beforeFilter = constructors.length;
+          const userIdsBefore = [...new Set(constructors.map(c => c.userId))];
+          console.log('🔍 Уникальные userId до фильтрации:', userIdsBefore);
+          
           constructors = constructors.filter(c => c.userId === currentUser.id);
           console.log(`🔍 Фильтрация по userId текущего преподавателя (${currentUser.id}): ${beforeFilter} -> ${constructors.length} конструкторов`);
+          
+          if (constructors.length !== beforeFilter) {
+            const wrongUserIds = constructors.filter(c => c.userId !== currentUser.id);
+            if (wrongUserIds.length > 0) {
+              console.error('❌ ОШИБКА: После фильтрации остались конструкторы с другим userId!', wrongUserIds);
+            }
+          }
         }
         
         console.log('📊 Количество конструкторов после фильтрации:', constructors.length);
-        console.log('📋 Полный ответ API:', response);
+        console.log('📋 ID конструкторов после фильтрации:', constructors.map(c => c.id));
         
         if (!constructors || constructors.length === 0) {
           console.warn('⚠️ Конструкторы не найдены после фильтрации');
           this.loadingDrillGrids = false;
-          // Fallback к localStorage
-          this.loadSavedDrillGrids();
           return;
         }
 
-        // Загружаем drill-grid данные для каждого конструктора
-        const drillGridPromises = constructors.map(constructor => 
+        // Убираем дубликаты конструкторов по ID перед загрузкой drill-grid данных
+        const constructorIds = constructors.map(c => c.id);
+        const duplicateIds = constructorIds.filter((id, index) => constructorIds.indexOf(id) !== index);
+        if (duplicateIds.length > 0) {
+          console.error('❌ ОБНАРУЖЕНЫ ДУБЛИКАТЫ конструкторов по ID:', duplicateIds);
+        }
+        
+        const uniqueConstructors = Array.from(
+          new Map(constructors.map(c => [c.id, c])).values()
+        );
+        console.log(`🔍 Удалены дубликаты конструкторов: ${constructors.length} -> ${uniqueConstructors.length}`);
+        console.log('📋 Уникальные ID конструкторов:', uniqueConstructors.map(c => c.id));
+
+        // Загружаем drill-grid данные для каждого уникального конструктора
+        // Используем Promise.allSettled чтобы не прерывать загрузку при ошибке одного элемента
+        const drillGridPromises = uniqueConstructors.map(constructor => 
           this.loadDrillGridData(constructor.id, constructor, headers)
         );
 
-        Promise.all(drillGridPromises).then(() => {
+        Promise.allSettled(drillGridPromises).then((results) => {
+          const successful = results.filter(r => r.status === 'fulfilled').length;
+          const failed = results.filter(r => r.status === 'rejected').length;
+          console.log(`📊 Результаты загрузки: успешно ${successful}, ошибок ${failed}`);
+          
           this.loadingDrillGrids = false;
-          console.log('✅ Все drill-grids загружены:', this.savedDrillGrids.length);
-        }).catch(error => {
-          console.error('❌ Ошибка при загрузке drill-grids:', error);
-          this.loadingDrillGrids = false;
-          // Fallback к localStorage при ошибке
-          this.loadSavedDrillGrids();
+          console.log('✅ Все drill-grids загружены из БД:', this.savedDrillGrids.length);
+          
+          // СТРОГАЯ проверка на дубликаты по ID перед финальным сохранением
+          const allIds = this.savedDrillGrids.map(g => g.id);
+          const duplicateIds = allIds.filter((id, index) => allIds.indexOf(id) !== index);
+          
+          if (duplicateIds.length > 0) {
+            console.error(`❌ КРИТИЧЕСКАЯ ОШИБКА: Обнаружены дубликаты drill-grids!`);
+            console.error(`❌ Было: ${this.savedDrillGrids.length}, дубликатов: ${duplicateIds.length}`);
+            console.error('🔍 Дублирующиеся ID:', [...new Set(duplicateIds)]);
+            
+            // Показываем детали дубликатов
+            duplicateIds.forEach(dupId => {
+              const duplicates = this.savedDrillGrids.filter(g => g.id === dupId);
+              console.error(`🔍 Дубликат ID ${dupId}:`, duplicates.map(d => ({ id: d.id, name: d.name, constructorId: d.constructorId })));
+            });
+          }
+          
+          const uniqueGrids = Array.from(
+            new Map(this.savedDrillGrids.map(grid => [grid.id, grid])).values()
+          );
+          
+          this.savedDrillGrids = uniqueGrids;
+          console.log('✅ Drill-grids после удаления дубликатов:', this.savedDrillGrids.length);
+          console.log('📋 Финальный список ID:', this.savedDrillGrids.map(g => g.id));
+          console.log('📋 Финальный список названий:', this.savedDrillGrids.map(g => g.name));
         });
       },
       error: (error) => {
@@ -168,8 +227,6 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
           error: error.error
         });
         this.loadingDrillGrids = false;
-        // Fallback к localStorage при ошибке
-        this.loadSavedDrillGrids();
       }
     });
   }
@@ -177,9 +234,54 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
 
   loadDrillGridData(constructorId: string, constructor: ConstructorFromDB, headers: HttpHeaders): Promise<void> {
     return new Promise((resolve, reject) => {
+      // СТРОГАЯ проверка: не загружаем ли мы уже этот конструктор (защита от race condition)
+      if (this.loadedConstructorIds.has(constructorId)) {
+        console.warn(`⚠️ [${constructorId}] Уже в Set загружаемых, пропускаем`);
+        resolve();
+        return;
+      }
+      
+      // СТРОГАЯ проверка: не существует ли уже в массиве
+      const existingInArray = this.savedDrillGrids.findIndex(g => g.id === constructorId);
+      if (existingInArray !== -1) {
+        console.warn(`⚠️ [${constructorId}] Уже существует в массиве на позиции ${existingInArray}, пропускаем`);
+        resolve();
+        return;
+      }
+      
+      // Помечаем как загружаемый
+      this.loadedConstructorIds.add(constructorId);
+      console.log(`📥 [${constructorId}] Начинаем загрузку drill-grid данных`);
+      
       this.http.get<DrillGridFromDB>(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, { headers }).subscribe({
         next: (drillGridData) => {
-          console.log(`✅ Drill-grid данные загружены для конструктора ${constructorId}:`, drillGridData);
+          console.log(`✅ [${constructorId}] Drill-grid данные получены`, { 
+            purpose: drillGridData.purpose,
+            hasRows: !!drillGridData.rows,
+            rowsCount: drillGridData.rows?.length || 0
+          });
+          
+          // ИСКЛЮЧАЕМ homework drill-grids - показываем только info drill-grids
+          if (drillGridData.purpose === 'homework') {
+            console.log(`⚠️ [${constructorId}] Пропускаем homework drill-grid (purpose: homework)`);
+            resolve();
+            return;
+          }
+          
+          // ПРОВЕРКА: если нет данных rows/columns, значит drill-grid не создан (только конструктор)
+          if (!drillGridData.rows || !drillGridData.columns || drillGridData.rows.length === 0 || drillGridData.columns.length === 0) {
+            console.log(`⚠️ [${constructorId}] Пропускаем конструктор без данных drill-grid (нет rows/columns)`);
+            resolve();
+            return;
+          }
+          
+          // ФИНАЛЬНАЯ проверка перед добавлением (на случай race condition)
+          const finalCheck = this.savedDrillGrids.findIndex(g => g.id === constructorId);
+          if (finalCheck !== -1) {
+            console.error(`❌ [${constructorId}] КРИТИЧЕСКАЯ ОШИБКА: Drill-grid уже существует в массиве на позиции ${finalCheck} перед добавлением!`);
+            resolve();
+            return;
+          }
           
           // Преобразуем данные из БД в формат DrillGrid
           const drillGrid: DrillGrid = {
@@ -193,11 +295,19 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
           };
 
           this.savedDrillGrids.push(drillGrid);
+          console.log(`✅ [${constructorId}] Добавлен в массив. Всего теперь: ${this.savedDrillGrids.length}`);
           resolve();
         },
         error: (error) => {
-          console.error(`❌ Ошибка загрузки drill-grid данных для конструктора ${constructorId}:`, error);
-          reject(error);
+          // Если drill-grid не найден (404), значит конструктор есть, но данных drill-grid нет
+          if (error.status === 404) {
+            console.log(`⚠️ [${constructorId}] Конструктор существует, но drill-grid данных нет (404)`);
+          } else {
+            console.error(`❌ [${constructorId}] Ошибка загрузки drill-grid данных:`, error);
+          }
+          // Удаляем из Set при ошибке
+          this.loadedConstructorIds.delete(constructorId);
+          resolve(); // Используем resolve вместо reject, чтобы Promise.allSettled не прерывался
         }
       });
     });
@@ -217,28 +327,13 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
     return result;
   }
 
-  loadSavedDrillGrids(): void {
-    // Fallback: загружаем из localStorage если БД недоступна
-    const saved = localStorage.getItem('savedDrillGrids');
-    if (saved) {
-      try {
-        this.savedDrillGrids = JSON.parse(saved).map((grid: any) => ({
-          ...grid,
-          createdAt: new Date(grid.createdAt)
-        }));
-      } catch (e) {
-        console.error('Error loading saved drill-grids from localStorage:', e);
-        this.savedDrillGrids = [];
-      }
-    }
-  }
-
   selectDrillGrid(grid: DrillGrid): void {
-    // Если есть constructorId, загружаем данные из БД
+    // Всегда загружаем данные из БД по constructorId
     if (grid.constructorId) {
       this.loadDrillGridFromDB(grid.constructorId, grid);
     } else {
-      // Используем данные из localStorage (fallback)
+      console.error('⚠️ Drill-grid не имеет constructorId, невозможно загрузить из БД');
+      // Если нет constructorId, используем данные из grid (но это не должно происходить)
       this.createMaterialFromDrillGrid(grid);
     }
   }
@@ -248,9 +343,7 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
     const token = this.authService.getAccessToken();
     
     if (!currentUser?.id || !token) {
-      console.error('⚠️ Пользователь не авторизован');
-      // Fallback к данным из grid
-      this.createMaterialFromDrillGrid(grid);
+      console.error('⚠️ Пользователь не авторизован, невозможно загрузить drill-grid из БД');
       return;
     }
 
@@ -277,8 +370,7 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Ошибка загрузки drill-grid из БД:', error);
-        // Fallback к данным из grid
-        this.createMaterialFromDrillGrid(grid);
+        // Не используем fallback, только БД
       }
     });
   }

@@ -12,6 +12,8 @@ export interface UploadedFile {
   createdAt: string;
   tag?: string;
   description?: string;
+  courseLessonId?: string; // ID урока курса (course_lessons.id) - для обратной совместимости (первый урок)
+  courseLessonIds?: string[]; // Массив ID уроков курса - many-to-many связь
 }
 
 @Injectable({
@@ -41,13 +43,16 @@ export class FileUploadService {
     );
   }
 
-  uploadFileAsCourse(file: File, courseId: string, tag?: string): Observable<{ id: number; url: string; createdAt: string }> {
+  uploadFileAsCourse(file: File, courseId: string, tag?: string, courseLessonId?: string): Observable<{ id: number; url: string; createdAt: string }> {
     const formData = new FormData();
     formData.append('file', file);
 
     let url = `${this.apiUrl}?courseId=${encodeURIComponent(courseId)}`;
     if (tag) {
       url += `&tag=${encodeURIComponent(tag)}`;
+    }
+    if (courseLessonId) {
+      url += `&courseLessonId=${encodeURIComponent(courseLessonId)}`;
     }
 
     return this.http.post<{ id: number; url: string; createdAt: string }>(
@@ -61,10 +66,10 @@ export class FileUploadService {
     return this.http.get<UploadedFile[]>(`${API_ENDPOINTS.FILES}?courseId=${encodeURIComponent(courseId)}`);
   }
 
-  linkFileToCourse(fileUrl: string, courseId: number, tag?: string): Observable<{ id: number; url: string; createdAt: string }> {
+  linkFileToCourse(fileUrl: string, courseId: number, tag?: string, courseLessonId?: string): Observable<{ id: number; url: string; createdAt: string }> {
     return this.http.post<{ id: number; url: string; createdAt: string }>(
       `${API_ENDPOINTS.FILES}/linkToCourse`,
-      { fileUrl, courseId, tag }
+      { fileUrl, courseId, tag, courseLessonId }
     );
   }
 

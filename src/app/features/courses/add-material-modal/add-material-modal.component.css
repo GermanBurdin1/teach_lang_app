@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin: 1rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #e0e0e0;
 }
@@ -39,14 +39,15 @@
 }
 
 .modal-body {
-  margin-bottom: 2rem;
+  margin: 1rem;
 }
 
 .modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
   padding-top: 1rem;
+  margin: 1rem;
   border-top: 2px solid #e0e0e0;
 }
 
@@ -374,5 +375,3 @@
   font-size: 2rem;
   color: var(--galaxy-primary);
 }
-
-

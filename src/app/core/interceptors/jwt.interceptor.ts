@@ -19,9 +19,9 @@ export class JwtInterceptor implements HttpInterceptor {
     // Добавляем токен к запросу, если он есть
     const token = this.authService.getAccessToken();
     
-    console.log('[JwtInterceptor] Request URL:', req.url);
-    console.log('[JwtInterceptor] Token exists:', !!token);
-    console.log('[JwtInterceptor] Token value:', token ? `${token.substring(0, 20)}...` : 'null');
+    //console.log('[JwtInterceptor] Request URL:', req.url);
+    //console.log('[JwtInterceptor] Token exists:', !!token);
+    //console.log('[JwtInterceptor] Token value:', token ? `${token.substring(0, 20)}...` : 'null');
     
     // Исключаем публичные эндпоинты из добавления Authorization заголовка
     const isPublicEndpoint = req.url.includes('/auth/login') || 
@@ -39,11 +39,11 @@ export class JwtInterceptor implements HttpInterceptor {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log('[JwtInterceptor] Authorization header added');
+      //console.log('[JwtInterceptor] Authorization header added');
     } else if (isPublicEndpoint) {
-      console.log('[JwtInterceptor] Public endpoint, skipping Authorization header');
+      //console.log('[JwtInterceptor] Public endpoint, skipping Authorization header');
     } else {
-      console.log('[JwtInterceptor] No token available, request will be sent without Authorization header');
+      //console.log('[JwtInterceptor] No token available, request will be sent without Authorization header');
     }
 
     return next.handle(req).pipe(
@@ -57,11 +57,11 @@ export class JwtInterceptor implements HttpInterceptor {
           return throwError(() => error);
         }
         
-        console.log('[JwtInterceptor] Request failed:', {
-          url: req.url,
-          status: error.status,
-          statusText: error.statusText
-        });
+        //console.log('[JwtInterceptor] Request failed:', {
+        //  url: req.url,
+        //  status: error.status,
+        //  statusText: error.statusText
+        //});
         
         // Если получили 401 ошибку, пытаемся обновить токен
         if (error.status === 401 && token && !this.refreshInProgress && !this.retryRequests.has(req.url)) {
@@ -71,8 +71,8 @@ export class JwtInterceptor implements HttpInterceptor {
           
           return this.authService.refreshToken().pipe(
             switchMap((tokenResponse) => {
-              console.log('[JwtInterceptor] Token refresh successful, retrying request');
-              console.log('[JwtInterceptor] New access token:', tokenResponse.access_token ? tokenResponse.access_token.substring(0, 20) + '...' : 'null');
+              //console.log('[JwtInterceptor] Token refresh successful, retrying request');
+              //console.log('[JwtInterceptor] New access token:', tokenResponse.access_token ? tokenResponse.access_token.substring(0, 20) + '...' : 'null');
               this.refreshInProgress = false;
               this.retryRequests.clear(); // Очищаем список повторённых запросов после успешного обновления токена
               // Обновляем токен
