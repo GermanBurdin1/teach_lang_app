@@ -39,6 +39,7 @@ export interface DrillGridCell {
 export interface DrillGrid {
   id: string;
   name: string;
+  editName?: string; // Временное поле для инлайн-редактирования названия
   rows: Array<{ id: string; label: string }> | string[]; // Поддержка старого формата
   columns: Array<{ id: string; label: string }> | string[]; // Поддержка старого формата
   cells: DrillGridCell[] | { [key: string]: string }; // Поддержка старого формата
@@ -108,6 +109,7 @@ export class CreateMindmapComponent implements OnInit {
   viewingDrillGrid: DrillGrid | null = null; // Drill-grid в режиме просмотра
   drillGridPurpose: 'info' | 'homework' = 'info'; // Purpose текущего drill-grid
   matrixViewMode: 'config' | 'preview' = 'config'; // Режим просмотра: конфигурация или финальный просмотр
+  renamingGridId: string | null = null;
   
   // Matrix configuration
   numRows: number = 3;
@@ -177,6 +179,53 @@ export class CreateMindmapComponent implements OnInit {
     // Загружаем сохраненные drill-grids из localStorage
     this.loadSavedDrillGrids();
   }
+
+  // Сохранение нового имени из карточки сохраненных drill-grids
+  saveGridName(grid: DrillGrid): void {
+    const newName = (grid as any).editName ? (grid as any).editName.trim() : '';
+    const constructorId = grid.constructorId || grid.id;
+
+    if (!newName) {
+      this.notificationService.error('Veuillez saisir un nom pour la drill-grid');
+      return;
+    }
+    if (!constructorId) {
+      this.notificationService.error('ID du constructeur manquant');
+      return;
+    }
+
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    this.renamingGridId = constructorId;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    // Обновляем название конструктора (источник правды для имени)
+    this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, { title: newName }, { headers }).subscribe({
+      next: () => {
+        // Обновляем локально имя карточки
+        grid.name = newName;
+        (grid as any).editName = newName;
+
+        // Перезагружаем список из БД, чтобы синхронизировать все поля
+        this.loadSavedDrillGrids();
+        this.notificationService.success('Nom mis à jour');
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la mise à jour du nom du constructeur:', error);
+        this.notificationService.error('Erreur lors de la mise à jour du nom');
+      },
+      complete: () => {
+        this.renamingGridId = null;
+      }
+    });
+  }
   
   initializeDrillGrid(): void {
     // Инициализируем матрицу с пустыми строками и столбцами
@@ -209,9 +258,11 @@ export class CreateMindmapComponent implements OnInit {
             .filter((dg: any) => dg && !dg.error)
             .map((dg: any) => {
               const constructor = dg.constructorRef || {};
+              const displayName = constructor.title || 'Sans nom';
               return {
                 id: dg.id,
-                name: constructor.title || 'Sans nom',
+                name: displayName,
+                editName: displayName,
                 rows: dg.rows || [],
                 columns: dg.columns || [],
                 cells: dg.cells || [],
@@ -553,6 +604,9 @@ export class CreateMindmapComponent implements OnInit {
           next: (updatedDrillGrid: any) => {
             console.log('✅ Drill-grid обновлен:', updatedDrillGrid);
             
+        // После обновления конструктора и drill-grid перезагружаем список, чтобы подтянуть новое имя
+        this.loadSavedDrillGrids();
+        
             // Обновляем локальный массив savedDrillGrids
             const index = this.savedDrillGrids.findIndex(g => g.id === constructorId || g.constructorId === constructorId);
             if (index !== -1) {
@@ -560,6 +614,7 @@ export class CreateMindmapComponent implements OnInit {
               const updatedGrid: DrillGrid = {
                 ...this.savedDrillGrids[index],
                 name: this.drillGridName,
+            editName: this.drillGridName,
                 rows: rows,
                 columns: columns,
                 cells: cells,
@@ -567,9 +622,6 @@ export class CreateMindmapComponent implements OnInit {
               };
             this.savedDrillGrids[index] = updatedGrid;
             }
-            
-            // Перезагружаем список с сервера для синхронизации
-            this.loadSavedDrillGrids();
             
             this.notificationService.success(`Drill-grid "${this.drillGridName}" mise à jour avec succès!`);
             this.editingDrillGrid = null;

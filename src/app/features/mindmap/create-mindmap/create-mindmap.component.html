@@ -43,7 +43,12 @@
                 <div class="grids-grid">
                   <div class="saved-grid-card" *ngFor="let grid of filteredDrillGrids" [class.homework-grid]="grid.type === 'homework'">
                     <div class="grid-card-header">
-                      <h5>{{ grid.name }}</h5>
+                      <div class="grid-name-edit">
+                        <input matInput [(ngModel)]="grid.editName" [placeholder]="grid.name" class="grid-name-input">
+                        <button mat-icon-button color="primary" (click)="saveGridName(grid)" [disabled]="!grid.editName || !grid.editName.trim()">
+                          <mat-icon>save</mat-icon>
+                        </button>
+                      </div>
                       <mat-chip [class]="grid.type === 'info' ? 'info-chip' : 'homework-chip'">
                         {{ grid.type === 'info' ? 'Information' : 'Devoir' }}
                       </mat-chip>
@@ -94,7 +99,12 @@
                 <div class="grids-grid">
                   <div class="saved-grid-card" *ngFor="let grid of infoDrillGrids">
                     <div class="grid-card-header">
-                      <h5>{{ grid.name }}</h5>
+                      <div class="grid-name-edit">
+                        <input matInput [(ngModel)]="grid.editName" [placeholder]="grid.name" class="grid-name-input">
+                        <button mat-icon-button color="primary" (click)="saveGridName(grid)" [disabled]="!grid.editName || !grid.editName.trim()">
+                          <mat-icon>save</mat-icon>
+                        </button>
+                      </div>
                       <mat-chip class="info-chip">Information</mat-chip>
                     </div>
                     <div class="grid-card-actions">
@@ -139,7 +149,12 @@
                 <div class="grids-grid">
                   <div class="saved-grid-card homework-grid" *ngFor="let grid of homeworkDrillGrids">
                     <div class="grid-card-header">
-                      <h5>{{ grid.name }}</h5>
+                      <div class="grid-name-edit">
+                        <input matInput [(ngModel)]="grid.editName" [placeholder]="grid.name" class="grid-name-input">
+                        <button mat-icon-button color="primary" (click)="saveGridName(grid)" [disabled]="!grid.editName || !grid.editName.trim()">
+                          <mat-icon>save</mat-icon>
+                        </button>
+                      </div>
                       <mat-chip class="homework-chip">Devoir</mat-chip>
                     </div>
                     <div class="grid-card-actions">
