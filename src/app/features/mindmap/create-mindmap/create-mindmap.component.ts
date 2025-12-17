@@ -229,68 +229,14 @@ export class CreateMindmapComponent implements OnInit {
           this.savedDrillGrids = loadedGrids;
         } else {
           console.log('ℹ️ Нет drill-grids для загрузки');
-          // Fallback на localStorage
-          this.loadFromLocalStorage(userId);
+          this.savedDrillGrids = [];
         }
       },
       error: (error) => {
         console.error('❌ Ошибка загрузки drill-grids:', error);
-        // Fallback на localStorage если БД недоступна
-        this.loadFromLocalStorage(userId);
+        this.savedDrillGrids = [];
       }
     });
-  }
-
-  private loadFromLocalStorage(userId?: string): void {
-    // Загружаем info drill-grids (общие для всех)
-    const savedInfo = localStorage.getItem('savedDrillGrids_info');
-    let infoGrids: DrillGrid[] = [];
-    if (savedInfo) {
-      try {
-        infoGrids = JSON.parse(savedInfo).map((grid: any) => ({
-          ...grid,
-          createdAt: new Date(grid.createdAt),
-          type: 'info' as const
-        }));
-      } catch (e) {
-        console.error('Error loading saved info drill-grids:', e);
-      }
-    }
-    
-    // Загружаем homework drill-grids для текущего пользователя
-    let homeworkGrids: DrillGrid[] = [];
-    if (userId) {
-      const savedHomework = localStorage.getItem(`savedDrillGrids_homework_${userId}`);
-      if (savedHomework) {
-        try {
-          homeworkGrids = JSON.parse(savedHomework).map((grid: any) => ({
-            ...grid,
-            createdAt: new Date(grid.createdAt),
-            type: 'homework' as const
-          }));
-        } catch (e) {
-          console.error('Error loading saved homework drill-grids:', e);
-        }
-      }
-    }
-    
-    this.savedDrillGrids = [...infoGrids, ...homeworkGrids];
-  }
-  
-  saveDrillGrids(): void {
-    const user = this.authService.getCurrentUser();
-    const userId = user?.id?.toString();
-    
-    // Разделяем на info и homework
-    const infoGrids = this.savedDrillGrids.filter(g => g.type === 'info');
-    const homeworkGrids = userId 
-      ? this.savedDrillGrids.filter(g => g.type === 'homework' && g.userId === userId)
-      : [];
-    
-    localStorage.setItem('savedDrillGrids_info', JSON.stringify(infoGrids));
-    if (userId) {
-      localStorage.setItem(`savedDrillGrids_homework_${userId}`, JSON.stringify(homeworkGrids));
-    }
   }
   
   get filteredDrillGrids(): DrillGrid[] {
@@ -508,22 +454,6 @@ export class CreateMindmapComponent implements OnInit {
         this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, drillGridPayload, { headers }).subscribe({
           next: (drillGrid: any) => {
             console.log('✅ Drill-grid сохранен в БД:', drillGrid);
-            
-            // Сохраняем также в localStorage для обратной совместимости
-            const newGrid: DrillGrid = {
-              id: constructorId,
-              name: this.drillGridName,
-              rows: [...this.drillGridRows],
-              columns: [...this.drillGridColumns],
-              cells: { ...this.drillGridCells },
-              createdAt: new Date(),
-              type: 'info',
-              userId: userId
-            };
-            
-            this.savedDrillGrids.push(newGrid);
-            this.saveDrillGrids();
-            
             this.notificationService.success(`Drill-grid "${this.drillGridName}" sauvegardée avec succès!`);
             this.drillGridName = '';
             this.editingDrillGrid = null;
@@ -531,6 +461,9 @@ export class CreateMindmapComponent implements OnInit {
             this.drillGridCells = {};
             this.drillGridRows = [];
             this.drillGridColumns = [];
+
+            // Обновляем список из БД, чтобы "Mes drill-grids sauvegardées" показывал свежие данные
+            this.loadSavedDrillGrids();
           },
           error: (error) => {
             console.error('❌ Ошибка сохранения drill-grid в БД:', error);
@@ -632,8 +565,7 @@ export class CreateMindmapComponent implements OnInit {
                 cells: cells,
                 purpose: this.drillGridPurpose as 'info' | 'homework'
               };
-              this.savedDrillGrids[index] = updatedGrid;
-              this.saveDrillGrids();
+            this.savedDrillGrids[index] = updatedGrid;
             }
             
             // Перезагружаем список с сервера для синхронизации
@@ -780,7 +712,6 @@ export class CreateMindmapComponent implements OnInit {
             };
             
             this.savedDrillGrids.push(duplicatedGrid);
-            this.saveDrillGrids();
             
             this.notificationService.success(`Drill-grid "${duplicatedGrid.name}" dupliquée avec succès!`);
           },
@@ -1210,7 +1141,6 @@ export class CreateMindmapComponent implements OnInit {
   deleteDrillGrid(gridId: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette drill-grid?')) {
       this.savedDrillGrids = this.savedDrillGrids.filter(g => g.id !== gridId);
-      this.saveDrillGrids();
     }
   }
   
