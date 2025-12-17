@@ -1607,7 +1607,6 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             let lessonName = '';
             let section = '';
             let subSection: string | null = null;
-            let tag = '';
 
             // Если конструктор привязан к уроку, проверяем, существует ли урок
             if (constructor.courseLessonId) {
@@ -1620,14 +1619,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               lessonName = lessonInfo.lessonName;
               section = lessonInfo.section;
               subSection = lessonInfo.subSection;
-              // Формируем тег с учетом подсекции
-              if (subSection) {
-                tag = `${subSection}_${lessonName}_supplementary`;
-              } else {
-                tag = `${lessonName}_supplementary`;
-              }
+              // НЕ формируем тег - используем только courseLessonId
             }
-            // Если courseLessonId нет - материал будет без тега (попадет в "Matériaux sans section")
+            // Если courseLessonId нет - материал будет без courseLessonId (попадет в "Matériaux sans section")
 
             // Проверяем, есть ли уже материал с таким constructorId
             const existingMaterial = this.materials.find(m => 
@@ -1662,8 +1656,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                   }
                 },
                 constructorId: constructor.id,
-                courseLessonId: constructor.courseLessonId || null,
-                tag: tag // Обновляем тег на основе данных из БД
+                courseLessonId: constructor.courseLessonId || null
+                // НЕ используем тег - только courseLessonId
               } as UploadedFile;
               
               console.log('✅ Обновлен материал с данными из БД:', {
@@ -1698,7 +1692,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               mimetype: 'application/json',
               courseId: this.courseId!,
               createdAt: constructor.createdAt || new Date().toISOString(),
-              tag: tag, // Будет пустым, если конструктор не привязан к уроку (попадет в "Matériaux sans section")
+              // НЕ используем тег - только courseLessonId
               description: constructor.description || `Drill-grid: ${drillGridResponse.rows?.length || 0} lignes × ${drillGridResponse.columns?.length || 0} colonnes`,
               drillGridData: {
                 type: 'drill_grid',
@@ -3739,7 +3733,6 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
     console.log('💾 Сохранение drill-grid в БД:', {
       filename: material.filename,
-      tag: material.tag,
       courseId: this.courseId,
       courseLessonId: courseLessonId,
       constructorId: constructorId,
@@ -3929,15 +3922,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
             console.log('💾 Конструктор сохранен (БЕЗ создания файла в таблице files):', {
               filename: material.filename,
-              tag: material.tag,
               courseId: this.courseId,
+              courseLessonId: (material as any).courseLessonId,
               constructorId: actualId
             });
 
             // Конструкторы хранятся ТОЛЬКО в таблице constructors, НЕ в files
-            // Обновляем материал в локальном массиве
+            // Обновляем материал в локальном массиве (используем только courseLessonId и constructorId, БЕЗ тега)
+            const materialCourseLessonId = (material as any).courseLessonId;
             const index = this.materials.findIndex(m => 
-              m.id === material.id || (m.filename === material.filename && m.tag === material.tag)
+              m.id === material.id || 
+              ((m as any).constructorId === actualId && (m as any).courseLessonId === materialCourseLessonId)
             );
             
             const updatedMaterial: UploadedFile = {
@@ -3958,11 +3953,11 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             }
             
             console.log(`📦 Всего материалов после сохранения: ${this.materials.length}`);
-            console.log(`📦 Материалы с тегом "${material.tag}":`, 
-              this.materials.filter(m => m.tag === material.tag).map(m => ({
+            console.log(`📦 Материалы с courseLessonId "${courseLessonId}":`, 
+              this.materials.filter(m => (m as any).courseLessonId === courseLessonId).map(m => ({
                 id: m.id,
                 filename: m.filename,
-                tag: m.tag,
+                courseLessonId: (m as any).courseLessonId,
                 hasDrillGridData: !!(m as any).drillGridData,
                 constructorId: (m as any).constructorId
               }))
@@ -4056,11 +4051,11 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       next: (updatedConstructor: any) => {
         console.log('✅ Конструктор обновлен:', updatedConstructor);
         
-        // Обновляем материал в локальном массиве
+        // Обновляем материал в локальном массиве (используем только courseLessonId и constructorId, БЕЗ тега)
         const index = this.materials.findIndex(m => 
           (m as any).constructorId === constructorId || 
           m.id === material.id || 
-          (m.filename === material.filename && m.tag === material.tag)
+          ((m as any).courseLessonId === courseLessonId && (m as any).constructorId === constructorId)
         );
         
         const updatedMaterial: UploadedFile = {

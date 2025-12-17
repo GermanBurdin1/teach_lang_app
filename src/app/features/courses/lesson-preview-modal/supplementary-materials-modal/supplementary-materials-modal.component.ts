@@ -379,7 +379,7 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
     // Используем constructorId из grid, если он есть, иначе используем переданный параметр
     const finalConstructorId = grid.constructorId || constructorId;
     
-    // Создаем материал из drill-grid
+    // Создаем материал из drill-grid БЕЗ ТЕГА - только courseLessonId
     const material: UploadedFile = {
       id: Date.now(),
       filename: grid.name,
@@ -387,7 +387,7 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
       mimetype: 'application/json',
       courseId: this.data.courseId,
       createdAt: new Date().toISOString(),
-      tag: `${this.data.lesson}_supplementary`,
+      // НЕ используем tag - только courseLessonId
       description: `Drill-grid: ${grid.rows.length} lignes × ${grid.columns.length} colonnes`
     };
 
@@ -409,7 +409,7 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
       ...material,
       drillGridData: drillGridData,
       constructorId: finalConstructorId, // Также сохраняем на уровне материала
-      courseLessonId: this.data.courseLessonId // Сохраняем ID урока для связи с конструктором
+      courseLessonId: this.data.courseLessonId // Сохраняем ID урока для связи с конструктором (ОСНОВНОЙ ИДЕНТИФИКАТОР)
     } as UploadedFile;
 
     this.dialogRef.close({

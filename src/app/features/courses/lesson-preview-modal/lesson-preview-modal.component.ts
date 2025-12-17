@@ -35,18 +35,50 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
   isFullscreen = false;
   private materialAddedListener?: EventListener;
   
-  // Получить дополнительные материалы (с tag содержащим _supplementary)
+  // Получить дополнительные материалы (конструкторы: drill-grid, mindmap и т.д.)
+  // Определяем по наличию constructorId или drillGridData
   get supplementaryMaterials(): UploadedFile[] {
-    return this.data.materials.filter(material => 
-      material.tag && material.tag.includes('_supplementary')
-    );
+    return this.data.materials.filter(material => {
+      // Проверяем, что материал привязан к текущему уроку по courseLessonId
+      const materialCourseLessonId = (material as any).courseLessonId;
+      const materialCourseLessonIds = Array.isArray((material as any).courseLessonIds) ? (material as any).courseLessonIds : [];
+      
+      const hasMatchingCourseLessonId = this.data.courseLessonId && (
+        materialCourseLessonId === this.data.courseLessonId ||
+        materialCourseLessonIds.includes(this.data.courseLessonId)
+      );
+      
+      // Материал является дополнительным (конструктором), если:
+      // 1. Привязан к текущему уроку по courseLessonId
+      // 2. Имеет constructorId или drillGridData
+      return hasMatchingCourseLessonId && (
+        !!(material as any).constructorId || 
+        !!(material as any).drillGridData ||
+        material.mimetype === 'application/json' // JSON файлы обычно конструкторы
+      );
+    });
   }
   
-  // Получить обычные материалы (без _supplementary в tag)
+  // Получить обычные материалы (не конструкторы)
   get regularMaterials(): UploadedFile[] {
-    return this.data.materials.filter(material => 
-      !material.tag || !material.tag.includes('_supplementary')
-    );
+    return this.data.materials.filter(material => {
+      // Проверяем, что материал привязан к текущему уроку по courseLessonId
+      const materialCourseLessonId = (material as any).courseLessonId;
+      const materialCourseLessonIds = Array.isArray((material as any).courseLessonIds) ? (material as any).courseLessonIds : [];
+      
+      const hasMatchingCourseLessonId = this.data.courseLessonId && (
+        materialCourseLessonId === this.data.courseLessonId ||
+        materialCourseLessonIds.includes(this.data.courseLessonId)
+      );
+      
+      // Материал является обычным, если:
+      // 1. Привязан к текущему уроку по courseLessonId
+      // 2. НЕ является конструктором (нет constructorId и drillGridData)
+      return hasMatchingCourseLessonId && 
+        !(material as any).constructorId && 
+        !(material as any).drillGridData &&
+        material.mimetype !== 'application/json';
+    });
   }
 
   constructor(
@@ -90,21 +122,8 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
           materialCourseLessonIds.includes(this.data.courseLessonId)
         );
         
-        // Fallback: проверка по тегу (для обратной совместимости)
-        let expectedTag: string;
-        if (this.data.subSection) {
-          // Урок в подсекции - тег должен быть `${subSection}_${lessonName}`
-          expectedTag = `${this.data.subSection}_${this.data.lessonName}`;
-        } else {
-          // Урок без подсекции - тег просто имя урока
-          expectedTag = this.data.lessonName;
-        }
-        
-        const isRegularMaterial = !hasMatchingCourseLessonId && material.tag === expectedTag;
-        const isSupplementaryMaterial = !hasMatchingCourseLessonId && material.tag && material.tag.includes('_supplementary') && 
-          material.tag.replace('_supplementary', '') === expectedTag;
-        
-        if (hasMatchingCourseLessonId || isRegularMaterial || isSupplementaryMaterial) {
+        // ТОЛЬКО по courseLessonId - без fallback на теги
+        if (hasMatchingCourseLessonId) {
           // Добавляем материал в список, если его там еще нет
           if (!this.data.materials.find(m => m.id === material.id)) {
             this.data.materials.push(material);
@@ -129,19 +148,8 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
           newMaterialCourseLessonIds.includes(this.data.courseLessonId)
         );
         
-        // Fallback: проверка по тегу (для обратной совместимости)
-        let expectedTag: string;
-        if (this.data.subSection) {
-          expectedTag = `${this.data.subSection}_${this.data.lessonName}`;
-        } else {
-          expectedTag = this.data.lessonName;
-        }
-        
-        const isRegularMaterial = !hasMatchingCourseLessonId && newMaterial.tag === expectedTag;
-        const isSupplementaryMaterial = !hasMatchingCourseLessonId && newMaterial.tag && newMaterial.tag.includes('_supplementary') && 
-          newMaterial.tag.replace('_supplementary', '') === expectedTag;
-        
-        if (hasMatchingCourseLessonId || isRegularMaterial || isSupplementaryMaterial) {
+        // ТОЛЬКО по courseLessonId - без fallback на теги
+        if (hasMatchingCourseLessonId) {
           // Находим материал по старому ID и обновляем его
           const index = this.data.materials.findIndex(m => m.id === oldId);
           if (index !== -1) {
@@ -542,19 +550,12 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
         // Добавляем drill-grid как дополнительный материал
         const material = result.material;
         
-        // Формируем тег с учетом подсекции
-        let tagBase: string;
-        if (this.data.subSection) {
-          tagBase = `${this.data.subSection}_${this.data.lessonName}`;
-        } else {
-          tagBase = this.data.lessonName;
-        }
-        
-        // Создаем материал с правильным tag для дополнительных материалов
+        // НЕ формируем тег - используем только courseLessonId
+        // Материал уже имеет courseLessonId из supplementary-materials-modal
         const supplementaryMaterial: UploadedFile = {
           ...material,
-          tag: `${tagBase}_supplementary`,
-          courseId: this.data.courseId
+          courseId: this.data.courseId,
+          courseLessonId: this.data.courseLessonId // Убеждаемся, что courseLessonId установлен
         };
 
         // Проверяем, что материала еще нет в списке (по ID)
@@ -562,13 +563,23 @@ export class LessonPreviewModalComponent implements OnInit, OnDestroy {
         if (!existingMaterial) {
           this.data.materials.push(supplementaryMaterial);
           
-          // НЕ отправляем materialAdded здесь - это вызовет дублирование
-          // Материал будет сохранен на сервер через saveConstructorMaterial в add-course.component
-          // и обновлен через lessonMaterialsUpdated при закрытии модалки
+          // Отправляем событие для сохранения материала на сервер через saveConstructorMaterial
+          // Это нужно для того, чтобы материал был привязан к уроку через courseLessonId
+          window.dispatchEvent(new CustomEvent('materialAdded', {
+            detail: { material: supplementaryMaterial }
+          }));
         } else {
           // Если материал уже есть, обновляем его вместо добавления дубликата
           const index = this.data.materials.indexOf(existingMaterial);
           this.data.materials[index] = supplementaryMaterial;
+          
+          // Отправляем событие обновления материала
+          window.dispatchEvent(new CustomEvent('materialUpdated', {
+            detail: {
+              oldId: existingMaterial.id,
+              newMaterial: supplementaryMaterial
+            }
+          }));
         }
       }
     });
