@@ -140,24 +140,11 @@ export class SupplementaryMaterialsModalComponent implements OnInit {
         console.log('📋 Полный ответ API (первые 5):', constructors.slice(0, 5));
         console.log('📋 Все ID конструкторов:', constructors.map(c => c.id));
         
-        // Фильтруем по userId текущего залогиненного преподавателя
-        if (currentUser.id && constructors.length > 0) {
-          const beforeFilter = constructors.length;
-          const userIdsBefore = [...new Set(constructors.map(c => c.userId))];
-          console.log('🔍 Уникальные userId до фильтрации:', userIdsBefore);
-          
-          constructors = constructors.filter(c => c.userId === currentUser.id);
-          console.log(`🔍 Фильтрация по userId текущего преподавателя (${currentUser.id}): ${beforeFilter} -> ${constructors.length} конструкторов`);
-          
-          if (constructors.length !== beforeFilter) {
-            const wrongUserIds = constructors.filter(c => c.userId !== currentUser.id);
-            if (wrongUserIds.length > 0) {
-              console.error('❌ ОШИБКА: После фильтрации остались конструкторы с другим userId!', wrongUserIds);
-            }
-          }
-        }
-        
-        console.log('📊 Количество конструкторов после фильтрации:', constructors.length);
+        // Фильтруем ТОЛЬКО по courseId (оставляем конструкторы без courseId и для текущего курса)
+        const courseIdNum = Number(this.data.courseId);
+        const beforeFilter = constructors.length;
+        constructors = constructors.filter(c => c.courseId === null || c.courseId === courseIdNum);
+        console.log(`🔍 Фильтрация по courseId (${courseIdNum} или null): ${beforeFilter} -> ${constructors.length}`);
         console.log('📋 ID конструкторов после фильтрации:', constructors.map(c => c.id));
         
         if (!constructors || constructors.length === 0) {

@@ -1009,7 +1009,7 @@
                         <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length > 0"
                           class="materials-grid-mini">
                           <div *ngFor="let material of trainerMaterials" class="material-card-mini"
-                            (click)="addExistingMaterialToCourse(material)">
+                            (click)="addExistingMaterialToCourse(material, selectedSection || undefined, selectedLesson || undefined, selectedSubSection || undefined)">
                             <div class="material-header-mini">
                               <div class="material-type-mini">
                                 <i [class]="getMaterialTypeIcon(material.type)"></i>
