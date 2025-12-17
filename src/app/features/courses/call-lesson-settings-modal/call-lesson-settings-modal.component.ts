@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
@@ -31,7 +31,7 @@ export interface CallLessonSettingsModalData {
   templateUrl: './call-lesson-settings-modal.component.html',
   styleUrls: ['./call-lesson-settings-modal.component.css']
 })
-export class CallLessonSettingsModalComponent implements OnInit {
+export class CallLessonSettingsModalComponent implements OnInit, OnDestroy {
   plannedDurationMinutes: number | null = null;
   description: string = '';
   homeworkItems: any[] = [];
@@ -39,6 +39,7 @@ export class CallLessonSettingsModalComponent implements OnInit {
   materials: UploadedFile[] = [];
   trainerMaterials: Material[] = [];
   loadingTrainerMaterials = false;
+  private materialAddedListener?: EventListener;
 
   constructor(
     public dialogRef: MatDialogRef<CallLessonSettingsModalComponent>,
@@ -68,6 +69,38 @@ export class CallLessonSettingsModalComponent implements OnInit {
     this.loadMaterials();
     // Загружаем материалы из Training
     this.loadTrainerMaterials();
+    
+    // Слушаем событие добавления материала для обновления списка
+    this.materialAddedListener = ((event: CustomEvent) => {
+      if (event.detail && event.detail.material) {
+        const material = event.detail.material;
+        
+        // Проверяем, относится ли материал к текущему уроку по courseLessonId
+        if (this.data.courseLessonId) {
+          const materialCourseLessonId = (material as any).courseLessonId;
+          const rawCourseLessonIds = (material as any).courseLessonIds;
+          const materialCourseLessonIds = Array.isArray(rawCourseLessonIds) ? rawCourseLessonIds : [];
+          
+          const matchesById = materialCourseLessonId === this.data.courseLessonId;
+          const matchesByIds = materialCourseLessonIds.length > 0 && materialCourseLessonIds.includes(this.data.courseLessonId);
+          
+          if (matchesById || matchesByIds) {
+            // Добавляем материал в список, если его там еще нет
+            if (!this.materials.find(m => m.id === material.id)) {
+              this.materials.push(material);
+            }
+          }
+        }
+      }
+    }) as EventListener;
+    window.addEventListener('materialAdded', this.materialAddedListener);
+  }
+  
+  ngOnDestroy(): void {
+    // Удаляем слушатель события при уничтожении компонента
+    if (this.materialAddedListener) {
+      window.removeEventListener('materialAdded', this.materialAddedListener);
+    }
   }
   
   loadTrainerMaterials(): void {
@@ -98,13 +131,33 @@ export class CallLessonSettingsModalComponent implements OnInit {
     
     this.fileUploadService.getFiles(this.data.courseId).subscribe({
       next: (files: UploadedFile[]) => {
-        // Фильтруем материалы по уроку
-        // Материалы привязаны к уроку через tag = lessonName (как в getMaterialsByLesson)
-        const lessonName = this.data.lessonName;
-        this.materials = files.filter((file: UploadedFile) => {
-          // Проверяем, что материал привязан к этому уроку через tag
-          return file.tag === lessonName;
-        });
+        // Фильтруем материалы по уроку используя courseLessonId (как в getMaterialsByLesson)
+        if (this.data.courseLessonId) {
+          // ИСПОЛЬЗУЕМ courseLessonId КАК ОСНОВНОЙ ИДЕНТИФИКАТОР
+          this.materials = files.filter((file: UploadedFile) => {
+            const materialCourseLessonId = (file as any).courseLessonId;
+            const rawCourseLessonIds = (file as any).courseLessonIds;
+            const materialCourseLessonIds = Array.isArray(rawCourseLessonIds) ? rawCourseLessonIds : [];
+            
+            const matchesById = materialCourseLessonId === this.data.courseLessonId;
+            const matchesByIds = materialCourseLessonIds.length > 0 && materialCourseLessonIds.includes(this.data.courseLessonId);
+            
+            return matchesById || matchesByIds;
+          });
+        } else {
+          // FALLBACK: Если courseLessonId нет - используем тег (для обратной совместимости)
+          const lessonName = this.data.lessonName;
+          let expectedTag: string;
+          if (this.data.subSection) {
+            expectedTag = `${this.data.subSection}_${lessonName}`;
+          } else {
+            expectedTag = lessonName;
+          }
+          
+          this.materials = files.filter((file: UploadedFile) => {
+            return file.tag === expectedTag;
+          });
+        }
       },
       error: (error: any) => {
         console.error('Ошибка загрузки материалов:', error);
@@ -242,10 +295,19 @@ export class CallLessonSettingsModalComponent implements OnInit {
     }
 
     try {
+      // Формируем tag для обратной совместимости (если courseLessonId нет)
+      let tag: string | undefined;
+      if (!this.data.courseLessonId) {
+        if (this.data.subSection) {
+          tag = `${this.data.subSection}_${this.data.lessonName}`;
+        } else {
+          tag = this.data.lessonName;
+        }
+      }
+      
       if (materialData.file) {
-        // Загружаем файл
-        const tag = this.data.lessonName; // Используем имя урока как tag
-        this.fileUploadService.uploadFileAsCourse(materialData.file, this.data.courseId, tag).subscribe({
+        // Загружаем файл с courseLessonId
+        this.fileUploadService.uploadFileAsCourse(materialData.file, this.data.courseId, tag, this.data.courseLessonId).subscribe({
           next: (response) => {
             console.log('✅ Материал создан:', response);
             this.notificationService.success('Matériel créé avec succès!');
@@ -261,7 +323,6 @@ export class CallLessonSettingsModalComponent implements OnInit {
         });
       } else if (materialData.type === 'text' && materialData.content) {
         // Для текстовых материалов создаем файл
-        const tag = this.data.lessonName;
         const uploadedFile: UploadedFile = {
           id: Date.now(),
           filename: materialData.title,
@@ -270,6 +331,7 @@ export class CallLessonSettingsModalComponent implements OnInit {
           courseId: this.data.courseId,
           createdAt: new Date().toISOString(),
           tag: tag,
+          courseLessonId: this.data.courseLessonId,
           description: materialData.description || undefined
         };
         
@@ -304,8 +366,18 @@ export class CallLessonSettingsModalComponent implements OnInit {
           return;
         }
         
-        const tag = this.data.lessonName; // Используем имя урока как tag
-        this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag).subscribe({
+        // Формируем tag для обратной совместимости (если courseLessonId нет)
+        let tag: string | undefined;
+        if (!this.data.courseLessonId) {
+          if (this.data.subSection) {
+            tag = `${this.data.subSection}_${this.data.lessonName}`;
+          } else {
+            tag = this.data.lessonName;
+          }
+        }
+        
+        // Связываем файл с курсом используя courseLessonId
+        this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag, this.data.courseLessonId).subscribe({
           next: (response) => {
             console.log('✅ Материал связан с курсом:', response);
             this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
@@ -350,9 +422,18 @@ export class CallLessonSettingsModalComponent implements OnInit {
         }
         
         const file = new File([blob], fileName, { type: mimeType });
-        const tag = this.data.lessonName;
         
-        this.fileUploadService.uploadFileAsCourse(file, this.data.courseId, tag).subscribe({
+        // Формируем tag для обратной совместимости (если courseLessonId нет)
+        let tag: string | undefined;
+        if (!this.data.courseLessonId) {
+          if (this.data.subSection) {
+            tag = `${this.data.subSection}_${this.data.lessonName}`;
+          } else {
+            tag = this.data.lessonName;
+          }
+        }
+        
+        this.fileUploadService.uploadFileAsCourse(file, this.data.courseId, tag, this.data.courseLessonId).subscribe({
           next: (response) => {
             console.log('✅ Материал добавлен в курс:', response);
             this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
@@ -394,5 +475,46 @@ export class CallLessonSettingsModalComponent implements OnInit {
       '.txt': 'text/plain',
     };
     return mimeTypes[extension.toLowerCase()] || 'application/octet-stream';
+  }
+
+  deleteMaterial(material: UploadedFile): void {
+    if (!this.data.courseId) {
+      this.notificationService.error('Aucun cours sélectionné');
+      return;
+    }
+
+    if (!confirm(`Êtes-vous sûr de vouloir retirer le matériau "${material.filename}" de cette leçon ?`)) {
+      return;
+    }
+
+    // Удаляем связь материала с уроком (отвязываем от урока)
+    // Если материал имеет courseLessonId, который совпадает с courseLessonId урока - отвязываем
+    if (this.data.courseLessonId && (material as any).courseLessonId === this.data.courseLessonId) {
+      // Отвязываем материал от урока, удаляя courseLessonId
+      // Для этого нужно обновить материал на сервере, убрав courseLessonId из course_lesson_files
+      this.fileUploadService.deleteFile(material.id, this.data.courseId).subscribe({
+        next: () => {
+          // Удаляем материал из локального списка
+          this.materials = this.materials.filter(m => m.id !== material.id);
+          this.notificationService.success('Matériau retiré de la leçon avec succès!');
+          
+          // Отправляем событие для обновления материалов в родительском компоненте
+          window.dispatchEvent(new CustomEvent('materialRemoved', {
+            detail: {
+              materialId: material.id,
+              courseLessonId: this.data.courseLessonId
+            }
+          }));
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la suppression du matériau:', error);
+          this.notificationService.error('Erreur lors de la suppression du matériau');
+        }
+      });
+    } else {
+      // Если материал не привязан через courseLessonId, просто удаляем из локального списка
+      this.materials = this.materials.filter(m => m.id !== material.id);
+      this.notificationService.success('Matériau retiré de la leçon avec succès!');
+    }
   }
 }
