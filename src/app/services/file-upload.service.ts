@@ -12,6 +12,7 @@ export interface UploadedFile {
   createdAt: string;
   tag?: string;
   description?: string;
+  title?: string; // Название материала из trainer (если материал был добавлен из trainer)
   courseLessonId?: string; // ID урока курса (course_lessons.id) - для обратной совместимости (первый урок)
   courseLessonIds?: string[]; // Массив ID уроков курса - many-to-many связь
 }
@@ -66,10 +67,10 @@ export class FileUploadService {
     return this.http.get<UploadedFile[]>(`${API_ENDPOINTS.FILES}?courseId=${encodeURIComponent(courseId)}`);
   }
 
-  linkFileToCourse(fileUrl: string, courseId: number, tag?: string, courseLessonId?: string): Observable<{ id: number; url: string; createdAt: string }> {
+  linkFileToCourse(fileUrl: string, courseId: number, tag?: string, courseLessonId?: string, title?: string, description?: string): Observable<{ id: number; url: string; createdAt: string }> {
     return this.http.post<{ id: number; url: string; createdAt: string }>(
       `${API_ENDPOINTS.FILES}/linkToCourse`,
-      { fileUrl, courseId, tag, courseLessonId }
+      { fileUrl, courseId, tag, courseLessonId, title, description }
     );
   }
 

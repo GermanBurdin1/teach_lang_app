@@ -3,36 +3,32 @@
   <div class="course-header">
     <h1 class="page-title">
       <i class="fas fa-graduation-cap"></i>
-      Mes cours
+      Mes formations
     </h1>
-    <p class="page-subtitle">Créez et gérez vos cours avec des matériaux pédagogiques</p>
+    <p class="page-subtitle">Créez et gérez vos formations en ligne avec des matériaux pédagogiques</p>
   </div>
 
   <!-- Список всех курсов преподавателя -->
   <div *ngIf="!showCreateCourseForm" class="courses-list-section">
     <div class="courses-list-header">
       <h3>Mes formations</h3>
-      <button
-        class="btn btn-primary btn-lg add-course-btn"
-        (click)="showCreateCourseForm = true">
+      <button class="btn btn-primary btn-lg add-course-btn" (click)="showCreateCourseForm = true">
         <i class="fas fa-plus"></i>
-        Ajouter un cours
+        Ajouter une formation
       </button>
     </div>
-    
+
     <div *ngIf="loadingCourses" class="loading-courses">
-      <p>Chargement des cours...</p>
+      <p>Chargement des formations...</p>
     </div>
-    
+
     <div *ngIf="!loadingCourses && allTeacherCourses.length > 0" class="courses-grid">
-      <div 
-        *ngFor="let course of allTeacherCourses" 
-        class="course-item-card"
-        [class.active]="courseId === course.id.toString()"
-        (click)="switchToCourse(course.id)">
+      <div *ngFor="let course of allTeacherCourses" class="course-item-card"
+        [class.active]="courseId === course.id.toString()" (click)="switchToCourse(course.id)">
         <div class="course-item-header">
           <h4>{{ course.title }}</h4>
-          <span class="course-status-badge" [class.published]="course.isPublished" [class.unpublished]="!course.isPublished">
+          <span class="course-status-badge" [class.published]="course.isPublished"
+            [class.unpublished]="!course.isPublished">
             <mat-icon>{{ course.isPublished ? 'public' : 'lock' }}</mat-icon>
             {{ course.isPublished ? 'Publié' : 'Non publié' }}
           </span>
@@ -44,19 +40,17 @@
         </div>
       </div>
     </div>
-    
+
     <div *ngIf="!loadingCourses && allTeacherCourses.length === 0 && !courseId" class="no-courses-message">
-      <p>Aucun cours créé. Cliquez sur "Ajouter un cours" pour commencer.</p>
+      <p>Aucune fomation créée. Cliquez sur "Ajouter une formation" pour commencer.</p>
     </div>
   </div>
 
   <!-- Add Course Button (if no course) -->
   <div *ngIf="!courseId && !showCreateCourseForm && allTeacherCourses.length === 0" class="add-course-button-section">
-    <button
-      class="btn btn-primary btn-lg add-course-btn"
-      (click)="showCreateCourseForm = true">
+    <button class="btn btn-primary btn-lg add-course-btn" (click)="showCreateCourseForm = true">
       <i class="fas fa-plus"></i>
-      Ajouter un cours
+      Ajouter une formation
     </button>
   </div>
 
@@ -65,26 +59,18 @@
     <div class="form-card">
       <h2>
         <i class="fas fa-info-circle"></i>
-        Informations du cours
+        Informations de la formation
       </h2>
 
       <div class="form-group">
-        <label>Titre du cours *</label>
-        <input
-          type="text"
-          [(ngModel)]="courseTitle"
-          placeholder="Ex: Cours DELF B1"
-          class="form-control">
+        <label>Titre de la formation *</label>
+        <input type="text" [(ngModel)]="courseTitle" placeholder="Ex: Cours DELF B1" class="form-control">
       </div>
 
       <div class="form-group">
         <label>Description</label>
-        <textarea
-          [(ngModel)]="courseDescription"
-          (ngModelChange)="markAsChanged()"
-          placeholder="Description du cours..."
-          class="form-control"
-          rows="4"></textarea>
+        <textarea [(ngModel)]="courseDescription" (ngModelChange)="markAsChanged()"
+          placeholder="Description du cours..." class="form-control" rows="4"></textarea>
       </div>
 
       <div class="form-group">
@@ -111,23 +97,15 @@
             </button>
           </div>
           <div *ngIf="!coverImage" class="cover-image-upload">
-            <input
-              type="file"
-              id="coverImageInput"
-              accept="image/*"
-              (change)="onCoverImageSelected($event)"
+            <input type="file" id="coverImageInput" accept="image/*" (change)="onCoverImageSelected($event)"
               class="file-input">
             <label for="coverImageInput" class="cover-upload-label">
               <i class="fas fa-image"></i>
               <span>Choisir une image de couverture</span>
             </label>
           </div>
-          <button
-            *ngIf="coverImageFile && courseId"
-            type="button"
-            class="btn btn-sm btn-primary mt-2"
-            (click)="uploadCoverImage()"
-            [disabled]="uploadingCover">
+          <button *ngIf="coverImageFile && courseId" type="button" class="btn btn-sm btn-primary mt-2"
+            (click)="uploadCoverImage()" [disabled]="uploadingCover">
             <i class="fas fa-upload"></i>
             {{ uploadingCover ? 'Upload en cours...' : 'Uploader l\'image' }}
           </button>
@@ -137,20 +115,16 @@
       <div class="form-group">
         <label class="checkbox-label">
           <input type="checkbox" [(ngModel)]="isPublished" (ngModelChange)="markAsChanged()">
-          Publier le cours immédiatement
+          Publier la formation immédiatement
         </label>
       </div>
 
       <div class="form-actions">
-        <button
-          class="btn btn-primary btn-lg"
-          (click)="createCourse()"
-          [disabled]="!courseTitle.trim()">
+        <button class="btn btn-primary btn-lg" (click)="createCourse()" [disabled]="!courseTitle.trim()">
           <i class="fas fa-check"></i>
           Créer le cours
         </button>
-        <button
-          class="btn btn-secondary btn-lg"
+        <button class="btn btn-secondary btn-lg"
           (click)="showCreateCourseForm = false; courseTitle = ''; courseDescription = ''; courseLevel = ''; isPublished = false;">
           Annuler
         </button>
@@ -183,14 +157,9 @@
               </p>
             </div>
             <div *ngIf="isEditingDescription" class="course-description-edit">
-              <textarea
-                [(ngModel)]="courseDescription"
-                (blur)="saveDescription()"
-                (keydown.escape)="cancelEditDescription()"
-                class="form-control description-textarea"
-                placeholder="Description du cours..."
-                rows="3"
-                #descriptionInput></textarea>
+              <textarea [(ngModel)]="courseDescription" (blur)="saveDescription()"
+                (keydown.escape)="cancelEditDescription()" class="form-control description-textarea"
+                placeholder="Description du cours..." rows="3" #descriptionInput></textarea>
               <div class="description-edit-actions">
                 <button class="btn btn-sm btn-success" (click)="saveDescription()">
                   <i class="fas fa-check"></i> Enregistrer
@@ -216,34 +185,25 @@
           </div>
           <div class="course-lessons-summary" *ngIf="getLessonsSummary().length > 0">
             <span *ngFor="let summary of getLessonsSummary(); let last = last" class="lesson-summary-item">
-              {{ summary.section }} - {{ summary.count }} {{ summary.count === 1 ? 'leçon' : 'leçons' }}<span *ngIf="!last">, </span>
+              {{ summary.section }} - {{ summary.count }} {{ summary.count === 1 ? 'leçon' : 'leçons' }}<span
+                *ngIf="!last">, </span>
             </span>
           </div>
         </div>
         <div class="course-actions-header" (click)="$event.stopPropagation()">
-          <button
-            *ngIf="hasUnsavedChanges"
-            class="btn btn-success btn-icon"
-            (click)="updateCourse()"
-            [disabled]="!courseTitle.trim()"
-            title="Enregistrer les modifications">
+          <button *ngIf="hasUnsavedChanges" class="btn btn-success btn-icon" (click)="updateCourse()"
+            [disabled]="!courseTitle.trim()" title="Enregistrer les modifications">
             <i class="fas fa-save"></i>
           </button>
-          <button
-            class="btn btn-secondary btn-icon"
-            (click)="showCreateCourseForm = !showCreateCourseForm"
+          <button class="btn btn-secondary btn-icon" (click)="showCreateCourseForm = !showCreateCourseForm"
             title="Modifier les informations du cours">
             <i class="fas fa-edit"></i>
           </button>
-          <button
-            class="btn btn-danger btn-icon"
-            (click)="deleteCourse()"
-            title="Supprimer le cours">
+          <button class="btn btn-danger btn-icon" (click)="deleteCourse()" title="Supprimer le cours">
             <i class="fas fa-trash"></i>
           </button>
-          <span class="expand-icon"
-                [attr.data-chevron-state]="isCourseCardExpanded ? 'up' : 'down'"
-                [attr.title]="isCourseCardExpanded ? 'Réduire le contenu' : 'Développer le contenu'">
+          <span class="expand-icon" [attr.data-chevron-state]="isCourseCardExpanded ? 'up' : 'down'"
+            [attr.title]="isCourseCardExpanded ? 'Réduire le contenu' : 'Développer le contenu'">
             {{ isCourseCardExpanded ? '˄' : '˅' }}
           </span>
         </div>
@@ -260,7 +220,8 @@
             </label>
             <p class="publication-hint">
               <mat-icon>{{ isPublished ? 'info' : 'info' }}</mat-icon>
-              {{ isPublished ? 'Le cours est visible par tous les étudiants' : 'Le cours n\'est pas visible par les étudiants' }}
+              {{ isPublished ? 'Le cours est visible par tous les étudiants' : 'Le cours n\'est pas visible par les
+              étudiants' }}
             </p>
           </div>
         </div>
@@ -273,10 +234,9 @@
         <div class="course-edit-section">
           <!-- Quick Structure Editor Toggle -->
           <div class="quick-structure-toggle">
-            <button
-              class="btn btn-primary"
-              (click)="showQuickStructureEditor = !showQuickStructureEditor">
-              <i class="fas" [class.fa-sitemap]="!showQuickStructureEditor" [class.fa-times]="showQuickStructureEditor"></i>
+            <button class="btn btn-primary" (click)="showQuickStructureEditor = !showQuickStructureEditor">
+              <i class="fas" [class.fa-sitemap]="!showQuickStructureEditor"
+                [class.fa-times]="showQuickStructureEditor"></i>
               {{ showQuickStructureEditor ? 'Masquer l\'éditeur' : 'Éditeur rapide de structure' }}
             </button>
           </div>
@@ -284,52 +244,53 @@
           <!-- Quick Structure Editor -->
           <div *ngIf="showQuickStructureEditor" class="quick-structure-editor">
             <h3><i class="fas fa-sitemap"></i> Structure du cours</h3>
-            <div class="structure-tree"
-                 cdkDropList
-                 [cdkDropListData]="sections"
-                 (cdkDropListDropped)="dropSectionQuick($event)">
-              <div *ngFor="let section of sections; let sectionIndex = index"
-                   class="tree-node tree-section"
-                   cdkDrag>
+            <div class="structure-tree" cdkDropList [cdkDropListData]="sections"
+              (cdkDropListDropped)="dropSectionQuick($event)">
+              <div *ngFor="let section of sections; let sectionIndex = index" class="tree-node tree-section" cdkDrag>
                 <div class="tree-node-header">
                   <span class="tree-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
                   <i class="fas fa-folder tree-icon"></i>
                   <span class="tree-label">{{ section }}</span>
                   <div class="tree-actions">
-                    <button class="btn-icon-small btn-edit" (click)="editSectionQuick(section); $event.stopPropagation()" title="Modifier">
+                    <button class="btn-icon-small btn-edit"
+                      (click)="editSectionQuick(section); $event.stopPropagation()" title="Modifier">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon-small btn-danger" (click)="removeSectionQuick(section); $event.stopPropagation()" title="Supprimer">
+                    <button class="btn-icon-small btn-danger"
+                      (click)="removeSectionQuick(section); $event.stopPropagation()" title="Supprimer">
                       <i class="fas fa-trash"></i>
                     </button>
-                    <button class="btn-icon-small btn-add" (click)="addSubSectionQuick(section); $event.stopPropagation()" title="Ajouter sous-section">
+                    <button class="btn-icon-small btn-add"
+                      (click)="addSubSectionQuick(section); $event.stopPropagation()" title="Ajouter sous-section">
                       <i class="fas fa-plus"></i>
                     </button>
-                    <button class="btn-icon-small btn-add" (click)="addLessonQuick(section); $event.stopPropagation()" title="Ajouter leçon">
+                    <button class="btn-icon-small btn-add" (click)="addLessonQuick(section); $event.stopPropagation()"
+                      title="Ajouter leçon">
                       <i class="fas fa-graduation-cap"></i>
                     </button>
                   </div>
                 </div>
 
                 <!-- Sub-sections -->
-                <div *ngIf="subSections[section] && subSections[section].length > 0"
-                     class="tree-children"
-                     cdkDropList
-                     [cdkDropListData]="subSections[section]"
-                     (cdkDropListDropped)="dropSubSectionQuick($event, section)">
+                <div *ngIf="subSections[section] && subSections[section].length > 0" class="tree-children" cdkDropList
+                  [cdkDropListData]="subSections[section]" (cdkDropListDropped)="dropSubSectionQuick($event, section)">
                   <div *ngFor="let subSection of subSections[section]" class="tree-node tree-subsection" cdkDrag>
                     <div class="tree-node-header">
                       <span class="tree-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
                       <i class="fas fa-folder-open tree-icon"></i>
                       <span class="tree-label">{{ subSection }}</span>
                       <div class="tree-actions">
-                        <button class="btn-icon-small btn-edit" (click)="editSubSectionQuick(section, subSection); $event.stopPropagation()" title="Modifier">
+                        <button class="btn-icon-small btn-edit"
+                          (click)="editSubSectionQuick(section, subSection); $event.stopPropagation()" title="Modifier">
                           <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn-icon-small btn-danger" (click)="removeSubSectionQuick(section, subSection); $event.stopPropagation()" title="Supprimer">
+                        <button class="btn-icon-small btn-danger"
+                          (click)="removeSubSectionQuick(section, subSection); $event.stopPropagation()"
+                          title="Supprimer">
                           <i class="fas fa-trash"></i>
                         </button>
-                        <button class="btn-icon-small btn-add" (click)="addLessonQuick(section, subSection); $event.stopPropagation()" title="Ajouter leçon">
+                        <button class="btn-icon-small btn-add"
+                          (click)="addLessonQuick(section, subSection); $event.stopPropagation()" title="Ajouter leçon">
                           <i class="fas fa-graduation-cap"></i>
                         </button>
                       </div>
@@ -337,22 +298,26 @@
 
                     <!-- Lessons in sub-section -->
                     <div *ngIf="lessonsInSubSections[section] && lessonsInSubSections[section][subSection]"
-                         class="tree-children"
-                         cdkDropList
-                         [id]="'quick-subsection-' + section + '-' + subSection"
-                         [cdkDropListData]="lessonsInSubSections[section][subSection]"
-                         (cdkDropListDropped)="dropLessonQuickInSubSection($event, section, subSection)">
-                      <div *ngFor="let lesson of lessonsInSubSections[section][subSection]" class="tree-node tree-lesson" cdkDrag>
+                      class="tree-children" cdkDropList [id]="'quick-subsection-' + section + '-' + subSection"
+                      [cdkDropListData]="lessonsInSubSections[section][subSection]"
+                      (cdkDropListDropped)="dropLessonQuickInSubSection($event, section, subSection)">
+                      <div *ngFor="let lesson of lessonsInSubSections[section][subSection]"
+                        class="tree-node tree-lesson" cdkDrag>
                         <div class="tree-node-header">
                           <span class="tree-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
-                          <i class="fas fa-graduation-cap tree-icon" [class.icon-self]="lesson.type === 'self'" [class.icon-call]="lesson.type === 'call'"></i>
+                          <i class="fas fa-graduation-cap tree-icon" [class.icon-self]="lesson.type === 'self'"
+                            [class.icon-call]="lesson.type === 'call'"></i>
                           <span class="tree-label">{{ lesson.name }}</span>
                           <span *ngIf="lesson.description" class="tree-description">{{ lesson.description }}</span>
                           <div class="tree-actions">
-                            <button class="btn-icon-small btn-edit" (click)="editLessonQuick(section, subSection, lesson); $event.stopPropagation()" title="Modifier">
+                            <button class="btn-icon-small btn-edit"
+                              (click)="editLessonQuick(section, subSection, lesson); $event.stopPropagation()"
+                              title="Modifier">
                               <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-icon-small btn-danger" (click)="removeLessonQuick(section, subSection, lesson.name); $event.stopPropagation()" title="Supprimer">
+                            <button class="btn-icon-small btn-danger"
+                              (click)="removeLessonQuick(section, subSection, lesson.name); $event.stopPropagation()"
+                              title="Supprimer">
                               <i class="fas fa-trash"></i>
                             </button>
                           </div>
@@ -364,23 +329,24 @@
                 </div>
 
                 <!-- Lessons in section (not in sub-sections) -->
-                <div *ngIf="getLessonsInSection(section).length > 0"
-                     class="tree-children"
-                     cdkDropList
-                     [id]="'quick-section-' + section"
-                     [cdkDropListData]="getLessonsInSection(section)"
-                     (cdkDropListDropped)="dropLessonQuickInSection($event, section)">
+                <div *ngIf="getLessonsInSection(section).length > 0" class="tree-children" cdkDropList
+                  [id]="'quick-section-' + section" [cdkDropListData]="getLessonsInSection(section)"
+                  (cdkDropListDropped)="dropLessonQuickInSection($event, section)">
                   <div *ngFor="let lesson of getLessonsInSection(section)" class="tree-node tree-lesson" cdkDrag>
                     <div class="tree-node-header">
                       <span class="tree-drag-handle" cdkDragHandle><i class="fas fa-grip-vertical"></i></span>
-                      <i class="fas fa-graduation-cap tree-icon" [class.icon-self]="lesson.type === 'self'" [class.icon-call]="lesson.type === 'call'"></i>
+                      <i class="fas fa-graduation-cap tree-icon" [class.icon-self]="lesson.type === 'self'"
+                        [class.icon-call]="lesson.type === 'call'"></i>
                       <span class="tree-label">{{ lesson.name }}</span>
                       <span *ngIf="lesson.description" class="tree-description">{{ lesson.description }}</span>
                       <div class="tree-actions">
-                        <button class="btn-icon-small btn-edit" (click)="editLessonQuick(section, null, lesson); $event.stopPropagation()" title="Modifier">
+                        <button class="btn-icon-small btn-edit"
+                          (click)="editLessonQuick(section, null, lesson); $event.stopPropagation()" title="Modifier">
                           <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn-icon-small btn-danger" (click)="removeLessonQuick(section, null, lesson.name); $event.stopPropagation()" title="Supprimer">
+                        <button class="btn-icon-small btn-danger"
+                          (click)="removeLessonQuick(section, null, lesson.name); $event.stopPropagation()"
+                          title="Supprimer">
                           <i class="fas fa-trash"></i>
                         </button>
                       </div>
@@ -403,877 +369,822 @@
           </div>
 
           <div *ngIf="showCreateCourseForm" class="course-edit-form">
-          <div class="form-group">
-            <label>Titre du cours *</label>
-            <input
-              type="text"
-              [(ngModel)]="courseTitle"
-              (ngModelChange)="markAsChanged()"
-              placeholder="Ex: Cours DELF B1"
-              class="form-control">
-          </div>
+            <div class="form-group">
+              <label>Titre du cours *</label>
+              <input type="text" [(ngModel)]="courseTitle" (ngModelChange)="markAsChanged()"
+                placeholder="Ex: Cours DELF B1" class="form-control">
+            </div>
 
-          <div class="form-group">
-            <label>Description</label>
-            <textarea
-              [(ngModel)]="courseDescription"
-              (ngModelChange)="markAsChanged()"
-              placeholder="Description du cours..."
-              class="form-control"
-              rows="4"></textarea>
-          </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea [(ngModel)]="courseDescription" (ngModelChange)="markAsChanged()"
+                placeholder="Description du cours..." class="form-control" rows="4"></textarea>
+            </div>
 
-          <div class="form-group">
-            <label>Niveau</label>
-            <select [(ngModel)]="courseLevel" (ngModelChange)="markAsChanged()" class="form-control">
-              <option value="">Sélectionner un niveau</option>
-              <option value="A1">A1</option>
-              <option value="A2">A2</option>
-              <option value="B1">B1</option>
-              <option value="B2">B2</option>
-              <option value="C1">C1</option>
-              <option value="C2">C2</option>
-            </select>
-          </div>
+            <div class="form-group">
+              <label>Niveau</label>
+              <select [(ngModel)]="courseLevel" (ngModelChange)="markAsChanged()" class="form-control">
+                <option value="">Sélectionner un niveau</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
+              </select>
+            </div>
 
-          <!-- Cover Image -->
-          <div class="form-group">
-            <label>Image de couverture</label>
-            <div class="cover-image-container">
-              <div *ngIf="coverImage" class="cover-image-preview">
-                <img [src]="coverImage" alt="Cover" class="cover-image">
-                <button type="button" class="remove-cover-btn" (click)="removeCoverImage()" title="Supprimer">
-                  <i class="fas fa-times"></i>
+            <!-- Cover Image -->
+            <div class="form-group">
+              <label>Image de couverture</label>
+              <div class="cover-image-container">
+                <div *ngIf="coverImage" class="cover-image-preview">
+                  <img [src]="coverImage" alt="Cover" class="cover-image">
+                  <button type="button" class="remove-cover-btn" (click)="removeCoverImage()" title="Supprimer">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div *ngIf="!coverImage" class="cover-image-upload">
+                  <input type="file" id="coverImageInput" accept="image/*" (change)="onCoverImageSelected($event)"
+                    class="file-input">
+                  <label for="coverImageInput" class="cover-upload-label">
+                    <i class="fas fa-image"></i>
+                    <span>Choisir une image de couverture</span>
+                  </label>
+                </div>
+                <button *ngIf="coverImageFile" type="button" class="btn btn-sm btn-primary mt-2"
+                  (click)="uploadCoverImage()" [disabled]="uploadingCover">
+                  <i class="fas fa-upload"></i>
+                  {{ uploadingCover ? 'Upload en cours...' : 'Uploader l\'image' }}
                 </button>
               </div>
-              <div *ngIf="!coverImage" class="cover-image-upload">
-                <input
-                  type="file"
-                  id="coverImageInput"
-                  accept="image/*"
-                  (change)="onCoverImageSelected($event)"
-                  class="file-input">
-                <label for="coverImageInput" class="cover-upload-label">
-                  <i class="fas fa-image"></i>
-                  <span>Choisir une image de couverture</span>
-                </label>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="isPublished" (ngModelChange)="markAsChanged()">
+                Publier le cours immédiatement
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Materials Section (inside course card, expandable) -->
+        <div class="materials-section" [class.expanded]="isMaterialsSectionExpanded">
+          <div class="materials-section-header" (click)="toggleMaterialsSection()">
+            <h2>
+              <i class="fas fa-folder-open"></i>
+              Contenu de la formation
+            </h2>
+            <span class="expand-icon" [attr.data-chevron-state]="materialsChevronIcon"
+              [attr.title]="materialsChevronTitle">
+              {{ materialsChevronIcon === 'fa-chevron-up' ? '˄' : '˅' }}
+            </span>
+          </div>
+
+          <div *ngIf="isMaterialsSectionExpanded" class="materials-section-content">
+            <!-- Warning if no sections -->
+            <div *ngIf="sections.length === 0" class="no-sections-warning">
+              <div class="warning-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                  <h4>Ajoutez d'abord une section</h4>
+                  <p>Vous devez créer au moins une section avant de pouvoir ajouter des matériaux au cours.</p>
+                </div>
               </div>
-              <button
-                *ngIf="coverImageFile"
-                type="button"
-                class="btn btn-sm btn-primary mt-2"
-                (click)="uploadCoverImage()"
-                [disabled]="uploadingCover">
-                <i class="fas fa-upload"></i>
-                {{ uploadingCover ? 'Upload en cours...' : 'Uploader l\'image' }}
-              </button>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="checkbox-label">
-              <input type="checkbox" [(ngModel)]="isPublished" (ngModelChange)="markAsChanged()">
-              Publier le cours immédiatement
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Materials Section (inside course card, expandable) -->
-      <div class="materials-section" [class.expanded]="isMaterialsSectionExpanded">
-        <div class="materials-section-header" (click)="toggleMaterialsSection()">
-          <h2>
-            <i class="fas fa-folder-open"></i>
-            Contenu du cours
-          </h2>
-          <span class="expand-icon"
-                [attr.data-chevron-state]="materialsChevronIcon"
-                [attr.title]="materialsChevronTitle">
-            {{ materialsChevronIcon === 'fa-chevron-up' ? '˄' : '˅' }}
-          </span>
-        </div>
-
-        <div *ngIf="isMaterialsSectionExpanded" class="materials-section-content">
-          <!-- Warning if no sections -->
-    <div *ngIf="sections.length === 0" class="no-sections-warning">
-      <div class="warning-content">
-        <i class="fas fa-exclamation-triangle"></i>
-        <div>
-          <h4>Ajoutez d'abord une section</h4>
-          <p>Vous devez créer au moins une section avant de pouvoir ajouter des matériaux au cours.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Materials without section (legacy) -->
-    <div *ngIf="getMaterialsBySection(null).length > 0 || getMaterialsWithoutSection().length > 0" class="materials-list">
-      <h3>Matériaux sans section ({{ getMaterialsWithoutSection().length }})</h3>
-      <div class="materials-grid">
-        <div *ngFor="let material of getMaterialsWithoutSection()" class="material-item">
-          <div class="material-icon">
-            <i [class]="getMaterialTypeIcon(getMaterialTypeFromMime(material.mimetype))"></i>
-          </div>
-          <div class="material-info">
-            <h4>{{ material.filename }}</h4>
-            <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
-          </div>
-          <div class="material-actions">
-            <button
-              class="btn btn-sm btn-danger"
-              (click)="deleteMaterial(material)"
-              title="Supprimer">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sections Management -->
-    <div class="sections-management">
-      <div class="sections-header">
-        <h3>
-          <i class="fas fa-list"></i>
-          Sections du cours
-        </h3>
-        <button
-          class="btn btn-primary btn-lg add-section-btn"
-          (click)="showAddSectionDropdown = !showAddSectionDropdown">
-          <i class="fas fa-plus-circle"></i>
-          Ajouter une section
-        </button>
-      </div>
-
-      <!-- Section Dropdown -->
-      <div *ngIf="showAddSectionDropdown" class="add-section-dropdown">
-        <select class="form-select" (change)="addSection($event); showAddSectionDropdown = false">
-          <option value="" selected disabled>Choisir une section</option>
-          <option *ngFor="let option of sectionsOptions" [value]="option">{{ option }}</option>
-        </select>
-      </div>
-
-      <div class="add-section-controls" *ngIf="sections.length > 0"
-           cdkDropList
-           [id]="'main-sections-list'"
-           [cdkDropListData]="sections"
-           (cdkDropListDropped)="dropSectionQuick($event)">
-
-        <!-- Display sections -->
-        <div *ngFor="let section of sections; let i = index" class="section-item"
-             [attr.data-section-index]="i"
-             (mouseover)="hoveredSection = section"
-             (mouseleave)="hoveredSection = null"
-             cdkDrag>
-          <div class="section-item-header">
-            <div class="section-name-wrapper">
-              <span class="section-drag-handle" cdkDragHandle title="Déplacer la section">
-                <i class="fas fa-grip-vertical"></i>
-              </span>
-              <button
-                class="btn btn-link section-toggle-btn"
-                (click)="toggleSection(section)"
-                *ngIf="getMaterialsBySection(section).length > 0"
-                title="Afficher/Masquer les matériaux">
-                <span class="expand-icon"
-                      [attr.data-chevron-state]="isSectionExpanded(section) ? 'up' : 'down'"
-                      [attr.title]="isSectionExpanded(section) ? 'Réduire le contenu' : 'Développer le contenu'">
-                  {{ isSectionExpanded(section) ? '˄' : '˅' }}
-                </span>
-              </button>
-              <span class="fw-bold section-name">{{ section }}</span>
-              <span class="section-materials-count" *ngIf="getMaterialsBySection(section).length > 0">
-                ({{ getMaterialsBySection(section).length }})
-              </span>
-            </div>
-            <div class="section-actions">
-              <button
-                class="btn btn-link btn-sm btn-subsection"
-                (click)="addSubSection(section)"
-                title="Ajouter une sous-section">
-                <i class="fas fa-plus-circle"></i>
-                Sous-section
-              </button>
-              <button
-                class="btn btn-danger btn-sm btn-delete"
-                (click)="removeSection(section)"
-                title="Supprimer la section">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Materials in this section (collapsible) -->
-          <div class="section-materials-wrapper"
-               [class.expanded]="isSectionExpanded(section)"
-               *ngIf="getMaterialsBySection(section).length > 0">
-            <div class="section-materials">
+            <!-- Materials without section (legacy) -->
+            <div *ngIf="getMaterialsBySection(null).length > 0 || getMaterialsWithoutSection().length > 0"
+              class="materials-list">
+              <h3>Matériaux sans section ({{ getMaterialsWithoutSection().length }})</h3>
               <div class="materials-grid">
-                <div *ngFor="let material of getMaterialsBySection(section)" class="material-item">
+                <div *ngFor="let material of getMaterialsWithoutSection()" class="material-item">
                   <div class="material-icon">
                     <i [class]="getMaterialTypeIcon(getMaterialTypeFromMime(material.mimetype))"></i>
                   </div>
                   <div class="material-info">
-                    <h4>{{ material.filename }}</h4>
+                    <h4>{{ getMaterialDisplayName(material) }}</h4>
                     <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
                   </div>
                   <div class="material-actions">
-                    <button
-                      class="btn btn-sm btn-danger"
-                      (click)="deleteMaterial(material)"
-                      title="Supprimer">
+                    <button class="btn btn-sm btn-danger" (click)="deleteMaterial(material)" title="Supprimer">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Add Sub-section Input -->
-          <div class="add-subsection-input-container" *ngIf="showAddSubSectionInput[section]">
-            <div class="add-subsection-input-wrapper">
-              <input
-                type="text"
-                id="subSectionInput_{{ section }}"
-                [(ngModel)]="newSubSectionName[section]"
-                (keyup.enter)="confirmAddSubSection(section)"
-                (keyup.escape)="cancelAddSubSection(section)"
-                placeholder="Nom de la sous-section"
-                class="form-control form-control-sm add-subsection-input">
-              <div class="add-subsection-actions">
-                <button
-                  class="btn btn-sm btn-success"
-                  (click)="confirmAddSubSection(section)"
-                  title="Ajouter">
-                  <i class="fas fa-check"></i>
-                </button>
-                <button
-                  class="btn btn-sm btn-secondary"
-                  (click)="cancelAddSubSection(section)"
-                  title="Annuler">
-                  <i class="fas fa-times"></i>
+            <!-- Sections Management -->
+            <div class="sections-management">
+              <div class="sections-header">
+                <h3>
+                  <i class="fas fa-list"></i>
+                  Sections de la formation
+                </h3>
+                <button class="btn btn-primary btn-lg add-section-btn"
+                  (click)="showAddSectionDropdown = !showAddSectionDropdown">
+                  <i class="fas fa-plus-circle"></i>
+                  Ajouter une section
                 </button>
               </div>
-            </div>
-          </div>
 
-          <!-- Sub-sections -->
-          <div class="subsections-container"
-               *ngIf="subSections[section] && subSections[section].length > 0"
-               cdkDropList
-               [id]="'main-subsections-' + section"
-               [cdkDropListData]="subSections[section]"
-               (cdkDropListDropped)="dropSubSectionQuick($event, section)">
-            <div *ngFor="let subSection of subSections[section]; let subIndex = index"
-                 class="subsection-item"
-                 [attr.data-subsection-index]="subIndex"
-                 (dragover)="onLessonDragOver($event)"
-                 (drop)="onDropLesson($event, section, subSection)"
-                 (dragenter)="onLessonDragEnter($event)"
-                 (dragleave)="onLessonDragLeave($event)"
-                 cdkDrag>
-              <div class="subsection-header">
-                <span class="subsection-name">
-                  <span class="subsection-drag-handle" cdkDragHandle title="Déplacer la sous-section">
-                    <i class="fas fa-grip-vertical"></i>
-                  </span>
-                  <i class="fas fa-folder"></i>
-                  {{ subIndex + 1 }}. {{ subSection }}
-                </span>
-                <div class="subsection-actions">
-                  <button
-                    class="btn btn-link btn-xs btn-lesson-subsection"
-                    (click)="addLesson(section, subSection)"
-                    title="Ajouter une leçon">
-                    <i class="fas fa-plus"></i>
-                    Leçon
-                  </button>
-                  <button
-                    class="btn btn-xs btn-danger btn-delete-subsection"
-                    (click)="removeSubSection(section, subSection)"
-                    title="Supprimer la sous-section">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
+              <!-- Section Dropdown -->
+              <div *ngIf="showAddSectionDropdown" class="add-section-dropdown">
+                <select class="form-select" (change)="addSection($event); showAddSectionDropdown = false">
+                  <option value="" selected disabled>Choisir une section</option>
+                  <option *ngFor="let option of sectionsOptions" [value]="option">{{ option }}</option>
+                </select>
               </div>
 
-              <!-- Lessons in this sub-section -->
-              <div class="lessons-in-subsection"
-                   cdkDropList
-                   [id]="'subsection-' + section + '-' + subSection"
-                   [cdkDropListConnectedTo]="getConnectedListsForSubsection(section, subSection)"
-                   (cdkDropListDropped)="dropLessonInSubSection($event, section, subSection)">
-                <div *ngFor="let lessonObj of getLessonsInSubSection(section, subSection); let lessonIndex = index"
-                     class="lesson-item lesson-in-subsection"
-                     [class.lesson-type-self]="lessonObj.type === 'self'"
-                     [class.lesson-type-call]="lessonObj.type === 'call'"
-                     cdkDrag>
-                  <div class="lesson-drag-handle" cdkDragHandle>
-                    <i class="fas fa-grip-vertical"></i>
-                  </div>
-                  <div class="lesson-header" (click)="toggleLesson(section + '_' + subSection + '_' + lessonObj.name)">
-                    <div class="lesson-name-wrapper">
-                      <span class="lesson-name">
-                        <i [class]="lessonObj.type === 'self' ? 'fas fa-user-graduate' : 'fas fa-phone-alt'"></i>
-                        {{ lessonObj.name }}
+              <div class="add-section-controls" *ngIf="sections.length > 0" cdkDropList [id]="'main-sections-list'"
+                [cdkDropListData]="sections" (cdkDropListDropped)="dropSectionQuick($event)">
+
+                <!-- Display sections -->
+                <div *ngFor="let section of sections; let i = index" class="section-item" [attr.data-section-index]="i"
+                  (mouseover)="hoveredSection = section" (mouseleave)="hoveredSection = null" cdkDrag>
+                  <div class="section-item-header">
+                    <div class="section-name-wrapper">
+                      <span class="section-drag-handle" cdkDragHandle title="Déplacer la section">
+                        <i class="fas fa-grip-vertical"></i>
                       </span>
-                      <div class="lesson-description-short" *ngIf="getLessonDescription(section, subSection, lessonObj.name)">
-                        {{ getLessonDescription(section, subSection, lessonObj.name) }}
-                      </div>
-                      <div class="lesson-duration-short" *ngIf="lessonObj.type === 'call' && getPlannedDurationMinutes(lessonObj)">
-                        <i class="fas fa-clock"></i>
-                        <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
-                      </div>
-                    </div>
-                    <div class="lesson-actions" (click)="$event.stopPropagation()">
-                      <button
-                        class="btn btn-link btn-xs btn-preview-lesson"
-                        (click)="openLessonPreview(section, lessonObj.name, subSection)"
-                        title="Gérer la leçon">
-                        <i class="fas fa-cog"></i>
+                      <button class="btn btn-link section-toggle-btn" (click)="toggleSection(section)"
+                        *ngIf="getMaterialsBySection(section).length > 0" title="Afficher/Masquer les matériaux">
+                        <span class="expand-icon" [attr.data-chevron-state]="isSectionExpanded(section) ? 'up' : 'down'"
+                          [attr.title]="isSectionExpanded(section) ? 'Réduire le contenu' : 'Développer le contenu'">
+                          {{ isSectionExpanded(section) ? '˄' : '˅' }}
+                        </span>
                       </button>
-                      <button
-                        class="btn btn-xs btn-danger btn-delete-lesson"
-                        (click)="removeLesson(section, lessonObj.name, subSection)"
-                        title="Supprimer la leçon">
+                      <span class="fw-bold section-name">{{ section }}</span>
+                      <span class="section-materials-count" *ngIf="getMaterialsBySection(section).length > 0">
+                        ({{ getMaterialsBySection(section).length }})
+                      </span>
+                    </div>
+                    <div class="section-actions">
+                      <button class="btn btn-link btn-sm btn-subsection" (click)="addSubSection(section)"
+                        title="Ajouter une sous-section">
+                        <i class="fas fa-plus-circle"></i>
+                        Sous-section
+                      </button>
+                      <button class="btn btn-danger btn-sm btn-delete" (click)="removeSection(section)"
+                        title="Supprimer la section">
                         <i class="fas fa-trash"></i>
                       </button>
-                      <span class="expand-icon"
-                            [attr.data-chevron-state]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name) ? 'up' : 'down'"
-                            [attr.title]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name) ? 'Réduire le contenu' : 'Développer le contenu'">
-                        {{ isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name) ? '˄' : '˅' }}
-                      </span>
                     </div>
                   </div>
 
-                  <!-- Lesson info (materials list, duration) -->
-                  <div class="lesson-info-wrapper"
-                       [class.expanded]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)">
-                    <div class="lesson-info-content">
-                      <!-- Список материалов с типом и длительностью -->
-                      <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)).length > 0">
-                        <!-- Обычные материалы -->
-                        <div *ngIf="getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj))).length > 0">
-                          <div class="materials-label">
-                            <i class="fas fa-file-alt"></i>
-                            Matériaux:
+                  <!-- Materials in this section (collapsible) -->
+                  <div class="section-materials-wrapper" [class.expanded]="isSectionExpanded(section)"
+                    *ngIf="getMaterialsBySection(section).length > 0">
+                    <div class="section-materials">
+                      <div class="materials-grid">
+                        <div *ngFor="let material of getMaterialsBySection(section)" class="material-item">
+                          <div class="material-icon">
+                            <i [class]="getMaterialTypeIcon(getMaterialTypeFromMime(material.mimetype))"></i>
                           </div>
-                          <div class="materials-list-vertical">
-                            <div *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))" 
-                                 class="material-item-vertical"
-                                 (click)="openMaterialPreview(material, $event)"
-                                 [style.cursor]="'pointer'">
-                              <div class="material-info-wrapper">
-                                <div class="material-name">{{ material.filename }}</div>
-                                <div class="material-meta">
-                                  <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
-                                  <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
-                                    : {{ formatDuration(getMaterialDuration(material)) }}
-                                  </span>
-                                </div>
-                                <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) > 0">
-                                  {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}
-                                </div>
-                              </div>
-                              <button 
-                                class="btn btn-sm btn-danger material-delete-btn"
-                                (click)="deleteMaterial(material); $event.stopPropagation()"
-                                title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                              </button>
-                            </div>
+                          <div class="material-info">
+                            <h4>{{ getMaterialDisplayName(material) }}</h4>
+                            <p *ngIf="material.description" class="material-desc">{{ material.description }}</p>
+                          </div>
+                          <div class="material-actions">
+                            <button class="btn btn-sm btn-danger" (click)="deleteMaterial(material)" title="Supprimer">
+                              <i class="fas fa-trash"></i>
+                            </button>
                           </div>
                         </div>
-
-                        <!-- Материалы конструкторов -->
-                        <div *ngIf="getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj))).length > 0" class="constructor-materials-section">
-                          <div class="materials-label constructor-label">
-                            <i class="fas fa-puzzle-piece"></i>
-                            Matériaux constructeurs:
-                          </div>
-                          <div class="materials-list-vertical">
-                            <div *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))" 
-                                 class="material-item-vertical constructor-material"
-                                 (click)="openMaterialPreview(material, $event)"
-                                 [style.cursor]="'pointer'">
-                              <div class="material-info-wrapper">
-                                <div class="material-name">{{ material.filename }}</div>
-                                <div class="material-meta">
-                                  <span class="material-type-badge constructor-badge">{{ getConstructorTypeLabel(material) }}</span>
-                                  <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
-                                    : {{ formatDuration(getMaterialDuration(material)) }}
-                                  </span>
-                                </div>
-                                <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) > 0">
-                                  {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}
-                                </div>
-                              </div>
-                              <button 
-                                class="btn btn-sm btn-danger material-delete-btn"
-                                (click)="deleteMaterial(material); $event.stopPropagation()"
-                                title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Общие задания для урока типа 'self' в подсекции -->
-                      <div class="lesson-homework-for-self" *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
-                        <div class="lesson-homework-label">
-                          <i class="fas fa-tasks"></i>
-                          Devoirs pour tout le cours:
-                        </div>
-                        <div class="lesson-homework-count">
-                          {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) }} {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}
-                        </div>
-                      </div>
-
-                      <!-- Информация для урока типа 'call' в подсекции -->
-                      <div class="lesson-call-info" *ngIf="lessonObj.type === 'call' && getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
-                        <div class="call-info-item">
-                          <i class="fas fa-tasks"></i>
-                          <span>{{ getHomeworkCountForLesson(lessonObj.name, section, subSection) }} {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) === 1 ? 'devoir' : 'devoirs' }}</span>
-                        </div>
-                      </div>
-
-                      <!-- Пустое состояние -->
-                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)).length === 0 && lessonObj.type !== 'call'">
-                        <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
-                      </div>
-                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)).length === 0 && lessonObj.type === 'call'">
-                        <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau pour consultation dans cette leçon</p>
                       </div>
                     </div>
                   </div>
-                  <div *cdkDragPlaceholder class="lesson-placeholder"></div>
-                </div>
-              </div>
-              <div *cdkDragPlaceholder class="subsection-placeholder subsection-item"></div>
-            </div>
-          </div>
 
-          <!-- Lessons (not in sub-sections) -->
-          <div class="lessons-container"
-               [class.has-lessons]="getLessonsInSection(section).length > 0">
-            <div class="lessons-section-header">
-              <div class="lessons-section-title">
-                <i class="fas fa-graduation-cap"></i>
-                Leçons de la section (hors sous-section)
-              </div>
-              <button
-                class="btn btn-link btn-sm btn-lesson"
-                (click)="addLesson(section)"
-                title="Ajouter une leçon à la section">
-                <i class="fas fa-plus"></i>
-                Ajouter une leçon
-              </button>
-            </div>
-            <div class="lessons-list-section"
-                 cdkDropList
-                 [id]="'section-' + section"
-                 [cdkDropListConnectedTo]="getConnectedSubsectionLists(section)"
-                 (cdkDropListDropped)="dropLessonInSection($event, section)">
-              <div *ngFor="let lessonObj of getLessonsInSection(section); let lessonIndex = index"
-                   class="lesson-item"
-                   [class.lesson-type-self]="lessonObj.type === 'self'"
-                   [class.lesson-type-call]="lessonObj.type === 'call'"
-                   [attr.data-lesson-index]="lessonIndex"
-                   cdkDrag>
-                <div class="lesson-drag-handle" cdkDragHandle>
-                  <i class="fas fa-grip-vertical"></i>
-                </div>
-              <div class="lesson-header" (click)="toggleLesson(section + '_' + lessonObj.name)">
-                <div class="lesson-name-wrapper">
-                  <span class="lesson-name">
-                    <i [class]="lessonObj.type === 'self' ? 'fas fa-user-graduate' : 'fas fa-phone-alt'"></i>
-                    {{ lessonObj.name }}
-                  </span>
-                  <div class="lesson-description-short" *ngIf="getLessonDescription(section, null, lessonObj.name)">
-                    {{ getLessonDescription(section, null, lessonObj.name) }}
+                  <!-- Add Sub-section Input -->
+                  <div class="add-subsection-input-container" *ngIf="showAddSubSectionInput[section]">
+                    <div class="add-subsection-input-wrapper">
+                      <input type="text" id="subSectionInput_{{ section }}" [(ngModel)]="newSubSectionName[section]"
+                        (keyup.enter)="confirmAddSubSection(section)" (keyup.escape)="cancelAddSubSection(section)"
+                        placeholder="Nom de la sous-section" class="form-control form-control-sm add-subsection-input">
+                      <div class="add-subsection-actions">
+                        <button class="btn btn-sm btn-success" (click)="confirmAddSubSection(section)" title="Ajouter">
+                          <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" (click)="cancelAddSubSection(section)" title="Annuler">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div class="lesson-duration-short" *ngIf="lessonObj.type === 'call' && getPlannedDurationMinutes(lessonObj)">
-                    <i class="fas fa-clock"></i>
-                    <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
-                  </div>
-                </div>
-                <div class="lesson-actions" (click)="$event.stopPropagation()">
-                  <button
-                    class="btn btn-link btn-xs btn-preview-lesson"
-                    (click)="openLessonPreview(section, lessonObj.name)"
-                    title="Gérer la leçon">
-                    <i class="fas fa-cog"></i>
-                  </button>
-                  <button
-                    class="btn btn-xs btn-danger btn-delete-lesson"
-                    (click)="removeLesson(section, lessonObj.name)"
-                    title="Supprimer la leçon">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                  <span class="expand-icon"
-                        [attr.data-chevron-state]="isLessonExpanded(section + '_' + lessonObj.name) ? 'up' : 'down'"
-                        [attr.title]="isLessonExpanded(section + '_' + lessonObj.name) ? 'Réduire le contenu' : 'Développer le contenu'">
-                    {{ isLessonExpanded(section + '_' + lessonObj.name) ? '˄' : '˅' }}
-                  </span>
-                </div>
-              </div>
 
-              <!-- Lesson info (materials list, duration) -->
-              <div class="lesson-info-wrapper"
-                   [class.expanded]="isLessonExpanded(section + '_' + lessonObj.name)">
-                <div class="lesson-info-content">
-                      <!-- Список материалов с типом и длительностью -->
-                      <div class="lesson-materials-info" *ngIf="getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)).length > 0">
-                        <!-- Обычные материалы -->
-                        <div *ngIf="getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj))).length > 0">
-                          <div class="materials-label">
-                            <i class="fas fa-file-alt"></i>
-                            Matériaux:
+                  <!-- Sub-sections -->
+                  <div class="subsections-container" *ngIf="subSections[section] && subSections[section].length > 0"
+                    cdkDropList [id]="'main-subsections-' + section" [cdkDropListData]="subSections[section]"
+                    (cdkDropListDropped)="dropSubSectionQuick($event, section)">
+                    <div *ngFor="let subSection of subSections[section]; let subIndex = index" class="subsection-item"
+                      [attr.data-subsection-index]="subIndex" (dragover)="onLessonDragOver($event)"
+                      (drop)="onDropLesson($event, section, subSection)" (dragenter)="onLessonDragEnter($event)"
+                      (dragleave)="onLessonDragLeave($event)" cdkDrag>
+                      <div class="subsection-header">
+                        <span class="subsection-name">
+                          <span class="subsection-drag-handle" cdkDragHandle title="Déplacer la sous-section">
+                            <i class="fas fa-grip-vertical"></i>
+                          </span>
+                          <i class="fas fa-folder"></i>
+                          {{ subIndex + 1 }}. {{ subSection }}
+                        </span>
+                        <div class="subsection-actions">
+                          <button class="btn btn-link btn-xs btn-lesson-subsection"
+                            (click)="addLesson(section, subSection)" title="Ajouter une leçon">
+                            <i class="fas fa-plus"></i>
+                            Leçon
+                          </button>
+                          <button class="btn btn-xs btn-danger btn-delete-subsection"
+                            (click)="removeSubSection(section, subSection)" title="Supprimer la sous-section">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Lessons in this sub-section -->
+                      <div class="lessons-in-subsection" cdkDropList [id]="'subsection-' + section + '-' + subSection"
+                        [cdkDropListConnectedTo]="getConnectedListsForSubsection(section, subSection)"
+                        (cdkDropListDropped)="dropLessonInSubSection($event, section, subSection)">
+                        <div
+                          *ngFor="let lessonObj of getLessonsInSubSection(section, subSection); let lessonIndex = index"
+                          class="lesson-item lesson-in-subsection" [class.lesson-type-self]="lessonObj.type === 'self'"
+                          [class.lesson-type-call]="lessonObj.type === 'call'" cdkDrag>
+                          <div class="lesson-drag-handle" cdkDragHandle>
+                            <i class="fas fa-grip-vertical"></i>
                           </div>
-                          <div class="materials-list-vertical">
-                            <div *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))" 
-                                 class="material-item-vertical"
-                                 (click)="openMaterialPreview(material, $event)"
-                                 [style.cursor]="'pointer'">
-                              <div class="material-info-wrapper">
-                                <div class="material-name">{{ material.filename }}</div>
-                                <div class="material-meta">
-                                  <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype) }}</span>
-                                  <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
-                                    : {{ formatDuration(getMaterialDuration(material)) }}
-                                  </span>
+                          <div class="lesson-header"
+                            (click)="toggleLesson(section + '_' + subSection + '_' + lessonObj.name)">
+                            <div class="lesson-name-wrapper">
+                              <span class="lesson-name">
+                                <i
+                                  [class]="lessonObj.type === 'self' ? 'fas fa-user-graduate' : 'fas fa-phone-alt'"></i>
+                                {{ lessonObj.name }}
+                              </span>
+                              <div class="lesson-description-short"
+                                *ngIf="getLessonDescription(section, subSection, lessonObj.name)">
+                                {{ getLessonDescription(section, subSection, lessonObj.name) }}
+                              </div>
+                              <div class="lesson-duration-short"
+                                *ngIf="lessonObj.type === 'call' && getPlannedDurationMinutes(lessonObj)">
+                                <i class="fas fa-clock"></i>
+                                <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
+                              </div>
+                            </div>
+                            <div class="lesson-actions" (click)="$event.stopPropagation()">
+                              <button class="btn btn-link btn-xs btn-preview-lesson"
+                                (click)="openLessonPreview(section, lessonObj.name, subSection)" title="Gérer la leçon">
+                                <i class="fas fa-cog"></i>
+                              </button>
+                              <button class="btn btn-xs btn-danger btn-delete-lesson"
+                                (click)="removeLesson(section, lessonObj.name, subSection)" title="Supprimer la leçon">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                              <span class="expand-icon"
+                                [attr.data-chevron-state]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name) ? 'up' : 'down'"
+                                [attr.title]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name) ? 'Réduire le contenu' : 'Développer le contenu'">
+                                {{ isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name) ? '˄' : '˅' }}
+                              </span>
+                            </div>
+                          </div>
+
+                          <!-- Lesson info (materials list, duration) -->
+                          <div class="lesson-info-wrapper"
+                            [class.expanded]="isLessonExpanded(section + '_' + subSection + '_' + lessonObj.name)">
+                            <div class="lesson-info-content">
+                              <!-- Список материалов с типом и длительностью -->
+                              <div class="lesson-materials-info"
+                                *ngIf="getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)).length > 0">
+                                <!-- Обычные материалы -->
+                                <div
+                                  *ngIf="getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj))).length > 0">
+                                  <div class="materials-label">
+                                    <i class="fas fa-file-alt"></i>
+                                    Matériaux:
+                                  </div>
+                                  <div class="materials-list-vertical">
+                                    <div
+                                      *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))"
+                                      class="material-item-vertical" (click)="openMaterialPreview(material, $event)"
+                                      [style.cursor]="'pointer'">
+                                      <div class="material-info-wrapper">
+                                        <div class="material-name">{{ getMaterialDisplayName(material) }}</div>
+                                        <div class="material-meta">
+                                          <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype)
+                                            }}</span>
+                                          <span class="material-duration-badge"
+                                            *ngIf="getMaterialDuration(material) > 0">
+                                            : {{ formatDuration(getMaterialDuration(material)) }}
+                                          </span>
+                                        </div>
+                                        <div class="material-homework-count"
+                                          *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) > 0">
+                                          {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section,
+                                          subSection) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name,
+                                          section, subSection) === 1 ? 'devoir' : 'devoirs' }}
+                                        </div>
+                                      </div>
+                                      <button class="btn btn-sm btn-danger material-delete-btn"
+                                        (click)="deleteMaterial(material); $event.stopPropagation()" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                      </button>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section) > 0">
-                                  {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
+
+                                <!-- Материалы конструкторов -->
+                                <div
+                                  *ngIf="getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj))).length > 0"
+                                  class="constructor-materials-section">
+                                  <div class="materials-label constructor-label">
+                                    <i class="fas fa-puzzle-piece"></i>
+                                    Matériaux constructeurs:
+                                  </div>
+                                  <div class="materials-list-vertical">
+                                    <div
+                                      *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)))"
+                                      class="material-item-vertical constructor-material"
+                                      (click)="openMaterialPreview(material, $event)" [style.cursor]="'pointer'">
+                                      <div class="material-info-wrapper">
+                                        <div class="material-name">{{ getMaterialDisplayName(material) }}</div>
+                                        <div class="material-meta">
+                                          <span class="material-type-badge constructor-badge">{{
+                                            getConstructorTypeLabel(material) }}</span>
+                                          <span class="material-duration-badge"
+                                            *ngIf="getMaterialDuration(material) > 0">
+                                            : {{ formatDuration(getMaterialDuration(material)) }}
+                                          </span>
+                                        </div>
+                                        <div class="material-homework-count"
+                                          *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section, subSection) > 0">
+                                          {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section,
+                                          subSection) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name,
+                                          section, subSection) === 1 ? 'devoir' : 'devoirs' }}
+                                        </div>
+                                      </div>
+                                      <button class="btn btn-sm btn-danger material-delete-btn"
+                                        (click)="deleteMaterial(material); $event.stopPropagation()" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                      </button>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                              <button 
-                                class="btn btn-sm btn-danger material-delete-btn"
-                                (click)="deleteMaterial(material); $event.stopPropagation()"
-                                title="Supprimer">
-                                <i class="fas fa-trash"></i>
+
+                              <!-- Общие задания для урока типа 'self' в подсекции -->
+                              <div class="lesson-homework-for-self"
+                                *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
+                                <div class="lesson-homework-label">
+                                  <i class="fas fa-tasks"></i>
+                                  Devoirs pour tout le cours:
+                                </div>
+                                <div class="lesson-homework-count">
+                                  {{ getHomeworkCountForLesson(lessonObj.name, section, subSection) }} {{
+                                  getHomeworkCountForLesson(lessonObj.name, section, subSection) === 1 ? 'devoir' :
+                                  'devoirs' }}
+                                </div>
+                              </div>
+
+                              <!-- Информация для урока типа 'call' в подсекции -->
+                              <div class="lesson-call-info"
+                                *ngIf="lessonObj.type === 'call' && getHomeworkCountForLesson(lessonObj.name, section, subSection) > 0">
+                                <div class="call-info-item">
+                                  <i class="fas fa-tasks"></i>
+                                  <span>{{ getHomeworkCountForLesson(lessonObj.name, section, subSection) }} {{
+                                    getHomeworkCountForLesson(lessonObj.name, section, subSection) === 1 ? 'devoir' :
+                                    'devoirs' }}</span>
+                                </div>
+                              </div>
+
+                              <!-- Пустое состояние -->
+                              <div class="lesson-info-empty"
+                                *ngIf="getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)).length === 0 && lessonObj.type !== 'call'">
+                                <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon
+                                </p>
+                              </div>
+                              <div class="lesson-info-empty"
+                                *ngIf="getMaterialsByLesson(lessonObj.name, section, subSection, getCourseLessonId(lessonObj)).length === 0 && lessonObj.type === 'call'">
+                                <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau pour
+                                  consultation dans cette leçon</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div *cdkDragPlaceholder class="lesson-placeholder"></div>
+                        </div>
+                      </div>
+                      <div *cdkDragPlaceholder class="subsection-placeholder subsection-item"></div>
+                    </div>
+                  </div>
+
+                  <!-- Lessons (not in sub-sections) -->
+                  <div class="lessons-container" [class.has-lessons]="getLessonsInSection(section).length > 0">
+                    <div class="lessons-section-header">
+                      <div class="lessons-section-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        Leçons de la section (hors sous-section)
+                      </div>
+                      <button class="btn btn-link btn-sm btn-lesson" (click)="addLesson(section)"
+                        title="Ajouter une leçon à la section">
+                        <i class="fas fa-plus"></i>
+                        Ajouter une leçon
+                      </button>
+                    </div>
+                    <div class="lessons-list-section" cdkDropList [id]="'section-' + section"
+                      [cdkDropListConnectedTo]="getConnectedSubsectionLists(section)"
+                      (cdkDropListDropped)="dropLessonInSection($event, section)">
+                      <div *ngFor="let lessonObj of getLessonsInSection(section); let lessonIndex = index"
+                        class="lesson-item" [class.lesson-type-self]="lessonObj.type === 'self'"
+                        [class.lesson-type-call]="lessonObj.type === 'call'" [attr.data-lesson-index]="lessonIndex"
+                        cdkDrag>
+                        <div class="lesson-drag-handle" cdkDragHandle>
+                          <i class="fas fa-grip-vertical"></i>
+                        </div>
+                        <div class="lesson-header" (click)="toggleLesson(section + '_' + lessonObj.name)">
+                          <div class="lesson-name-wrapper">
+                            <span class="lesson-name">
+                              <i [class]="lessonObj.type === 'self' ? 'fas fa-user-graduate' : 'fas fa-phone-alt'"></i>
+                              {{ lessonObj.name }}
+                            </span>
+                            <div class="lesson-description-short"
+                              *ngIf="getLessonDescription(section, null, lessonObj.name)">
+                              {{ getLessonDescription(section, null, lessonObj.name) }}
+                            </div>
+                            <div class="lesson-duration-short"
+                              *ngIf="lessonObj.type === 'call' && getPlannedDurationMinutes(lessonObj)">
+                              <i class="fas fa-clock"></i>
+                              <span>Durée: {{ getPlannedDurationMinutes(lessonObj) }} min</span>
+                            </div>
+                          </div>
+                          <div class="lesson-actions" (click)="$event.stopPropagation()">
+                            <button class="btn btn-link btn-xs btn-preview-lesson"
+                              (click)="openLessonPreview(section, lessonObj.name)" title="Gérer la leçon">
+                              <i class="fas fa-cog"></i>
+                            </button>
+                            <button class="btn btn-xs btn-danger btn-delete-lesson"
+                              (click)="removeLesson(section, lessonObj.name)" title="Supprimer la leçon">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                            <span class="expand-icon"
+                              [attr.data-chevron-state]="isLessonExpanded(section + '_' + lessonObj.name) ? 'up' : 'down'"
+                              [attr.title]="isLessonExpanded(section + '_' + lessonObj.name) ? 'Réduire le contenu' : 'Développer le contenu'">
+                              {{ isLessonExpanded(section + '_' + lessonObj.name) ? '˄' : '˅' }}
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Lesson info (materials list, duration) -->
+                        <div class="lesson-info-wrapper"
+                          [class.expanded]="isLessonExpanded(section + '_' + lessonObj.name)">
+                          <div class="lesson-info-content">
+                            <!-- Список материалов с типом и длительностью -->
+                            <div class="lesson-materials-info"
+                              *ngIf="getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)).length > 0">
+                              <!-- Обычные материалы -->
+                              <div
+                                *ngIf="getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj))).length > 0">
+                                <div class="materials-label">
+                                  <i class="fas fa-file-alt"></i>
+                                  Matériaux:
+                                </div>
+                                <div class="materials-list-vertical">
+                                  <div
+                                    *ngFor="let material of getRegularMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))"
+                                    class="material-item-vertical" (click)="openMaterialPreview(material, $event)"
+                                    [style.cursor]="'pointer'">
+                                    <div class="material-info-wrapper">
+                                      <div class="material-name">{{ getMaterialDisplayName(material) }}</div>
+                                      <div class="material-meta">
+                                        <span class="material-type-badge">{{ getMaterialTypeLabel(material.mimetype)
+                                          }}</span>
+                                        <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
+                                          : {{ formatDuration(getMaterialDuration(material)) }}
+                                        </span>
+                                      </div>
+                                      <div class="material-homework-count"
+                                        *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section) > 0">
+                                        {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) }} {{
+                                        getHomeworkCountForMaterial(material.id, lessonObj.name, section) === 1 ?
+                                        'devoir' : 'devoirs' }}
+                                      </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger material-delete-btn"
+                                      (click)="deleteMaterial(material); $event.stopPropagation()" title="Supprimer">
+                                      <i class="fas fa-trash"></i>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <!-- Материалы конструкторов -->
+                              <div
+                                *ngIf="getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj))).length > 0"
+                                class="constructor-materials-section">
+                                <div class="materials-label constructor-label">
+                                  <i class="fas fa-puzzle-piece"></i>
+                                  Matériaux constructeurs:
+                                </div>
+                                <div class="materials-list-vertical">
+                                  <div
+                                    *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))"
+                                    class="material-item-vertical constructor-material"
+                                    (click)="openMaterialPreview(material, $event)" [style.cursor]="'pointer'">
+                                    <div class="material-info-wrapper">
+                                      <div class="material-name">{{ getMaterialDisplayName(material) }}</div>
+                                      <div class="material-meta">
+                                        <span class="material-type-badge constructor-badge">{{
+                                          getConstructorTypeLabel(material) }}</span>
+                                        <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
+                                          : {{ formatDuration(getMaterialDuration(material)) }}
+                                        </span>
+                                      </div>
+                                      <div class="material-homework-count"
+                                        *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section) > 0">
+                                        {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) }} {{
+                                        getHomeworkCountForMaterial(material.id, lessonObj.name, section) === 1 ?
+                                        'devoir' : 'devoirs' }}
+                                      </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger material-delete-btn"
+                                      (click)="deleteMaterial(material); $event.stopPropagation()" title="Supprimer">
+                                      <i class="fas fa-trash"></i>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Общие задания для урока типа 'self' на уровне секции -->
+                            <div class="lesson-homework-for-self"
+                              *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
+                              <div class="lesson-homework-label">
+                                <i class="fas fa-tasks"></i>
+                                Devoirs pour tout le cours:
+                              </div>
+                              <div class="lesson-homework-count">
+                                {{ getHomeworkCountForLesson(lessonObj.name, section) }} {{
+                                getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
+                              </div>
+                            </div>
+
+                            <!-- Информация для урока типа 'call' на уровне секции -->
+                            <div class="lesson-call-info"
+                              *ngIf="lessonObj.type === 'call' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
+                              <div class="call-info-item">
+                                <i class="fas fa-tasks"></i>
+                                <span>{{ getHomeworkCountForLesson(lessonObj.name, section) }} {{
+                                  getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs'
+                                  }}</span>
+                              </div>
+                            </div>
+
+                            <!-- Пустое состояние -->
+                            <div class="lesson-info-empty"
+                              *ngIf="getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)).length === 0 && lessonObj.type !== 'call'">
+                              <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon
+                              </p>
+                            </div>
+                            <div class="lesson-info-empty"
+                              *ngIf="getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)).length === 0 && lessonObj.type === 'call'">
+                              <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau pour consultation
+                                dans cette leçon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div *cdkDragPlaceholder class="lesson-placeholder"></div>
+                      </div>
+                    </div>
+
+                    <div class="section-materials-empty"
+                      *ngIf="getMaterialsBySection(section).length === 0 && (!lessons[section] || lessons[section].length === 0)">
+                      <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette section</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Create Material Form Modal -->
+                <div *ngIf="showCreateMaterialForm" class="create-form-modal">
+                  <div class="modal-overlay" (click)="clearMaterialForm()"></div>
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h3>
+                        <i class="fas fa-plus-circle"></i>
+                        Attacher un matériau au cours
+                      </h3>
+                      <button class="close-btn" (click)="clearMaterialForm()">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+
+                    <!-- Tabs for new/existing materials -->
+                    <div class="modal-tabs">
+                      <button class="tab-btn" [class.active]="!showExistingMaterials"
+                        (click)="showExistingMaterials = false">
+                        <i class="fas fa-plus"></i>
+                        Nouveau matériau
+                      </button>
+                      <button class="tab-btn" [class.active]="showExistingMaterials"
+                        (click)="toggleExistingMaterials()">
+                        <i class="fas fa-folder-open"></i>
+                        Matériaux existants
+                        <span *ngIf="trainerMaterials.length > 0" class="badge">{{ trainerMaterials.length }}</span>
+                      </button>
+                    </div>
+
+                    <div class="modal-body">
+                      <!-- Existing Materials List -->
+                      <div *ngIf="showExistingMaterials" class="existing-materials-list">
+                        <div *ngIf="loadingTrainerMaterials" class="loading-message">
+                          <i class="fas fa-spinner fa-spin"></i>
+                          Chargement des matériaux...
+                        </div>
+
+                        <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length === 0"
+                          class="no-materials-message">
+                          <p><i class="fas fa-info-circle"></i> Vous n'avez pas encore de matériaux dans Entraînement.
+                          </p>
+                          <p>Créez d'abord des matériaux dans la section Entraînement.</p>
+                        </div>
+
+                        <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length > 0"
+                          class="materials-grid-mini">
+                          <div *ngFor="let material of trainerMaterials" class="material-card-mini"
+                            (click)="addExistingMaterialToCourse(material)">
+                            <div class="material-header-mini">
+                              <div class="material-type-mini">
+                                <i [class]="getMaterialTypeIcon(material.type)"></i>
+                                <span>{{ material.type.toUpperCase() }}</span>
+                              </div>
+                            </div>
+                            <div class="material-body-mini">
+                              <h5>{{ material.title }}</h5>
+                              <p *ngIf="material.description" class="material-description-mini">
+                                {{ material.description }}
+                              </p>
+                              <div *ngIf="material.tags && material.tags.length > 0" class="material-tags-mini">
+                                <span *ngFor="let tag of material.tags" class="tag-mini">{{ tag }}</span>
+                              </div>
+                            </div>
+                            <div class="material-footer-mini">
+                              <button class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Ajouter au cours
                               </button>
                             </div>
                           </div>
                         </div>
+                      </div>
 
-                        <!-- Материалы конструкторов -->
-                        <div *ngIf="getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj))).length > 0" class="constructor-materials-section">
-                          <div class="materials-label constructor-label">
-                            <i class="fas fa-puzzle-piece"></i>
-                            Matériaux constructeurs:
-                          </div>
-                          <div class="materials-list-vertical">
-                            <div *ngFor="let material of getConstructorMaterials(getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)))" 
-                                 class="material-item-vertical constructor-material"
-                                 (click)="openMaterialPreview(material, $event)"
-                                 [style.cursor]="'pointer'">
-                              <div class="material-info-wrapper">
-                                <div class="material-name">{{ material.filename }}</div>
-                                <div class="material-meta">
-                                  <span class="material-type-badge constructor-badge">{{ getConstructorTypeLabel(material) }}</span>
-                                  <span class="material-duration-badge" *ngIf="getMaterialDuration(material) > 0">
-                                    : {{ formatDuration(getMaterialDuration(material)) }}
-                                  </span>
-                                </div>
-                                <div class="material-homework-count" *ngIf="getHomeworkCountForMaterial(material.id, lessonObj.name, section) > 0">
-                                  {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) }} {{ getHomeworkCountForMaterial(material.id, lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
+                      <!-- Create New Material Form -->
+                      <div *ngIf="!showExistingMaterials">
+                        <div class="form-group">
+                          <label>Titre du matériau *</label>
+                          <input type="text" [(ngModel)]="newMaterial.title" placeholder="Ex: Grammaire - Le subjonctif"
+                            class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                          <label>Type de matériau</label>
+                          <select [(ngModel)]="newMaterial.type" class="form-control">
+                            <option value="text">📄 Texte</option>
+                            <option value="audio">🎧 Audio</option>
+                            <option value="video">🎬 Vidéo</option>
+                            <option value="pdf">📋 PDF</option>
+                            <option value="image">🖼️ Image</option>
+                          </select>
+                        </div>
+
+                        <!-- File Upload for specific types -->
+                        <div class="form-group" *ngIf="needsFileUpload()">
+                          <label>Fichier à télécharger</label>
+                          <div class="file-upload-container" (dragover)="onDragOver($event)"
+                            (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.drag-over]="isDragOver">
+                            <input type="file" id="materialFile" (change)="onFileSelected($event)"
+                              [accept]="getAcceptedFileTypes()" class="file-input">
+                            <label for="materialFile" class="file-upload-label">
+                              <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <div class="upload-text">
+                                  <span *ngIf="!selectedFile" class="upload-main">Choisir un fichier</span>
+                                  <span *ngIf="selectedFile" class="upload-main">{{ selectedFile.name }}</span>
+                                  <small class="upload-hint">ou glissez-déposez ici</small>
                                 </div>
                               </div>
-                              <button 
-                                class="btn btn-sm btn-danger material-delete-btn"
-                                (click)="deleteMaterial(material); $event.stopPropagation()"
-                                title="Supprimer">
-                                <i class="fas fa-trash"></i>
+                            </label>
+                          </div>
+
+                          <!-- File Preview -->
+                          <div *ngIf="selectedFile && filePreview" class="file-preview">
+                            <div class="preview-header">
+                              <h5>Aperçu du fichier</h5>
+                              <button type="button" class="remove-file-btn" (click)="removeSelectedFile()">
+                                <i class="fas fa-times"></i>
                               </button>
+                            </div>
+                            <div class="preview-content">
+                              <img *ngIf="newMaterial.type === 'image'" [src]="filePreview" alt="Aperçu"
+                                class="image-preview">
+                              <div *ngIf="newMaterial.type === 'pdf'" class="file-info">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>{{ selectedFile.name }}</span>
+                                <small>{{ formatFileSize(selectedFile.size) }}</small>
+                              </div>
+                              <div *ngIf="newMaterial.type === 'audio'" class="file-info">
+                                <i class="fas fa-music"></i>
+                                <span>{{ selectedFile.name }}</span>
+                                <small>{{ formatFileSize(selectedFile.size) }}</small>
+                              </div>
+                              <div *ngIf="newMaterial.type === 'video'" class="file-info">
+                                <i class="fas fa-video"></i>
+                                <span>{{ selectedFile.name }}</span>
+                                <small>{{ formatFileSize(selectedFile.size) }}</small>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <!-- Общие задания для урока типа 'self' на уровне секции -->
-                      <div class="lesson-homework-for-self" *ngIf="lessonObj.type === 'self' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
-                        <div class="lesson-homework-label">
-                          <i class="fas fa-tasks"></i>
-                          Devoirs pour tout le cours:
+                        <!-- Text content for text type -->
+                        <div class="form-group" *ngIf="newMaterial.type === 'text'">
+                          <label>Contenu du texte *</label>
+                          <textarea [(ngModel)]="newMaterial.content" placeholder="Saisissez le contenu du texte..."
+                            class="form-control" rows="6"></textarea>
                         </div>
-                        <div class="lesson-homework-count">
-                          {{ getHomeworkCountForLesson(lessonObj.name, section) }} {{ getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}
+
+                        <div class="form-group">
+                          <label>Description</label>
+                          <textarea [(ngModel)]="newMaterial.description" placeholder="Description du matériau..."
+                            class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                          <label>Tag (optionnel)</label>
+                          <input type="text" [(ngModel)]="newMaterial.tag" placeholder="Ex: grammaire, vocabulaire..."
+                            class="form-control">
                         </div>
                       </div>
+                    </div>
 
-                      <!-- Информация для урока типа 'call' на уровне секции -->
-                      <div class="lesson-call-info" *ngIf="lessonObj.type === 'call' && getHomeworkCountForLesson(lessonObj.name, section) > 0">
-                        <div class="call-info-item">
-                          <i class="fas fa-tasks"></i>
-                          <span>{{ getHomeworkCountForLesson(lessonObj.name, section) }} {{ getHomeworkCountForLesson(lessonObj.name, section) === 1 ? 'devoir' : 'devoirs' }}</span>
-                        </div>
-                      </div>
-
-                      <!-- Пустое состояние -->
-                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)).length === 0 && lessonObj.type !== 'call'">
-                        <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette leçon</p>
-                      </div>
-                      <div class="lesson-info-empty" *ngIf="getMaterialsByLesson(lessonObj.name, section, null, getCourseLessonId(lessonObj)).length === 0 && lessonObj.type === 'call'">
-                        <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau pour consultation dans cette leçon</p>
-                      </div>
-                </div>
-              </div>
-              <div *cdkDragPlaceholder class="lesson-placeholder"></div>
-            </div>
-          </div>
-
-          <div class="section-materials-empty" *ngIf="getMaterialsBySection(section).length === 0 && (!lessons[section] || lessons[section].length === 0)">
-            <p class="text-muted"><i class="fas fa-info-circle"></i> Aucun matériau dans cette section</p>
-          </div>
-        </div>
-      </div>
-
-          <!-- Create Material Form Modal -->
-          <div *ngIf="showCreateMaterialForm" class="create-form-modal">
-      <div class="modal-overlay" (click)="clearMaterialForm()"></div>
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>
-            <i class="fas fa-plus-circle"></i>
-            Attacher un matériau au cours
-          </h3>
-          <button class="close-btn" (click)="clearMaterialForm()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-
-        <!-- Tabs for new/existing materials -->
-        <div class="modal-tabs">
-          <button
-            class="tab-btn"
-            [class.active]="!showExistingMaterials"
-            (click)="showExistingMaterials = false">
-            <i class="fas fa-plus"></i>
-            Nouveau matériau
-          </button>
-          <button
-            class="tab-btn"
-            [class.active]="showExistingMaterials"
-            (click)="toggleExistingMaterials()">
-            <i class="fas fa-folder-open"></i>
-            Matériaux existants
-            <span *ngIf="trainerMaterials.length > 0" class="badge">{{ trainerMaterials.length }}</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <!-- Existing Materials List -->
-          <div *ngIf="showExistingMaterials" class="existing-materials-list">
-            <div *ngIf="loadingTrainerMaterials" class="loading-message">
-              <i class="fas fa-spinner fa-spin"></i>
-              Chargement des matériaux...
-            </div>
-
-            <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length === 0" class="no-materials-message">
-              <p><i class="fas fa-info-circle"></i> Vous n'avez pas encore de matériaux dans Entraînement.</p>
-              <p>Créez d'abord des matériaux dans la section Entraînement.</p>
-            </div>
-
-            <div *ngIf="!loadingTrainerMaterials && trainerMaterials.length > 0" class="materials-grid-mini">
-              <div
-                *ngFor="let material of trainerMaterials"
-                class="material-card-mini"
-                (click)="addExistingMaterialToCourse(material)">
-                <div class="material-header-mini">
-                  <div class="material-type-mini">
-                    <i [class]="getMaterialTypeIcon(material.type)"></i>
-                    <span>{{ material.type.toUpperCase() }}</span>
+                    <div class="modal-footer">
+                      <button class="btn btn-secondary" (click)="clearMaterialForm()">
+                        Annuler
+                      </button>
+                      <button *ngIf="!showExistingMaterials" class="btn btn-primary" (click)="createMaterial()"
+                        [disabled]="!newMaterial.title.trim() || sections.length === 0 || (!selectedSection && !selectedLesson) || (needsFileUpload() && !selectedFile) || (newMaterial.type === 'text' && !newMaterial.content.trim())">
+                        <i class="fas fa-check"></i>
+                        Créer
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div class="material-body-mini">
-                  <h5>{{ material.title }}</h5>
-                  <p *ngIf="material.description" class="material-description-mini">
-                    {{ material.description }}
-                  </p>
-                  <div *ngIf="material.tags && material.tags.length > 0" class="material-tags-mini">
-                    <span *ngFor="let tag of material.tags" class="tag-mini">{{ tag }}</span>
+
+                <!-- Upload Modal (for sections) -->
+                <div *ngIf="isUploadModalOpen" class="modal fade show d-block" tabindex="-1">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Ajouter média</h5>
+                        <button type="button" class="btn-close" (click)="closeUploadModal()"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form>
+                          <div class="mb-3">
+                            <label for="mediaName" class="form-label">Название медиа*</label>
+                            <input type="text" class="form-control" id="mediaName" [(ngModel)]="newMaterial.title"
+                              name="mediaTitle" required>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="mediaTag" class="form-label">Тег (опционально)</label>
+                            <input type="text" class="form-control" id="mediaTag" [(ngModel)]="newMaterial.tag"
+                              name="mediaTag">
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="mediaDescription" class="form-label">Описание (опционально)</label>
+                            <textarea class="form-control" id="mediaDescription" [(ngModel)]="newMaterial.description"
+                              name="mediaDescription"></textarea>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="coverImage" class="form-label">Обложка (опционально)</label>
+                            <input type="file" class="form-control" id="coverImage" (change)="selectCoverImage($event)">
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="mediaFile" class="form-label">Выберите файл*</label>
+                            <input type="file" class="form-control" id="mediaFile" (change)="selectFile($event)"
+                              required>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">Отмена</button>
+                        <button type="button" class="btn btn-primary" (click)="confirmUpload()">Загрузить</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="material-footer-mini">
-                  <button class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Ajouter au cours
-                  </button>
-                </div>
               </div>
             </div>
           </div>
-
-          <!-- Create New Material Form -->
-          <div *ngIf="!showExistingMaterials">
-          <div class="form-group">
-            <label>Titre du matériau *</label>
-            <input
-              type="text"
-              [(ngModel)]="newMaterial.title"
-              placeholder="Ex: Grammaire - Le subjonctif"
-              class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label>Type de matériau</label>
-            <select [(ngModel)]="newMaterial.type" class="form-control">
-              <option value="text">📄 Texte</option>
-              <option value="audio">🎧 Audio</option>
-              <option value="video">🎬 Vidéo</option>
-              <option value="pdf">📋 PDF</option>
-              <option value="image">🖼️ Image</option>
-            </select>
-          </div>
-
-          <!-- File Upload for specific types -->
-          <div class="form-group" *ngIf="needsFileUpload()">
-            <label>Fichier à télécharger</label>
-            <div class="file-upload-container"
-                 (dragover)="onDragOver($event)"
-                 (dragleave)="onDragLeave($event)"
-                 (drop)="onDrop($event)"
-                 [class.drag-over]="isDragOver">
-              <input
-                type="file"
-                id="materialFile"
-                (change)="onFileSelected($event)"
-                [accept]="getAcceptedFileTypes()"
-                class="file-input">
-              <label for="materialFile" class="file-upload-label">
-                <div class="upload-content">
-                  <i class="fas fa-cloud-upload-alt"></i>
-                  <div class="upload-text">
-                    <span *ngIf="!selectedFile" class="upload-main">Choisir un fichier</span>
-                    <span *ngIf="selectedFile" class="upload-main">{{ selectedFile.name }}</span>
-                    <small class="upload-hint">ou glissez-déposez ici</small>
-                  </div>
-                </div>
-              </label>
-            </div>
-
-            <!-- File Preview -->
-            <div *ngIf="selectedFile && filePreview" class="file-preview">
-              <div class="preview-header">
-                <h5>Aperçu du fichier</h5>
-                <button type="button" class="remove-file-btn" (click)="removeSelectedFile()">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-              <div class="preview-content">
-                <img *ngIf="newMaterial.type === 'image'" [src]="filePreview" alt="Aperçu" class="image-preview">
-                <div *ngIf="newMaterial.type === 'pdf'" class="file-info">
-                  <i class="fas fa-file-pdf"></i>
-                  <span>{{ selectedFile.name }}</span>
-                  <small>{{ formatFileSize(selectedFile.size) }}</small>
-                </div>
-                <div *ngIf="newMaterial.type === 'audio'" class="file-info">
-                  <i class="fas fa-music"></i>
-                  <span>{{ selectedFile.name }}</span>
-                  <small>{{ formatFileSize(selectedFile.size) }}</small>
-                </div>
-                <div *ngIf="newMaterial.type === 'video'" class="file-info">
-                  <i class="fas fa-video"></i>
-                  <span>{{ selectedFile.name }}</span>
-                  <small>{{ formatFileSize(selectedFile.size) }}</small>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Text content for text type -->
-          <div class="form-group" *ngIf="newMaterial.type === 'text'">
-            <label>Contenu du texte *</label>
-            <textarea
-              [(ngModel)]="newMaterial.content"
-              placeholder="Saisissez le contenu du texte..."
-              class="form-control"
-              rows="6"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Description</label>
-            <textarea
-              [(ngModel)]="newMaterial.description"
-              placeholder="Description du matériau..."
-              class="form-control"
-              rows="3"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Tag (optionnel)</label>
-            <input
-              type="text"
-              [(ngModel)]="newMaterial.tag"
-              placeholder="Ex: grammaire, vocabulaire..."
-              class="form-control">
-          </div>
-          </div>
         </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="clearMaterialForm()">
-            Annuler
-          </button>
-          <button
-            *ngIf="!showExistingMaterials"
-            class="btn btn-primary"
-            (click)="createMaterial()"
-            [disabled]="!newMaterial.title.trim() || sections.length === 0 || (!selectedSection && !selectedLesson) || (needsFileUpload() && !selectedFile) || (newMaterial.type === 'text' && !newMaterial.content.trim())">
-            <i class="fas fa-check"></i>
-            Créer
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Upload Modal (for sections) -->
-    <div *ngIf="isUploadModalOpen" class="modal fade show d-block" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Ajouter média</h5>
-            <button type="button" class="btn-close" (click)="closeUploadModal()"></button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="mb-3">
-                <label for="mediaName" class="form-label">Название медиа*</label>
-                <input type="text" class="form-control" id="mediaName" [(ngModel)]="newMaterial.title" name="mediaTitle" required>
-              </div>
-
-              <div class="mb-3">
-                <label for="mediaTag" class="form-label">Тег (опционально)</label>
-                <input type="text" class="form-control" id="mediaTag" [(ngModel)]="newMaterial.tag" name="mediaTag">
-              </div>
-
-              <div class="mb-3">
-                <label for="mediaDescription" class="form-label">Описание (опционально)</label>
-                <textarea class="form-control" id="mediaDescription" [(ngModel)]="newMaterial.description" name="mediaDescription"></textarea>
-              </div>
-
-              <div class="mb-3">
-                <label for="coverImage" class="form-label">Обложка (опционально)</label>
-                <input type="file" class="form-control" id="coverImage" (change)="selectCoverImage($event)">
-              </div>
-
-              <div class="mb-3">
-                <label for="mediaFile" class="form-label">Выберите файл*</label>
-                <input type="file" class="form-control" id="mediaFile" (change)="selectFile($event)" required>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">Отмена</button>
-            <button type="button" class="btn btn-primary" (click)="confirmUpload()">Загрузить</button>
-          </div>
-        </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-

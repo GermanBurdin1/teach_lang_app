@@ -66,6 +66,14 @@ export class TrainerComponent implements OnInit {
   ownMaterials: Material[] = [];
   teacherMaterials: Material[] = [];
   showCreateMaterialForm = false;
+  
+  // Фильтр материалов по типу
+  materialTypeFilter: 'all' | 'video' | 'audio' | 'text' = 'all';
+  
+  // Редактирование материала
+  showEditMaterialModal = false;
+  editingMaterial: Material | null = null;
+  editedMaterialTitle = '';
 
   newMaterial = {
     title: '',
@@ -1060,13 +1068,22 @@ export class TrainerComponent implements OnInit {
   }
 
   getCurrentMaterials(): Material[] {
+    let materials: Material[] = [];
+    
     if (this.isTeacher()) {
       // Преподаватели видят только свои материалы
-      return this.ownMaterials;
+      materials = this.ownMaterials;
     } else {
       // Студенты видят материалы в зависимости от активной подвкладки
-      return this.activeMaterialTab === 'own' ? this.ownMaterials : this.teacherMaterials;
+      materials = this.activeMaterialTab === 'own' ? this.ownMaterials : this.teacherMaterials;
     }
+    
+    // Применяем фильтр по типу
+    if (this.materialTypeFilter !== 'all') {
+      materials = materials.filter(m => m.type === this.materialTypeFilter);
+    }
+    
+    return materials;
   }
 
   setAudioTask(task: string) {
@@ -2120,6 +2137,58 @@ export class TrainerComponent implements OnInit {
       ? '/cabinet/teacher/teacher/add-course'
       : '/cabinet/school/admin/add-course';
     this.router.navigate([route]);
+  }
+
+  // ==================== EDIT MATERIAL METHODS ====================
+
+  openEditMaterialModal(material: Material): void {
+    this.editingMaterial = material;
+    this.editedMaterialTitle = material.title;
+    this.showEditMaterialModal = true;
+  }
+
+  closeEditMaterialModal(): void {
+    this.showEditMaterialModal = false;
+    this.editingMaterial = null;
+    this.editedMaterialTitle = '';
+  }
+
+  updateMaterialTitle(): void {
+    if (!this.editingMaterial || !this.editedMaterialTitle.trim()) {
+      this.notificationService.error('Veuillez saisir un titre valide');
+      return;
+    }
+
+    if (this.editedMaterialTitle.trim() === this.editingMaterial.title) {
+      // Ничего не изменилось
+      this.closeEditMaterialModal();
+      return;
+    }
+
+    this.materialService.updateMaterial(this.editingMaterial.id, {
+      title: this.editedMaterialTitle.trim()
+    }).subscribe({
+      next: (updatedMaterial) => {
+        // Обновляем материал в локальных массивах
+        const updateMaterialInArray = (arr: Material[]) => {
+          const index = arr.findIndex(m => m.id === updatedMaterial.id);
+          if (index !== -1) {
+            arr[index] = updatedMaterial;
+          }
+        };
+
+        updateMaterialInArray(this.materials);
+        updateMaterialInArray(this.ownMaterials);
+        updateMaterialInArray(this.teacherMaterials);
+
+        this.notificationService.success('Matériau renommé avec succès!');
+        this.closeEditMaterialModal();
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la mise à jour du matériau:', error);
+        this.notificationService.error('Erreur lors de la mise à jour du matériau');
+      }
+    });
   }
 
   private updateSEOTags(): void {

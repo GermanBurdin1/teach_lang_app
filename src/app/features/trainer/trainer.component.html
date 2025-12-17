@@ -41,13 +41,50 @@
         <span *ngIf="isTeacher()">Mes Matériaux Pédagogiques</span>
         <span *ngIf="isStudent()">Matériaux d'Apprentissage</span>
       </h2>
-      <button 
-        class="btn btn-primary"
-        *ngIf="isTeacher() || (isStudent() && activeMaterialTab === 'own')"
-        (click)="showCreateMaterialForm = true">
-        <i class="fas fa-plus"></i>
-        Nouveau Matériau
-      </button>
+      <div class="header-actions">
+        <!-- Фильтр по типу материалов -->
+        <div class="material-filter">
+          <button 
+            class="filter-btn"
+            [class.active]="materialTypeFilter === 'all'"
+            (click)="materialTypeFilter = 'all'"
+            title="Tous les matériaux">
+            <i class="fas fa-th"></i>
+            Tous
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="materialTypeFilter === 'video'"
+            (click)="materialTypeFilter = 'video'"
+            title="Vidéos uniquement">
+            <i class="fas fa-video"></i>
+            Vidéo
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="materialTypeFilter === 'audio'"
+            (click)="materialTypeFilter = 'audio'"
+            title="Audios uniquement">
+            <i class="fas fa-volume-up"></i>
+            Audio
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="materialTypeFilter === 'text'"
+            (click)="materialTypeFilter = 'text'"
+            title="Textes uniquement">
+            <i class="fas fa-file-text"></i>
+            Texte
+          </button>
+        </div>
+        <button 
+          class="btn btn-primary"
+          *ngIf="isTeacher() || (isStudent() && activeMaterialTab === 'own')"
+          (click)="showCreateMaterialForm = true">
+          <i class="fas fa-plus"></i>
+          Nouveau Matériau
+        </button>
+      </div>
     </div>
 
     <!-- Material Sub-tabs (only for students) -->
@@ -250,6 +287,12 @@
             {{ material.type.toUpperCase() }}
           </div>
           <div class="material-actions">
+            <button 
+              class="action-btn edit-btn"
+              (click)="openEditMaterialModal(material)"
+              title="Renommer le matériau">
+              <i class="fas fa-edit"></i>
+            </button>
             <button 
               class="action-btn attach-btn"
               (click)="openAttachModal(material)"
@@ -1111,6 +1154,47 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for editing material title -->
+<div *ngIf="showEditMaterialModal" class="create-form-modal">
+  <div class="modal-overlay" (click)="closeEditMaterialModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>
+        <i class="fas fa-edit"></i>
+        Renommer le matériau
+      </h3>
+      <button class="close-btn" (click)="closeEditMaterialModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nouveau titre</label>
+        <input 
+          type="text" 
+          [(ngModel)]="editedMaterialTitle"
+          placeholder="Entrez le nouveau titre..."
+          class="form-control"
+          (keyup.enter)="updateMaterialTitle()">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeEditMaterialModal()">
+        Annuler
+      </button>
+      <button 
+        class="btn btn-primary"
+        (click)="updateMaterialTitle()"
+        [disabled]="!editedMaterialTitle.trim()">
+        <i class="fas fa-save"></i>
+        Enregistrer
+      </button>
     </div>
   </div>
 </div>

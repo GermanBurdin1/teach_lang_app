@@ -1902,6 +1902,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               }
           }
           
+          // Восстанавливаем title из description если оно там сохранено
+          if (file.description && file.description.includes(' | ')) {
+            const [title, ...descriptionParts] = file.description.split(' | ');
+            (file as any).title = title;
+            file.description = descriptionParts.join(' | ') || undefined;
+          } else if (file.description && file.description.length < 100 && !file.description.includes('http') && !file.description.includes('://')) {
+            // Если description короткое и не техническое, возможно это title
+            (file as any).title = file.description;
+            file.description = undefined;
+          }
+          
           return file;
         }));
         
@@ -2007,6 +2018,29 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       return url.replace('http://localhost:3008', `${API_ENDPOINTS.FILES}`);
     }
     return url;
+  }
+
+  // Получить отображаемое название материала (использует title если есть, иначе filename)
+  // Если title нет, но description содержит название (не техническое описание), используем его
+  getMaterialDisplayName(material: UploadedFile): string {
+    if (material.title) {
+      return material.title;
+    }
+    
+    // Если description есть и не похоже на техническое описание (не содержит "|" или длинное),
+    // используем его как название
+    if (material.description) {
+      // Если description содержит "|", берем часть до "|" как название
+      if (material.description.includes(' | ')) {
+        return material.description.split(' | ')[0];
+      }
+      // Если description короткое (менее 100 символов) и не похоже на техническое описание
+      if (material.description.length < 100 && !material.description.includes('http') && !material.description.includes('://')) {
+        return material.description;
+      }
+    }
+    
+    return material.filename;
   }
 
   // ==================== TRAINER MATERIALS ====================
@@ -2122,12 +2156,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           next: (response) => {
             const uploadedFile: UploadedFile = {
               id: response.id,
-              filename: material.title,
+              filename: material.title, // Используем title как filename для текстовых материалов
               url: response.url,
               mimetype: material.type,
               tag: tag, // Сохраняем для обратной совместимости
               courseLessonId: courseLessonId, // ОСНОВНОЙ идентификатор урока
-              description: material.description || undefined,
+              // Сохраняем title в description, если description пустое, иначе объединяем
+              description: material.title ? (material.description ? `${material.title} | ${material.description}` : material.title) : material.description || undefined,
+              title: material.title, // Сохраняем title отдельно для отображения (локально)
               courseId: courseId,
               createdAt: response.createdAt,
             };
@@ -2188,14 +2224,18 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         console.log('🔍 addExistingMaterialToCourse: tag formed for file', { tag, courseLessonId, materialTitle: material.title });
         // #endregion
         
-        this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag, courseLessonId).subscribe({
+        // Передаем title и description для сохранения на бэкенде
+        const materialTitle = material.title;
+        const materialDescription = material.title ? (material.description ? `${material.title} | ${material.description}` : material.title) : material.description;
+        
+        this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag, courseLessonId, materialTitle, materialDescription).subscribe({
           next: (response) => {
             console.log('✅ Материал связан с курсом:', response);
             
             // Добавляем файл в локальный массив сразу для мгновенного обновления UI
             const uploadedFile: UploadedFile = {
               id: response.id,
-              filename: material.title,
+              filename: material.title, // Используем title как filename
               url: response.url,
               mimetype: this.getMimeTypeFromExtension(this.getFileExtensionFromUrl(material.content)),
               courseId: courseId,
@@ -2203,7 +2243,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               tag: tag, // Сохраняем для обратной совместимости
               courseLessonId: courseLessonId, // ОСНОВНОЙ идентификатор урока
               courseLessonIds: courseLessonId ? [courseLessonId] : undefined,
-              description: material.description || undefined,
+              // Сохраняем title в description, если description пустое, иначе объединяем
+              description: material.title ? (material.description ? `${material.title} | ${material.description}` : material.title) : material.description || undefined,
+              title: material.title, // Сохраняем title отдельно для отображения (локально)
             };
             
             // #region agent log
@@ -2313,13 +2355,15 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             
             const uploadedFile: UploadedFile = {
               id: response.id,
-              filename: material.title,
+              filename: material.title, // Используем title как filename
               url: response.url,
               mimetype: mimeType,
               tag: tag,
               courseLessonId: courseLessonId,
               courseLessonIds: courseLessonId ? [courseLessonId] : undefined,
-              description: material.description || undefined,
+              // Сохраняем title в description, если description пустое, иначе объединяем
+              description: material.title ? (material.description ? `${material.title} | ${material.description}` : material.title) : material.description || undefined,
+              title: material.title, // Сохраняем title отдельно для отображения (локально)
               courseId: courseId,
               createdAt: response.createdAt,
             };

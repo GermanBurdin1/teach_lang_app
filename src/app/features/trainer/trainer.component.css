@@ -93,6 +93,53 @@
   padding: 2rem 0 2rem 0;
   border-bottom: 2px solid whitesmoke;
   gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.material-filter {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.filter-btn {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  color: #495057;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-btn:hover {
+  background: #e9ecef;
+  border-color: var(--galaxy-primary);
+  color: var(--galaxy-primary);
+  transform: translateY(-1px);
+}
+
+.filter-btn.active {
+  background: var(--galaxy-primary);
+  border-color: var(--galaxy-primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.filter-btn i {
+  font-size: 0.9rem;
 }
 
 .section-header h2 {
