@@ -22,6 +22,17 @@ export interface DrillGrid {
   rows: Array<{ id: string; label: string }> | string[];
   columns: Array<{ id: string; label: string }> | string[];
   cells: DrillGridCell[] | { [key: string]: string };
+  tableStyle?: {
+    fontFamily?: string;
+    fontSize?: number;
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    textColor?: string;
+    headerBgColor?: string;
+    firstColBgColor?: string;
+    cellBgColor?: string;
+  };
   settings?: any;
   purpose?: 'info' | 'homework';
   createdAt: Date;
@@ -38,6 +49,7 @@ export interface DrillGridModalData {
   drillGridColumns: string[];
   drillGridCells: { [key: string]: string };
   drillGridCellsData: DrillGridCell[];
+  tableStyle?: DrillGrid['tableStyle'];
   drillGridPurpose: 'info' | 'homework';
   editingDrillGrid?: DrillGrid | null;
   onSave?: (data: any) => void;
@@ -67,6 +79,7 @@ export class DrillGridModalComponent implements OnInit {
   drillGridColumns: string[];
   drillGridCells: { [key: string]: string };
   drillGridCellsData: DrillGridCell[];
+  tableStyle?: DrillGrid['tableStyle'];
   drillGridPurpose: 'info' | 'homework';
   editingDrillGrid?: DrillGrid | null;
   onSave?: (data: any) => void;
@@ -82,6 +95,7 @@ export class DrillGridModalComponent implements OnInit {
     this.drillGridColumns = [...data.drillGridColumns];
     this.drillGridCells = { ...data.drillGridCells };
     this.drillGridCellsData = [...data.drillGridCellsData];
+    this.tableStyle = data.tableStyle || this.getDefaultTableStyle();
     this.drillGridPurpose = data.drillGridPurpose;
     this.editingDrillGrid = data.editingDrillGrid;
     this.onSave = data.onSave;
@@ -98,6 +112,54 @@ export class DrillGridModalComponent implements OnInit {
   getCellValue(rowIndex: number, colIndex: number): string {
     const key = `${rowIndex}-${colIndex}`;
     return this.drillGridCells[key] || '';
+  }
+
+  getCellStyle(rowIndex: number, colIndex: number): any {
+    const cell = this.getCellData(rowIndex, colIndex);
+    const style = (cell as any).style || {};
+    const t = this.tableStyle || {};
+    const bg = style.bgColor || t.cellBgColor || '#ffffff';
+    const txt = style.textColor || t.textColor || '#111827';
+    const fontFamily = style.fontFamily || t.fontFamily;
+    const fontSize = style.fontSize || t.fontSize;
+    const fontWeight = style.bold || t.bold ? '600' : '400';
+    const fontStyle = style.italic || t.italic ? 'italic' : 'normal';
+    const textDecoration = style.underline || t.underline ? 'underline' : 'none';
+    return {
+      'background-color': bg,
+      'color': txt,
+      'font-family': fontFamily,
+      'font-size.px': fontSize,
+      'font-weight': fontWeight,
+      'font-style': fontStyle,
+      'text-decoration': textDecoration
+    };
+  }
+
+  getHeaderStyle(): any {
+    const t = this.tableStyle || {};
+    return {
+      'background-color': t.headerBgColor || '#f3f4f6',
+      'color': t.textColor || '#111827',
+      'font-family': t.fontFamily,
+      'font-size.px': t.fontSize,
+      'font-weight': t.bold ? '600' : '400',
+      'font-style': t.italic ? 'italic' : 'normal',
+      'text-decoration': t.underline ? 'underline' : 'none'
+    };
+  }
+
+  getFirstColStyle(): any {
+    const t = this.tableStyle || {};
+    return {
+      'background-color': t.firstColBgColor || '#f9fafb',
+      'color': t.textColor || '#111827',
+      'font-family': t.fontFamily,
+      'font-size.px': t.fontSize,
+      'font-weight': t.bold ? '600' : '400',
+      'font-style': t.italic ? 'italic' : 'normal',
+      'text-decoration': t.underline ? 'underline' : 'none'
+    };
   }
 
   updateCell(rowIndex: number, colIndex: number, value: string): void {
@@ -174,6 +236,7 @@ export class DrillGridModalComponent implements OnInit {
       createdAt: new Date(),
       type: this.drillGridPurpose,
       purpose: this.drillGridPurpose,
+      tableStyle: this.tableStyle,
       constructorId: this.editingDrillGrid?.constructorId
     };
   }
@@ -240,6 +303,7 @@ export class DrillGridModalComponent implements OnInit {
         drillGridColumns: this.drillGridColumns,
         drillGridCells: this.drillGridCells,
         drillGridCellsData: this.drillGridCellsData,
+        tableStyle: this.tableStyle,
         drillGridPurpose: this.drillGridPurpose
       });
     } else if (this.onSave) {
@@ -249,10 +313,25 @@ export class DrillGridModalComponent implements OnInit {
         drillGridColumns: this.drillGridColumns,
         drillGridCells: this.drillGridCells,
         drillGridCellsData: this.drillGridCellsData,
+        tableStyle: this.tableStyle,
         drillGridPurpose: this.drillGridPurpose
       });
     }
     this.dialogRef.close();
+  }
+
+  private getDefaultTableStyle(): DrillGrid['tableStyle'] {
+    return {
+      fontFamily: 'Inter',
+      fontSize: 14,
+      bold: false,
+      italic: false,
+      underline: false,
+      textColor: '#111827',
+      headerBgColor: '#f3f4f6',
+      firstColBgColor: '#f9fafb',
+      cellBgColor: '#ffffff',
+    };
   }
 
   close(): void {

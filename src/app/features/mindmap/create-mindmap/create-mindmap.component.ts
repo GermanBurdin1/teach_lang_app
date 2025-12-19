@@ -34,6 +34,15 @@ export interface DrillGridCell {
   content: string;
   correctAnswer?: string; // Правильный ответ для этой клетки
   isEditable?: boolean; // Можно ли редактировать эту клетку студенту
+  style?: {
+    bgColor?: string;
+    textColor?: string;
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    fontSize?: number;
+    fontFamily?: string;
+  };
 }
 
 export interface DrillGrid {
@@ -43,6 +52,17 @@ export interface DrillGrid {
   rows: Array<{ id: string; label: string }> | string[]; // Поддержка старого формата
   columns: Array<{ id: string; label: string }> | string[]; // Поддержка старого формата
   cells: DrillGridCell[] | { [key: string]: string }; // Поддержка старого формата
+  tableStyle?: {
+    fontFamily?: string;
+    fontSize?: number;
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    textColor?: string;
+    headerBgColor?: string;
+    firstColBgColor?: string;
+    cellBgColor?: string;
+  };
   settings?: any;
   purpose?: 'info' | 'homework';
   createdAt: Date;
@@ -110,6 +130,7 @@ export class CreateMindmapComponent implements OnInit {
   drillGridPurpose: 'info' | 'homework' = 'info'; // Purpose текущего drill-grid
   matrixViewMode: 'config' | 'preview' = 'config'; // Режим просмотра: конфигурация или финальный просмотр
   renamingGridId: string | null = null;
+  tableStyle: DrillGrid['tableStyle'] = this.getDefaultTableStyle();
   
   // Matrix configuration
   numRows: number = 3;
@@ -157,6 +178,20 @@ export class CreateMindmapComponent implements OnInit {
       ]
     }
   };
+
+  private getDefaultTableStyle(): DrillGrid['tableStyle'] {
+    return {
+      fontFamily: 'Inter',
+      fontSize: 14,
+      bold: false,
+      italic: false,
+      underline: false,
+      textColor: '#111827',
+      headerBgColor: '#f3f4f6',
+      firstColBgColor: '#f9fafb',
+      cellBgColor: '#ffffff',
+    };
+  }
 
 
   ngOnInit(): void {
@@ -231,6 +266,7 @@ export class CreateMindmapComponent implements OnInit {
     // Инициализируем матрицу с пустыми строками и столбцами без сохранения старых данных
     this.numRows = 3;
     this.numColumns = 4;
+    this.tableStyle = this.getDefaultTableStyle();
     this.createMatrix(false);
   }
   
@@ -266,6 +302,7 @@ export class CreateMindmapComponent implements OnInit {
                 rows: dg.rows || [],
                 columns: dg.columns || [],
                 cells: dg.cells || [],
+                tableStyle: dg.tableStyle || this.getDefaultTableStyle(),
                 settings: dg.settings,
                 purpose: dg.purpose || 'info',
                 createdAt: constructor.createdAt ? new Date(constructor.createdAt) : new Date(),
@@ -539,6 +576,7 @@ export class CreateMindmapComponent implements OnInit {
           columns,
           cells,
           settings: null,
+          tableStyle: this.tableStyle,
           purpose: this.drillGridPurpose as 'info' | 'homework',
           originalId: this.editingDrillGrid?.originalId || null
         };
@@ -637,6 +675,7 @@ export class CreateMindmapComponent implements OnInit {
           columns,
           cells,
           settings: null,
+          tableStyle: this.tableStyle,
           purpose: this.drillGridPurpose as 'info' | 'homework'
         };
 
@@ -655,11 +694,12 @@ export class CreateMindmapComponent implements OnInit {
               const updatedGrid: DrillGrid = {
                 ...this.savedDrillGrids[index],
                 name: this.drillGridName,
-            editName: this.drillGridName,
+                editName: this.drillGridName,
                 rows: rows,
                 columns: columns,
                 cells: cells,
-                purpose: this.drillGridPurpose as 'info' | 'homework'
+                purpose: this.drillGridPurpose as 'info' | 'homework',
+                tableStyle: this.tableStyle
               };
             this.savedDrillGrids[index] = updatedGrid;
             }
@@ -936,6 +976,7 @@ export class CreateMindmapComponent implements OnInit {
             this.drillGridRows = [...rowsArray];
             this.drillGridColumns = [...columnsArray];
             this.drillGridPurpose = drillGridData.purpose || grid.purpose || grid.type || 'info';
+            this.tableStyle = drillGridData.tableStyle || grid.tableStyle || this.getDefaultTableStyle();
             
             // Преобразуем cells в новый формат с правильными ответами
             // Сначала очищаем старые данные
@@ -1038,6 +1079,7 @@ export class CreateMindmapComponent implements OnInit {
     this.drillGridRows = [...rowsArray];
     this.drillGridColumns = [...columnsArray];
     this.drillGridPurpose = grid.purpose || grid.type || 'info';
+    this.tableStyle = grid.tableStyle || this.getDefaultTableStyle();
     
     // Преобразуем cells в новый формат с правильными ответами
     // Сначала очищаем старые данные
@@ -1275,6 +1317,7 @@ export class CreateMindmapComponent implements OnInit {
         drillGridColumns: this.drillGridColumns,
         drillGridCells: this.drillGridCells,
         drillGridCellsData: this.drillGridCellsData,
+        tableStyle: this.tableStyle,
         drillGridPurpose: this.drillGridPurpose,
         editingDrillGrid: this.editingDrillGrid,
         onSave: (data: any) => {
@@ -1283,6 +1326,7 @@ export class CreateMindmapComponent implements OnInit {
           this.drillGridColumns = data.drillGridColumns;
           this.drillGridCells = data.drillGridCells;
           this.drillGridCellsData = data.drillGridCellsData;
+          this.tableStyle = data.tableStyle || this.getDefaultTableStyle();
           this.drillGridPurpose = data.drillGridPurpose;
           this.saveDrillGrid();
         },
@@ -1292,6 +1336,7 @@ export class CreateMindmapComponent implements OnInit {
           this.drillGridColumns = data.drillGridColumns;
           this.drillGridCells = data.drillGridCells;
           this.drillGridCellsData = data.drillGridCellsData;
+          this.tableStyle = data.tableStyle || this.getDefaultTableStyle();
           this.drillGridPurpose = data.drillGridPurpose;
           this.updateDrillGrid();
         }
