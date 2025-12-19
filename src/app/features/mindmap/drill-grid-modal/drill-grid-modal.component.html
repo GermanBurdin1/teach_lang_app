@@ -12,27 +12,30 @@
   <div class="modal-content">
     <!-- Режим предпросмотра -->
     <div class="preview-mode" *ngIf="mode === 'preview'">
-      <div class="drill-grid-viewer">
-        <div class="drill-grid-table">
-          <!-- Header row -->
-          <div class="drill-row">
-            <div class="drill-cell header-cell empty-header" [ngStyle]="getHeaderStyle()"></div>
-            <div class="drill-cell header-cell" *ngFor="let col of getGridColumnsArray(getCurrentMatrixForPreview())" [ngStyle]="getHeaderStyle()">
-              {{ col }}
-            </div>
-          </div>
-          <!-- Data rows -->
-          <div class="drill-row" *ngFor="let row of getGridRowsArray(getCurrentMatrixForPreview()); let rowIdx = index">
-            <div class="drill-cell header-cell" [ngStyle]="getFirstColStyle()">
-              {{ row }}
-            </div>
-            <div class="drill-cell view-cell" *ngFor="let col of getGridColumnsArray(getCurrentMatrixForPreview()); let colIdx = index" [ngStyle]="getCellStyle(rowIdx, colIdx)">
-              <div class="cell-content">
-                {{ getViewCellContent(getCurrentMatrixForPreview(), rowIdx, colIdx) }}
+      <div class="preview-content-wrapper">
+        <h3 class="preview-table-title">{{ drillGridName || 'Matrice' }}</h3>
+        <div class="drill-grid-viewer">
+          <div class="drill-grid-table">
+            <!-- Header row -->
+            <div class="drill-row">
+              <div class="drill-cell header-cell empty-header" [ngStyle]="getHeaderStyle()"></div>
+              <div class="drill-cell header-cell" *ngFor="let col of getGridColumnsArray(getCurrentMatrixForPreview())" [ngStyle]="getHeaderStyle()">
+                {{ col }}
               </div>
-              <div class="cell-answer" *ngIf="getViewCellCorrectAnswer(getCurrentMatrixForPreview(), rowIdx, colIdx)">
-                <mat-icon class="check-icon">check_circle</mat-icon>
-                Réponse: {{ getViewCellCorrectAnswer(getCurrentMatrixForPreview(), rowIdx, colIdx) }}
+            </div>
+            <!-- Data rows -->
+            <div class="drill-row" *ngFor="let row of getGridRowsArray(getCurrentMatrixForPreview()); let rowIdx = index">
+              <div class="drill-cell header-cell" [ngStyle]="getFirstColStyle()">
+                {{ row }}
+              </div>
+              <div class="drill-cell view-cell" *ngFor="let col of getGridColumnsArray(getCurrentMatrixForPreview()); let colIdx = index" [ngStyle]="getCellStyle(rowIdx, colIdx)">
+                <div class="cell-content">
+                  {{ getViewCellContent(getCurrentMatrixForPreview(), rowIdx, colIdx) }}
+                </div>
+                <div class="cell-answer" *ngIf="getViewCellCorrectAnswer(getCurrentMatrixForPreview(), rowIdx, colIdx)">
+                  <mat-icon class="check-icon">check_circle</mat-icon>
+                  Réponse: {{ getViewCellCorrectAnswer(getCurrentMatrixForPreview(), rowIdx, colIdx) }}
+                </div>
               </div>
             </div>
           </div>

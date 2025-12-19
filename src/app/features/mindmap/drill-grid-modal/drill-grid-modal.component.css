@@ -56,12 +56,42 @@
   gap: 2rem;
 }
 
+.preview-mode {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  width: 100%;
+}
+
+.preview-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 2rem;
+  flex: 1;
+}
+
+.preview-table-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
+}
+
 .drill-grid-viewer {
   width: fit-content;
   max-width: 100%;
   overflow-x: auto;
   overflow-y: visible;
   margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .drill-grid-table {
