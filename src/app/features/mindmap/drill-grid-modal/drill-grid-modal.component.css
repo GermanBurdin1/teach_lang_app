@@ -286,6 +286,11 @@
   text-align-last: center;
 }
 
+.style-toggles button.active {
+  background: #e0e7ff;
+  border-color: #4f46e5;
+}
+
 .cell-input::placeholder {
   text-align: center;
 }

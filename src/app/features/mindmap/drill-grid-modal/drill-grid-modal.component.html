@@ -101,7 +101,8 @@
                 [value]="drillGridColumns[colIdx]" 
                 (input)="drillGridColumns[colIdx] = $any($event.target).value"
                 placeholder="Colonne {{ colIdx + 1 }}"
-                class="header-input">
+                class="header-input"
+                [ngStyle]="getHeaderStyle()">
             </div>
           </div>
 
@@ -113,7 +114,8 @@
                 [value]="drillGridRows[rowIdx]" 
                 (input)="drillGridRows[rowIdx] = $any($event.target).value"
                 placeholder="Ligne {{ rowIdx + 1 }}"
-                class="header-input">
+                class="header-input"
+                [ngStyle]="getFirstColStyle()">
             </div>
             <div 
               class="drill-cell editable-cell" 
@@ -125,7 +127,8 @@
                   [value]="getCellValue(rowIdx, colIdx)"
                   (input)="updateCell(rowIdx, colIdx, $any($event.target).value)"
                   placeholder="..."
-                  class="cell-input">
+                  class="cell-input"
+                  [ngStyle]="getCellStyle(rowIdx, colIdx)">
               </div>
             </div>
           </div>

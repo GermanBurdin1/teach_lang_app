@@ -79,7 +79,7 @@ export class DrillGridModalComponent implements OnInit {
   drillGridColumns: string[];
   drillGridCells: { [key: string]: string };
   drillGridCellsData: DrillGridCell[];
-  tableStyle?: DrillGrid['tableStyle'];
+  tableStyle: NonNullable<DrillGrid['tableStyle']>;
   drillGridPurpose: 'info' | 'homework';
   editingDrillGrid?: DrillGrid | null;
   onSave?: (data: any) => void;
@@ -118,10 +118,11 @@ export class DrillGridModalComponent implements OnInit {
     const cell = this.getCellData(rowIndex, colIndex);
     const style = (cell as any).style || {};
     const t = this.tableStyle || {};
+    const fs = this.getFontSizeValue(style.fontSize ?? t.fontSize);
     const bg = style.bgColor || t.cellBgColor || '#ffffff';
     const txt = style.textColor || t.textColor || '#111827';
     const fontFamily = style.fontFamily || t.fontFamily;
-    const fontSize = style.fontSize || t.fontSize;
+    const fontSize = fs ?? undefined;
     const fontWeight = style.bold || t.bold ? '600' : '400';
     const fontStyle = style.italic || t.italic ? 'italic' : 'normal';
     const textDecoration = style.underline || t.underline ? 'underline' : 'none';
@@ -138,11 +139,12 @@ export class DrillGridModalComponent implements OnInit {
 
   getHeaderStyle(): any {
     const t = this.tableStyle || {};
+    const fs = this.getFontSizeValue(t.fontSize);
     return {
       'background-color': t.headerBgColor || '#f3f4f6',
       'color': t.textColor || '#111827',
       'font-family': t.fontFamily,
-      'font-size.px': t.fontSize,
+      'font-size.px': fs ?? undefined,
       'font-weight': t.bold ? '600' : '400',
       'font-style': t.italic ? 'italic' : 'normal',
       'text-decoration': t.underline ? 'underline' : 'none'
@@ -151,11 +153,12 @@ export class DrillGridModalComponent implements OnInit {
 
   getFirstColStyle(): any {
     const t = this.tableStyle || {};
+    const fs = this.getFontSizeValue(t.fontSize);
     return {
       'background-color': t.firstColBgColor || '#f9fafb',
       'color': t.textColor || '#111827',
       'font-family': t.fontFamily,
-      'font-size.px': t.fontSize,
+      'font-size.px': fs ?? undefined,
       'font-weight': t.bold ? '600' : '400',
       'font-style': t.italic ? 'italic' : 'normal',
       'text-decoration': t.underline ? 'underline' : 'none'
@@ -320,7 +323,7 @@ export class DrillGridModalComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  private getDefaultTableStyle(): DrillGrid['tableStyle'] {
+  private getDefaultTableStyle(): NonNullable<DrillGrid['tableStyle']> {
     return {
       fontFamily: 'Inter',
       fontSize: 14,
@@ -332,6 +335,11 @@ export class DrillGridModalComponent implements OnInit {
       firstColBgColor: '#f9fafb',
       cellBgColor: '#ffffff',
     };
+  }
+
+  private getFontSizeValue(val: any): number | null {
+    const n = Number(val);
+    return isNaN(n) ? null : n;
   }
 
   close(): void {
