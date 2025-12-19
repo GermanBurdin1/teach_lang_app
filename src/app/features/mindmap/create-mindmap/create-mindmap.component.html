@@ -280,9 +280,6 @@
               <p class="step-description">Définissez la structure de votre matrice en spécifiant le nombre de lignes et colonnes, puis personnalisez le contenu de chaque cellule et les styles visuels.</p>
             </div>
             <div class="step-content-expanded">
-            <div class="step-header-with-toggle">
-            </div>
-            
             <!-- Мини-превью таблицы -->
             <div class="matrix-mini-preview" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
               <div class="mini-preview-header">
@@ -371,9 +368,9 @@
             </div>
           </div>
 
-            <!-- Matrix Editor (старый код, можно удалить после тестирования) -->
-            <div class="matrix-editor" *ngIf="false && drillGridRows.length > 0 && drillGridColumns.length > 0">
-              <div class="drill-table-editable">
+          <!-- Matrix Editor (старый код, можно удалить после тестирования) -->
+          <div class="matrix-editor" *ngIf="false && drillGridRows.length > 0 && drillGridColumns.length > 0">
+            <div class="drill-table-editable">
                 <!-- Header row with column labels -->
                 <div class="drill-header-row">
                   <div class="drill-cell header-cell corner-cell"></div>
@@ -460,19 +457,18 @@
                     Ajouter une ligne
                   </button>
                 </div>
-              </div>
+            </div>
 
-              <!-- Save button -->
-              <div class="save-container" *ngIf="matrixViewMode === 'config'">
-                <button 
-                  mat-raised-button 
-                  color="accent" 
-                  (click)="saveDrillGrid()" 
-                  [disabled]="!drillGridName.trim()">
-                  <mat-icon>save</mat-icon>
-                  {{ editingDrillGrid ? 'Mettre à jour' : 'Sauvegarder' }} la drill-grid
-                </button>
-              </div>
+            <!-- Save button -->
+            <div class="save-container" *ngIf="matrixViewMode === 'config'">
+              <button 
+                mat-raised-button 
+                color="accent" 
+                (click)="saveDrillGrid()" 
+                [disabled]="!drillGridName.trim()">
+                <mat-icon>save</mat-icon>
+                {{ editingDrillGrid ? 'Mettre à jour' : 'Sauvegarder' }} la drill-grid
+              </button>
             </div>
           </div>
         </div>
