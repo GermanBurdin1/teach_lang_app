@@ -262,6 +262,18 @@ export class CreateMindmapComponent implements OnInit {
     const style = this.tableStyle || this.getDefaultTableStyle();
     if (!style) {
       const defaultStyle = this.getDefaultTableStyle();
+      if (!defaultStyle) {
+        // Fallback если даже defaultStyle undefined
+        return {
+          'background-color': cellStyle.bgColor || '#ffffff',
+          'color': cellStyle.textColor || '#111827',
+          'font-family': cellStyle.fontFamily || 'Inter',
+          'font-size.px': cellStyle.fontSize || 14,
+          'font-weight': cellStyle.bold ? '600' : '400',
+          'font-style': cellStyle.italic ? 'italic' : 'normal',
+          'text-decoration': cellStyle.underline ? 'underline' : 'none'
+        };
+      }
       return {
         'background-color': cellStyle.bgColor || defaultStyle.cellBgColor || '#ffffff',
         'color': cellStyle.textColor || defaultStyle.textColor || '#111827',

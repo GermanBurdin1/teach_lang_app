@@ -267,28 +267,22 @@
           <div class="drill-grid-step">
             <div class="step-header-with-toggle">
               <h4>2. Configurer la matrice</h4>
-              <div class="view-mode-toggle" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
-                <button 
-                  mat-raised-button 
-                  color="primary"
-                  (click)="openMatrixModal('config')">
-                  <mat-icon>edit</mat-icon>
-                  Configuration
-                </button>
-                <button 
-                  mat-raised-button 
-                  color="primary"
-                  (click)="openMatrixModal('preview')">
-                  <mat-icon>visibility</mat-icon>
-                  Aperçu final
-                </button>
-              </div>
             </div>
             
             <!-- Мини-превью таблицы -->
             <div class="matrix-mini-preview" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
               <div class="mini-preview-header">
                 <h5>Aperçu de la matrice</h5>
+                <div class="preview-actions">
+                  <button 
+                    mat-stroked-button 
+                    color="primary"
+                    (click)="openMatrixModal('preview')"
+                    class="preview-action-btn">
+                    <mat-icon>visibility</mat-icon>
+                    Aperçu final
+                  </button>
+                </div>
               </div>
               <div class="mini-preview-table-wrapper">
                 <div class="mini-preview-table">
@@ -319,23 +313,23 @@
             <!-- Matrix Configuration -->
             <div class="matrix-config">
               <div class="config-row">
-                <button mat-raised-button color="primary" (click)="openMatrixModal('config')">
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="openMatrixModal('config')"
+                  class="config-button">
                   <mat-icon>settings</mat-icon>
-                  Configurer la matrice
+                  {{ drillGridRows.length > 0 && drillGridColumns.length > 0 ? 'Modifier la matrice' : 'Créer et configurer la matrice' }}
                 </button>
-                <p class="config-hint">
+                <p class="config-hint" *ngIf="drillGridRows.length === 0 || drillGridColumns.length === 0">
                   <mat-icon>info</mat-icon>
-                  Cliquez sur "Configurer la matrice" pour définir le nombre de lignes et colonnes, ainsi que les styles
+                  Cliquez sur le bouton ci-dessus pour créer votre matrice, définir le nombre de lignes et colonnes, et personnaliser les styles
+                </p>
+                <p class="config-hint" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
+                  <mat-icon>info</mat-icon>
+                  Cliquez sur "Modifier la matrice" pour ajuster la taille, le contenu et les styles de votre matrice
                 </p>
               </div>
-            </div>
-
-            <!-- Matrix Editor Preview (мини-превью) -->
-            <div class="matrix-editor-preview" *ngIf="drillGridRows.length > 0 && drillGridColumns.length > 0">
-              <p class="preview-hint">
-                <mat-icon>info</mat-icon>
-                Cliquez sur "Configuration" ou "Aperçu final" pour ouvrir la matrice en plein écran
-              </p>
             </div>
 
             <!-- Matrix Editor (старый код, можно удалить после тестирования) -->
