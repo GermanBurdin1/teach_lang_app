@@ -519,6 +519,176 @@
           </div>
         </div>
 
+        <!-- Pattern-card Creator -->
+        <div class="pattern-card-creator" *ngIf="constructorType === 'pattern_card'">
+          <div class="creator-header">
+            <h3>Créer votre pattern-card</h3>
+            <button mat-stroked-button color="primary" (click)="toggleMyPatternCards()">
+              <mat-icon>folder</mat-icon>
+              Consulter mes pattern-cards ({{ savedPatternCards.length }})
+            </button>
+          </div>
+
+          <!-- Saved Pattern-cards List -->
+          <div class="saved-pattern-cards-list" *ngIf="showMyPatternCards">
+            <h4>Mes pattern-cards sauvegardées</h4>
+            <div class="pattern-cards-grid">
+              <div class="saved-pattern-card" *ngFor="let card of savedPatternCards">
+                <div class="pattern-card-header">
+                  <h4>{{ getPatternCardTitle(card) }}</h4>
+                </div>
+                <div class="pattern-card-content">
+                  <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>
+                  <p class="example-preview"><strong>Exemple:</strong> {{ card.example }}</p>
+                  <div class="pattern-card-meta" *ngIf="card.category || card.difficulty">
+                    <mat-chip *ngIf="card.category">{{ card.category }}</mat-chip>
+                    <mat-chip *ngIf="card.difficulty">{{ card.difficulty }}</mat-chip>
+                  </div>
+                </div>
+                <div class="pattern-card-actions">
+                  <button mat-icon-button color="primary" (click)="loadPatternCard(card)" title="Modifier">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="primary" (click)="viewPatternCard(card)" title="Voir">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!)" title="Supprimer">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="savedPatternCards.length === 0" class="no-pattern-cards">
+              <p>Aucune pattern-card sauvegardée</p>
+            </div>
+          </div>
+
+          <!-- Pattern-card View Mode -->
+          <div class="pattern-card-view" *ngIf="viewingPatternCard">
+            <h3>{{ viewingPatternCard.pattern || 'Pattern-card' }}</h3>
+            <div class="view-pattern-card-content">
+              <div class="view-section">
+                <h4>Pattern:</h4>
+                <p>{{ viewingPatternCard.pattern }}</p>
+              </div>
+              <div class="view-section">
+                <h4>Exemple:</h4>
+                <p>{{ viewingPatternCard.example }}</p>
+              </div>
+              <div class="view-section" *ngIf="viewingPatternCard.blanks && viewingPatternCard.blanks.length > 0">
+                <h4>Blanks:</h4>
+                <ul>
+                  <li *ngFor="let blank of viewingPatternCard.blanks">
+                    <strong>{{ blank.partOfSpeech || 'Blank' }}:</strong> {{ blank.correctAnswer }}
+                  </li>
+                </ul>
+              </div>
+              <div class="view-section" *ngIf="viewingPatternCard.category || viewingPatternCard.difficulty">
+                <h4>Métadonnées:</h4>
+                <p *ngIf="viewingPatternCard.category"><strong>Catégorie:</strong> {{ viewingPatternCard.category }}</p>
+                <p *ngIf="viewingPatternCard.difficulty"><strong>Difficulté:</strong> {{ viewingPatternCard.difficulty }}</p>
+              </div>
+            </div>
+            <div class="view-actions">
+              <button mat-raised-button color="primary" (click)="loadPatternCard(viewingPatternCard)">
+                <mat-icon>edit</mat-icon>
+                Modifier
+              </button>
+              <button mat-raised-button (click)="viewingPatternCard = null">
+                Fermer
+              </button>
+            </div>
+          </div>
+
+          <!-- Pattern-card Creation Form -->
+          <div class="pattern-card-form" *ngIf="!viewingPatternCard">
+            <!-- Step 1: Name the pattern-card -->
+            <div class="pattern-card-step">
+              <div class="step-header-expanded">
+                <h4>1. Nommer la pattern-card</h4>
+                <p class="step-description">Donnez un nom clair et descriptif à votre pattern-card pour faciliter son identification.</p>
+              </div>
+              <div class="step-content-expanded">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Nom de la pattern-card</mat-label>
+                  <input matInput [(ngModel)]="patternCardName" placeholder="Ex: Demander poliment quelque chose">
+                  <mat-hint>Choisissez un nom qui décrit l'objectif de ce pattern</mat-hint>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Step 2: Configure the pattern-card -->
+            <div class="pattern-card-step">
+              <div class="step-header-expanded">
+                <h4>2. Configurer la pattern-card</h4>
+                <p class="step-description">Définissez le pattern, l'exemple, les blanks et les métadonnées de votre pattern-card.</p>
+              </div>
+              <div class="step-content-expanded">
+                <div class="pattern-card-config">
+                  <div class="config-row">
+                    <button 
+                      mat-raised-button 
+                      color="primary" 
+                      (click)="openPatternCardModal('config')"
+                      class="config-button">
+                      <mat-icon>settings</mat-icon>
+                      {{ patternCard ? 'Modifier la pattern-card' : 'Créer et configurer la pattern-card' }}
+                    </button>
+                    <p class="config-hint" *ngIf="!patternCard">
+                      <mat-icon>info</mat-icon>
+                      Cliquez sur le bouton ci-dessus pour créer votre pattern-card, définir le pattern, l'exemple et les blanks
+                    </p>
+                    <p class="config-hint" *ngIf="patternCard">
+                      <mat-icon>info</mat-icon>
+                      Cliquez sur "Modifier la pattern-card" pour ajuster le pattern, les blanks et les métadonnées
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Mini Preview -->
+                <div class="pattern-card-mini-preview" *ngIf="patternCard">
+                  <h5>Aperçu</h5>
+                  <div class="mini-preview-content">
+                    <p><strong>Pattern:</strong> {{ patternCard.pattern }}</p>
+                    <p><strong>Exemple:</strong> {{ patternCard.example }}</p>
+                    <div *ngIf="patternCard.blanks && patternCard.blanks.length > 0">
+                      <p><strong>Blanks:</strong> {{ patternCard.blanks.length }}</p>
+                    </div>
+                    <div *ngIf="patternCard.category || patternCard.difficulty">
+                      <mat-chip *ngIf="patternCard.category">{{ patternCard.category }}</mat-chip>
+                      <mat-chip *ngIf="patternCard.difficulty">{{ patternCard.difficulty }}</mat-chip>
+                    </div>
+                  </div>
+                  <div class="preview-actions">
+                    <button mat-raised-button color="primary" (click)="openPatternCardModal('preview')">
+                      <mat-icon>visibility</mat-icon>
+                      Aperçu final
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Save -->
+            <div class="pattern-card-step">
+              <div class="step-header-expanded">
+                <h4>3. Sauvegarder</h4>
+                <p class="step-description">Enregistrez votre pattern-card pour l'utiliser dans vos cours.</p>
+              </div>
+              <div class="step-content-expanded">
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="savePatternCard()" 
+                  [disabled]="!patternCardName.trim() || !patternCard">
+                  <mat-icon>save</mat-icon>
+                  {{ editingPatternCard ? 'Mettre à jour' : 'Sauvegarder' }} la pattern-card
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Пример структуры для Pattern-card -->
         <div class="example-preview" *ngIf="constructorType === 'pattern_card'">
           <h3 class="example-title">Exemple de structure Pattern-card</h3>

@@ -1,0 +1,295 @@
+<div class="pattern-card-modal">
+  <div class="modal-header">
+    <h2>{{ mode === 'config' ? 'Configuration Pattern-Card' : 'Aperçu Pattern-Card' }}</h2>
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-content" *ngIf="mode === 'config'">
+    <mat-tab-group>
+      <!-- Tab 1: Pattern & Example -->
+      <mat-tab label="Pattern & Exemple">
+        <div class="tab-content">
+          <mat-card class="config-card">
+            <mat-card-header>
+              <mat-card-title>Pattern et Exemple</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Pattern (utilisez [VERB], [NOUN], etc. pour les blanks)</mat-label>
+                <textarea matInput [(ngModel)]="pattern" (ngModelChange)="onPatternChange()" 
+                  placeholder="Ex: Je voudrais [VERB] [OBJECT]" rows="3"></textarea>
+                <mat-hint>Utilisez des crochets pour marquer les emplacements à remplir</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Exemple complet</mat-label>
+                <textarea matInput [(ngModel)]="example" 
+                  placeholder="Ex: Je voudrais acheter un livre" rows="3"></textarea>
+                <mat-hint>Exemple de phrase complète avec les blanks remplis</mat-hint>
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 2: Blanks -->
+      <mat-tab label="Blanks">
+        <div class="tab-content">
+          <mat-card class="config-card">
+            <mat-card-header>
+              <mat-card-title>Configuration des Blanks</mat-card-title>
+              <button mat-raised-button color="primary" (click)="addBlank()" class="add-button">
+                <mat-icon>add</mat-icon>
+                Ajouter un blank
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="blanks-list" *ngIf="blanks.length > 0">
+                <div class="blank-item" *ngFor="let blank of blanks; let i = index">
+                  <div class="blank-header">
+                    <span class="blank-label">Blank {{ i + 1 }}</span>
+                    <div class="blank-actions">
+                      <button mat-icon-button (click)="editBlank(blank)" *ngIf="editingBlank?.id !== blank.id">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="removeBlank(blank)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="blank-details" *ngIf="editingBlank && editingBlank.id === blank.id">
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Réponse correcte</mat-label>
+                      <input matInput [(ngModel)]="editingBlank.correctAnswer">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Partie du discours</mat-label>
+                      <input matInput [(ngModel)]="editingBlank.partOfSpeech" placeholder="VERB, NOUN, ADJ, etc.">
+                    </mat-form-field>
+
+                    <div class="hints-section">
+                      <h4>Indices (Hints)</h4>
+                      <div class="chips-list">
+                        <mat-chip *ngFor="let hint of editingBlank.hints" (removed)="removeBlankHint(hint)">
+                          {{ hint }}
+                          <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip>
+                      </div>
+                      <div class="add-item-control">
+                        <input matInput [(ngModel)]="newBlankHint" placeholder="Ajouter un indice" 
+                          (keyup.enter)="addBlankHint()">
+                        <button mat-icon-button (click)="addBlankHint()">
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="alternatives-section">
+                      <h4>Alternatives acceptées</h4>
+                      <div class="chips-list">
+                        <mat-chip *ngFor="let alt of editingBlank.alternatives" (removed)="removeBlankAlternative(alt)">
+                          {{ alt }}
+                          <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip>
+                      </div>
+                      <div class="add-item-control">
+                        <input matInput [(ngModel)]="newBlankAlternative" placeholder="Ajouter une alternative" 
+                          (keyup.enter)="addBlankAlternative()">
+                        <button mat-icon-button (click)="addBlankAlternative()">
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="blank-actions-footer">
+                      <button mat-raised-button color="primary" (click)="saveBlank()">Enregistrer</button>
+                      <button mat-button (click)="cancelEditBlank()">Annuler</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="empty-state" *ngIf="blanks.length === 0">
+                <p>Aucun blank configuré. Ajoutez-en un ou utilisez [VERB], [NOUN] dans le pattern.</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 3: Variations -->
+      <mat-tab label="Variations">
+        <div class="tab-content">
+          <mat-card class="config-card">
+            <mat-card-header>
+              <mat-card-title>Variations du Pattern</mat-card-title>
+              <button mat-raised-button color="primary" (click)="addVariation()" class="add-button">
+                <mat-icon>add</mat-icon>
+                Ajouter une variation
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="variations-list" *ngIf="variations.length > 0">
+                <div class="variation-item" *ngFor="let variation of variations; let i = index">
+                  <div class="variation-header">
+                    <span class="variation-label">Variation {{ i + 1 }}</span>
+                    <div class="variation-actions">
+                      <button mat-icon-button (click)="editVariation(variation)" *ngIf="editingVariation?.id !== variation.id">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="removeVariation(variation)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="variation-details" *ngIf="editingVariation && editingVariation.id === variation.id">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Pattern</mat-label>
+                      <input matInput [(ngModel)]="editingVariation.pattern">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Exemple</mat-label>
+                      <input matInput [(ngModel)]="editingVariation.example">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Contexte (optionnel)</mat-label>
+                      <textarea matInput [(ngModel)]="editingVariation.context" rows="2"></textarea>
+                    </mat-form-field>
+
+                    <div class="variation-actions-footer">
+                      <button mat-raised-button color="primary" (click)="saveVariation()">Enregistrer</button>
+                      <button mat-button (click)="cancelEditVariation()">Annuler</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="empty-state" *ngIf="variations.length === 0">
+                <p>Aucune variation ajoutée. Les variations permettent de montrer différentes utilisations du pattern.</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 4: Catégorie & Tags -->
+      <mat-tab label="Catégorie & Tags">
+        <div class="tab-content">
+          <mat-card class="config-card">
+            <mat-card-header>
+              <mat-card-title>Classification</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Catégorie de grammaire</mat-label>
+                <mat-select [(ngModel)]="category">
+                  <mat-option [value]="null">Aucune</mat-option>
+                  <mat-option *ngFor="let cat of grammarCategories" [value]="cat">{{ cat }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Niveau de difficulté</mat-label>
+                <mat-select [(ngModel)]="difficulty">
+                  <mat-option [value]="null">Non spécifié</mat-option>
+                  <mat-option value="beginner">Débutant</mat-option>
+                  <mat-option value="intermediate">Intermédiaire</mat-option>
+                  <mat-option value="advanced">Avancé</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <div class="tags-section">
+                <h4>Tags</h4>
+                <div class="chips-list">
+                  <mat-chip *ngFor="let tag of tags" (removed)="removeTag(tag)">
+                    {{ tag }}
+                    <button matChipRemove>
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                </div>
+                <div class="add-tag-control">
+                  <mat-form-field appearance="outline" class="tag-input">
+                    <mat-label>Ajouter un tag</mat-label>
+                    <input matInput [(ngModel)]="newTag" (keyup.enter)="addTag()" 
+                      (input)="filterTags(newTag)" [matAutocomplete]="auto">
+                    <mat-autocomplete #auto="matAutocomplete">
+                      <mat-option *ngFor="let tag of filteredTags" [value]="tag" (click)="newTag = tag; addTag()">
+                        {{ tag }}
+                      </mat-option>
+                    </mat-autocomplete>
+                  </mat-form-field>
+                  <button mat-raised-button color="primary" (click)="addTag()" class="add-tag-button">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Explication (optionnel)</mat-label>
+                <textarea matInput [(ngModel)]="explanation" 
+                  placeholder="Explication de l'utilisation du pattern..." rows="4"></textarea>
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- Preview Mode -->
+  <div class="modal-content preview-mode" *ngIf="mode === 'preview'">
+    <div class="preview-content-wrapper">
+      <h3>{{ patternCardName || 'Pattern-Card' }}</h3>
+      <div class="pattern-card-preview">
+        <div class="preview-pattern">
+          <h4>Pattern:</h4>
+          <p class="pattern-text">{{ pattern || 'Non défini' }}</p>
+        </div>
+        <div class="preview-example">
+          <h4>Exemple:</h4>
+          <p class="example-text">{{ example || 'Non défini' }}</p>
+        </div>
+        <div class="preview-blanks" *ngIf="blanks.length > 0">
+          <h4>Blanks:</h4>
+          <ul>
+            <li *ngFor="let blank of blanks">
+              <strong>{{ blank.partOfSpeech || 'Blank' }}:</strong> {{ blank.correctAnswer }}
+              <span *ngIf="blank.alternatives && blank.alternatives.length > 0">
+                (ou: {{ blank.alternatives.join(', ') }})
+              </span>
+            </li>
+          </ul>
+        </div>
+        <div class="preview-meta" *ngIf="category || difficulty || tags.length > 0">
+          <div *ngIf="category"><strong>Catégorie:</strong> {{ category }}</div>
+          <div *ngIf="difficulty"><strong>Difficulté:</strong> {{ difficulty }}</div>
+          <div *ngIf="tags.length > 0">
+            <strong>Tags:</strong>
+            <div class="chips-list">
+              <mat-chip *ngFor="let tag of tags">{{ tag }}</mat-chip>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button mat-button (click)="close()">Annuler</button>
+    <button mat-raised-button color="primary" (click)="save()" [disabled]="!pattern || !example">
+      {{ editingPatternCard ? 'Mettre à jour' : 'Enregistrer' }}
+    </button>
+  </div>
+</div>

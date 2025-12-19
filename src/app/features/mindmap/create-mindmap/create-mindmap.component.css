@@ -1216,4 +1216,177 @@
   border-radius: 0 !important;
 }
 
+/* Pattern-card Creator Styles */
+.pattern-card-creator {
+  padding: 2rem;
+  overflow-x: visible;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.saved-pattern-cards-list {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.saved-pattern-cards-list h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--space-blue);
+}
+
+.pattern-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.saved-pattern-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pattern-card-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1f2a37;
+}
+
+.pattern-card-content {
+  flex: 1;
+}
+
+.pattern-preview,
+.example-preview {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #475467;
+}
+
+.pattern-card-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.pattern-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.pattern-card-view {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.pattern-card-view h3 {
+  margin-top: 0;
+  color: var(--space-blue);
+}
+
+.view-pattern-card-content {
+  margin: 1.5rem 0;
+}
+
+.view-section {
+  margin-bottom: 1.5rem;
+}
+
+.view-section h4 {
+  margin-bottom: 0.5rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.view-section p {
+  margin: 0.5rem 0;
+  color: #1f2a37;
+}
+
+.view-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.view-section li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.view-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pattern-card-form {
+  margin-top: 2rem;
+}
+
+.pattern-card-step {
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pattern-card-config {
+  margin-top: 1rem;
+}
+
+.pattern-card-mini-preview {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.pattern-card-mini-preview h5 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--space-blue);
+}
+
+.mini-preview-content p {
+  margin: 0.5rem 0;
+  color: #475467;
+}
+
+.mini-preview-content mat-chip {
+  margin-right: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.no-pattern-cards {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+/* Pattern-card Modal Styles */
+::ng-deep .pattern-card-modal-container {
+  max-width: 1200px !important;
+}
+
+::ng-deep .pattern-card-modal-container .mat-dialog-container {
+  padding: 0 !important;
+}
+
 

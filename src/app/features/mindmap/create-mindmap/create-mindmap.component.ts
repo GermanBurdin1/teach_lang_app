@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule, MatDialogConfig } from '@angular/material/dialog';
 import { DrillGridModalComponent, DrillGridModalData } from '../drill-grid-modal/drill-grid-modal.component';
+import { PatternCardModalComponent, PatternCardModalData, PatternCard } from '../pattern-card-modal/pattern-card-modal.component';
 import { LayoutModule } from '../../../layout/layout.module';
 import { AuthService } from '../../../services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -135,6 +136,14 @@ export class CreateMindmapComponent implements OnInit {
   // Matrix configuration
   numRows: number = 3;
   numColumns: number = 4;
+
+  // Pattern-card properties
+  patternCardName: string = '';
+  patternCard: PatternCard | null = null;
+  savedPatternCards: PatternCard[] = [];
+  showMyPatternCards: boolean = false;
+  editingPatternCard: PatternCard | null = null;
+  viewingPatternCard: PatternCard | null = null;
 
   private typeConfigs: Record<ConstructorType, ConstructorTypeConfig> = {
     mindmap: {
@@ -323,6 +332,10 @@ export class CreateMindmapComponent implements OnInit {
         if (type === 'drill_grid') {
           this.initializeDrillGrid();
         }
+        // Инициализация для pattern-card
+        if (type === 'pattern_card') {
+          this.initializePatternCard();
+        }
       } else {
         // Если тип не указан или невалидный, перенаправляем на выбор типа
         this.router.navigate(['/constructeurs']);
@@ -331,6 +344,14 @@ export class CreateMindmapComponent implements OnInit {
     
     // Загружаем сохраненные drill-grids из localStorage
     this.loadSavedDrillGrids();
+  }
+
+  initializePatternCard(): void {
+    this.patternCardName = '';
+    this.patternCard = null;
+    this.editingPatternCard = null;
+    this.viewingPatternCard = null;
+    this.loadPatternCards();
   }
 
   // Сохранение нового имени из карточки сохраненных drill-grids
@@ -1508,6 +1529,330 @@ export class CreateMindmapComponent implements OnInit {
       purpose: this.drillGridPurpose,
       constructorId: this.editingDrillGrid?.constructorId
     };
+  }
+
+  // === PATTERN-CARD METHODS ===
+
+  openPatternCardModal(mode: 'config' | 'preview'): void {
+    const dialogConfig: MatDialogConfig = {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '90vh',
+      maxHeight: '800px',
+      panelClass: 'pattern-card-modal-container',
+      data: {
+        mode: mode,
+        patternCardName: this.patternCardName,
+        patternCard: this.patternCard,
+        editingPatternCard: this.editingPatternCard,
+        onSave: (data: any) => {
+          this.patternCardName = data.patternCardName;
+          this.patternCard = data.patternCard;
+          this.savePatternCard();
+        },
+        onUpdate: (data: any) => {
+          this.patternCardName = data.patternCardName;
+          this.patternCard = data.patternCard;
+          this.updatePatternCard();
+        }
+      } as PatternCardModalData,
+      disableClose: false,
+      hasBackdrop: true
+    };
+
+    const dialogRef = this.dialog.open(PatternCardModalComponent, dialogConfig);
+
+    dialogRef.afterClosed().subscribe(() => {
+      // Модалка закрыта
+    });
+  }
+
+  savePatternCard(): void {
+    if (this.editingPatternCard && this.editingPatternCard.id) {
+      this.updatePatternCard();
+      return;
+    }
+
+    if (!this.patternCardName.trim()) {
+      this.notificationService.error('Veuillez nommer la pattern-card avant de la sauvegarder.');
+      return;
+    }
+
+    if (!this.patternCard || !this.patternCard.pattern || !this.patternCard.example) {
+      this.notificationService.error('Veuillez configurer le pattern et l\'exemple avant de sauvegarder.');
+      return;
+    }
+
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id?.toString();
+    const token = this.authService.getAccessToken();
+
+    if (!token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    const constructorPayload = {
+      title: this.patternCardName,
+      type: 'pattern_card' as const,
+      courseId: null,
+      description: null
+    };
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}`, constructorPayload, { headers }).subscribe({
+      next: (constructor: any) => {
+        const constructorId = constructor?.id || constructor?.data?.id;
+
+        if (!constructorId) {
+          console.error('❌ Конструктор создан, но ID отсутствует:', constructor);
+          this.notificationService.error('Erreur: ID du constructeur manquant');
+          return;
+        }
+
+        const patternCardPayload = {
+          pattern: this.patternCard!.pattern,
+          example: this.patternCard!.example,
+          blanks: this.patternCard!.blanks || [],
+          variations: this.patternCard!.variations || null,
+          difficulty: this.patternCard!.difficulty || null,
+          category: this.patternCard!.category || null,
+          explanation: this.patternCard!.explanation || null,
+          tags: this.patternCard!.tags || null
+        };
+
+        this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/pattern-card`, patternCardPayload, { headers }).subscribe({
+          next: (response: any) => {
+            this.notificationService.success('Pattern-card créée avec succès!');
+            this.loadPatternCards();
+            this.resetPatternCardForm();
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la création de la pattern-card:', error);
+            this.notificationService.error('Erreur lors de la création de la pattern-card');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la création du constructeur:', error);
+        this.notificationService.error('Erreur lors de la création du constructeur');
+      }
+    });
+  }
+
+  updatePatternCard(): void {
+    if (!this.editingPatternCard || !this.editingPatternCard.id) {
+      this.notificationService.error('Aucune pattern-card à mettre à jour.');
+      return;
+    }
+
+    if (!this.patternCardName.trim()) {
+      this.notificationService.error('Veuillez nommer la pattern-card.');
+      return;
+    }
+
+    if (!this.patternCard || !this.patternCard.pattern || !this.patternCard.example) {
+      this.notificationService.error('Veuillez configurer le pattern et l\'exemple.');
+      return;
+    }
+
+    const user = this.authService.getCurrentUser();
+    const token = this.authService.getAccessToken();
+
+    if (!token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const constructorId = this.editingPatternCard.id;
+    const patternCardPayload = {
+      pattern: this.patternCard.pattern,
+      example: this.patternCard.example,
+      blanks: this.patternCard.blanks || [],
+      variations: this.patternCard.variations || null,
+      difficulty: this.patternCard.difficulty || null,
+      category: this.patternCard.category || null,
+      explanation: this.patternCard.explanation || null,
+      tags: this.patternCard.tags || null
+    };
+
+    // Обновляем сначала название конструктора, затем pattern-card
+    this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, { title: this.patternCardName }, { headers }).subscribe({
+      next: () => {
+        // Затем обновляем pattern-card
+        this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/pattern-card`, patternCardPayload, { headers }).subscribe({
+          next: (response: any) => {
+            this.notificationService.success('Pattern-card mise à jour avec succès!');
+            this.loadPatternCards();
+            if (this.editingPatternCard && this.patternCard) {
+              this.editingPatternCard = {
+                ...this.editingPatternCard,
+                pattern: this.patternCard.pattern,
+                example: this.patternCard.example,
+                blanks: this.patternCard.blanks,
+                variations: this.patternCard.variations,
+                difficulty: this.patternCard.difficulty,
+                category: this.patternCard.category,
+                explanation: this.patternCard.explanation,
+                tags: this.patternCard.tags
+              };
+            }
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la mise à jour de la pattern-card:', error);
+            this.notificationService.error('Erreur lors de la mise à jour de la pattern-card');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la mise à jour du nom:', error);
+        this.notificationService.error('Erreur lors de la mise à jour du nom');
+      }
+    });
+  }
+
+  loadPatternCards(): void {
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id?.toString();
+    const token = this.authService.getAccessToken();
+
+    if (!token || !userId) {
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.get<any[]>(`${API_ENDPOINTS.CONSTRUCTORS}?type=pattern_card`, { headers }).subscribe({
+      next: (constructors: any[]) => {
+        const patternCardPromises = constructors.map(constructor => {
+          return Promise.all([
+            Promise.resolve(constructor),
+            this.http.get<any>(`${API_ENDPOINTS.CONSTRUCTORS}/${constructor.id}/pattern-card`, { headers }).toPromise()
+          ]);
+        });
+
+        Promise.all(patternCardPromises).then(results => {
+          this.savedPatternCards = results
+            .filter(([constructor, pc]) => pc !== null && pc !== undefined)
+            .map(([constructor, pc]) => ({
+              ...pc,
+              id: constructor.id,
+              pattern: pc.pattern || '',
+              example: pc.example || '',
+              blanks: pc.blanks || [],
+              variations: pc.variations || null,
+              difficulty: pc.difficulty || null,
+              category: pc.category || null,
+              explanation: pc.explanation || null,
+              tags: pc.tags || null,
+              constructorTitle: constructor.title || ''
+            }));
+        });
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des pattern-cards:', error);
+      }
+    });
+  }
+
+  loadPatternCard(patternCard: PatternCard): void {
+    const constructorId = patternCard.id;
+    const token = this.authService.getAccessToken();
+
+    if (!token || !constructorId) {
+      this.editingPatternCard = patternCard;
+      this.patternCardName = (patternCard as any).constructorTitle || patternCard.pattern || '';
+      this.patternCard = { ...patternCard };
+      this.showMyPatternCards = false;
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    // Загружаем данные конструктора для получения названия
+    this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, { headers }).subscribe({
+      next: (constructorData: any) => {
+        this.editingPatternCard = patternCard;
+        this.patternCardName = constructorData.title || (patternCard as any).constructorTitle || patternCard.pattern || '';
+        this.patternCard = { ...patternCard };
+        this.showMyPatternCards = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement du constructeur:', error);
+        // Fallback на локальные данные
+        this.editingPatternCard = patternCard;
+        this.patternCardName = (patternCard as any).constructorTitle || patternCard.pattern || '';
+        this.patternCard = { ...patternCard };
+        this.showMyPatternCards = false;
+      }
+    });
+  }
+
+  viewPatternCard(patternCard: PatternCard): void {
+    this.viewingPatternCard = patternCard;
+  }
+
+  deletePatternCard(id: string): void {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette pattern-card?')) {
+      return;
+    }
+
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.delete(`${API_ENDPOINTS.CONSTRUCTORS}/${id}`, { headers }).subscribe({
+      next: () => {
+        this.notificationService.success('Pattern-card supprimée avec succès!');
+        this.loadPatternCards();
+        if (this.editingPatternCard?.id === id) {
+          this.resetPatternCardForm();
+        }
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la suppression:', error);
+        this.notificationService.error('Erreur lors de la suppression');
+      }
+    });
+  }
+
+  resetPatternCardForm(): void {
+    this.patternCardName = '';
+    this.patternCard = null;
+    this.editingPatternCard = null;
+    this.viewingPatternCard = null;
+  }
+
+  toggleMyPatternCards(): void {
+    this.showMyPatternCards = !this.showMyPatternCards;
+    if (this.showMyPatternCards) {
+      this.loadPatternCards();
+    }
+  }
+
+  getPatternCardTitle(card: PatternCard): string {
+    return (card as any).constructorTitle || card.pattern || 'Pattern sans nom';
   }
 
   goBack(event?: Event): void {
