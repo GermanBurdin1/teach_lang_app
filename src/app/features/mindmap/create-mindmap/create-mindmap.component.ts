@@ -193,6 +193,112 @@ export class CreateMindmapComponent implements OnInit {
     };
   }
 
+  // Методы стилизации для мини-превью
+  getMiniPreviewHeaderStyle(): any {
+    const style = this.tableStyle || this.getDefaultTableStyle();
+    if (!style) {
+      return this.getDefaultTableStyle();
+    }
+    // Поддержка новой структуры с header/firstCol/cells
+    if ((style as any).header) {
+      const headerStyle = (style as any).header;
+      return {
+        'background-color': headerStyle.bgColor || '#f3f4f6',
+        'color': headerStyle.textColor || '#111827',
+        'font-family': headerStyle.fontFamily || 'Inter',
+        'font-size.px': headerStyle.fontSize || 16,
+        'font-weight': headerStyle.bold ? '600' : '400',
+        'font-style': headerStyle.italic ? 'italic' : 'normal',
+        'text-decoration': headerStyle.underline ? 'underline' : 'none'
+      };
+    }
+    // Старая структура
+    return {
+      'background-color': style.headerBgColor || '#f3f4f6',
+      'color': style.textColor || '#111827',
+      'font-family': style.fontFamily || 'Inter',
+      'font-size.px': style.fontSize || 14,
+      'font-weight': style.bold ? '600' : '400',
+      'font-style': style.italic ? 'italic' : 'normal',
+      'text-decoration': style.underline ? 'underline' : 'none'
+    };
+  }
+
+  getMiniPreviewFirstColStyle(): any {
+    const style = this.tableStyle || this.getDefaultTableStyle();
+    if (!style) {
+      return this.getDefaultTableStyle();
+    }
+    // Поддержка новой структуры с header/firstCol/cells
+    if ((style as any).firstCol) {
+      const firstColStyle = (style as any).firstCol;
+      return {
+        'background-color': firstColStyle.bgColor || '#f9fafb',
+        'color': firstColStyle.textColor || '#111827',
+        'font-family': firstColStyle.fontFamily || 'Inter',
+        'font-size.px': firstColStyle.fontSize || 14,
+        'font-weight': firstColStyle.bold ? '600' : '400',
+        'font-style': firstColStyle.italic ? 'italic' : 'normal',
+        'text-decoration': firstColStyle.underline ? 'underline' : 'none'
+      };
+    }
+    // Старая структура
+    return {
+      'background-color': style.firstColBgColor || '#f9fafb',
+      'color': style.textColor || '#111827',
+      'font-family': style.fontFamily || 'Inter',
+      'font-size.px': style.fontSize || 14,
+      'font-weight': style.bold ? '600' : '400',
+      'font-style': style.italic ? 'italic' : 'normal',
+      'text-decoration': style.underline ? 'underline' : 'none'
+    };
+  }
+
+  getMiniPreviewCellStyle(rowIndex: number, colIndex: number): any {
+    const cell = this.drillGridCellsData.find(c => 
+      c.rowId === `row_${rowIndex}` && c.colId === `col_${colIndex}`
+    );
+    const cellStyle = (cell as any)?.style || {};
+    const style = this.tableStyle || this.getDefaultTableStyle();
+    if (!style) {
+      const defaultStyle = this.getDefaultTableStyle();
+      return {
+        'background-color': cellStyle.bgColor || defaultStyle.cellBgColor || '#ffffff',
+        'color': cellStyle.textColor || defaultStyle.textColor || '#111827',
+        'font-family': cellStyle.fontFamily || defaultStyle.fontFamily || 'Inter',
+        'font-size.px': cellStyle.fontSize || defaultStyle.fontSize || 14,
+        'font-weight': (cellStyle.bold ?? defaultStyle.bold) ? '600' : '400',
+        'font-style': (cellStyle.italic ?? defaultStyle.italic) ? 'italic' : 'normal',
+        'text-decoration': (cellStyle.underline ?? defaultStyle.underline) ? 'underline' : 'none'
+      };
+    }
+    
+    // Поддержка новой структуры с header/firstCol/cells
+    if ((style as any).cells) {
+      const cellsStyle = (style as any).cells;
+      return {
+        'background-color': cellStyle.bgColor || cellsStyle.bgColor || '#ffffff',
+        'color': cellStyle.textColor || cellsStyle.textColor || '#111827',
+        'font-family': cellStyle.fontFamily || cellsStyle.fontFamily || 'Inter',
+        'font-size.px': cellStyle.fontSize || cellsStyle.fontSize || 14,
+        'font-weight': (cellStyle.bold ?? cellsStyle.bold) ? '600' : '400',
+        'font-style': (cellStyle.italic ?? cellsStyle.italic) ? 'italic' : 'normal',
+        'text-decoration': (cellStyle.underline ?? cellsStyle.underline) ? 'underline' : 'none'
+      };
+    }
+    
+    // Старая структура
+    return {
+      'background-color': cellStyle.bgColor || style.cellBgColor || '#ffffff',
+      'color': cellStyle.textColor || style.textColor || '#111827',
+      'font-family': cellStyle.fontFamily || style.fontFamily || 'Inter',
+      'font-size.px': cellStyle.fontSize || style.fontSize || 14,
+      'font-weight': (cellStyle.bold ?? style.bold) ? '600' : '400',
+      'font-style': (cellStyle.italic ?? style.italic) ? 'italic' : 'normal',
+      'text-decoration': (cellStyle.underline ?? style.underline) ? 'underline' : 'none'
+    };
+  }
+
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {

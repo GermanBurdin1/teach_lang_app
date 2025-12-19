@@ -11,6 +11,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 // Интерфейсы для drill-grid
 export interface DrillGridCell {
   rowId: string;
@@ -95,7 +96,8 @@ export interface DrillGridModalData {
     MatTabsModule,
     MatCardModule,
     MatSlideToggleModule,
-    MatSliderModule
+    MatSliderModule,
+    MatTooltipModule
   ],
   templateUrl: './drill-grid-modal.component.html',
   styleUrls: ['./drill-grid-modal.component.css']
@@ -113,6 +115,8 @@ export class DrillGridModalComponent implements OnInit {
   onSave?: (data: any) => void;
   onUpdate?: (data: any) => void;
   selectedTabIndex = 0;
+  hoveredRowIndex: number | null = null;
+  hoveredColIndex: number | null = null;
 
   constructor(
     public dialogRef: MatDialogRef<DrillGridModalComponent>,
@@ -477,6 +481,156 @@ export class DrillGridModalComponent implements OnInit {
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  onRowsChange(newCount: number): void {
+    const currentCount = this.drillGridRows.length;
+    const count = Math.max(1, Math.min(20, parseInt(newCount.toString()) || 1));
+    
+    if (count > currentCount) {
+      // Добавляем строки
+      for (let i = currentCount; i < count; i++) {
+        this.drillGridRows.push('');
+      }
+    } else if (count < currentCount) {
+      // Удаляем строки
+      for (let i = currentCount - 1; i >= count; i--) {
+        this.removeRow(i);
+      }
+    }
+  }
+
+  onColumnsChange(newCount: number): void {
+    const currentCount = this.drillGridColumns.length;
+    const count = Math.max(1, Math.min(20, parseInt(newCount.toString()) || 1));
+    
+    if (count > currentCount) {
+      // Добавляем колонки
+      for (let i = currentCount; i < count; i++) {
+        this.drillGridColumns.push('');
+      }
+    } else if (count < currentCount) {
+      // Удаляем колонки
+      for (let i = currentCount - 1; i >= count; i--) {
+        this.removeColumn(i);
+      }
+    }
+  }
+
+  addRowAt(index: number): void {
+    this.drillGridRows.splice(index, 0, '');
+    // Обновляем индексы ячеек
+    const cellsToUpdate: { [key: string]: string } = {};
+    Object.keys(this.drillGridCells).forEach(key => {
+      const [rowIdx, colIdx] = key.split('-').map(Number);
+      if (rowIdx >= index) {
+        const newKey = `${rowIdx + 1}-${colIdx}`;
+        cellsToUpdate[newKey] = this.drillGridCells[key];
+        delete this.drillGridCells[key];
+      }
+    });
+    Object.keys(cellsToUpdate).forEach(key => {
+      this.drillGridCells[key] = cellsToUpdate[key];
+    });
+    // Обновляем drillGridCellsData
+    this.drillGridCellsData.forEach(cell => {
+      const rowIdx = parseInt(cell.rowId.replace('row_', ''));
+      if (rowIdx >= index) {
+        cell.rowId = `row_${rowIdx + 1}`;
+      }
+    });
+  }
+
+  addColumnAt(index: number): void {
+    this.drillGridColumns.splice(index, 0, '');
+    // Обновляем индексы ячеек
+    const cellsToUpdate: { [key: string]: string } = {};
+    Object.keys(this.drillGridCells).forEach(key => {
+      const [rowIdx, colIdx] = key.split('-').map(Number);
+      if (colIdx >= index) {
+        const newKey = `${rowIdx}-${colIdx + 1}`;
+        cellsToUpdate[newKey] = this.drillGridCells[key];
+        delete this.drillGridCells[key];
+      }
+    });
+    Object.keys(cellsToUpdate).forEach(key => {
+      this.drillGridCells[key] = cellsToUpdate[key];
+    });
+    // Обновляем drillGridCellsData
+    this.drillGridCellsData.forEach(cell => {
+      const colIdx = parseInt(cell.colId.replace('col_', ''));
+      if (colIdx >= index) {
+        cell.colId = `col_${colIdx + 1}`;
+      }
+    });
+  }
+
+  removeRow(index: number): void {
+    if (this.drillGridRows.length > 1) {
+      // Удаляем ячейки этой строки и сдвигаем индексы
+      const cellsToUpdate: { [key: string]: string } = {};
+      Object.keys(this.drillGridCells).forEach(key => {
+        const [rowIdx, colIdx] = key.split('-').map(Number);
+        if (rowIdx === index) {
+          delete this.drillGridCells[key];
+        } else if (rowIdx > index) {
+          const newKey = `${rowIdx - 1}-${colIdx}`;
+          cellsToUpdate[newKey] = this.drillGridCells[key];
+          delete this.drillGridCells[key];
+        }
+      });
+      Object.keys(cellsToUpdate).forEach(key => {
+        this.drillGridCells[key] = cellsToUpdate[key];
+      });
+      
+      // Обновляем drillGridCellsData
+      this.drillGridCellsData = this.drillGridCellsData.filter(cell => {
+        const rowIdx = parseInt(cell.rowId.replace('row_', ''));
+        if (rowIdx === index) {
+          return false;
+        }
+        if (rowIdx > index) {
+          cell.rowId = `row_${rowIdx - 1}`;
+        }
+        return true;
+      });
+      
+      this.drillGridRows.splice(index, 1);
+    }
+  }
+
+  removeColumn(index: number): void {
+    if (this.drillGridColumns.length > 1) {
+      // Удаляем ячейки этого столбца и сдвигаем индексы
+      const cellsToUpdate: { [key: string]: string } = {};
+      Object.keys(this.drillGridCells).forEach(key => {
+        const [rowIdx, colIdx] = key.split('-').map(Number);
+        if (colIdx === index) {
+          delete this.drillGridCells[key];
+        } else if (colIdx > index) {
+          const newKey = `${rowIdx}-${colIdx - 1}`;
+          cellsToUpdate[newKey] = this.drillGridCells[key];
+          delete this.drillGridCells[key];
+        }
+      });
+      Object.keys(cellsToUpdate).forEach(key => {
+        this.drillGridCells[key] = cellsToUpdate[key];
+      });
+      
+      // Обновляем drillGridCellsData
+      this.drillGridCellsData = this.drillGridCellsData.filter(cell => {
+        const colIdx = parseInt(cell.colId.replace('col_', ''));
+        if (colIdx === index) {
+          return false;
+        }
+        if (colIdx > index) {
+          cell.colId = `col_${colIdx - 1}`;
+        }
+        return true;
+      });
+      
+      this.drillGridColumns.splice(index, 1);
+    }
   }
 }
 

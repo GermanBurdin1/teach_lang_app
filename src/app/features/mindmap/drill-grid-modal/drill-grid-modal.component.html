@@ -294,24 +294,73 @@
         </mat-tab-group>
       </div>
 
+      <!-- Matrix Size Configuration -->
+      <div class="matrix-size-config">
+        <mat-card class="size-config-card">
+          <h5 class="section-title">
+            <mat-icon>aspect_ratio</mat-icon>
+            Taille de la matrice
+          </h5>
+          <div class="size-controls">
+            <mat-form-field appearance="outline">
+              <mat-label>Nombre de lignes</mat-label>
+              <input matInput type="number" [value]="drillGridRows.length" (change)="onRowsChange($any($event.target).value)" min="1" max="20">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Nombre de colonnes</mat-label>
+              <input matInput type="number" [value]="drillGridColumns.length" (change)="onColumnsChange($any($event.target).value)" min="1" max="20">
+            </mat-form-field>
+          </div>
+        </mat-card>
+      </div>
+
       <div class="matrix-editor">
         <div class="drill-table-editable">
           <!-- Header row with column labels -->
           <div class="drill-header-row">
             <div class="drill-cell header-cell corner-cell" [ngStyle]="getHeaderStyle()"></div>
-            <div class="drill-cell header-cell" *ngFor="let col of drillGridColumns; let colIdx = index; trackBy: trackByIndex" [ngStyle]="getHeaderStyle()">
-              <input 
-                type="text" 
-                [value]="drillGridColumns[colIdx]" 
-                (input)="drillGridColumns[colIdx] = $any($event.target).value"
-                placeholder="Colonne {{ colIdx + 1 }}"
-                class="header-input"
-                [ngStyle]="getHeaderStyle()">
-            </div>
+            <ng-container *ngFor="let col of drillGridColumns; let colIdx = index; trackBy: trackByIndex">
+              <!-- Add column button before column -->
+              <div class="column-add-button left" 
+                   *ngIf="hoveredColIndex === colIdx"
+                   (click)="addColumnAt(colIdx)"
+                   matTooltip="Ajouter une colonne à gauche">
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="drill-cell header-cell column-hover-target" 
+                   [ngStyle]="getHeaderStyle()"
+                   (mouseenter)="hoveredColIndex = colIdx"
+                   (mouseleave)="hoveredColIndex = null">
+                <input 
+                  type="text" 
+                  [value]="drillGridColumns[colIdx]" 
+                  (input)="drillGridColumns[colIdx] = $any($event.target).value"
+                  placeholder="Colonne {{ colIdx + 1 }}"
+                  class="header-input"
+                  [ngStyle]="getHeaderStyle()">
+              </div>
+              <!-- Add column button after column -->
+              <div class="column-add-button right" 
+                   *ngIf="hoveredColIndex === colIdx && colIdx === drillGridColumns.length - 1"
+                   (click)="addColumnAt(colIdx + 1)"
+                   matTooltip="Ajouter une colonne à droite">
+                <mat-icon>add</mat-icon>
+              </div>
+            </ng-container>
           </div>
 
           <!-- Data rows -->
-          <div class="drill-row" *ngFor="let row of drillGridRows; let rowIdx = index; trackBy: trackByIndex">
+          <div class="drill-row row-hover-target" 
+               *ngFor="let row of drillGridRows; let rowIdx = index; trackBy: trackByIndex"
+               (mouseenter)="hoveredRowIndex = rowIdx"
+               (mouseleave)="hoveredRowIndex = null">
+            <!-- Add row button before row -->
+            <div class="row-add-button top" 
+                 *ngIf="hoveredRowIndex === rowIdx"
+                 (click)="addRowAt(rowIdx)"
+                 matTooltip="Ajouter une ligne au-dessus">
+              <mat-icon>add</mat-icon>
+            </div>
             <div class="drill-cell header-cell" [ngStyle]="getFirstColStyle()">
               <input 
                 type="text" 
@@ -322,9 +371,11 @@
                 [ngStyle]="getFirstColStyle()">
             </div>
             <div 
-              class="drill-cell editable-cell" 
+              class="drill-cell editable-cell column-hover-target" 
               *ngFor="let col of drillGridColumns; let colIdx = index"
-              [ngStyle]="getCellStyle(rowIdx, colIdx)">
+              [ngStyle]="getCellStyle(rowIdx, colIdx)"
+              (mouseenter)="hoveredColIndex = colIdx"
+              (mouseleave)="hoveredColIndex = null">
               <div class="cell-input-wrapper">
                 <input 
                   type="text" 
@@ -334,6 +385,13 @@
                   class="cell-input"
                   [ngStyle]="getCellStyle(rowIdx, colIdx)">
               </div>
+            </div>
+            <!-- Add row button after row -->
+            <div class="row-add-button bottom" 
+                 *ngIf="hoveredRowIndex === rowIdx && rowIdx === drillGridRows.length - 1"
+                 (click)="addRowAt(rowIdx + 1)"
+                 matTooltip="Ajouter une ligne en dessous">
+              <mat-icon>add</mat-icon>
             </div>
           </div>
         </div>

@@ -294,17 +294,21 @@
                 <div class="mini-preview-table">
                   <!-- Header row -->
                   <div class="mini-preview-row">
-                    <div class="mini-preview-cell mini-preview-header-cell"></div>
-                    <div class="mini-preview-cell mini-preview-header-cell" *ngFor="let col of drillGridColumns; let colIdx = index">
+                    <div class="mini-preview-cell mini-preview-header-cell" [ngStyle]="getMiniPreviewHeaderStyle()"></div>
+                    <div class="mini-preview-cell mini-preview-header-cell" 
+                         *ngFor="let col of drillGridColumns; let colIdx = index"
+                         [ngStyle]="getMiniPreviewHeaderStyle()">
                       {{ col || 'Colonne ' + (colIdx + 1) }}
                     </div>
                   </div>
                   <!-- Data rows -->
                   <div class="mini-preview-row" *ngFor="let row of drillGridRows; let rowIdx = index">
-                    <div class="mini-preview-cell mini-preview-header-cell">
+                    <div class="mini-preview-cell mini-preview-header-cell" [ngStyle]="getMiniPreviewFirstColStyle()">
                       {{ row || 'Ligne ' + (rowIdx + 1) }}
                     </div>
-                    <div class="mini-preview-cell" *ngFor="let col of drillGridColumns; let colIdx = index">
+                    <div class="mini-preview-cell" 
+                         *ngFor="let col of drillGridColumns; let colIdx = index"
+                         [ngStyle]="getMiniPreviewCellStyle(rowIdx, colIdx)">
                       {{ getCellValue(rowIdx, colIdx) || '...' }}
                     </div>
                   </div>
@@ -315,18 +319,14 @@
             <!-- Matrix Configuration -->
             <div class="matrix-config">
               <div class="config-row">
-                <mat-form-field appearance="outline">
-                  <mat-label>Nombre de lignes</mat-label>
-                  <input matInput type="number" [(ngModel)]="numRows" min="1" max="20" (change)="onMatrixSizeChange()">
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>Nombre de colonnes</mat-label>
-                  <input matInput type="number" [(ngModel)]="numColumns" min="1" max="20" (change)="onMatrixSizeChange()">
-                </mat-form-field>
-                <button mat-raised-button color="primary" (click)="createMatrix()">
-                  <mat-icon>refresh</mat-icon>
-                  Créer la matrice
+                <button mat-raised-button color="primary" (click)="openMatrixModal('config')">
+                  <mat-icon>settings</mat-icon>
+                  Configurer la matrice
                 </button>
+                <p class="config-hint">
+                  <mat-icon>info</mat-icon>
+                  Cliquez sur "Configurer la matrice" pour définir le nombre de lignes et colonnes, ainsi que les styles
+                </p>
               </div>
             </div>
 
