@@ -822,12 +822,19 @@ export class CreateMindmapComponent implements OnInit {
             this.savedDrillGrids[index] = updatedGrid;
             }
             
+            // Обновляем editingDrillGrid с новыми данными вместо очистки
+            this.editingDrillGrid = {
+              ...this.editingDrillGrid!,
+              name: this.drillGridName,
+              rows: rows,
+              columns: columns,
+              cells: cells,
+              purpose: this.drillGridPurpose as 'info' | 'homework',
+              tableStyle: this.tableStyle,
+              constructorId: constructorId
+            };
+            
             this.notificationService.success(`Drill-grid "${this.drillGridName}" mise à jour avec succès!`);
-            this.editingDrillGrid = null;
-            this.drillGridCellsData = [];
-            this.drillGridCells = {};
-            this.drillGridRows = [];
-            this.drillGridColumns = [];
             this.drillGridName = '';
           },
           error: (error) => {
