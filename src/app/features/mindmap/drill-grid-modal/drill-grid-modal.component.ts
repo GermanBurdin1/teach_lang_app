@@ -7,6 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSliderModule } from '@angular/material/slider';
 // Интерфейсы для drill-grid
 export interface DrillGridCell {
   rowId: string;
@@ -16,6 +20,22 @@ export interface DrillGridCell {
   isEditable?: boolean;
 }
 
+export interface TableElementStyle {
+  fontFamily?: string;
+  fontSize?: number;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  textColor?: string;
+  bgColor?: string;
+}
+
+export interface NormalizedTableStyle {
+  header: Required<TableElementStyle>;
+  firstCol: Required<TableElementStyle>;
+  cells: Required<TableElementStyle>;
+}
+
 export interface DrillGrid {
   id: string;
   name: string;
@@ -23,6 +43,10 @@ export interface DrillGrid {
   columns: Array<{ id: string; label: string }> | string[];
   cells: DrillGridCell[] | { [key: string]: string };
   tableStyle?: {
+    header?: TableElementStyle;
+    firstCol?: TableElementStyle;
+    cells?: TableElementStyle;
+    // Обратная совместимость со старым форматом
     fontFamily?: string;
     fontSize?: number;
     bold?: boolean;
@@ -67,7 +91,11 @@ export interface DrillGridModalData {
     MatIconModule,
     MatInputModule,
     MatFormFieldModule,
-    MatSelectModule
+    MatSelectModule,
+    MatTabsModule,
+    MatCardModule,
+    MatSlideToggleModule,
+    MatSliderModule
   ],
   templateUrl: './drill-grid-modal.component.html',
   styleUrls: ['./drill-grid-modal.component.css']
@@ -79,11 +107,12 @@ export class DrillGridModalComponent implements OnInit {
   drillGridColumns: string[];
   drillGridCells: { [key: string]: string };
   drillGridCellsData: DrillGridCell[];
-  tableStyle: NonNullable<DrillGrid['tableStyle']>;
+  tableStyle: NormalizedTableStyle;
   drillGridPurpose: 'info' | 'homework';
   editingDrillGrid?: DrillGrid | null;
   onSave?: (data: any) => void;
   onUpdate?: (data: any) => void;
+  selectedTabIndex = 0;
 
   constructor(
     public dialogRef: MatDialogRef<DrillGridModalComponent>,
@@ -95,11 +124,85 @@ export class DrillGridModalComponent implements OnInit {
     this.drillGridColumns = [...data.drillGridColumns];
     this.drillGridCells = { ...data.drillGridCells };
     this.drillGridCellsData = [...data.drillGridCellsData];
-    this.tableStyle = data.tableStyle || this.getDefaultTableStyle();
+    this.tableStyle = this.normalizeTableStyle(data.tableStyle);
     this.drillGridPurpose = data.drillGridPurpose;
     this.editingDrillGrid = data.editingDrillGrid;
     this.onSave = data.onSave;
     this.onUpdate = data.onUpdate;
+  }
+
+  private normalizeTableStyle(style?: DrillGrid['tableStyle']): NormalizedTableStyle {
+    if (!style) {
+      return this.getDefaultTableStyle();
+    }
+
+    // Если уже новая структура с header/firstCol/cells
+    if (style.header || style.firstCol || style.cells) {
+      const defaultHeader = this.getDefaultHeaderStyle();
+      const defaultFirstCol = this.getDefaultFirstColStyle();
+      const defaultCells = this.getDefaultCellStyle();
+      
+      return {
+        header: {
+          fontFamily: style.header?.fontFamily ?? defaultHeader.fontFamily,
+          fontSize: style.header?.fontSize ?? defaultHeader.fontSize,
+          bold: style.header?.bold ?? defaultHeader.bold,
+          italic: style.header?.italic ?? defaultHeader.italic,
+          underline: style.header?.underline ?? defaultHeader.underline,
+          textColor: style.header?.textColor ?? defaultHeader.textColor,
+          bgColor: style.header?.bgColor ?? defaultHeader.bgColor
+        },
+        firstCol: {
+          fontFamily: style.firstCol?.fontFamily ?? defaultFirstCol.fontFamily,
+          fontSize: style.firstCol?.fontSize ?? defaultFirstCol.fontSize,
+          bold: style.firstCol?.bold ?? defaultFirstCol.bold,
+          italic: style.firstCol?.italic ?? defaultFirstCol.italic,
+          underline: style.firstCol?.underline ?? defaultFirstCol.underline,
+          textColor: style.firstCol?.textColor ?? defaultFirstCol.textColor,
+          bgColor: style.firstCol?.bgColor ?? defaultFirstCol.bgColor
+        },
+        cells: {
+          fontFamily: style.cells?.fontFamily ?? defaultCells.fontFamily,
+          fontSize: style.cells?.fontSize ?? defaultCells.fontSize,
+          bold: style.cells?.bold ?? defaultCells.bold,
+          italic: style.cells?.italic ?? defaultCells.italic,
+          underline: style.cells?.underline ?? defaultCells.underline,
+          textColor: style.cells?.textColor ?? defaultCells.textColor,
+          bgColor: style.cells?.bgColor ?? defaultCells.bgColor
+        }
+      };
+    }
+
+    // Миграция со старого формата
+    return {
+      header: {
+        fontFamily: style.fontFamily || 'Inter',
+        fontSize: style.fontSize || 16,
+        bold: style.bold ?? true,
+        italic: style.italic ?? false,
+        underline: style.underline ?? false,
+        textColor: style.textColor || '#111827',
+        bgColor: style.headerBgColor || '#f3f4f6'
+      },
+      firstCol: {
+        fontFamily: style.fontFamily || 'Inter',
+        fontSize: style.fontSize || 14,
+        bold: style.bold ?? false,
+        italic: style.italic ?? false,
+        underline: style.underline ?? false,
+        textColor: style.textColor || '#111827',
+        bgColor: style.firstColBgColor || '#f9fafb'
+      },
+      cells: {
+        fontFamily: style.fontFamily || 'Inter',
+        fontSize: style.fontSize || 14,
+        bold: style.bold ?? false,
+        italic: style.italic ?? false,
+        underline: style.underline ?? false,
+        textColor: style.textColor || '#111827',
+        bgColor: style.cellBgColor || '#ffffff'
+      }
+    };
   }
 
   ngOnInit(): void {
@@ -117,15 +220,15 @@ export class DrillGridModalComponent implements OnInit {
   getCellStyle(rowIndex: number, colIndex: number): any {
     const cell = this.getCellData(rowIndex, colIndex);
     const style = (cell as any).style || {};
-    const t = this.tableStyle || {};
-    const fs = this.getFontSizeValue(style.fontSize ?? t.fontSize);
-    const bg = style.bgColor || t.cellBgColor || '#ffffff';
-    const txt = style.textColor || t.textColor || '#111827';
-    const fontFamily = style.fontFamily || t.fontFamily;
+    const cellStyle = this.tableStyle.cells;
+    const fs = this.getFontSizeValue(style.fontSize ?? cellStyle.fontSize);
+    const bg = style.bgColor || cellStyle.bgColor;
+    const txt = style.textColor || cellStyle.textColor;
+    const fontFamily = style.fontFamily || cellStyle.fontFamily;
     const fontSize = fs ?? undefined;
-    const fontWeight = style.bold || t.bold ? '600' : '400';
-    const fontStyle = style.italic || t.italic ? 'italic' : 'normal';
-    const textDecoration = style.underline || t.underline ? 'underline' : 'none';
+    const fontWeight = style.bold ?? cellStyle.bold ? '600' : '400';
+    const fontStyle = style.italic ?? cellStyle.italic ? 'italic' : 'normal';
+    const textDecoration = style.underline ?? cellStyle.underline ? 'underline' : 'none';
     return {
       'background-color': bg,
       'color': txt,
@@ -138,30 +241,30 @@ export class DrillGridModalComponent implements OnInit {
   }
 
   getHeaderStyle(): any {
-    const t = this.tableStyle || {};
-    const fs = this.getFontSizeValue(t.fontSize);
+    const headerStyle = this.tableStyle.header;
+    const fs = this.getFontSizeValue(headerStyle.fontSize);
     return {
-      'background-color': t.headerBgColor || '#f3f4f6',
-      'color': t.textColor || '#111827',
-      'font-family': t.fontFamily,
+      'background-color': headerStyle.bgColor,
+      'color': headerStyle.textColor,
+      'font-family': headerStyle.fontFamily,
       'font-size.px': fs ?? undefined,
-      'font-weight': t.bold ? '600' : '400',
-      'font-style': t.italic ? 'italic' : 'normal',
-      'text-decoration': t.underline ? 'underline' : 'none'
+      'font-weight': headerStyle.bold ? '600' : '400',
+      'font-style': headerStyle.italic ? 'italic' : 'normal',
+      'text-decoration': headerStyle.underline ? 'underline' : 'none'
     };
   }
 
   getFirstColStyle(): any {
-    const t = this.tableStyle || {};
-    const fs = this.getFontSizeValue(t.fontSize);
+    const firstColStyle = this.tableStyle.firstCol;
+    const fs = this.getFontSizeValue(firstColStyle.fontSize);
     return {
-      'background-color': t.firstColBgColor || '#f9fafb',
-      'color': t.textColor || '#111827',
-      'font-family': t.fontFamily,
+      'background-color': firstColStyle.bgColor,
+      'color': firstColStyle.textColor,
+      'font-family': firstColStyle.fontFamily,
       'font-size.px': fs ?? undefined,
-      'font-weight': t.bold ? '600' : '400',
-      'font-style': t.italic ? 'italic' : 'normal',
-      'text-decoration': t.underline ? 'underline' : 'none'
+      'font-weight': firstColStyle.bold ? '600' : '400',
+      'font-style': firstColStyle.italic ? 'italic' : 'normal',
+      'text-decoration': firstColStyle.underline ? 'underline' : 'none'
     };
   }
 
@@ -323,7 +426,27 @@ export class DrillGridModalComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  private getDefaultTableStyle(): NonNullable<DrillGrid['tableStyle']> {
+  private getDefaultTableStyle(): NormalizedTableStyle {
+    return {
+      header: this.getDefaultHeaderStyle(),
+      firstCol: this.getDefaultFirstColStyle(),
+      cells: this.getDefaultCellStyle()
+    };
+  }
+
+  private getDefaultHeaderStyle(): Required<TableElementStyle> {
+    return {
+      fontFamily: 'Inter',
+      fontSize: 16,
+      bold: true,
+      italic: false,
+      underline: false,
+      textColor: '#111827',
+      bgColor: '#f3f4f6'
+    };
+  }
+
+  private getDefaultFirstColStyle(): Required<TableElementStyle> {
     return {
       fontFamily: 'Inter',
       fontSize: 14,
@@ -331,9 +454,19 @@ export class DrillGridModalComponent implements OnInit {
       italic: false,
       underline: false,
       textColor: '#111827',
-      headerBgColor: '#f3f4f6',
-      firstColBgColor: '#f9fafb',
-      cellBgColor: '#ffffff',
+      bgColor: '#f9fafb'
+    };
+  }
+
+  private getDefaultCellStyle(): Required<TableElementStyle> {
+    return {
+      fontFamily: 'Inter',
+      fontSize: 14,
+      bold: false,
+      italic: false,
+      underline: false,
+      textColor: '#111827',
+      bgColor: '#ffffff'
     };
   }
 

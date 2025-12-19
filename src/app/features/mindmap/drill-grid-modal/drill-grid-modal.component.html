@@ -43,51 +43,255 @@
     <!-- Режим конфигурации -->
     <div class="config-mode" *ngIf="mode === 'config'">
       <div class="style-panel">
-        <h4>Style de la table</h4>
-        <div class="style-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Police</mat-label>
-            <mat-select [(ngModel)]="tableStyle.fontFamily">
-              <mat-option value="Inter">Inter</mat-option>
-              <mat-option value="Roboto">Roboto</mat-option>
-              <mat-option value="Arial">Arial</mat-option>
-              <mat-option value="Times New Roman">Times New Roman</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Taille</mat-label>
-            <input matInput type="number" [(ngModel)]="tableStyle.fontSize" min="10" max="40">
-          </mat-form-field>
-          <div class="style-toggles">
-            <button mat-stroked-button color="primary" type="button" (click)="tableStyle.bold = !tableStyle.bold" [class.active]="tableStyle.bold">
-              <strong>Gras</strong>
-            </button>
-            <button mat-stroked-button color="primary" type="button" (click)="tableStyle.italic = !tableStyle.italic" [class.active]="tableStyle.italic">
-              <em>Italique</em>
-            </button>
-            <button mat-stroked-button color="primary" type="button" (click)="tableStyle.underline = !tableStyle.underline" [class.active]="tableStyle.underline">
-              <span style="text-decoration: underline;">Souligné</span>
-            </button>
-          </div>
-        </div>
-        <div class="style-row">
-          <div class="color-picker">
-            <label>Texte</label>
-            <input type="color" [(ngModel)]="tableStyle.textColor">
-          </div>
-          <div class="color-picker">
-            <label>Fond des en-têtes (th)</label>
-            <input type="color" [(ngModel)]="tableStyle.headerBgColor">
-          </div>
-          <div class="color-picker">
-            <label>Fond première colonne</label>
-            <input type="color" [(ngModel)]="tableStyle.firstColBgColor">
-          </div>
-          <div class="color-picker">
-            <label>Fond des cellules</label>
-            <input type="color" [(ngModel)]="tableStyle.cellBgColor">
-          </div>
-        </div>
+        <h4 class="style-panel-title">
+          <mat-icon>palette</mat-icon>
+          Style de la table
+        </h4>
+        
+        <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="style-tabs">
+          <!-- Tab: Заголовки (Headers) -->
+          <mat-tab label="En-têtes">
+            <mat-card class="style-card">
+              <div class="style-section">
+                <h5 class="section-title">
+                  <mat-icon>title</mat-icon>
+                  Style des en-têtes
+                </h5>
+                
+                <div class="style-controls-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Police</mat-label>
+                    <mat-select [(ngModel)]="tableStyle.header.fontFamily">
+                      <mat-option value="Inter">Inter</mat-option>
+                      <mat-option value="Roboto">Roboto</mat-option>
+                      <mat-option value="Arial">Arial</mat-option>
+                      <mat-option value="Times New Roman">Times New Roman</mat-option>
+                      <mat-option value="Georgia">Georgia</mat-option>
+                      <mat-option value="Verdana">Verdana</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Taille de police</mat-label>
+                    <input matInput type="number" [(ngModel)]="tableStyle.header.fontSize" min="10" max="40">
+                    <span matSuffix>px</span>
+                  </mat-form-field>
+
+                  <div class="color-picker-group">
+                    <label class="color-label">
+                      <mat-icon>format_color_text</mat-icon>
+                      Couleur du texte
+                    </label>
+                    <div class="color-input-wrapper">
+                      <input type="color" [(ngModel)]="tableStyle.header.textColor" class="color-input">
+                      <input type="text" [(ngModel)]="tableStyle.header.textColor" class="color-hex-input" placeholder="#111827">
+                    </div>
+                  </div>
+
+                  <div class="color-picker-group">
+                    <label class="color-label">
+                      <mat-icon>format_color_fill</mat-icon>
+                      Couleur de fond
+                    </label>
+                    <div class="color-input-wrapper">
+                      <input type="color" [(ngModel)]="tableStyle.header.bgColor" class="color-input">
+                      <input type="text" [(ngModel)]="tableStyle.header.bgColor" class="color-hex-input" placeholder="#f3f4f6">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="formatting-buttons">
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.header.bold = !tableStyle.header.bold" 
+                          [class.active]="tableStyle.header.bold"
+                          class="format-btn">
+                    <mat-icon>format_bold</mat-icon>
+                    <span>Gras</span>
+                  </button>
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.header.italic = !tableStyle.header.italic" 
+                          [class.active]="tableStyle.header.italic"
+                          class="format-btn">
+                    <mat-icon>format_italic</mat-icon>
+                    <span>Italique</span>
+                  </button>
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.header.underline = !tableStyle.header.underline" 
+                          [class.active]="tableStyle.header.underline"
+                          class="format-btn">
+                    <mat-icon>format_underlined</mat-icon>
+                    <span>Souligné</span>
+                  </button>
+                </div>
+              </div>
+            </mat-card>
+          </mat-tab>
+
+          <!-- Tab: Первая колонка (First Column) -->
+          <mat-tab label="Première colonne">
+            <mat-card class="style-card">
+              <div class="style-section">
+                <h5 class="section-title">
+                  <mat-icon>view_column</mat-icon>
+                  Style de la première colonne
+                </h5>
+                
+                <div class="style-controls-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Police</mat-label>
+                    <mat-select [(ngModel)]="tableStyle.firstCol.fontFamily">
+                      <mat-option value="Inter">Inter</mat-option>
+                      <mat-option value="Roboto">Roboto</mat-option>
+                      <mat-option value="Arial">Arial</mat-option>
+                      <mat-option value="Times New Roman">Times New Roman</mat-option>
+                      <mat-option value="Georgia">Georgia</mat-option>
+                      <mat-option value="Verdana">Verdana</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Taille de police</mat-label>
+                    <input matInput type="number" [(ngModel)]="tableStyle.firstCol.fontSize" min="10" max="40">
+                    <span matSuffix>px</span>
+                  </mat-form-field>
+
+                  <div class="color-picker-group">
+                    <label class="color-label">
+                      <mat-icon>format_color_text</mat-icon>
+                      Couleur du texte
+                    </label>
+                    <div class="color-input-wrapper">
+                      <input type="color" [(ngModel)]="tableStyle.firstCol.textColor" class="color-input">
+                      <input type="text" [(ngModel)]="tableStyle.firstCol.textColor" class="color-hex-input" placeholder="#111827">
+                    </div>
+                  </div>
+
+                  <div class="color-picker-group">
+                    <label class="color-label">
+                      <mat-icon>format_color_fill</mat-icon>
+                      Couleur de fond
+                    </label>
+                    <div class="color-input-wrapper">
+                      <input type="color" [(ngModel)]="tableStyle.firstCol.bgColor" class="color-input">
+                      <input type="text" [(ngModel)]="tableStyle.firstCol.bgColor" class="color-hex-input" placeholder="#f9fafb">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="formatting-buttons">
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.firstCol.bold = !tableStyle.firstCol.bold" 
+                          [class.active]="tableStyle.firstCol.bold"
+                          class="format-btn">
+                    <mat-icon>format_bold</mat-icon>
+                    <span>Gras</span>
+                  </button>
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.firstCol.italic = !tableStyle.firstCol.italic" 
+                          [class.active]="tableStyle.firstCol.italic"
+                          class="format-btn">
+                    <mat-icon>format_italic</mat-icon>
+                    <span>Italique</span>
+                  </button>
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.firstCol.underline = !tableStyle.firstCol.underline" 
+                          [class.active]="tableStyle.firstCol.underline"
+                          class="format-btn">
+                    <mat-icon>format_underlined</mat-icon>
+                    <span>Souligné</span>
+                  </button>
+                </div>
+              </div>
+            </mat-card>
+          </mat-tab>
+
+          <!-- Tab: Ячейки (Cells) -->
+          <mat-tab label="Cellules">
+            <mat-card class="style-card">
+              <div class="style-section">
+                <h5 class="section-title">
+                  <mat-icon>table_chart</mat-icon>
+                  Style des cellules
+                </h5>
+                
+                <div class="style-controls-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Police</mat-label>
+                    <mat-select [(ngModel)]="tableStyle.cells.fontFamily">
+                      <mat-option value="Inter">Inter</mat-option>
+                      <mat-option value="Roboto">Roboto</mat-option>
+                      <mat-option value="Arial">Arial</mat-option>
+                      <mat-option value="Times New Roman">Times New Roman</mat-option>
+                      <mat-option value="Georgia">Georgia</mat-option>
+                      <mat-option value="Verdana">Verdana</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Taille de police</mat-label>
+                    <input matInput type="number" [(ngModel)]="tableStyle.cells.fontSize" min="10" max="40">
+                    <span matSuffix>px</span>
+                  </mat-form-field>
+
+                  <div class="color-picker-group">
+                    <label class="color-label">
+                      <mat-icon>format_color_text</mat-icon>
+                      Couleur du texte
+                    </label>
+                    <div class="color-input-wrapper">
+                      <input type="color" [(ngModel)]="tableStyle.cells.textColor" class="color-input">
+                      <input type="text" [(ngModel)]="tableStyle.cells.textColor" class="color-hex-input" placeholder="#111827">
+                    </div>
+                  </div>
+
+                  <div class="color-picker-group">
+                    <label class="color-label">
+                      <mat-icon>format_color_fill</mat-icon>
+                      Couleur de fond
+                    </label>
+                    <div class="color-input-wrapper">
+                      <input type="color" [(ngModel)]="tableStyle.cells.bgColor" class="color-input">
+                      <input type="text" [(ngModel)]="tableStyle.cells.bgColor" class="color-hex-input" placeholder="#ffffff">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="formatting-buttons">
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.cells.bold = !tableStyle.cells.bold" 
+                          [class.active]="tableStyle.cells.bold"
+                          class="format-btn">
+                    <mat-icon>format_bold</mat-icon>
+                    <span>Gras</span>
+                  </button>
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.cells.italic = !tableStyle.cells.italic" 
+                          [class.active]="tableStyle.cells.italic"
+                          class="format-btn">
+                    <mat-icon>format_italic</mat-icon>
+                    <span>Italique</span>
+                  </button>
+                  <button mat-stroked-button 
+                          type="button" 
+                          (click)="tableStyle.cells.underline = !tableStyle.cells.underline" 
+                          [class.active]="tableStyle.cells.underline"
+                          class="format-btn">
+                    <mat-icon>format_underlined</mat-icon>
+                    <span>Souligné</span>
+                  </button>
+                </div>
+              </div>
+            </mat-card>
+          </mat-tab>
+        </mat-tab-group>
       </div>
 
       <div class="matrix-editor">
@@ -147,4 +351,3 @@
     </button>
   </div>
 </div>
-
