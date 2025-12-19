@@ -317,11 +317,11 @@
               <div class="config-row">
                 <mat-form-field appearance="outline">
                   <mat-label>Nombre de lignes</mat-label>
-                  <input matInput type="number" [(ngModel)]="numRows" min="1" max="20" (change)="createMatrix()">
+                  <input matInput type="number" [(ngModel)]="numRows" min="1" max="20" (change)="onMatrixSizeChange()">
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>Nombre de colonnes</mat-label>
-                  <input matInput type="number" [(ngModel)]="numColumns" min="1" max="20" (change)="createMatrix()">
+                  <input matInput type="number" [(ngModel)]="numColumns" min="1" max="20" (change)="onMatrixSizeChange()">
                 </mat-form-field>
                 <button mat-raised-button color="primary" (click)="createMatrix()">
                   <mat-icon>refresh</mat-icon>

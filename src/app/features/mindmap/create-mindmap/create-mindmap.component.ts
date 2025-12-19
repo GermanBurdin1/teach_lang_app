@@ -228,10 +228,10 @@ export class CreateMindmapComponent implements OnInit {
   }
   
   initializeDrillGrid(): void {
-    // Инициализируем матрицу с пустыми строками и столбцами
-    this.drillGridRows = Array(this.numRows).fill('').map((_, i) => '');
-    this.drillGridColumns = Array(this.numColumns).fill('').map((_, i) => '');
-    this.drillGridCells = {};
+    // Инициализируем матрицу с пустыми строками и столбцами без сохранения старых данных
+    this.numRows = 3;
+    this.numColumns = 4;
+    this.createMatrix(false);
   }
   
   loadSavedDrillGrids(): void {
@@ -305,11 +305,52 @@ export class CreateMindmapComponent implements OnInit {
     return this.savedDrillGrids.filter(g => g.type === 'homework');
   }
   
-  createMatrix(): void {
+  onMatrixSizeChange(): void {
+    this.createMatrix(true);
+  }
+
+  createMatrix(preserveExisting: boolean = false): void {
     // Создаем матрицу с заданным количеством строк и столбцов
-    this.drillGridRows = Array(this.numRows).fill('').map((_, i) => '');
-    this.drillGridColumns = Array(this.numColumns).fill('').map((_, i) => '');
-    this.drillGridCells = {};
+    this.drillGridRows = Array(this.numRows).fill('').map((_, i) => this.drillGridRows[i] || '');
+    this.drillGridColumns = Array(this.numColumns).fill('').map((_, i) => this.drillGridColumns[i] || '');
+
+    const prevCells = preserveExisting ? { ...this.drillGridCells } : {};
+    const prevData = preserveExisting ? [...this.drillGridCellsData] : [];
+
+    const newCells: { [key: string]: string } = {};
+    const newCellsData: DrillGridCell[] = [];
+
+    for (let rowIdx = 0; rowIdx < this.numRows; rowIdx++) {
+      for (let colIdx = 0; colIdx < this.numColumns; colIdx++) {
+        const key = `${rowIdx}-${colIdx}`;
+        let content = '';
+        let correctAnswer: string | undefined = undefined;
+        let isEditable: boolean | undefined = true;
+
+        if (preserveExisting) {
+          if (prevCells[key] !== undefined) {
+            content = prevCells[key];
+          }
+          const prevCellData = prevData.find(c => c.rowId === `row_${rowIdx}` && c.colId === `col_${colIdx}`);
+          if (prevCellData) {
+            correctAnswer = prevCellData.correctAnswer;
+            isEditable = prevCellData.isEditable;
+          }
+        }
+
+        newCells[key] = content;
+        newCellsData.push({
+          rowId: `row_${rowIdx}`,
+          colId: `col_${colIdx}`,
+          content,
+          correctAnswer,
+          isEditable
+        });
+      }
+    }
+
+    this.drillGridCells = newCells;
+    this.drillGridCellsData = newCellsData;
   }
   
   updateCell(rowIndex: number, colIndex: number, value: string): void {
