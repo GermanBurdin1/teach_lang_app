@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule, MatDialogConfig } from '@angular/material/dialog';
 import { DrillGridModalComponent, DrillGridModalData } from '../drill-grid-modal/drill-grid-modal.component';
 import { PatternCardModalComponent, PatternCardModalData, PatternCard } from '../pattern-card-modal/pattern-card-modal.component';
+import { PatternCardViewerComponent } from '../pattern-card-viewer/pattern-card-viewer.component';
 import { LayoutModule } from '../../../layout/layout.module';
 import { AuthService } from '../../../services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -1804,6 +1805,29 @@ export class CreateMindmapComponent implements OnInit {
 
   viewPatternCard(patternCard: PatternCard): void {
     this.viewingPatternCard = patternCard;
+  }
+
+  testPatternCard(patternCard: PatternCard): void {
+    if (!patternCard.id) {
+      this.notificationService.error('ID de la pattern-card manquant');
+      return;
+    }
+
+    const dialogConfig: MatDialogConfig = {
+      width: '90vw',
+      maxWidth: '1000px',
+      height: '90vh',
+      maxHeight: '800px',
+      panelClass: 'pattern-card-viewer-modal',
+      data: {
+        patternCardId: patternCard.id,
+        patternCardName: this.getPatternCardTitle(patternCard)
+      },
+      disableClose: false,
+      hasBackdrop: true
+    };
+
+    this.dialog.open(PatternCardViewerComponent, dialogConfig);
   }
 
   deletePatternCard(id: string): void {

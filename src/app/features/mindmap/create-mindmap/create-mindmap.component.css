@@ -1389,4 +1389,14 @@
   padding: 0 !important;
 }
 
+/* Pattern-card Viewer Modal Styles */
+::ng-deep .pattern-card-viewer-modal {
+  max-width: 1000px !important;
+}
+
+::ng-deep .pattern-card-viewer-modal .mat-dialog-container {
+  padding: 0 !important;
+  overflow-y: auto;
+}
+
 

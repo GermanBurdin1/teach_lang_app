@@ -1,0 +1,201 @@
+<div class="pattern-card-viewer" *ngIf="patternCard">
+  <div class="viewer-header">
+    <div class="header-title">
+      <h2>{{ patternCardName || 'Pattern-Card' }}</h2>
+      <button mat-icon-button (click)="dialogRef.close()" class="close-button">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="stage-tabs">
+      <button 
+        class="stage-tab" 
+        [class.active]="currentStage === 'example'"
+        (click)="loadStage('example')"
+        [disabled]="loading">
+        <mat-icon>visibility</mat-icon>
+        Exemple
+      </button>
+      <button 
+        class="stage-tab" 
+        [class.active]="currentStage === 'blanks'"
+        (click)="loadStage('blanks')"
+        [disabled]="loading">
+        <mat-icon>edit</mat-icon>
+        Compléter
+      </button>
+      <button 
+        class="stage-tab" 
+        [class.active]="currentStage === 'spontaneous'"
+        (click)="loadStage('spontaneous')"
+        [disabled]="loading">
+        <mat-icon>lightbulb</mat-icon>
+        Spontané
+      </button>
+    </div>
+  </div>
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+  <div class="viewer-content" *ngIf="!loading && stageData">
+    <!-- Example Stage -->
+    <div *ngIf="currentStage === 'example'" class="stage-content">
+      <mat-card class="example-card">
+        <mat-card-header>
+          <mat-card-title>Exemple complet</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="pattern-display">
+            <h3>Pattern:</h3>
+            <p class="pattern-text">{{ stageData.pattern }}</p>
+          </div>
+          <div class="example-display">
+            <h3>Exemple:</h3>
+            <p class="example-text">{{ stageData.example }}</p>
+          </div>
+          <div class="explanation-display" *ngIf="stageData.explanation">
+            <h3>Explication:</h3>
+            <p class="explanation-text">{{ stageData.explanation }}</p>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="loadStage('blanks')">
+            <mat-icon>arrow_forward</mat-icon>
+            Passer à l'exercice
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
+    <!-- Blanks Stage -->
+    <div *ngIf="currentStage === 'blanks'" class="stage-content">
+      <mat-card class="blanks-card">
+        <mat-card-header>
+          <mat-card-title>Complétez les blanks</mat-card-title>
+          <mat-card-subtitle>Remplissez les espaces vides avec les mots appropriés</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="pattern-with-blanks">
+            <h3>Pattern à compléter:</h3>
+            <p class="pattern-blanks-text">{{ stageData.pattern }}</p>
+          </div>
+
+          <div class="blanks-inputs">
+            <div 
+              *ngFor="let blank of stageData.blanks; let i = index" 
+              class="blank-input-group"
+              [ngClass]="getBlankClass(blank.id)">
+              <mat-form-field appearance="outline" class="blank-input">
+                <mat-label>Blank {{ i + 1 }}: {{ blank.partOfSpeech || 'Mot' }}</mat-label>
+                <input 
+                  matInput 
+                  [(ngModel)]="blankAnswers[blank.id]"
+                  [disabled]="showResults"
+                  [placeholder]="blank.partOfSpeech || 'Entrez votre réponse'">
+                <mat-hint *ngIf="blank.hints && blank.hints.length > 0">
+                  <button 
+                    mat-icon-button 
+                    matSuffix 
+                    (click)="showHint(blank.id)"
+                    *ngIf="!shownHints[blank.id]"
+                    title="Afficher un indice">
+                    <mat-icon>help_outline</mat-icon>
+                  </button>
+                  <span *ngIf="shownHints[blank.id]" class="hint-text">
+                    Indice: {{ blank.hints[0] }}
+                  </span>
+                </mat-hint>
+              </mat-form-field>
+
+              <!-- Results -->
+              <div *ngIf="showResults" class="blank-result">
+                <div *ngIf="isBlankCorrect(blank.id)" class="result-correct">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Correct!</span>
+                </div>
+                <div *ngIf="!isBlankCorrect(blank.id)" class="result-incorrect">
+                  <mat-icon>cancel</mat-icon>
+                  <div class="incorrect-details">
+                    <span>Incorrect. Réponse correcte: <strong>{{ getBlankResult(blank.id)?.correctAnswer }}</strong></span>
+                    <span *ngIf="getBlankResult(blank.id)?.alternatives && getBlankResult(blank.id)!.alternatives!.length > 0" class="alternatives">
+                      Alternatives acceptées: {{ getBlankResult(blank.id)?.alternatives?.join(', ') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-summary" *ngIf="showResults">
+            <div class="summary-card" [ngClass]="allCorrect ? 'success' : 'warning'">
+              <mat-icon>{{ allCorrect ? 'celebration' : 'info' }}</mat-icon>
+              <div>
+                <h4>{{ allCorrect ? 'Excellent!' : 'Presque!' }}</h4>
+                <p>
+                  {{ getCorrectBlanksCount() }} / {{ getTotalBlanksCount() }} blanks corrects
+                </p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="checkAnswers()"
+            [disabled]="loading || showResults">
+            <mat-icon>check</mat-icon>
+            Vérifier les réponses
+          </button>
+          <button 
+            mat-button 
+            (click)="resetBlanks()"
+            *ngIf="showResults">
+            <mat-icon>refresh</mat-icon>
+            Réessayer
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
+    <!-- Spontaneous Stage -->
+    <div *ngIf="currentStage === 'spontaneous'" class="stage-content">
+      <mat-card class="spontaneous-card">
+        <mat-card-header>
+          <mat-card-title>Créez votre propre phrase</mat-card-title>
+          <mat-card-subtitle>Utilisez le pattern pour créer une phrase spontanée</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="pattern-display">
+            <h3>Pattern:</h3>
+            <p class="pattern-text">{{ stageData.pattern }}</p>
+          </div>
+          <div class="variations-display" *ngIf="stageData.variations && stageData.variations.length > 0">
+            <h3>Variations possibles:</h3>
+            <div class="variations-list">
+              <div *ngFor="let variation of stageData.variations" class="variation-item">
+                <p class="variation-pattern"><strong>Pattern:</strong> {{ variation.pattern }}</p>
+                <p class="variation-example"><strong>Exemple:</strong> {{ variation.example }}</p>
+                <p *ngIf="variation.context" class="variation-context"><em>{{ variation.context }}</em></p>
+              </div>
+            </div>
+          </div>
+          <div class="spontaneous-input">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Créez votre phrase</mat-label>
+              <textarea 
+                matInput 
+                rows="3"
+                placeholder="Utilisez le pattern pour créer votre propre phrase..."></textarea>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary">
+            <mat-icon>save</mat-icon>
+            Enregistrer ma phrase
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>
