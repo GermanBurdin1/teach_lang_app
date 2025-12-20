@@ -97,7 +97,7 @@
                     [class.incorrect]="showResults && !isBlankCorrect(blank.id) && blankAnswers[blank.id] === option"
                     [disabled]="showResults"
                     (click)="blankAnswers[blank.id] = option">
-                    {{ option }}
+                    {{ option || '(sans article)' }}
                   </button>
                 </div>
                 <div class="hint-section" *ngIf="blank.hints && blank.hints.length > 0">

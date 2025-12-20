@@ -560,26 +560,29 @@
                   </div>
                   
                   <!-- Pattern Cards for this topic -->
-                  <div class="topic-pattern-cards" *ngIf="getPatternCardsForTopic(topic.id).length > 0">
+                  <div class="topic-pattern-cards" *ngIf="expandedTopics.has(topic.id) && getPatternCardsForTopic(topic.id).length > 0">
                     <div class="saved-pattern-card" *ngFor="let card of getPatternCardsForTopic(topic.id)">
-                      <div class="pattern-card-header">
+                      <div class="pattern-card-header" (click)="togglePatternCard(card.id!)">
+                        <mat-icon class="expand-icon" [class.expanded]="isPatternCardExpanded(card.id!)">
+                          {{ isPatternCardExpanded(card.id!) ? 'expand_more' : 'chevron_right' }}
+                        </mat-icon>
                         <h5>{{ getPatternCardTitle(card) }}</h5>
                       </div>
-                      <div class="pattern-card-content">
+                      <div class="pattern-card-content" *ngIf="isPatternCardExpanded(card.id!)">
                         <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>
                         <p class="example-preview"><strong>Exemple:</strong> {{ card.example }}</p>
                         <div class="pattern-card-meta" *ngIf="card.difficulty">
                           <mat-chip>{{ card.difficulty }}</mat-chip>
                         </div>
                       </div>
-                      <div class="pattern-card-actions">
-                        <button mat-icon-button color="primary" (click)="loadPatternCard(card)" title="Modifier">
+                      <div class="pattern-card-actions" *ngIf="isPatternCardExpanded(card.id!)">
+                        <button mat-icon-button color="primary" (click)="loadPatternCard(card); $event.stopPropagation()" title="Modifier">
                           <mat-icon>edit</mat-icon>
                         </button>
-                        <button mat-icon-button color="accent" (click)="testPatternCard(card)" title="Tester">
+                        <button mat-icon-button color="accent" (click)="testPatternCard(card); $event.stopPropagation()" title="Tester">
                           <mat-icon>play_arrow</mat-icon>
                         </button>
-                        <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!)" title="Supprimer">
+                        <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!); $event.stopPropagation()" title="Supprimer">
                           <mat-icon>delete</mat-icon>
                         </button>
                       </div>
@@ -600,23 +603,26 @@
                       </div>
                       
                       <!-- Pattern Cards for Level 1 subtopic -->
-                      <div class="topic-pattern-cards" *ngIf="getPatternCardsForTopic(subtopic.id).length > 0">
+                      <div class="topic-pattern-cards" *ngIf="expandedTopics.has(subtopic.id) && getPatternCardsForTopic(subtopic.id).length > 0">
                         <div class="saved-pattern-card" *ngFor="let card of getPatternCardsForTopic(subtopic.id)">
-                          <div class="pattern-card-header">
+                          <div class="pattern-card-header" (click)="togglePatternCard(card.id!)">
+                            <mat-icon class="expand-icon" [class.expanded]="isPatternCardExpanded(card.id!)">
+                              {{ isPatternCardExpanded(card.id!) ? 'expand_more' : 'chevron_right' }}
+                            </mat-icon>
                             <h5>{{ getPatternCardTitle(card) }}</h5>
                           </div>
-                          <div class="pattern-card-content">
+                          <div class="pattern-card-content" *ngIf="isPatternCardExpanded(card.id!)">
                             <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>
                             <p class="example-preview"><strong>Exemple:</strong> {{ card.example }}</p>
                           </div>
-                          <div class="pattern-card-actions">
-                            <button mat-icon-button color="primary" (click)="loadPatternCard(card)" title="Modifier">
+                          <div class="pattern-card-actions" *ngIf="isPatternCardExpanded(card.id!)">
+                            <button mat-icon-button color="primary" (click)="loadPatternCard(card); $event.stopPropagation()" title="Modifier">
                               <mat-icon>edit</mat-icon>
                             </button>
-                            <button mat-icon-button color="accent" (click)="testPatternCard(card)" title="Tester">
+                            <button mat-icon-button color="accent" (click)="testPatternCard(card); $event.stopPropagation()" title="Tester">
                               <mat-icon>play_arrow</mat-icon>
                             </button>
-                            <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!)" title="Supprimer">
+                            <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!); $event.stopPropagation()" title="Supprimer">
                               <mat-icon>delete</mat-icon>
                             </button>
                           </div>
@@ -637,23 +643,26 @@
                           </div>
                           
                           <!-- Pattern Cards for Level 2 subtopic -->
-                          <div class="topic-pattern-cards" *ngIf="getPatternCardsForTopic(subtopic2.id).length > 0">
+                          <div class="topic-pattern-cards" *ngIf="expandedTopics.has(subtopic2.id) && getPatternCardsForTopic(subtopic2.id).length > 0">
                             <div class="saved-pattern-card" *ngFor="let card of getPatternCardsForTopic(subtopic2.id)">
-                              <div class="pattern-card-header">
+                              <div class="pattern-card-header" (click)="togglePatternCard(card.id!)">
+                                <mat-icon class="expand-icon" [class.expanded]="isPatternCardExpanded(card.id!)">
+                                  {{ isPatternCardExpanded(card.id!) ? 'expand_more' : 'chevron_right' }}
+                                </mat-icon>
                                 <h5>{{ getPatternCardTitle(card) }}</h5>
                               </div>
-                              <div class="pattern-card-content">
+                              <div class="pattern-card-content" *ngIf="isPatternCardExpanded(card.id!)">
                                 <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>
                                 <p class="example-preview"><strong>Exemple:</strong> {{ card.example }}</p>
                               </div>
-                              <div class="pattern-card-actions">
-                                <button mat-icon-button color="primary" (click)="loadPatternCard(card)" title="Modifier">
+                              <div class="pattern-card-actions" *ngIf="isPatternCardExpanded(card.id!)">
+                                <button mat-icon-button color="primary" (click)="loadPatternCard(card); $event.stopPropagation()" title="Modifier">
                                   <mat-icon>edit</mat-icon>
                                 </button>
-                                <button mat-icon-button color="accent" (click)="testPatternCard(card)" title="Tester">
+                                <button mat-icon-button color="accent" (click)="testPatternCard(card); $event.stopPropagation()" title="Tester">
                                   <mat-icon>play_arrow</mat-icon>
                                 </button>
-                                <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!)" title="Supprimer">
+                                <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!); $event.stopPropagation()" title="Supprimer">
                                   <mat-icon>delete</mat-icon>
                                 </button>
                               </div>

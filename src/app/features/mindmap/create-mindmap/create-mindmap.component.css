@@ -1246,19 +1246,61 @@
 
 .saved-pattern-card {
   background: white;
-  padding: 1.5rem;
+  padding: 0;
   border-radius: 8px;
   border: 1px solid #dee2e6;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  overflow: hidden;
 }
 
-.pattern-card-header h4 {
+.pattern-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.pattern-card-header:hover {
+  background: #f8f9fa;
+}
+
+.pattern-card-header .expand-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s;
+  color: #64748b;
+}
+
+.pattern-card-header .expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.pattern-card-header h5 {
   margin: 0;
-  font-size: 1.1rem;
+  flex: 1;
+  font-size: 1rem;
   color: #1f2a37;
+  font-weight: 500;
+}
+
+.pattern-card-content {
+  padding: 0 1.5rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pattern-card-actions {
+  padding: 0 1.5rem 1rem 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
 }
 
 .pattern-card-content {

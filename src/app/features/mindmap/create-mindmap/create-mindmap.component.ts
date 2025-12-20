@@ -150,6 +150,7 @@ export class CreateMindmapComponent implements OnInit {
   grammarSections: GrammarSection[] = [];
   selectedSection: GrammarSection | null = null;
   expandedTopics: Set<string> = new Set();
+  expandedPatternCards: Set<string> = new Set();
   patternCardsByTopic: { [topicId: string]: PatternCard[] } = {};
 
   private typeConfigs: Record<ConstructorType, ConstructorTypeConfig> = {
@@ -443,6 +444,18 @@ export class CreateMindmapComponent implements OnInit {
   toggleTopic(topicId: string): void {
     if (this.expandedTopics.has(topicId)) {
       this.expandedTopics.delete(topicId);
+      // Сворачиваем все карточки этой темы при сворачивании темы
+      const cards = this.getPatternCardsForTopic(topicId);
+      cards.forEach(card => {
+        if (card.id) {
+          this.expandedPatternCards.delete(card.id);
+        }
+      });
+      // Рекурсивно сворачиваем карточки всех подтем
+      const topic = this.findTopicById(topicId);
+      if (topic && topic.subtopics) {
+        this.collapseAllCardsInTopic(topic);
+      }
     } else {
       this.expandedTopics.add(topicId);
       // Загружаем подтемы если их нет
@@ -450,6 +463,22 @@ export class CreateMindmapComponent implements OnInit {
       if (topic && (!topic.subtopics || topic.subtopics.length === 0)) {
         this.loadSubtopics(topicId);
       }
+    }
+  }
+
+  collapseAllCardsInTopic(topic: GrammarTopic): void {
+    // Сворачиваем карточки текущей темы
+    const cards = this.getPatternCardsForTopic(topic.id);
+    cards.forEach(card => {
+      if (card.id) {
+        this.expandedPatternCards.delete(card.id);
+      }
+    });
+    // Рекурсивно сворачиваем карточки подтем
+    if (topic.subtopics) {
+      topic.subtopics.forEach(subtopic => {
+        this.collapseAllCardsInTopic(subtopic);
+      });
     }
   }
 
@@ -496,6 +525,18 @@ export class CreateMindmapComponent implements OnInit {
 
   getPatternCardsForTopic(topicId: string): PatternCard[] {
     return this.patternCardsByTopic[topicId] || [];
+  }
+
+  togglePatternCard(cardId: string): void {
+    if (this.expandedPatternCards.has(cardId)) {
+      this.expandedPatternCards.delete(cardId);
+    } else {
+      this.expandedPatternCards.add(cardId);
+    }
+  }
+
+  isPatternCardExpanded(cardId: string): boolean {
+    return this.expandedPatternCards.has(cardId);
   }
 
   // Сохранение нового имени из карточки сохраненных drill-grids
