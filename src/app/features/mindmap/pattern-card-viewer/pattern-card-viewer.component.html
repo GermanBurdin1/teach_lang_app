@@ -84,8 +84,40 @@
               *ngFor="let blank of stageData.blanks; let i = index" 
               class="blank-input-group"
               [ngClass]="getBlankClass(blank.id)">
-              <mat-form-field appearance="outline" class="blank-input">
-                <mat-label>Blank {{ i + 1 }}: {{ blank.partOfSpeech || 'Mot' }}</mat-label>
+              
+              <!-- Choice type: Radio buttons -->
+              <div *ngIf="blank.type === 'choice' && blank.options" class="choice-blank">
+                <label class="choice-label">{{ blank.label || ('Blank ' + (i + 1) + ': ' + (blank.partOfSpeech || 'Choix')) }}</label>
+                <div class="choice-options">
+                  <button
+                    *ngFor="let option of blank.options"
+                    mat-stroked-button
+                    [class.selected]="blankAnswers[blank.id] === option"
+                    [class.correct]="showResults && isBlankCorrect(blank.id) && blankAnswers[blank.id] === option"
+                    [class.incorrect]="showResults && !isBlankCorrect(blank.id) && blankAnswers[blank.id] === option"
+                    [disabled]="showResults"
+                    (click)="blankAnswers[blank.id] = option">
+                    {{ option }}
+                  </button>
+                </div>
+                <div class="hint-section" *ngIf="blank.hints && blank.hints.length > 0">
+                  <button 
+                    mat-icon-button 
+                    type="button"
+                    (click)="showHint(blank.id)"
+                    *ngIf="!shownHints[blank.id]"
+                    title="Afficher un indice">
+                    <mat-icon>help_outline</mat-icon>
+                  </button>
+                  <span *ngIf="shownHints[blank.id]" class="hint-text">
+                    Indice: {{ blank.hints[0] }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Text type: Input field -->
+              <mat-form-field *ngIf="blank.type !== 'choice'" appearance="outline" class="blank-input">
+                <mat-label>{{ blank.label || ('Blank ' + (i + 1) + ': ' + (blank.partOfSpeech || 'Mot')) }}</mat-label>
                 <input 
                   matInput 
                   [(ngModel)]="blankAnswers[blank.id]"

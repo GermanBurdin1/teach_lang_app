@@ -529,38 +529,144 @@
             </button>
           </div>
 
-          <!-- Saved Pattern-cards List -->
+          <!-- Saved Pattern-cards List - Hierarchical View -->
           <div class="saved-pattern-cards-list" *ngIf="showMyPatternCards">
             <h4>Mes pattern-cards sauvegardées</h4>
-            <div class="pattern-cards-grid">
-              <div class="saved-pattern-card" *ngFor="let card of savedPatternCards">
-                <div class="pattern-card-header">
-                  <h4>{{ getPatternCardTitle(card) }}</h4>
-                </div>
-                <div class="pattern-card-content">
-                  <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>
-                  <p class="example-preview"><strong>Exemple:</strong> {{ card.example }}</p>
-                  <div class="pattern-card-meta" *ngIf="card.category || card.difficulty">
-                    <mat-chip *ngIf="card.category">{{ card.category }}</mat-chip>
-                    <mat-chip *ngIf="card.difficulty">{{ card.difficulty }}</mat-chip>
+            
+            <!-- Section Selector -->
+            <div class="section-selector" *ngIf="grammarSections.length > 0">
+              <mat-form-field appearance="outline">
+                <mat-label>Section</mat-label>
+                <mat-select [(ngModel)]="selectedSection" (selectionChange)="onSectionSelected($event.value)">
+                  <mat-option *ngFor="let section of grammarSections" [value]="section">
+                    {{ section.title }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Hierarchical Tree View -->
+            <div class="grammar-hierarchy-tree" *ngIf="selectedSection && selectedSection.topics">
+              <ng-container *ngFor="let topic of selectedSection.topics">
+                <div class="topic-node" [style.padding-left.px]="0">
+                  <div class="topic-header" (click)="toggleTopic(topic.id)">
+                    <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(topic.id)">
+                      {{ expandedTopics.has(topic.id) ? 'expand_more' : 'chevron_right' }}
+                    </mat-icon>
+                    <span class="topic-title">{{ topic.title }}</span>
+                    <span class="topic-count" *ngIf="getPatternCardsForTopic(topic.id).length > 0">
+                      ({{ getPatternCardsForTopic(topic.id).length }})
+                    </span>
+                  </div>
+                  
+                  <!-- Pattern Cards for this topic -->
+                  <div class="topic-pattern-cards" *ngIf="getPatternCardsForTopic(topic.id).length > 0">
+                    <div class="saved-pattern-card" *ngFor="let card of getPatternCardsForTopic(topic.id)">
+                      <div class="pattern-card-header">
+                        <h5>{{ getPatternCardTitle(card) }}</h5>
+                      </div>
+                      <div class="pattern-card-content">
+                        <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>
+                        <p class="example-preview"><strong>Exemple:</strong> {{ card.example }}</p>
+                        <div class="pattern-card-meta" *ngIf="card.difficulty">
+                          <mat-chip>{{ card.difficulty }}</mat-chip>
+                        </div>
+                      </div>
+                      <div class="pattern-card-actions">
+                        <button mat-icon-button color="primary" (click)="loadPatternCard(card)" title="Modifier">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="accent" (click)="testPatternCard(card)" title="Tester">
+                          <mat-icon>play_arrow</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!)" title="Supprimer">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Subtopics Level 1 -->
+                  <div class="subtopics-container" *ngIf="expandedTopics.has(topic.id) && topic.subtopics && topic.subtopics.length > 0">
+                    <div class="topic-node" *ngFor="let subtopic of topic.subtopics" [style.padding-left.px]="20">
+                      <div class="topic-header" (click)="toggleTopic(subtopic.id)">
+                        <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(subtopic.id)">
+                          {{ expandedTopics.has(subtopic.id) ? 'expand_more' : 'chevron_right' }}
+                        </mat-icon>
+                        <span class="topic-title">{{ subtopic.title }}</span>
+                        <span class="topic-count" *ngIf="getPatternCardsForTopic(subtopic.id).length > 0">
+                          ({{ getPatternCardsForTopic(subtopic.id).length }})
+                        </span>
+                      </div>
+                      
+                      <!-- Pattern Cards for Level 1 subtopic -->
+                      <div class="topic-pattern-cards" *ngIf="getPatternCardsForTopic(subtopic.id).length > 0">
+                        <div class="saved-pattern-card" *ngFor="let card of getPatternCardsForTopic(subtopic.id)">
+                          <div class="pattern-card-header">
+                            <h5>{{ getPatternCardTitle(card) }}</h5>
+                          </div>
+                          <div class="pattern-card-content">
+                            <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>
+                            <p class="example-preview"><strong>Exemple:</strong> {{ card.example }}</p>
+                          </div>
+                          <div class="pattern-card-actions">
+                            <button mat-icon-button color="primary" (click)="loadPatternCard(card)" title="Modifier">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button color="accent" (click)="testPatternCard(card)" title="Tester">
+                              <mat-icon>play_arrow</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!)" title="Supprimer">
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Subtopics Level 2 -->
+                      <div class="subtopics-container" *ngIf="expandedTopics.has(subtopic.id) && subtopic.subtopics && subtopic.subtopics.length > 0">
+                        <div class="topic-node" *ngFor="let subtopic2 of subtopic.subtopics" [style.padding-left.px]="20">
+                          <div class="topic-header" (click)="toggleTopic(subtopic2.id)">
+                            <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(subtopic2.id)">
+                              {{ expandedTopics.has(subtopic2.id) ? 'expand_more' : 'chevron_right' }}
+                            </mat-icon>
+                            <span class="topic-title">{{ subtopic2.title }}</span>
+                            <span class="topic-count" *ngIf="getPatternCardsForTopic(subtopic2.id).length > 0">
+                              ({{ getPatternCardsForTopic(subtopic2.id).length }})
+                            </span>
+                          </div>
+                          
+                          <!-- Pattern Cards for Level 2 subtopic -->
+                          <div class="topic-pattern-cards" *ngIf="getPatternCardsForTopic(subtopic2.id).length > 0">
+                            <div class="saved-pattern-card" *ngFor="let card of getPatternCardsForTopic(subtopic2.id)">
+                              <div class="pattern-card-header">
+                                <h5>{{ getPatternCardTitle(card) }}</h5>
+                              </div>
+                              <div class="pattern-card-content">
+                                <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>
+                                <p class="example-preview"><strong>Exemple:</strong> {{ card.example }}</p>
+                              </div>
+                              <div class="pattern-card-actions">
+                                <button mat-icon-button color="primary" (click)="loadPatternCard(card)" title="Modifier">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button color="accent" (click)="testPatternCard(card)" title="Tester">
+                                  <mat-icon>play_arrow</mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!)" title="Supprimer">
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="pattern-card-actions">
-                  <button mat-icon-button color="primary" (click)="loadPatternCard(card)" title="Modifier">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button color="primary" (click)="viewPatternCard(card)" title="Voir">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                  <button mat-icon-button color="accent" (click)="testPatternCard(card)" title="Tester comme étudiant">
-                    <mat-icon>play_arrow</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" (click)="deletePatternCard(card.id!)" title="Supprimer">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              </div>
+              </ng-container>
             </div>
+
             <div *ngIf="savedPatternCards.length === 0" class="no-pattern-cards">
               <p>Aucune pattern-card sauvegardée</p>
             </div>

@@ -21,6 +21,9 @@ export interface PatternBlank {
   hints?: string[];
   alternatives?: string[];
   partOfSpeech?: string;
+  type?: 'text' | 'choice';
+  options?: string[];
+  label?: string;
 }
 
 export interface PatternCard {

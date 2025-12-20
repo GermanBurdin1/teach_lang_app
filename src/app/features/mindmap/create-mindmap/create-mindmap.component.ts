@@ -12,7 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule, MatDialogConfig } from '@angular/material/dialog';
 import { DrillGridModalComponent, DrillGridModalData } from '../drill-grid-modal/drill-grid-modal.component';
-import { PatternCardModalComponent, PatternCardModalData, PatternCard } from '../pattern-card-modal/pattern-card-modal.component';
+import { PatternCardModalComponent, PatternCardModalData, PatternCard, GrammarSection, GrammarTopic } from '../pattern-card-modal/pattern-card-modal.component';
 import { PatternCardViewerComponent } from '../pattern-card-viewer/pattern-card-viewer.component';
 import { LayoutModule } from '../../../layout/layout.module';
 import { AuthService } from '../../../services/auth.service';
@@ -145,6 +145,12 @@ export class CreateMindmapComponent implements OnInit {
   showMyPatternCards: boolean = false;
   editingPatternCard: PatternCard | null = null;
   viewingPatternCard: PatternCard | null = null;
+  
+  // Grammar hierarchy
+  grammarSections: GrammarSection[] = [];
+  selectedSection: GrammarSection | null = null;
+  expandedTopics: Set<string> = new Set();
+  patternCardsByTopic: { [topicId: string]: PatternCard[] } = {};
 
   private typeConfigs: Record<ConstructorType, ConstructorTypeConfig> = {
     mindmap: {
@@ -352,7 +358,144 @@ export class CreateMindmapComponent implements OnInit {
     this.patternCard = null;
     this.editingPatternCard = null;
     this.viewingPatternCard = null;
+    this.loadGrammarSections();
     this.loadPatternCards();
+  }
+
+  loadGrammarSections(): void {
+    const token = this.authService.getAccessToken();
+    if (!token) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.get<GrammarSection[]>(`${API_ENDPOINTS.CONSTRUCTORS}/grammar/sections`, { headers }).subscribe({
+      next: (sections) => {
+        this.grammarSections = sections;
+        if (sections.length > 0 && !this.selectedSection) {
+          this.selectedSection = sections[0];
+          this.loadSectionTopics(sections[0].id);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading grammar sections:', error);
+      }
+    });
+  }
+
+  onSectionSelected(section: GrammarSection | null): void {
+    if (section) {
+      this.selectedSection = section;
+      this.expandedTopics.clear();
+      this.loadSectionTopics(section.id);
+    }
+  }
+
+  loadSectionTopics(sectionId: string): void {
+    const token = this.authService.getAccessToken();
+    if (!token) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.get<GrammarTopic[]>(`${API_ENDPOINTS.CONSTRUCTORS}/grammar/sections/${sectionId}/topics`, { headers }).subscribe({
+      next: (allTopics) => {
+        if (this.selectedSection) {
+          // Фильтруем только темы верхнего уровня (без parentTopicId)
+          const rootTopics = allTopics.filter(t => !t.parentTopicId);
+          // Организуем иерархию
+          this.buildTopicHierarchy(rootTopics, allTopics);
+          this.selectedSection.topics = rootTopics;
+          this.organizePatternCardsByTopics();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading topics:', error);
+      }
+    });
+  }
+
+  buildTopicHierarchy(rootTopics: GrammarTopic[], allTopics: GrammarTopic[]): void {
+    rootTopics.forEach(topic => {
+      topic.subtopics = allTopics.filter(t => t.parentTopicId === topic.id);
+      if (topic.subtopics.length > 0) {
+        this.buildTopicHierarchy(topic.subtopics, allTopics);
+      }
+    });
+  }
+
+  organizePatternCardsByTopics(): void {
+    this.patternCardsByTopic = {};
+    this.savedPatternCards.forEach(card => {
+      if (card.topicId) {
+        if (!this.patternCardsByTopic[card.topicId]) {
+          this.patternCardsByTopic[card.topicId] = [];
+        }
+        this.patternCardsByTopic[card.topicId].push(card);
+      }
+    });
+  }
+
+  toggleTopic(topicId: string): void {
+    if (this.expandedTopics.has(topicId)) {
+      this.expandedTopics.delete(topicId);
+    } else {
+      this.expandedTopics.add(topicId);
+      // Загружаем подтемы если их нет
+      const topic = this.findTopicById(topicId);
+      if (topic && (!topic.subtopics || topic.subtopics.length === 0)) {
+        this.loadSubtopics(topicId);
+      }
+    }
+  }
+
+  findTopicById(topicId: string): GrammarTopic | null {
+    if (!this.selectedSection?.topics) return null;
+    return this.findTopicRecursive(this.selectedSection.topics, topicId);
+  }
+
+  findTopicRecursive(topics: GrammarTopic[], topicId: string): GrammarTopic | null {
+    for (const topic of topics) {
+      if (topic.id === topicId) return topic;
+      if (topic.subtopics) {
+        const found = this.findTopicRecursive(topic.subtopics, topicId);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  loadSubtopics(topicId: string): void {
+    const token = this.authService.getAccessToken();
+    if (!token || !this.selectedSection) return;
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.get<GrammarTopic[]>(`${API_ENDPOINTS.CONSTRUCTORS}/grammar/sections/${this.selectedSection.id}/topics`, { headers }).subscribe({
+      next: (allTopics) => {
+        const subtopics = allTopics.filter(t => t.parentTopicId === topicId);
+        const topic = this.findTopicById(topicId);
+        if (topic) {
+          topic.subtopics = subtopics;
+          // Рекурсивно строим иерархию для подтем
+          this.buildTopicHierarchy(subtopics, allTopics);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading subtopics:', error);
+      }
+    });
+  }
+
+  getPatternCardsForTopic(topicId: string): PatternCard[] {
+    return this.patternCardsByTopic[topicId] || [];
   }
 
   // Сохранение нового имени из карточки сохраненных drill-grids
@@ -1623,7 +1766,8 @@ export class CreateMindmapComponent implements OnInit {
           difficulty: this.patternCard!.difficulty || null,
           category: this.patternCard!.category || null,
           explanation: this.patternCard!.explanation || null,
-          tags: this.patternCard!.tags || null
+          tags: this.patternCard!.tags || null,
+          topicId: this.patternCard!.topicId || null
         };
 
         this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/pattern-card`, patternCardPayload, { headers }).subscribe({
@@ -1683,7 +1827,8 @@ export class CreateMindmapComponent implements OnInit {
       difficulty: this.patternCard.difficulty || null,
       category: this.patternCard.category || null,
       explanation: this.patternCard.explanation || null,
-      tags: this.patternCard.tags || null
+      tags: this.patternCard.tags || null,
+      topicId: this.patternCard.topicId || null
     };
 
     // Обновляем сначала название конструктора, затем pattern-card
@@ -1758,8 +1903,10 @@ export class CreateMindmapComponent implements OnInit {
               category: pc.category || null,
               explanation: pc.explanation || null,
               tags: pc.tags || null,
+              topicId: pc.topicId || null,
               constructorTitle: constructor.title || ''
             }));
+          this.organizePatternCardsByTopics();
         });
       },
       error: (error) => {

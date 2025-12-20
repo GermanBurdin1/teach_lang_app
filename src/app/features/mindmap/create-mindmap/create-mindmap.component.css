@@ -1380,6 +1380,75 @@
   color: #64748b;
 }
 
+/* Grammar Hierarchy Tree Styles */
+.section-selector {
+  margin-bottom: 1.5rem;
+}
+
+.grammar-hierarchy-tree {
+  margin-top: 1.5rem;
+}
+
+.topic-node {
+  margin-bottom: 0.5rem;
+}
+
+.topic-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.topic-header:hover {
+  background: #e9ecef;
+}
+
+.expand-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.topic-title {
+  flex: 1;
+  font-weight: 500;
+  color: #1f2a37;
+}
+
+.topic-count {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.topic-pattern-cards {
+  margin-left: 28px;
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.subtopics-container {
+  margin-left: 28px;
+}
+
+.saved-pattern-card h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #1f2a37;
+}
+
 /* Pattern-card Modal Styles */
 ::ng-deep .pattern-card-modal-container {
   max-width: 1200px !important;

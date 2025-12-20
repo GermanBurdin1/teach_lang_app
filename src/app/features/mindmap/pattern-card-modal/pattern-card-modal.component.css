@@ -181,8 +181,15 @@
 }
 
 .hints-section,
-.alternatives-section {
+.alternatives-section,
+.options-section {
   margin-top: 16px;
+}
+
+.options-section h4 {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .hints-section h4,
@@ -245,6 +252,116 @@
   text-align: center;
   padding: 32px;
   color: #999;
+}
+
+/* Grammar Hierarchy Styles */
+.grammar-hierarchy-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.grammar-hierarchy-section h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #1f2a37;
+  font-size: 16px;
+}
+
+.hint-text {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.topic-path {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.path-label {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.path-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: #eff6ff;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #3b82f6;
+}
+
+.path-item:hover {
+  background: #dbeafe;
+}
+
+.path-item.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.path-item mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.available-topics {
+  margin-top: 16px;
+}
+
+.available-topics h5 {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #475467;
+}
+
+.topics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topics-grid button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
+.topics-grid button.selected {
+  background: #3b82f6;
+  color: white;
+}
+
+.selected-topic-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background: #d1fae5;
+  border-radius: 8px;
+  color: #065f46;
+}
+
+.selected-topic-info mat-icon {
+  color: #10b981;
 }
 
 .modal-footer {

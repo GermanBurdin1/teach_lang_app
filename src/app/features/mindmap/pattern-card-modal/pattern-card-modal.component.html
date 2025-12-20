@@ -62,6 +62,19 @@
 
                   <div class="blank-details" *ngIf="editingBlank && editingBlank.id === blank.id">
                     <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Type de blank</mat-label>
+                      <mat-select [(ngModel)]="editingBlank.type">
+                        <mat-option value="text">Texte (saisie libre)</mat-option>
+                        <mat-option value="choice">Choix multiple</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Libellé</mat-label>
+                      <input matInput [(ngModel)]="editingBlank.label" placeholder="Ex: Choisissez l'article">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
                       <mat-label>Réponse correcte</mat-label>
                       <input matInput [(ngModel)]="editingBlank.correctAnswer">
                     </mat-form-field>
@@ -70,6 +83,26 @@
                       <mat-label>Partie du discours</mat-label>
                       <input matInput [(ngModel)]="editingBlank.partOfSpeech" placeholder="VERB, NOUN, ADJ, etc.">
                     </mat-form-field>
+
+                    <!-- Options for choice type -->
+                    <div class="options-section" *ngIf="editingBlank.type === 'choice'">
+                      <h4>Options de choix</h4>
+                      <div class="chips-list">
+                        <mat-chip *ngFor="let option of editingBlank.options" (removed)="removeBlankOption(option)">
+                          {{ option }}
+                          <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip>
+                      </div>
+                      <div class="add-item-control">
+                        <input matInput [(ngModel)]="newBlankOption" placeholder="Ajouter une option (ex: le, la)" 
+                          (keyup.enter)="addBlankOption()">
+                        <button mat-icon-button (click)="addBlankOption()">
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                    </div>
 
                     <div class="hints-section">
                       <h4>Indices (Hints)</h4>
@@ -191,12 +224,63 @@
               <mat-card-title>Classification</mat-card-title>
             </mat-card-header>
             <mat-card-content>
+              <!-- Grammar Hierarchy Selection -->
+              <div class="grammar-hierarchy-section">
+                <h4>Hiérarchie grammaticale</h4>
+                <p class="hint-text">Sélectionnez la section et le sujet pour organiser cette pattern-card</p>
+                
+                <!-- Section Selection -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Section</mat-label>
+                  <mat-select [(ngModel)]="selectedSectionId" (selectionChange)="onSectionChange($event.value)">
+                    <mat-option [value]="null">Aucune section</mat-option>
+                    <mat-option *ngFor="let section of grammarSections" [value]="section.id">
+                      {{ section.title }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <!-- Topic Path Breadcrumb -->
+                <div class="topic-path" *ngIf="topicPath.length > 0">
+                  <span class="path-label">Chemin:</span>
+                  <span 
+                    *ngFor="let topic of topicPath; let i = index" 
+                    class="path-item"
+                    [class.active]="i === topicPath.length - 1"
+                    (click)="navigateToTopicLevel(i)">
+                    {{ topic.title }}
+                    <mat-icon *ngIf="i < topicPath.length - 1">chevron_right</mat-icon>
+                  </span>
+                </div>
+
+                <!-- Available Topics -->
+                <div class="available-topics" *ngIf="selectedSectionId && availableTopics.length > 0">
+                  <h5>Sujets disponibles:</h5>
+                  <div class="topics-grid">
+                    <button 
+                      mat-stroked-button 
+                      *ngFor="let topic of availableTopics"
+                      [class.selected]="selectedTopicId === topic.id"
+                      (click)="onTopicSelect(topic)">
+                      {{ topic.title }}
+                      <mat-icon *ngIf="topic.subtopics && topic.subtopics.length > 0">arrow_forward</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="selected-topic-info" *ngIf="selectedTopicId && topicPath.length > 0">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Sujet sélectionné: {{ topicPath[topicPath.length - 1].title }}</span>
+                </div>
+              </div>
+
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Catégorie de grammaire</mat-label>
+                <mat-label>Catégorie de grammaire (ancienne)</mat-label>
                 <mat-select [(ngModel)]="category">
                   <mat-option [value]="null">Aucune</mat-option>
                   <mat-option *ngFor="let cat of grammarCategories" [value]="cat">{{ cat }}</mat-option>
                 </mat-select>
+                <mat-hint>Cette catégorie sera remplacée par la hiérarchie ci-dessus</mat-hint>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">

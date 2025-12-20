@@ -156,6 +156,62 @@
   position: relative;
 }
 
+/* Choice type blanks */
+.choice-blank {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.choice-label {
+  font-weight: 500;
+  color: #1f2a37;
+  font-size: 14px;
+  margin-bottom: 0.5rem;
+}
+
+.choice-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.choice-options button {
+  min-width: 80px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.choice-options button.selected {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.choice-options button.correct {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.choice-options button.incorrect {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.choice-options button:disabled {
+  opacity: 1;
+}
+
+.hint-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.5rem;
+}
+
 .blank-input {
   width: 100%;
 }
