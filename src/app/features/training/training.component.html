@@ -49,7 +49,57 @@
 
   <!-- Training Content -->
   <div class="training-content">
-    <div class="coming-soon">
+    <!-- Grammar Tab Content -->
+    <div *ngIf="activeTrainingTab === 'grammar'" class="grammar-content">
+      <div class="grammar-structure">
+        <div class="grammar-category" *ngFor="let category of grammarStructure">
+          <div class="category-header" (click)="toggleCategory(category.id)">
+            <mat-icon class="expand-icon" [class.expanded]="isExpanded(category.id)">
+              {{ isExpanded(category.id) ? 'expand_more' : 'chevron_right' }}
+            </mat-icon>
+            <mat-icon class="category-icon">{{ category.icon }}</mat-icon>
+            <span class="category-title">{{ category.title }}</span>
+          </div>
+          
+          <!-- Level 2: Children of first level -->
+          <div class="category-children" *ngIf="isExpanded(category.id) && category.children">
+            <div class="grammar-category level-2" *ngFor="let child of category.children">
+              <div class="category-header" (click)="toggleCategory(child.id)">
+                <mat-icon class="expand-icon" [class.expanded]="isExpanded(child.id)">
+                  {{ isExpanded(child.id) ? 'expand_more' : 'chevron_right' }}
+                </mat-icon>
+                <mat-icon class="category-icon">{{ child.icon }}</mat-icon>
+                <span class="category-title">{{ child.title }}</span>
+              </div>
+              
+              <!-- Level 3: Children of second level -->
+              <div class="category-children" *ngIf="isExpanded(child.id) && child.children">
+                <div class="grammar-category level-3" *ngFor="let subChild of child.children">
+                  <div class="category-header" (click)="toggleCategory(subChild.id)">
+                    <mat-icon class="expand-icon" [class.expanded]="isExpanded(subChild.id)">
+                      {{ isExpanded(subChild.id) ? 'expand_more' : 'chevron_right' }}
+                    </mat-icon>
+                    <mat-icon class="category-icon">{{ subChild.icon }}</mat-icon>
+                    <span class="category-title">{{ subChild.title }}</span>
+                  </div>
+                  
+                  <!-- Level 4: Final level (parts of speech) -->
+                  <div class="category-children" *ngIf="isExpanded(subChild.id) && subChild.children">
+                    <div class="part-of-speech-item" *ngFor="let partOfSpeech of subChild.children">
+                      <mat-icon class="part-icon">{{ partOfSpeech.icon }}</mat-icon>
+                      <span class="part-title">{{ partOfSpeech.title }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other tabs content -->
+    <div *ngIf="activeTrainingTab !== 'grammar'" class="coming-soon">
       <i class="fas fa-tools"></i>
       <h3>Fonctionnalité en développement</h3>
       <p>Les exercices d'entraînement seront bientôt disponibles</p>

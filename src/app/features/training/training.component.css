@@ -88,6 +88,139 @@
   color: var(--btn-secondary-font-color);
 }
 
+/* ==================== GRAMMAR STRUCTURE ==================== */
+.grammar-content {
+  padding: 1rem 0;
+}
+
+.grammar-structure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.grammar-category {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.category-header:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.expand-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+  color: #64748b;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.category-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: #4c51bf;
+}
+
+.category-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2a37;
+  flex: 1;
+}
+
+.category-children {
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  border-left: 2px solid #e2e8f0;
+  margin-left: 1rem;
+}
+
+.grammar-category.level-2 .category-header {
+  background: #f1f5f9;
+  padding: 0.875rem 1rem;
+}
+
+.grammar-category.level-2 .category-icon {
+  color: #6366f1;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.grammar-category.level-2 .category-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.grammar-category.level-3 .category-header {
+  background: #f8fafc;
+  padding: 0.75rem 0.875rem;
+}
+
+.grammar-category.level-3 .category-icon {
+  color: #818cf8;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.grammar-category.level-3 .category-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.part-of-speech-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-left: 1.5rem;
+  margin-bottom: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.part-of-speech-item:hover {
+  background: #f8f9fa;
+  border-color: #cbd5e0;
+  transform: translateX(4px);
+}
+
+.part-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #8b5cf6;
+}
+
+.part-title {
+  font-size: 0.875rem;
+  color: #475569;
+  font-weight: 400;
+}
+
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
   .training-tabs {
@@ -99,6 +232,15 @@
     width: 100%;
     max-width: 250px;
     justify-content: center;
+  }
+
+  .category-children {
+    padding-left: 1rem;
+    margin-left: 0.5rem;
+  }
+
+  .part-of-speech-item {
+    margin-left: 1rem;
   }
 }
 
