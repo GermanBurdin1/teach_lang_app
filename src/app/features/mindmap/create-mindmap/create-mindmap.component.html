@@ -549,14 +549,39 @@
             <div class="grammar-hierarchy-tree" *ngIf="selectedSection && selectedSection.topics">
               <ng-container *ngFor="let topic of selectedSection.topics">
                 <div class="topic-node" [style.padding-left.px]="0">
-                  <div class="topic-header" (click)="toggleTopic(topic.id)">
-                    <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(topic.id)">
-                      {{ expandedTopics.has(topic.id) ? 'expand_more' : 'chevron_right' }}
-                    </mat-icon>
-                    <span class="topic-title">{{ topic.title }}</span>
-                    <span class="topic-count" *ngIf="getPatternCardsForTopic(topic.id).length > 0">
-                      ({{ getPatternCardsForTopic(topic.id).length }})
-                    </span>
+                  <div class="topic-header">
+                    <div class="topic-header-left" (click)="toggleTopic(topic.id)">
+                      <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(topic.id)">
+                        {{ expandedTopics.has(topic.id) ? 'expand_more' : 'chevron_right' }}
+                      </mat-icon>
+                      <span class="topic-title">{{ topic.title }}</span>
+                      <span class="topic-count" *ngIf="getPatternCardsForTopic(topic.id).length > 0">
+                        ({{ getPatternCardsForTopic(topic.id).length }})
+                      </span>
+                    </div>
+                    <!-- Mass Visibility Control for all cards in this topic -->
+                    <div class="topic-visibility-control" *ngIf="getPatternCardsForTopic(topic.id).length > 0" (click)="$event.stopPropagation()">
+                      <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
+                        <mat-label>Visibilité pour toutes</mat-label>
+                        <mat-select 
+                          [value]="'private'"
+                          (selectionChange)="updateAllCardsVisibilityForTopic(topic.id, $event.value)"
+                          [disabled]="!isTeacher()">
+                          <mat-option value="public">
+                            <mat-icon>public</mat-icon>
+                            <span>Tous les utilisateurs</span>
+                          </mat-option>
+                          <mat-option value="students">
+                            <mat-icon>school</mat-icon>
+                            <span>Mes étudiants</span>
+                          </mat-option>
+                          <mat-option value="private">
+                            <mat-icon>lock</mat-icon>
+                            <span>Personne</span>
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
                   </div>
                   
                   <!-- Pattern Cards for this topic -->
@@ -569,13 +594,13 @@
                           </mat-icon>
                           <h5>{{ getPatternCardTitle(card) }}</h5>
                         </div>
-                        <!-- Visibility Control - Always Visible -->
-                        <div class="pattern-card-header-visibility" *ngIf="card.id" (click)="$event.stopPropagation()">
-                          <mat-form-field appearance="outline" class="visibility-select-compact">
+                        <!-- Individual Visibility Control for this card -->
+                        <div class="pattern-card-header-visibility" (click)="$event.stopPropagation()">
+                          <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
                             <mat-select 
                               [value]="card.visibility || 'private'"
                               (selectionChange)="updatePatternCardVisibility(card, $event.value)"
-                              [disabled]="!isTeacher()">
+                              [disabled]="!isTeacher() || !card.id">
                               <mat-option value="public">
                                 <mat-icon>public</mat-icon>
                                 <span>Tous les utilisateurs</span>
@@ -639,14 +664,39 @@
                   <!-- Subtopics Level 1 -->
                   <div class="subtopics-container" *ngIf="expandedTopics.has(topic.id) && topic.subtopics && topic.subtopics.length > 0">
                     <div class="topic-node" *ngFor="let subtopic of topic.subtopics" [style.padding-left.px]="20">
-                      <div class="topic-header" (click)="toggleTopic(subtopic.id)">
-                        <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(subtopic.id)">
-                          {{ expandedTopics.has(subtopic.id) ? 'expand_more' : 'chevron_right' }}
-                        </mat-icon>
-                        <span class="topic-title">{{ subtopic.title }}</span>
-                        <span class="topic-count" *ngIf="getPatternCardsForTopic(subtopic.id).length > 0">
-                          ({{ getPatternCardsForTopic(subtopic.id).length }})
-                        </span>
+                      <div class="topic-header">
+                        <div class="topic-header-left" (click)="toggleTopic(subtopic.id)">
+                          <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(subtopic.id)">
+                            {{ expandedTopics.has(subtopic.id) ? 'expand_more' : 'chevron_right' }}
+                          </mat-icon>
+                          <span class="topic-title">{{ subtopic.title }}</span>
+                          <span class="topic-count" *ngIf="getPatternCardsForTopic(subtopic.id).length > 0">
+                            ({{ getPatternCardsForTopic(subtopic.id).length }})
+                          </span>
+                        </div>
+                        <!-- Mass Visibility Control for all cards in this subtopic -->
+                        <div class="topic-visibility-control" *ngIf="getPatternCardsForTopic(subtopic.id).length > 0" (click)="$event.stopPropagation()">
+                          <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
+                            <mat-label>Visibilité pour toutes</mat-label>
+                            <mat-select 
+                              [value]="'private'"
+                              (selectionChange)="updateAllCardsVisibilityForTopic(subtopic.id, $event.value)"
+                              [disabled]="!isTeacher()">
+                              <mat-option value="public">
+                                <mat-icon>public</mat-icon>
+                                <span>Tous les utilisateurs</span>
+                              </mat-option>
+                              <mat-option value="students">
+                                <mat-icon>school</mat-icon>
+                                <span>Mes étudiants</span>
+                              </mat-option>
+                              <mat-option value="private">
+                                <mat-icon>lock</mat-icon>
+                                <span>Personne</span>
+                              </mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
                       </div>
                       
                       <!-- Pattern Cards for Level 1 subtopic -->
@@ -661,31 +711,25 @@
                             </div>
                             <!-- Visibility Control - Always Visible -->
                             <div class="pattern-card-header-visibility" (click)="$event.stopPropagation()">
-                              <button 
-                                mat-icon-button 
-                                [matMenuTriggerFor]="visibilityMenu"
-                                [title]="getVisibilityLabel(card.visibility || 'private')"
-                                class="visibility-button"
-                                [class.visibility-public]="card.visibility === 'public'"
-                                [class.visibility-students]="card.visibility === 'students'"
-                                [class.visibility-private]="card.visibility === 'private' || !card.visibility"
-                                [disabled]="!isTeacher()">
-                                <mat-icon>{{ getVisibilityIcon(card.visibility || 'private') }}</mat-icon>
-                              </button>
-                              <mat-menu #visibilityMenu="matMenu">
-                                <button mat-menu-item (click)="updatePatternCardVisibility(card, 'public')" [disabled]="!isTeacher()">
-                                  <mat-icon>public</mat-icon>
-                                  <span>Tous les utilisateurs</span>
-                                </button>
-                                <button mat-menu-item (click)="updatePatternCardVisibility(card, 'students')" [disabled]="!isTeacher()">
-                                  <mat-icon>school</mat-icon>
-                                  <span>Mes étudiants</span>
-                                </button>
-                                <button mat-menu-item (click)="updatePatternCardVisibility(card, 'private')" [disabled]="!isTeacher()">
-                                  <mat-icon>lock</mat-icon>
-                                  <span>Personne</span>
-                                </button>
-                              </mat-menu>
+                              <mat-form-field appearance="outline" class="visibility-select-compact">
+                                <mat-select 
+                                  [value]="card.visibility || 'private'"
+                                  (selectionChange)="updatePatternCardVisibility(card, $event.value)"
+                                  [disabled]="!isTeacher() || !card.id">
+                                  <mat-option value="public">
+                                    <mat-icon>public</mat-icon>
+                                    <span>Tous les utilisateurs</span>
+                                  </mat-option>
+                                  <mat-option value="students">
+                                    <mat-icon>school</mat-icon>
+                                    <span>Mes étudiants</span>
+                                  </mat-option>
+                                  <mat-option value="private">
+                                    <mat-icon>lock</mat-icon>
+                                    <span>Personne</span>
+                                  </mat-option>
+                                </mat-select>
+                              </mat-form-field>
                             </div>
                           </div>
                           <div class="pattern-card-content" *ngIf="isPatternCardExpanded(card.id!)">
@@ -732,24 +776,73 @@
                       <!-- Subtopics Level 2 -->
                       <div class="subtopics-container" *ngIf="expandedTopics.has(subtopic.id) && subtopic.subtopics && subtopic.subtopics.length > 0">
                         <div class="topic-node" *ngFor="let subtopic2 of subtopic.subtopics" [style.padding-left.px]="20">
-                          <div class="topic-header" (click)="toggleTopic(subtopic2.id)">
-                            <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(subtopic2.id)">
-                              {{ expandedTopics.has(subtopic2.id) ? 'expand_more' : 'chevron_right' }}
-                            </mat-icon>
-                            <span class="topic-title">{{ subtopic2.title }}</span>
-                            <span class="topic-count" *ngIf="getPatternCardsForTopic(subtopic2.id).length > 0">
-                              ({{ getPatternCardsForTopic(subtopic2.id).length }})
-                            </span>
+                          <div class="topic-header">
+                            <div class="topic-header-left" (click)="toggleTopic(subtopic2.id)">
+                              <mat-icon class="expand-icon" [class.expanded]="expandedTopics.has(subtopic2.id)">
+                                {{ expandedTopics.has(subtopic2.id) ? 'expand_more' : 'chevron_right' }}
+                              </mat-icon>
+                              <span class="topic-title">{{ subtopic2.title }}</span>
+                              <span class="topic-count" *ngIf="getPatternCardsForTopic(subtopic2.id).length > 0">
+                                ({{ getPatternCardsForTopic(subtopic2.id).length }})
+                              </span>
+                            </div>
+                            <!-- Mass Visibility Control for all cards in this subtopic Level 2 -->
+                            <div class="topic-visibility-control" *ngIf="getPatternCardsForTopic(subtopic2.id).length > 0" (click)="$event.stopPropagation()">
+                              <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
+                                <mat-label>Visibilité pour toutes</mat-label>
+                                <mat-select 
+                                  [value]="'private'"
+                                  (selectionChange)="updateAllCardsVisibilityForTopic(subtopic2.id, $event.value)"
+                                  [disabled]="!isTeacher()">
+                                  <mat-option value="public">
+                                    <mat-icon>public</mat-icon>
+                                    <span>Tous les utilisateurs</span>
+                                  </mat-option>
+                                  <mat-option value="students">
+                                    <mat-icon>school</mat-icon>
+                                    <span>Mes étudiants</span>
+                                  </mat-option>
+                                  <mat-option value="private">
+                                    <mat-icon>lock</mat-icon>
+                                    <span>Personne</span>
+                                  </mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
                           </div>
                           
                           <!-- Pattern Cards for Level 2 subtopic -->
                           <div class="topic-pattern-cards" *ngIf="expandedTopics.has(subtopic2.id) && getPatternCardsForTopic(subtopic2.id).length > 0">
                             <div class="saved-pattern-card" *ngFor="let card of getPatternCardsForTopic(subtopic2.id)">
-                              <div class="pattern-card-header" (click)="togglePatternCard(card.id!)">
-                                <mat-icon class="expand-icon" [class.expanded]="isPatternCardExpanded(card.id!)">
-                                  {{ isPatternCardExpanded(card.id!) ? 'expand_more' : 'chevron_right' }}
-                                </mat-icon>
-                                <h5>{{ getPatternCardTitle(card) }}</h5>
+                              <div class="pattern-card-header">
+                                <div class="pattern-card-header-left" (click)="togglePatternCard(card.id!)">
+                                  <mat-icon class="expand-icon" [class.expanded]="isPatternCardExpanded(card.id!)">
+                                    {{ isPatternCardExpanded(card.id!) ? 'expand_more' : 'chevron_right' }}
+                                  </mat-icon>
+                                  <h5>{{ getPatternCardTitle(card) }}</h5>
+                                </div>
+                                <!-- Individual Visibility Control for this card -->
+                                <div class="pattern-card-header-visibility" (click)="$event.stopPropagation()">
+                                  <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
+                                    <mat-select 
+                                      [value]="card.visibility || 'private'"
+                                      (selectionChange)="updatePatternCardVisibility(card, $event.value)"
+                                      [disabled]="!isTeacher() || !card.id">
+                                      <mat-option value="public">
+                                        <mat-icon>public</mat-icon>
+                                        <span>Tous les utilisateurs</span>
+                                      </mat-option>
+                                      <mat-option value="students">
+                                        <mat-icon>school</mat-icon>
+                                        <span>Mes étudiants</span>
+                                      </mat-option>
+                                      <mat-option value="private">
+                                        <mat-icon>lock</mat-icon>
+                                        <span>Personne</span>
+                                      </mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
+                                </div>
                               </div>
                               <div class="pattern-card-content" *ngIf="isPatternCardExpanded(card.id!)">
                                 <p class="pattern-preview"><strong>Pattern:</strong> {{ card.pattern }}</p>

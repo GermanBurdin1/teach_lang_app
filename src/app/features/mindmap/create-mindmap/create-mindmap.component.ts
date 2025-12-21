@@ -2116,6 +2116,68 @@ export class CreateMindmapComponent implements OnInit {
     }
   }
 
+  updateAllCardsVisibilityForTopic(topicId: string, visibility: 'public' | 'students' | 'private'): void {
+    const cards = this.getPatternCardsForTopic(topicId);
+    if (cards.length === 0) {
+      return;
+    }
+
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    // Обновляем все карточки последовательно
+    let completed = 0;
+    let errors = 0;
+    const total = cards.length;
+
+    cards.forEach(card => {
+      if (card.id) {
+        this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${card.id}/pattern-card`, { visibility }, { headers }).subscribe({
+          next: () => {
+            // Обновляем локальную копию карточки
+            const cardIndex = this.savedPatternCards.findIndex(c => c.id === card.id);
+            if (cardIndex !== -1) {
+              this.savedPatternCards[cardIndex] = { ...this.savedPatternCards[cardIndex], visibility } as PatternCard;
+            }
+            completed++;
+            
+            // Если все карточки обновлены, обновляем организацию и показываем уведомление
+            if (completed + errors === total) {
+              this.organizePatternCardsByTopics();
+              const visibilityText = visibility === 'public' ? 'tous les utilisateurs' : visibility === 'students' ? 'vos étudiants' : 'personne';
+              if (errors === 0) {
+                this.notificationService.success(`${completed} carte(s) mise(s) à jour: accessible à ${visibilityText}`);
+              } else {
+                this.notificationService.warning(`${completed} carte(s) mise(s) à jour, ${errors} erreur(s)`);
+              }
+            }
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la mise à jour de la visibilité:', error);
+            errors++;
+            if (completed + errors === total) {
+              this.organizePatternCardsByTopics();
+              const visibilityText = visibility === 'public' ? 'tous les utilisateurs' : visibility === 'students' ? 'vos étudiants' : 'personne';
+              if (completed > 0) {
+                this.notificationService.warning(`${completed} carte(s) mise(s) à jour, ${errors} erreur(s)`);
+              } else {
+                this.notificationService.error('Erreur lors de la mise à jour de la visibilité');
+              }
+            }
+          }
+        });
+      }
+    });
+  }
+
   resetPatternCardForm(): void {
     this.patternCardName = '';
     this.patternCard = null;
@@ -2131,7 +2193,17 @@ export class CreateMindmapComponent implements OnInit {
   }
 
   getPatternCardTitle(card: PatternCard): string {
-    return (card as any).constructorTitle || card.pattern || 'Pattern sans nom';
+    const constructorTitle = (card as any).constructorTitle;
+    // Если constructorTitle слишком короткий (меньше 3 символов) или содержит только одну букву с точкой, используем pattern
+    if (constructorTitle && constructorTitle.length > 2 && !/^[A-Z]\.$/.test(constructorTitle.trim())) {
+      return constructorTitle;
+    }
+    // Используем pattern, обрезая его до разумной длины если нужно
+    if (card.pattern) {
+      const maxLength = 60;
+      return card.pattern.length > maxLength ? card.pattern.substring(0, maxLength) + '...' : card.pattern;
+    }
+    return 'Pattern sans nom';
   }
 
   goBack(event?: Event): void {

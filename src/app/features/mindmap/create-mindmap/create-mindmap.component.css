@@ -1608,6 +1608,7 @@
 .topic-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   padding: 12px;
   background: #f8f9fa;
@@ -1615,6 +1616,22 @@
   cursor: pointer;
   transition: background 0.2s;
   user-select: none;
+}
+
+.topic-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.topic-visibility-control {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  cursor: default;
 }
 
 .topic-header:hover {
