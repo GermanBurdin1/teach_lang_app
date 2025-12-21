@@ -564,7 +564,7 @@
                       <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
                         <mat-label>Visibilité pour toutes</mat-label>
                         <mat-select 
-                          [value]="'public'"
+                          [value]="getCommonVisibilityForTopic(topic.id)"
                           (selectionChange)="updateAllCardsVisibilityForTopic(topic.id, $event.value)"
                           [disabled]="!isTeacher()"
                           [matTooltip]="'Définir la visibilité pour toutes les cartes de ce sujet'"
@@ -632,7 +632,7 @@
                           <label>Visibilité:</label>
                           <mat-form-field appearance="outline" class="visibility-select">
                             <mat-select 
-                              [value]="card.visibility || 'private'"
+                              [value]="card.visibility || 'public'"
                               (selectionChange)="updatePatternCardVisibility(card, $event.value)"
                               (click)="$event.stopPropagation()">
                               <mat-option value="public">
@@ -683,7 +683,7 @@
                           <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
                             <mat-label>Visibilité pour toutes</mat-label>
                             <mat-select 
-                              [value]="'private'"
+                              [value]="getCommonVisibilityForTopic(subtopic.id)"
                               (selectionChange)="updateAllCardsVisibilityForTopic(subtopic.id, $event.value)"
                               [disabled]="!isTeacher()">
                               <mat-option value="public">
@@ -797,7 +797,7 @@
                               <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
                                 <mat-label>Visibilité pour toutes</mat-label>
                                 <mat-select 
-                                  [value]="'private'"
+                                  [value]="getCommonVisibilityForTopic(subtopic2.id)"
                                   (selectionChange)="updateAllCardsVisibilityForTopic(subtopic2.id, $event.value)"
                                   [disabled]="!isTeacher()">
                                   <mat-option value="public">

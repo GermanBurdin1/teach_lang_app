@@ -502,6 +502,7 @@ export class CreateMindmapComponent implements OnInit {
     return null;
   }
 
+
   loadSubtopics(topicId: string): void {
     const token = this.authService.getAccessToken();
     if (!token || !this.selectedSection) return;
@@ -529,6 +530,25 @@ export class CreateMindmapComponent implements OnInit {
 
   getPatternCardsForTopic(topicId: string): PatternCard[] {
     return this.patternCardsByTopic[topicId] || [];
+  }
+
+  getCommonVisibilityForTopic(topicId: string): 'public' | 'students' | 'private' {
+    const cards = this.getPatternCardsForTopic(topicId);
+    if (cards.length === 0) {
+      return 'public';
+    }
+
+    // Проверяем, все ли карточки имеют одинаковую видимость
+    const visibilities = cards.map(card => card.visibility || 'public');
+    const uniqueVisibilities = [...new Set(visibilities)];
+    
+    // Если все карточки имеют одинаковую видимость, возвращаем её
+    if (uniqueVisibilities.length === 1) {
+      return uniqueVisibilities[0] as 'public' | 'students' | 'private';
+    }
+    
+    // Если видимости разные, возвращаем дефолт 'public'
+    return 'public';
   }
 
   togglePatternCard(cardId: string): void {
@@ -1927,39 +1947,130 @@ export class CreateMindmapComponent implements OnInit {
       'Content-Type': 'application/json'
     });
 
-    this.http.get<any[]>(`${API_ENDPOINTS.CONSTRUCTORS}?type=pattern_card`, { headers }).subscribe({
-      next: (constructors: any[]) => {
-        const patternCardPromises = constructors.map(constructor => {
-          return Promise.all([
-            Promise.resolve(constructor),
-            this.http.get<any>(`${API_ENDPOINTS.CONSTRUCTORS}/${constructor.id}/pattern-card`, { headers }).toPromise()
-          ]);
-        });
+    // Сначала загружаем все темы для всех секций
+    const allTopicsPromises = this.grammarSections.map(section => {
+      return this.http.get<GrammarTopic[]>(`${API_ENDPOINTS.CONSTRUCTORS}/grammar/sections/${section.id}/topics`, { headers }).toPromise();
+    });
 
-        Promise.all(patternCardPromises).then(results => {
-          this.savedPatternCards = results
-            .filter(([constructor, pc]) => pc !== null && pc !== undefined)
-            .map(([constructor, pc]) => ({
-              ...pc,
-              id: constructor.id,
-              pattern: pc.pattern || '',
-              example: pc.example || '',
-              blanks: pc.blanks || [],
-              variations: pc.variations || null,
-              difficulty: pc.difficulty || null,
-              category: pc.category || null,
-              explanation: pc.explanation || null,
-              tags: pc.tags || null,
-              topicId: pc.topicId || null,
-              visibility: pc.visibility || 'public',
-              constructorTitle: constructor.title || ''
-            }));
-          this.organizePatternCardsByTopics();
-        });
-      },
-      error: (error) => {
-        console.error('❌ Erreur lors du chargement des pattern-cards:', error);
-      }
+    Promise.all(allTopicsPromises).then(allTopicsArrays => {
+      // Объединяем все темы и строим иерархию
+      allTopicsArrays.forEach((topics, index) => {
+        if (topics && this.grammarSections[index]) {
+          const rootTopics = topics.filter(t => !t.parentTopicId);
+          this.buildTopicHierarchy(rootTopics, topics);
+          this.grammarSections[index].topics = rootTopics;
+        }
+      });
+
+      // Теперь загружаем pattern cards
+      this.http.get<any[]>(`${API_ENDPOINTS.CONSTRUCTORS}?type=pattern_card`, { headers }).subscribe({
+        next: (constructors: any[]) => {
+          const patternCardPromises = constructors.map(constructor => {
+            return Promise.all([
+              Promise.resolve(constructor),
+              this.http.get<any>(`${API_ENDPOINTS.CONSTRUCTORS}/${constructor.id}/pattern-card`, { headers }).toPromise()
+            ]);
+          });
+
+          Promise.all(patternCardPromises).then(results => {
+            this.savedPatternCards = results
+              .filter(([constructor, pc]) => pc !== null && pc !== undefined)
+              .map(([constructor, pc]) => ({
+                ...pc,
+                id: constructor.id,
+                pattern: pc.pattern || '',
+                example: pc.example || '',
+                blanks: pc.blanks || [],
+                variations: pc.variations || null,
+                difficulty: pc.difficulty || null,
+                category: pc.category || null,
+                explanation: pc.explanation || null,
+                tags: pc.tags || null,
+                topicId: pc.topicId || null,
+                visibility: pc.visibility || 'public',
+                constructorTitle: constructor.title || ''
+              }));
+            this.organizePatternCardsByTopics();
+          });
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du chargement des pattern-cards:', error);
+        }
+      });
+    }).catch(error => {
+      console.error('Error loading topics:', error);
+      // Если не удалось загрузить темы, загружаем карточки без проверки артиклей
+      this.http.get<any[]>(`${API_ENDPOINTS.CONSTRUCTORS}?type=pattern_card`, { headers }).subscribe({
+        next: (constructors: any[]) => {
+          const patternCardPromises = constructors.map(constructor => {
+            return Promise.all([
+              Promise.resolve(constructor),
+              this.http.get<any>(`${API_ENDPOINTS.CONSTRUCTORS}/${constructor.id}/pattern-card`, { headers }).toPromise()
+            ]);
+          });
+
+          Promise.all(patternCardPromises).then(results => {
+            this.savedPatternCards = results
+              .filter(([constructor, pc]) => pc !== null && pc !== undefined)
+              .map(([constructor, pc]) => ({
+                ...pc,
+                id: constructor.id,
+                pattern: pc.pattern || '',
+                example: pc.example || '',
+                blanks: pc.blanks || [],
+                variations: pc.variations || null,
+                difficulty: pc.difficulty || null,
+                category: pc.category || null,
+                explanation: pc.explanation || null,
+                tags: pc.tags || null,
+                topicId: pc.topicId || null,
+                visibility: pc.visibility || 'public',
+                constructorTitle: constructor.title || ''
+              }));
+            this.organizePatternCardsByTopics();
+          });
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du chargement des pattern-cards:', error);
+        }
+      });
+    }).catch(error => {
+      console.error('Error loading topics:', error);
+      // Если не удалось загрузить темы, загружаем карточки без проверки артиклей
+      this.http.get<any[]>(`${API_ENDPOINTS.CONSTRUCTORS}?type=pattern_card`, { headers }).subscribe({
+        next: (constructors: any[]) => {
+          const patternCardPromises = constructors.map(constructor => {
+            return Promise.all([
+              Promise.resolve(constructor),
+              this.http.get<any>(`${API_ENDPOINTS.CONSTRUCTORS}/${constructor.id}/pattern-card`, { headers }).toPromise()
+            ]);
+          });
+
+          Promise.all(patternCardPromises).then(results => {
+            this.savedPatternCards = results
+              .filter(([constructor, pc]) => pc !== null && pc !== undefined)
+              .map(([constructor, pc]) => ({
+                ...pc,
+                id: constructor.id,
+                pattern: pc.pattern || '',
+                example: pc.example || '',
+                blanks: pc.blanks || [],
+                variations: pc.variations || null,
+                difficulty: pc.difficulty || null,
+                category: pc.category || null,
+                explanation: pc.explanation || null,
+                tags: pc.tags || null,
+                topicId: pc.topicId || null,
+                visibility: pc.visibility || 'public',
+                constructorTitle: constructor.title || ''
+              }));
+            this.organizePatternCardsByTopics();
+          });
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du chargement des pattern-cards:', error);
+        }
+      });
     });
   }
 

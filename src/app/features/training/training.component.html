@@ -51,7 +51,63 @@
   <div class="training-content">
     <!-- Grammar Tab Content -->
     <div *ngIf="activeTrainingTab === 'grammar'" class="grammar-content">
-      <div class="grammar-structure">
+      <!-- Part of Speech Content View -->
+      <div *ngIf="selectedPartOfSpeech" class="part-of-speech-content">
+        <button mat-button class="back-button" (click)="goBackToStructure()">
+          <mat-icon>arrow_back</mat-icon>
+          Retour à la structure
+        </button>
+        
+        <h2 class="part-content-title">
+          <mat-icon>{{ selectedPartOfSpeech.icon }}</mat-icon>
+          {{ selectedPartOfSpeech.title }}
+        </h2>
+
+        <!-- Articles Content -->
+        <div *ngIf="selectedPartOfSpeech.id === 'article'" class="pattern-cards-list">
+          <div *ngIf="loadingPatternCards" class="loading-state">
+            <p>Chargement des exercices...</p>
+          </div>
+          
+          <div *ngIf="!loadingPatternCards && patternCards.length === 0" class="empty-state">
+            <mat-icon>info</mat-icon>
+            <p>Aucun exercice disponible pour le moment</p>
+          </div>
+
+          <div *ngIf="!loadingPatternCards && patternCards.length > 0" class="pattern-cards-grid">
+            <div class="pattern-card-item" *ngFor="let card of patternCards">
+              <div class="card-header">
+                <h3>{{ card.constructorTitle || card.pattern }}</h3>
+              </div>
+              <div class="card-content">
+                <p class="pattern-text"><strong>Pattern:</strong> {{ card.pattern }}</p>
+                <p class="example-text"><strong>Exemple:</strong> {{ card.example }}</p>
+                <div class="card-meta" *ngIf="card.difficulty">
+                  <span class="difficulty-badge" [class]="'difficulty-' + card.difficulty">
+                    {{ card.difficulty }}
+                  </span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button mat-button color="primary" (click)="startExercise(card)">
+                  <mat-icon>play_arrow</mat-icon>
+                  Commencer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other Parts of Speech Content -->
+        <div *ngIf="selectedPartOfSpeech.id !== 'article'" class="coming-soon-content">
+          <mat-icon>construction</mat-icon>
+          <h3>Fonctionnalité en développement</h3>
+          <p>Les exercices pour {{ selectedPartOfSpeech.title }} seront bientôt disponibles</p>
+        </div>
+      </div>
+
+      <!-- Grammar Structure View -->
+      <div *ngIf="!selectedPartOfSpeech" class="grammar-structure">
         <div class="grammar-category" *ngFor="let category of grammarStructure">
           <div class="category-header" (click)="toggleCategory(category.id)">
             <mat-icon class="expand-icon" [class.expanded]="isExpanded(category.id)">
@@ -85,7 +141,7 @@
                   
                   <!-- Level 4: Final level (parts of speech) -->
                   <div class="category-children" *ngIf="isExpanded(subChild.id) && subChild.children">
-                    <div class="part-of-speech-item" *ngFor="let partOfSpeech of subChild.children">
+                    <div class="part-of-speech-item" *ngFor="let partOfSpeech of subChild.children" (click)="selectPartOfSpeech(partOfSpeech)">
                       <mat-icon class="part-icon">{{ partOfSpeech.icon }}</mat-icon>
                       <span class="part-title">{{ partOfSpeech.title }}</span>
                     </div>
