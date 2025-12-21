@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { API_ENDPOINTS } from '../../core/constants/api.constants';
@@ -27,12 +30,14 @@ interface PatternCard {
   topicId: string | null;
   visibility: 'public' | 'students' | 'private';
   constructorTitle?: string;
+  constructorUserId?: string;
+  authorName?: string;
 }
 
 @Component({
   selector: 'app-training',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, FormsModule, MatIconModule, MatButtonModule, MatSelectModule, MatFormFieldModule],
   templateUrl: './training.component.html',
   styleUrls: ['./training.component.css']
 })
@@ -41,7 +46,10 @@ export class TrainingComponent implements OnInit {
   expandedCategories: Set<string> = new Set();
   selectedPartOfSpeech: GrammarCategory | null = null;
   patternCards: PatternCard[] = [];
+  filteredPatternCards: PatternCard[] = [];
   loadingPatternCards = false;
+  selectedDifficulty: 'all' | 'beginner' | 'intermediate' | 'advanced' = 'all';
+  showPatternCardsList = false;
 
   grammarStructure: GrammarCategory[] = [
     {
@@ -122,17 +130,41 @@ export class TrainingComponent implements OnInit {
 
   selectPartOfSpeech(partOfSpeech: GrammarCategory): void {
     this.selectedPartOfSpeech = partOfSpeech;
+    this.showPatternCardsList = false; // Сначала показываем описание
     if (partOfSpeech.id === 'article') {
       this.loadArticlePatternCards();
     } else {
       // Для других частей речи пока пусто
       this.patternCards = [];
+      this.filteredPatternCards = [];
     }
+  }
+
+  showPatternCards(): void {
+    this.showPatternCardsList = true;
+    this.applyDifficultyFilter();
   }
 
   goBackToStructure(): void {
     this.selectedPartOfSpeech = null;
     this.patternCards = [];
+    this.filteredPatternCards = [];
+    this.showPatternCardsList = false;
+    this.selectedDifficulty = 'all';
+  }
+
+  onDifficultyChange(): void {
+    this.applyDifficultyFilter();
+  }
+
+  applyDifficultyFilter(): void {
+    if (this.selectedDifficulty === 'all') {
+      this.filteredPatternCards = [...this.patternCards];
+    } else {
+      this.filteredPatternCards = this.patternCards.filter(
+        card => card.difficulty === this.selectedDifficulty
+      );
+    }
   }
 
   loadArticlePatternCards(): void {
@@ -210,8 +242,14 @@ export class TrainingComponent implements OnInit {
               tags: pc.tags || null,
               topicId: pc.topicId || null,
               visibility: pc.visibility || 'public',
-              constructorTitle: constructor.title || ''
+              constructorTitle: constructor.title || '',
+              constructorUserId: constructor.userId || null,
+              authorName: null // Будет загружено позже
             }));
+          
+          // Загружаем имена авторов
+          this.loadAuthorNames();
+          this.applyDifficultyFilter();
           this.loadingPatternCards = false;
         });
       },
@@ -257,8 +295,14 @@ export class TrainingComponent implements OnInit {
               tags: pc.tags || null,
               topicId: pc.topicId || null,
               visibility: pc.visibility || 'public',
-              constructorTitle: constructor.title || ''
+              constructorTitle: constructor.title || '',
+              constructorUserId: constructor.userId || null,
+              authorName: null // Будет загружено позже
             }));
+          
+          // Загружаем имена авторов
+          this.loadAuthorNames();
+          this.applyDifficultyFilter();
           this.loadingPatternCards = false;
         });
       },
@@ -272,6 +316,47 @@ export class TrainingComponent implements OnInit {
   startExercise(card: PatternCard): void {
     // TODO: Реализовать запуск упражнения
     console.log('Starting exercise:', card);
+  }
+
+  loadAuthorNames(): void {
+    const uniqueUserIds = [...new Set(this.patternCards.map(card => card.constructorUserId).filter(id => id))];
+    
+    uniqueUserIds.forEach(userId => {
+      const token = this.authService.getAccessToken();
+      if (!token) return;
+      
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+
+      // Используем API для получения информации о пользователе
+      this.http.get<any>(`${API_ENDPOINTS.AUTH}/users/${userId}`, { headers }).subscribe({
+        next: (user) => {
+          const authorName = `${user.name || ''} ${user.surname || ''}`.trim() || 'Auteur inconnu';
+          // Обновляем все карточки этого автора
+          this.patternCards.forEach(card => {
+            if (card.constructorUserId === userId) {
+              card.authorName = authorName;
+            }
+          });
+          this.filteredPatternCards.forEach(card => {
+            if (card.constructorUserId === userId) {
+              card.authorName = authorName;
+            }
+          });
+        },
+        error: (error) => {
+          console.error(`❌ Erreur lors du chargement de l'auteur ${userId}:`, error);
+          // Устанавливаем дефолтное имя
+          this.patternCards.forEach(card => {
+            if (card.constructorUserId === userId && !card.authorName) {
+              card.authorName = 'Auteur inconnu';
+            }
+          });
+        }
+      });
+    });
   }
 }
 

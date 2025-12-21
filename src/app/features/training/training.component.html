@@ -65,34 +65,80 @@
 
         <!-- Articles Content -->
         <div *ngIf="selectedPartOfSpeech.id === 'article'" class="pattern-cards-list">
-          <div *ngIf="loadingPatternCards" class="loading-state">
-            <p>Chargement des exercices...</p>
-          </div>
-          
-          <div *ngIf="!loadingPatternCards && patternCards.length === 0" class="empty-state">
-            <mat-icon>info</mat-icon>
-            <p>Aucun exercice disponible pour le moment</p>
+          <!-- Description des Pattern Cards -->
+          <div *ngIf="!showPatternCardsList" class="pattern-cards-description">
+            <div class="description-content">
+              <mat-icon class="description-icon">info</mat-icon>
+              <h3>Exercices avec Pattern Cards</h3>
+              <p>
+                Les <strong>Pattern Cards</strong> sont des exercices interactifs qui vous permettent de pratiquer 
+                la grammaire française de manière structurée. Chaque carte contient un modèle (pattern) avec des 
+                espaces à remplir, vous aidant à comprendre et à maîtriser les règles grammaticales.
+              </p>
+              <p>
+                <strong>Comment ça fonctionne :</strong>
+              </p>
+              <ul>
+                <li>Chaque pattern card présente un modèle de phrase avec des éléments manquants</li>
+                <li>Vous devez compléter les espaces vides en suivant les règles grammaticales</li>
+                <li>Les exercices sont classés par niveau de difficulté (débutant, intermédiaire, avancé)</li>
+                <li>Vous pouvez voir des exemples et des explications pour mieux comprendre</li>
+              </ul>
+              <button mat-raised-button color="primary" (click)="showPatternCards()" class="start-button">
+                <mat-icon>play_arrow</mat-icon>
+                Voir les exercices disponibles
+              </button>
+            </div>
           </div>
 
-          <div *ngIf="!loadingPatternCards && patternCards.length > 0" class="pattern-cards-grid">
-            <div class="pattern-card-item" *ngFor="let card of patternCards">
-              <div class="card-header">
-                <h3>{{ card.constructorTitle || card.pattern }}</h3>
-              </div>
-              <div class="card-content">
-                <p class="pattern-text"><strong>Pattern:</strong> {{ card.pattern }}</p>
-                <p class="example-text"><strong>Exemple:</strong> {{ card.example }}</p>
-                <div class="card-meta" *ngIf="card.difficulty">
-                  <span class="difficulty-badge" [class]="'difficulty-' + card.difficulty">
-                    {{ card.difficulty }}
-                  </span>
+          <!-- Liste des Pattern Cards -->
+          <div *ngIf="showPatternCardsList">
+            <!-- Filtre par difficulté -->
+            <div class="difficulty-filter" *ngIf="patternCards.length > 0">
+              <mat-form-field appearance="outline">
+                <mat-label>Filtrer par niveau</mat-label>
+                <mat-select [value]="selectedDifficulty" (selectionChange)="selectedDifficulty = $event.value; onDifficultyChange()">
+                  <mat-option value="all">Tous les niveaux</mat-option>
+                  <mat-option value="beginner">Débutant</mat-option>
+                  <mat-option value="intermediate">Intermédiaire</mat-option>
+                  <mat-option value="advanced">Avancé</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div *ngIf="loadingPatternCards" class="loading-state">
+              <p>Chargement des exercices...</p>
+            </div>
+            
+            <div *ngIf="!loadingPatternCards && filteredPatternCards.length === 0" class="empty-state">
+              <mat-icon>info</mat-icon>
+              <p>Aucun exercice disponible pour ce niveau</p>
+            </div>
+
+            <div *ngIf="!loadingPatternCards && filteredPatternCards.length > 0" class="pattern-cards-grid">
+              <div class="pattern-card-item" *ngFor="let card of filteredPatternCards">
+                <div class="card-header">
+                  <h3>{{ card.constructorTitle || card.pattern }}</h3>
+                  <div class="card-author" *ngIf="card.authorName">
+                    <mat-icon>person</mat-icon>
+                    <span>{{ card.authorName }}</span>
+                  </div>
                 </div>
-              </div>
-              <div class="card-actions">
-                <button mat-button color="primary" (click)="startExercise(card)">
-                  <mat-icon>play_arrow</mat-icon>
-                  Commencer
-                </button>
+                <div class="card-content">
+                  <p class="pattern-text"><strong>Pattern:</strong> {{ card.pattern }}</p>
+                  <p class="example-text"><strong>Exemple:</strong> {{ card.example }}</p>
+                  <div class="card-meta" *ngIf="card.difficulty">
+                    <span class="difficulty-badge" [class]="'difficulty-' + card.difficulty">
+                      {{ card.difficulty === 'beginner' ? 'Débutant' : card.difficulty === 'intermediate' ? 'Intermédiaire' : 'Avancé' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button mat-button color="primary" (click)="startExercise(card)">
+                    <mat-icon>play_arrow</mat-icon>
+                    Commencer
+                  </button>
+                </div>
               </div>
             </div>
           </div>
