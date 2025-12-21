@@ -564,9 +564,11 @@
                       <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
                         <mat-label>Visibilité pour toutes</mat-label>
                         <mat-select 
-                          [value]="'private'"
+                          [value]="'public'"
                           (selectionChange)="updateAllCardsVisibilityForTopic(topic.id, $event.value)"
-                          [disabled]="!isTeacher()">
+                          [disabled]="!isTeacher()"
+                          [matTooltip]="'Définir la visibilité pour toutes les cartes de ce sujet'"
+                          matTooltipPosition="above">
                           <mat-option value="public">
                             <mat-icon>public</mat-icon>
                             <span>Tous les utilisateurs</span>
@@ -592,15 +594,17 @@
                           <mat-icon class="expand-icon" [class.expanded]="isPatternCardExpanded(card.id!)">
                             {{ isPatternCardExpanded(card.id!) ? 'expand_more' : 'chevron_right' }}
                           </mat-icon>
-                          <h5>{{ getPatternCardTitle(card) }}</h5>
                         </div>
                         <!-- Individual Visibility Control for this card -->
                         <div class="pattern-card-header-visibility" (click)="$event.stopPropagation()">
-                          <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
+                          <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 200px; margin: 0;">
+                            <mat-label>Visibilité</mat-label>
                             <mat-select 
-                              [value]="card.visibility || 'private'"
+                              [value]="card.visibility || 'public'"
                               (selectionChange)="updatePatternCardVisibility(card, $event.value)"
-                              [disabled]="!isTeacher() || !card.id">
+                              [disabled]="!isTeacher() || !card.id"
+                              [matTooltip]="(card.visibility === 'public' || !card.visibility) ? 'Visible par tous les étudiants et tous les enseignants' : ''"
+                              matTooltipPosition="above">
                               <mat-option value="public">
                                 <mat-icon>public</mat-icon>
                                 <span>Tous les utilisateurs</span>
@@ -707,15 +711,17 @@
                               <mat-icon class="expand-icon" [class.expanded]="isPatternCardExpanded(card.id!)">
                                 {{ isPatternCardExpanded(card.id!) ? 'expand_more' : 'chevron_right' }}
                               </mat-icon>
-                              <h5>{{ getPatternCardTitle(card) }}</h5>
                             </div>
                             <!-- Visibility Control - Always Visible -->
                             <div class="pattern-card-header-visibility" (click)="$event.stopPropagation()">
-                              <mat-form-field appearance="outline" class="visibility-select-compact">
+                              <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 200px; margin: 0;">
+                                <mat-label>Visibilité</mat-label>
                                 <mat-select 
-                                  [value]="card.visibility || 'private'"
+                                  [value]="card.visibility || 'public'"
                                   (selectionChange)="updatePatternCardVisibility(card, $event.value)"
-                                  [disabled]="!isTeacher() || !card.id">
+                                  [disabled]="!isTeacher() || !card.id"
+                                  [matTooltip]="(card.visibility === 'public' || !card.visibility) ? 'Visible par tous les étudiants et tous les enseignants' : ''"
+                                  matTooltipPosition="above">
                                   <mat-option value="public">
                                     <mat-icon>public</mat-icon>
                                     <span>Tous les utilisateurs</span>
@@ -819,15 +825,17 @@
                                   <mat-icon class="expand-icon" [class.expanded]="isPatternCardExpanded(card.id!)">
                                     {{ isPatternCardExpanded(card.id!) ? 'expand_more' : 'chevron_right' }}
                                   </mat-icon>
-                                  <h5>{{ getPatternCardTitle(card) }}</h5>
                                 </div>
                                 <!-- Individual Visibility Control for this card -->
                                 <div class="pattern-card-header-visibility" (click)="$event.stopPropagation()">
-                                  <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 180px; margin: 0;">
+                                  <mat-form-field appearance="outline" class="visibility-select-compact" style="width: 200px; margin: 0;">
+                                    <mat-label>Visibilité</mat-label>
                                     <mat-select 
-                                      [value]="card.visibility || 'private'"
+                                      [value]="card.visibility || 'public'"
                                       (selectionChange)="updatePatternCardVisibility(card, $event.value)"
-                                      [disabled]="!isTeacher() || !card.id">
+                                      [disabled]="!isTeacher() || !card.id"
+                                      [matTooltip]="(card.visibility === 'public' || !card.visibility) ? 'Visible par tous les étudiants et tous les enseignants' : ''"
+                                      matTooltipPosition="above">
                                       <mat-option value="public">
                                         <mat-icon>public</mat-icon>
                                         <span>Tous les utilisateurs</span>

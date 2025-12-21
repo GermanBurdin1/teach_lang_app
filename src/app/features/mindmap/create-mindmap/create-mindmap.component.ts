@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule, MatDialogConfig } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DrillGridModalComponent, DrillGridModalData } from '../drill-grid-modal/drill-grid-modal.component';
 import { PatternCardModalComponent, PatternCardModalData, PatternCard, GrammarSection, GrammarTopic } from '../pattern-card-modal/pattern-card-modal.component';
 import { PatternCardViewerComponent } from '../pattern-card-viewer/pattern-card-viewer.component';
@@ -99,7 +100,8 @@ function isObjectArray(arr: any): arr is Array<{id: string; label: string}> {
     MatChipsModule,
     MatSelectModule,
     MatDialogModule,
-    MatMenuModule
+    MatMenuModule,
+    MatTooltipModule
   ],
   templateUrl: './create-mindmap.component.html',
   styleUrls: ['./create-mindmap.component.css']
@@ -1811,7 +1813,7 @@ export class CreateMindmapComponent implements OnInit {
           explanation: this.patternCard!.explanation || null,
           tags: this.patternCard!.tags || null,
           topicId: this.patternCard!.topicId || null,
-          visibility: this.patternCard!.visibility || 'private'
+          visibility: this.patternCard!.visibility || 'public'
         };
 
         this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/pattern-card`, patternCardPayload, { headers }).subscribe({
@@ -1873,7 +1875,7 @@ export class CreateMindmapComponent implements OnInit {
       explanation: this.patternCard.explanation || null,
       tags: this.patternCard.tags || null,
       topicId: this.patternCard.topicId || null,
-      visibility: this.patternCard.visibility || 'private'
+      visibility: this.patternCard.visibility || 'public'
     };
 
     // Обновляем сначала название конструктора, затем pattern-card
@@ -1949,7 +1951,7 @@ export class CreateMindmapComponent implements OnInit {
               explanation: pc.explanation || null,
               tags: pc.tags || null,
               topicId: pc.topicId || null,
-              visibility: pc.visibility || 'private',
+              visibility: pc.visibility || 'public',
               constructorTitle: constructor.title || ''
             }));
           this.organizePatternCardsByTopics();
@@ -2193,16 +2195,19 @@ export class CreateMindmapComponent implements OnInit {
   }
 
   getPatternCardTitle(card: PatternCard): string {
-    const constructorTitle = (card as any).constructorTitle;
-    // Если constructorTitle слишком короткий (меньше 3 символов) или содержит только одну букву с точкой, используем pattern
-    if (constructorTitle && constructorTitle.length > 2 && !/^[A-Z]\.$/.test(constructorTitle.trim())) {
-      return constructorTitle;
-    }
-    // Используем pattern, обрезая его до разумной длины если нужно
+    // ВСЕГДА используем pattern вместо constructorTitle, чтобы избежать странных сокращений типа "C.", "U.", "L."
     if (card.pattern) {
-      const maxLength = 60;
-      return card.pattern.length > maxLength ? card.pattern.substring(0, maxLength) + '...' : card.pattern;
+      const maxLength = 80;
+      const patternText = card.pattern.trim();
+      return patternText.length > maxLength ? patternText.substring(0, maxLength) + '...' : patternText;
     }
+    
+    // Fallback на constructorTitle только если pattern отсутствует
+    const constructorTitle = (card as any).constructorTitle;
+    if (constructorTitle && constructorTitle.trim().length > 3) {
+      return constructorTitle.trim();
+    }
+    
     return 'Pattern sans nom';
   }
 
