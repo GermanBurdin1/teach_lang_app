@@ -1,0 +1,104 @@
+/* ==================== MAIN CONTAINER ==================== */
+.training-container {
+  min-height: auto;
+  background: 
+    linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)),
+    linear-gradient(135deg, var(--galaxy-primary) 0%, var(--stellar-purple) 100%);
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==================== HEADER ==================== */
+.training-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: white;
+}
+
+.page-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.page-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+/* ==================== TRAINING TABS ==================== */
+.training-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.training-tab-btn {
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  color: var(--btn-secondary-font-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.training-tab-btn:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+.training-tab-btn.active {
+  background: linear-gradient(135deg, var(--space-blue) 0%, var(--stellar-purple) 100%);
+  color: white;
+  border-color: var(--space-blue);
+}
+
+/* ==================== TRAINING CONTENT ==================== */
+.training-content {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.coming-soon {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
+
+.coming-soon i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #cbd5e0;
+}
+
+.coming-soon h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--btn-secondary-font-color);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .training-tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .training-tab-btn {
+    width: 100%;
+    max-width: 250px;
+    justify-content: center;
+  }
+}
+

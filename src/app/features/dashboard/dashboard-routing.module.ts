@@ -16,6 +16,7 @@ import { VocabularyComponent } from '../vocabulary/vocabulary.component';
 //import { MaterialsComponent } from '../marathons/materials/materials.component';
 import { TrainerComponent } from '../trainer/trainer.component';
 import { StudentTrainingComponent } from '../student-training/student-training.component';
+import { TrainingComponent } from '../training/training.component';
 import { TeacherListComponent } from '../teacher-search-and-consult/teacher-list.component';
 import { AdminTeachersListComponent } from './school-dashboard/admin-management_teacher-list-and-details/admin-teachers-list.component';
 import {TeacherDetailsComponent} from "../teacher-search-and-consult/teacher-details.component";
@@ -53,7 +54,7 @@ const routes: Routes = [
       { path: 'student/wordsTeaching', component: WordsComponent },
       { path: 'student/wordsTeaching/:galaxy/:subtopic', component: VocabularyComponent },
       { path: 'student/trainer', component: TrainerComponent },
-      { path: 'student/training', component: StudentTrainingComponent },
+      { path: 'student/training', component: TrainingComponent },
       // { path: 'school/course/:id', component: MaterialsComponent},
       { path: 'student/teachers', component: TeacherListComponent },
       { path: 'student/teachers/:id', component: TeacherDetailsComponent },
@@ -83,7 +84,7 @@ const routes: Routes = [
       { path: 'wordsTeaching/:galaxy/:subtopic', component: VocabularyComponent },
       { path: 'mindmap', component: VocabularyComponent },
       { path: 'trainer', component: TrainerComponent },
-      { path: 'training', component: TrainerComponent },
+      { path: 'training', component: TrainingComponent },
       { 
         path: 'classroom', 
         component: ClassroomRedirectComponent,

@@ -1,0 +1,59 @@
+<div class="training-container">
+  <!-- Header -->
+  <div class="training-header">
+    <h1 class="page-title">
+      <i class="fas fa-dumbbell"></i>
+      Exercices d'Entraînement
+    </h1>
+    <p class="page-subtitle">Outils d'entraînement pour vos étudiants</p>
+  </div>
+
+  <!-- Training Sub-tabs -->
+  <div class="training-tabs">
+    <button 
+      class="training-tab-btn"
+      [class.active]="activeTrainingTab === 'audio'"
+      (click)="setActiveTrainingTab('audio')">
+      <i class="fas fa-headphones"></i>
+      Écoute
+    </button>
+    <button 
+      class="training-tab-btn"
+      [class.active]="activeTrainingTab === 'reading'"
+      (click)="setActiveTrainingTab('reading')">
+      <i class="fas fa-book-open"></i>
+      Lecture
+    </button>
+    <button 
+      class="training-tab-btn"
+      [class.active]="activeTrainingTab === 'writing'"
+      (click)="setActiveTrainingTab('writing')">
+      <i class="fas fa-pen"></i>
+      Écriture
+    </button>
+    <button 
+      class="training-tab-btn"
+      [class.active]="activeTrainingTab === 'speaking'"
+      (click)="setActiveTrainingTab('speaking')">
+      <i class="fas fa-microphone"></i>
+      Expression orale
+    </button>
+    <button 
+      class="training-tab-btn"
+      [class.active]="activeTrainingTab === 'grammar'"
+      (click)="setActiveTrainingTab('grammar')">
+      <i class="fas fa-language"></i>
+      Grammaire
+    </button>
+  </div>
+
+  <!-- Training Content -->
+  <div class="training-content">
+    <div class="coming-soon">
+      <i class="fas fa-tools"></i>
+      <h3>Fonctionnalité en développement</h3>
+      <p>Les exercices d'entraînement seront bientôt disponibles</p>
+    </div>
+  </div>
+</div>
+
