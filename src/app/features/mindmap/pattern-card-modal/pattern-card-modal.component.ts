@@ -45,6 +45,7 @@ export interface PatternCard {
   explanation?: string | null;
   tags?: string[];
   topicId?: string | null;
+  visibility?: 'public' | 'students' | 'private';
 }
 
 export interface GrammarSection {
@@ -136,6 +137,7 @@ export class PatternCardModalComponent implements OnInit {
   explanation: string = '';
   tags: string[] = [];
   newTag: string = '';
+  visibility: 'public' | 'students' | 'private' = 'private';
 
   // Available options
   grammarCategories = GRAMMAR_CATEGORIES;
@@ -344,6 +346,7 @@ export class PatternCardModalComponent implements OnInit {
     this.category = card.category || null;
     this.explanation = card.explanation || '';
     this.tags = card.tags ? [...card.tags] : [];
+    this.visibility = (card as any).visibility || 'private';
   }
 
   detectBlanksFromPattern(): void {
@@ -541,7 +544,7 @@ export class PatternCardModalComponent implements OnInit {
   }
 
   save(): void {
-    const patternCardData: PatternCard = {
+    const patternCardData: any = {
       pattern: this.pattern,
       example: this.example,
       blanks: this.blanks,
@@ -550,7 +553,8 @@ export class PatternCardModalComponent implements OnInit {
       category: this.category,
       explanation: this.explanation || null,
       tags: this.tags,
-      topicId: this.selectedTopicId || null
+      topicId: this.selectedTopicId || null,
+      visibility: this.visibility
     };
 
     if (this.onUpdate && this.editingPatternCard) {
@@ -571,3 +575,6 @@ export class PatternCardModalComponent implements OnInit {
     this.dialogRef.close();
   }
 }
+
+
+

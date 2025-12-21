@@ -237,6 +237,14 @@ export class TrainerComponent implements OnInit {
   intonationSentence = 'Je suis tellement content de cette nouvelle!';
   intonationFeedback: string | undefined;
 
+  // Grammar - Pattern Cards
+  grammarPatternCards: any[] = [];
+  loadingGrammarCards = false;
+  grammarCardsByTopic: { [key: string]: any[] } = {};
+  expandedGrammarTopics: Set<string> = new Set();
+  selectedGrammarSection: string | null = null;
+  grammarSections: any[] = [];
+
   // Grammar
   grammarTask = 'connectors';
   sentenceWithBlank = 'Il pleuvait, _____ nous avons annulé le voyage.';

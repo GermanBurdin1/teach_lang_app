@@ -59,3 +59,5 @@ export class MindmapRouterComponent implements OnInit {
     console.log('📊 Результат:', { isTeacher: this.isTeacher, isStudent: this.isStudent });
   }
 }
+
+

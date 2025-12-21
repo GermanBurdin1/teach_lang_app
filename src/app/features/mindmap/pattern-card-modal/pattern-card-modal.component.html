@@ -226,6 +226,26 @@
             <mat-card-content>
               <!-- Grammar Hierarchy Selection -->
               <div class="grammar-hierarchy-section">
+                <h4>Visibilité de la carte</h4>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Qui peut voir cette carte?</mat-label>
+                  <mat-select [(ngModel)]="visibility">
+                    <mat-option value="private">
+                      <mat-icon>lock</mat-icon>
+                      Privée (personne ne peut la voir)
+                    </mat-option>
+                    <mat-option value="students">
+                      <mat-icon>people</mat-icon>
+                      Mes étudiants uniquement
+                    </mat-option>
+                    <mat-option value="public">
+                      <mat-icon>public</mat-icon>
+                      Publique (tous les utilisateurs)
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint>Détermine qui peut voir cette carte dans le centre d'entraînement</mat-hint>
+                </mat-form-field>
+
                 <h4>Hiérarchie grammaticale</h4>
                 <p class="hint-text">Sélectionnez la section et le sujet pour organiser cette pattern-card</p>
                 
@@ -377,3 +397,5 @@
     </button>
   </div>
 </div>
+
+

@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule, MatDialogConfig } from '@angular/material/dialog';
 import { DrillGridModalComponent, DrillGridModalData } from '../drill-grid-modal/drill-grid-modal.component';
 import { PatternCardModalComponent, PatternCardModalData, PatternCard, GrammarSection, GrammarTopic } from '../pattern-card-modal/pattern-card-modal.component';
@@ -97,7 +98,8 @@ function isObjectArray(arr: any): arr is Array<{id: string; label: string}> {
     MatTabsModule,
     MatChipsModule,
     MatSelectModule,
-    MatDialogModule
+    MatDialogModule,
+    MatMenuModule
   ],
   templateUrl: './create-mindmap.component.html',
   styleUrls: ['./create-mindmap.component.css']
@@ -1808,7 +1810,8 @@ export class CreateMindmapComponent implements OnInit {
           category: this.patternCard!.category || null,
           explanation: this.patternCard!.explanation || null,
           tags: this.patternCard!.tags || null,
-          topicId: this.patternCard!.topicId || null
+          topicId: this.patternCard!.topicId || null,
+          visibility: this.patternCard!.visibility || 'private'
         };
 
         this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/pattern-card`, patternCardPayload, { headers }).subscribe({
@@ -1869,7 +1872,8 @@ export class CreateMindmapComponent implements OnInit {
       category: this.patternCard.category || null,
       explanation: this.patternCard.explanation || null,
       tags: this.patternCard.tags || null,
-      topicId: this.patternCard.topicId || null
+      topicId: this.patternCard.topicId || null,
+      visibility: this.patternCard.visibility || 'private'
     };
 
     // Обновляем сначала название конструктора, затем pattern-card
@@ -1945,6 +1949,7 @@ export class CreateMindmapComponent implements OnInit {
               explanation: pc.explanation || null,
               tags: pc.tags || null,
               topicId: pc.topicId || null,
+              visibility: pc.visibility || 'private',
               constructorTitle: constructor.title || ''
             }));
           this.organizePatternCardsByTopics();
@@ -2047,6 +2052,68 @@ export class CreateMindmapComponent implements OnInit {
         this.notificationService.error('Erreur lors de la suppression');
       }
     });
+  }
+
+  updatePatternCardVisibility(card: PatternCard, visibility: 'public' | 'students' | 'private'): void {
+    if (!card.id) {
+      this.notificationService.error('ID de la pattern-card manquant');
+      return;
+    }
+
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      this.notificationService.error('Erreur d\'authentification');
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${card.id}/pattern-card`, { visibility }, { headers }).subscribe({
+      next: () => {
+        // Обновляем локальную копию карточки
+        const cardIndex = this.savedPatternCards.findIndex(c => c.id === card.id);
+        if (cardIndex !== -1) {
+          this.savedPatternCards[cardIndex] = { ...this.savedPatternCards[cardIndex], visibility } as PatternCard;
+          this.organizePatternCardsByTopics();
+        }
+        
+        const visibilityText = visibility === 'public' ? 'tous les utilisateurs' : visibility === 'students' ? 'vos étudiants' : 'personne';
+        this.notificationService.success(`Visibilité mise à jour: accessible à ${visibilityText}`);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la mise à jour de la visibilité:', error);
+        this.notificationService.error('Erreur lors de la mise à jour de la visibilité');
+      }
+    });
+  }
+
+  getVisibilityLabel(visibility: string): string {
+    switch (visibility) {
+      case 'public':
+        return 'Tous les utilisateurs';
+      case 'students':
+        return 'Mes étudiants';
+      case 'private':
+        return 'Personne';
+      default:
+        return 'Personne';
+    }
+  }
+
+  getVisibilityIcon(visibility: string): string {
+    switch (visibility) {
+      case 'public':
+        return 'public';
+      case 'students':
+        return 'school';
+      case 'private':
+        return 'lock';
+      default:
+        return 'lock';
+    }
   }
 
   resetPatternCardForm(): void {

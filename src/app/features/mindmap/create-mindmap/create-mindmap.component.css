@@ -1253,16 +1253,31 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .pattern-card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  padding: 1rem 1.5rem;
+  transition: background 0.2s;
+  user-select: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pattern-card-header-left {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 1rem 1.5rem;
+  flex: 1;
+  min-width: 0;
   cursor: pointer;
-  transition: background 0.2s;
-  user-select: none;
+  overflow: hidden;
 }
 
 .pattern-card-header:hover {
@@ -1284,9 +1299,127 @@
 .pattern-card-header h5 {
   margin: 0;
   flex: 1;
+  min-width: 0;
   font-size: 1rem;
   color: #1f2a37;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pattern-card-header-visibility {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  margin-left: 0.5rem !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: auto !important;
+  min-width: 150px !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.pattern-card-header-visibility .visibility-select-compact {
+  width: 150px;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.pattern-card-header-visibility .visibility-select-compact .mat-mdc-form-field {
+  margin: 0;
+}
+
+.pattern-card-header-visibility .visibility-select-compact .mat-mdc-text-field-wrapper {
+  padding-bottom: 0;
+}
+
+.pattern-card-header-visibility .visibility-select-compact .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.pattern-card-header-visibility .visibility-select-compact mat-select {
+  font-size: 0.875rem;
+}
+
+.pattern-card-header-visibility .visibility-select-compact mat-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pattern-card-header-visibility .visibility-select-compact mat-option mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.pattern-card-header-visibility .visibility-button {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  color: #64748b;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.pattern-card-header-visibility .visibility-button:hover {
+  background-color: #f1f5f9;
+  color: #475569;
+  transform: scale(1.1);
+}
+
+.pattern-card-header-visibility .visibility-button.visibility-public {
+  color: #10b981;
+}
+
+.pattern-card-header-visibility .visibility-button.visibility-public:hover {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.pattern-card-header-visibility .visibility-button.visibility-students {
+  color: #3b82f6;
+}
+
+.pattern-card-header-visibility .visibility-button.visibility-students:hover {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.pattern-card-header-visibility .visibility-button.visibility-private {
+  color: #ef4444;
+}
+
+.pattern-card-header-visibility .visibility-button.visibility-private:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.pattern-card-header-visibility .visibility-button mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.pattern-card-header-visibility mat-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pattern-card-header-visibility mat-menu-item mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .pattern-card-content {
@@ -1319,6 +1452,43 @@
   gap: 0.5rem;
   flex-wrap: wrap;
   margin-top: 0.5rem;
+}
+
+.pattern-card-visibility {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e4e7ec;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pattern-card-visibility label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #344054;
+}
+
+.pattern-card-visibility .visibility-select {
+  width: 100%;
+}
+
+.pattern-card-visibility .mat-mdc-select-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pattern-card-visibility mat-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pattern-card-visibility mat-option mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .pattern-card-actions {

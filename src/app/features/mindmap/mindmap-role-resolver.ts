@@ -24,3 +24,5 @@ export class MindmapRoleResolver implements Resolve<string> {
     return 'teacher'; // default
   }
 }
+
+
