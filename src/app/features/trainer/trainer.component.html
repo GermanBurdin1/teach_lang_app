@@ -248,6 +248,31 @@
               (keyup.enter)="addTag($event)"
               class="form-control">
           </div>
+
+          <!-- Training Settings (only for audio materials) -->
+          <div class="form-group" *ngIf="newMaterial.type === 'audio'">
+            <div class="training-settings">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="newMaterial.availableForTraining"
+                  class="checkbox-input">
+                <span>Disponible pour les exercices d'entraînement</span>
+              </label>
+              
+              <div class="visibility-select" *ngIf="newMaterial.availableForTraining">
+                <label>Visibilité pour l'entraînement</label>
+                <select [(ngModel)]="newMaterial.trainingVisibility" class="form-control">
+                  <option value="public">Tous les utilisateurs</option>
+                  <option value="students">Mes étudiants</option>
+                  <option value="private">Personne</option>
+                </select>
+                <small class="form-hint" *ngIf="newMaterial.trainingVisibility === 'public'">
+                  Visible par tous les étudiants et tous les enseignants
+                </small>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="modal-footer">
@@ -278,6 +303,18 @@
               <i *ngSwitchCase="'image'" class="fas fa-image"></i>
             </span>
             {{ material.type.toUpperCase() }}
+          </div>
+          <!-- Training Status Badge (only for audio materials) -->
+          <div class="training-badge" *ngIf="material.type === 'audio' && material.availableForTraining">
+            <i class="fas fa-dumbbell"></i>
+            <span>Entraînement</span>
+            <span class="visibility-indicator" [title]="getTrainingVisibilityTooltip(material.trainingVisibility)">
+              <i [ngSwitch]="material.trainingVisibility" class="fas">
+                <i *ngSwitchCase="'public'" class="fas fa-globe"></i>
+                <i *ngSwitchCase="'students'" class="fas fa-user-graduate"></i>
+                <i *ngSwitchCase="'private'" class="fas fa-lock"></i>
+              </i>
+            </span>
           </div>
           <div class="material-actions">
             <button 

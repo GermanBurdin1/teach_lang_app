@@ -253,3 +253,4 @@ export class PatternCardViewerComponent implements OnInit {
 }
 
 
+

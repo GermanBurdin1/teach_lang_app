@@ -19,27 +19,6 @@
     </button>
     <button 
       class="training-tab-btn"
-      [class.active]="activeTrainingTab === 'reading'"
-      (click)="setActiveTrainingTab('reading')">
-      <i class="fas fa-book-open"></i>
-      Lecture
-    </button>
-    <button 
-      class="training-tab-btn"
-      [class.active]="activeTrainingTab === 'writing'"
-      (click)="setActiveTrainingTab('writing')">
-      <i class="fas fa-pen"></i>
-      Écriture
-    </button>
-    <button 
-      class="training-tab-btn"
-      [class.active]="activeTrainingTab === 'speaking'"
-      (click)="setActiveTrainingTab('speaking')">
-      <i class="fas fa-microphone"></i>
-      Expression orale
-    </button>
-    <button 
-      class="training-tab-btn"
       [class.active]="activeTrainingTab === 'grammar'"
       (click)="setActiveTrainingTab('grammar')">
       <i class="fas fa-language"></i>
@@ -104,10 +83,15 @@
                   <span>Classement des scores</span>
                 </div>
               </div>
-              <button mat-raised-button color="primary" (click)="showPatternCards()" class="start-button">
-                <mat-icon>play_arrow</mat-icon>
-                Voir les exercices disponibles
-              </button>
+              <div class="actions-row">
+                <button mat-raised-button color="primary" (click)="showPatternCardsList = true; loadArticlePatternCards()" class="start-button">
+                  <mat-icon>play_arrow</mat-icon>
+                  Voir les exercices disponibles
+                </button>
+                <button mat-icon-button color="primary" (click)="openGrammarConfigModal()" class="config-button" title="Configurer les paramètres du défi">
+                  <mat-icon>settings</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -341,11 +325,544 @@
       </div>
     </div>
 
-    <!-- Other tabs content -->
-    <div *ngIf="activeTrainingTab !== 'grammar'" class="coming-soon">
-      <i class="fas fa-tools"></i>
-      <h3>Fonctionnalité en développement</h3>
-      <p>Les exercices d'entraînement seront bientôt disponibles</p>
+    <!-- Audio Tab Content -->
+    <div *ngIf="activeTrainingTab === 'audio'" class="audio-content">
+      <!-- Speed Listening Challenge -->
+      <div *ngIf="isListeningChallengeActive && currentListeningExercise" class="listening-challenge-container">
+        <div class="challenge-header">
+          <div class="challenge-stats">
+            <div class="stat-item">
+              <mat-icon>score</mat-icon>
+              <span class="stat-value">{{ score }}</span>
+              <span class="stat-label">Points</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>local_fire_department</mat-icon>
+              <span class="stat-value">{{ streak }}</span>
+              <span class="stat-label">Série</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>bolt</mat-icon>
+              <span class="stat-value">x{{ combo.toFixed(1) }}</span>
+              <span class="stat-label">Combo</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>timer</mat-icon>
+              <span class="stat-value">{{ timeLeft }}s</span>
+              <span class="stat-label">Temps</span>
+            </div>
+          </div>
+          <button mat-icon-button (click)="stopListeningChallenge()" class="close-challenge-btn">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar" [style.width.%]="(currentQuestionIndex / listeningChallengeExercises.length) * 100"></div>
+          <span class="progress-text">Exercice {{ currentQuestionIndex + 1 }} / {{ listeningChallengeExercises.length }}</span>
+        </div>
+
+        <!-- Audio Player Section -->
+        <div class="audio-player-section" *ngIf="!hasListened || !currentListeningQuestion">
+          <div class="audio-player-card">
+            <h3 class="audio-title">{{ currentListeningExercise.description || 'Écoutez l\'audio' }}</h3>
+            
+            <div class="audio-controls-container">
+              <button mat-raised-button color="primary" (click)="togglePlayPause()" class="play-pause-btn">
+                <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
+                {{ isPlaying ? 'Pause' : 'Lecture' }}
+              </button>
+              <button mat-icon-button (click)="replayAudio()" class="replay-btn" title="Réécouter">
+                <mat-icon>replay</mat-icon>
+              </button>
+              <div class="audio-time-display">
+                <span>{{ formatTime(currentAudioTime) }} / {{ formatTime(audioDuration) }}</span>
+              </div>
+            </div>
+
+            <div class="audio-progress-bar-container">
+              <div class="audio-progress-bar" [style.width.%]="audioDuration > 0 ? (currentAudioTime / audioDuration) * 100 : 0"></div>
+            </div>
+
+            <div class="audio-hint" *ngIf="!hasListened">
+              <mat-icon>info</mat-icon>
+              <span>Écoutez l'audio attentivement, puis répondez aux questions</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question Section -->
+        <div class="question-container" *ngIf="hasListened && currentListeningQuestion">
+          <div class="question-card" [class.correct]="showResult && isCorrect" [class.incorrect]="showResult && !isCorrect">
+            <h3 class="question-text">{{ currentListeningQuestion.question }}</h3>
+            
+            <div class="answer-options">
+              <button 
+                *ngFor="let option of currentListeningQuestion.options" 
+                mat-raised-button
+                [class.selected]="selectedAnswer === option"
+                [class.correct-answer]="showResult && option === currentListeningQuestion.correctAnswer"
+                [class.wrong-answer]="showResult && selectedAnswer === option && option !== currentListeningQuestion.correctAnswer"
+                [disabled]="showResult"
+                (click)="selectListeningAnswer(option)"
+                class="answer-button">
+                {{ option }}
+              </button>
+            </div>
+
+            <div *ngIf="showResult" class="result-feedback">
+              <div *ngIf="isCorrect" class="feedback correct-feedback">
+                <mat-icon>check_circle</mat-icon>
+                <span>Correct! +{{ getListeningPointsForAnswer() }} points</span>
+              </div>
+              <div *ngIf="!isCorrect" class="feedback incorrect-feedback">
+                <mat-icon>cancel</mat-icon>
+                <span>Incorrect. La bonne réponse est: <strong>{{ currentListeningQuestion.correctAnswer }}</strong></span>
+              </div>
+              <div *ngIf="currentListeningQuestion.explanation" class="explanation-hint">
+                <strong>Explication:</strong> {{ currentListeningQuestion.explanation }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div *ngIf="showResultsScreen" class="results-screen">
+          <h2>Résultats du Défi d'Écoute</h2>
+          <div class="results-stats">
+            <div class="result-stat">
+              <mat-icon>score</mat-icon>
+              <span class="result-value">{{ score }}</span>
+              <span class="result-label">Points totaux</span>
+            </div>
+            <div class="result-stat">
+              <mat-icon>check_circle</mat-icon>
+              <span class="result-value">{{ correctAnswers }}</span>
+              <span class="result-label">Réponses correctes</span>
+            </div>
+            <div class="result-stat">
+              <mat-icon>cancel</mat-icon>
+              <span class="result-value">{{ wrongAnswers }}</span>
+              <span class="result-label">Réponses incorrectes</span>
+            </div>
+            <div class="result-stat">
+              <mat-icon>percent</mat-icon>
+              <span class="result-value">{{ getListeningAccuracyPercentage() }}%</span>
+              <span class="result-label">Précision</span>
+            </div>
+          </div>
+          <div class="results-actions">
+            <button mat-raised-button color="primary" (click)="startListeningChallenge(filteredListeningExercises)">
+              <mat-icon>refresh</mat-icon>
+              Rejouer
+            </button>
+            <button mat-button (click)="stopListeningChallenge()">
+              Retour aux exercices
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Listening Exercises List -->
+      <div *ngIf="!isListeningChallengeActive" class="listening-exercises-content">
+        <!-- Description -->
+        <div *ngIf="!showListeningExercisesList" class="listening-description">
+          <div class="description-content">
+            <mat-icon class="description-icon">flash_on</mat-icon>
+            <h3>Défi Rapide - Speed Listening Challenge</h3>
+            <p>
+              Le <strong>Défi Rapide d'Écoute</strong> est un exercice de compréhension orale en mode jeu qui teste vos connaissances 
+              de manière intensive et amusante. Vous devrez écouter des fichiers audio et répondre rapidement à des questions.
+            </p>
+            <p>
+              <strong>Comment ça fonctionne :</strong>
+            </p>
+            <ul>
+              <li><strong>Écoutez l'audio</strong> : Vous pouvez écouter chaque fichier audio autant de fois que nécessaire</li>
+              <li><strong>Temps limité</strong> : Vous avez 15 secondes par question pour choisir la bonne réponse</li>
+              <li><strong>Système de points</strong> : Gagnez des points en répondant correctement et rapidement</li>
+              <li><strong>Bonus de vitesse</strong> : Plus vous répondez vite, plus vous gagnez de points bonus</li>
+              <li><strong>Séries et combos</strong> : Enchaînez les bonnes réponses pour multiplier vos points (jusqu'à x5)</li>
+              <li><strong>Niveaux de difficulté</strong> : Les exercices sont classés par niveau (débutant, intermédiaire, avancé)</li>
+            </ul>
+            <button mat-raised-button color="primary" (click)="showListeningExercisesList = true; loadListeningExercises()" class="start-button">
+              <mat-icon>play_arrow</mat-icon>
+              Voir les exercices disponibles
+            </button>
+          </div>
+        </div>
+
+        <!-- Exercises List -->
+        <div *ngIf="showListeningExercisesList">
+          <!-- Create Exercise Button (for teachers) -->
+          <div *ngIf="isTeacher()" class="create-exercise-section">
+            <button mat-raised-button color="primary" (click)="openCreateListeningExerciseModal()" class="create-exercise-btn">
+              <mat-icon>add</mat-icon>
+              Créer un exercice d'écoute
+            </button>
+          </div>
+
+          <!-- Filtre par difficulté -->
+          <div class="difficulty-filter" *ngIf="listeningExercises.length > 0">
+            <mat-form-field appearance="outline">
+              <mat-label>Filtrer par niveau</mat-label>
+              <mat-select [value]="selectedListeningDifficulty" (selectionChange)="selectedListeningDifficulty = $event.value; onListeningDifficultyChange()">
+                <mat-option value="all">Tous les niveaux</mat-option>
+                <mat-option value="beginner">Débutant</mat-option>
+                <mat-option value="intermediate">Intermédiaire</mat-option>
+                <mat-option value="advanced">Avancé</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div *ngIf="loadingListeningExercises" class="loading-state">
+            <p>Chargement des exercices...</p>
+          </div>
+          
+          <div *ngIf="!loadingListeningExercises && filteredListeningExercises.length === 0" class="empty-state">
+            <mat-icon>info</mat-icon>
+            <p>Aucun exercice disponible pour ce niveau</p>
+          </div>
+
+          <!-- Speed Challenge Banner -->
+          <div *ngIf="!loadingListeningExercises && filteredListeningExercises.length > 0" class="speed-challenge-banner">
+            <div class="banner-content">
+              <mat-icon class="banner-icon">flash_on</mat-icon>
+              <div class="banner-text">
+                <h4>Défi Rapide</h4>
+                <p>Testez vos connaissances avec {{ filteredListeningExercises.length }} exercices en mode rapide!</p>
+              </div>
+              <button mat-raised-button color="accent" (click)="startListeningChallenge(filteredListeningExercises)">
+                <mat-icon>play_arrow</mat-icon>
+                Commencer le défi
+              </button>
+            </div>
+          </div>
+
+          <!-- Exercises Grid -->
+          <div *ngIf="!loadingListeningExercises && filteredListeningExercises.length > 0" class="listening-exercises-grid">
+            <div class="listening-exercise-item" *ngFor="let exercise of filteredListeningExercises">
+              <div class="exercise-header">
+                <h3>{{ exercise.description || 'Exercice d\'écoute' }}</h3>
+                <div class="exercise-meta" *ngIf="exercise.difficulty">
+                  <span class="difficulty-badge" [class]="'difficulty-' + exercise.difficulty">
+                    {{ exercise.difficulty === 'beginner' ? 'Débutant' : exercise.difficulty === 'intermediate' ? 'Intermédiaire' : 'Avancé' }}
+                  </span>
+                </div>
+              </div>
+              <div class="exercise-content">
+                <div class="exercise-info">
+                  <mat-icon>headphones</mat-icon>
+                  <span>{{ exercise.questions.length }} question{{ exercise.questions.length > 1 ? 's' : '' }}</span>
+                  <span class="separator">•</span>
+                  <mat-icon>timer</mat-icon>
+                  <span>{{ formatTime(exercise.duration) }}</span>
+                </div>
+                <div class="exercise-description" *ngIf="exercise.description">
+                  <p>{{ exercise.description }}</p>
+                </div>
+              </div>
+              <div class="exercise-actions">
+                <button mat-button color="primary" (click)="startListeningChallenge([exercise])">
+                  <mat-icon>play_arrow</mat-icon>
+                  Commencer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Grammar Configuration Modal -->
+<div *ngIf="showGrammarConfigModal" class="create-form-modal">
+  <div class="modal-overlay" (click)="closeGrammarConfigModal()"></div>
+  <div class="modal-content grammar-config-modal">
+    <div class="modal-header">
+      <h3>
+        <mat-icon>settings</mat-icon>
+        Configuration du Défi Rapide - Grammaire
+      </h3>
+      <button class="close-btn" (click)="closeGrammarConfigModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="config-section">
+        <h4>Paramètres de temps</h4>
+        <div class="form-group">
+          <label>Temps par question (secondes)</label>
+          <input 
+            type="number" 
+            [(ngModel)]="grammarConfig.timePerQuestion"
+            min="5"
+            max="60"
+            class="form-control">
+          <small class="form-hint">Temps alloué pour répondre à chaque question (5-60 secondes)</small>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h4>Paramètres du défi</h4>
+        <div class="form-group">
+          <label>Nombre de questions par défi</label>
+          <input 
+            type="number" 
+            [(ngModel)]="grammarConfig.totalQuestions"
+            min="1"
+            max="50"
+            class="form-control">
+          <small class="form-hint">Nombre total de questions dans un défi (1-50)</small>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h4>Système de points</h4>
+        <div class="form-group">
+          <label>Points de base par bonne réponse</label>
+          <input 
+            type="number" 
+            [(ngModel)]="grammarConfig.basePoints"
+            min="10"
+            max="1000"
+            class="form-control">
+          <small class="form-hint">Points de base multipliés par le combo (10-1000)</small>
+        </div>
+
+        <div class="form-group">
+          <label>Multiplicateur de combo maximum</label>
+          <input 
+            type="number" 
+            [(ngModel)]="grammarConfig.maxCombo"
+            min="1"
+            max="10"
+            step="0.5"
+            class="form-control">
+          <small class="form-hint">Valeur maximale du multiplicateur de combo (1-10)</small>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h4>Bonus</h4>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="grammarConfig.enableSpeedBonus"
+              class="checkbox-input">
+            <span>Activer le bonus de vitesse</span>
+            <small class="form-hint">Points supplémentaires pour les réponses rapides</small>
+          </label>
+        </div>
+
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="grammarConfig.enableStreakBonus"
+              class="checkbox-input">
+            <span>Activer le bonus de série</span>
+            <small class="form-hint">Points supplémentaires pour les séries de bonnes réponses</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button mat-button (click)="closeGrammarConfigModal()">
+        Annuler
+      </button>
+      <button 
+        mat-raised-button
+        color="primary"
+        (click)="saveGrammarConfig()">
+        <mat-icon>save</mat-icon>
+        Enregistrer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for creating listening exercise -->
+<div *ngIf="showCreateListeningExerciseModal" class="create-form-modal">
+  <div class="modal-overlay" (click)="closeCreateListeningExerciseModal()"></div>
+  <div class="modal-content listening-exercise-modal">
+    <div class="modal-header">
+      <h3>
+        <mat-icon>add</mat-icon>
+        Créer un exercice d'écoute
+      </h3>
+      <button class="close-btn" (click)="closeCreateListeningExerciseModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Material Selection -->
+      <div class="form-group">
+        <label>Sélectionner un matériau audio</label>
+        <div *ngIf="loadingMaterials" class="loading-state">
+          <p>Chargement des matériaux...</p>
+        </div>
+        <div *ngIf="!loadingMaterials && availableMaterials.length === 0" class="empty-state">
+          <mat-icon>info</mat-icon>
+          <p>Aucun matériau audio disponible pour l'entraînement</p>
+          <p class="hint">Activez l'option "Disponible pour l'entraînement" dans vos matériaux</p>
+        </div>
+        <div *ngIf="!loadingMaterials && availableMaterials.length > 0" class="materials-list">
+          <div 
+            *ngFor="let material of availableMaterials" 
+            class="material-item"
+            [class.selected]="selectedMaterialForExercise?.id === material.id"
+            (click)="selectMaterialForExercise(material)">
+            <div class="material-item-content">
+              <mat-icon>headphones</mat-icon>
+              <span>{{ material.title }}</span>
+            </div>
+            <mat-icon *ngIf="selectedMaterialForExercise?.id === material.id" class="check-icon">check_circle</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Material Preview -->
+      <div class="material-info-section" *ngIf="selectedMaterialForExercise">
+        <h4>Matériau sélectionné:</h4>
+        <div class="material-preview">
+          <mat-icon>headphones</mat-icon>
+          <span>{{ selectedMaterialForExercise.title }}</span>
+          <audio controls [src]="getFileUrl(selectedMaterialForExercise.content)" class="preview-audio"></audio>
+        </div>
+      </div>
+
+      <!-- Exercise Details -->
+      <div class="form-group" *ngIf="selectedMaterialForExercise">
+        <label>Description de l'exercice</label>
+        <input 
+          type="text" 
+          [(ngModel)]="newListeningExercise.description"
+          placeholder="Ex: Compréhension orale - Dialogue au restaurant"
+          class="form-control">
+      </div>
+
+      <div class="form-row" *ngIf="selectedMaterialForExercise">
+        <div class="form-group">
+          <label>Niveau de difficulté</label>
+          <select [(ngModel)]="newListeningExercise.difficulty" class="form-control">
+            <option value="beginner">Débutant</option>
+            <option value="intermediate">Intermédiaire</option>
+            <option value="advanced">Avancé</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Visibilité</label>
+          <select [(ngModel)]="newListeningExercise.visibility" class="form-control">
+            <option value="public">Tous les utilisateurs</option>
+            <option value="students">Mes étudiants</option>
+            <option value="private">Personne</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="selectedMaterialForExercise">
+        <label>Catégorie (optionnel)</label>
+        <input 
+          type="text" 
+          [(ngModel)]="newListeningExercise.category"
+          placeholder="Ex: Dialogue, Interview, Présentation..."
+          class="form-control">
+      </div>
+
+      <!-- Questions Section -->
+      <div class="questions-section" *ngIf="selectedMaterialForExercise">
+        <div class="section-header">
+          <h4>Questions</h4>
+          <button type="button" mat-raised-button color="primary" (click)="addListeningQuestion()">
+            <mat-icon>add</mat-icon>
+            Ajouter une question
+          </button>
+        </div>
+
+        <div class="questions-list">
+          <div class="question-item" *ngFor="let question of newListeningExercise.questions; let i = index">
+            <div class="question-header">
+              <span class="question-number">Question {{ i + 1 }}</span>
+              <button type="button" class="btn-icon" (click)="removeListeningQuestion(i)" *ngIf="newListeningExercise.questions.length > 1">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label>Question</label>
+              <textarea 
+                [(ngModel)]="question.question"
+                placeholder="Ex: Quel est le sujet principal de cette conversation?"
+                class="form-control"
+                rows="2"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Options de réponse</label>
+              <div class="options-list">
+                <div class="option-item" *ngFor="let option of question.options; let j = index">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="question.options[j]"
+                    [placeholder]="'Option ' + (j + 1)"
+                    class="form-control option-input">
+                  <button 
+                    type="button" 
+                    class="btn-icon"
+                    (click)="removeOption(i, j)"
+                    *ngIf="question.options.length > 2">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+                <button type="button" mat-button (click)="addOption(i)" *ngIf="question.options.length < 6">
+                  <mat-icon>add</mat-icon>
+                  Ajouter une option
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Réponse correcte</label>
+              <select [(ngModel)]="question.correctAnswer" class="form-control">
+                <option value="">Sélectionner...</option>
+                <option [value]="option" *ngFor="let option of question.options">{{ option }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Explication (optionnel)</label>
+              <textarea 
+                [(ngModel)]="question.explanation"
+                placeholder="Explication de la réponse correcte..."
+                class="form-control"
+                rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button mat-button (click)="closeCreateListeningExerciseModal()">
+        Annuler
+      </button>
+      <button 
+        mat-raised-button
+        color="primary"
+        (click)="createListeningExercise()"
+        [disabled]="!canCreateListeningExercise() || creatingListeningExercise">
+        <mat-icon *ngIf="!creatingListeningExercise">save</mat-icon>
+        <mat-icon *ngIf="creatingListeningExercise" class="spinning">hourglass_empty</mat-icon>
+        {{ creatingListeningExercise ? 'Création...' : 'Créer l\'exercice' }}
+      </button>
     </div>
   </div>
 </div>

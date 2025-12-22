@@ -7,6 +7,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { RoleService } from '../../services/role.service';
+import { MaterialService, Material } from '../../services/material.service';
+import { NotificationService } from '../../services/notification.service';
 import { API_ENDPOINTS } from '../../core/constants/api.constants';
 
 interface GrammarCategory {
@@ -34,6 +37,32 @@ interface PatternCard {
   authorName?: string;
 }
 
+interface ListeningQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation?: string;
+  timeInAudio?: number;
+}
+
+interface ListeningExercise {
+  id: string;
+  materialId: string;
+  audioUrl: string;
+  transcript: string | null;
+  duration: number;
+  questions: ListeningQuestion[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | null;
+  category: string | null;
+  description: string | null;
+  tags: string[] | null;
+  createdBy: string;
+  visibility: 'public' | 'students' | 'private';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 @Component({
   selector: 'app-training',
   standalone: true,
@@ -51,6 +80,57 @@ export class TrainingComponent implements OnInit, OnDestroy {
   selectedDifficulty: 'all' | 'beginner' | 'intermediate' | 'advanced' = 'all';
   showPatternCardsList = false;
 
+  // Listening Exercises state
+  listeningExercises: ListeningExercise[] = [];
+  filteredListeningExercises: ListeningExercise[] = [];
+  loadingListeningExercises = false;
+  selectedListeningDifficulty: 'all' | 'beginner' | 'intermediate' | 'advanced' = 'all';
+  showListeningExercisesList = false;
+
+  // Speed Listening Challenge state
+  isListeningChallengeActive = false;
+  listeningChallengeExercises: ListeningExercise[] = [];
+  currentListeningExercise: ListeningExercise | null = null;
+  currentListeningQuestion: ListeningQuestion | null = null;
+  audioPlayer: HTMLAudioElement | null = null;
+  isPlaying = false;
+  currentAudioTime = 0;
+  audioDuration = 0;
+  hasListened = false; // Прослушал ли пользователь аудио
+  listeningQuestionResults: Array<{
+    questionId: string;
+    correct: boolean;
+    timeSpent: number;
+    points: number;
+  }> = [];
+  listeningSessionStartTime = 0;
+
+  // Creating listening exercises (for teachers)
+  showCreateListeningExerciseModal = false;
+  selectedMaterialForExercise: Material | null = null;
+  creatingListeningExercise = false;
+  availableMaterials: Material[] = [];
+  loadingMaterials = false;
+  newListeningExercise = {
+    description: '',
+    difficulty: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
+    category: '',
+    visibility: 'public' as 'public' | 'students' | 'private',
+    questions: [
+      {
+        question: '',
+        options: ['', ''],
+        correctAnswer: '',
+        explanation: ''
+      }
+    ] as Array<{
+      question: string;
+      options: string[];
+      correctAnswer: string;
+      explanation: string;
+    }>
+  };
+
   // Speed Challenge / Quick Quiz state
   isSpeedChallengeActive = false;
   speedChallengeCards: PatternCard[] = [];
@@ -65,6 +145,17 @@ export class TrainingComponent implements OnInit, OnDestroy {
   timeLeft = 15; // секунд на вопрос
   timerInterval: any = null;
   totalQuestions = 10; // количество вопросов в раунде
+  
+  // Grammar Speed Challenge Configuration
+  grammarConfig = {
+    timePerQuestion: 15, // секунд на вопрос
+    totalQuestions: 10, // количество вопросов в раунде
+    enableSpeedBonus: true, // включить бонус за скорость
+    enableStreakBonus: true, // включить бонус за серии
+    maxCombo: 5, // максимальный множитель комбо
+    basePoints: 100 // базовые очки за правильный ответ
+  };
+  showGrammarConfigModal = false;
   correctAnswers = 0;
   wrongAnswers = 0;
   showResultsScreen = false;
@@ -126,10 +217,18 @@ export class TrainingComponent implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private roleService: RoleService,
+    private materialService: MaterialService,
+    private notificationService: NotificationService
   ) { }
 
+  isTeacher(): boolean {
+    return this.roleService.isTeacher();
+  }
+
   ngOnInit(): void {
+    this.loadGrammarConfig();
   }
 
   ngOnDestroy(): void {
@@ -137,6 +236,11 @@ export class TrainingComponent implements OnInit, OnDestroy {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
       this.timerInterval = null;
+    }
+    // Очищаем аудиоплеер
+    if (this.audioPlayer) {
+      this.audioPlayer.pause();
+      this.audioPlayer = null;
     }
   }
 
@@ -146,6 +250,10 @@ export class TrainingComponent implements OnInit, OnDestroy {
     if (tab !== 'grammar') {
       this.selectedPartOfSpeech = null;
       this.patternCards = [];
+    }
+    // Загружаем listening exercises при переходе на вкладку audio
+    if (tab === 'audio' && this.listeningExercises.length === 0) {
+      this.loadListeningExercises();
     }
   }
 
@@ -370,9 +478,12 @@ export class TrainingComponent implements OnInit, OnDestroy {
       return;
     }
     
+    // Используем настройки из конфигурации
+    const totalQuestions = this.grammarConfig.totalQuestions;
+    
     // Перемешиваем карточки и берем первые N
-    const cardsToUse = cardsWithBlanks.length > this.totalQuestions 
-      ? [...cardsWithBlanks].sort(() => Math.random() - 0.5).slice(0, this.totalQuestions)
+    const cardsToUse = cardsWithBlanks.length > totalQuestions 
+      ? [...cardsWithBlanks].sort(() => Math.random() - 0.5).slice(0, totalQuestions)
       : [...cardsWithBlanks].sort(() => Math.random() - 0.5);
     
     this.speedChallengeCards = cardsToUse;
@@ -387,6 +498,8 @@ export class TrainingComponent implements OnInit, OnDestroy {
     this.isSpeedChallengeActive = true;
     this.showResultsScreen = false;
     this.showPatternCardsList = false; // Скрываем список карточек
+    this.totalQuestions = totalQuestions;
+    this.timeLeft = this.grammarConfig.timePerQuestion;
     this.loadNextQuestion();
   }
 
@@ -407,9 +520,578 @@ export class TrainingComponent implements OnInit, OnDestroy {
 
   getPointsForAnswer(): number {
     if (!this.currentQuestion || !this.isCorrect) return 0;
+    
+    const config = this.grammarConfig;
+    let points = config.basePoints * this.combo;
+    
+    if (config.enableSpeedBonus) {
+      const speedBonus = Math.floor(this.timeLeft * 10);
+      points += speedBonus;
+    }
+    
+    if (config.enableStreakBonus && this.streak > 1) {
+      const streakBonus = (this.streak - 1) * 50;
+      points += streakBonus;
+    }
+    
+    return Math.floor(points);
+  }
+
+  getListeningPointsForAnswer(): number {
+    if (!this.currentListeningQuestion || !this.isCorrect) return 0;
     const speedBonus = Math.floor(this.timeLeft * 10);
     const streakBonus = this.streak > 1 ? (this.streak - 1) * 50 : 0;
     return Math.floor(100 * this.combo + speedBonus + streakBonus);
+  }
+
+  getFileUrl(url: string): string {
+    // Заменяем удаленный сервер на локальный
+    if (url.includes('135.125.107.45:3011')) {
+      return url.replace('http://135.125.107.45:3011', 'http://localhost:3011');
+    }
+    if (url.includes('localhost:3008')) {
+      return url.replace('http://localhost:3008', `${API_ENDPOINTS.FILES}`);
+    }
+    // Если URL уже полный (начинается с http), возвращаем как есть
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // Иначе добавляем базовый URL API Gateway для файлов
+    const baseUrl = API_ENDPOINTS.FILES.replace('/files', '');
+    // Если URL начинается с /uploads, добавляем /files
+    if (url.startsWith('/uploads')) {
+      return `${baseUrl}/files${url}`;
+    }
+    return url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
+  }
+
+  // ==================== LISTENING EXERCISES METHODS ====================
+
+  loadListeningExercises(): void {
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      return;
+    }
+
+    this.loadingListeningExercises = true;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.get<ListeningExercise[]>(`${API_ENDPOINTS.FILES}/listening-exercises`, { headers }).subscribe({
+      next: (exercises) => {
+        this.listeningExercises = exercises;
+        this.applyListeningDifficultyFilter();
+        this.loadingListeningExercises = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des exercices d\'écoute:', error);
+        this.loadingListeningExercises = false;
+      }
+    });
+  }
+
+  applyListeningDifficultyFilter(): void {
+    if (this.selectedListeningDifficulty === 'all') {
+      this.filteredListeningExercises = [...this.listeningExercises];
+    } else {
+      this.filteredListeningExercises = this.listeningExercises.filter(
+        exercise => exercise.difficulty === this.selectedListeningDifficulty
+      );
+    }
+  }
+
+  onListeningDifficultyChange(): void {
+    this.applyListeningDifficultyFilter();
+  }
+
+  startListeningChallenge(exercises: ListeningExercise[]): void {
+    if (!exercises || exercises.length === 0) {
+      console.error('No listening exercises provided');
+      return;
+    }
+
+    // Перемешиваем упражнения и берем первые N
+    const exercisesToUse = exercises.length > this.totalQuestions
+      ? [...exercises].sort(() => Math.random() - 0.5).slice(0, this.totalQuestions)
+      : [...exercises].sort(() => Math.random() - 0.5);
+
+    this.listeningChallengeExercises = exercisesToUse;
+    this.currentQuestionIndex = 0;
+    this.score = 0;
+    this.streak = 0;
+    this.combo = 1;
+    this.correctAnswers = 0;
+    this.wrongAnswers = 0;
+    this.listeningQuestionResults = [];
+    this.listeningSessionStartTime = Date.now();
+    this.isListeningChallengeActive = true;
+    this.showListeningExercisesList = false;
+    this.loadNextListeningExercise();
+  }
+
+  loadNextListeningExercise(): void {
+    if (this.currentQuestionIndex >= this.listeningChallengeExercises.length) {
+      // Раунд завершен - сохраняем результаты
+      this.saveListeningTrainingSession();
+      this.showResultsScreen = true;
+      if (this.timerInterval) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+      }
+      if (this.audioPlayer) {
+        this.audioPlayer.pause();
+        this.audioPlayer = null;
+      }
+      return;
+    }
+
+    const exercise = this.listeningChallengeExercises[this.currentQuestionIndex];
+    this.currentListeningExercise = exercise;
+    this.currentListeningQuestion = null;
+    this.selectedAnswer = null;
+    this.showResult = false;
+    this.isCorrect = null;
+    this.hasListened = false;
+    this.currentAudioTime = 0;
+    this.audioDuration = exercise.duration;
+    this.timeLeft = 15; // Время на ответ после прослушивания
+
+    // Инициализируем аудиоплеер
+    this.initializeAudioPlayer(exercise.audioUrl);
+  }
+
+  initializeAudioPlayer(audioUrl: string): void {
+    if (typeof document === 'undefined') return;
+
+    // Очищаем предыдущий плеер
+    if (this.audioPlayer) {
+      this.audioPlayer.pause();
+      this.audioPlayer = null;
+    }
+
+    // Получаем полный URL файла
+    const fullAudioUrl = this.getFileUrl(audioUrl);
+
+    // Создаем новый аудиоплеер
+    this.audioPlayer = new Audio(fullAudioUrl);
+    this.audioPlayer.preload = 'metadata';
+
+    this.audioPlayer.addEventListener('loadedmetadata', () => {
+      if (this.audioPlayer) {
+        this.audioDuration = this.audioPlayer.duration;
+      }
+    });
+
+    this.audioPlayer.addEventListener('timeupdate', () => {
+      if (this.audioPlayer) {
+        this.currentAudioTime = this.audioPlayer.currentTime;
+      }
+    });
+
+    this.audioPlayer.addEventListener('ended', () => {
+      this.isPlaying = false;
+      this.hasListened = true;
+      // После окончания аудио показываем первый вопрос
+      if (this.currentListeningExercise && this.currentListeningExercise.questions.length > 0) {
+        this.currentListeningQuestion = this.currentListeningExercise.questions[0];
+        this.startQuestionTimer();
+      }
+    });
+
+    this.audioPlayer.addEventListener('error', (error) => {
+      console.error('❌ Erreur de lecture audio:', error);
+    });
+  }
+
+  togglePlayPause(): void {
+    if (!this.audioPlayer) return;
+
+    if (this.isPlaying) {
+      this.audioPlayer.pause();
+    } else {
+      this.audioPlayer.play();
+    }
+    this.isPlaying = !this.isPlaying;
+  }
+
+  replayAudio(): void {
+    if (!this.audioPlayer) return;
+    this.audioPlayer.currentTime = 0;
+    this.audioPlayer.play();
+    this.isPlaying = true;
+    this.hasListened = false;
+    this.currentListeningQuestion = null;
+    this.selectedAnswer = null;
+    this.showResult = false;
+  }
+
+  formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  startQuestionTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+    this.timeLeft = 15;
+    this.timerInterval = setInterval(() => {
+      this.timeLeft--;
+      if (this.timeLeft <= 0) {
+        this.handleListeningTimeOut();
+      }
+    }, 1000);
+  }
+
+  selectListeningAnswer(answer: string): void {
+    if (this.showResult || !this.currentListeningQuestion) return;
+
+    const timeSpent = 15 - this.timeLeft;
+    this.selectedAnswer = answer;
+    this.checkListeningAnswer(answer, timeSpent);
+  }
+
+  checkListeningAnswer(answer: string, timeSpent: number): void {
+    if (!this.currentListeningQuestion) return;
+
+    const isCorrect = answer.toLowerCase() === this.currentListeningQuestion.correctAnswer.toLowerCase();
+    this.isCorrect = isCorrect;
+    this.showResult = true;
+
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+
+    let points = 0;
+      if (isCorrect) {
+        this.correctAnswers++;
+        this.streak++;
+        
+        const config = this.grammarConfig;
+        points = config.basePoints * this.combo;
+        
+        if (config.enableSpeedBonus) {
+          const speedBonus = Math.floor(this.timeLeft * 10);
+          points += speedBonus;
+        }
+        
+        if (config.enableStreakBonus && this.streak > 1) {
+          const streakBonus = (this.streak - 1) * 50;
+          points += streakBonus;
+        }
+        
+        this.score += Math.floor(points);
+
+        if (this.streak >= 3) {
+          this.combo = Math.min(this.combo + 0.5, config.maxCombo);
+        }
+    } else {
+      this.wrongAnswers++;
+      this.streak = 0;
+      this.combo = 1;
+    }
+
+    // Сохраняем результат вопроса
+    this.listeningQuestionResults.push({
+      questionId: this.currentListeningQuestion.id,
+      correct: isCorrect,
+      timeSpent: timeSpent,
+      points: points
+    });
+
+    // Переходим к следующему вопросу или упражнению через 2 секунды
+    setTimeout(() => {
+      this.moveToNextListeningQuestion();
+    }, 2000);
+  }
+
+  moveToNextListeningQuestion(): void {
+    if (!this.currentListeningExercise) return;
+
+    const currentQuestionIndex = this.currentListeningExercise.questions.findIndex(
+      q => q.id === this.currentListeningQuestion?.id
+    );
+
+    // Если есть еще вопросы в текущем упражнении
+    if (currentQuestionIndex >= 0 && currentQuestionIndex < this.currentListeningExercise.questions.length - 1) {
+      this.currentListeningQuestion = this.currentListeningExercise.questions[currentQuestionIndex + 1];
+      this.selectedAnswer = null;
+      this.showResult = false;
+      this.isCorrect = null;
+      this.timeLeft = 15;
+      this.startQuestionTimer();
+    } else {
+      // Переходим к следующему упражнению
+      this.currentQuestionIndex++;
+      this.loadNextListeningExercise();
+    }
+  }
+
+  handleListeningTimeOut(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+
+    if (!this.showResult && this.currentListeningQuestion) {
+      this.wrongAnswers++;
+      this.streak = 0;
+      this.combo = 1;
+      this.showResult = true;
+      this.isCorrect = false;
+
+      this.listeningQuestionResults.push({
+        questionId: this.currentListeningQuestion.id,
+        correct: false,
+        timeSpent: 15,
+        points: 0
+      });
+
+      setTimeout(() => {
+        this.moveToNextListeningQuestion();
+      }, 2000);
+    }
+  }
+
+  stopListeningChallenge(): void {
+    this.isListeningChallengeActive = false;
+    this.showResultsScreen = false;
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    if (this.audioPlayer) {
+      this.audioPlayer.pause();
+      this.audioPlayer = null;
+    }
+    this.showListeningExercisesList = true;
+  }
+
+  saveListeningTrainingSession(): void {
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      console.error('No auth token available');
+      return;
+    }
+
+    const totalTimeSeconds = Math.floor((Date.now() - this.listeningSessionStartTime) / 1000);
+    const accuracy = this.getListeningAccuracyPercentage();
+    const exerciseIds = this.listeningChallengeExercises.map(ex => ex.id);
+    const materialIds = this.listeningChallengeExercises.map(ex => ex.materialId);
+
+    const firstExercise = this.listeningChallengeExercises[0];
+    const category = firstExercise?.category || 'listening';
+    const difficulty = firstExercise?.difficulty || null;
+
+    const sessionData = {
+      exerciseType: 'listening_challenge',
+      topicId: null,
+      category: category,
+      totalQuestions: this.listeningQuestionResults.length,
+      correctAnswers: this.correctAnswers,
+      wrongAnswers: this.wrongAnswers,
+      score: this.score,
+      maxStreak: this.streak,
+      accuracy: accuracy,
+      totalTimeSeconds: totalTimeSeconds,
+      details: {
+        exerciseIds: exerciseIds,
+        materialIds: materialIds,
+        questionResults: this.listeningQuestionResults,
+        difficulty: difficulty
+      }
+    };
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.post(`${API_ENDPOINTS.TRAINING}/session`, sessionData, { headers }).subscribe({
+      next: (response) => {
+        console.log('✅ Listening training session saved:', response);
+      },
+      error: (error) => {
+        console.error('❌ Error saving listening training session:', error);
+      }
+    });
+  }
+
+  getListeningAccuracyPercentage(): number {
+    if (this.listeningQuestionResults.length === 0) return 0;
+    return Math.round((this.correctAnswers / this.listeningQuestionResults.length) * 100);
+  }
+
+  // ==================== CREATE LISTENING EXERCISE METHODS ====================
+
+  openCreateListeningExerciseModal(): void {
+    if (!this.isTeacher()) {
+      this.notificationService.error('Seuls les enseignants peuvent créer des exercices');
+      return;
+    }
+    this.resetListeningExerciseForm();
+    this.loadAvailableMaterials();
+    this.showCreateListeningExerciseModal = true;
+  }
+
+  closeCreateListeningExerciseModal(): void {
+    this.showCreateListeningExerciseModal = false;
+    this.selectedMaterialForExercise = null;
+    this.resetListeningExerciseForm();
+  }
+
+  loadAvailableMaterials(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !this.isTeacher()) return;
+
+    this.loadingMaterials = true;
+    this.materialService.getMaterialsForTeacher(currentUser.id).subscribe({
+      next: (materials) => {
+        // Фильтруем только аудио материалы с availableForTraining = true
+        this.availableMaterials = materials.filter(
+          m => m.type === 'audio' && m.availableForTraining === true
+        );
+        this.loadingMaterials = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des matériaux:', error);
+        this.notificationService.error('Erreur lors du chargement des matériaux');
+        this.loadingMaterials = false;
+      }
+    });
+  }
+
+  resetListeningExerciseForm(): void {
+    this.newListeningExercise = {
+      description: '',
+      difficulty: 'beginner',
+      category: '',
+      visibility: 'public',
+      questions: [
+        {
+          question: '',
+          options: ['', ''],
+          correctAnswer: '',
+          explanation: ''
+        }
+      ]
+    };
+    this.selectedMaterialForExercise = null;
+  }
+
+  selectMaterialForExercise(material: Material): void {
+    this.selectedMaterialForExercise = material;
+  }
+
+  addListeningQuestion(): void {
+    this.newListeningExercise.questions.push({
+      question: '',
+      options: ['', ''],
+      correctAnswer: '',
+      explanation: ''
+    });
+  }
+
+  removeListeningQuestion(index: number): void {
+    if (this.newListeningExercise.questions.length > 1) {
+      this.newListeningExercise.questions.splice(index, 1);
+    }
+  }
+
+  addOption(questionIndex: number): void {
+    const question = this.newListeningExercise.questions[questionIndex];
+    if (question.options.length < 6) {
+      question.options.push('');
+    }
+  }
+
+  removeOption(questionIndex: number, optionIndex: number): void {
+    const question = this.newListeningExercise.questions[questionIndex];
+    if (question.options.length > 2) {
+      question.options.splice(optionIndex, 1);
+      // Если удаленная опция была правильным ответом, сбрасываем correctAnswer
+      if (question.correctAnswer === question.options[optionIndex]) {
+        question.correctAnswer = '';
+      }
+    }
+  }
+
+  canCreateListeningExercise(): boolean {
+    if (!this.selectedMaterialForExercise) return false;
+    if (!this.newListeningExercise.description.trim()) return false;
+    if (this.newListeningExercise.questions.length === 0) return false;
+
+    // Проверяем, что все вопросы заполнены
+    for (const question of this.newListeningExercise.questions) {
+      if (!question.question.trim()) return false;
+      if (question.options.length < 2) return false;
+      if (question.options.some(opt => !opt.trim())) return false;
+      if (!question.correctAnswer || !question.correctAnswer.trim()) return false;
+    }
+
+    return true;
+  }
+
+  createListeningExercise(): void {
+    if (!this.selectedMaterialForExercise || !this.canCreateListeningExercise()) {
+      this.notificationService.error('Veuillez remplir tous les champs requis');
+      return;
+    }
+
+    this.creatingListeningExercise = true;
+
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      this.notificationService.error('Vous devez être connecté pour créer un exercice');
+      this.creatingListeningExercise = false;
+      return;
+    }
+
+    // Получаем длительность аудио (будет обновлена на бекенде при обработке файла)
+    const audioDuration = 0;
+
+    const exerciseData = {
+      materialId: this.selectedMaterialForExercise.id,
+      audioUrl: this.selectedMaterialForExercise.content,
+      transcript: null,
+      duration: audioDuration,
+      questions: this.newListeningExercise.questions.map((q) => ({
+        question: q.question.trim(),
+        options: q.options.map(opt => opt.trim()),
+        correctAnswer: q.correctAnswer.trim(),
+        explanation: q.explanation?.trim() || null,
+        timeInAudio: null
+      })),
+      difficulty: this.newListeningExercise.difficulty,
+      category: this.newListeningExercise.category.trim() || null,
+      description: this.newListeningExercise.description.trim(),
+      visibility: this.newListeningExercise.visibility
+    };
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.post(`${API_ENDPOINTS.FILES}/listening-exercises`, exerciseData, { headers }).subscribe({
+      next: (response) => {
+        console.log('✅ Listening exercise created:', response);
+        this.notificationService.success('Exercice d\'écoute créé avec succès!');
+        this.closeCreateListeningExerciseModal();
+        this.creatingListeningExercise = false;
+        // Перезагружаем список упражнений
+        this.loadListeningExercises();
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la création de l\'exercice d\'écoute:', error);
+        this.notificationService.error('Erreur lors de la création de l\'exercice d\'écoute');
+        this.creatingListeningExercise = false;
+      }
+    });
   }
 
   saveTrainingSession(): void {
@@ -601,12 +1283,24 @@ export class TrainingComponent implements OnInit, OnDestroy {
       // Бонус за скорость
       const speedBonus = Math.floor(this.timeLeft * 10);
       const streakBonus = this.streak > 1 ? (this.streak - 1) * 50 : 0;
-      points = 100 * this.combo + speedBonus + streakBonus;
-      this.score += points;
+      const config = this.grammarConfig;
+      points = config.basePoints * this.combo;
+      
+      if (config.enableSpeedBonus) {
+        const speedBonus = Math.floor(this.timeLeft * 10);
+        points += speedBonus;
+      }
+      
+      if (config.enableStreakBonus && this.streak > 1) {
+        const streakBonus = (this.streak - 1) * 50;
+        points += streakBonus;
+      }
+      
+      this.score += Math.floor(points);
       
       // Увеличиваем комбо при серии правильных ответов
       if (this.streak >= 3) {
-        this.combo = Math.min(this.combo + 0.5, 5); // Максимум x5
+        this.combo = Math.min(this.combo + 0.5, config.maxCombo);
       }
     } else {
       this.wrongAnswers++;
@@ -697,6 +1391,58 @@ export class TrainingComponent implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  // ==================== GRAMMAR CONFIGURATION METHODS ====================
+
+  openGrammarConfigModal(): void {
+    this.showGrammarConfigModal = true;
+  }
+
+  closeGrammarConfigModal(): void {
+    this.showGrammarConfigModal = false;
+  }
+
+  saveGrammarConfig(): void {
+    // Валидация
+    if (this.grammarConfig.timePerQuestion < 5 || this.grammarConfig.timePerQuestion > 60) {
+      this.notificationService.error('Le temps par question doit être entre 5 et 60 secondes');
+      return;
+    }
+    if (this.grammarConfig.totalQuestions < 1 || this.grammarConfig.totalQuestions > 50) {
+      this.notificationService.error('Le nombre de questions doit être entre 1 et 50');
+      return;
+    }
+    if (this.grammarConfig.maxCombo < 1 || this.grammarConfig.maxCombo > 10) {
+      this.notificationService.error('Le multiplicateur de combo maximum doit être entre 1 et 10');
+      return;
+    }
+    if (this.grammarConfig.basePoints < 10 || this.grammarConfig.basePoints > 1000) {
+      this.notificationService.error('Les points de base doivent être entre 10 et 1000');
+      return;
+    }
+
+    // Сохраняем в localStorage для сохранения настроек между сессиями
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('grammarSpeedChallengeConfig', JSON.stringify(this.grammarConfig));
+    }
+
+    this.notificationService.success('Configuration sauvegardée avec succès!');
+    this.closeGrammarConfigModal();
+  }
+
+  loadGrammarConfig(): void {
+    // Загружаем из localStorage если есть
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('grammarSpeedChallengeConfig');
+      if (saved) {
+        try {
+          this.grammarConfig = { ...this.grammarConfig, ...JSON.parse(saved) };
+        } catch (e) {
+          console.error('Error loading grammar config:', e);
+        }
+      }
+    }
   }
 }
 

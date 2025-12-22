@@ -10,6 +10,7 @@ import { NotificationService } from '../../services/notification.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { API_ENDPOINTS } from '../../core/constants/api.constants';
 import { CourseService, Course } from '../../services/course.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 interface User {
   id: string;
@@ -80,7 +81,9 @@ export class TrainerComponent implements OnInit {
     type: 'text' as 'text' | 'audio' | 'video' | 'pdf' | 'image',
     content: '',
     description: '',
-    tags: [] as string[]
+    tags: [] as string[],
+    availableForTraining: false,
+    trainingVisibility: 'private' as 'public' | 'students' | 'private'
   };
 
   // File upload for materials
@@ -174,7 +177,8 @@ export class TrainerComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private title: Title,
-    private meta: Meta
+    private meta: Meta,
+    private http: HttpClient
   ) { }
 
   ngOnInit() {
@@ -707,6 +711,8 @@ export class TrainerComponent implements OnInit {
       title: '',
       type: 'text',
       content: '',
+      availableForTraining: false,
+      trainingVisibility: 'private' as 'public' | 'students' | 'private',
       description: '',
       tags: []
     };
@@ -1193,6 +1199,19 @@ export class TrainerComponent implements OnInit {
   }
 
   // Получение информации о прикрепленных уроках для tooltip
+  getTrainingVisibilityTooltip(visibility?: 'public' | 'students' | 'private'): string {
+    switch (visibility) {
+      case 'public':
+        return 'Visible par tous les étudiants et tous les enseignants';
+      case 'students':
+        return 'Visible uniquement par mes étudiants';
+      case 'private':
+        return 'Non disponible pour l\'entraînement';
+      default:
+        return '';
+    }
+  }
+
   getAttachedLessonsInfo(material: Material): string {
     if (!material.attachedLessons || material.attachedLessons.length === 0) {
       return 'Aucun cours attaché';

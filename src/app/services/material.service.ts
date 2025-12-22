@@ -14,6 +14,8 @@ export interface Material {
   createdAt: Date;
   attachedLessons: string[]; // Array of lesson IDs
   tags: string[];
+  availableForTraining?: boolean;
+  trainingVisibility?: 'public' | 'students' | 'private';
 }
 
 export interface AttachMaterialRequest {

@@ -578,3 +578,4 @@ export class PatternCardModalComponent implements OnInit {
 
 
 
+
