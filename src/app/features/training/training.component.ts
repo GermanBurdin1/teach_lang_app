@@ -405,6 +405,13 @@ export class TrainingComponent implements OnInit, OnDestroy {
     return Math.round((this.correctAnswers / this.speedChallengeCards.length) * 100);
   }
 
+  getPointsForAnswer(): number {
+    if (!this.currentQuestion || !this.isCorrect) return 0;
+    const speedBonus = Math.floor(this.timeLeft * 10);
+    const streakBonus = this.streak > 1 ? (this.streak - 1) * 50 : 0;
+    return Math.floor(100 * this.combo + speedBonus + streakBonus);
+  }
+
   saveTrainingSession(): void {
     const token = this.authService.getAccessToken();
     if (!token) {

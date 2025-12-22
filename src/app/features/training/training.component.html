@@ -68,22 +68,42 @@
           <!-- Description des Pattern Cards -->
           <div *ngIf="!showPatternCardsList" class="pattern-cards-description">
             <div class="description-content">
-              <mat-icon class="description-icon">info</mat-icon>
-              <h3>Exercices avec Pattern Cards</h3>
+              <mat-icon class="description-icon">flash_on</mat-icon>
+              <h3>Défi Rapide - Speed Challenge</h3>
               <p>
-                Les <strong>Pattern Cards</strong> sont des exercices interactifs qui vous permettent de pratiquer 
-                la grammaire française de manière structurée. Chaque carte contient un modèle (pattern) avec des 
-                espaces à remplir, vous aidant à comprendre et à maîtriser les règles grammaticales.
+                Le <strong>Défi Rapide</strong> est un exercice de grammaire en mode jeu qui teste vos connaissances 
+                de manière intensive et amusante. Vous devrez répondre rapidement à une série de questions basées 
+                sur les <strong>Pattern Cards</strong> - des modèles de phrases avec des éléments manquants à compléter.
               </p>
               <p>
                 <strong>Comment ça fonctionne :</strong>
               </p>
               <ul>
-                <li>Chaque pattern card présente un modèle de phrase avec des éléments manquants</li>
-                <li>Vous devez compléter les espaces vides en suivant les règles grammaticales</li>
-                <li>Les exercices sont classés par niveau de difficulté (débutant, intermédiaire, avancé)</li>
-                <li>Vous pouvez voir des exemples et des explications pour mieux comprendre</li>
+                <li><strong>Temps limité</strong> : Vous avez 15 secondes par question pour choisir la bonne réponse</li>
+                <li><strong>Système de points</strong> : Gagnez des points en répondant correctement et rapidement</li>
+                <li><strong>Bonus de vitesse</strong> : Plus vous répondez vite, plus vous gagnez de points bonus</li>
+                <li><strong>Séries et combos</strong> : Enchaînez les bonnes réponses pour multiplier vos points (jusqu'à x5)</li>
+                <li><strong>Niveaux de difficulté</strong> : Les exercices sont classés par niveau (débutant, intermédiaire, avancé)</li>
+                <li><strong>Statistiques</strong> : Vos résultats sont sauvegardés pour suivre votre progression</li>
               </ul>
+              <div class="challenge-features">
+                <div class="feature-item">
+                  <mat-icon>timer</mat-icon>
+                  <span>15 secondes par question</span>
+                </div>
+                <div class="feature-item">
+                  <mat-icon>local_fire_department</mat-icon>
+                  <span>Système de séries</span>
+                </div>
+                <div class="feature-item">
+                  <mat-icon>bolt</mat-icon>
+                  <span>Multiplicateurs de combo</span>
+                </div>
+                <div class="feature-item">
+                  <mat-icon>score</mat-icon>
+                  <span>Classement des scores</span>
+                </div>
+              </div>
               <button mat-raised-button color="primary" (click)="showPatternCards()" class="start-button">
                 <mat-icon>play_arrow</mat-icon>
                 Voir les exercices disponibles
@@ -147,7 +167,7 @@
                 <div *ngIf="showResult" class="result-feedback">
                   <div *ngIf="isCorrect" class="feedback correct-feedback">
                     <mat-icon>check_circle</mat-icon>
-                    <span>Correct! +{{ (100 * combo + Math.floor(timeLeft * 10) + (streak > 1 ? (streak - 1) * 50 : 0)).toFixed(0) }} points</span>
+                    <span>Correct! +{{ getPointsForAnswer() }} points</span>
                   </div>
                   <div *ngIf="!isCorrect" class="feedback incorrect-feedback">
                     <mat-icon>cancel</mat-icon>
