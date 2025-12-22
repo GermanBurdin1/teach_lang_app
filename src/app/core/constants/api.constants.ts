@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
   COURSES: `${environment.apiUrl}/courses`,
   VOCABULARY: `${environment.apiUrl}/vocabulary`,
   STATISTICS: `${environment.apiUrl}/statistics`,
+  TRAINING: `${environment.apiUrl}/statistics/training`,
   MINDMAP: `${environment.apiUrl}/mindmap`,
   CONSTRUCTORS: `${environment.apiUrl}/mindmap/constructors`,
   NOTIFICATIONS: `${environment.apiUrl}/notifications`,

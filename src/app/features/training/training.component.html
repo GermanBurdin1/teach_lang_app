@@ -91,8 +91,114 @@
             </div>
           </div>
 
+          <!-- Speed Challenge / Quick Quiz -->
+          <div *ngIf="isSpeedChallengeActive" class="speed-challenge-container">
+            <div class="speed-challenge-header">
+              <div class="challenge-stats">
+                <div class="stat-item">
+                  <mat-icon>score</mat-icon>
+                  <span class="stat-value">{{ score }}</span>
+                  <span class="stat-label">Points</span>
+                </div>
+                <div class="stat-item">
+                  <mat-icon>local_fire_department</mat-icon>
+                  <span class="stat-value">{{ streak }}</span>
+                  <span class="stat-label">Série</span>
+                </div>
+                <div class="stat-item">
+                  <mat-icon>bolt</mat-icon>
+                  <span class="stat-value">x{{ combo.toFixed(1) }}</span>
+                  <span class="stat-label">Combo</span>
+                </div>
+                <div class="stat-item">
+                  <mat-icon>timer</mat-icon>
+                  <span class="stat-value">{{ timeLeft }}s</span>
+                  <span class="stat-label">Temps</span>
+                </div>
+              </div>
+              <button mat-icon-button (click)="stopSpeedChallenge()" class="close-challenge-btn">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <div class="progress-bar-container">
+              <div class="progress-bar" [style.width.%]="(currentQuestionIndex / speedChallengeCards.length) * 100"></div>
+              <span class="progress-text">Question {{ currentQuestionIndex + 1 }} / {{ speedChallengeCards.length }}</span>
+            </div>
+
+            <div class="question-container" *ngIf="currentQuestion">
+              <div class="question-card" [class.correct]="showResult && isCorrect" [class.incorrect]="showResult && !isCorrect">
+                <h3 class="question-text">{{ currentQuestion.question }}</h3>
+                
+                <div class="answer-options">
+                  <button 
+                    *ngFor="let option of currentQuestion.options" 
+                    mat-raised-button
+                    [class.selected]="selectedAnswer === option"
+                    [class.correct-answer]="showResult && option === currentQuestion.correctAnswer"
+                    [class.wrong-answer]="showResult && selectedAnswer === option && option !== currentQuestion.correctAnswer"
+                    [disabled]="showResult"
+                    (click)="selectAnswer(option)"
+                    class="answer-button">
+                    {{ option }}
+                  </button>
+                </div>
+
+                <div *ngIf="showResult" class="result-feedback">
+                  <div *ngIf="isCorrect" class="feedback correct-feedback">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Correct! +{{ (100 * combo + Math.floor(timeLeft * 10) + (streak > 1 ? (streak - 1) * 50 : 0)).toFixed(0) }} points</span>
+                  </div>
+                  <div *ngIf="!isCorrect" class="feedback incorrect-feedback">
+                    <mat-icon>cancel</mat-icon>
+                    <span>Incorrect. La bonne réponse est: <strong>{{ currentQuestion.correctAnswer }}</strong></span>
+                  </div>
+                  <div *ngIf="currentQuestion.example" class="example-hint">
+                    <strong>Exemple:</strong> {{ currentQuestion.example }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div *ngIf="showResultsScreen" class="results-screen">
+              <h2>Résultats du Défi</h2>
+              <div class="results-stats">
+                <div class="result-stat">
+                  <mat-icon>score</mat-icon>
+                  <span class="result-value">{{ score }}</span>
+                  <span class="result-label">Points totaux</span>
+                </div>
+                <div class="result-stat">
+                  <mat-icon>check_circle</mat-icon>
+                  <span class="result-value">{{ correctAnswers }}</span>
+                  <span class="result-label">Réponses correctes</span>
+                </div>
+                <div class="result-stat">
+                  <mat-icon>cancel</mat-icon>
+                  <span class="result-value">{{ wrongAnswers }}</span>
+                  <span class="result-label">Réponses incorrectes</span>
+                </div>
+                <div class="result-stat">
+                  <mat-icon>percent</mat-icon>
+                  <span class="result-value">{{ getAccuracyPercentage() }}%</span>
+                  <span class="result-label">Précision</span>
+                </div>
+              </div>
+              <div class="results-actions">
+                <button mat-raised-button color="primary" (click)="startSpeedChallenge(filteredPatternCards)">
+                  <mat-icon>refresh</mat-icon>
+                  Rejouer
+                </button>
+                <button mat-button (click)="stopSpeedChallenge()">
+                  Retour aux exercices
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Liste des Pattern Cards -->
-          <div *ngIf="showPatternCardsList">
+          <div *ngIf="showPatternCardsList && !isSpeedChallengeActive">
             <!-- Filtre par difficulté -->
             <div class="difficulty-filter" *ngIf="patternCards.length > 0">
               <mat-form-field appearance="outline">
@@ -113,6 +219,21 @@
             <div *ngIf="!loadingPatternCards && filteredPatternCards.length === 0" class="empty-state">
               <mat-icon>info</mat-icon>
               <p>Aucun exercice disponible pour ce niveau</p>
+            </div>
+
+            <!-- Кнопка для запуска Speed Challenge для всех карточек -->
+            <div *ngIf="!loadingPatternCards && filteredPatternCards.length > 0" class="speed-challenge-banner">
+              <div class="banner-content">
+                <mat-icon class="banner-icon">flash_on</mat-icon>
+                <div class="banner-text">
+                  <h4>Défi Rapide</h4>
+                  <p>Testez vos connaissances avec {{ filteredPatternCards.length }} exercices en mode rapide!</p>
+                </div>
+                <button mat-raised-button color="accent" (click)="startSpeedChallenge(filteredPatternCards)">
+                  <mat-icon>play_arrow</mat-icon>
+                  Commencer le défi
+                </button>
+              </div>
             </div>
 
             <div *ngIf="!loadingPatternCards && filteredPatternCards.length > 0" class="pattern-cards-grid">
