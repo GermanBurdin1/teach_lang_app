@@ -2,7 +2,7 @@
   <div class="modal-header">
     <h2 mat-dialog-title>
       <mat-icon class="settings-icon">settings</mat-icon>
-      Paramètres de paiement du cours
+      Paramètres de paiement de la formation
     </h2>
     <button mat-icon-button (click)="cancel()" class="close-button">
       <mat-icon>close</mat-icon>
@@ -14,14 +14,14 @@
       <!-- Бесплатный курс -->
       <div class="free-course-toggle">
         <mat-slide-toggle [(ngModel)]="isFree" (change)="onFreeToggle()" [color]="'primary'">
-          <span class="toggle-label">Cours gratuit</span>
+          <span class="toggle-label">Formation gratuite</span>
         </mat-slide-toggle>
-        <p class="toggle-hint">Si activé, le cours sera accessible gratuitement pour tous les étudiants.</p>
+        <p class="toggle-hint">Si activée, la formation sera accessible gratuitement pour tous les étudiants.</p>
       </div>
 
       <!-- Prix du cours -->
       <mat-form-field appearance="fill" class="full-width" [class.disabled]="isFree">
-        <mat-label>💰 Prix du cours</mat-label>
+        <mat-label>💰 Prix de la formation</mat-label>
         <input matInput type="number" [(ngModel)]="price" min="0" step="0.01" placeholder="0.00" [disabled]="isFree">
         <span matSuffix>{{ currency }}</span>
       </mat-form-field>
@@ -49,7 +49,7 @@
       <!-- Description du paiement -->
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>📝 Description du paiement</mat-label>
-        <textarea matInput [(ngModel)]="paymentDescription" rows="3" 
+        <textarea matInput [(ngModel)]="paymentDescription" rows="3"
           placeholder="Informations supplémentaires sur le paiement..."></textarea>
       </mat-form-field>
 
