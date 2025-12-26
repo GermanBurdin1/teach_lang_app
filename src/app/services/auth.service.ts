@@ -32,56 +32,56 @@ export class AuthService {
 
   constructor(private injector: Injector) {
     // Восстанавливаем пользователя из localStorage при инициализации
-    this.loadUserFromStorage();
+    //this.loadUserFromStorage();
 
     // НЕ загружаем роли в конструкторе - это будет сделано лениво при необходимости
   }
 
-  private loadUserFromStorage(): void {
-    try {
-      const savedUser = localStorage.getItem('currentUser');
-      const savedAccessToken = localStorage.getItem('access_token');
-      const savedRefreshToken = localStorage.getItem('refresh_token');
+  // private loadUserFromStorage(): void {
+  //   try {
+  //     const savedUser = localStorage.getItem('currentUser');
+  //     const savedAccessToken = localStorage.getItem('access_token');
+  //     const savedRefreshToken = localStorage.getItem('refresh_token');
 
-      console.log('[AuthService] loadUserFromStorage - savedUser exists:', !!savedUser);
-      console.log('[AuthService] loadUserFromStorage - savedAccessToken exists:', !!savedAccessToken);
-      console.log('[AuthService] loadUserFromStorage - savedRefreshToken exists:', !!savedRefreshToken);
-      console.log('[AuthService] loadUserFromStorage - savedAccessToken value:', savedAccessToken ? savedAccessToken.substring(0, 20) + '...' : 'null');
-      console.log('[AuthService] loadUserFromStorage - savedRefreshToken value:', savedRefreshToken ? savedRefreshToken.substring(0, 20) + '...' : 'null');
+  //     console.log('[AuthService] loadUserFromStorage - savedUser exists:', !!savedUser);
+  //     console.log('[AuthService] loadUserFromStorage - savedAccessToken exists:', !!savedAccessToken);
+  //     console.log('[AuthService] loadUserFromStorage - savedRefreshToken exists:', !!savedRefreshToken);
+  //     console.log('[AuthService] loadUserFromStorage - savedAccessToken value:', savedAccessToken ? savedAccessToken.substring(0, 20) + '...' : 'null');
+  //     console.log('[AuthService] loadUserFromStorage - savedRefreshToken value:', savedRefreshToken ? savedRefreshToken.substring(0, 20) + '...' : 'null');
 
-      if (savedUser && savedAccessToken) {
-        const userData = JSON.parse(savedUser);
-        // Восстанавливаем только базовые данные пользователя
-        this._user = {
-          id: userData.id,
-          email: userData.email,
-          name: userData.name,
-          surname: userData.surname,
-          initials: userData.initials,
-          roles: [] // Роли будут загружены с backend
-        };
-        this._accessToken = savedAccessToken;
-        this._refreshToken = savedRefreshToken;
+  //     if (savedUser && savedAccessToken) {
+  //       const userData = JSON.parse(savedUser);
+  //       // Восстанавливаем только базовые данные пользователя
+  //       this._user = {
+  //         id: userData.id,
+  //         email: userData.email,
+  //         name: userData.name,
+  //         surname: userData.surname,
+  //         initials: userData.initials,
+  //         roles: [] // Роли будут загружены с backend
+  //       };
+  //       this._accessToken = savedAccessToken;
+  //       this._refreshToken = savedRefreshToken;
 
-        console.log('[AuthService] User and tokens restored from localStorage');
-        console.log('[AuthService] Restored access token:', this._accessToken ? this._accessToken.substring(0, 20) + '...' : 'null');
-        console.log('[AuthService] Restored refresh token:', this._refreshToken ? this._refreshToken.substring(0, 20) + '...' : 'null');
+  //       console.log('[AuthService] User and tokens restored from localStorage');
+  //       console.log('[AuthService] Restored access token:', this._accessToken ? this._accessToken.substring(0, 20) + '...' : 'null');
+  //       console.log('[AuthService] Restored refresh token:', this._refreshToken ? this._refreshToken.substring(0, 20) + '...' : 'null');
 
-        // Роли и активная роль будут загружены с backend
-        this._activeRole = null;
-        this.currentRoleSubject.next(null);
+  //       // Роли и активная роль будут загружены с backend
+  //       this._activeRole = null;
+  //       this.currentRoleSubject.next(null);
 
-        if (!environment.production) {
-          console.log('[AuthService] User data and tokens restored from localStorage');
-        }
-      }
-    } catch (error) {
-      if (!environment.production) {
-        console.error('[AuthService] Failed to restore user from localStorage:', error);
-      }
-      this.clearStorage(); // Очищаем поврежденные данные
-    }
-  }
+  //       if (!environment.production) {
+  //         console.log('[AuthService] User data and tokens restored from localStorage');
+  //       }
+  //     }
+  //   } catch (error) {
+  //     if (!environment.production) {
+  //       console.error('[AuthService] Failed to restore user from localStorage:', error);
+  //     }
+  //     this.clearStorage(); // Очищаем поврежденные данные
+  //   }
+  // }
 
   private saveUserToStorage(): void {
     try {
@@ -95,7 +95,7 @@ export class AuthService {
           initials: this._user.initials
           // НЕ сохраняем roles и currentRole - получаем с backend
         };
-        localStorage.setItem('currentUser', JSON.stringify(userData));
+        // localStorage.setItem('currentUser', JSON.stringify(userData));
         localStorage.setItem('access_token', this._accessToken);
         if (this._refreshToken) {
           localStorage.setItem('refresh_token', this._refreshToken);

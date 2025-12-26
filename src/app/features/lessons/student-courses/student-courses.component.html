@@ -13,7 +13,7 @@
         <!-- Заголовок страницы -->
         <div class="page-header" style="margin-bottom: 24px;">
           <h1 style="margin: 0; font-size: 28px; font-weight: 500; color: #333;">📚 Formations en ligne</h1>
-          <p style="margin: 8px 0 0 0; color: #666;">Découvrez tous les cours en ligne disponibles</p>
+          <p style="margin: 8px 0 0 0; color: #666;">Découvrez toues les formations en ligne disponibles</p>
         </div>
 
         <!-- Поисковое поле и фильтры -->
@@ -27,7 +27,7 @@
           <!-- Фильтры по цене -->
           <div class="price-filters">
             <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 500; color: #333;">💰 Filtrer les formations</h3>
-            
+
             <!-- Фильтр типа курсов -->
             <div class="course-type-filter" style="margin-bottom: 20px;">
               <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #666;">Type de cours:</label>
@@ -52,11 +52,11 @@
               <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #666;">
                 Prix maximum:
               </label>
-              
+
               <!-- Поле ввода для максимальной цены -->
               <mat-form-field appearance="fill" class="price-input-field">
                 <mat-label>Prix maximum</mat-label>
-                <input matInput type="number" [(ngModel)]="priceFilter" (ngModelChange)="onPriceFilterChange()" 
+                <input matInput type="number" [(ngModel)]="priceFilter" (ngModelChange)="onPriceFilterChange()"
                   [min]="0" [step]="10" placeholder="Entrez le prix maximum">
                 <span matSuffix>{{ courses.length > 0 ? (courses[0].currency || 'EUR') : 'EUR' }}</span>
               </mat-form-field>

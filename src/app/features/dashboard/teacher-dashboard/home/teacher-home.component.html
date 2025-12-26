@@ -3,7 +3,7 @@
   <!-- 🔼 ВЕРХНЯЯ ЧАСТЬ -->
 
   <div class="teacher-photo">
-    <img [src]="(photoUrl$ | async) ?? 'assets/default-avatar.png'" alt="photo du professeur"
+    <img [src]="(photoUrl$ | async) ?? 'assets/default-avatar/default-avatar.jpg'" alt="photo du professeur"
       (error)="onImgError($event)" (click)="openPhotoPicker(fileInput)" style="cursor:pointer" />
 
     <!-- опционально: плавающая кнопка-иконка поверх фото -->

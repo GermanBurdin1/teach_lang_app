@@ -89,15 +89,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   // Current user
   currentUser: any = null;
   courseId: string | null = null; // Will be set after course creation
+  currentCourseIdFromDB : string | null = null;
   showCreateCourseForm = false; // Показывать ли форму создания курса
   hasUnsavedChanges = false; // Есть ли несохраненные изменения
   isCourseCardExpanded = false; // Развернута ли карточка курса (по умолчанию скрыта)
   isMaterialsSectionExpanded = false; // Развернута ли секция материалов (по умолчанию скрыта)
-  
+
   // Все курсы преподавателя
   allTeacherCourses: Course[] = [];
   loadingCourses = false;
-  
+
   // Настройки оплаты курса
   coursePrice: number = 0;
   courseCurrency: string = 'EUR';
@@ -128,7 +129,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Загружаем кэш домашних заданий
     this.loadHomeworkCache();
-    
+
     // Слушаем событие создания домашнего задания для обновления кэша
     window.addEventListener('homeworkCreated', ((event: CustomEvent) => {
       if (event.detail && event.detail.itemId) {
@@ -136,7 +137,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.loadHomeworkCache();
       }
     }) as EventListener);
-    
+
     // Слушаем событие открытия модалки материалов из lesson-preview-modal
     this.materialModalListener = ((event: CustomEvent) => {
       if (event.detail && event.detail.action === 'addMaterial') {
@@ -148,7 +149,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       }
     }) as EventListener;
     window.addEventListener('openMaterialModal', this.materialModalListener);
-    
+
     // Слушаем событие обновления описания урока
     window.addEventListener('lessonDescriptionUpdated', (event: any) => {
       // Обновляем описание урока в структуре lessons
@@ -182,13 +183,13 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.materialAddedListener = ((event: CustomEvent) => {
       if (event.detail && event.detail.material) {
         const material = event.detail.material;
-        
+
         // Проверяем, что материал относится к текущему курсу
         if (material.courseId === this.courseId) {
           // Добавляем материал в общий массив, если его там еще нет
           if (!this.materials.find(m => m.id === material.id)) {
             this.materials.push(material);
-            
+
             // Если это материал из конструктора (drill-grid и т.д.), сохраняем его на сервер
             if ((material as any).drillGridData) {
               this.saveConstructorMaterial(material);
@@ -210,37 +211,37 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         // Обновляем материалы в общем массиве
         // Используем Map для избежания дублирования по ID
         const materialsMap = new Map<number, UploadedFile>();
-        
+
         // Сначала добавляем существующие материалы
         this.materials.forEach(m => materialsMap.set(m.id, m));
-        
+
         // Затем обновляем/добавляем материалы из события
         materials.forEach((material: UploadedFile) => {
           materialsMap.set(material.id, material);
-          
+
           // Если это материал из конструктора, сохраняем его на сервер
           if ((material as any).drillGridData && !material.url) {
             // Материал еще не сохранен на сервер, сохраняем его
             this.saveConstructorMaterial(material);
           }
         });
-        
+
         // Обновляем массив материалов без дубликатов
         this.materials = Array.from(materialsMap.values());
         this.cdr.detectChanges();
       }
     }) as EventListener;
     window.addEventListener('lessonMaterialsUpdated', this.lessonMaterialsUpdatedListener);
-    
+
     this.updateSEOTags();
     this.currentUser = this.authService.getCurrentUser();
-    
+
     // Загружаем все курсы преподавателя
     this.loadAllTeacherCourses();
-    
-    // Загружаем сохраненный курс из localStorage
+
+    // Загружаем сохраненный курс из бд
     this.loadSavedCourse();
-    
+
     this.loadSections();
     this.loadTrainerMaterials();
   }
@@ -273,9 +274,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
 
     // Сохраняем ID выбранного курса
-    localStorage.setItem('currentCourseId', courseId.toString());
+    // localStorage.setItem('currentCourseId', courseId.toString());
     this.courseId = courseId.toString();
-    
+    this.currentCourseIdFromDB = courseId.toString();
     // Загружаем данные выбранного курса
     this.loadCourseData(courseId);
   }
@@ -322,7 +323,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           const coursePrice = (course as any).price;
           this.isCourseFree = coursePrice === null || coursePrice === undefined || coursePrice === 0;
         }
-        
+
         console.log('💰 Загружены настройки оплаты курса:', {
           price: this.coursePrice,
           currency: this.courseCurrency,
@@ -346,7 +347,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   }
 
   loadSavedCourse(): void {
-    const savedCourseId = localStorage.getItem('currentCourseId');
+    //const savedCourseId = localStorage.getItem('currentCourseId');
+    const savedCourseId = this.currentCourseIdFromDB;
+
     if (savedCourseId) {
       this.courseId = savedCourseId;
       // Загружаем данные курса
@@ -380,7 +383,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       next: (course) => {
         this.courseId = course.id.toString();
         // Сохраняем courseId в localStorage
-        localStorage.setItem('currentCourseId', this.courseId);
+        //localStorage.setItem('currentCourseId', this.courseId);
         // Загружаем данные о цене из ответа сервера
         if ((course as any).price !== undefined) {
           this.coursePrice = (course as any).price || 0;
@@ -484,7 +487,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         if ((course as any).isFree !== undefined) {
           this.isCourseFree = (course as any).isFree;
         }
-        
+
         console.log('💰 Обновлены настройки оплаты после сохранения:', {
           price: this.coursePrice,
           currency: this.courseCurrency,
@@ -492,7 +495,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           paymentDescription: this.coursePaymentDescription,
           isFree: this.isCourseFree
         });
-        
+
         this.hasUnsavedChanges = false;
       },
       error: (error) => {
@@ -559,7 +562,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.coursePaymentMethod = result.paymentMethod !== undefined && result.paymentMethod !== null ? result.paymentMethod : 'stripe';
         this.coursePaymentDescription = result.paymentDescription !== undefined && result.paymentDescription !== null ? result.paymentDescription : '';
         this.isCourseFree = result.isFree !== undefined ? result.isFree : (this.coursePrice === 0 || this.coursePrice === null);
-        
+
         console.log('💰 Обновлены настройки оплаты после закрытия модального окна:', {
           price: this.coursePrice,
           currency: this.courseCurrency,
@@ -567,7 +570,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           paymentDescription: this.coursePaymentDescription,
           isFree: this.isCourseFree
         });
-        
+
         this.cdr.detectChanges();
       }
     });
@@ -588,7 +591,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         if (result.success) {
           this.notificationService.success('Cours supprimé avec succès!');
           // Очищаем данные
-          localStorage.removeItem('currentCourseId');
+          //localStorage.removeItem('currentCourseId');
           this.courseId = null;
           this.courseTitle = '';
           this.courseDescription = '';
@@ -658,7 +661,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
       const file = target.files[0];
-      
+
       // Проверяем тип файла
       if (!file.type.startsWith('image/')) {
         this.notificationService.error('Veuillez sélectionner une image');
@@ -672,7 +675,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       }
 
       this.coverImageFile = file;
-      
+
       // Показываем превью
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -947,7 +950,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           if (course.lessonsInSubSections) {
             this.lessonsInSubSections = course.lessonsInSubSections;
           }
-          
+
           // Теперь ищем courseLessonId в актуальных данных из бэкенда
           this.createMaterialWithCourseLessonId(contentUrl);
         },
@@ -979,16 +982,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           courseLessonId = (lessonObj as any)?.courseLessonId;
         }
       }
-      
+
       // Если courseLessonId нет и выбран урок - показываем ошибку
       if (!courseLessonId && this.selectedLesson) {
         this.notificationService.error('Leçon non sauvegardée. Veuillez d\'abord sauvegarder la leçon avant d\'ajouter des matériaux.');
         return;
       }
-      
+
       // Tag больше не используется - все материалы привязываются только по courseLessonId
       let tag: string | undefined = undefined;
-      
+
       const uploadedFile: UploadedFile = {
         id: Date.now(),
         filename: this.newMaterial.title,
@@ -1000,7 +1003,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         courseLessonId: courseLessonId, // ОСНОВНОЙ идентификатор урока
         description: this.newMaterial.description || undefined
       };
-      
+
 
       // Обновляем материалы в модалке превью урока через событие
       window.dispatchEvent(new CustomEvent('materialAdded', {
@@ -1063,7 +1066,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         uniqueSectionName = `${sectionName} (${counter})`;
         counter++;
       }
-      
+
       this.sections.push(uniqueSectionName);
       this.subSections[uniqueSectionName] = [];
       this.saveSections();
@@ -1076,7 +1079,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLElement;
     const dropdown = document.querySelector('.add-section-dropdown');
     const button = document.querySelector('.add-section-btn');
-    
+
     if (dropdown && button && !dropdown.contains(target) && !button.contains(target)) {
       this.showAddSectionDropdown = false;
     }
@@ -1124,7 +1127,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.subSections[sectionName].push(subSectionName);
     this.saveSections();
     this.notificationService.success(`Sous-section "${subSectionName}" ajoutée avec succès!`);
-    
+
     // Скрываем input и очищаем поле
     this.showAddSubSectionInput[sectionName] = false;
     this.newSubSectionName[sectionName] = '';
@@ -1157,12 +1160,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
   saveSections(): void {
     if (this.courseId) {
-      // Сохраняем в localStorage для быстрого доступа
-      localStorage.setItem(`sections_${this.courseId}`, JSON.stringify(this.sections));
-      localStorage.setItem(`subSections_${this.courseId}`, JSON.stringify(this.subSections));
-      localStorage.setItem(`lessons_${this.courseId}`, JSON.stringify(this.lessons));
-      localStorage.setItem(`lessonsInSubSections_${this.courseId}`, JSON.stringify(this.lessonsInSubSections));
-      
+
       // Сохраняем в БД через API
       this.courseService.updateCourse(parseInt(this.courseId, 10), {
         sections: this.sections.length > 0 ? this.sections : null,
@@ -1189,10 +1187,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.loadCourseData(parseInt(this.courseId, 10));
         return;
       }
-      
+
       // Если данные есть, но нужно проверить актуальность - можно добавить проверку
       // Пока просто используем данные из БД, которые уже загружены
-      
+
       // УДАЛЕНО: fallback на localStorage - теперь доверяем только бэкенду
     }
   }
@@ -1209,10 +1207,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       if (!type) {
         return; // Пользователь отменил
       }
-      
+
       let lessonName: string;
       const lessonObj: { name: string; type: 'self' | 'call'; description?: string } = { name: '', type };
-      
+
       if (subSection) {
         // Добавляем урок в sous-section
         if (!this.lessonsInSubSections[section]) {
@@ -1221,27 +1219,27 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         if (!this.lessonsInSubSections[section][subSection]) {
           this.lessonsInSubSections[section][subSection] = [];
         }
-        
+
         // Автоматически нумеруем уроки в sous-section
         const lessonNumber = this.lessonsInSubSections[section][subSection].length + 1;
         lessonName = `Leçon ${lessonNumber}`;
         lessonObj.name = lessonName;
-        
+
         this.lessonsInSubSections[section][subSection].push(lessonObj);
       } else {
         // Добавляем урок на уровне секции
         if (!this.lessons[section]) {
           this.lessons[section] = [];
         }
-        
+
         // Автоматически нумеруем уроки
         const lessonNumber = this.lessons[section].length + 1;
         lessonName = `Leçon ${lessonNumber}`;
         lessonObj.name = lessonName;
-        
+
         this.lessons[section].push(lessonObj);
       }
-      
+
       this.saveSections();
       this.notificationService.success(`Leçon "${lessonName}" ajoutée avec succès!`);
     });
@@ -1400,12 +1398,12 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           };
 
           this.saveFile(uploadedFile);
-          
+
           // Обновляем материалы в модалке превью урока через событие
           window.dispatchEvent(new CustomEvent('materialAdded', {
             detail: { material: uploadedFile }
           }));
-          
+
           this.closeUploadModal();
           this.clearMaterialForm();
         },
@@ -1443,7 +1441,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (!token) {
       return;
     }
-    
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
@@ -1475,21 +1473,21 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               ...material,
               courseLessonId: constructorInfo.courseLessonId
             } as UploadedFile;
-            
+
             if (constructorInfo.courseLessonId && !material.courseLessonId) {
               restoredCount++;
             }
-            
+
             return updatedMaterial;
           }
 
           return material;
         });
 
-        console.log('✅ Восстановлены courseLessonId из конструкторов для', 
-          restoredCount, 'материалов (всего с courseLessonId:', 
+        console.log('✅ Восстановлены courseLessonId из конструкторов для',
+          restoredCount, 'материалов (всего с courseLessonId:',
           this.materials.filter(m => (m as any).courseLessonId).length, ')');
-        
+
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -1512,7 +1510,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (!token) {
       return;
     }
-    
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
@@ -1522,14 +1520,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       next: async (constructors) => {
         // Фильтруем по courseId
         const courseConstructors = constructors.filter(c => c.courseId === courseId);
-        
+
         if (courseConstructors.length === 0) {
           return;
         }
 
         // Собираем все courseLessonId из структуры уроков для маппинга
         const lessonMap = new Map<string, { lessonName: string; section: string; subSection: string | null }>();
-        
+
         // Уроки в секциях
         Object.entries(this.lessons).forEach(([section, lessonArray]) => {
           lessonArray.forEach(lesson => {
@@ -1543,7 +1541,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             }
           });
         });
-        
+
         // Уроки в подсекциях
         Object.entries(this.lessonsInSubSections).forEach(([section, subSections]) => {
           Object.entries(subSections).forEach(([subSection, lessonArray]) => {
@@ -1572,8 +1570,8 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               title: constructor.title,
               cellsCount: Array.isArray(drillGridResponse.cells) ? drillGridResponse.cells.length : 'not array',
               cellsType: typeof drillGridResponse.cells,
-              cellsSample: Array.isArray(drillGridResponse.cells) && drillGridResponse.cells.length > 0 
-                ? drillGridResponse.cells[0] 
+              cellsSample: Array.isArray(drillGridResponse.cells) && drillGridResponse.cells.length > 0
+                ? drillGridResponse.cells[0]
                 : drillGridResponse.cells
             });
 
@@ -1598,7 +1596,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             // Если courseLessonId нет - материал будет без courseLessonId (попадет в "Matériaux sans section")
 
             // Проверяем, есть ли уже материал с таким constructorId
-            const existingMaterial = this.materials.find(m => 
+            const existingMaterial = this.materials.find(m =>
               (m as any).constructorId === constructor.id
             );
 
@@ -1614,7 +1612,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 });
                 cellsData = [];
               }
-              
+
               const updatedMaterial: UploadedFile = {
                 ...existingMaterial,
                 drillGridData: {
@@ -1633,7 +1631,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 courseLessonId: constructor.courseLessonId || null
                 // НЕ используем тег - только courseLessonId
               } as UploadedFile;
-              
+
               console.log('✅ Обновлен материал с данными из БД:', {
                 filename: updatedMaterial.filename,
                 cellsCount: cellsData.length,
@@ -1658,7 +1656,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               });
               cellsData = [];
             }
-            
+
             const newMaterial: UploadedFile = {
               id: Date.now() + Math.random(),
               filename: constructor.title,
@@ -1683,7 +1681,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               constructorId: constructor.id,
               courseLessonId: constructor.courseLessonId || null
             } as UploadedFile;
-            
+
             console.log('✅ Создан новый материал из конструктора:', {
               filename: newMaterial.filename,
               cellsCount: cellsData.length,
@@ -1697,7 +1695,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         });
 
         const newMaterials = (await Promise.all(materialPromises)).filter(m => m !== null) as UploadedFile[];
-        
+
         // Добавляем новые материалы, избегая дубликатов
         // Проверяем не только по constructorId, но и по наличию в materials
         newMaterials.forEach(newMaterial => {
@@ -1707,22 +1705,22 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           }
 
           // Проверяем наличие материала по constructorId
-          const existingByConstructorId = this.materials.findIndex(m => 
+          const existingByConstructorId = this.materials.findIndex(m =>
             (m as any).constructorId === constructorId
           );
-          
+
           // Также проверяем по ID файла (если материал был создан из файла)
-          const existingByFileId = newMaterial.id ? this.materials.findIndex(m => 
+          const existingByFileId = newMaterial.id ? this.materials.findIndex(m =>
             m.id === newMaterial.id
           ) : -1;
 
           // Проверяем по filename и tag (для случаев, когда файл уже был загружен из file-service)
-          const existingByFilenameAndTag = this.materials.findIndex(m => 
-            m.filename === newMaterial.filename && 
+          const existingByFilenameAndTag = this.materials.findIndex(m =>
+            m.filename === newMaterial.filename &&
             m.tag === newMaterial.tag &&
             m.mimetype === 'application/json'
           );
-          
+
           if (existingByConstructorId !== -1) {
             // Материал уже существует по constructorId - обновляем его данными из БД
             this.materials[existingByConstructorId] = newMaterial;
@@ -1747,7 +1745,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         // После загрузки конструкторов восстанавливаем courseLessonId для всех материалов
         // используя ID конструкторов как источник правды
         this.restoreCourseLessonIdsFromConstructors();
-        
+
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -1774,7 +1772,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               const response = await fetch(fileUrl);
               if (response.ok) {
                 const jsonData = await response.json();
-                
+
                 // Проверяем, что это данные drill-grid
                 if (jsonData.type === 'drill_grid' && jsonData.data) {
                   // Извлекаем constructorId из JSON данных
@@ -1787,17 +1785,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                         const headers = new HttpHeaders({
                           'Authorization': `Bearer ${token}`
                         });
-                        
+
                         const dbData = await firstValueFrom(
                           this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, { headers })
                         );
-                        
+
                         // Используем данные из БД
                         let cellsData = (dbData as any).cells || [];
                         if (!Array.isArray(cellsData)) {
                           cellsData = [];
                         }
-                        
+
                         // Загружаем информацию о конструкторе для получения courseLessonId
                         let courseLessonId: string | null = null;
                         try {
@@ -1808,7 +1806,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                         } catch (err) {
                           // Игнорируем ошибку
                         }
-                        
+
                         return {
                           ...file,
                           drillGridData: {
@@ -1831,10 +1829,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                       // Продолжаем с данными из файла
                     }
                   }
-                  
+
                   // Используем данные из JSON файла
                   const constructorIdFromJson = jsonData.data?.constructorId || jsonData.data?.id;
-                  
+
                   // Загружаем информацию о конструкторе для получения courseLessonId
                   let courseLessonId: string | null = null;
                   if (constructorIdFromJson) {
@@ -1854,7 +1852,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                       // Игнорируем ошибку
                     }
                   }
-                  
+
                   return {
                     ...file,
                     drillGridData: {
@@ -1875,7 +1873,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 return file;
               }
           }
-          
+
           // Восстанавливаем title из description если оно там сохранено
           if (file.description && file.description.includes(' | ')) {
             const [title, ...descriptionParts] = file.description.split(' | ');
@@ -1886,10 +1884,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             (file as any).title = file.description;
             file.description = undefined;
           }
-          
+
           return file;
         }));
-        
+
         // Если сервер вернул файлы, обновляем массив
         if (filesWithData.length > 0) {
           // Убираем дубликаты по ID перед обновлением
@@ -1899,10 +1897,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           // Просто используем данные из БД как есть - бэкенд уже вернул courseLessonIds из course_lesson_files
           const filesWithRestoredCourseLessonId = uniqueFiles.map(file => {
             // Бэкенд уже вернул courseLessonIds из таблицы course_lesson_files
-            const courseLessonIds = Array.isArray((file as any).courseLessonIds) 
-              ? (file as any).courseLessonIds 
+            const courseLessonIds = Array.isArray((file as any).courseLessonIds)
+              ? (file as any).courseLessonIds
               : [];
-            
+
             // Если есть courseLessonIds из БД - используем их
             if (courseLessonIds.length > 0) {
               return {
@@ -1911,7 +1909,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 courseLessonIds: courseLessonIds
               } as UploadedFile;
             }
-            
+
             // Если есть courseLessonId (обратная совместимость) - преобразуем в массив
             if ((file as any).courseLessonId) {
               return {
@@ -1919,10 +1917,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 courseLessonIds: [(file as any).courseLessonId]
               } as UploadedFile;
             }
-            
+
             return file;
           });
-          
+
           // Сохраняем материалы с правильными courseLessonIds
           this.materials = filesWithRestoredCourseLessonId;
         } else if (currentMaterialsCount > 0) {
@@ -1932,17 +1930,17 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           // Если и сервер пустой, и локально пусто - это нормально
           this.materials = [];
         }
-        
+
         // Обновляем кэш домашних заданий после загрузки файлов
         this.loadHomeworkCache();
-        
+
         // Загружаем конструкторы курса из mindmap-service ПОСЛЕ загрузки файлов
         // чтобы можно было сопоставить конструкторы с файлами по constructorId
         // и восстановить courseLessonId для всех материалов используя ID как источник правды
         if (this.courseId) {
           this.loadCourseConstructors(parseInt(this.courseId, 10));
         }
-        
+
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -1978,7 +1976,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (material.title) {
       return material.title;
     }
-    
+
     // Если description есть и не похоже на техническое описание (не содержит "|" или длинное),
     // используем его как название
     if (material.description) {
@@ -1991,7 +1989,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         return material.description;
       }
     }
-    
+
     return material.filename;
   }
 
@@ -2001,7 +1999,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (!this.currentUser?.id) return;
 
     this.loadingTrainerMaterials = true;
-    
+
     // Загружаем материалы в зависимости от роли
     if (this.roleService.isTeacher()) {
       this.materialService.getMaterialsForTeacher(this.currentUser.id).subscribe({
@@ -2051,7 +2049,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     const targetSection: string | undefined = section || this.selectedSection || undefined;
     const targetLesson: string | undefined = (lesson !== undefined && lesson !== null) ? lesson : (this.selectedLesson || undefined);
     const targetSubSection: string | undefined = (subSection !== undefined && subSection !== null) ? subSection : (this.selectedSubSection || undefined);
-    
+
     // Проверяем наличие секций
     if (this.sections.length === 0) {
       this.notificationService.error('Veuillez d\'abord ajouter au moins une section au cours');
@@ -2085,7 +2083,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           if (course.lessonsInSubSections) {
             this.lessonsInSubSections = course.lessonsInSubSections;
           }
-          
+
           // Теперь ищем courseLessonId в актуальных данных из бэкенда
           this.findAndAddMaterial(material, targetSection, targetLesson, targetSubSection, courseId);
         },
@@ -2117,21 +2115,21 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           courseLessonId = (lessonObj as any)?.courseLessonId;
         }
       }
-      
+
       // Если courseLessonId нет и выбран урок - показываем ошибку
       if (!courseLessonId && targetLesson) {
         this.notificationService.error('Leçon non sauvegardée. Veuillez d\'abord sauvegarder la leçon avant d\'ajouter des matériaux.');
         return;
       }
-      
+
       // Для текстовых материалов создаем файл напрямую
       if (material.type === 'text') {
         const textBlob = new Blob([material.content], { type: 'text/plain' });
         const textFile = new File([textBlob], `${material.title}.txt`, { type: 'text/plain' });
-        
+
         // Tag больше не используется - все материалы привязываются только по courseLessonId
         let tag: string | undefined = undefined;
-        
+
         this.fileUploadService.uploadFileAsCourse(textFile, courseId, tag, courseLessonId || undefined).subscribe({
           next: (response) => {
             const uploadedFile: UploadedFile = {
@@ -2171,23 +2169,23 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         // Используем оригинальный URL из material.content как есть
         // Метод linkFileToCourseByUrl умеет извлекать имя файла из любого формата URL
         const fileUrl = material.content;
-        
+
         console.log('🔗 Связывание файла с курсом по URL:', fileUrl);
-        
+
         // Используем новый метод для связывания существующего файла с курсом
         const courseIdNum = parseInt(courseId, 10);
         if (isNaN(courseIdNum)) {
           this.notificationService.error('ID курса некорректен');
           return;
         }
-        
+
         // Tag больше не используется - все материалы привязываются только по courseLessonId
         let tag: string | undefined = undefined;
-        
+
         // Передаем title и description для сохранения на бэкенде
         const materialTitle = material.title;
         const materialDescription = material.title ? (material.description ? `${material.title} | ${material.description}` : material.title) : material.description;
-        
+
         this.fileUploadService.linkFileToCourse(fileUrl, courseIdNum, tag, courseLessonId, materialTitle, materialDescription).subscribe({
           next: (response) => {
             // Добавляем файл в локальный массив сразу для мгновенного обновления UI
@@ -2205,21 +2203,21 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               description: material.title ? (material.description ? `${material.title} | ${material.description}` : material.title) : material.description || undefined,
               title: material.title, // Сохраняем title отдельно для отображения (локально)
             };
-            
+
             // Обновляем материалы в модалке превью урока через событие
             window.dispatchEvent(new CustomEvent('materialAdded', {
               detail: { material: uploadedFile }
             }));
-            
+
             this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
             this.showExistingMaterials = false;
-            
+
             // Проверяем, нет ли уже такого файла в списке
             if (!this.materials.find(m => m.id === uploadedFile.id)) {
               this.materials.push(uploadedFile);
               console.log('✅ Файл добавлен в локальный список материалов');
             }
-            
+
             // Перезагружаем файлы через небольшую задержку для синхронизации с сервером
             setTimeout(() => {
               this.loadFiles();
@@ -2244,7 +2242,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   private downloadAndUploadFile(material: Material, courseId: string, section?: string, lesson?: string, subSection?: string): void {
     // Преобразуем URL если нужно (добавляем префикс API Gateway если отсутствует)
     let fileUrl = material.content;
-    
+
     // Если URL относительный или начинается с /files, добавляем базовый URL
     if (fileUrl.startsWith('/files') || !fileUrl.startsWith('http')) {
       // Убираем /files если есть, так как API_ENDPOINTS.FILES уже содержит его
@@ -2253,11 +2251,11 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       }
       fileUrl = `${API_ENDPOINTS.FILES}${fileUrl}`;
     }
-    
+
     console.log('📥 Загрузка файла по URL:', fileUrl);
-    
+
     // Используем HttpClient для правильной обработки CORS и аутентификации
-    this.http.get(fileUrl, { 
+    this.http.get(fileUrl, {
       responseType: 'blob',
       headers: {
         // Добавляем токен авторизации если нужно
@@ -2267,16 +2265,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         console.log('✅ Файл загружен, размер:', blob.size);
         const fileExtension = this.getFileExtensionFromUrl(material.content);
         const fileName = `${material.title}${fileExtension}`;
-        
+
         // Определяем MIME тип из blob или по расширению
         let mimeType = blob.type;
         if (!mimeType || mimeType === 'application/octet-stream') {
           mimeType = this.getMimeTypeFromExtension(fileExtension);
         }
-        
+
         const file = new File([blob], fileName, { type: mimeType });
         console.log('📤 Загрузка файла в курс:', fileName, 'тип:', mimeType);
-        
+
         // Получаем courseLessonId для точной идентификации урока
         // ВАЖНО: ищем урок ТОЛЬКО в указанной секции и подсекции, чтобы избежать дублирования
         // Используем переданные параметры, а не глобальные переменные
@@ -2292,16 +2290,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             courseLessonId = (lessonObj as any)?.courseLessonId;
           }
         }
-        
+
         // Если courseLessonId нет и выбран урок - показываем ошибку
         if (!courseLessonId && lesson) {
           this.notificationService.error('Leçon non sauvegardée. Veuillez d\'abord sauvegarder la leçon avant d\'ajouter des matériaux.');
           return;
         }
-        
+
         // Tag больше не используется - все материалы привязываются только по courseLessonId
         let tag: string | undefined = undefined;
-        
+
         this.fileUploadService.uploadFileAsCourse(file, courseId, tag, courseLessonId).subscribe({
           next: (response) => {
             const uploadedFile: UploadedFile = {
@@ -2318,12 +2316,12 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               courseId: courseId,
               createdAt: response.createdAt,
             };
-            
+
             // Обновляем материалы в модалке превью урока через событие
             window.dispatchEvent(new CustomEvent('materialAdded', {
               detail: { material: uploadedFile }
             }));
-            
+
             this.notificationService.success(`Matériau "${material.title}" ajouté au cours avec succès!`);
             this.showExistingMaterials = false;
             // Перезагружаем файлы чтобы обновить список
@@ -2429,7 +2427,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         // Сохраняем копию материала на случай ошибки
         const materialCopy = { ...material };
         const materialIndex = this.materials.findIndex(m => m.id === material.id);
-        
+
         if (action) {
           // Удаляем конструктор полностью - запрашиваем подтверждение
           const confirmDeleteRef = this.dialog.open(ConfirmDialogComponent, {
@@ -2530,7 +2528,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
         // Сохраняем копию материала на случай ошибки
         const materialCopy = { ...material };
-        
+
         // Удаляем элемент из массива сразу для мгновенного обновления UI
         const materialIndex = this.materials.findIndex(m => m.id === material.id);
         if (materialIndex !== -1) {
@@ -2598,7 +2596,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       // Сохраняем копию материала на случай ошибки
       const materialCopy = { ...material };
       const materialIndex = this.materials.findIndex(m => m.id === material.id);
-      
+
       // Удаляем из массива сразу
       if (materialIndex !== -1) {
         this.materials.splice(materialIndex, 1);
@@ -2663,7 +2661,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       // Материалы должны быть привязаны только по courseLessonId
       return [];
     }
-    
+
     // Фильтруем материалы по courseLessonId
     // Проверяем как courseLessonId (для обратной совместимости), так и courseLessonIds (many-to-many)
     const materialsByLessonId = this.materials.filter(m => {
@@ -2671,13 +2669,13 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       // Проверяем, что courseLessonIds это массив, а не строка
       const rawCourseLessonIds = (m as any).courseLessonIds;
       const materialCourseLessonIds = Array.isArray(rawCourseLessonIds) ? rawCourseLessonIds : [];
-      
+
       const matchesById = materialCourseLessonId === courseLessonId;
       const matchesByIds = materialCourseLessonIds.length > 0 && materialCourseLessonIds.includes(courseLessonId);
-      
+
       return matchesById || matchesByIds;
     });
-    
+
     return materialsByLessonId;
   }
 
@@ -2698,7 +2696,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         lessonArray.forEach(lesson => lessonNamesInSubSections.push(lesson.name));
       });
     }
-    
+
     // Возвращаем только уроки, которые не находятся в sous-section
     if (this.lessons[section]) {
       return this.lessons[section].filter(lesson => !lessonNamesInSubSections.includes(lesson.name));
@@ -2767,7 +2765,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   onDropLesson(event: DragEvent, targetSection: string, targetSubSection: string): void {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (event.currentTarget) {
       (event.currentTarget as HTMLElement).classList.remove('drag-over');
     }
@@ -2786,13 +2784,13 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
     // Удаляем урок из исходного места и сохраняем его объект
     let lessonObj: { name: string; type: 'self' | 'call'; description?: string } | undefined;
-    
+
     if (sourceSubSection) {
       // Удаляем из sous-section
       if (this.lessonsInSubSections[sourceSection] && this.lessonsInSubSections[sourceSection][sourceSubSection]) {
         const lessons = [...this.lessonsInSubSections[sourceSection][sourceSubSection]];
         lessonObj = lessons.find(l => l.name === lesson);
-        this.lessonsInSubSections[sourceSection][sourceSubSection] = 
+        this.lessonsInSubSections[sourceSection][sourceSubSection] =
           this.lessonsInSubSections[sourceSection][sourceSubSection].filter(l => l.name !== lesson);
         if (this.lessonsInSubSections[sourceSection][sourceSubSection].length === 0) {
           delete this.lessonsInSubSections[sourceSection][sourceSubSection];
@@ -2817,7 +2815,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (!this.lessonsInSubSections[targetSection][targetSubSection]) {
       this.lessonsInSubSections[targetSection][targetSubSection] = [];
     }
-    
+
     if (lessonObj) {
       this.lessonsInSubSections[targetSection][targetSubSection].push(lessonObj);
     } else {
@@ -2849,7 +2847,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     // Проверяем, что мы действительно покинули контейнер, а не перешли на дочерний элемент
     const currentTarget = event.currentTarget as HTMLElement;
     const relatedTarget = event.relatedTarget as HTMLElement;
-    
+
     if (currentTarget && (!relatedTarget || !currentTarget.contains(relatedTarget))) {
       currentTarget.classList.remove('drag-over');
     }
@@ -2882,7 +2880,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (event.previousContainer === event.container) {
       const lessons = this.getLessonsInSubSection(section, subSection);
       moveItemInArray(lessons, event.previousIndex, event.currentIndex);
-      
+
       if (!this.lessonsInSubSections[section]) {
         this.lessonsInSubSections[section] = {};
       }
@@ -2952,7 +2950,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       const sourceSubSection = previousContainerId.replace(`subsection-${section}-`, '');
       const lessons = this.getLessonsInSubSection(section, sourceSubSection);
       const lessonObj = lessons[previousIndex];
-      
+
       // Удаляем из подсекции
       lessons.splice(previousIndex, 1);
       this.lessonsInSubSections[section][sourceSubSection] = lessons;
@@ -3021,7 +3019,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   onDropLessonToSection(event: DragEvent, targetSection: string): void {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (event.currentTarget) {
       (event.currentTarget as HTMLElement).classList.remove('drag-over');
     }
@@ -3032,7 +3030,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     }
 
     const { section: sourceSection, subSection: sourceSubSection, lesson } = this.draggedLesson;
-    
+
     console.log('📦 Перемещение урока:', {
       lesson,
       from: { section: sourceSection, subSection: sourceSubSection },
@@ -3048,13 +3046,13 @@ export class AddCourseComponent implements OnInit, OnDestroy {
 
     // Удаляем урок из исходного места и сохраняем его объект
     let lessonObj: { name: string; type: 'self' | 'call'; description?: string } | undefined;
-    
+
     if (sourceSubSection) {
       // Удаляем из sous-section
       if (this.lessonsInSubSections[sourceSection] && this.lessonsInSubSections[sourceSection][sourceSubSection]) {
         const lessons = [...this.lessonsInSubSections[sourceSection][sourceSubSection]];
         lessonObj = lessons.find(l => l.name === lesson);
-        this.lessonsInSubSections[sourceSection][sourceSubSection] = 
+        this.lessonsInSubSections[sourceSection][sourceSubSection] =
           this.lessonsInSubSections[sourceSection][sourceSubSection].filter(l => l.name !== lesson);
         if (this.lessonsInSubSections[sourceSection][sourceSubSection].length === 0) {
           delete this.lessonsInSubSections[sourceSection][sourceSubSection];
@@ -3094,36 +3092,36 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   // Получить сводку по урокам по секциям
   getLessonsSummary(): { section: string; count: number }[] {
     const summary: { section: string; count: number }[] = [];
-    
+
     this.sections.forEach(section => {
       let count = 0;
-      
+
       // Уроки на уровне секции (только те, которые не находятся в sous-section)
       const lessonsInSection = this.getLessonsInSection(section);
       count += lessonsInSection.length;
-      
+
       // Уроки в sous-section этой секции
       if (this.lessonsInSubSections[section]) {
         Object.values(this.lessonsInSubSections[section]).forEach(lessonArray => {
           count += lessonArray.length;
         });
       }
-      
+
       if (count > 0) {
         summary.push({ section, count });
       }
     });
-    
+
     return summary;
   }
 
   // Загрузить кэш домашних заданий (шаблоны курсов)
   loadHomeworkCache(): void {
     if (!this.courseId) return;
-    
+
     // Собираем все sourceItemId для урока и всех материалов
     const sourceItemIds: string[] = [];
-    
+
     // Добавляем sourceItemId для каждого урока в каждой секции
     this.sections.forEach(section => {
       // Уроки на уровне секции
@@ -3131,7 +3129,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       lessonsInSection.forEach(lesson => {
         const lessonItemId = `${this.courseId}_${section}_${lesson.name}`;
         sourceItemIds.push(lessonItemId);
-        
+
         // Материалы для этого урока
         const lessonObj = this.lessons[section]?.find(l => l.name === lesson.name);
         const courseLessonId = (lessonObj as any)?.courseLessonId;
@@ -3141,7 +3139,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           sourceItemIds.push(materialItemId);
         });
       });
-      
+
       // Уроки в sous-section
       if (this.lessonsInSubSections[section]) {
         Object.keys(this.lessonsInSubSections[section]).forEach(subSection => {
@@ -3149,7 +3147,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           lessonsInSubSection.forEach(lesson => {
             const lessonItemId = `${this.courseId}_${section}_${subSection}_${lesson.name}`;
             sourceItemIds.push(lessonItemId);
-            
+
             // Материалы для этого урока
             const lessonObjSub = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson.name);
             const courseLessonIdSub = (lessonObjSub as any)?.courseLessonId;
@@ -3162,18 +3160,18 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         });
       }
     });
-    
+
     if (sourceItemIds.length === 0) {
       this.homeworkCache = {};
       this.homeworkCacheLoaded = true;
       return;
     }
-    
+
     // Загружаем шаблоны курсов для всех sourceItemId
-    const homeworkObservables = sourceItemIds.map(itemId => 
+    const homeworkObservables = sourceItemIds.map(itemId =>
       this.homeworkService.getCourseTemplateHomeworkBySourceItemId(itemId)
     );
-    
+
     forkJoin(homeworkObservables).subscribe({
         next: (homeworkArrays) => {
           // Группируем задания по itemId
@@ -3199,22 +3197,22 @@ export class AddCourseComponent implements OnInit, OnDestroy {
   // Получить количество заданий для материала
   getHomeworkCountForMaterial(materialId: number, lessonName: string, section: string, subSection?: string): number {
     if (!this.courseId) return 0;
-    
+
     // Формируем itemId в том же формате, что и в loadHomeworkCache
     const subSectionPart = subSection ? `${subSection}_` : '';
     const itemId = `${this.courseId}_${section}_${subSectionPart}${lessonName}_material_${materialId}`;
-    
+
     return this.homeworkCache[itemId]?.length || 0;
   }
 
   // Получить количество общих заданий для урока
   getHomeworkCountForLesson(lessonName: string, section: string, subSection?: string): number {
     if (!this.courseId) return 0;
-    
+
     // Формируем itemId для урока (без _material_)
     const subSectionPart = subSection ? `${subSection}_` : '';
     const itemId = `${this.courseId}_${section}_${subSectionPart}${lessonName}`;
-    
+
     return this.homeworkCache[itemId]?.length || 0;
   }
 
@@ -3418,7 +3416,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       label: 'Description',
       defaultValue: lesson.description || ''
     });
-    
+
     if (subSection) {
       const lessonIndex = this.lessonsInSubSections[section][subSection].findIndex(l => l.name === lesson.name);
       if (lessonIndex !== -1) {
@@ -3491,7 +3489,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       }, 500);
       return;
     }
-    
+
     this.openLessonPreviewModal(section, lesson, subSection);
   }
 
@@ -3505,16 +3503,16 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
       courseLessonId = (lessonObj as any)?.courseLessonId;
     }
-    
+
     const materials = this.getMaterialsByLesson(lesson, section, subSection || null, courseLessonId);
 
     const description = this.getLessonDescription(section, subSection || null, lesson);
-    
+
     // Находим тип урока и его настройки
     let lessonType: 'self' | 'call' = 'self';
     let plannedDurationMinutes: number | null = null;
     let courseLessonIdForType: string | undefined;
-    
+
     if (subSection) {
       const lessonObj = this.lessonsInSubSections[section]?.[subSection]?.find(l => l.name === lesson);
       if (lessonObj) {
@@ -3530,7 +3528,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         plannedDurationMinutes = (lessonObj as any).plannedDurationMinutes || null;
       }
     }
-    
+
     // Для уроков типа 'call' открываем модалку настроек
     if (lessonType === 'call') {
       // Находим описание из структуры урока
@@ -3546,7 +3544,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           lessonDescription = lessonObj.description || null;
         }
       }
-      
+
       const callLessonData: CallLessonSettingsModalData = {
         courseId: this.courseId || '',
         courseLessonId: courseLessonId,
@@ -3583,7 +3581,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           }
           // Обновляем курс в БД (не ждем завершения, так как updateCourse асинхронный)
           this.updateCourse();
-          
+
           // Перезагружаем курс из БД после небольшой задержки, чтобы получить актуальные данные
           setTimeout(() => {
             if (this.courseId) {
@@ -3693,7 +3691,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     let rows = drillGridData.data.rows || [];
     let columns = drillGridData.data.columns || [];
     let cells = drillGridData.data.cells || [];
-    
+
     // Если данные в старом формате (массивы строк), преобразуем их
     if (Array.isArray(rows) && rows.length > 0 && typeof rows[0] === 'string') {
       rows = rows.map((row: string, index: number) => ({
@@ -3702,7 +3700,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         examples: []
       }));
     }
-    
+
     if (Array.isArray(columns) && columns.length > 0 && typeof columns[0] === 'string') {
       columns = columns.map((col: string, index: number) => ({
         id: `col_${index}`,
@@ -3710,7 +3708,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         examples: []
       }));
     }
-    
+
     // Если cells в формате объекта { "0-0": "value" } или { "0_1": "value" }, преобразуем в массив
     if (cells && typeof cells === 'object' && !Array.isArray(cells)) {
       cells = Object.keys(cells).map(key => {
@@ -3725,10 +3723,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           console.warn('⚠️ Неизвестный формат ключа ячейки:', key);
           return null;
         }
-        
+
         const cellValue = cells[key];
         const content = typeof cellValue === 'string' ? cellValue : (cellValue?.content || '');
-        
+
         return {
           rowId: `row_${rowIdx}`,
           colId: `col_${colIdx}`,
@@ -3739,7 +3737,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         };
       }).filter(cell => cell !== null); // Убираем null значения
     }
-    
+
     // Если cells уже массив, убеждаемся что он в правильном формате
     if (Array.isArray(cells)) {
       cells = cells.map((cell: any) => {
@@ -3758,7 +3756,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         return null;
       }).filter(cell => cell !== null);
     }
-    
+
     const drillGridPayload = {
       rows,
       columns,
@@ -3805,14 +3803,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         console.log('📋 Тип ответа:', typeof constructor);
         console.log('📋 Ключи объекта:', constructor ? Object.keys(constructor) : 'null');
         console.log('📋 ID конструктора:', constructor?.id);
-        
+
         // Проверяем наличие ошибки
         if (constructor?.error) {
           console.error('❌ Ошибка при создании конструктора:', constructor.error);
           this.notificationService.error(`Erreur: ${constructor.error}`);
           return;
         }
-        
+
         // Проверяем наличие сообщения об ошибке в ответе
         if (constructor?.message && constructor.message.includes('User ID not found')) {
           console.error('❌ Ошибка: User ID not found in request');
@@ -3820,10 +3818,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           this.notificationService.error('Erreur: ID utilisateur manquant dans la requête');
           return;
         }
-        
+
         // Извлекаем ID из ответа (может быть напрямую в объекте или вложен)
         const actualId = constructor?.id || constructor?.data?.id;
-        
+
         if (!actualId) {
           console.error('❌ Конструктор создан, но ID отсутствует:', {
             constructor,
@@ -3834,9 +3832,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           this.notificationService.error('Erreur: ID du constructeur manquant');
           return;
         }
-        
+
         console.log('✅ ID конструктора извлечен:', actualId);
-        
+
         // Теперь создаем drill-grid
         console.log('📤 Отправка запроса на создание drill-grid:', {
           url: `${API_ENDPOINTS.CONSTRUCTORS}/${actualId}/drill-grid`,
@@ -3847,7 +3845,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${actualId}/drill-grid`, drillGridPayload, { headers }).subscribe({
           next: (drillGrid: any) => {
             console.log('✅ Drill-grid сохранен в БД:', drillGrid);
-            
+
             if (!this.courseId) {
               console.error('⚠️ courseId отсутствует');
               return;
@@ -3872,11 +3870,11 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             // Конструкторы хранятся ТОЛЬКО в таблице constructors, НЕ в files
             // Обновляем материал в локальном массиве (используем только courseLessonId и constructorId, БЕЗ тега)
             const materialCourseLessonId = (material as any).courseLessonId;
-            const index = this.materials.findIndex(m => 
-              m.id === material.id || 
+            const index = this.materials.findIndex(m =>
+              m.id === material.id ||
               ((m as any).constructorId === actualId && (m as any).courseLessonId === materialCourseLessonId)
             );
-            
+
             const updatedMaterial: UploadedFile = {
               ...material,
               courseId: this.courseId,
@@ -3885,7 +3883,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               constructorId: actualId,
               courseLessonId: (material as any).courseLessonId || null
             } as UploadedFile;
-            
+
             if (index !== -1) {
               console.log(`🔄 Обновление существующего материала с индексом ${index}`);
               this.materials[index] = updatedMaterial;
@@ -3893,9 +3891,9 @@ export class AddCourseComponent implements OnInit, OnDestroy {
               console.log('➕ Добавление нового материала в массив');
               this.materials.push(updatedMaterial);
             }
-            
+
             console.log(`📦 Всего материалов после сохранения: ${this.materials.length}`);
-            console.log(`📦 Материалы с courseLessonId "${courseLessonId}":`, 
+            console.log(`📦 Материалы с courseLessonId "${courseLessonId}":`,
               this.materials.filter(m => (m as any).courseLessonId === courseLessonId).map(m => ({
                 id: m.id,
                 filename: m.filename,
@@ -3904,7 +3902,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 constructorId: (m as any).constructorId
               }))
             );
-            
+
             // Отправляем событие для обновления материала в модалке урока
             window.dispatchEvent(new CustomEvent('materialUpdated', {
               detail: {
@@ -3912,7 +3910,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
                 newMaterial: updatedMaterial
               }
             }));
-            
+
             this.cdr.detectChanges();
             this.notificationService.success('Drill-grid sauvegardé avec succès');
           },
@@ -3992,14 +3990,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, updatePayload, { headers }).subscribe({
       next: (updatedConstructor: any) => {
         console.log('✅ Конструктор обновлен:', updatedConstructor);
-        
+
         // Обновляем материал в локальном массиве (используем только courseLessonId и constructorId, БЕЗ тега)
-        const index = this.materials.findIndex(m => 
-          (m as any).constructorId === constructorId || 
-          m.id === material.id || 
+        const index = this.materials.findIndex(m =>
+          (m as any).constructorId === constructorId ||
+          m.id === material.id ||
           ((m as any).courseLessonId === courseLessonId && (m as any).constructorId === constructorId)
         );
-        
+
         const updatedMaterial: UploadedFile = {
           ...material,
           courseId: this.courseId,
@@ -4007,7 +4005,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           courseLessonId: courseLessonId,
           drillGridData: (material as any).drillGridData
         } as UploadedFile;
-        
+
         if (index !== -1) {
           console.log(`🔄 Обновление существующего материала с индексом ${index}`);
           this.materials[index] = updatedMaterial;
@@ -4015,7 +4013,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
           console.log('➕ Добавление нового материала в массив');
           this.materials.push(updatedMaterial);
         }
-        
+
         // Отправляем событие для обновления материала в модалке урока
         window.dispatchEvent(new CustomEvent('materialUpdated', {
           detail: {
@@ -4023,7 +4021,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
             newMaterial: updatedMaterial
           }
         }));
-        
+
         this.cdr.detectChanges();
         this.notificationService.success('Drill-grid lié au cours avec succès');
       },
@@ -4060,14 +4058,14 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     Object.values(this.lessons).forEach(lessonArray => {
       lessonArray.forEach(lesson => allLessons.push(lesson.name));
     });
-    
+
     // Получаем все уроки из sous-section
     Object.values(this.lessonsInSubSections).forEach(sectionLessons => {
       Object.values(sectionLessons).forEach(lessonArray => {
         lessonArray.forEach(lesson => allLessons.push(lesson.name));
       });
     });
-    
+
     // Получаем все courseLessonId из уроков
     const allCourseLessonIds: string[] = [];
     Object.values(this.lessons).forEach(lessonArray => {
@@ -4084,12 +4082,12 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         });
       });
     });
-    
+
     // Фильтруем материалы ТОЛЬКО по courseLessonId - теги больше не используются
     const filtered = this.materials.filter(m => {
       const materialCourseLessonId = (m as any).courseLessonId;
       const materialCourseLessonIds = Array.isArray((m as any).courseLessonIds) ? (m as any).courseLessonIds : [];
-      
+
       // ТОЛЬКО по courseLessonId: Если материал привязан к уроку - исключаем из "matériaux sans section"
       if (materialCourseLessonId && allCourseLessonIds.includes(materialCourseLessonId)) {
         return false;
@@ -4097,11 +4095,11 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       if (materialCourseLessonIds.length > 0 && materialCourseLessonIds.some((id: string) => allCourseLessonIds.includes(id))) {
         return false;
       }
-      
+
       // Если материал не привязан к уроку по courseLessonId - показываем в "Matériaux sans section"
       return true;
     });
-    
+
     return filtered;
   }
 
@@ -4129,10 +4127,10 @@ export class AddCourseComponent implements OnInit, OnDestroy {
       const lessonObj = this.lessons[section]?.find(l => l.name === lesson);
       courseLessonId = (lessonObj as any)?.courseLessonId;
     }
-    
+
     const materials = this.getMaterialsByLesson(lesson, section, subSection, courseLessonId);
     let totalDuration = 0;
-    
+
     materials.forEach(material => {
       const type = this.getMaterialTypeFromMime(material.mimetype);
       if (type === 'audio' || type === 'video') {
@@ -4143,7 +4141,7 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         }
       }
     });
-    
+
     return totalDuration;
   }
 
@@ -4155,20 +4153,20 @@ export class AddCourseComponent implements OnInit, OnDestroy {
     if (this.materialDurations.has(material.id)) {
       return this.materialDurations.get(material.id) || 0;
     }
-    
+
     const type = this.getMaterialTypeFromMime(material.mimetype);
     if (type !== 'audio' && type !== 'video') {
       return 0;
     }
-    
+
     // Создаем скрытый элемент для получения метаданных
-    const element = type === 'audio' 
-      ? document.createElement('audio') 
+    const element = type === 'audio'
+      ? document.createElement('audio')
       : document.createElement('video');
-    
+
     element.preload = 'metadata';
     element.src = this.getFileUrl(material.url);
-    
+
     element.addEventListener('loadedmetadata', () => {
       if (element.duration && isFinite(element.duration)) {
         this.materialDurations.set(material.id, element.duration);
@@ -4176,20 +4174,20 @@ export class AddCourseComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
-    
+
     element.load();
-    
+
     return 0; // Возвращаем 0 до загрузки метаданных
   }
 
   // Форматировать длительность в читаемый формат
   formatDuration(seconds: number): string {
     if (seconds === 0) return '';
-    
+
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}min`;
     } else if (minutes > 0) {

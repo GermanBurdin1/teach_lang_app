@@ -89,10 +89,10 @@ function isObjectArray(arr: any): arr is Array<{id: string; label: string}> {
   selector: 'app-create-mindmap',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule,
-    LayoutModule, 
-    MatButtonModule, 
+    LayoutModule,
+    MatButtonModule,
     MatIconModule,
     MatInputModule,
     MatFormFieldModule,
@@ -117,10 +117,10 @@ export class CreateMindmapComponent implements OnInit {
     private dialog: MatDialog,
     private roleService: RoleService
   ) {}
-  
+
   constructorType: ConstructorType = 'mindmap';
   typeConfig: ConstructorTypeConfig | null = null;
-  
+
   // Drill-grid properties
   drillGridName: string = '';
   drillGridRows: string[] = [];
@@ -137,7 +137,7 @@ export class CreateMindmapComponent implements OnInit {
   matrixViewMode: 'config' | 'preview' = 'config'; // Режим просмотра: конфигурация или финальный просмотр
   renamingGridId: string | null = null;
   tableStyle: DrillGrid['tableStyle'] = this.getDefaultTableStyle();
-  
+
   // Matrix configuration
   numRows: number = 3;
   numColumns: number = 4;
@@ -149,7 +149,7 @@ export class CreateMindmapComponent implements OnInit {
   showMyPatternCards: boolean = false;
   editingPatternCard: PatternCard | null = null;
   viewingPatternCard: PatternCard | null = null;
-  
+
   // Grammar hierarchy
   grammarSections: GrammarSection[] = [];
   selectedSection: GrammarSection | null = null;
@@ -276,7 +276,7 @@ export class CreateMindmapComponent implements OnInit {
   }
 
   getMiniPreviewCellStyle(rowIndex: number, colIndex: number): any {
-    const cell = this.drillGridCellsData.find(c => 
+    const cell = this.drillGridCellsData.find(c =>
       c.rowId === `row_${rowIndex}` && c.colId === `col_${colIndex}`
     );
     const cellStyle = (cell as any)?.style || {};
@@ -305,7 +305,7 @@ export class CreateMindmapComponent implements OnInit {
         'text-decoration': (cellStyle.underline ?? defaultStyle.underline) ? 'underline' : 'none'
       };
     }
-    
+
     // Поддержка новой структуры с header/firstCol/cells
     if ((style as any).cells) {
       const cellsStyle = (style as any).cells;
@@ -319,7 +319,7 @@ export class CreateMindmapComponent implements OnInit {
         'text-decoration': (cellStyle.underline ?? cellsStyle.underline) ? 'underline' : 'none'
       };
     }
-    
+
     // Старая структура
     return {
       'background-color': cellStyle.bgColor || style.cellBgColor || '#ffffff',
@@ -339,7 +339,7 @@ export class CreateMindmapComponent implements OnInit {
       if (type && this.isValidConstructorType(type)) {
         this.constructorType = type;
         this.typeConfig = this.typeConfigs[type];
-        
+
         // Инициализация для drill-grid
         if (type === 'drill_grid') {
           this.initializeDrillGrid();
@@ -353,7 +353,7 @@ export class CreateMindmapComponent implements OnInit {
         this.router.navigate(['/constructeurs']);
       }
     });
-    
+
     // Загружаем сохраненные drill-grids из localStorage
     this.loadSavedDrillGrids();
   }
@@ -541,12 +541,12 @@ export class CreateMindmapComponent implements OnInit {
     // Проверяем, все ли карточки имеют одинаковую видимость
     const visibilities = cards.map(card => card.visibility || 'public');
     const uniqueVisibilities = [...new Set(visibilities)];
-    
+
     // Если все карточки имеют одинаковую видимость, возвращаем её
     if (uniqueVisibilities.length === 1) {
       return uniqueVisibilities[0] as 'public' | 'students' | 'private';
     }
-    
+
     // Если видимости разные, возвращаем дефолт 'public'
     return 'public';
   }
@@ -609,7 +609,7 @@ export class CreateMindmapComponent implements OnInit {
       }
     });
   }
-  
+
   initializeDrillGrid(): void {
     // Инициализируем матрицу с пустыми строками и столбцами без сохранения старых данных
     this.numRows = 3;
@@ -617,12 +617,12 @@ export class CreateMindmapComponent implements OnInit {
     this.tableStyle = this.getDefaultTableStyle();
     this.createMatrix(false);
   }
-  
+
   loadSavedDrillGrids(): void {
     const user = this.authService.getCurrentUser();
     const userId = user?.id?.toString();
     const token = this.authService.getAccessToken();
-    
+
     if (!token || !userId) {
       console.warn('⚠️ Не удалось загрузить drill-grids: отсутствует токен или userId');
       return;
@@ -636,7 +636,7 @@ export class CreateMindmapComponent implements OnInit {
     this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/drill-grid/my`, { headers }).subscribe({
       next: (drillGrids: any) => {
         console.log('✅ Загружены drill-grids из БД:', drillGrids);
-        
+
         if (Array.isArray(drillGrids) && drillGrids.length > 0) {
           const loadedGrids: DrillGrid[] = drillGrids
             .filter((dg: any) => dg && !dg.error)
@@ -674,22 +674,22 @@ export class CreateMindmapComponent implements OnInit {
       }
     });
   }
-  
+
   get filteredDrillGrids(): DrillGrid[] {
     if (this.drillGridFilter === 'all') {
       return this.savedDrillGrids;
     }
     return this.savedDrillGrids.filter(g => g.type === this.drillGridFilter);
   }
-  
+
   get infoDrillGrids(): DrillGrid[] {
     return this.savedDrillGrids.filter(g => g.type === 'info');
   }
-  
+
   get homeworkDrillGrids(): DrillGrid[] {
     return this.savedDrillGrids.filter(g => g.type === 'homework');
   }
-  
+
   onMatrixSizeChange(): void {
     this.createMatrix(true);
   }
@@ -737,20 +737,20 @@ export class CreateMindmapComponent implements OnInit {
     this.drillGridCells = newCells;
     this.drillGridCellsData = newCellsData;
   }
-  
+
   updateCell(rowIndex: number, colIndex: number, value: string): void {
     const key = `${rowIndex}-${colIndex}`;
     this.drillGridCells[key] = value;
-    
+
     // Также обновляем drillGridCellsData для синхронизации
     const cellData = this.getCellData(rowIndex, colIndex);
     cellData.content = value;
-    
+
     // Если ячейка не найдена в drillGridCellsData, создаем новую
-    const existingCellIndex = this.drillGridCellsData.findIndex(c => 
+    const existingCellIndex = this.drillGridCellsData.findIndex(c =>
       c.rowId === `row_${rowIndex}` && c.colId === `col_${colIndex}`
     );
-    
+
     if (existingCellIndex === -1) {
       this.drillGridCellsData.push({
         rowId: `row_${rowIndex}`,
@@ -763,17 +763,17 @@ export class CreateMindmapComponent implements OnInit {
       this.drillGridCellsData[existingCellIndex].content = value;
     }
   }
-  
+
   getCellValue(rowIndex: number, colIndex: number): string {
     const key = `${rowIndex}-${colIndex}`;
     return this.drillGridCells[key] || '';
   }
-  
+
   addRow(): void {
     this.drillGridRows.push('');
     this.numRows++;
   }
-  
+
   removeRow(index: number): void {
     if (this.drillGridRows.length > 1) {
       // Удаляем ячейки этой строки и сдвигаем индексы
@@ -794,17 +794,17 @@ export class CreateMindmapComponent implements OnInit {
       Object.keys(cellsToUpdate).forEach(key => {
         this.drillGridCells[key] = cellsToUpdate[key];
       });
-      
+
       this.drillGridRows.splice(index, 1);
       this.numRows--;
     }
   }
-  
+
   addColumn(): void {
     this.drillGridColumns.push('');
     this.numColumns++;
   }
-  
+
   removeColumn(index: number): void {
     if (this.drillGridColumns.length > 1) {
       // Удаляем ячейки этого столбца и сдвигаем индексы
@@ -825,29 +825,29 @@ export class CreateMindmapComponent implements OnInit {
       Object.keys(cellsToUpdate).forEach(key => {
         this.drillGridCells[key] = cellsToUpdate[key];
       });
-      
+
       this.drillGridColumns.splice(index, 1);
       this.numColumns--;
     }
   }
-  
+
   saveDrillGrid(): void {
     // Если редактируем существующий drill-grid, обновляем его
     if (this.editingDrillGrid && this.editingDrillGrid.constructorId) {
       this.updateDrillGrid();
       return;
     }
-    
+
     // Иначе создаем новый
     if (!this.drillGridName.trim()) {
       this.notificationService.error('Veuillez nommer la drill-grid avant de la sauvegarder.');
       return;
     }
-    
+
     const user = this.authService.getCurrentUser();
     const userId = user?.id?.toString();
     const token = this.authService.getAccessToken();
-    
+
     if (!token) {
       this.notificationService.error('Erreur d\'authentification');
       return;
@@ -877,7 +877,7 @@ export class CreateMindmapComponent implements OnInit {
     this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}`, constructorPayload, { headers }).subscribe({
       next: (constructor: any) => {
         const constructorId = constructor?.id || constructor?.data?.id;
-        
+
         if (!constructorId) {
           console.error('❌ Конструктор создан, но ID отсутствует:', constructor);
           this.notificationService.error('Erreur: ID du constructeur manquant');
@@ -891,16 +891,16 @@ export class CreateMindmapComponent implements OnInit {
           label: row || `Ligne ${index + 1}`,
           examples: []
         }));
-        
+
         const columns = this.drillGridColumns.map((col, index) => ({
           id: `col_${index}`,
           label: col || `Colonne ${index + 1}`,
           examples: []
         }));
-        
+
         // Преобразуем cells в правильный формат с правильными ответами и редактируемостью
         const cells: DrillGridCell[] = [];
-        
+
         // Используем новый формат если есть данные
         if (this.drillGridCellsData.length > 0) {
           cells.push(...this.drillGridCellsData);
@@ -918,7 +918,7 @@ export class CreateMindmapComponent implements OnInit {
             });
           });
         }
-        
+
         const drillGridPayload = {
           rows,
           columns,
@@ -961,7 +961,7 @@ export class CreateMindmapComponent implements OnInit {
     if (!this.editingDrillGrid) {
       return;
     }
-    
+
     const constructorId = this.editingDrillGrid.constructorId || this.editingDrillGrid.id;
     if (!constructorId) {
       this.notificationService.error('ID du constructeur manquant');
@@ -991,23 +991,23 @@ export class CreateMindmapComponent implements OnInit {
           label: row || `Ligne ${index + 1}`,
           examples: []
         }));
-        
+
         const columns = this.drillGridColumns.map((col, index) => ({
           id: `col_${index}`,
           label: col || `Colonne ${index + 1}`,
           examples: []
         }));
-        
+
         // Преобразуем cells - собираем данные из всех ячеек матрицы
         const cells: DrillGridCell[] = [];
-        
+
         // Проходим по всем ячейкам матрицы и собираем данные
         for (let rowIdx = 0; rowIdx < this.drillGridRows.length; rowIdx++) {
           for (let colIdx = 0; colIdx < this.drillGridColumns.length; colIdx++) {
             const cellData = this.getCellData(rowIdx, colIdx);
             const key = `${rowIdx}-${colIdx}`;
             const content = this.drillGridCells[key] || cellData.content || '';
-            
+
             cells.push({
               rowId: `row_${rowIdx}`,
               colId: `col_${colIdx}`,
@@ -1017,7 +1017,7 @@ export class CreateMindmapComponent implements OnInit {
             });
           }
         }
-        
+
         const drillGridPayload = {
           rows,
           columns,
@@ -1031,10 +1031,10 @@ export class CreateMindmapComponent implements OnInit {
         this.http.put(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, drillGridPayload, { headers }).subscribe({
           next: (updatedDrillGrid: any) => {
             console.log('✅ Drill-grid обновлен:', updatedDrillGrid);
-            
+
         // После обновления конструктора и drill-grid перезагружаем список, чтобы подтянуть новое имя
         this.loadSavedDrillGrids();
-        
+
             // Обновляем локальный массив savedDrillGrids
             const index = this.savedDrillGrids.findIndex(g => g.id === constructorId || g.constructorId === constructorId);
             if (index !== -1) {
@@ -1051,7 +1051,7 @@ export class CreateMindmapComponent implements OnInit {
               };
             this.savedDrillGrids[index] = updatedGrid;
             }
-            
+
             // Обновляем editingDrillGrid с новыми данными вместо очистки
             this.editingDrillGrid = {
               ...this.editingDrillGrid!,
@@ -1063,7 +1063,7 @@ export class CreateMindmapComponent implements OnInit {
               tableStyle: this.tableStyle,
               constructorId: constructorId
             };
-            
+
             this.notificationService.success(`Drill-grid "${this.drillGridName}" mise à jour avec succès!`);
             this.drillGridName = '';
           },
@@ -1079,12 +1079,12 @@ export class CreateMindmapComponent implements OnInit {
       }
     });
   }
-  
+
   duplicateDrillGrid(grid: DrillGrid): void {
     const user = this.authService.getCurrentUser();
     const userId = user?.id?.toString();
     const token = this.authService.getAccessToken();
-    
+
     if (!token) {
       this.notificationService.error('Erreur d\'authentification');
       return;
@@ -1095,8 +1095,8 @@ export class CreateMindmapComponent implements OnInit {
     const originalId = grid.type === 'info' ? grid.id : (grid.originalId || grid.id);
 
     // Преобразуем cells из объекта в массив для API
-    const cellsArray = Array.isArray(grid.cells) 
-      ? grid.cells 
+    const cellsArray = Array.isArray(grid.cells)
+      ? grid.cells
       : Object.keys(grid.cells).map(key => {
           const [rowIdx, colIdx] = key.split('_').map(Number);
           return {
@@ -1165,7 +1165,7 @@ export class CreateMindmapComponent implements OnInit {
     this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}`, constructorPayload, { headers }).subscribe({
       next: (constructor: any) => {
         const constructorId = constructor?.id || constructor?.data?.id;
-        
+
         if (!constructorId) {
           console.error('❌ Конструктор создан, но ID отсутствует:', constructor);
           this.notificationService.error('Erreur: ID du constructeur manquant');
@@ -1185,7 +1185,7 @@ export class CreateMindmapComponent implements OnInit {
         this.http.post(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, drillGridPayload, { headers }).subscribe({
           next: (drillGrid: any) => {
             console.log('✅ Drill-grid дублирован в БД:', drillGrid);
-            
+
             // Обновляем локальный список
             const duplicatedGrid: DrillGrid = {
               id: constructorId,
@@ -1198,9 +1198,9 @@ export class CreateMindmapComponent implements OnInit {
               userId: userId,
               originalId: originalId
             };
-            
+
             this.savedDrillGrids.push(duplicatedGrid);
-            
+
             this.notificationService.success(`Drill-grid "${duplicatedGrid.name}" dupliquée avec succès!`);
           },
           error: (error) => {
@@ -1215,15 +1215,15 @@ export class CreateMindmapComponent implements OnInit {
       }
     });
   }
-  
+
   /**
    * Создает homework drill-grid для студента на основе шаблона от преподавателя
    * Используется при добавлении домашнего задания через lesson-preview-modal
-   * 
+   *
    * @param templateGrid - Шаблон drill-grid от преподавателя (type: 'info')
    * @param studentUserId - ID студента, для которого создается homework
    * @returns Созданный homework drill-grid
-   * 
+   *
    * Пример использования из lesson-preview-modal:
    * const component = this.createMindmapComponentRef;
    * const homeworkGrid = component.createHomeworkDrillGrid(templateGrid, studentId);
@@ -1238,7 +1238,7 @@ export class CreateMindmapComponent implements OnInit {
     } else {
       rowsCopy = [];
     }
-    
+
     let columnsCopy: string[] | Array<{id: string; label: string}>;
     if (isStringArray(templateGrid.columns)) {
       columnsCopy = [...templateGrid.columns];
@@ -1247,7 +1247,7 @@ export class CreateMindmapComponent implements OnInit {
     } else {
       columnsCopy = [];
     }
-    
+
     const homeworkGrid: DrillGrid = {
       id: Date.now().toString(),
       name: `${templateGrid.name} (devoir)`,
@@ -1259,25 +1259,25 @@ export class CreateMindmapComponent implements OnInit {
       userId: studentUserId,
       originalId: templateGrid.id
     };
-    
+
     // Сохраняем в localStorage студента
-    const savedHomework = localStorage.getItem(`savedDrillGrids_homework_${studentUserId}`);
-    let homeworkGrids: DrillGrid[] = savedHomework ? JSON.parse(savedHomework) : [];
-    homeworkGrids.push(homeworkGrid);
-    localStorage.setItem(`savedDrillGrids_homework_${studentUserId}`, JSON.stringify(homeworkGrids));
-    
+    // const savedHomework = localStorage.getItem(`savedDrillGrids_homework_${studentUserId}`);
+    // let homeworkGrids: DrillGrid[] = savedHomework ? JSON.parse(savedHomework) : [];
+    // homeworkGrids.push(homeworkGrid);
+    // localStorage.setItem(`savedDrillGrids_homework_${studentUserId}`, JSON.stringify(homeworkGrids));
+
     return homeworkGrid;
   }
-  
+
   toggleMyDrillGrids(): void {
     this.showMyDrillGrids = !this.showMyDrillGrids;
   }
-  
+
   loadDrillGrid(grid: DrillGrid): void {
     const constructorId = grid.constructorId || grid.id;
     const user = this.authService.getCurrentUser();
     const token = this.authService.getAccessToken();
-    
+
     if (!token || !constructorId) {
       console.warn('⚠️ Не удалось загрузить drill-grid: отсутствует токен или constructorId');
       // Fallback на локальные данные
@@ -1293,13 +1293,13 @@ export class CreateMindmapComponent implements OnInit {
     this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}/drill-grid`, { headers }).subscribe({
       next: (drillGridData: any) => {
         console.log('✅ Загружен drill-grid с сервера:', drillGridData);
-        
+
         // Получаем данные конструктора для названия
         this.http.get(`${API_ENDPOINTS.CONSTRUCTORS}/${constructorId}`, { headers }).subscribe({
           next: (constructorData: any) => {
             const constructor = constructorData || {};
             const gridName = constructor.title || grid.name || 'Sans nom';
-            
+
             // Преобразуем rows и columns в простой формат для редактирования
             let rowsArray: string[] = [];
             if (Array.isArray(drillGridData.rows) && drillGridData.rows.length > 0) {
@@ -1309,7 +1309,7 @@ export class CreateMindmapComponent implements OnInit {
                 rowsArray = drillGridData.rows as string[];
               }
             }
-            
+
             let columnsArray: string[] = [];
             if (Array.isArray(drillGridData.columns) && drillGridData.columns.length > 0) {
               if (typeof drillGridData.columns[0] === 'object') {
@@ -1318,33 +1318,33 @@ export class CreateMindmapComponent implements OnInit {
                 columnsArray = drillGridData.columns as string[];
               }
             }
-            
+
             // Загружаем данные в форму редактирования
-            this.editingDrillGrid = { 
-              ...grid, 
+            this.editingDrillGrid = {
+              ...grid,
               constructorId: constructorId,
               id: constructorId
             };
             this.viewingDrillGrid = null;
-            
+
             this.drillGridName = gridName;
             this.drillGridRows = [...rowsArray];
             this.drillGridColumns = [...columnsArray];
             this.drillGridPurpose = drillGridData.purpose || grid.purpose || grid.type || 'info';
             this.tableStyle = drillGridData.tableStyle || grid.tableStyle || this.getDefaultTableStyle();
-            
+
             // Преобразуем cells в новый формат с правильными ответами
             // Сначала очищаем старые данные
             this.drillGridCells = {};
             this.drillGridCellsData = [];
-            
+
             if (Array.isArray(drillGridData.cells) && drillGridData.cells.length > 0) {
               // Новый формат - массив DrillGridCell
               drillGridData.cells.forEach((cell: DrillGridCell) => {
                 const rowIdx = parseInt(cell.rowId.replace('row_', ''));
                 const colIdx = parseInt(cell.colId.replace('col_', ''));
                 const key = `${rowIdx}-${colIdx}`;
-                
+
                 // Сохраняем в оба формата для совместимости
                 this.drillGridCells[key] = cell.content || '';
                 this.drillGridCellsData.push({
@@ -1360,7 +1360,7 @@ export class CreateMindmapComponent implements OnInit {
               Object.keys(drillGridData.cells).forEach(key => {
                 const [rowIdx, colIdx] = key.split('-').map(Number);
                 const content = (drillGridData.cells as { [key: string]: string })[key] || '';
-                
+
                 this.drillGridCells[key] = content;
                 this.drillGridCellsData.push({
                   rowId: `row_${rowIdx}`,
@@ -1386,7 +1386,7 @@ export class CreateMindmapComponent implements OnInit {
                 }
               }
             }
-            
+
             this.numRows = rowsArray.length;
             this.numColumns = columnsArray.length;
             this.showMyDrillGrids = false;
@@ -1410,7 +1410,7 @@ export class CreateMindmapComponent implements OnInit {
     // Загружаем drill-grid для редактирования из локальных данных
     this.editingDrillGrid = { ...grid, constructorId: grid.constructorId || grid.id };
     this.viewingDrillGrid = null;
-    
+
     // Преобразуем rows и columns в простой формат для редактирования
     let rowsArray: string[] = [];
     if (Array.isArray(grid.rows) && grid.rows.length > 0) {
@@ -1420,7 +1420,7 @@ export class CreateMindmapComponent implements OnInit {
         rowsArray = grid.rows as string[];
       }
     }
-    
+
     let columnsArray: string[] = [];
     if (Array.isArray(grid.columns) && grid.columns.length > 0) {
       if (typeof grid.columns[0] === 'object') {
@@ -1429,25 +1429,25 @@ export class CreateMindmapComponent implements OnInit {
         columnsArray = grid.columns as string[];
       }
     }
-    
+
     this.drillGridName = grid.name;
     this.drillGridRows = [...rowsArray];
     this.drillGridColumns = [...columnsArray];
     this.drillGridPurpose = grid.purpose || grid.type || 'info';
     this.tableStyle = grid.tableStyle || this.getDefaultTableStyle();
-    
+
     // Преобразуем cells в новый формат с правильными ответами
     // Сначала очищаем старые данные
     this.drillGridCells = {};
     this.drillGridCellsData = [];
-    
+
     if (Array.isArray(grid.cells) && grid.cells.length > 0) {
       // Новый формат - массив DrillGridCell
       grid.cells.forEach((cell: DrillGridCell) => {
         const rowIdx = parseInt(cell.rowId.replace('row_', ''));
         const colIdx = parseInt(cell.colId.replace('col_', ''));
         const key = `${rowIdx}-${colIdx}`;
-        
+
         // Сохраняем в оба формата для совместимости
         this.drillGridCells[key] = cell.content || '';
         this.drillGridCellsData.push({
@@ -1463,7 +1463,7 @@ export class CreateMindmapComponent implements OnInit {
       Object.keys(grid.cells).forEach(key => {
         const [rowIdx, colIdx] = key.split('-').map(Number);
         const content = (grid.cells as { [key: string]: string })[key] || '';
-        
+
         this.drillGridCells[key] = content;
         this.drillGridCellsData.push({
           rowId: `row_${rowIdx}`,
@@ -1489,7 +1489,7 @@ export class CreateMindmapComponent implements OnInit {
         }
       }
     }
-    
+
     this.numRows = rowsArray.length;
     this.numColumns = columnsArray.length;
     this.showMyDrillGrids = false;
@@ -1503,14 +1503,14 @@ export class CreateMindmapComponent implements OnInit {
 
   // Получить данные клетки (content, correctAnswer, isEditable)
   getCellData(rowIdx: number, colIdx: number): DrillGridCell {
-    const cell = this.drillGridCellsData.find(c => 
+    const cell = this.drillGridCellsData.find(c =>
       c.rowId === `row_${rowIdx}` && c.colId === `col_${colIdx}`
     );
-    
+
     if (cell) {
       return cell;
     }
-    
+
     // Если не найдено, создаем новую клетку
     const newCell: DrillGridCell = {
       rowId: `row_${rowIdx}`,
@@ -1519,7 +1519,7 @@ export class CreateMindmapComponent implements OnInit {
       correctAnswer: undefined,
       isEditable: true
     };
-    
+
     this.drillGridCellsData.push(newCell);
     return newCell;
   }
@@ -1544,7 +1544,7 @@ export class CreateMindmapComponent implements OnInit {
   // Получить содержимое клетки для просмотра
   getViewCellContent(grid: DrillGrid, rowIdx: number, colIdx: number): string {
     if (Array.isArray(grid.cells)) {
-      const cell = grid.cells.find((c: DrillGridCell) => 
+      const cell = grid.cells.find((c: DrillGridCell) =>
         c.rowId === `row_${rowIdx}` && c.colId === `col_${colIdx}`
       );
       return cell?.content || '';
@@ -1557,7 +1557,7 @@ export class CreateMindmapComponent implements OnInit {
   // Получить правильный ответ для просмотра
   getViewCellCorrectAnswer(grid: DrillGrid, rowIdx: number, colIdx: number): string | undefined {
     if (Array.isArray(grid.cells)) {
-      const cell = grid.cells.find((c: DrillGridCell) => 
+      const cell = grid.cells.find((c: DrillGridCell) =>
         c.rowId === `row_${rowIdx}` && c.colId === `col_${colIdx}`
       );
       return cell?.correctAnswer;
@@ -1568,7 +1568,7 @@ export class CreateMindmapComponent implements OnInit {
   // Получить редактируемость для просмотра
   getViewCellEditable(grid: DrillGrid, rowIdx: number, colIdx: number): boolean {
     if (Array.isArray(grid.cells)) {
-      const cell = grid.cells.find((c: DrillGridCell) => 
+      const cell = grid.cells.find((c: DrillGridCell) =>
         c.rowId === `row_${rowIdx}` && c.colId === `col_${colIdx}`
       );
       return cell?.isEditable ?? false;
@@ -1580,7 +1580,7 @@ export class CreateMindmapComponent implements OnInit {
   openCorrectAnswerDialog(rowIdx: number, colIdx: number): void {
     const cell = this.getCellData(rowIdx, colIdx);
     const currentAnswer = cell.correctAnswer || '';
-    
+
     const answer = prompt('Entrez la réponse correcte pour cette cellule:', currentAnswer);
     if (answer !== null) {
       this.updateCorrectAnswer(rowIdx, colIdx, answer);
@@ -1596,12 +1596,12 @@ export class CreateMindmapComponent implements OnInit {
   canEditDrillGrid(grid: DrillGrid): boolean {
     const isTeacher = this.isTeacher();
     const isInfo = grid.purpose === 'info' || grid.type === 'info';
-    
+
     // Info drill-grids могут редактировать только преподаватели
     if (isInfo) {
       return isTeacher;
     }
-    
+
     // Homework drill-grids могут редактировать и преподаватели, и студенты (владельцы)
     return true;
   }
@@ -1627,13 +1627,13 @@ export class CreateMindmapComponent implements OnInit {
     }
     return [];
   }
-  
+
   deleteDrillGrid(gridId: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette drill-grid?')) {
       this.savedDrillGrids = this.savedDrillGrids.filter(g => g.id !== gridId);
     }
   }
-  
+
   onTabChange(index: number): void {
     if (index === 0) {
       this.drillGridFilter = 'all';
@@ -1720,8 +1720,8 @@ export class CreateMindmapComponent implements OnInit {
         id: `col_${index}`,
         label: col || `Colonne ${index + 1}`
       })),
-      cells: this.drillGridCellsData.length > 0 
-        ? this.drillGridCellsData 
+      cells: this.drillGridCellsData.length > 0
+        ? this.drillGridCellsData
         : Object.keys(this.drillGridCells).map(key => {
             const [rowIdx, colIdx] = key.split('-').map(Number);
             const cellData = this.getCellData(rowIdx, colIdx);
@@ -2192,7 +2192,7 @@ export class CreateMindmapComponent implements OnInit {
           this.savedPatternCards[cardIndex] = { ...this.savedPatternCards[cardIndex], visibility } as PatternCard;
           this.organizePatternCardsByTopics();
         }
-        
+
         const visibilityText = visibility === 'public' ? 'tous les utilisateurs' : visibility === 'students' ? 'vos étudiants' : 'personne';
         this.notificationService.success(`Visibilité mise à jour: accessible à ${visibilityText}`);
       },
@@ -2261,7 +2261,7 @@ export class CreateMindmapComponent implements OnInit {
               this.savedPatternCards[cardIndex] = { ...this.savedPatternCards[cardIndex], visibility } as PatternCard;
             }
             completed++;
-            
+
             // Если все карточки обновлены, обновляем организацию и показываем уведомление
             if (completed + errors === total) {
               this.organizePatternCardsByTopics();
@@ -2312,13 +2312,13 @@ export class CreateMindmapComponent implements OnInit {
       const patternText = card.pattern.trim();
       return patternText.length > maxLength ? patternText.substring(0, maxLength) + '...' : patternText;
     }
-    
+
     // Fallback на constructorTitle только если pattern отсутствует
     const constructorTitle = (card as any).constructorTitle;
     if (constructorTitle && constructorTitle.trim().length > 3) {
       return constructorTitle.trim();
     }
-    
+
     return 'Pattern sans nom';
   }
 
