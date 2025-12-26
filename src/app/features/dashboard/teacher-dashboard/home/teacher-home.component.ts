@@ -110,6 +110,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Homework properties
   teacherHomework: Homework[] = [];
   goalCollapsed = false;
+  reservationCollapsed = false;
   currentGoal: TeacherGoal | null = null;
   statsCollapsed = false;
   stats: TeacherStats = {

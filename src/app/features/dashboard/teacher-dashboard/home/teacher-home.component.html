@@ -3,9 +3,11 @@
   <!-- 🔼 ВЕРХНЯЯ ЧАСТЬ -->
 
   <div class="teacher-photo">
+    <div *ngIf="!getNextLesson()">
+      <p>Vous n'avez pas de leçons prévus prochainement !</p>
+    </div>
     <img [src]="(photoUrl$ | async) ?? 'assets/default-avatar/default-avatar.jpg'" alt="photo du professeur"
       (error)="onImgError($event)" (click)="openPhotoPicker(fileInput)" style="cursor:pointer" />
-
     <!-- опционально: плавающая кнопка-иконка поверх фото -->
     <button mat-mini-fab color="primary" class="edit-overlay" aria-label="Changer la photo"
       (click)="openPhotoPicker(fileInput)" type="button">
@@ -66,7 +68,7 @@
     <div class="column left-column">
       <div class="goal-block">
         <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
-          <h3>🎯 Objectif</h3>
+          <h3>🎯 Objectifs</h3>
           <button mat-icon-button (click)="goalCollapsed = !goalCollapsed">
             <mat-icon>{{ goalCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
           </button>
@@ -107,226 +109,234 @@
         </div>
       </div>
     </div>
+
     <div class="column left-column"><!-- СИСТЕМА ВКЛАДОК ДЛЯ ЗАЯВОК -->
-      <h3><img src="assets/icons/home-page/letter.png" alt="demande de réservation" class="letter"> Demandes de
-        réservation</h3>
-
-      <mat-tab-group class="requests-tabs" animationDuration="300ms">
-        <!-- Вкладка: Nouvelles demandes -->
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">inbox</mat-icon>
-            Nouvelles
-            <span *ngIf="newRequests.length" class="tab-badge">{{ newRequests.length }}</span>
-          </ng-template>
-
-          <div class="tab-content">
-            <div *ngIf="newRequests.length > 0; else noNewRequests" class="requests-container">
-              <div *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card new-request">
-                <div class="request-content">
-                  <div class="request-text">
-                    <strong>{{ req.title }}</strong><br />
-                    <small>{{ req.message }}</small>
-                  </div>
-
-                  <div class="request-actions">
-                    <button mat-raised-button color="primary" size="small" (click)="respondToRequest(req, true)">
-                      Accepter
-                    </button>
-                    <button mat-stroked-button color="warn" size="small" (click)="respondToRequest(req, false)">
-                      Refuser
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Show more/less button for new requests -->
-              <div *ngIf="newRequests.length > 5" class="show-more-container">
-                <button mat-stroked-button color="primary" *ngIf="shownRequests < newRequests.length"
-                  (click)="loadMore()">
-                  Voir plus ({{ newRequests.length - shownRequests }})
-                  <mat-icon>expand_more</mat-icon>
-                </button>
-                <button mat-stroked-button color="primary" *ngIf="shownRequests > 5" (click)="reduce()">
-                  Réduire
-                  <mat-icon>expand_less</mat-icon>
-                </button>
-              </div>
-            </div>
-
-            <ng-template #noNewRequests>
-              <div class="no-requests">
-                <mat-icon class="no-requests-icon">inbox</mat-icon>
-                <p>✅ Aucune nouvelle demande</p>
-              </div>
+      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3><img src="assets/icons/home-page/letter.png" alt="demande de réservation" class="letter"> Demandes de
+          réservation</h3>
+        <button mat-icon-button (click)="reservationCollapsed = !reservationCollapsed">
+          <mat-icon>{{ reservationCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+      <div *ngIf="!reservationCollapsed">
+        <mat-tab-group class="requests-tabs" animationDuration="300ms">
+          <!-- Вкладка: Nouvelles demandes -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">inbox</mat-icon>
+              Nouvelles
+              <span *ngIf="newRequests.length" class="tab-badge">{{ newRequests.length }}</span>
             </ng-template>
-          </div>
-        </mat-tab>
 
-        <!-- Вкладка: Demandes non traitées -->
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">schedule</mat-icon>
-            Non traitées
-            <span *ngIf="untreatedRequests.length" class="tab-badge">{{ untreatedRequests.length }}</span>
-          </ng-template>
+            <div class="tab-content">
+              <div *ngIf="newRequests.length > 0; else noNewRequests" class="requests-container">
+                <div *ngFor="let req of newRequests.slice(0, shownRequests)" class="request-card new-request">
+                  <div class="request-content">
+                    <div class="request-text">
+                      <strong>{{ req.title }}</strong><br />
+                      <small>{{ req.message }}</small>
+                    </div>
 
-          <div class="tab-content">
-            <div *ngIf="untreatedRequests.length > 0; else noUntreatedRequests"
-              class="requests-container untreated-requests">
-              <div *ngFor="let req of visibleUntreatedRequests" class="request-card untreated-request">
-                <div class="request-content">
-                  <div class="request-text">
-                    <strong>{{ req.title }}</strong><br />
-                    <small>{{ req.message }}</small>
-                    <div class="status-badge status-expired">
-                      Status: <strong>Expiré</strong>
+                    <div class="request-actions">
+                      <button mat-raised-button color="primary" size="small" (click)="respondToRequest(req, true)">
+                        Accepter
+                      </button>
+                      <button mat-stroked-button color="warn" size="small" (click)="respondToRequest(req, false)">
+                        Refuser
+                      </button>
                     </div>
                   </div>
+                </div>
 
-                  <div class="request-actions">
-                    <!-- Hide button -->
-                    <button mat-icon-button class="hide-button" (click)="hideUntreatedRequest(req)"
-                      matTooltip="Masquer cette demande">
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  </div>
+                <!-- Show more/less button for new requests -->
+                <div *ngIf="newRequests.length > 5" class="show-more-container">
+                  <button mat-stroked-button color="primary" *ngIf="shownRequests < newRequests.length"
+                    (click)="loadMore()">
+                    Voir plus ({{ newRequests.length - shownRequests }})
+                    <mat-icon>expand_more</mat-icon>
+                  </button>
+                  <button mat-stroked-button color="primary" *ngIf="shownRequests > 5" (click)="reduce()">
+                    Réduire
+                    <mat-icon>expand_less</mat-icon>
+                  </button>
                 </div>
               </div>
 
-              <!-- Show more/less button for untreated requests -->
-              <div *ngIf="hasMoreUntreatedRequests" class="show-more-container">
-                <button mat-stroked-button color="accent" (click)="toggleShowMoreUntreatedRequests()">
-                  {{ showMoreUntreatedRequests ? 'Voir moins' : 'Voir plus (' + (untreatedRequests.length -
-                  MAX_UNTREATED_REQUESTS) + ')' }}
-                  <mat-icon>{{ showMoreUntreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
-                </button>
-              </div>
+              <ng-template #noNewRequests>
+                <div class="no-requests">
+                  <mat-icon class="no-requests-icon">inbox</mat-icon>
+                  <p>✅ Aucune nouvelle demande</p>
+                </div>
+              </ng-template>
             </div>
+          </mat-tab>
 
-            <ng-template #noUntreatedRequests>
-              <div class="no-requests">
-                <mat-icon class="no-requests-icon">schedule</mat-icon>
-                <p>✅ Aucune demande non traitée</p>
-              </div>
+          <!-- Вкладка: Demandes non traitées -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">schedule</mat-icon>
+              Non traitées
+              <span *ngIf="untreatedRequests.length" class="tab-badge">{{ untreatedRequests.length }}</span>
             </ng-template>
-          </div>
-        </mat-tab>
 
-        <!-- Вкладка: Demandes traitées -->
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">done_all</mat-icon>
-            Traitées
-            <span *ngIf="treatedRequests.length" class="tab-badge">{{ treatedRequests.length }}</span>
-          </ng-template>
+            <div class="tab-content">
+              <div *ngIf="untreatedRequests.length > 0; else noUntreatedRequests"
+                class="requests-container untreated-requests">
+                <div *ngFor="let req of visibleUntreatedRequests" class="request-card untreated-request">
+                  <div class="request-content">
+                    <div class="request-text">
+                      <strong>{{ req.title }}</strong><br />
+                      <small>{{ req.message }}</small>
+                      <div class="status-badge status-expired">
+                        Status: <strong>Expiré</strong>
+                      </div>
+                    </div>
 
-          <div class="tab-content">
-            <div *ngIf="treatedRequests.length > 0; else noTreatedRequests" class="requests-container treated-requests">
-              <div *ngFor="let req of visibleTreatedRequests" class="request-card treated-request">
-                <div class="request-content">
-                  <div class="request-text">
-                    <strong>{{ req.title }}</strong><br />
-                    <small>{{ req.message }}</small>
-                    <div class="status-badge status-{{ req.status }}">
-                      Status: <strong>{{ req.status }}</strong>
-
+                    <div class="request-actions">
+                      <!-- Hide button -->
+                      <button mat-icon-button class="hide-button" (click)="hideUntreatedRequest(req)"
+                        matTooltip="Masquer cette demande">
+                        <mat-icon>close</mat-icon>
+                      </button>
                     </div>
                   </div>
+                </div>
 
-                  <div class="request-actions">
-                    <!-- Hide button -->
-                    <button mat-icon-button class="hide-button" (click)="hideTreatedRequest(req)"
-                      matTooltip="Masquer cette demande">
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  </div>
+                <!-- Show more/less button for untreated requests -->
+                <div *ngIf="hasMoreUntreatedRequests" class="show-more-container">
+                  <button mat-stroked-button color="accent" (click)="toggleShowMoreUntreatedRequests()">
+                    {{ showMoreUntreatedRequests ? 'Voir moins' : 'Voir plus (' + (untreatedRequests.length -
+                    MAX_UNTREATED_REQUESTS) + ')' }}
+                    <mat-icon>{{ showMoreUntreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  </button>
                 </div>
               </div>
 
-              <!-- Show more/less button for treated requests -->
-              <div *ngIf="hasMoreTreatedRequests" class="show-more-container">
-                <button mat-stroked-button color="accent" (click)="toggleShowMoreTreatedRequests()">
-                  {{ showMoreTreatedRequests ? 'Voir moins' : 'Voir plus (' + (treatedRequests.length -
-                  MAX_TREATED_REQUESTS) + ')' }}
-                  <mat-icon>{{ showMoreTreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
-                </button>
-              </div>
+              <ng-template #noUntreatedRequests>
+                <div class="no-requests">
+                  <mat-icon class="no-requests-icon">schedule</mat-icon>
+                  <p>✅ Aucune demande non traitée</p>
+                </div>
+              </ng-template>
             </div>
+          </mat-tab>
 
-            <ng-template #noTreatedRequests>
-              <div class="no-requests">
-                <mat-icon class="no-requests-icon">done_all</mat-icon>
-                <p>✅ Aucune demande traitée</p>
-              </div>
+          <!-- Вкладка: Demandes traitées -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">done_all</mat-icon>
+              Traitées
+              <span *ngIf="treatedRequests.length" class="tab-badge">{{ treatedRequests.length }}</span>
             </ng-template>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
 
-      <mat-card *ngIf="showRefuseDialog" class="request-card">
-        <mat-card-title>Refuser ou proposer un autre horaire</mat-card-title>
-        <mat-card-content>
-          <mat-radio-group [(ngModel)]="selectedRefusalMode">
-            <mat-radio-button value="refuse">Refuser la demande</mat-radio-button>
-            <mat-radio-button value="propose">Proposer un autre horaire</mat-radio-button>
-          </mat-radio-group>
+            <div class="tab-content">
+              <div *ngIf="treatedRequests.length > 0; else noTreatedRequests"
+                class="requests-container treated-requests">
+                <div *ngFor="let req of visibleTreatedRequests" class="request-card treated-request">
+                  <div class="request-content">
+                    <div class="request-text">
+                      <strong>{{ req.title }}</strong><br />
+                      <small>{{ req.message }}</small>
+                      <div class="status-badge status-{{ req.status }}">
+                        Status: <strong>{{ req.status }}</strong>
 
-          <div *ngIf="selectedRefusalMode === 'refuse'" class="mt-2">
-            <mat-radio-group [(ngModel)]="selectedReason">
-              <mat-radio-button *ngFor="let reason of REJECTION_REASONS" [value]="reason">{{ reason
-                }}</mat-radio-button>
+                      </div>
+                    </div>
+
+                    <div class="request-actions">
+                      <!-- Hide button -->
+                      <button mat-icon-button class="hide-button" (click)="hideTreatedRequest(req)"
+                        matTooltip="Masquer cette demande">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Show more/less button for treated requests -->
+                <div *ngIf="hasMoreTreatedRequests" class="show-more-container">
+                  <button mat-stroked-button color="accent" (click)="toggleShowMoreTreatedRequests()">
+                    {{ showMoreTreatedRequests ? 'Voir moins' : 'Voir plus (' + (treatedRequests.length -
+                    MAX_TREATED_REQUESTS) + ')' }}
+                    <mat-icon>{{ showMoreTreatedRequests ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <ng-template #noTreatedRequests>
+                <div class="no-requests">
+                  <mat-icon class="no-requests-icon">done_all</mat-icon>
+                  <p>✅ Aucune demande traitée</p>
+                </div>
+              </ng-template>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+
+        <mat-card *ngIf="showRefuseDialog" class="request-card">
+          <mat-card-title>Refuser ou proposer un autre horaire</mat-card-title>
+          <mat-card-content>
+            <mat-radio-group [(ngModel)]="selectedRefusalMode">
+              <mat-radio-button value="refuse">Refuser la demande</mat-radio-button>
+              <mat-radio-button value="propose">Proposer un autre horaire</mat-radio-button>
             </mat-radio-group>
-            <mat-form-field *ngIf="selectedReason === 'Autre'" appearance="fill" class="w-full">
-              <mat-label>Précisez</mat-label>
-              <input matInput [(ngModel)]="customReason" />
-            </mat-form-field>
-          </div>
 
-          <div *ngIf="selectedRefusalMode === 'propose'" class="mt-2">
-            <mat-form-field appearance="fill">
-              <mat-label>Date</mat-label>
-              <input matInput [matDatepicker]="altDatePicker" [(ngModel)]="selectedAlternativeDate"
-                (ngModelChange)="onAlternativeDateChange()">
-              <mat-datepicker-toggle matSuffix [for]="altDatePicker"></mat-datepicker-toggle>
-              <mat-datepicker #altDatePicker></mat-datepicker>
-            </mat-form-field>
+            <div *ngIf="selectedRefusalMode === 'refuse'" class="mt-2">
+              <mat-radio-group [(ngModel)]="selectedReason">
+                <mat-radio-button *ngFor="let reason of REJECTION_REASONS" [value]="reason">{{ reason
+                  }}</mat-radio-button>
+              </mat-radio-group>
+              <mat-form-field *ngIf="selectedReason === 'Autre'" appearance="fill" class="w-full">
+                <mat-label>Précisez</mat-label>
+                <input matInput [(ngModel)]="customReason" />
+              </mat-form-field>
+            </div>
 
-            <div class="alternative-time-slots">
-              <label class="form-label">Mes créneaux disponibles</label>
-              <div *ngIf="teacherAlternativeSchedule.length === 0" class="text-muted">
-                Sélectionnez d'abord une date...
-              </div>
-              <div class="time-slots-grid">
-                <button *ngFor="let slot of teacherAlternativeSchedule" type="button" class="time-slot-btn"
-                  [class.available]="slot.type === 'available'" [class.lesson]="slot.type === 'lesson'"
-                  [class.break]="slot.type === 'break'" [class.blocked]="slot.type === 'blocked'"
-                  [class.selected]="selectedAlternativeTime === slot.time" [disabled]="!slot.available"
-                  [title]="slot.reason || slot.time" (click)="selectAlternativeTimeSlot(slot.time)">
+            <div *ngIf="selectedRefusalMode === 'propose'" class="mt-2">
+              <mat-form-field appearance="fill">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="altDatePicker" [(ngModel)]="selectedAlternativeDate"
+                  (ngModelChange)="onAlternativeDateChange()">
+                <mat-datepicker-toggle matSuffix [for]="altDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #altDatePicker></mat-datepicker>
+              </mat-form-field>
 
-                  <div class="slot-time">{{ slot.time }}</div>
-                  <div *ngIf="slot.type === 'lesson'" class="slot-info">
-                    👨‍🎓 {{ slot.studentName }}
-                  </div>
-                  <div *ngIf="slot.type === 'break'" class="slot-info">
-                    ⏸️ Pause
-                  </div>
-                  <div *ngIf="slot.type === 'available'" class="slot-info">
-                    ✅ Libre
-                  </div>
-                </button>
-              </div>
-              <div *ngIf="hasNoAlternativeSlots()" class="text-warning mt-2">
-                ⚠️ Aucun créneau libre pour cette date
+              <div class="alternative-time-slots">
+                <label class="form-label">Mes créneaux disponibles</label>
+                <div *ngIf="teacherAlternativeSchedule.length === 0" class="text-muted">
+                  Sélectionnez d'abord une date...
+                </div>
+                <div class="time-slots-grid">
+                  <button *ngFor="let slot of teacherAlternativeSchedule" type="button" class="time-slot-btn"
+                    [class.available]="slot.type === 'available'" [class.lesson]="slot.type === 'lesson'"
+                    [class.break]="slot.type === 'break'" [class.blocked]="slot.type === 'blocked'"
+                    [class.selected]="selectedAlternativeTime === slot.time" [disabled]="!slot.available"
+                    [title]="slot.reason || slot.time" (click)="selectAlternativeTimeSlot(slot.time)">
+
+                    <div class="slot-time">{{ slot.time }}</div>
+                    <div *ngIf="slot.type === 'lesson'" class="slot-info">
+                      👨‍🎓 {{ slot.studentName }}
+                    </div>
+                    <div *ngIf="slot.type === 'break'" class="slot-info">
+                      ⏸️ Pause
+                    </div>
+                    <div *ngIf="slot.type === 'available'" class="slot-info">
+                      ✅ Libre
+                    </div>
+                  </button>
+                </div>
+                <div *ngIf="hasNoAlternativeSlots()" class="text-warning mt-2">
+                  ⚠️ Aucun créneau libre pour cette date
+                </div>
               </div>
             </div>
-          </div>
-        </mat-card-content>
-        <mat-card-actions align="end">
-          <button mat-button (click)="showRefuseDialog = false">Annuler</button>
-          <button mat-raised-button color="warn" (click)="confirmRefusal()">Envoyer</button>
-        </mat-card-actions>
-      </mat-card>
+          </mat-card-content>
+          <mat-card-actions align="end">
+            <button mat-button (click)="showRefuseDialog = false">Annuler</button>
+            <button mat-raised-button color="warn" (click)="confirmRefusal()">Envoyer</button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
     </div>
     <div class="column left-column">
       <div class="stats-block">
