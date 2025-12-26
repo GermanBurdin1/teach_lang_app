@@ -72,7 +72,7 @@ import { ConfirmDialogComponent } from '../courses/prompt-dialog/confirm-dialog.
 import { CourseSettingsModalComponent } from '../courses/add-course/course-settings-modal/course-settings-modal.component';
 import { ClassroomModule } from '../../classroom/classroom.module';
 import { LessonsModule } from '../lessons/lessons.module';
-
+import { MatSliderModule } from '@angular/material/slider';
 @NgModule({
   declarations: [
     // UsersComponent, // Excluded from prod build
@@ -148,7 +148,8 @@ import { LessonsModule } from '../lessons/lessons.module';
     BackToHomeButtonComponent,
     BsDatepickerModule.forRoot(),
     ClassroomModule,
-    LessonsModule
+    LessonsModule,
+    MatSliderModule
   ],
   exports: [ReviewListComponent],
   providers: [

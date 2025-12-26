@@ -122,6 +122,7 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedTargetDate: Date | null = null;
   goalDescription: string = '';
   loadingGoals = false;
+  showGoalModal = false;
 
   homeworksToReview: Homework[] = [];
   loadingHomework = false;
@@ -171,9 +172,24 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   notificationsCollapsed = false;
   homeworkCollapsed = false;
 
+  targetStudents: number = 10;
+
   // Цели
   openGoalModal() {
-    alert("COUCOU")
+    this.showGoalModal = true;
+  }
+
+  onTargetStudentsChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.targetStudents = input.valueAsNumber;
+  }
+
+  saveGoal(): void {
+    alert("yeah")
+  }
+
+  closeGoalModal(): void {
+    this.showGoalModal = false;
   }
 
   // Проверяет, что дата урока в будущем (актуальная)
