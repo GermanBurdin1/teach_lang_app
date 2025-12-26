@@ -64,50 +64,52 @@
 
     <!-- Левая колонка -->
     <div class="column left-column">
-      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
-        <h3><img class="notification-icon" src="assets/icons/home-page/notif.png" alt=""> Notifications</h3>
-        <button mat-icon-button (click)="notificationsCollapsed = !notificationsCollapsed">
-          <mat-icon>{{ notificationsCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
-      </div>
-      <div *ngIf="!notificationsCollapsed">
-        <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
-          <div *ngFor="let note of visibleNotifications" class="notification-card">
-            <div class="notification-content">
-              <div class="notification-text" [innerHTML]="makeStudentNameClickable(note.message, note)"
-                (click)="onNotificationClick($event, note)">
+      <div class="goal-block">
+        <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+          <h3>🎯 Objectif</h3>
+          <button mat-icon-button (click)="goalCollapsed = !goalCollapsed">
+            <mat-icon>{{ goalCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
+        <div *ngIf="!goalCollapsed">
+          <!-- Показываем цель или сообщение о необходимости установить цель -->
+          <div *ngIf="!loadingGoals" class="goal-content">
+            <div *ngIf="currentGoal" class="goal-display">
+              <div class="goal-details">
+                <div class="goal-level">
+                </div>
+                <div *ngIf="currentGoal.targetDate" class="goal-date">
+                  📅 Avant le {{ currentGoal.targetDate | date:'dd/MM/yyyy' }}
+                </div>
+                <div *ngIf="currentGoal.description" class="goal-description">
+                  💭 {{ currentGoal.description }}
+                </div>
               </div>
+              <button mat-icon-button color="primary" (click)="openGoalModal()" matTooltip="Modifier l'objectif"
+                class="edit-goal-button">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
 
-              <div class="notification-actions">
-                <!-- Hide button -->
-                <button mat-icon-button class="hide-button" (click)="hideNotification(note)"
-                  matTooltip="Masquer cette notification">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
+            <div *ngIf="!currentGoal" class="no-goal-display">
+              <span class="no-goal-message">📝 Définissez votre objectif d'apprentissage</span>
+              <button mat-icon-button color="primary" (click)="openGoalModal()" matTooltip="Définir un objectif"
+                class="edit-goal-button">
+                <mat-icon>add</mat-icon>
+              </button>
             </div>
           </div>
 
-          <!-- Show more/less button -->
-          <div *ngIf="hasMoreNotifications" class="show-more-container">
-            <button mat-stroked-button color="accent" (click)="toggleShowMore()">
-              {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')'
-              }}
-              <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </button>
+          <div *ngIf="loadingGoals" class="loading-goals">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Chargement...</span>
           </div>
         </div>
-
-        <ng-template #noNotifications>
-          <div class="no-notifications">
-            <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
-            <p>✅ Aucun nouveau message</p>
-          </div>
-        </ng-template>
       </div>
-
-      <!-- СИСТЕМА ВКЛАДОК ДЛЯ ЗАЯВОК -->
-      <h3><img src="assets/icons/home-page/letter.png" alt="demande de réservation" class="letter"> Demandes de réservation</h3>
+    </div>
+    <div class="column left-column"><!-- СИСТЕМА ВКЛАДОК ДЛЯ ЗАЯВОК -->
+      <h3><img src="assets/icons/home-page/letter.png" alt="demande de réservation" class="letter"> Demandes de
+        réservation</h3>
 
       <mat-tab-group class="requests-tabs" animationDuration="300ms">
         <!-- Вкладка: Nouvelles demandes -->
@@ -325,14 +327,80 @@
           <button mat-raised-button color="warn" (click)="confirmRefusal()">Envoyer</button>
         </mat-card-actions>
       </mat-card>
-
+    </div>
+    <div class="column left-column">
+      <div class="stats-block">
+        <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+          <h3>📊 Statistiques</h3>
+          <button mat-icon-button (click)="statsCollapsed = !statsCollapsed">
+            <mat-icon>{{ statsCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
+        <div *ngIf="!statsCollapsed">
+          <ul *ngIf="!loadingStats">
+            <li>
+              Jours actifs: {{ stats.daysActive }}
+              <mat-icon class="info-icon"
+                matTooltip="Les jours actifs représentent le nombre de jours différents où vous vous êtes connecté(e) à la plateforme. Cela montre votre régularité d'apprentissage."
+                matTooltipPosition="right">
+                info_outline
+              </mat-icon>
+            </li>
+            <li>Leçons menées: {{ stats.lessonsCompleted }}</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <!-- Правая колонка -->
     <div class="column right-column">
+      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3><img class="notification-icon" src="assets/icons/home-page/notif.png" alt=""> Notifications</h3>
+        <button mat-icon-button (click)="notificationsCollapsed = !notificationsCollapsed">
+          <mat-icon>{{ notificationsCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+      <div *ngIf="!notificationsCollapsed">
+        <div *ngIf="notifications.length > 0; else noNotifications" class="notifications-container">
+          <div *ngFor="let note of visibleNotifications" class="notification-card">
+            <div class="notification-content">
+              <div class="notification-text" [innerHTML]="makeStudentNameClickable(note.message, note)"
+                (click)="onNotificationClick($event, note)">
+              </div>
+
+              <div class="notification-actions">
+                <!-- Hide button -->
+                <button mat-icon-button class="hide-button" (click)="hideNotification(note)"
+                  matTooltip="Masquer cette notification">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Show more/less button -->
+          <div *ngIf="hasMoreNotifications" class="show-more-container">
+            <button mat-stroked-button color="accent" (click)="toggleShowMore()">
+              {{ showMoreNotifications ? 'Voir moins' : 'Voir plus (' + (notifications.length - MAX_NOTIFICATIONS) + ')'
+              }}
+              <mat-icon>{{ showMoreNotifications ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <ng-template #noNotifications>
+          <div class="no-notifications">
+            <mat-icon class="no-notifications-icon">notifications_off</mat-icon>
+            <p>✅ Aucun nouveau message</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+    <div class="column right-column">
       <div class="homework-zone">
         <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
-          <h3><img src="assets/icons/home-page/devoir.png" alt="icon-devoirs" class="devoirs-corriger"> Devoirs à corriger</h3>
+          <h3><img src="assets/icons/home-page/devoir.png" alt="icon-devoirs" class="devoirs-corriger"> Devoirs à
+            corriger</h3>
           <button mat-icon-button (click)="homeworkCollapsed = !homeworkCollapsed">
             <mat-icon>{{ homeworkCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
           </button>

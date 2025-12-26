@@ -10,6 +10,12 @@ export interface StudentStats {
   wordsLearned: number;
 }
 
+export interface TeacherStats {
+  lessonsCompleted: number;
+  daysActive: number;
+  wordsLearned: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -77,4 +83,4 @@ export class StatisticsService {
   getAdminPlatformStats(): Observable<any> {
     return this.http.get(`${this.baseUrl}/admin/platform`);
   }
-} 
+}

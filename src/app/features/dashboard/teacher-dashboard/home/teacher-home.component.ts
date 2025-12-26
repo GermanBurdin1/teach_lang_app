@@ -77,6 +77,8 @@ interface _Question {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NavigationGuardService } from '../../../../services/navigation-guard.service';
 import { catchError, finalize, from, Observable, of, switchMap } from 'rxjs';
+import { TeacherGoal } from '../../../../models/teacher-goal.model';
+import { TeacherStats } from '../../../../services/statistics.service';
 
 @Component({
   selector: 'app-teacher-home',
@@ -102,21 +104,25 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private navigationGuard: NavigationGuardService
   ) { }
 
-  // notifications: string[] = [
-  //   'Un nouvel avis a été laissé sur votre profil.',
-  //   'Votre profil a été mis en avant cette semaine.'
-  // ];
   newRequests: Notification[] = [];
   notifications: Notification[] = [];
   untreatedRequests: Notification[] = []; // Новый массив для просроченных unread заявок
-
-  // newRequests = [
-  //   { name: 'Claire Martin', date: '21/05/2025' },
-  //   { name: 'Julien Lefevre', date: '20/05/2025' }
-  // ];
-
   // Homework properties
   teacherHomework: Homework[] = [];
+  goalCollapsed = false;
+  currentGoal: TeacherGoal | null = null;
+  statsCollapsed = false;
+  stats: TeacherStats = {
+    daysActive: 0,
+    lessonsCompleted: 0,
+    wordsLearned: 0
+  };
+
+  loadingStats = false;
+  selectedTargetDate: Date | null = null;
+  goalDescription: string = '';
+  loadingGoals = false;
+
   homeworksToReview: Homework[] = [];
   loadingHomework = false;
   photoUrl$!: Observable<string>;
@@ -164,6 +170,11 @@ export class TeacherHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   notificationsCollapsed = false;
   homeworkCollapsed = false;
+
+  // Цели
+  openGoalModal() {
+    alert("COUCOU")
+  }
 
   // Проверяет, что дата урока в будущем (актуальная)
   private isLessonDateValid(notification: Notification): boolean {
