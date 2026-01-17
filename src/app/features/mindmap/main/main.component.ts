@@ -27,7 +27,7 @@ export class MainComponent {
   }
 
   createPersonalMindmap(): void {
-    this.router.navigate(['/constructeurs', 'create'], {
+    this.router.navigate(['/constructeurs', 'instant'], {
       queryParams: { type: 'mindmap' }
     });
   }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { ConstructorTypeSelectorComponent } from './constructor-type-selector/constructor-type-selector.component';
@@ -21,14 +21,13 @@ export class MindmapRouterComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     // Проверяем путь - если это /mindmap, то студент, если /constructeurs - преподаватель
     const url = this.router.url;
     console.log('🔍 MindmapRouterComponent - URL:', url);
-    
+
     if (url.includes('/constructeurs')) {
       // Это путь для преподавателей
       console.log('✅ Определен как преподаватель по URL');
@@ -55,7 +54,7 @@ export class MindmapRouterComponent implements OnInit {
         this.isTeacher = true;
       }
     }
-    
+
     console.log('📊 Результат:', { isTeacher: this.isTeacher, isStudent: this.isStudent });
   }
 }

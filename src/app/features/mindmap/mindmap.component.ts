@@ -98,7 +98,6 @@ export class MindmapComponent implements OnInit {
     }, 0);
   }
 
-
   addChild(data: { parent: MindmapNode }): void {
     const { parent } = data;
 
@@ -210,7 +209,6 @@ export class MindmapComponent implements OnInit {
               ${endX},${endY}`;
   }
 
-
   addSibling(data: { sibling: MindmapNode }) {
     const sibling = data.sibling;
     const parent = this.nodes.find(n => n.id === sibling.parentId);
@@ -244,15 +242,9 @@ export class MindmapComponent implements OnInit {
     return height;
   }
 
-
-
-
   getVisibleChildren(node: MindmapNode): MindmapNode[] {
     return this.getAllChildren(node).filter(child => child.expanded !== false);
   }
-
-
-
 
   getVisibleNodes(): MindmapNode[] {
     const result: MindmapNode[] = [];
@@ -267,7 +259,6 @@ export class MindmapComponent implements OnInit {
     this.nodes.filter(n => n.parentId === null).forEach(root => walk(root));
     return result;
   }
-
 
   /**
    * Updates the layout of the mindmap nodes.
@@ -340,7 +331,6 @@ export class MindmapComponent implements OnInit {
 
   }
 
-
   /**
    * Располагает дочерние узлы (`children`) вдоль оси `y` относительно родительского узла (`parent`).
    * @param children - массив дочерних узлов
@@ -380,12 +370,9 @@ export class MindmapComponent implements OnInit {
     }
   }
 
-
-
   hasChildren = (node: MindmapNode): boolean => {
     return this.nodes.some(n => n.parentId === node.id);
   };
-
 
   getAllChildren(node: MindmapNode): MindmapNode[] {
     return this.nodes.filter(n => n.parentId === node.id);
@@ -446,7 +433,6 @@ export class MindmapComponent implements OnInit {
     }
   }
 
-
   deleteSelectedNodes(): void {
     const toDelete = new Set<string>();
     for (const id of this.selectedNodes) {
@@ -477,7 +463,6 @@ export class MindmapComponent implements OnInit {
   // перемещение карты
   public offsetX = 0;
   public offsetY = 0;
-
 
   activateMoveMode(event: MouseEvent): void {
     this.isMoveMode = true; // удаляем проверку classList
@@ -514,7 +499,6 @@ export class MindmapComponent implements OnInit {
       this.lastMousePosition = { x: event.clientX, y: event.clientY };
     }
   }
-
 
   onDragStart(node: MindmapNode): void {
     this.draggedNode = node;
@@ -561,8 +545,6 @@ export class MindmapComponent implements OnInit {
     }
     return false;
   }
-
-
 
   zoomIn(): void {
     this.zoomLevel = Math.min(this.zoomLevel + this.zoomStep, this.maxZoom);
@@ -644,13 +626,11 @@ export class MindmapComponent implements OnInit {
     });
   }
 
-
   onOpenModal(event: { node: MindmapNode, type: 'rule' | 'exception' | 'example' | 'exercise' }) {
     this.focusNode(event.node); // 🧭 моментально сдвигаем карту
     this.activeModalNode = event.node; // 🧊 сразу отображаем модалку
     this.activeModalType = event.type;
   }
-
 
   closeModal() {
     this.activeModalNode = null;
@@ -674,7 +654,7 @@ export class MindmapComponent implements OnInit {
     const height = node.height * this.zoomLevel;
 
     const styleObj = style as {[key: string]: string};
-    
+
     switch (type) {
       case 'rule':
         styleObj['left'] = `${scaledX + width / 2}px`;
@@ -701,7 +681,6 @@ export class MindmapComponent implements OnInit {
     return style;
   }
 
-
   focusNode(node: MindmapNode): void {
     const container = document.querySelector('.mindmap-container') as HTMLElement;
     if (!container || !node.width || !node.height) return;
@@ -712,8 +691,6 @@ export class MindmapComponent implements OnInit {
     this.offsetX = containerCenterX - (node.x + node.width / 2) * this.zoomLevel;
     this.offsetY = containerCenterY - (node.y + node.height / 2) * this.zoomLevel;
   }
-
-
 
   onModalInput(): void {
     const nodeId = this.activeModalNode?.id;
@@ -747,7 +724,5 @@ export class MindmapComponent implements OnInit {
       error: err => console.error('❌ Ошибка при сохранении заголовка', err)
     });
   }
-
-
 
 }
