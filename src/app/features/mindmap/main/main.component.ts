@@ -4,7 +4,9 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { LayoutModule } from '../../../layout/layout.module';
+import { DialogService } from '../../../shared/components/modale/service/dialog.service';
 
 @Component({
   selector: 'app-main',
@@ -14,7 +16,7 @@ import { LayoutModule } from '../../../layout/layout.module';
   styleUrls: ['./main.component.css']
 })
 export class MainComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private dialogs: DialogService) { }
 
   startInstantMindmap(): void {
     this.router.navigate(['/constructeurs', 'instant']);
@@ -26,11 +28,16 @@ export class MainComponent {
     });
   }
 
-  createPersonalMindmap(): void {
-    this.router.navigate(['/constructeurs', 'instant'], {
-      queryParams: { type: 'mindmap' }
+
+  createPersonalMindmap() {
+    this.dialogs.openInstall({ title: 'Créer une mindmap' }).subscribe((ok) => {
+      if (!ok) return;
+
+      // ✅ сюда твоя логика "создать mindmap"
+      console.log('User confirmed -> create mindmap');
     });
   }
+
 
   goBack(): void {
     this.router.navigate(['/constructeurs']);

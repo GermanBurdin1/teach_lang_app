@@ -13,6 +13,7 @@ import { StudentMindmapComponent } from './student-mindmap/student-mindmap.compo
 import { MindmapRouterComponent } from './mindmap-router.component';
 import { MainComponent } from './main/main.component';
 import { CreateMindmapComponent } from './create-mindmap/create-mindmap.component';
+import { MatButton } from '@angular/material/button';
 
 @NgModule({
   declarations: [MindmapComponent, NodeComponent, MindmapWrapperComponent],
@@ -28,7 +29,8 @@ import { CreateMindmapComponent } from './create-mindmap/create-mindmap.componen
     StudentMindmapComponent,
     MindmapRouterComponent,
     MainComponent,
-    CreateMindmapComponent
+    CreateMindmapComponent,
+    MatButton
   ]
 })
 export class MindmapModule {}

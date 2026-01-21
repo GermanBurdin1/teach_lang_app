@@ -2,6 +2,7 @@ import { Component, HostListener, OnInit, NgZone } from '@angular/core';
 import { MindmapNode } from './models/mindmap-node.model';
 import { v4 as uuidv4 } from 'uuid';
 import { MindmapService } from './mindmap.service';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -12,7 +13,8 @@ import { MindmapService } from './mindmap.service';
 export class MindmapComponent implements OnInit {
   constructor(
     private zone: NgZone,
-    private api: MindmapService
+    private api: MindmapService,
+    private route: ActivatedRoute
   ) { }
 
 
@@ -46,41 +48,45 @@ export class MindmapComponent implements OnInit {
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;
 
-    this.api.getAll().subscribe({
-      next: nodes => {
-        if (nodes.length === 0) {
-          const rootNode: MindmapNode = {
-            id: uuidv4(),
-            parentId: null,
-            title: 'Grammaire',
-            x: canvasWidth / 2,
-            y: canvasHeight / 2,
-            expanded: true,
-            width: 200,
-            height: 0,
-            rule: '',
-            exception: '',
-            example: '',
-            exercise: '',
-            side: 'right'
-          };
+    this.route.queryParamMap.subscribe(q => {
+      const type = q.get('type');
+      const title = type === 'personal' ? 'Personnal' : 'Grammaire';
 
-          this.api.createNode(rootNode).subscribe({
-            next: created => {
-              this.nodes = [created];
-              this.deferLayoutUpdate();
-            },
-            error: err => console.error('❌ Ошибка при создании узла Grammaire', err)
-          });
+      this.api.getAll().subscribe({
+        next: nodes => {
+          if (nodes.length === 0) {
+            let rootNode: MindmapNode = {
+              id: uuidv4(),
+              parentId: null,
+              title,
+              x: canvasWidth / 2,
+              y: canvasHeight / 2,
+              expanded: true,
+              width: 200,
+              height: 0,
+              rule: '',
+              exception: '',
+              example: '',
+              exercise: '',
+              side: 'right'
+            };
 
-        } else {
-          this.nodes = nodes;
-          this.deferLayoutUpdate();
-        }
-      },
-      error: err => console.error('Ошибка загрузки узлов', err)
-    });
+            this.api.createNode(rootNode).subscribe({
+              next: created => {
+                this.nodes = [created];
+                this.deferLayoutUpdate();
+              },
+              error: err => console.error('❌ Ошибка при создании узла Grammaire', err)
+            });
 
+          } else {
+            this.nodes = nodes;
+            this.deferLayoutUpdate();
+          }
+        },
+        error: err => console.error('Ошибка загрузки узлов', err)
+      });
+    })
   }
 
   private deferLayoutUpdate(): void {
@@ -653,7 +659,7 @@ export class MindmapComponent implements OnInit {
     const width = node.width * this.zoomLevel;
     const height = node.height * this.zoomLevel;
 
-    const styleObj = style as {[key: string]: string};
+    const styleObj = style as { [key: string]: string };
 
     switch (type) {
       case 'rule':

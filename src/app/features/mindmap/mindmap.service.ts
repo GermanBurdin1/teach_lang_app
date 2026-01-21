@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api.constants';
-import { MindmapNode } from './models/mindmap-node.model'; // ✅ путь к твоей модели
+import { MindmapNode } from './models/mindmap-node.model';
+import { Mindmap } from './models/mindmap.model';
 
 interface UpdateNodeResponse {
   success: boolean;
@@ -28,6 +29,10 @@ export class MindmapService {
 
   createNode(node: Partial<MindmapNode>): Observable<MindmapNode> {
     return this.http.post<MindmapNode>(this.baseUrl, node);
+  }
+
+  createMindMap(node: Partial<Mindmap>): Observable<Mindmap> {
+    return this.http.post<Mindmap>(this.baseUrl, node);
   }
 
   deleteNode(id: string): Observable<UpdateNodeResponse> {
