@@ -30,13 +30,46 @@ export class MainComponent {
 
 
   createPersonalMindmap() {
-    this.dialogs.openInstall({ title: 'Créer une mindmap' }).subscribe((ok) => {
-      if (!ok) return;
+    this.dialogs.openUniversal({
+      title: 'Créer une mindmap personnelle',
+      description: 'Choisis les paramètres de ta mindmap',
+      content: 'Tu peux changer ces valeurs plus tard.',
+      okText: 'Créer',
+      cancelText: 'Annuler',
+      fields: [
+        {
+          type: 'text',
+          name: 'name',
+          label: 'Nom de la mindmap',
+          placeholder: 'Ex: Planification du budget alimentaire',
+          required: true,
+          value: 'Ma mindmap'
+        },
+        {
+          type: 'select',
+          name: 'type',
+          label: 'Type',
+          required: true,
+          value: 'personal',
+          options: [
+            { value: 'business', label: 'Business' },
+            { value: 'apprentissage', label: 'Apprentissage' },
+            { value: 'autre', label: 'Autre' },
+          ]
+        }
+      ]
+    }).subscribe(result => {
+      if (!result.confirmed) return;
 
-      // ✅ сюда твоя логика "создать mindmap"
-      console.log('User confirmed -> create mindmap');
+      // ✅ тут все данные
+      const { name, type } = result.values;
+      console.log('Create mindmap with:', { name, type });
+
+      // например:
+      // this.mindmapService.create({ name, type }).subscribe(...)
     });
   }
+
 
 
   goBack(): void {
