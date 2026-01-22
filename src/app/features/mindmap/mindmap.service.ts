@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/constants/api.constants';
 import { MindmapNode } from './models/mindmap-node.model';
-import { Mindmap } from './models/mindmap.model';
+import { CreateMindmapDto, Mindmap } from './models/mindmap.model';
 
 interface UpdateNodeResponse {
   success: boolean;
@@ -31,8 +31,8 @@ export class MindmapService {
     return this.http.post<MindmapNode>(this.baseUrl, node);
   }
 
-  createMindMap(node: Partial<Mindmap>): Observable<Mindmap> {
-    return this.http.post<Mindmap>(this.baseUrl, node);
+  createMindMap(dto: CreateMindmapDto): Observable<Mindmap> {
+    return this.http.post<Mindmap>(this.baseUrl, dto);
   }
 
   deleteNode(id: string): Observable<UpdateNodeResponse> {
