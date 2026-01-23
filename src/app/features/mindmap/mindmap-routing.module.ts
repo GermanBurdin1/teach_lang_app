@@ -5,6 +5,7 @@ import { MainComponent } from './main/main.component';
 import { CreateMindmapComponent } from './create-mindmap/create-mindmap.component';
 import { StudentMindmapComponent } from './student-mindmap/student-mindmap.component';
 import { MindmapRouterComponent } from './mindmap-router.component';
+import { MindmapListComponent } from './mindmap-list.component';
 
 const routes: Routes = [
   // Используем компонент-обертку для определения роли и показа нужного компонента
@@ -25,6 +26,10 @@ const routes: Routes = [
     path: 'create',
     component: CreateMindmapComponent
   },
+  {
+    path: 'mindmaps',
+    component: MindmapListComponent
+  },
   // Роуты для студентов (/mindmap) - проверка через RoleGuard в app.routes
   {
     path: 'student',
@@ -40,4 +45,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class MindmapRoutingModule {}
+export class MindmapRoutingModule { }

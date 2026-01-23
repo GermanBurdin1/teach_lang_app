@@ -28,7 +28,6 @@ export class MainComponent {
     });
   }
 
-
   createPersonalMindmap() {
     this.dialogs.openUniversal({
       title: 'Créer une mindmap personnelle',
@@ -83,6 +82,10 @@ export class MainComponent {
         error: (err) => console.error(err),
       });
     });
+  }
+
+  consultMyMindmaps(): void {
+    this.router.navigate(['/constructeurs', 'mindmaps']);
   }
 
   goBack(): void {
