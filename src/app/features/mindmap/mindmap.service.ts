@@ -19,20 +19,31 @@ export class MindmapService {
 
   constructor(private http: HttpClient) { }
 
+  // ✅ mindmaps
+  getAllMindmaps(): Observable<Mindmap[]> {
+    return this.http.get<Mindmap[]>(this.baseUrl);
+  }
+
+  createMindMap(dto: CreateMindmapDto): Observable<Mindmap> {
+    return this.http.post<Mindmap>(this.baseUrl, dto);
+  }
+
+  // ✅ nodes by mindmap
+  getNodesByMindmapId(mindmapId: string): Observable<MindmapNode[]> {
+    return this.http.get<MindmapNode[]>(`${this.baseUrl}/${mindmapId}/nodes`);
+  }
+
+  // ✅ create node (root too)
+  createNode(node: Partial<MindmapNode>): Observable<MindmapNode> {
+    return this.http.post<MindmapNode>(`${this.baseUrl}/nodes`, node);
+  }
+
   getAll(): Observable<MindmapNode[]> {
     return this.http.get<MindmapNode[]>(this.baseUrl);
   }
 
   getOne(id: string): Observable<MindmapNode> {
     return this.http.get<MindmapNode>(`${this.baseUrl}/${id}`);
-  }
-
-  createNode(node: Partial<MindmapNode>): Observable<MindmapNode> {
-    return this.http.post<MindmapNode>(this.baseUrl, node);
-  }
-
-  createMindMap(dto: CreateMindmapDto): Observable<Mindmap> {
-    return this.http.post<Mindmap>(this.baseUrl, dto);
   }
 
   deleteNode(id: string): Observable<UpdateNodeResponse> {

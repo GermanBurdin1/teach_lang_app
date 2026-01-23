@@ -68,26 +68,22 @@ export class MainComponent {
       if (!title) return;
 
       const dto = {
-        title,          // ✅ то, что ждёт entity/DTO
-        type,           // ✅ MindmapType
-        courseId: null, // ✅ optional (если создаёшь personal/instant)
-        nodes: [],      // ✅ optional (можно убрать вообще)
+        title,
+        type,
+        courseId: null,
       };
 
       this.mindmapService.createMindMap(dto).subscribe({
-        next: created => {
-          console.log('Mindmap created:', created);
-          // например: this.router.navigate(['/mindmaps', created.id]);
+        next: (created) => {
+          console.log('created mindmap:', created);
+          const qp = { mindmapId: created.id, type: created.type };
+          console.log('navigate to instant with qp:', qp);
+          this.router.navigate(['/constructeurs', 'instant'], { queryParams: qp });
         },
-        error: err => {
-          console.error('Create mindmap failed:', err);
-        },
+        error: (err) => console.error(err),
       });
     });
   }
-
-
-
 
   goBack(): void {
     this.router.navigate(['/constructeurs']);

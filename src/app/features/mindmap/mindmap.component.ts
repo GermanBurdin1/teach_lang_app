@@ -43,51 +43,67 @@ export class MindmapComponent implements OnInit {
     { label: '→', insert: '→' },             // указывает на результат
     { label: '!', insert: '!' },             // важное
   ];
+  private mindmapId!: string;
 
   ngOnInit(): void {
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;
 
     this.route.queryParamMap.subscribe(q => {
-      const type = q.get('type');
-      const title = type === 'personal' ? 'Personnal' : 'Grammaire';
+      const mindmapId = q.get('mindmapId');
+      const type = (q.get('type') ?? 'instant') as 'instant' | 'personal' | 'course';
 
-      this.api.getAll().subscribe({
-        next: nodes => {
-          if (nodes.length === 0) {
-            let rootNode: MindmapNode = {
-              id: uuidv4(),
-              parentId: null,
-              title,
-              x: canvasWidth / 2,
-              y: canvasHeight / 2,
-              expanded: true,
-              width: 200,
-              height: 0,
-              rule: '',
-              exception: '',
-              example: '',
-              exercise: '',
-              side: 'right'
-            };
+      if (!mindmapId) {
+        console.error('❌ mindmapId отсутствует в query params');
+        return;
+      }
+      this.mindmapId = mindmapId;
 
-            this.api.createNode(rootNode).subscribe({
-              next: created => {
-                this.nodes = [created];
-                this.deferLayoutUpdate();
-              },
-              error: err => console.error('❌ Ошибка при создании узла Grammaire', err)
-            });
+      const title =
+        type === 'personal' ? 'Personnal'
+          : type === 'course' ? 'Cours'
+            : 'Instant';
 
-          } else {
+      // ✅ грузим nodes только этой mindmap
+      this.api.getNodesByMindmapId(mindmapId).subscribe({
+        next: (nodes) => {
+          if (nodes.length > 0) {
             this.nodes = nodes;
             this.deferLayoutUpdate();
+            return;
           }
+
+          // ✅ создаём root node (id НЕ генерим на фронте!)
+          const rootNode: Partial<MindmapNode> = {
+            id: uuidv4(),   
+            mindmapId,              // 🔥 ключ
+            parentId: null,
+            title,
+            x: canvasWidth / 2,
+            y: canvasHeight / 2,
+            expanded: true,
+            width: 200,
+            height: 0,
+            rule: '',
+            exception: '',
+            example: '',
+            exercise: '',
+            side: 'right',
+          };
+          console.warn("rootNode que je passe:", rootNode)
+          this.api.createNode(rootNode).subscribe({
+            next: (created) => {
+              this.nodes = [created];
+              this.deferLayoutUpdate();
+            },
+            error: (err) => console.error('❌ Ошибка при создании root node', err),
+          });
         },
-        error: err => console.error('Ошибка загрузки узлов', err)
+        error: (err) => console.error('❌ Ошибка загрузки nodes', err),
       });
-    })
+    });
   }
+
 
   private deferLayoutUpdate(): void {
     // Подождать, пока Angular нарисует DOM
@@ -128,8 +144,10 @@ export class MindmapComponent implements OnInit {
       // Внуки и глубже — наследуем сторону от родителя
       side = parent.side ?? 'right';
     }
+    const mindmapId = parent.mindmapId ?? this.mindmapId;
 
     const newNode: MindmapNode = {
+      mindmapId,
       id: uuidv4(),
       parentId: parent.id,
       title: 'Nouveau nœud',
