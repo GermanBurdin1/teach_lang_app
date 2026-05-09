@@ -90,4 +90,9 @@ export class MindmapService {
     return this.http.post<UpdateNodeResponse>(`${this.baseUrl}/bulk-save`, { nodes });
   }
 
+  deleteMindmap(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${this.baseUrl}/maps/${id}`);
+  }
+
+
 }

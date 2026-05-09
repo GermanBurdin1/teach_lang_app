@@ -27,13 +27,28 @@ import { Mindmap } from './models/mindmap.model';
     <ng-template #content>
       <ng-container *ngIf="mindmaps.length > 0; else empty">
         <mat-card
-          *ngFor="let m of mindmaps"
-          style="margin-bottom: 12px; cursor: pointer;"
-          (click)="open(m)"
-        >
-          <mat-card-title>{{ m.title }}</mat-card-title>
-          <mat-card-subtitle>Type: {{ m.type }}</mat-card-subtitle>
-        </mat-card>
+  *ngFor="let m of mindmaps"
+  style="margin-bottom: 12px; cursor: pointer;"
+  (click)="open(m)"
+>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap: 12px;">
+    <div>
+      <mat-card-title>{{ m.title }}</mat-card-title>
+      <mat-card-subtitle>Type: {{ m.type }}</mat-card-subtitle>
+    </div>
+
+    <button
+      mat-icon-button
+      color="warn"
+      (click)="remove(m, $event)"
+      aria-label="Supprimer"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+</mat-card>
+
+
       </ng-container>
 
       <ng-template #empty>
@@ -46,7 +61,7 @@ export class MindmapListComponent implements OnInit {
   mindmaps: Mindmap[] = [];
   loading = true;
 
-  constructor(private api: MindmapService, private router: Router) {}
+  constructor(private api: MindmapService, private router: Router) { }
 
   ngOnInit(): void {
     this.api.getAllMindmaps().subscribe({
@@ -66,6 +81,22 @@ export class MindmapListComponent implements OnInit {
       queryParams: { mindmapId: m.id, type: m.type },
     });
   }
+
+  remove(m: Mindmap, ev: MouseEvent): void {
+    ev.stopPropagation(); // ✅ чтобы не открылось open(m)
+
+    const ok = confirm(`Supprimer la mindmap "${m.title}" ?`);
+    if (!ok) return;
+
+    this.api.deleteMindmap(m.id).subscribe({
+      next: () => {
+        this.mindmaps = this.mindmaps.filter(x => x.id !== m.id);
+      },
+      error: (err) => console.error('Delete mindmap failed', err),
+    });
+  }
+
+
 
   back(): void {
     this.router.navigate(['/constructeurs', 'mindmap']);
