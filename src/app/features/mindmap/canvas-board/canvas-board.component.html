@@ -1,0 +1,116 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="dashboard-content">
+    <div class="canvas-wrapper">
+      <header class="canvas-header">
+        <div>
+          <p class="eyebrow">Constructeur</p>
+          <h1>Canvas board</h1>
+          <p class="subtitle">Ajoutez des rectangles, des flèches et du texte.</p>
+        </div>
+        <div class="actions">
+          <button mat-stroked-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+            Retour
+          </button>
+          <button mat-stroked-button color="warn" (click)="clearCanvas()">
+            <mat-icon>delete_sweep</mat-icon>
+            Effacer
+          </button>
+        </div>
+      </header>
+
+      <section class="toolbar">
+        <button
+          mat-stroked-button
+          *ngFor="let tool of tools"
+          [class.active]="activeTool === tool"
+          (click)="setTool(tool)">
+          {{ tool }}
+        </button>
+        <button mat-stroked-button color="primary" (click)="zoomToSelected()" [disabled]="!selectedElementId">
+          <mat-icon>zoom_in</mat-icon>
+          Zoom to selected
+        </button>
+        <button mat-stroked-button color="warn" (click)="deleteSelectedElement()" [disabled]="!selectedElementId">
+          <mat-icon>delete</mat-icon>
+          Delete selected
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="toggleOverview()"
+          [class.active]="overviewOpen">
+          <mat-icon>map</mat-icon>
+          Vue d'ensemble
+        </button>
+      </section>
+
+      <section class="canvas-container" #canvasContainerRef>
+        <div class="canvas-scroll" [class.overview-mode]="overviewOpen" (scroll)="onCanvasScroll()">
+          <div
+            class="canvas-surface-host"
+            [class.overview-host]="overviewOpen"
+            [ngStyle]="overviewOpen ? { width: overviewOuterW + 'px', height: overviewOuterH + 'px' } : {}">
+            <div
+              class="canvas-surface"
+              #surfaceRef
+              [style.transform]="overviewOpen ? 'scale(' + overviewFitScale + ')' : 'none'"
+              [style.transform-origin]="overviewOpen ? '0 0' : ''">
+              <canvas
+                #canvasRef
+                (mousedown)="onCanvasMouseDown($event)"
+                (mousemove)="onCanvasMouseMove($event)"
+                (mouseup)="onCanvasMouseUp()"
+                (wheel)="onCanvasWheel($event)"
+                (dblclick)="onCanvasDoubleClick($event)"></canvas>
+              <ng-container *ngIf="!overviewOpen">
+                <button
+                  *ngIf="getMoveHandleStyle() as moveHandle"
+                  class="move-handle"
+                  [style.left]="moveHandle.left"
+                  [style.top]="moveHandle.top"
+                  (mousedown)="startMoveFromHandle($event)">
+                  ✥
+                </button>
+                <button
+                  *ngIf="getRectResizeHandleStyle('nw') as nw"
+                  class="resize-handle resize-nw"
+                  [style.left]="nw.left"
+                  [style.top]="nw.top"
+                  (mousedown)="startResizeFromHandle('nw', $event)">
+                </button>
+                <button
+                  *ngIf="getRectResizeHandleStyle('ne') as ne"
+                  class="resize-handle resize-ne"
+                  [style.left]="ne.left"
+                  [style.top]="ne.top"
+                  (mousedown)="startResizeFromHandle('ne', $event)">
+                </button>
+                <button
+                  *ngIf="getRectResizeHandleStyle('sw') as sw"
+                  class="resize-handle resize-sw"
+                  [style.left]="sw.left"
+                  [style.top]="sw.top"
+                  (mousedown)="startResizeFromHandle('sw', $event)">
+                </button>
+                <button
+                  *ngIf="getRectResizeHandleStyle('se') as se"
+                  class="resize-handle resize-se"
+                  [style.left]="se.left"
+                  [style.top]="se.top"
+                  (mousedown)="startResizeFromHandle('se', $event)">
+                </button>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+        <div class="scroll-percent-overlay" *ngIf="!overviewOpen" aria-hidden="true">
+          <div class="scroll-percent horizontal">{{ horizontalPercentLabel }}</div>
+          <div class="scroll-percent vertical">{{ verticalPercentLabel }}</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

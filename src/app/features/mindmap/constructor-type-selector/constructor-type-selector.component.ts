@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { LayoutModule } from '../../../layout/layout.module';
 
-export type ConstructorType = 'mindmap' | 'drill_grid' | 'pattern_card' | 'flowchart';
+export type ConstructorType = 'mindmap' | 'drill_grid' | 'pattern_card' | 'flowchart' | 'canvas_board';
 
 interface ConstructorTypeInfo {
   type: ConstructorType;
@@ -52,6 +52,13 @@ export class ConstructorTypeSelectorComponent {
       description: 'Diagrammes algorithmiques pour le choix des formes, temps, modalités',
       icon: 'device_hub',
       color: '#ef4444'
+    },
+    {
+      type: 'canvas_board',
+      title: 'Canvas board',
+      description: 'Un холст libre pour poser des rectangles, flèches et textes',
+      icon: 'draw',
+      color: '#0ea5e9'
     }
   ];
 
@@ -61,6 +68,8 @@ export class ConstructorTypeSelectorComponent {
     if (type === 'mindmap') {
       // Для Mindmap переходим на страницу с выбором типа mindmap
       this.router.navigate(['/constructeurs', 'mindmap']);
+    } else if (type === 'canvas_board') {
+      this.router.navigate(['/constructeurs', 'canvas-board']);
     } else {
       // Для других типов переходим к созданию конструктора с выбранным типом
       this.router.navigate(['/constructeurs', 'create'], {
