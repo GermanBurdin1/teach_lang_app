@@ -158,7 +158,7 @@ function unionWorldBounds(boxes: { x: number; y: number; width: number; height: 
   return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
 }
 
-function collectImmediatePortalNeighborhoodIds(elements: CanvasElement[], portalId: string): Set<string> {
+function collectOutgoingPortalNeighborhoodIds(elements: CanvasElement[], portalId: string): Set<string> {
   const ids = new Set<string>();
   const byId = new Map(elements.map((e) => [e.id, e]));
   if (!byId.has(portalId)) {
@@ -170,19 +170,23 @@ function collectImmediatePortalNeighborhoodIds(elements: CanvasElement[], portal
       continue;
     }
     const a = e as ArrowElement;
-    const onPortal = a.startAttach?.elementId === portalId || a.endAttach?.elementId === portalId;
-    if (!onPortal) {
+    /** Only arrows that *leave* the portal (`startAttach`), not incoming (`endAttach` only). */
+    if (a.startAttach?.elementId !== portalId) {
       continue;
     }
     ids.add(a.id);
-    if (a.startAttach && a.startAttach.elementId !== portalId) {
-      ids.add(a.startAttach.elementId);
-    }
-    if (a.endAttach && a.endAttach.elementId !== portalId) {
+    if (a.endAttach?.elementId && a.endAttach.elementId !== portalId) {
       ids.add(a.endAttach.elementId);
     }
   }
   return ids;
+}
+
+/** Subset of elements: portal + outgoing arrows + their far-end shapes (same rule as parent snapshot). */
+export function pickOutgoingNeighborhoodElements(elements: CanvasElement[], portalId: string): CanvasElement[] {
+  const norm = normalizeCanvasElements(elements);
+  const idSet = collectOutgoingPortalNeighborhoodIds(norm, portalId);
+  return norm.filter((e) => idSet.has(e.id));
 }
 
 function stripChildSceneIds(elements: CanvasElement[]): CanvasElement[] {
@@ -190,12 +194,12 @@ function stripChildSceneIds(elements: CanvasElement[]): CanvasElement[] {
 }
 
 /**
- * Portal + arrows that attach to the portal + the other endpoint element of each such arrow.
- * Does not include second-hop shapes (e.g. arrows only linked to a neighbor, not the portal).
+ * Portal + arrows that **start** on the portal (`startAttach`) + far-end shapes of those arrows.
+ * Incoming arrows (`endAttach` only) are excluded so unrelated nearby shapes are not pulled in.
  */
 export function buildParentContextSnapshot(elements: CanvasElement[], portalId: string): ParentContextSnapshot | null {
   const normalized = normalizeCanvasElements(elements);
-  const idSet = collectImmediatePortalNeighborhoodIds(normalized, portalId);
+  const idSet = collectOutgoingPortalNeighborhoodIds(normalized, portalId);
   if (!idSet.size) {
     return null;
   }

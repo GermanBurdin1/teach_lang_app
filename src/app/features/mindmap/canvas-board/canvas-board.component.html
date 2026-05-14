@@ -7,7 +7,7 @@
         <div>
           <p class="eyebrow">Constructeur</p>
           <h1><span class="scene-heading">{{ sceneTitleLine }}</span></h1>
-          <p class="subtitle">Ajoutez des rectangles, des flèches et du texte. Sous-scène : « Nouvelle sous-scène » ou Ctrl+Maj+S. Ré-ouvrir : double-clic ou « Ouvrir sous-scène ». Maj+Entrée : flèche + forme séparées (▭ ou ○) — sur une flèche (nouvelle forme à l'extrémité) ou sur un rectangle / texte / cercle (nouvelle flèche liée au bord). Redimensionnez la forme indépendamment ; déplacer la flèche (✥) détache les liens.</p>
+          <p class="subtitle">Ajoutez des rectangles, des flèches et du texte. Sous-scène : « Nouvelle sous-scène » ou Ctrl+Maj+S. Ré-ouvrir : double-clic ou « Ouvrir sous-scène ». Maj+Entrée : flèche + forme séparées (▭ ou ○) — sur une flèche (nouvelle forme à l'extrémité) ou sur un rectangle / texte / cercle (nouvelle flèche liée au bord ; répéter Maj+Entrée pour plusieurs branches décalées). Redimensionnez la forme indépendamment ; déplacer la flèche (✥) détache les liens.</p>
         </div>
         <div class="actions">
           <button mat-stroked-button (click)="goBack()">
@@ -29,7 +29,7 @@
           (click)="setTool(tool)">
           {{ tool }}
         </button>
-        <span class="arrow-decor-toolbar" matTooltip="Maj+Entrée : forme sur une flèche, ou nouvelle flèche depuis un rectangle / texte sélectionné">
+        <span class="arrow-decor-toolbar" matTooltip="Maj+Entrée : forme sur une flèche, ou nouvelle flèche depuis un rectangle / texte / cercle (plusieurs fois : branches décalées)">
           <mat-button-toggle-group
             [hideSingleSelectionIndicator]="true"
             [value]="arrowDecorationKind"

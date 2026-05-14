@@ -14,7 +14,7 @@ export interface ParentFrame {
   rect: ParentFrameRect;
 }
 
-/** Frozen neighborhood of the portal on the parent canvas (portal + arrows attached to it + their other endpoints). */
+/** Frozen neighborhood on the parent canvas: portal + arrows that **start** on it + far-end shapes (no incoming-only arrows). */
 export interface ParentContextSnapshot {
   version: 1;
   /** World-space copies in the parent scene coordinate system at capture time. */

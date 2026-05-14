@@ -20,8 +20,7 @@ import type {
   RectElement
 } from './canvas-scene.model';
 import { tipOnCircleWorld, tipOnRectWorld } from './arrow-decoration.utils';
-import { normalizeCanvasElements } from './canvas-scene.store';
-import { CanvasSceneStore } from './canvas-scene.store';
+import { normalizeCanvasElements, pickOutgoingNeighborhoodElements, CanvasSceneStore } from './canvas-scene.store';
 import { drawParentContextSnapshotWorld } from './parent-context-snapshot-draw';
 import {
   CreateChildSceneDialogComponent,
@@ -247,7 +246,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       if (t?.isContentEditable) {
         return;
       }
-      if (!t?.closest('button, a, input, textarea, mat-button-toggle, mat-option, [role="dialog"]')) {
+      if (!t?.closest('button, input, textarea, mat-button-toggle, mat-option, [role="dialog"]')) {
         const sel = this.getSelectedElement();
         if (sel?.type === 'arrow') {
           event.preventDefault();
@@ -906,8 +905,11 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     const qx = -dir.y;
     const qy = dir.x;
     const off = 26;
-    const cx = endPre.x + qx * off + dir.x * 10;
-    const cy = endPre.y + qy * off + dir.y * 10;
+    const stackIndex = this.countOutgoingArrowsFromSource(source.id);
+    const stackPitch = 36;
+    const lateral = stackIndex * stackPitch;
+    const cx = endPre.x + qx * off + dir.x * 10 + qx * lateral;
+    const cy = endPre.y + qy * off + dir.y * 10 + qy * lateral;
     const tailId = crypto.randomUUID();
     const arrowId = crypto.randomUUID();
     const arrow: ArrowElement = {
@@ -934,9 +936,14 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
           };
     this.elements.push(arrow, tailEl);
     this.syncAttachedArrows();
-    this.selectedElementId = tailId;
+    this.selectedElementId = source.id;
     this.render();
     this.persistSceneSnapshot();
+  }
+
+  /** How many arrows already leave this source (same startAttach); used to stack Shift+Enter branches. */
+  private countOutgoingArrowsFromSource(sourceId: string): number {
+    return this.elements.filter((e) => e.type === 'arrow' && e.startAttach?.elementId === sourceId).length;
   }
 
   /** Met à jour `start` / `end` des flèches liées aux figures (éléments séparés). */
@@ -1203,6 +1210,28 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
   }
 
+  /**
+   * On child-scene hover preview, approximate an "entry" shape (top-left non-arrow) so we apply the same
+   * outgoing-arrow neighborhood filter as on the parent; avoids showing the whole child sheet.
+   */
+  private pickChildHoverPreviewAnchorId(elements: CanvasElement[]): string | null {
+    const solids = elements.filter((e) => e.type === 'rectangle' || e.type === 'circle' || e.type === 'text');
+    if (!solids.length) {
+      return null;
+    }
+    let best = solids[0]!;
+    let bestKey = Infinity;
+    for (const el of solids) {
+      const b = this.getElementBounds(this.normalizeElement(el));
+      const key = b.x + b.y;
+      if (key < bestKey || (key === bestKey && el.id < best.id)) {
+        bestKey = key;
+        best = el;
+      }
+    }
+    return best.id;
+  }
+
   private syncChildSceneHoverPreview(world: Point, event: MouseEvent): void {
     if (
       this.overviewOpen ||
@@ -1267,7 +1296,11 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
 
     this.childHoverPortalElementId = hit.id;
-    const elements = normalizeCanvasElements(node.innerDocument.elements);
+    let elements = normalizeCanvasElements(node.innerDocument.elements);
+    const anchorId = this.pickChildHoverPreviewAnchorId(elements);
+    if (anchorId) {
+      elements = pickOutgoingNeighborhoodElements(elements, anchorId);
+    }
     let bounds = this.unionPreviewBoundsForElements(elements);
     if (!elements.length) {
       const iw = Math.max(120, node.innerDocument.baseCanvasWidth || 320);
