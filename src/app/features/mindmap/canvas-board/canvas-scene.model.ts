@@ -14,6 +14,17 @@ export interface ParentFrame {
   rect: ParentFrameRect;
 }
 
+/** Frozen neighborhood of the portal on the parent canvas (portal + arrows attached to it + their other endpoints). */
+export interface ParentContextSnapshot {
+  version: 1;
+  /** World-space copies in the parent scene coordinate system at capture time. */
+  elements: CanvasElement[];
+  /** Union AABB of `elements` in world space (for fitting the preview). */
+  bounds: { x: number; y: number; width: number; height: number };
+  /** When the snapshot was taken (ISO). */
+  capturedAt: string;
+}
+
 export interface Point {
   x: number;
   y: number;
@@ -103,6 +114,8 @@ export interface CanvasSceneNode {
   parentSceneId: string | null;
   parentElementId: string | null;
   parentFrame: ParentFrame | null;
+  /** Optional: portal neighborhood on the parent (for embedded preview in the child scene). */
+  parentContextSnapshot?: ParentContextSnapshot | null;
   createdAt: string;
   innerDocument: CanvasInnerDocument;
 }

@@ -6,8 +6,10 @@ import type {
   CanvasInnerDocument,
   CanvasSceneNode,
   CanvasScenesFile,
+  ParentContextSnapshot,
   ParentFrame,
-  RectElement
+  RectElement,
+  TextElement
 } from './canvas-scene.model';
 import { tipOnDecoration } from './arrow-decoration.utils';
 
@@ -101,6 +103,115 @@ export function normalizeCanvasElements(elements: CanvasElement[]): CanvasElemen
   });
 }
 
+function normalizeRectForBounds(el: RectElement): RectElement {
+  const x = el.width < 0 ? el.x + el.width : el.x;
+  const y = el.height < 0 ? el.y + el.height : el.y;
+  const width = Math.abs(el.width);
+  const height = Math.abs(el.height);
+  return { ...el, x, y, width, height };
+}
+
+function worldBoundsForSnapshot(el: CanvasElement): { x: number; y: number; width: number; height: number } {
+  if (el.type === 'rectangle') {
+    const r = normalizeRectForBounds(el as RectElement);
+    return { x: r.x, y: r.y, width: r.width, height: r.height };
+  }
+  if (el.type === 'circle') {
+    const c = el as CircleElement;
+    const d = 2 * c.r;
+    return { x: c.cx - c.r, y: c.cy - c.r, width: Math.max(d, 1), height: Math.max(d, 1) };
+  }
+  if (el.type === 'arrow') {
+    const a = el as ArrowElement;
+    const tip = a.end;
+    const minX = Math.min(a.start.x, tip.x);
+    const minY = Math.min(a.start.y, tip.y);
+    const maxX = Math.max(a.start.x, tip.x);
+    const maxY = Math.max(a.start.y, tip.y);
+    return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
+  }
+  const t = el as TextElement;
+  const width = Math.max(50, t.text.length * 8);
+  const height = 20;
+  return { x: t.x, y: t.y - height, width, height };
+}
+
+function unionWorldBounds(boxes: { x: number; y: number; width: number; height: number }[]): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  if (!boxes.length) {
+    return { x: 0, y: 0, width: 1, height: 1 };
+  }
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const b of boxes) {
+    minX = Math.min(minX, b.x);
+    minY = Math.min(minY, b.y);
+    maxX = Math.max(maxX, b.x + b.width);
+    maxY = Math.max(maxY, b.y + b.height);
+  }
+  return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
+}
+
+function collectImmediatePortalNeighborhoodIds(elements: CanvasElement[], portalId: string): Set<string> {
+  const ids = new Set<string>();
+  const byId = new Map(elements.map((e) => [e.id, e]));
+  if (!byId.has(portalId)) {
+    return ids;
+  }
+  ids.add(portalId);
+  for (const e of elements) {
+    if (e.type !== 'arrow') {
+      continue;
+    }
+    const a = e as ArrowElement;
+    const onPortal = a.startAttach?.elementId === portalId || a.endAttach?.elementId === portalId;
+    if (!onPortal) {
+      continue;
+    }
+    ids.add(a.id);
+    if (a.startAttach && a.startAttach.elementId !== portalId) {
+      ids.add(a.startAttach.elementId);
+    }
+    if (a.endAttach && a.endAttach.elementId !== portalId) {
+      ids.add(a.endAttach.elementId);
+    }
+  }
+  return ids;
+}
+
+function stripChildSceneIds(elements: CanvasElement[]): CanvasElement[] {
+  return elements.map((e) => ({ ...e, childSceneIds: [] as string[] }));
+}
+
+/**
+ * Portal + arrows that attach to the portal + the other endpoint element of each such arrow.
+ * Does not include second-hop shapes (e.g. arrows only linked to a neighbor, not the portal).
+ */
+export function buildParentContextSnapshot(elements: CanvasElement[], portalId: string): ParentContextSnapshot | null {
+  const normalized = normalizeCanvasElements(elements);
+  const idSet = collectImmediatePortalNeighborhoodIds(normalized, portalId);
+  if (!idSet.size) {
+    return null;
+  }
+  const picked = normalized.filter((e) => idSet.has(e.id));
+  const stripped = stripChildSceneIds(picked);
+  const cloned = JSON.parse(JSON.stringify(stripped)) as CanvasElement[];
+  const again = normalizeCanvasElements(cloned);
+  const bounds = unionWorldBounds(again.map(worldBoundsForSnapshot));
+  return {
+    version: 1,
+    elements: again,
+    bounds,
+    capturedAt: new Date().toISOString()
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class CanvasSceneStore {
   private readonly scenes = new Map<string, CanvasSceneNode>();
@@ -192,8 +303,11 @@ export class CanvasSceneStore {
     if (!parent) {
       throw new Error('Parent scene not found');
     }
+    const doc = parent.innerDocument;
+    const elements = normalizeCanvasElements(doc.elements);
     const outlineNumber = this.computeNextOutlineNumber(params.parentSceneId);
     const id = crypto.randomUUID();
+    const snapshot = buildParentContextSnapshot(elements, params.parentElementId);
     const node: CanvasSceneNode = {
       id,
       title: params.title.trim(),
@@ -201,13 +315,12 @@ export class CanvasSceneStore {
       parentSceneId: params.parentSceneId,
       parentElementId: params.parentElementId,
       parentFrame: params.parentFrame,
+      parentContextSnapshot: snapshot,
       createdAt: new Date().toISOString(),
       innerDocument: emptyInnerDocument()
     };
     this.scenes.set(id, node);
 
-    const doc = parent.innerDocument;
-    const elements = normalizeCanvasElements(doc.elements);
     const el = elements.find((e) => e.id === params.parentElementId);
     if (el) {
       const ids = [...el.childSceneIds, id];
@@ -261,6 +374,15 @@ export class CanvasSceneStore {
         panX: inner?.panX ?? 0,
         panY: inner?.panY ?? 0
       };
+      const snap = n.parentContextSnapshot;
+      if (snap && snap.version === 1 && Array.isArray(snap.elements)) {
+        n.parentContextSnapshot = {
+          ...snap,
+          elements: normalizeCanvasElements(snap.elements)
+        };
+      } else if (snap && (!Array.isArray(snap.elements) || snap.version !== 1)) {
+        n.parentContextSnapshot = null;
+      }
       this.scenes.set(id, n);
     }
   }

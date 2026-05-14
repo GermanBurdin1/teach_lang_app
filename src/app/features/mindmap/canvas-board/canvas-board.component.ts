@@ -14,6 +14,7 @@ import type {
   CanvasElement,
   CircleElement,
   CanvasSceneNode,
+  ParentContextSnapshot,
   ParentFrame,
   Point,
   RectElement
@@ -21,6 +22,7 @@ import type {
 import { tipOnCircleWorld, tipOnRectWorld } from './arrow-decoration.utils';
 import { normalizeCanvasElements } from './canvas-scene.store';
 import { CanvasSceneStore } from './canvas-scene.store';
+import { drawParentContextSnapshotWorld } from './parent-context-snapshot-draw';
 import {
   CreateChildSceneDialogComponent,
   type CreateChildSceneDialogResult
@@ -57,6 +59,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('surfaceRef') surfaceRef!: ElementRef<HTMLElement>;
   @ViewChild('canvasScrollRef') canvasScrollRef?: ElementRef<HTMLElement>;
   @ViewChild('rectTextArea') rectTextAreaRef?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('parentContextCanvas') parentContextCanvasRef?: ElementRef<HTMLCanvasElement>;
 
   readonly tools: CanvasTool[] = ['select', 'rectangle', 'arrow', 'text'];
   activeTool: CanvasTool = 'select';
@@ -114,6 +117,11 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   get currentScene(): CanvasSceneNode | null {
     return this.activeSceneId ? (this.canvasSceneStore.getScene(this.activeSceneId) ?? null) : null;
+  }
+
+  /** Neighborhood of the portal on the parent canvas (only on child scenes). */
+  get parentContextPreview(): ParentContextSnapshot | null {
+    return this.currentScene?.parentContextSnapshot ?? null;
   }
 
   get sceneTitleLine(): string {
@@ -1087,9 +1095,47 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
     this.updateParentPortalOverlay();
     this.scheduleScrollOverflowUpdate();
+    this.scheduleParentContextPreviewPaint();
     if (this.editingRectangleId) {
       this.cdr.markForCheck();
     }
+  }
+
+  private scheduleParentContextPreviewPaint(): void {
+    if (this.overviewOpen || !this.parentContextPreview?.elements?.length) {
+      return;
+    }
+    setTimeout(() => this.paintParentContextPreview(), 0);
+  }
+
+  private paintParentContextPreview(): void {
+    if (this.overviewOpen) {
+      return;
+    }
+    const snap = this.parentContextPreview;
+    const canvas = this.parentContextCanvasRef?.nativeElement;
+    if (!snap?.elements?.length || !canvas) {
+      return;
+    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
+    const w = canvas.width;
+    const h = canvas.height;
+    const pad = 10;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, w, h);
+    const b = snap.bounds;
+    const bw = Math.max(1, b.width);
+    const bh = Math.max(1, b.height);
+    const s = Math.min((w - pad * 2) / bw, (h - pad * 2) / bh);
+    const cx = b.x + bw / 2;
+    const cy = b.y + bh / 2;
+    ctx.setTransform(s, 0, 0, s, w / 2 - cx * s, h / 2 - cy * s);
+    drawParentContextSnapshotWorld(ctx, snap.elements);
   }
 
   private scheduleScrollOverflowUpdate(): void {

@@ -6,7 +6,6 @@ import { CreateMindmapComponent } from './create-mindmap/create-mindmap.componen
 import { StudentMindmapComponent } from './student-mindmap/student-mindmap.component';
 import { MindmapRouterComponent } from './mindmap-router.component';
 import { MindmapListComponent } from './mindmap-list.component';
-import { CanvasBoardComponent } from './canvas-board/canvas-board.component';
 
 const routes: Routes = [
   // Используем компонент-обертку для определения роли и показа нужного компонента
@@ -33,11 +32,11 @@ const routes: Routes = [
   },
   {
     path: 'canvas-board/:sceneId',
-    component: CanvasBoardComponent
+    loadComponent: () => import('./canvas-board/canvas-board.component').then((m) => m.CanvasBoardComponent)
   },
   {
     path: 'canvas-board',
-    component: CanvasBoardComponent
+    loadComponent: () => import('./canvas-board/canvas-board.component').then((m) => m.CanvasBoardComponent)
   },
   // Роуты для студентов (/mindmap) - проверка через RoleGuard в app.routes
   {

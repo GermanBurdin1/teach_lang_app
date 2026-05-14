@@ -97,6 +97,10 @@
 
       <section class="canvas-container" #canvasContainerRef>
         <div class="parent-portal-frame" *ngIf="parentPortalBoxStyle && !overviewOpen" [ngStyle]="parentPortalBoxStyle"></div>
+        <div class="parent-context-preview" *ngIf="!overviewOpen && parentContextPreview">
+          <span class="parent-context-preview-title">Contexte parent</span>
+          <canvas #parentContextCanvas class="parent-context-preview-canvas" width="280" height="168"></canvas>
+        </div>
         <div
           #canvasScrollRef
           class="canvas-scroll"
