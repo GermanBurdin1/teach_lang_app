@@ -32,6 +32,10 @@ const routes: Routes = [
     component: MindmapListComponent
   },
   {
+    path: 'canvas-board/:sceneId',
+    component: CanvasBoardComponent
+  },
+  {
     path: 'canvas-board',
     component: CanvasBoardComponent
   },

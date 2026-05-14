@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { LayoutModule } from '../../../layout/layout.module';
+import { CanvasSceneStore } from '../canvas-board/canvas-scene.store';
 
 export type ConstructorType = 'mindmap' | 'drill_grid' | 'pattern_card' | 'flowchart' | 'canvas_board';
 
@@ -62,14 +63,18 @@ export class ConstructorTypeSelectorComponent {
     }
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private readonly canvasSceneStore: CanvasSceneStore
+  ) {}
 
   selectType(type: ConstructorType): void {
     if (type === 'mindmap') {
       // Для Mindmap переходим на страницу с выбором типа mindmap
       this.router.navigate(['/constructeurs', 'mindmap']);
     } else if (type === 'canvas_board') {
-      this.router.navigate(['/constructeurs', 'canvas-board']);
+      const id = this.canvasSceneStore.ensureDefaultRootScene();
+      this.router.navigate(['/constructeurs', 'canvas-board', id]);
     } else {
       // Для других типов переходим к созданию конструктора с выбранным типом
       this.router.navigate(['/constructeurs', 'create'], {

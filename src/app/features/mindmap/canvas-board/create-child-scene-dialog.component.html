@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Nouvelle sous-scène</h2>
+
+<mat-dialog-content>
+  <p class="outline-preview">Numéro attribué : <strong>{{ data.previewOutlineNumber }}</strong></p>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nom (obligatoire)</mat-label>
+      <input matInput formControlName="title" autocomplete="off" />
+      <mat-error *ngIf="form.controls.title.hasError('required') && form.controls.title.touched">
+        Le nom est requis
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="cancel()">Annuler</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="form.invalid" (click)="submit()">
+    Créer
+  </button>
+</mat-dialog-actions>

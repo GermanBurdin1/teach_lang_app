@@ -1,66 +1,48 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LayoutModule } from '../../../layout/layout.module';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import type { CanvasElement, CanvasSceneNode, ParentFrame, Point, RectElement } from './canvas-scene.model';
+import { normalizeCanvasElements } from './canvas-scene.store';
+import { CanvasSceneStore } from './canvas-scene.store';
+import {
+  CreateChildSceneDialogComponent,
+  type CreateChildSceneDialogResult
+} from './create-child-scene-dialog.component';
 
 type CanvasTool = 'select' | 'rectangle' | 'arrow' | 'text';
 type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se';
-
-interface Point {
-  x: number;
-  y: number;
-}
 
 interface ScreenPosition {
   left: string;
   top: string;
 }
 
-interface RectElement {
-  id: string;
-  type: 'rectangle';
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface ArrowElement {
-  id: string;
-  type: 'arrow';
-  start: Point;
-  end: Point;
-}
-
-interface TextElement {
-  id: string;
-  type: 'text';
-  x: number;
-  y: number;
-  text: string;
-}
-
-type CanvasElement = RectElement | ArrowElement | TextElement;
-
 @Component({
   selector: 'app-canvas-board',
   standalone: true,
-  imports: [CommonModule, LayoutModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, LayoutModule, MatButtonModule, MatIconModule, MatDialogModule, MatTooltipModule, RouterLink],
   templateUrl: './canvas-board.component.html',
   styleUrls: ['./canvas-board.component.css']
 })
-export class CanvasBoardComponent implements AfterViewInit {
+export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasRef', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('canvasContainerRef', { static: true }) canvasContainerRef!: ElementRef<HTMLElement>;
   @ViewChild('surfaceRef') surfaceRef!: ElementRef<HTMLElement>;
+  @ViewChild('canvasScrollRef') canvasScrollRef?: ElementRef<HTMLElement>;
 
   readonly tools: CanvasTool[] = ['select', 'rectangle', 'arrow', 'text'];
   activeTool: CanvasTool = 'select';
   elements: CanvasElement[] = [];
   selectedElementId: string | null = null;
   overviewOpen = false;
+  /** Which scroll axes are active on .canvas-scroll (avoids both bars when only one axis overflows). */
+  scrollMode: 'none' | 'x' | 'y' | 'xy' = 'none';
   /** CSS scale applied to the whole sheet in overview mode (fits scroll viewport). */
   overviewFitScale = 1;
   overviewOuterW = 0;
@@ -96,16 +78,64 @@ export class CanvasBoardComponent implements AfterViewInit {
   horizontalPercentLabel = '100%';
   verticalPercentLabel = '100%';
 
+  /** Current route scene id (null before first navigation resolve). */
+  activeSceneId: string | null = null;
+  sceneBreadcrumb: { id: string; title: string; outlineNumber: string }[] = [];
+  parentPortalBoxStyle: Record<string, string> | null = null;
+
+  get currentScene(): CanvasSceneNode | null {
+    return this.activeSceneId ? (this.canvasSceneStore.getScene(this.activeSceneId) ?? null) : null;
+  }
+
+  get sceneTitleLine(): string {
+    const n = this.currentScene;
+    return n ? `${n.outlineNumber} · ${n.title}` : 'Canvas board';
+  }
+
+  private readonly destroy$ = new Subject<void>();
+
   constructor(
     private readonly router: Router,
-    private readonly cdr: ChangeDetectorRef
+    private readonly route: ActivatedRoute,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly canvasSceneStore: CanvasSceneStore,
+    private readonly dialog: MatDialog
   ) {}
 
   ngAfterViewInit(): void {
     this.ctx = this.canvasRef.nativeElement.getContext('2d');
-    this.resizeCanvas();
-    this.syncCanvasCssSize();
-    this.render();
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((pm) => {
+      const param = pm.get('sceneId');
+      if (this.activeSceneId) {
+        this.persistSceneSnapshot();
+      }
+      if (!param) {
+        const id = this.canvasSceneStore.ensureDefaultRootScene();
+        void this.router.navigate(['/constructeurs', 'canvas-board', id], { replaceUrl: true });
+        return;
+      }
+      let sceneId = param;
+      if (!this.canvasSceneStore.getScene(sceneId)) {
+        const fallback =
+          this.canvasSceneStore.listRootIds()[0] ?? this.canvasSceneStore.ensureDefaultRootScene();
+        void this.router.navigate(['/constructeurs', 'canvas-board', fallback], { replaceUrl: true });
+        return;
+      }
+      this.activeSceneId = sceneId;
+      this.applySceneFromStore(sceneId);
+      this.sceneBreadcrumb = this.canvasSceneStore.getBreadcrumb(sceneId);
+      this.resizeCanvas();
+      this.syncCanvasCssSize();
+      this.render();
+      this.updateParentPortalOverlay();
+      this.cdr.markForCheck();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.persistSceneSnapshot();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   @HostListener('window:resize')
@@ -130,6 +160,20 @@ export class CanvasBoardComponent implements AfterViewInit {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
+    const target = event.target;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+      return;
+    }
+    if (event.altKey && event.key === 'ArrowLeft') {
+      event.preventDefault();
+      this.goToParentScene();
+      return;
+    }
+    if (event.ctrlKey && event.shiftKey && !event.altKey && !event.metaKey && event.code === 'KeyS') {
+      event.preventDefault();
+      void this.openCreateChildSceneDialog();
+      return;
+    }
     if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedElementId) {
       this.deleteSelectedElement();
       event.preventDefault();
@@ -150,7 +194,8 @@ export class CanvasBoardComponent implements AfterViewInit {
           type: 'text',
           x: point.x,
           y: point.y,
-          text: value.trim()
+          text: value.trim(),
+          childSceneIds: []
         });
         this.render();
       }
@@ -174,7 +219,8 @@ export class CanvasBoardComponent implements AfterViewInit {
         x: point.x,
         y: point.y,
         width: 0,
-        height: 0
+        height: 0,
+        childSceneIds: []
       };
     }
 
@@ -183,7 +229,8 @@ export class CanvasBoardComponent implements AfterViewInit {
         id: crypto.randomUUID(),
         type: 'arrow',
         start: { ...point },
-        end: { ...point }
+        end: { ...point },
+        childSceneIds: []
       };
     }
 
@@ -247,6 +294,7 @@ export class CanvasBoardComponent implements AfterViewInit {
     this.dragStart = null;
     this.draftElement = null;
     this.render();
+    this.persistSceneSnapshot();
   }
 
   clearCanvas(): void {
@@ -254,6 +302,7 @@ export class CanvasBoardComponent implements AfterViewInit {
     this.draftElement = null;
     this.selectedElementId = null;
     this.render();
+    this.persistSceneSnapshot();
   }
 
   zoomToSelected(): void {
@@ -280,6 +329,7 @@ export class CanvasBoardComponent implements AfterViewInit {
     this.panX = canvas.width / 2 - centerX * this.scale;
     this.panY = canvas.height / 2 - centerY * this.scale;
     this.render();
+    this.persistSceneSnapshot();
   }
 
   startResizeFromHandle(handle: ResizeHandle, event: MouseEvent): void {
@@ -311,6 +361,7 @@ export class CanvasBoardComponent implements AfterViewInit {
     this.panX = canvasPoint.x - worldBefore.x * this.scale;
     this.panY = canvasPoint.y - worldBefore.y * this.scale;
     this.render();
+    this.persistSceneSnapshot();
   }
 
   onCanvasDoubleClick(event: MouseEvent): void {
@@ -321,6 +372,14 @@ export class CanvasBoardComponent implements AfterViewInit {
     const hit = this.findElementAtPoint(point);
     if (!hit) return;
     this.selectedElementId = hit.id;
+    const ids = hit.childSceneIds ?? [];
+    for (let i = ids.length - 1; i >= 0; i--) {
+      const id = ids[i]!;
+      if (this.canvasSceneStore.getScene(id)) {
+        void this.router.navigate(['/constructeurs', 'canvas-board', id]);
+        return;
+      }
+    }
     this.zoomToSelected();
   }
 
@@ -353,6 +412,7 @@ export class CanvasBoardComponent implements AfterViewInit {
     this.elements = this.elements.filter((el) => el.id !== this.selectedElementId);
     this.selectedElementId = null;
     this.render();
+    this.persistSceneSnapshot();
   }
 
   toggleOverview(): void {
@@ -390,9 +450,162 @@ export class CanvasBoardComponent implements AfterViewInit {
     this.syncCanvasCssSize();
     this.render();
     this.cdr.detectChanges();
+    this.persistSceneSnapshot();
   }
 
   onCanvasScroll(): void {}
+
+  goToParentScene(): void {
+    const id = this.activeSceneId;
+    if (!id) return;
+    const node = this.canvasSceneStore.getScene(id);
+    if (!node?.parentSceneId) return;
+    void this.router.navigate(['/constructeurs', 'canvas-board', node.parentSceneId]);
+  }
+
+  /** Open the first linked sub-scene for the selected shape (same ids as in the store). */
+  goToLinkedChildScene(): void {
+    const childId = this.linkedChildSceneIdToOpen;
+    if (!childId) return;
+    void this.router.navigate(['/constructeurs', 'canvas-board', childId]);
+  }
+
+  get canGoToParentScene(): boolean {
+    const id = this.activeSceneId;
+    if (!id) return false;
+    return !!this.canvasSceneStore.getScene(id)?.parentSceneId;
+  }
+
+  get canCreateChildScene(): boolean {
+    return !this.overviewOpen && !!this.activeSceneId && !!this.selectedElementId;
+  }
+
+  /** Last linked child scene id that still exists (newest appended id wins). */
+  get linkedChildSceneIdToOpen(): string | null {
+    const el = this.getSelectedElement();
+    if (!el?.childSceneIds?.length) return null;
+    for (let i = el.childSceneIds.length - 1; i >= 0; i--) {
+      const id = el.childSceneIds[i]!;
+      if (this.canvasSceneStore.getScene(id)) return id;
+    }
+    return null;
+  }
+
+  get canOpenChildScene(): boolean {
+    return !this.overviewOpen && !!this.activeSceneId && !!this.linkedChildSceneIdToOpen;
+  }
+
+  async openCreateChildSceneDialog(): Promise<void> {
+    if (this.overviewOpen || !this.activeSceneId) return;
+    const selected = this.getSelectedElement();
+    if (!selected) return;
+    const preview = this.canvasSceneStore.previewNextOutlineNumber(this.activeSceneId);
+    const ref = this.dialog.open(CreateChildSceneDialogComponent, {
+      width: '380px',
+      disableClose: true,
+      data: { previewOutlineNumber: preview }
+    });
+    const result = await firstValueFrom(ref.afterClosed());
+    if (!result?.title) return;
+    const parentId = this.activeSceneId;
+    const parentNode = this.canvasSceneStore.getScene(parentId);
+    const b = this.getElementBounds(this.normalizeElement(selected));
+    const parentFrame: ParentFrame = {
+      parentSceneId: parentId,
+      parentElementId: selected.id,
+      parentSceneTitle: parentNode?.title,
+      rect: { x: b.x, y: b.y, width: b.width, height: b.height }
+    };
+    const created = this.canvasSceneStore.createChildScene({
+      parentSceneId: parentId,
+      parentElementId: selected.id,
+      title: result.title,
+      parentFrame
+    });
+    const updatedParent = this.canvasSceneStore.getScene(parentId);
+    this.elements = normalizeCanvasElements(updatedParent?.innerDocument.elements ?? this.elements);
+    this.persistSceneSnapshot();
+    void this.router.navigate(['/constructeurs', 'canvas-board', created.id]);
+  }
+
+  private applySceneFromStore(sceneId: string): void {
+    const node = this.canvasSceneStore.getScene(sceneId);
+    if (!node) return;
+    const d = node.innerDocument;
+    this.elements = normalizeCanvasElements(d.elements);
+    this.baseCanvasWidth = d.baseCanvasWidth || 0;
+    this.baseCanvasHeight = d.baseCanvasHeight || 0;
+    this.extraLeft = d.extraLeft || 0;
+    this.extraRight = d.extraRight || 0;
+    this.extraTop = d.extraTop || 0;
+    this.extraBottom = d.extraBottom || 0;
+    this.scale = d.scale > 0 ? d.scale : 1;
+    this.panX = d.panX ?? 0;
+    this.panY = d.panY ?? 0;
+    const canvas = this.canvasRef.nativeElement;
+    if (d.sheetWidth > 0 && d.sheetHeight > 0) {
+      canvas.width = d.sheetWidth;
+      canvas.height = d.sheetHeight;
+    }
+    this.selectedElementId = null;
+    this.draftElement = null;
+  }
+
+  private persistSceneSnapshot(): void {
+    const id = this.activeSceneId;
+    if (!id || !this.canvasRef?.nativeElement) return;
+    const c = this.canvasRef.nativeElement;
+    this.canvasSceneStore.patchSceneInnerDocument(id, {
+      elements: structuredClone(this.elements),
+      sheetWidth: c.width,
+      sheetHeight: c.height,
+      baseCanvasWidth: this.baseCanvasWidth,
+      baseCanvasHeight: this.baseCanvasHeight,
+      extraLeft: this.extraLeft,
+      extraRight: this.extraRight,
+      extraTop: this.extraTop,
+      extraBottom: this.extraBottom,
+      scale: this.scale,
+      panX: this.panX,
+      panY: this.panY
+    });
+  }
+
+  private updateParentPortalOverlay(): void {
+    if (this.overviewOpen) {
+      this.parentPortalBoxStyle = null;
+      return;
+    }
+    const node = this.activeSceneId ? this.canvasSceneStore.getScene(this.activeSceneId) : undefined;
+    const pf = node?.parentFrame;
+    const host = this.canvasContainerRef?.nativeElement;
+    if (!pf || !host) {
+      this.parentPortalBoxStyle = null;
+      return;
+    }
+    const pad = 10;
+    const w = Math.max(1, host.clientWidth - pad * 2);
+    const h = Math.max(1, host.clientHeight - pad * 2);
+    const rw = Math.max(1, pf.rect.width);
+    const rh = Math.max(1, pf.rect.height);
+    const s = Math.min(w / rw, h / rh);
+    const bw = rw * s;
+    const bh = rh * s;
+    const left = pad + (w - bw) / 2;
+    const top = pad + (h - bh) / 2;
+    this.parentPortalBoxStyle = {
+      position: 'absolute',
+      left: `${left}px`,
+      top: `${top}px`,
+      width: `${bw}px`,
+      height: `${bh}px`,
+      border: '3px dashed #2563eb',
+      borderRadius: '8px',
+      pointerEvents: 'none',
+      boxSizing: 'border-box',
+      zIndex: '6'
+    };
+  }
 
   goBack(): void {
     this.router.navigate(['/constructeurs']);
@@ -431,11 +644,11 @@ export class CanvasBoardComponent implements AfterViewInit {
 
   private getScrollAreaSize(): { w: number; h: number } {
     const container = this.canvasContainerRef.nativeElement;
-    const scroll = container.querySelector('.canvas-scroll') as HTMLElement | null;
-    if (scroll) {
-      return { w: scroll.clientWidth, h: scroll.clientHeight };
-    }
-    return { w: container.clientWidth, h: container.clientHeight };
+    const scroll =
+      this.canvasScrollRef?.nativeElement ?? (container.querySelector('.canvas-scroll') as HTMLElement | null);
+    const wRaw = scroll?.clientWidth ?? container.clientWidth;
+    const hRaw = scroll?.clientHeight ?? container.clientHeight;
+    return { w: Math.max(0, Math.floor(wRaw)), h: Math.max(0, Math.floor(hRaw)) };
   }
 
   private syncCanvasCssSize(): void {
@@ -519,10 +732,57 @@ export class CanvasBoardComponent implements AfterViewInit {
     if (this.overviewOpen) {
       this.updateOverviewLayout();
     }
+    this.updateParentPortalOverlay();
+    this.scheduleScrollOverflowUpdate();
+  }
+
+  private scheduleScrollOverflowUpdate(): void {
+    if (this.overviewOpen) {
+      if (this.scrollMode !== 'none') {
+        this.scrollMode = 'none';
+        this.cdr.markForCheck();
+      }
+      return;
+    }
+    requestAnimationFrame(() => {
+      this.updateScrollOverflowMode();
+      this.cdr.markForCheck();
+      requestAnimationFrame(() => {
+        this.updateScrollOverflowMode();
+        this.cdr.markForCheck();
+      });
+    });
+  }
+
+  private updateScrollOverflowMode(): void {
+    const scroll = this.getCanvasScrollEl();
+    if (!scroll || this.overviewOpen) {
+      this.scrollMode = 'none';
+      return;
+    }
+    const cw = scroll.clientWidth;
+    const ch = scroll.clientHeight;
+    const sw = scroll.scrollWidth;
+    const sh = scroll.scrollHeight;
+    const eps = 2;
+    const needX = sw > cw + eps;
+    const needY = sh > ch + eps;
+    if (needX && needY) {
+      this.scrollMode = 'xy';
+    } else if (needX) {
+      this.scrollMode = 'x';
+    } else if (needY) {
+      this.scrollMode = 'y';
+    } else {
+      this.scrollMode = 'none';
+    }
   }
 
   private getCanvasScrollEl(): HTMLElement | null {
-    return this.canvasContainerRef?.nativeElement?.querySelector('.canvas-scroll') as HTMLElement | null;
+    return (
+      this.canvasScrollRef?.nativeElement ??
+      (this.canvasContainerRef?.nativeElement?.querySelector('.canvas-scroll') as HTMLElement | null)
+    );
   }
 
   private updateOverviewLayout(): void {
@@ -800,11 +1060,17 @@ export class CanvasBoardComponent implements AfterViewInit {
       maxY = Math.max(maxY, world.y + world.height);
     }
 
-    const margin = 80;
-    const growLeft = minX < margin ? Math.ceil(margin - minX) : 0;
-    const growTop = minY < margin ? Math.ceil(margin - minY) : 0;
-    const growRight = maxX > canvas.width - margin ? Math.ceil(maxX - (canvas.width - margin)) : 0;
-    const growBottom = maxY > canvas.height - margin ? Math.ceil(maxY - (canvas.height - margin)) : 0;
+    /** Only extend the sheet when content crosses the current allocated world rect (base + extras, or current bitmap if wider after resize). */
+    const edgePad = 4;
+    const allocLeft = -this.extraLeft;
+    const allocTop = -this.extraTop;
+    const allocRight = Math.max(this.baseCanvasWidth + this.extraRight, canvas.width);
+    const allocBottom = Math.max(this.baseCanvasHeight + this.extraBottom, canvas.height);
+
+    const growLeft = minX < allocLeft - edgePad ? Math.ceil(allocLeft - edgePad - minX) : 0;
+    const growTop = minY < allocTop - edgePad ? Math.ceil(allocTop - edgePad - minY) : 0;
+    const growRight = maxX > allocRight + edgePad ? Math.ceil(maxX - allocRight + edgePad) : 0;
+    const growBottom = maxY > allocBottom + edgePad ? Math.ceil(maxY - allocBottom + edgePad) : 0;
 
     const maxExtraLeft = (Math.abs(this.minPercent) / 100) * this.baseCanvasWidth;
     const maxExtraTop = (Math.abs(this.minPercent) / 100) * this.baseCanvasHeight;
@@ -836,6 +1102,7 @@ export class CanvasBoardComponent implements AfterViewInit {
     this.extraTop += allowedGrowTop;
     this.extraRight += allowedGrowRight;
     this.extraBottom += allowedGrowBottom;
+    this.persistSceneSnapshot();
   }
 
   private updateAxisLabels(): void {

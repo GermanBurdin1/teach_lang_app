@@ -6,8 +6,8 @@
       <header class="canvas-header">
         <div>
           <p class="eyebrow">Constructeur</p>
-          <h1>Canvas board</h1>
-          <p class="subtitle">Ajoutez des rectangles, des flèches et du texte.</p>
+          <h1><span class="scene-heading">{{ sceneTitleLine }}</span></h1>
+          <p class="subtitle">Ajoutez des rectangles, des flèches et du texte. Sous-scène : « Nouvelle sous-scène » ou Ctrl+Maj+S. Ré-ouvrir une sous-scène : double-clic sur la figure ou « Ouvrir sous-scène ».</p>
         </div>
         <div class="actions">
           <button mat-stroked-button (click)="goBack()">
@@ -47,8 +47,54 @@
         </button>
       </section>
 
+      <section class="scene-context-bar" *ngIf="activeSceneId">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="goToParentScene()"
+          [disabled]="!canGoToParentScene">
+          <mat-icon>arrow_upward</mat-icon>
+          Niveau parent
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          color="primary"
+          (click)="openCreateChildSceneDialog()"
+          [disabled]="!canCreateChildScene"
+          matTooltip="Raccourci : Ctrl+Maj+S (sans Alt)">
+          <mat-icon>add_box</mat-icon>
+          Nouvelle sous-scène
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="goToLinkedChildScene()"
+          [disabled]="!canOpenChildScene"
+          matTooltip="Dernière sous-scène liée à la figure sélectionnée">
+          <mat-icon>subdirectory_arrow_right</mat-icon>
+          Ouvrir sous-scène
+        </button>
+        <nav class="scene-breadcrumb" aria-label="Fil d'Ariane">
+          <ng-container *ngFor="let crumb of sceneBreadcrumb; let last = last">
+            <a *ngIf="!last" [routerLink]="['/constructeurs', 'canvas-board', crumb.id]">
+              {{ crumb.outlineNumber }} {{ crumb.title }}
+            </a>
+            <strong *ngIf="last">{{ crumb.outlineNumber }} · {{ crumb.title }}</strong>
+            <span class="sep" *ngIf="!last">›</span>
+          </ng-container>
+        </nav>
+      </section>
+
       <section class="canvas-container" #canvasContainerRef>
-        <div class="canvas-scroll" [class.overview-mode]="overviewOpen" (scroll)="onCanvasScroll()">
+        <div class="parent-portal-frame" *ngIf="parentPortalBoxStyle && !overviewOpen" [ngStyle]="parentPortalBoxStyle"></div>
+        <div
+          #canvasScrollRef
+          class="canvas-scroll"
+          [class.overview-mode]="overviewOpen"
+          [class.ov-x]="!overviewOpen && (scrollMode === 'x' || scrollMode === 'xy')"
+          [class.ov-y]="!overviewOpen && (scrollMode === 'y' || scrollMode === 'xy')"
+          (scroll)="onCanvasScroll()">
           <div
             class="canvas-surface-host"
             [class.overview-host]="overviewOpen"
