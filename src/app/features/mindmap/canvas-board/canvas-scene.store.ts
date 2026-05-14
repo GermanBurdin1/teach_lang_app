@@ -131,83 +131,77 @@ function worldBoundsForSnapshot(el: CanvasElement): { x: number; y: number; widt
     return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
   }
   const t = el as TextElement;
-  const width = Math.max(50, t.text.length * 8);
+  const text = typeof t.text === 'string' ? t.text : '';
+  const width = Math.max(50, text.length * 8);
   const height = 20;
   return { x: t.x, y: t.y - height, width, height };
 }
 
-function unionWorldBounds(boxes: { x: number; y: number; width: number; height: number }[]): {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-} {
-  if (!boxes.length) {
-    return { x: 0, y: 0, width: 1, height: 1 };
-  }
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-  for (const b of boxes) {
-    minX = Math.min(minX, b.x);
-    minY = Math.min(minY, b.y);
-    maxX = Math.max(maxX, b.x + b.width);
-    maxY = Math.max(maxY, b.y + b.height);
-  }
-  return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
+/** World-space rectangle currently visible on the sheet (matches canvas transform pan + scale). */
+export function computeVisibleWorldRect(doc: CanvasInnerDocument): { x: number; y: number; width: number; height: number } {
+  const sw = doc.sheetWidth > 0 ? doc.sheetWidth : Math.max(320, doc.baseCanvasWidth || 0) || 400;
+  const sh = doc.sheetHeight > 0 ? doc.sheetHeight : Math.max(240, doc.baseCanvasHeight || 0) || 300;
+  const sc = doc.scale > 0 ? doc.scale : 1;
+  const px = doc.panX ?? 0;
+  const py = doc.panY ?? 0;
+  return {
+    x: -px / sc,
+    y: -py / sc,
+    width: Math.max(1, sw / sc),
+    height: Math.max(1, sh / sc)
+  };
 }
 
-function collectOutgoingPortalNeighborhoodIds(elements: CanvasElement[], portalId: string): Set<string> {
-  const ids = new Set<string>();
-  const byId = new Map(elements.map((e) => [e.id, e]));
-  if (!byId.has(portalId)) {
-    return ids;
-  }
-  ids.add(portalId);
-  for (const e of elements) {
-    if (e.type !== 'arrow') {
-      continue;
-    }
-    const a = e as ArrowElement;
-    /** Only arrows that *leave* the portal (`startAttach`), not incoming (`endAttach` only). */
-    if (a.startAttach?.elementId !== portalId) {
-      continue;
-    }
-    ids.add(a.id);
-    if (a.endAttach?.elementId && a.endAttach.elementId !== portalId) {
-      ids.add(a.endAttach.elementId);
-    }
-  }
-  return ids;
+function boundsIntersectView(
+  eb: { x: number; y: number; width: number; height: number },
+  view: { x: number; y: number; width: number; height: number }
+): boolean {
+  const eR = eb.x + eb.width;
+  const eB = eb.y + eb.height;
+  const vR = view.x + view.width;
+  const vB = view.y + view.height;
+  return eb.x < vR && eR > view.x && eb.y < vB && eB > view.y;
 }
 
-/** Subset of elements: portal + outgoing arrows + their far-end shapes (same rule as parent snapshot). */
-export function pickOutgoingNeighborhoodElements(elements: CanvasElement[], portalId: string): CanvasElement[] {
-  const norm = normalizeCanvasElements(elements);
-  const idSet = collectOutgoingPortalNeighborhoodIds(norm, portalId);
-  return norm.filter((e) => idSet.has(e.id));
+function pickElementsInViewRect(
+  normalized: CanvasElement[],
+  viewRect: { x: number; y: number; width: number; height: number }
+): CanvasElement[] {
+  return normalized.filter((e) => boundsIntersectView(worldBoundsForSnapshot(e), viewRect));
 }
 
 function stripChildSceneIds(elements: CanvasElement[]): CanvasElement[] {
   return elements.map((e) => ({ ...e, childSceneIds: [] as string[] }));
 }
 
-/**
- * Portal + arrows that **start** on the portal (`startAttach`) + far-end shapes of those arrows.
- * Incoming arrows (`endAttach` only) are excluded so unrelated nearby shapes are not pulled in.
- */
-export function buildParentContextSnapshot(elements: CanvasElement[], portalId: string): ParentContextSnapshot | null {
+/** Elements intersecting the current viewport + the viewport AABB in world space. */
+export function buildViewportSnapshot(
+  elements: CanvasElement[],
+  doc: CanvasInnerDocument
+): { elements: CanvasElement[]; bounds: { x: number; y: number; width: number; height: number } } {
   const normalized = normalizeCanvasElements(elements);
-  const idSet = collectOutgoingPortalNeighborhoodIds(normalized, portalId);
-  if (!idSet.size) {
-    return null;
-  }
-  const picked = normalized.filter((e) => idSet.has(e.id));
+  const viewRect = computeVisibleWorldRect(doc);
+  const picked = pickElementsInViewRect(normalized, viewRect);
   const stripped = stripChildSceneIds(picked);
   const cloned = JSON.parse(JSON.stringify(stripped)) as CanvasElement[];
   const again = normalizeCanvasElements(cloned);
-  const bounds = unionWorldBounds(again.map(worldBoundsForSnapshot));
+  return { elements: again, bounds: viewRect };
+}
+
+/**
+ * Snapshot of the parent sheet: whatever was visible in the viewport when the child was created.
+ * `portalId` must exist on `elements` (the portal shape the child is linked from).
+ */
+export function buildParentContextSnapshot(
+  elements: CanvasElement[],
+  portalId: string,
+  doc: CanvasInnerDocument
+): ParentContextSnapshot | null {
+  const normalized = normalizeCanvasElements(elements);
+  if (!normalized.some((e) => e.id === portalId)) {
+    return null;
+  }
+  const { elements: again, bounds } = buildViewportSnapshot(normalized, doc);
   return {
     version: 1,
     elements: again,
@@ -311,7 +305,7 @@ export class CanvasSceneStore {
     const elements = normalizeCanvasElements(doc.elements);
     const outlineNumber = this.computeNextOutlineNumber(params.parentSceneId);
     const id = crypto.randomUUID();
-    const snapshot = buildParentContextSnapshot(elements, params.parentElementId);
+    const snapshot = buildParentContextSnapshot(elements, params.parentElementId, doc);
     const node: CanvasSceneNode = {
       id,
       title: params.title.trim(),

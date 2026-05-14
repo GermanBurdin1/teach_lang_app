@@ -14,12 +14,15 @@ export interface ParentFrame {
   rect: ParentFrameRect;
 }
 
-/** Frozen neighborhood on the parent canvas: portal + arrows that **start** on it + far-end shapes (no incoming-only arrows). */
+/**
+ * Frozen view of the parent canvas around what was visible at capture time:
+ * world-space viewport (`bounds`) matching the context widget aspect, and elements intersecting it.
+ */
 export interface ParentContextSnapshot {
   version: 1;
   /** World-space copies in the parent scene coordinate system at capture time. */
   elements: CanvasElement[];
-  /** Union AABB of `elements` in world space (for fitting the preview). */
+  /** World-space rectangle shown in the preview (center = viewport center on the parent). */
   bounds: { x: number; y: number; width: number; height: number };
   /** When the snapshot was taken (ISO). */
   capturedAt: string;

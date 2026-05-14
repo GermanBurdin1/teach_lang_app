@@ -20,7 +20,7 @@ import type {
   RectElement
 } from './canvas-scene.model';
 import { tipOnCircleWorld, tipOnRectWorld } from './arrow-decoration.utils';
-import { normalizeCanvasElements, pickOutgoingNeighborhoodElements, CanvasSceneStore } from './canvas-scene.store';
+import { normalizeCanvasElements, buildViewportSnapshot, CanvasSceneStore } from './canvas-scene.store';
 import { drawParentContextSnapshotWorld } from './parent-context-snapshot-draw';
 import {
   CreateChildSceneDialogComponent,
@@ -134,7 +134,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     return this.activeSceneId ? (this.canvasSceneStore.getScene(this.activeSceneId) ?? null) : null;
   }
 
-  /** Neighborhood of the portal on the parent canvas (only on child scenes). */
+  /** Parent viewport snapshot (only on child scenes). */
   get parentContextPreview(): ParentContextSnapshot | null {
     return this.currentScene?.parentContextSnapshot ?? null;
   }
@@ -1134,7 +1134,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   }
 
   private scheduleParentContextPreviewPaint(): void {
-    if (this.overviewOpen || !this.parentContextPreview?.elements?.length) {
+    const b = this.parentContextPreview?.bounds;
+    if (this.overviewOpen || !b || !Number.isFinite(b.width) || !Number.isFinite(b.height)) {
       return;
     }
     setTimeout(() => this.paintParentContextPreview(), 0);
@@ -1146,7 +1147,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
     const snap = this.parentContextPreview;
     const canvas = this.parentContextCanvasRef?.nativeElement;
-    if (!snap?.elements?.length || !canvas) {
+    if (!snap?.bounds || !canvas) {
       return;
     }
     const ctx = canvas.getContext('2d');
@@ -1170,7 +1171,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     const cx = b.x + bw / 2;
     const cy = b.y + bh / 2;
     ctx.setTransform(s, 0, 0, s, w / 2 - cx * s, h / 2 - cy * s);
-    drawParentContextSnapshotWorld(ctx, snap.elements);
+    drawParentContextSnapshotWorld(ctx, snap.elements ?? [], b);
   }
 
   clearChildSceneHoverPreview(): void {
@@ -1190,46 +1191,6 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       }
     }
     return null;
-  }
-
-  private unionPreviewBoundsForElements(elements: CanvasElement[]): { x: number; y: number; width: number; height: number } {
-    if (!elements.length) {
-      return { x: 0, y: 0, width: 1, height: 1 };
-    }
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    for (const el of elements) {
-      const b = this.getElementBounds(this.normalizeElement(el));
-      minX = Math.min(minX, b.x);
-      minY = Math.min(minY, b.y);
-      maxX = Math.max(maxX, b.x + b.width);
-      maxY = Math.max(maxY, b.y + b.height);
-    }
-    return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
-  }
-
-  /**
-   * On child-scene hover preview, approximate an "entry" shape (top-left non-arrow) so we apply the same
-   * outgoing-arrow neighborhood filter as on the parent; avoids showing the whole child sheet.
-   */
-  private pickChildHoverPreviewAnchorId(elements: CanvasElement[]): string | null {
-    const solids = elements.filter((e) => e.type === 'rectangle' || e.type === 'circle' || e.type === 'text');
-    if (!solids.length) {
-      return null;
-    }
-    let best = solids[0]!;
-    let bestKey = Infinity;
-    for (const el of solids) {
-      const b = this.getElementBounds(this.normalizeElement(el));
-      const key = b.x + b.y;
-      if (key < bestKey || (key === bestKey && el.id < best.id)) {
-        bestKey = key;
-        best = el;
-      }
-    }
-    return best.id;
   }
 
   private syncChildSceneHoverPreview(world: Point, event: MouseEvent): void {
@@ -1296,17 +1257,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
 
     this.childHoverPortalElementId = hit.id;
-    let elements = normalizeCanvasElements(node.innerDocument.elements);
-    const anchorId = this.pickChildHoverPreviewAnchorId(elements);
-    if (anchorId) {
-      elements = pickOutgoingNeighborhoodElements(elements, anchorId);
-    }
-    let bounds = this.unionPreviewBoundsForElements(elements);
-    if (!elements.length) {
-      const iw = Math.max(120, node.innerDocument.baseCanvasWidth || 320);
-      const ih = Math.max(90, node.innerDocument.baseCanvasHeight || 240);
-      bounds = { x: 0, y: 0, width: iw, height: ih };
-    }
+    const raw = normalizeCanvasElements(node.innerDocument.elements);
+    const { elements, bounds } = buildViewportSnapshot(raw, node.innerDocument);
 
     this.childSceneHoverPreview = {
       sceneId: childId,
@@ -1351,9 +1303,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     const cx = b.x + bw / 2;
     const cy = b.y + bh / 2;
     ctx.setTransform(s, 0, 0, s, w / 2 - cx * s, h / 2 - cy * s);
-    if (m.elements.length) {
-      drawParentContextSnapshotWorld(ctx, m.elements);
-    }
+    drawParentContextSnapshotWorld(ctx, m.elements, b);
   }
 
   private scheduleScrollOverflowUpdate(): void {

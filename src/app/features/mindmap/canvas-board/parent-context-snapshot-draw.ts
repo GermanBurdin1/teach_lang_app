@@ -24,11 +24,22 @@ function drawArrow(ctx: CanvasRenderingContext2D, start: Point, end: Point): voi
 }
 
 /** Renders snapshot elements in world space (caller sets transform and clears the bitmap). */
-export function drawParentContextSnapshotWorld(ctx: CanvasRenderingContext2D, elements: CanvasElement[]): void {
+export function drawParentContextSnapshotWorld(
+  ctx: CanvasRenderingContext2D,
+  elements: CanvasElement[],
+  clipWorld: { x: number; y: number; width: number; height: number } | null = null
+): void {
   ctx.lineWidth = 2;
   ctx.strokeStyle = '#2563eb';
   ctx.fillStyle = '#0f172a';
   ctx.setLineDash([]);
+
+  if (clipWorld && clipWorld.width > 0 && clipWorld.height > 0) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(clipWorld.x, clipWorld.y, clipWorld.width, clipWorld.height);
+    ctx.clip();
+  }
 
   for (const element of elements) {
     ctx.save();
@@ -61,9 +72,14 @@ export function drawParentContextSnapshotWorld(ctx: CanvasRenderingContext2D, el
       drawArrow(ctx, a.start, a.end);
     } else {
       const t = element as TextElement;
+      const label = typeof t.text === 'string' ? t.text : '';
       ctx.font = '14px Inter, system-ui, sans-serif';
-      ctx.fillText(t.text, t.x, t.y);
+      ctx.fillText(label, t.x, t.y);
     }
+    ctx.restore();
+  }
+
+  if (clipWorld && clipWorld.width > 0 && clipWorld.height > 0) {
     ctx.restore();
   }
 }
