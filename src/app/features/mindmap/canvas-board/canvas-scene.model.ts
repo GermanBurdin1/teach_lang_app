@@ -27,6 +27,8 @@ export interface RectElement {
   y: number;
   width: number;
   height: number;
+  /** Multi-line text shown inside the rectangle (world-space, clipped to bounds). */
+  innerText?: string;
   childSceneIds: string[];
 }
 

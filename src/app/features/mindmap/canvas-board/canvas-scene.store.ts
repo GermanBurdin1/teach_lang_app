@@ -6,7 +6,8 @@ import type {
   CanvasInnerDocument,
   CanvasSceneNode,
   CanvasScenesFile,
-  ParentFrame
+  ParentFrame,
+  RectElement
 } from './canvas-scene.model';
 import { tipOnDecoration } from './arrow-decoration.utils';
 
@@ -76,6 +77,7 @@ export function normalizeCanvasElements(elements: CanvasElement[]): CanvasElemen
             y: d.cy - hh,
             width: hw * 2,
             height: hh * 2,
+            innerText: '',
             childSceneIds: []
           };
         }
@@ -85,6 +87,13 @@ export function normalizeCanvasElements(elements: CanvasElement[]): CanvasElemen
           end: tipOnDecoration(rest.start, d)
         };
         return [updated, tail];
+      }
+    }
+
+    if (base.type === 'rectangle') {
+      const r = base as RectElement;
+      if (typeof r.innerText !== 'string') {
+        base = { ...r, innerText: '' } as CanvasElement;
       }
     }
 

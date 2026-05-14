@@ -116,10 +116,24 @@
               <canvas
                 #canvasRef
                 (mousedown)="onCanvasMouseDown($event)"
+                (touchstart)="onCanvasTouchStart($event)"
                 (mousemove)="onCanvasMouseMove($event)"
-                (mouseup)="onCanvasMouseUp()"
+                (mouseup)="onCanvasMouseUp($event)"
                 (wheel)="onCanvasWheel($event)"
                 (dblclick)="onCanvasDoubleClick($event)"></canvas>
+              <textarea
+                *ngIf="!overviewOpen && editingRectangleId && getRectangleTextEditorScreenRect() as tr"
+                #rectTextArea
+                class="rect-inline-text"
+                [style.left.px]="tr.left"
+                [style.top.px]="tr.top"
+                [style.width.px]="tr.width"
+                [style.height.px]="tr.height"
+                [(ngModel)]="rectEditorValue"
+                (blur)="closeRectangleTextEditor()"
+                (keydown.escape)="$event.preventDefault(); closeRectangleTextEditor()"
+                spellcheck="true"
+                aria-label="Texte dans le rectangle"></textarea>
               <ng-container *ngIf="!overviewOpen">
                 <button
                   *ngIf="getMoveHandleStyle() as moveHandle"

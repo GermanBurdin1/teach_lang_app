@@ -1,5 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LayoutModule } from '../../../layout/layout.module';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,6 +39,7 @@ interface ScreenPosition {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     LayoutModule,
     MatButtonModule,
     MatButtonToggleModule,
@@ -54,11 +56,17 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasContainerRef', { static: true }) canvasContainerRef!: ElementRef<HTMLElement>;
   @ViewChild('surfaceRef') surfaceRef!: ElementRef<HTMLElement>;
   @ViewChild('canvasScrollRef') canvasScrollRef?: ElementRef<HTMLElement>;
+  @ViewChild('rectTextArea') rectTextAreaRef?: ElementRef<HTMLTextAreaElement>;
 
   readonly tools: CanvasTool[] = ['select', 'rectangle', 'arrow', 'text'];
   activeTool: CanvasTool = 'select';
   elements: CanvasElement[] = [];
   selectedElementId: string | null = null;
+  /** Inline editor for `RectElement.innerText`; overlay aligned to screen bounds. */
+  editingRectangleId: string | null = null;
+  rectEditorValue = '';
+  /** Pending pointer-down on a rectangle in select mode (confirmed on up if movement is small). */
+  private rectEditClickDown: { elementId: string; clientX: number; clientY: number } | null = null;
   overviewOpen = false;
   /** Shape kind placed on arrow tip with Maj+Entrée (toggle in toolbar). */
   arrowDecorationKind: 'rectangle' | 'circle' = 'rectangle';
@@ -175,8 +183,22 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.handlePointerUp(event);
   }
 
+  @HostListener('document:touchend', ['$event'])
+  onDocumentTouchEnd(event: TouchEvent): void {
+    const t = event.changedTouches[0];
+    if (t) {
+      this.handlePointerUp({ clientX: t.clientX, clientY: t.clientY } as MouseEvent);
+    } else {
+      this.handlePointerUp(undefined);
+    }
+  }
+
   setTool(tool: CanvasTool): void {
     this.activeTool = tool;
+    if (tool !== 'select') {
+      this.rectEditClickDown = null;
+      this.closeRectangleTextEditor();
+    }
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -226,9 +248,26 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (this.overviewOpen) {
       return;
     }
-    const point = this.screenToWorld(this.getCanvasPoint(event));
+    if (event.button !== 0) {
+      return;
+    }
+    this.handleCanvasPrimaryDown(event.clientX, event.clientY);
+  }
+
+  onCanvasTouchStart(event: TouchEvent): void {
+    if (this.overviewOpen || event.touches.length !== 1) {
+      return;
+    }
+    const t = event.touches[0]!;
+    this.handleCanvasPrimaryDown(t.clientX, t.clientY);
+  }
+
+  private handleCanvasPrimaryDown(clientX: number, clientY: number): void {
+    const point = this.screenToWorld(this.getCanvasPointFromClient(clientX, clientY));
 
     if (this.activeTool === 'text') {
+      this.rectEditClickDown = null;
+      this.closeRectangleTextEditor();
       const value = window.prompt('Texte:');
       if (value && value.trim()) {
         this.elements.push({
@@ -247,10 +286,21 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (this.activeTool === 'select') {
       const hit = this.findElementAtPoint(point);
       this.selectedElementId = hit?.id ?? null;
+      if (hit?.type === 'rectangle') {
+        if (this.editingRectangleId && this.editingRectangleId !== hit.id) {
+          this.closeRectangleTextEditor();
+        }
+        this.rectEditClickDown = { elementId: hit.id, clientX, clientY };
+      } else {
+        this.rectEditClickDown = null;
+        this.closeRectangleTextEditor();
+      }
       this.render();
       return;
     }
 
+    this.rectEditClickDown = null;
+    this.closeRectangleTextEditor();
     this.isDrawing = true;
     this.dragStart = point;
 
@@ -262,6 +312,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
         y: point.y,
         width: 0,
         height: 0,
+        innerText: '',
         childSceneIds: []
       };
     }
@@ -275,7 +326,6 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
         childSceneIds: []
       };
     }
-
   }
 
   onCanvasMouseMove(event: MouseEvent): void {
@@ -320,7 +370,16 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.render();
   }
 
-  private handlePointerUp(_event?: MouseEvent): void {
+  private handlePointerUp(event?: MouseEvent): void {
+    const skipRectClick = this.isResizingRectangle || this.isMoveHandleDrag;
+    if (!event) {
+      this.rectEditClickDown = null;
+    } else if (!skipRectClick && !this.draftElement) {
+      this.finishRectTextEditClick(event.clientX, event.clientY);
+    } else {
+      this.rectEditClickDown = null;
+    }
+
     if (this.draftElement) {
       const normalized = this.normalizeElement(this.draftElement);
       this.elements.push(normalized);
@@ -339,10 +398,85 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.persistSceneSnapshot();
   }
 
+  private finishRectTextEditClick(clientX: number, clientY: number): void {
+    if (!this.rectEditClickDown || this.activeTool !== 'select') {
+      return;
+    }
+    const down = this.rectEditClickDown;
+    this.rectEditClickDown = null;
+    const d = Math.hypot(clientX - down.clientX, clientY - down.clientY);
+    if (d >= 8) {
+      return;
+    }
+    if (this.selectedElementId !== down.elementId) {
+      return;
+    }
+    const el = this.elements.find((e) => e.id === down.elementId);
+    if (el?.type !== 'rectangle') {
+      return;
+    }
+    this.openRectangleTextEditor(down.elementId);
+  }
+
+  openRectangleTextEditor(id: string): void {
+    if (this.overviewOpen) {
+      return;
+    }
+    const r = this.elements.find((e) => e.id === id && e.type === 'rectangle') as RectElement | undefined;
+    if (!r) {
+      return;
+    }
+    this.editingRectangleId = id;
+    this.rectEditorValue = r.innerText ?? '';
+    this.cdr.markForCheck();
+    setTimeout(() => {
+      const ta = this.rectTextAreaRef?.nativeElement;
+      ta?.focus({ preventScroll: true });
+    }, 0);
+  }
+
+  closeRectangleTextEditor(): void {
+    if (!this.editingRectangleId) {
+      return;
+    }
+    const id = this.editingRectangleId;
+    const r = this.elements.find((e) => e.id === id && e.type === 'rectangle') as RectElement | undefined;
+    if (r) {
+      r.innerText = this.rectEditorValue;
+    }
+    this.editingRectangleId = null;
+    this.rectEditorValue = '';
+    this.render();
+    this.persistSceneSnapshot();
+    this.cdr.markForCheck();
+  }
+
+  getRectangleTextEditorScreenRect(): { left: number; top: number; width: number; height: number } | null {
+    if (!this.editingRectangleId) {
+      return null;
+    }
+    const el = this.elements.find((e) => e.id === this.editingRectangleId && e.type === 'rectangle') as RectElement | undefined;
+    if (!el) {
+      return null;
+    }
+    const b = this.getElementBounds(el);
+    const scr = this.worldRectToScreen(b);
+    const pad = 6;
+    return {
+      left: scr.x + pad,
+      top: scr.y + pad,
+      width: Math.max(8, scr.width - pad * 2),
+      height: Math.max(8, scr.height - pad * 2)
+    };
+  }
+
   clearCanvas(): void {
     this.elements = [];
     this.draftElement = null;
     this.selectedElementId = null;
+    this.rectEditClickDown = null;
+    this.editingRectangleId = null;
+    this.rectEditorValue = '';
     this.render();
     this.persistSceneSnapshot();
   }
@@ -376,6 +510,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   startResizeFromHandle(handle: ResizeHandle, event: MouseEvent): void {
     event.stopPropagation();
+    this.rectEditClickDown = null;
     const selected = this.getSelectedElement();
     if (!selected || selected.type !== 'rectangle') return;
     this.isResizingRectangle = true;
@@ -385,6 +520,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   startMoveFromHandle(event: MouseEvent): void {
     event.stopPropagation();
+    this.rectEditClickDown = null;
     if (!this.selectedElementId) return;
     this.isMoveHandleDrag = true;
     this.lastPointerWorld = this.screenToWorld(this.getCanvasPoint(event));
@@ -408,6 +544,9 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   onCanvasDoubleClick(event: MouseEvent): void {
     if (this.overviewOpen) {
+      return;
+    }
+    if (this.editingRectangleId) {
       return;
     }
     const point = this.screenToWorld(this.getCanvasPoint(event));
@@ -452,6 +591,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   deleteSelectedElement(): void {
     if (!this.selectedElementId) return;
     const removedId = this.selectedElementId;
+    if (this.editingRectangleId === removedId) {
+      this.editingRectangleId = null;
+      this.rectEditorValue = '';
+    }
     this.elements = this.elements.filter((el) => el.id !== removedId);
     for (const e of this.elements) {
       if (e.type !== 'arrow') continue;
@@ -468,6 +611,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   }
 
   toggleOverview(): void {
+    this.rectEditClickDown = null;
+    this.closeRectangleTextEditor();
     const scroll = this.getCanvasScrollEl();
     const canvas = this.canvasRef.nativeElement;
     if (!this.overviewOpen) {
@@ -601,6 +746,9 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
     this.selectedElementId = null;
     this.draftElement = null;
+    this.rectEditClickDown = null;
+    this.editingRectangleId = null;
+    this.rectEditorValue = '';
   }
 
   private persistSceneSnapshot(): void {
@@ -699,6 +847,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
             y: cy - 14,
             width: 44,
             height: 28,
+            innerText: '',
             childSceneIds: []
           };
     sel.endAttach = { elementId: tid };
@@ -747,6 +896,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
             y: cy - 14,
             width: 44,
             height: 28,
+            innerText: '',
             childSceneIds: []
           };
     this.elements.push(arrow, tailEl);
@@ -859,15 +1009,19 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private getCanvasPoint(event: MouseEvent | WheelEvent): Point {
+  private getCanvasPointFromClient(clientX: number, clientY: number): Point {
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
     const rx = rect.width > 0 ? canvas.width / rect.width : 1;
     const ry = rect.height > 0 ? canvas.height / rect.height : 1;
     return {
-      x: (event.clientX - rect.left) * rx,
-      y: (event.clientY - rect.top) * ry
+      x: (clientX - rect.left) * rx,
+      y: (clientY - rect.top) * ry
     };
+  }
+
+  private getCanvasPoint(event: MouseEvent | WheelEvent): Point {
+    return this.getCanvasPointFromClient(event.clientX, event.clientY);
   }
 
   private screenToWorld(point: Point): Point {
@@ -933,6 +1087,9 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
     this.updateParentPortalOverlay();
     this.scheduleScrollOverflowUpdate();
+    if (this.editingRectangleId) {
+      this.cdr.markForCheck();
+    }
   }
 
   private scheduleScrollOverflowUpdate(): void {
@@ -1188,6 +1345,94 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     return { xPct, yPct };
   }
 
+  private wrapRectTextLines(text: string, maxWidth: number): string[] {
+    if (!this.ctx || maxWidth < 4) {
+      return [];
+    }
+    const paragraphs = text.split(/\r?\n/);
+    const out: string[] = [];
+    for (const para of paragraphs) {
+      const words = para.split(/\s+/).filter(Boolean);
+      if (!words.length) {
+        out.push('');
+        continue;
+      }
+      let line = '';
+      for (const w of words) {
+        const test = line ? `${line} ${w}` : w;
+        if (this.ctx.measureText(test).width <= maxWidth) {
+          line = test;
+        } else {
+          if (line) {
+            out.push(line);
+          }
+          if (this.ctx.measureText(w).width <= maxWidth) {
+            line = w;
+          } else {
+            let chunk = '';
+            for (const ch of w) {
+              const t2 = chunk + ch;
+              if (this.ctx.measureText(t2).width <= maxWidth) {
+                chunk = t2;
+              } else {
+                if (chunk) {
+                  out.push(chunk);
+                }
+                chunk = ch;
+              }
+            }
+            line = chunk;
+          }
+        }
+      }
+      if (line) {
+        out.push(line);
+      }
+    }
+    return out;
+  }
+
+  private drawRectangleInnerText(r: RectElement): void {
+    if (!this.ctx) {
+      return;
+    }
+    if (this.editingRectangleId === r.id) {
+      return;
+    }
+    const raw = r.innerText ?? '';
+    if (!raw.trim()) {
+      return;
+    }
+
+    const pad = 6;
+    const x = r.x + pad;
+    const y = r.y + pad;
+    const maxW = Math.max(1, r.width - pad * 2);
+    const maxH = Math.max(1, r.height - pad * 2);
+    const fontPx = 14;
+
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.rect(r.x, r.y, r.width, r.height);
+    this.ctx.clip();
+    this.ctx.font = `${fontPx}px Inter, sans-serif`;
+    this.ctx.fillStyle = '#0f172a';
+    this.ctx.textBaseline = 'top';
+
+    const lines = this.wrapRectTextLines(raw, maxW);
+    let lineY = y;
+    const lineHeight = fontPx * 1.28;
+    const bottom = r.y + r.height - pad;
+    for (const line of lines) {
+      if (lineY + lineHeight > bottom) {
+        break;
+      }
+      this.ctx.fillText(line, x, lineY);
+      lineY += lineHeight;
+    }
+    this.ctx.restore();
+  }
+
   private drawElement(element: CanvasElement, isDraft = false): void {
     if (!this.ctx) return;
 
@@ -1198,7 +1443,9 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.ctx.setLineDash(isDraft ? [6, 4] : []);
 
     if (element.type === 'rectangle') {
-      this.ctx.strokeRect(element.x, element.y, element.width, element.height);
+      const norm = this.normalizeElement(element) as RectElement;
+      this.ctx.strokeRect(norm.x, norm.y, norm.width, norm.height);
+      this.drawRectangleInnerText(norm);
     } else if (element.type === 'circle') {
       this.ctx.beginPath();
       this.ctx.arc(element.cx, element.cy, element.r, 0, Math.PI * 2);
@@ -1451,11 +1698,12 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   private isPointInsideElement(point: Point, element: CanvasElement): boolean {
     const tolerance = 8 / this.scale;
     if (element.type === 'rectangle') {
+      const b = this.getElementBounds(element);
       return (
-        point.x >= element.x - tolerance &&
-        point.x <= element.x + element.width + tolerance &&
-        point.y >= element.y - tolerance &&
-        point.y <= element.y + element.height + tolerance
+        point.x >= b.x - tolerance &&
+        point.x <= b.x + b.width + tolerance &&
+        point.y >= b.y - tolerance &&
+        point.y <= b.y + b.height + tolerance
       );
     }
 
@@ -1495,7 +1743,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   private getElementBounds(element: CanvasElement): { x: number; y: number; width: number; height: number } {
     if (element.type === 'rectangle') {
-      return { x: element.x, y: element.y, width: element.width, height: element.height };
+      const n = this.normalizeElement(element) as RectElement;
+      return { x: n.x, y: n.y, width: n.width, height: n.height };
     }
 
     if (element.type === 'circle') {
