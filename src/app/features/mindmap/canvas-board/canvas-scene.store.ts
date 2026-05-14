@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import type {
+  ArrowElement,
   CanvasElement,
+  CircleElement,
   CanvasInnerDocument,
   CanvasSceneNode,
   CanvasScenesFile,
   ParentFrame
 } from './canvas-scene.model';
+import { tipOnDecoration } from './arrow-decoration.utils';
 
 function emptyInnerDocument(): CanvasInnerDocument {
   return {
@@ -26,11 +29,66 @@ function emptyInnerDocument(): CanvasInnerDocument {
 
 /** Ensure persisted elements have childSceneIds (migration / defaults). */
 export function normalizeCanvasElements(elements: CanvasElement[]): CanvasElement[] {
-  return elements.map((el) => {
-    if (!('childSceneIds' in el) || !Array.isArray((el as CanvasElement & { childSceneIds?: string[] }).childSceneIds)) {
-      return { ...el, childSceneIds: [] } as CanvasElement;
+  return elements.flatMap((el) => {
+    let base: CanvasElement = el;
+    if (!('childSceneIds' in base) || !Array.isArray((base as CanvasElement & { childSceneIds?: string[] }).childSceneIds)) {
+      base = { ...base, childSceneIds: [] } as CanvasElement;
     }
-    return el;
+
+    if (base.type === 'circle') {
+      const c = base as CircleElement;
+      return [
+        {
+          ...c,
+          r: Math.max(1, Number(c.r) || 14),
+          childSceneIds: Array.isArray(c.childSceneIds) ? c.childSceneIds : []
+        }
+      ];
+    }
+
+    if (base.type === 'arrow') {
+      const a = base as ArrowElement;
+      if (a.endDecoration && a.endAttach) {
+        const { endDecoration: _ed, ...rest } = a;
+        return [{ ...rest } as CanvasElement];
+      }
+      if (a.endDecoration && !a.endAttach) {
+        const d = a.endDecoration;
+        const tid = crypto.randomUUID();
+        const { endDecoration: _ed2, ...rest } = a;
+        let tail: CanvasElement;
+        if (d.kind === 'circle') {
+          tail = {
+            id: tid,
+            type: 'circle',
+            cx: d.cx,
+            cy: d.cy,
+            r: Math.max(2, Number(d.radius) || 14),
+            childSceneIds: []
+          };
+        } else {
+          const hw = Math.max(2, Number(d.halfW) || 22);
+          const hh = Math.max(2, Number(d.halfH) || 14);
+          tail = {
+            id: tid,
+            type: 'rectangle',
+            x: d.cx - hw,
+            y: d.cy - hh,
+            width: hw * 2,
+            height: hh * 2,
+            childSceneIds: []
+          };
+        }
+        const updated: ArrowElement = {
+          ...(rest as ArrowElement),
+          endAttach: { elementId: tid },
+          end: tipOnDecoration(rest.start, d)
+        };
+        return [updated, tail];
+      }
+    }
+
+    return [base];
   });
 }
 

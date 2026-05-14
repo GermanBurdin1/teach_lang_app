@@ -57,6 +57,16 @@
   background: #eff6ff;
 }
 
+.arrow-decor-toolbar {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.arrow-decor-toolbar mat-button-toggle-group {
+  border-radius: 8px;
+}
+
 .scene-context-bar {
   display: flex;
   align-items: center;

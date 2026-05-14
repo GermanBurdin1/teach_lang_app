@@ -6,8 +6,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
-import type { CanvasElement, CanvasSceneNode, ParentFrame, Point, RectElement } from './canvas-scene.model';
+import type {
+  ArrowElement,
+  CanvasElement,
+  CircleElement,
+  CanvasSceneNode,
+  ParentFrame,
+  Point,
+  RectElement
+} from './canvas-scene.model';
+import { tipOnCircleWorld, tipOnRectWorld } from './arrow-decoration.utils';
 import { normalizeCanvasElements } from './canvas-scene.store';
 import { CanvasSceneStore } from './canvas-scene.store';
 import {
@@ -26,7 +36,16 @@ interface ScreenPosition {
 @Component({
   selector: 'app-canvas-board',
   standalone: true,
-  imports: [CommonModule, LayoutModule, MatButtonModule, MatIconModule, MatDialogModule, MatTooltipModule, RouterLink],
+  imports: [
+    CommonModule,
+    LayoutModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatIconModule,
+    MatDialogModule,
+    MatTooltipModule,
+    RouterLink
+  ],
   templateUrl: './canvas-board.component.html',
   styleUrls: ['./canvas-board.component.css']
 })
@@ -41,6 +60,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   elements: CanvasElement[] = [];
   selectedElementId: string | null = null;
   overviewOpen = false;
+  /** Shape kind placed on arrow tip with Maj+Entrée (toggle in toolbar). */
+  arrowDecorationKind: 'rectangle' | 'circle' = 'rectangle';
   /** Which scroll axes are active on .canvas-scroll (avoids both bars when only one axis overflows). */
   scrollMode: 'none' | 'x' | 'y' | 'xy' = 'none';
   /** CSS scale applied to the whole sheet in overview mode (fits scroll viewport). */
@@ -173,6 +194,27 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       event.preventDefault();
       void this.openCreateChildSceneDialog();
       return;
+    }
+    if (event.key === 'Enter' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      const t = event.target as HTMLElement | null;
+      if (t?.isContentEditable) {
+        return;
+      }
+      if (!t?.closest('button, a, input, textarea, mat-button-toggle, mat-option, [role="dialog"]')) {
+        const sel = this.getSelectedElement();
+        if (sel?.type === 'arrow') {
+          event.preventDefault();
+          event.stopPropagation();
+          this.addOrReplaceArrowEndDecoration();
+          return;
+        }
+        if (sel?.type === 'rectangle' || sel?.type === 'text' || sel?.type === 'circle') {
+          event.preventDefault();
+          event.stopPropagation();
+          this.createArrowWithDecorationFromSource(sel);
+          return;
+        }
+      }
     }
     if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedElementId) {
       this.deleteSelectedElement();
@@ -409,7 +451,17 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   deleteSelectedElement(): void {
     if (!this.selectedElementId) return;
-    this.elements = this.elements.filter((el) => el.id !== this.selectedElementId);
+    const removedId = this.selectedElementId;
+    this.elements = this.elements.filter((el) => el.id !== removedId);
+    for (const e of this.elements) {
+      if (e.type !== 'arrow') continue;
+      if (e.startAttach?.elementId === removedId) {
+        delete e.startAttach;
+      }
+      if (e.endAttach?.elementId === removedId) {
+        delete e.endAttach;
+      }
+    }
     this.selectedElementId = null;
     this.render();
     this.persistSceneSnapshot();
@@ -611,6 +663,152 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.router.navigate(['/constructeurs']);
   }
 
+  onArrowDecorKindChange(e: MatButtonToggleChange): void {
+    const v = e.value;
+    if (v === 'circle' || v === 'rectangle') {
+      this.arrowDecorationKind = v;
+    }
+  }
+
+  /** Maj+Entrée: nouvelle forme séparée + attache `endAttach` sur la flèche sélectionnée. */
+  addOrReplaceArrowEndDecoration(): void {
+    if (this.overviewOpen) return;
+    const sel = this.getSelectedElement();
+    if (!sel || sel.type !== 'arrow') return;
+    if (sel.endAttach) {
+      this.elements = this.elements.filter((e) => e.id !== sel.endAttach!.elementId);
+    }
+    const ux = sel.end.x - sel.start.x;
+    const uy = sel.end.y - sel.start.y;
+    const len = Math.hypot(ux, uy) || 1;
+    const px = ux / len;
+    const py = uy / len;
+    const qx = -py;
+    const qy = px;
+    const off = 26;
+    const cx = sel.end.x + qx * off + px * 10;
+    const cy = sel.end.y + qy * off + py * 10;
+    const tid = crypto.randomUUID();
+    const tailEl: CanvasElement =
+      this.arrowDecorationKind === 'circle'
+        ? { id: tid, type: 'circle', cx, cy, r: 14, childSceneIds: [] }
+        : {
+            id: tid,
+            type: 'rectangle',
+            x: cx - 22,
+            y: cy - 14,
+            width: 44,
+            height: 28,
+            childSceneIds: []
+          };
+    sel.endAttach = { elementId: tid };
+    delete sel.endDecoration;
+    this.elements.push(tailEl);
+    this.syncAttachedArrows();
+    this.selectedElementId = tid;
+    this.render();
+    this.persistSceneSnapshot();
+  }
+
+  /** Maj+Entrée avec rectangle / texte / cercle sélectionné : nouvelle flèche liée + forme séparée. */
+  private createArrowWithDecorationFromSource(source: CanvasElement): void {
+    if (this.overviewOpen) return;
+    const b = this.getElementBounds(this.normalizeElement(source));
+    const useHorizontal = b.width >= b.height;
+    const start: Point = useHorizontal
+      ? { x: b.x + b.width, y: b.y + b.height / 2 }
+      : { x: b.x + b.width / 2, y: b.y + b.height };
+    const dir = useHorizontal ? { x: 1, y: 0 } : { x: 0, y: 1 };
+    const seg = 88;
+    const endPre = { x: start.x + dir.x * seg, y: start.y + dir.y * seg };
+    const qx = -dir.y;
+    const qy = dir.x;
+    const off = 26;
+    const cx = endPre.x + qx * off + dir.x * 10;
+    const cy = endPre.y + qy * off + dir.y * 10;
+    const tailId = crypto.randomUUID();
+    const arrowId = crypto.randomUUID();
+    const arrow: ArrowElement = {
+      id: arrowId,
+      type: 'arrow',
+      start: { ...start },
+      end: { ...endPre },
+      childSceneIds: [],
+      startAttach: { elementId: source.id },
+      endAttach: { elementId: tailId }
+    };
+    const tailEl: CanvasElement =
+      this.arrowDecorationKind === 'circle'
+        ? { id: tailId, type: 'circle', cx, cy, r: 14, childSceneIds: [] }
+        : {
+            id: tailId,
+            type: 'rectangle',
+            x: cx - 22,
+            y: cy - 14,
+            width: 44,
+            height: 28,
+            childSceneIds: []
+          };
+    this.elements.push(arrow, tailEl);
+    this.syncAttachedArrows();
+    this.selectedElementId = tailId;
+    this.render();
+    this.persistSceneSnapshot();
+  }
+
+  /** Met à jour `start` / `end` des flèches liées aux figures (éléments séparés). */
+  private syncAttachedArrows(): void {
+    const byId = new Map(this.elements.map((e) => [e.id, e]));
+    for (const el of this.elements) {
+      if (el.type !== 'arrow') continue;
+      const a = el;
+      if (a.startAttach) {
+        const src = byId.get(a.startAttach.elementId);
+        const p = this.anchorOutgoingFromElement(src);
+        if (p) {
+          a.start = p;
+        }
+      }
+      if (a.endAttach) {
+        const tail = byId.get(a.endAttach.elementId);
+        if (tail?.type === 'rectangle') {
+          const r = this.normalizeElement(tail) as RectElement;
+          a.end = tipOnRectWorld(a.start, { x: r.x, y: r.y, width: r.width, height: r.height });
+        } else if (tail?.type === 'circle') {
+          a.end = tipOnCircleWorld(a.start, tail.cx, tail.cy, tail.r);
+        }
+      }
+    }
+  }
+
+  private anchorOutgoingFromElement(src: CanvasElement | undefined): Point | null {
+    if (!src) return null;
+    if (src.type === 'rectangle') {
+      const r = this.normalizeElement(src) as RectElement;
+      const bx = r.x;
+      const by = r.y;
+      const bw = r.width;
+      const bh = r.height;
+      const useH = bw >= bh;
+      return useH ? { x: bx + bw, y: by + bh / 2 } : { x: bx + bw / 2, y: by + bh };
+    }
+    if (src.type === 'text') {
+      const b = this.getElementBounds(src);
+      const useH = b.width >= b.height;
+      return useH ? { x: b.x + b.width, y: b.y + b.height / 2 } : { x: b.x + b.width / 2, y: b.y + b.height };
+    }
+    if (src.type === 'circle') {
+      const b = { x: src.cx - src.r, y: src.cy - src.r, width: 2 * src.r, height: 2 * src.r };
+      const useH = b.width >= b.height;
+      return useH ? { x: b.x + b.width, y: b.y + b.height / 2 } : { x: b.x + b.width / 2, y: b.y + b.height };
+    }
+    return null;
+  }
+
+  private effectiveArrowTip(a: ArrowElement): Point {
+    return a.end;
+  }
+
   private resizeCanvas(): void {
     const canvas = this.canvasRef.nativeElement;
     const container = this.canvasContainerRef.nativeElement;
@@ -702,6 +900,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   private render(): void {
     if (!this.ctx) return;
     if (!this.overviewOpen) {
+      this.syncAttachedArrows();
       this.ensureCanvasFitsContent();
     }
     this.updateAxisLabels();
@@ -841,9 +1040,16 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (element.type === 'rectangle') {
       const r = this.getOverviewPreviewRect(wb, pad);
       this.ctx.strokeRect(r.x, r.y, r.w, r.h);
+    } else if (element.type === 'circle') {
+      const r = this.getOverviewPreviewRect(wb, pad);
+      const rr = Math.min(r.w, r.h) / 2;
+      this.ctx.beginPath();
+      this.ctx.arc(r.x + r.w / 2, r.y + r.h / 2, rr, 0, Math.PI * 2);
+      this.ctx.stroke();
     } else if (element.type === 'arrow') {
       const p1 = this.worldPointToOverviewPreview(element.start, pad);
-      const p2 = this.worldPointToOverviewPreview(element.end, pad);
+      const tip = this.effectiveArrowTip(element);
+      const p2 = this.worldPointToOverviewPreview(tip, pad);
       this.drawArrowOverview(p1, p2);
     } else {
       const r = this.getOverviewPreviewRect(wb, pad);
@@ -993,8 +1199,12 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
     if (element.type === 'rectangle') {
       this.ctx.strokeRect(element.x, element.y, element.width, element.height);
+    } else if (element.type === 'circle') {
+      this.ctx.beginPath();
+      this.ctx.arc(element.cx, element.cy, element.r, 0, Math.PI * 2);
+      this.ctx.stroke();
     } else if (element.type === 'arrow') {
-      this.drawArrow(element.start, element.end);
+      this.drawArrow(element.start, this.effectiveArrowTip(element));
     } else {
       this.ctx.font = '16px Inter, sans-serif';
       this.ctx.fillText(element.text, element.x, element.y);
@@ -1026,7 +1236,17 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    if (selected.type === 'circle') {
+      selected.cx += dx;
+      selected.cy += dy;
+      return;
+    }
+
     if (selected.type === 'arrow') {
+      if (selected.startAttach || selected.endAttach) {
+        delete selected.startAttach;
+        delete selected.endAttach;
+      }
       selected.start.x += dx;
       selected.start.y += dy;
       selected.end.x += dx;
@@ -1249,7 +1469,16 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       );
     }
 
-    return this.distanceToSegment(point, element.start, element.end) <= tolerance;
+    if (element.type === 'circle') {
+      return Math.hypot(point.x - element.cx, point.y - element.cy) <= element.r + tolerance;
+    }
+
+    if (element.type === 'arrow') {
+      const tip = this.effectiveArrowTip(element);
+      return this.distanceToSegment(point, element.start, tip) <= tolerance;
+    }
+
+    return false;
   }
 
   private distanceToSegment(point: Point, start: Point, end: Point): number {
@@ -1269,14 +1498,22 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       return { x: element.x, y: element.y, width: element.width, height: element.height };
     }
 
+    if (element.type === 'circle') {
+      const d = 2 * element.r;
+      return { x: element.cx - element.r, y: element.cy - element.r, width: Math.max(d, 1), height: Math.max(d, 1) };
+    }
+
     if (element.type === 'arrow') {
-      const x = Math.min(element.start.x, element.end.x);
-      const y = Math.min(element.start.y, element.end.y);
+      const tip = this.effectiveArrowTip(element);
+      const minX = Math.min(element.start.x, tip.x);
+      const minY = Math.min(element.start.y, tip.y);
+      const maxX = Math.max(element.start.x, tip.x);
+      const maxY = Math.max(element.start.y, tip.y);
       return {
-        x,
-        y,
-        width: Math.max(1, Math.abs(element.end.x - element.start.x)),
-        height: Math.max(1, Math.abs(element.end.y - element.start.y))
+        x: minX,
+        y: minY,
+        width: Math.max(1, maxX - minX),
+        height: Math.max(1, maxY - minY)
       };
     }
 

@@ -30,12 +30,41 @@ export interface RectElement {
   childSceneIds: string[];
 }
 
+export interface CircleElement {
+  id: string;
+  type: 'circle';
+  cx: number;
+  cy: number;
+  r: number;
+  childSceneIds: string[];
+}
+
+/** Legacy embedded tip shape (JSON v1); migrated to separate circle/rect + endAttach. */
+export interface ArrowEndDecoration {
+  kind: 'circle' | 'rectangle';
+  cx: number;
+  cy: number;
+  radius: number;
+  halfW: number;
+  halfH: number;
+}
+
+export interface ArrowAttachRef {
+  elementId: string;
+}
+
 export interface ArrowElement {
   id: string;
   type: 'arrow';
   start: Point;
   end: Point;
   childSceneIds: string[];
+  /** Arrow start snaps to anchor on this element (rect / text / circle). */
+  startAttach?: ArrowAttachRef;
+  /** Arrow end snaps to boundary of this element toward start. */
+  endAttach?: ArrowAttachRef;
+  /** @deprecated Migrated to separate element + endAttach */
+  endDecoration?: ArrowEndDecoration;
 }
 
 export interface TextElement {
@@ -47,7 +76,7 @@ export interface TextElement {
   childSceneIds: string[];
 }
 
-export type CanvasElement = RectElement | ArrowElement | TextElement;
+export type CanvasElement = RectElement | CircleElement | ArrowElement | TextElement;
 
 export interface CanvasInnerDocument {
   elements: CanvasElement[];
