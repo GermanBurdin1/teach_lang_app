@@ -36,6 +36,17 @@ interface ScreenPosition {
   top: string;
 }
 
+/** Floating preview of a linked child scene (parent canvas, select + hover). */
+interface ChildSceneHoverPreviewModel {
+  sceneId: string;
+  title: string;
+  outlineNumber: string;
+  leftPx: number;
+  topPx: number;
+  elements: CanvasElement[];
+  bounds: { x: number; y: number; width: number; height: number };
+}
+
 @Component({
   selector: 'app-canvas-board',
   standalone: true,
@@ -60,6 +71,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasScrollRef') canvasScrollRef?: ElementRef<HTMLElement>;
   @ViewChild('rectTextArea') rectTextAreaRef?: ElementRef<HTMLTextAreaElement>;
   @ViewChild('parentContextCanvas') parentContextCanvasRef?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('childHoverCanvas') childHoverCanvasRef?: ElementRef<HTMLCanvasElement>;
 
   readonly tools: CanvasTool[] = ['select', 'rectangle', 'arrow', 'text'];
   activeTool: CanvasTool = 'select';
@@ -114,6 +126,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   activeSceneId: string | null = null;
   sceneBreadcrumb: { id: string; title: string; outlineNumber: string }[] = [];
   parentPortalBoxStyle: Record<string, string> | null = null;
+
+  /** Hover preview of the last linked child scene under the cursor (parent scenes only). */
+  childSceneHoverPreview: ChildSceneHoverPreviewModel | null = null;
+  private childHoverPortalElementId: string | null = null;
 
   get currentScene(): CanvasSceneNode | null {
     return this.activeSceneId ? (this.canvasSceneStore.getScene(this.activeSceneId) ?? null) : null;
@@ -206,6 +222,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (tool !== 'select') {
       this.rectEditClickDown = null;
       this.closeRectangleTextEditor();
+      this.clearChildSceneHoverPreview();
     }
   }
 
@@ -340,12 +357,17 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.handlePointerMove(event);
   }
 
+  onCanvasSurfaceMouseLeave(): void {
+    this.clearChildSceneHoverPreview();
+  }
+
   onCanvasMouseUp(event?: MouseEvent): void {
     this.handlePointerUp(event);
   }
 
   private handlePointerMove(event: MouseEvent): void {
     const point = this.screenToWorld(this.getCanvasPoint(event));
+    this.syncChildSceneHoverPreview(point, event);
 
     if (this.isResizingRectangle && this.resizeHandle && this.resizeStartRect) {
       this.applyRectangleResize(point);
@@ -485,6 +507,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.rectEditClickDown = null;
     this.editingRectangleId = null;
     this.rectEditorValue = '';
+    this.clearChildSceneHoverPreview();
     this.render();
     this.persistSceneSnapshot();
   }
@@ -621,6 +644,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   toggleOverview(): void {
     this.rectEditClickDown = null;
     this.closeRectangleTextEditor();
+    this.clearChildSceneHoverPreview();
     const scroll = this.getCanvasScrollEl();
     const canvas = this.canvasRef.nativeElement;
     if (!this.overviewOpen) {
@@ -757,6 +781,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.rectEditClickDown = null;
     this.editingRectangleId = null;
     this.rectEditorValue = '';
+    this.clearChildSceneHoverPreview();
   }
 
   private persistSceneSnapshot(): void {
@@ -1129,6 +1154,9 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     ctx.fillStyle = '#f8fafc';
     ctx.fillRect(0, 0, w, h);
     const b = snap.bounds;
+    if (!b || !Number.isFinite(b.width) || !Number.isFinite(b.height)) {
+      return;
+    }
     const bw = Math.max(1, b.width);
     const bh = Math.max(1, b.height);
     const s = Math.min((w - pad * 2) / bw, (h - pad * 2) / bh);
@@ -1136,6 +1164,163 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     const cy = b.y + bh / 2;
     ctx.setTransform(s, 0, 0, s, w / 2 - cx * s, h / 2 - cy * s);
     drawParentContextSnapshotWorld(ctx, snap.elements);
+  }
+
+  clearChildSceneHoverPreview(): void {
+    if (this.childSceneHoverPreview !== null || this.childHoverPortalElementId !== null) {
+      this.childSceneHoverPreview = null;
+      this.childHoverPortalElementId = null;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private resolveExistingLinkedChildSceneId(el: CanvasElement): string | null {
+    const ids = el.childSceneIds ?? [];
+    for (let i = ids.length - 1; i >= 0; i--) {
+      const id = ids[i]!;
+      if (this.canvasSceneStore.getScene(id)) {
+        return id;
+      }
+    }
+    return null;
+  }
+
+  private unionPreviewBoundsForElements(elements: CanvasElement[]): { x: number; y: number; width: number; height: number } {
+    if (!elements.length) {
+      return { x: 0, y: 0, width: 1, height: 1 };
+    }
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const el of elements) {
+      const b = this.getElementBounds(this.normalizeElement(el));
+      minX = Math.min(minX, b.x);
+      minY = Math.min(minY, b.y);
+      maxX = Math.max(maxX, b.x + b.width);
+      maxY = Math.max(maxY, b.y + b.height);
+    }
+    return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
+  }
+
+  private syncChildSceneHoverPreview(world: Point, event: MouseEvent): void {
+    if (
+      this.overviewOpen ||
+      this.editingRectangleId ||
+      this.activeTool !== 'select' ||
+      this.isResizingRectangle ||
+      this.isMoveHandleDrag ||
+      this.isDrawing
+    ) {
+      this.clearChildSceneHoverPreview();
+      return;
+    }
+
+    const surface = this.surfaceRef?.nativeElement;
+    if (!surface) {
+      this.clearChildSceneHoverPreview();
+      return;
+    }
+    const sr = surface.getBoundingClientRect();
+    if (
+      event.clientX < sr.left ||
+      event.clientX > sr.right ||
+      event.clientY < sr.top ||
+      event.clientY > sr.bottom
+    ) {
+      this.clearChildSceneHoverPreview();
+      return;
+    }
+
+    const hit = this.findElementAtPoint(world);
+    const childId = hit ? this.resolveExistingLinkedChildSceneId(hit) : null;
+
+    if (!hit || !childId) {
+      this.clearChildSceneHoverPreview();
+      return;
+    }
+
+    const node = this.canvasSceneStore.getScene(childId);
+    if (!node) {
+      this.clearChildSceneHoverPreview();
+      return;
+    }
+
+    const host = this.canvasContainerRef?.nativeElement;
+    if (!host) {
+      return;
+    }
+    const cr = host.getBoundingClientRect();
+    const panelW = 288;
+    const panelH = 212;
+    let left = event.clientX - cr.left + 14;
+    let top = event.clientY - cr.top + 14;
+    left = Math.max(8, Math.min(left, cr.width - panelW - 8));
+    top = Math.max(8, Math.min(top, cr.height - panelH - 8));
+
+    if (this.childHoverPortalElementId === hit.id && this.childSceneHoverPreview?.sceneId === childId) {
+      if (this.childSceneHoverPreview.leftPx !== left || this.childSceneHoverPreview.topPx !== top) {
+        this.childSceneHoverPreview = { ...this.childSceneHoverPreview, leftPx: left, topPx: top };
+        this.cdr.markForCheck();
+      }
+      return;
+    }
+
+    this.childHoverPortalElementId = hit.id;
+    const elements = normalizeCanvasElements(node.innerDocument.elements);
+    let bounds = this.unionPreviewBoundsForElements(elements);
+    if (!elements.length) {
+      const iw = Math.max(120, node.innerDocument.baseCanvasWidth || 320);
+      const ih = Math.max(90, node.innerDocument.baseCanvasHeight || 240);
+      bounds = { x: 0, y: 0, width: iw, height: ih };
+    }
+
+    this.childSceneHoverPreview = {
+      sceneId: childId,
+      title: node.title,
+      outlineNumber: node.outlineNumber,
+      leftPx: left,
+      topPx: top,
+      elements,
+      bounds
+    };
+    this.cdr.markForCheck();
+    setTimeout(() => this.paintChildSceneHoverPreview(), 0);
+  }
+
+  private paintChildSceneHoverPreview(): void {
+    if (this.overviewOpen || !this.childSceneHoverPreview) {
+      return;
+    }
+    const m = this.childSceneHoverPreview;
+    const canvas = this.childHoverCanvasRef?.nativeElement;
+    if (!canvas) {
+      return;
+    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
+    const w = canvas.width;
+    const h = canvas.height;
+    const pad = 10;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, w, h);
+    const b = m.bounds;
+    if (!b || !Number.isFinite(b.width) || !Number.isFinite(b.height)) {
+      return;
+    }
+    const bw = Math.max(1, b.width);
+    const bh = Math.max(1, b.height);
+    const s = Math.min((w - pad * 2) / bw, (h - pad * 2) / bh);
+    const cx = b.x + bw / 2;
+    const cy = b.y + bh / 2;
+    ctx.setTransform(s, 0, 0, s, w / 2 - cx * s, h / 2 - cy * s);
+    if (m.elements.length) {
+      drawParentContextSnapshotWorld(ctx, m.elements);
+    }
   }
 
   private scheduleScrollOverflowUpdate(): void {
