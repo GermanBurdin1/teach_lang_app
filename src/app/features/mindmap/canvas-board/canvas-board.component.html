@@ -188,6 +188,56 @@
                 (mouseup)="onCanvasMouseUp($event)"
                 (wheel)="onCanvasWheel($event)"
                 (dblclick)="onCanvasDoubleClick($event)"></canvas>
+              <div
+                class="quick-connect-layer"
+                *ngIf="!overviewOpen && quickConnectView as qc">
+                <div
+                  *ngFor="let dir of quickConnectDirections"
+                  class="qc-cluster"
+                  [ngClass]="['qc-cluster-' + dir, qc.direction === dir ? 'qc-cluster-open' : '']"
+                  [ngStyle]="qcClusterStyle(dir, qc.bounds)"
+                  (mouseenter)="onQuickConnectSlotEnter(dir)"
+                  (mouseleave)="onQuickConnectSlotLeave(dir)">
+                  <button
+                    type="button"
+                    class="qc-arrow"
+                    [class.qc-arrow-active]="qc.direction === dir"
+                    [attr.aria-label]="'Connexion ' + dir">
+                    <span class="qc-arrow-glyph" [ngClass]="'qc-arrow-' + dir"></span>
+                  </button>
+                  <div class="qc-cluster-panel" *ngIf="qc.direction === dir">
+                    <div class="qc-palette">
+                      <button
+                    type="button"
+                    *ngFor="let sh of quickConnectShapes"
+                    class="qc-palette-shape"
+                    [class.qc-palette-shape-selected]="qc.selectedKind === sh.kind"
+                    [class.qc-palette-shape-hovered]="qc.paletteHoveredKind === sh.kind"
+                    [attr.title]="sh.title"
+                    (mouseenter)="onQuickConnectPaletteShapeEnter(sh.kind)"
+                    (mouseleave)="onQuickConnectPaletteShapeLeave()"
+                    (mousedown)="onQuickConnectPaletteShapePointerDown($event, sh.kind)"
+                    (click)="onQuickConnectPaletteShapeClick($event, sh.kind)">
+                        <span class="qc-shape-icon" [ngClass]="'qc-shape-' + sh.kind"></span>
+                      </button>
+                    </div>
+                    <div class="qc-preview-panel" *ngIf="qc.paletteHoveredKind as hk">
+                      <div class="qc-preview-shape" [ngClass]="'qc-preview-' + hk"></div>
+                      <p class="qc-preview-hint">
+                        Cliquez sur cette forme pour l'ajouter au diagramme, ou faites-la glisser sur le canevas.
+                        <strong>Maj+clic</strong> — changer la sélection.
+                        <strong>Alt+clic</strong> — insérer la forme et la relier.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="qc-drag-ghost"
+                *ngIf="quickConnectView?.dragClient as drag"
+                [ngClass]="'qc-preview-' + quickConnectSelectedKind"
+                [style.left.px]="drag.x + 14"
+                [style.top.px]="drag.y + 14"></div>
               <textarea
                 *ngIf="!overviewOpen && editingRectangleId && getRectangleTextEditorScreenRect() as tr"
                 #rectTextArea

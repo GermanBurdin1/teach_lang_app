@@ -10,6 +10,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { drawWorldGrid } from './canvas-grid.utils';
+import {
+  createQuickConnectedPair,
+  createQuickConnectTailAt,
+  isQuickConnectSource,
+  QUICK_CONNECT_DIRECTIONS,
+  QUICK_CONNECT_SHAPES,
+  type QuickConnectDirection,
+  type QuickConnectShapeKind
+} from './canvas-quick-connect.utils';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 import type {
   ArrowElement,
@@ -46,6 +55,23 @@ interface ChildSceneHoverPreviewModel {
   topPx: number;
   elements: CanvasElement[];
   bounds: { x: number; y: number; width: number; height: number };
+}
+
+interface QuickConnectScreenBounds {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  centerX: number;
+  centerY: number;
+}
+
+interface QuickConnectDragState {
+  kind: QuickConnectShapeKind;
+  sourceId: string;
+  direction: QuickConnectDirection;
+  clientX: number;
+  clientY: number;
 }
 
 @Component({
@@ -100,6 +126,17 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   gridSizePt = 10;
   gridColor = '#b8d4a8';
   sheetBackgroundColor = '#ffffff';
+  /** draw.io-style hover arrows + shape palette. */
+  readonly quickConnectDirections = QUICK_CONNECT_DIRECTIONS;
+  readonly quickConnectShapes = QUICK_CONNECT_SHAPES;
+  quickConnectSourceId: string | null = null;
+  quickConnectDirection: QuickConnectDirection | null = null;
+  quickConnectPaletteHoveredKind: QuickConnectShapeKind | null = null;
+  quickConnectSelectedKind: QuickConnectShapeKind = 'rectangle';
+  private quickConnectOverlayHover = false;
+  private quickConnectDrag: QuickConnectDragState | null = null;
+  private quickConnectClearTimer: ReturnType<typeof setTimeout> | null = null;
+  private quickConnectDirectionClearTimer: ReturnType<typeof setTimeout> | null = null;
   /** CSS scale applied to the whole sheet in overview mode (fits scroll viewport). */
   overviewFitScale = 1;
   overviewOuterW = 0;
@@ -367,6 +404,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   onCanvasSurfaceMouseLeave(): void {
     this.clearChildSceneHoverPreview();
+    this.clearQuickConnect();
   }
 
   onCanvasMouseUp(event?: MouseEvent): void {
@@ -376,6 +414,16 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   private handlePointerMove(event: MouseEvent): void {
     const point = this.screenToWorld(this.getCanvasPoint(event));
     this.syncChildSceneHoverPreview(point, event);
+    this.syncQuickConnect(point, event);
+
+    if (this.quickConnectDrag) {
+      this.quickConnectDrag = {
+        ...this.quickConnectDrag,
+        clientX: event.clientX,
+        clientY: event.clientY
+      };
+      this.cdr.markForCheck();
+    }
 
     if (this.isResizingRectangle && this.resizeHandle && this.resizeStartRect) {
       this.applyRectangleResize(point);
@@ -409,6 +457,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   }
 
   private handlePointerUp(event?: MouseEvent): void {
+    if (event && this.quickConnectDrag) {
+      this.finishQuickConnectDrag(event);
+    }
+
     const skipRectClick = this.isResizingRectangle || this.isMoveHandleDrag;
     if (!event) {
       this.rectEditClickDown = null;
@@ -1200,7 +1252,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.updateParentPortalOverlay();
     this.scheduleScrollOverflowUpdate();
     this.scheduleParentContextPreviewPaint();
-    if (this.editingRectangleId) {
+    if (this.editingRectangleId || this.quickConnectSourceId) {
       this.cdr.markForCheck();
     }
   }
@@ -1254,6 +1306,272 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  get quickConnectView(): {
+    bounds: QuickConnectScreenBounds;
+    direction: QuickConnectDirection | null;
+    paletteHoveredKind: QuickConnectShapeKind | null;
+    selectedKind: QuickConnectShapeKind;
+    dragClient: { x: number; y: number } | null;
+  } | null {
+    if (this.overviewOpen || !this.quickConnectSourceId) {
+      return null;
+    }
+    const el = this.elements.find((e) => e.id === this.quickConnectSourceId);
+    if (!el || !isQuickConnectSource(el)) {
+      return null;
+    }
+    const bounds = this.getElementScreenBounds(el);
+    return {
+      bounds,
+      direction: this.quickConnectDirection,
+      paletteHoveredKind: this.quickConnectPaletteHoveredKind,
+      selectedKind: this.quickConnectSelectedKind,
+      dragClient: this.quickConnectDrag
+        ? { x: this.quickConnectDrag.clientX, y: this.quickConnectDrag.clientY }
+        : null
+    };
+  }
+
+  onQuickConnectSlotEnter(direction: QuickConnectDirection): void {
+    this.quickConnectOverlayHover = true;
+    this.cancelQuickConnectClear();
+    this.cancelQuickConnectDirectionClear();
+    this.quickConnectDirection = direction;
+    this.cdr.markForCheck();
+  }
+
+  onQuickConnectSlotLeave(direction: QuickConnectDirection): void {
+    this.scheduleQuickConnectDirectionClear(direction);
+  }
+
+  onQuickConnectPaletteShapeEnter(kind: QuickConnectShapeKind): void {
+    this.quickConnectPaletteHoveredKind = kind;
+    this.cdr.markForCheck();
+  }
+
+  onQuickConnectPaletteShapeLeave(): void {
+    this.quickConnectPaletteHoveredKind = null;
+    this.cdr.markForCheck();
+  }
+
+  onQuickConnectPaletteShapePointerDown(event: MouseEvent, kind: QuickConnectShapeKind): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.shiftKey) {
+      this.quickConnectSelectedKind = kind;
+      this.cdr.markForCheck();
+      return;
+    }
+    const sourceId = this.quickConnectSourceId;
+    const direction = this.quickConnectDirection;
+    if (!sourceId || !direction) {
+      return;
+    }
+    if (event.altKey) {
+      this.insertQuickConnectShape(kind, sourceId, direction);
+      return;
+    }
+    this.quickConnectDrag = {
+      kind,
+      sourceId,
+      direction,
+      clientX: event.clientX,
+      clientY: event.clientY
+    };
+  }
+
+  onQuickConnectPaletteShapeClick(event: MouseEvent, kind: QuickConnectShapeKind): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.shiftKey || event.altKey) {
+      return;
+    }
+    const sourceId = this.quickConnectSourceId;
+    const direction = this.quickConnectDirection;
+    if (!sourceId || !direction) {
+      return;
+    }
+    this.insertQuickConnectShape(kind, sourceId, direction);
+  }
+
+  /** Positions arrow + palette in one hover cluster (no gap between them). */
+  qcClusterStyle(direction: QuickConnectDirection, bounds: QuickConnectScreenBounds): Record<string, string> {
+    const edge = 6;
+    if (direction === 'north') {
+      return {
+        left: `${bounds.centerX}px`,
+        top: `${bounds.top - edge}px`,
+        transform: 'translate(-50%, -100%)'
+      };
+    }
+    if (direction === 'south') {
+      return {
+        left: `${bounds.centerX}px`,
+        top: `${bounds.top + bounds.height + edge}px`,
+        transform: 'translate(-50%, 0)'
+      };
+    }
+    if (direction === 'east') {
+      return {
+        left: `${bounds.left + bounds.width + edge}px`,
+        top: `${bounds.centerY}px`,
+        transform: 'translate(0, -50%)'
+      };
+    }
+    return {
+      left: `${bounds.left - edge}px`,
+      top: `${bounds.centerY}px`,
+      transform: 'translate(-100%, -50%)'
+    };
+  }
+
+  private syncQuickConnect(world: Point, event: MouseEvent): void {
+    if (!this.canShowQuickConnectUi()) {
+      this.clearQuickConnect();
+      return;
+    }
+    if (this.quickConnectOverlayHover || this.quickConnectDrag) {
+      return;
+    }
+    const hit = this.findElementAtPoint(world);
+    if (hit && isQuickConnectSource(hit)) {
+      this.cancelQuickConnectClear();
+      if (this.quickConnectSourceId !== hit.id) {
+        this.quickConnectSourceId = hit.id;
+        this.quickConnectDirection = null;
+        this.quickConnectPaletteHoveredKind = null;
+        this.cdr.markForCheck();
+      }
+      return;
+    }
+    if (this.quickConnectDirection) {
+      return;
+    }
+    this.scheduleQuickConnectClear();
+  }
+
+  private cancelQuickConnectClear(): void {
+    if (this.quickConnectClearTimer !== null) {
+      clearTimeout(this.quickConnectClearTimer);
+      this.quickConnectClearTimer = null;
+    }
+  }
+
+  private scheduleQuickConnectClear(): void {
+    this.cancelQuickConnectClear();
+    this.quickConnectClearTimer = setTimeout(() => {
+      this.quickConnectClearTimer = null;
+      if (!this.quickConnectOverlayHover && !this.quickConnectDrag && !this.quickConnectDirection) {
+        this.clearQuickConnect();
+      }
+    }, 100);
+  }
+
+  private cancelQuickConnectDirectionClear(): void {
+    if (this.quickConnectDirectionClearTimer !== null) {
+      clearTimeout(this.quickConnectDirectionClearTimer);
+      this.quickConnectDirectionClearTimer = null;
+    }
+  }
+
+  private scheduleQuickConnectDirectionClear(direction: QuickConnectDirection): void {
+    this.cancelQuickConnectDirectionClear();
+    this.quickConnectDirectionClearTimer = setTimeout(() => {
+      this.quickConnectDirectionClearTimer = null;
+      if (this.quickConnectDirection === direction && !this.quickConnectDrag) {
+        this.quickConnectDirection = null;
+        this.quickConnectPaletteHoveredKind = null;
+        this.quickConnectOverlayHover = false;
+        this.cdr.markForCheck();
+      }
+    }, 280);
+  }
+
+  private canShowQuickConnectUi(): boolean {
+    return (
+      !this.overviewOpen &&
+      this.activeTool === 'select' &&
+      !this.editingRectangleId &&
+      !this.isResizingRectangle &&
+      !this.isMoveHandleDrag &&
+      !this.isDrawing
+    );
+  }
+
+  clearQuickConnect(): void {
+    this.cancelQuickConnectClear();
+    this.cancelQuickConnectDirectionClear();
+    if (
+      this.quickConnectSourceId !== null ||
+      this.quickConnectDirection !== null ||
+      this.quickConnectPaletteHoveredKind !== null
+    ) {
+      this.quickConnectSourceId = null;
+      this.quickConnectDirection = null;
+      this.quickConnectPaletteHoveredKind = null;
+      this.quickConnectOverlayHover = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private finishQuickConnectDrag(event: MouseEvent): void {
+    const drag = this.quickConnectDrag;
+    this.quickConnectDrag = null;
+    if (!drag) {
+      return;
+    }
+    const world = this.screenToWorld(this.getCanvasPoint(event));
+    const connect = event.altKey;
+    if (connect) {
+      this.insertQuickConnectShape(drag.kind, drag.sourceId, drag.direction);
+    } else {
+      const tail = createQuickConnectTailAt(drag.kind, world);
+      this.elements.push(tail);
+      this.selectedElementId = tail.id;
+      this.render();
+      this.persistSceneSnapshot();
+    }
+    this.clearQuickConnect();
+  }
+
+  private insertQuickConnectShape(
+    kind: QuickConnectShapeKind,
+    sourceId: string,
+    direction: QuickConnectDirection
+  ): void {
+    if (this.overviewOpen) {
+      return;
+    }
+    const source = this.elements.find((e) => e.id === sourceId);
+    if (!source || !isQuickConnectSource(source)) {
+      return;
+    }
+    const b = this.getElementBounds(this.normalizeElement(source));
+    const stackIndex = this.countOutgoingArrowsFromSource(sourceId);
+    const { tail, arrow } = createQuickConnectedPair(sourceId, b, direction, kind, stackIndex);
+    this.elements.push(arrow, tail);
+    this.syncAttachedArrows();
+    this.selectedElementId = tail.id;
+    this.quickConnectSelectedKind = kind;
+    this.render();
+    this.persistSceneSnapshot();
+    this.clearQuickConnect();
+  }
+
+  private getElementScreenBounds(el: CanvasElement): QuickConnectScreenBounds {
+    const b = this.getElementBounds(this.normalizeElement(el));
+    const tl = this.worldToScreen({ x: b.x, y: b.y });
+    const br = this.worldToScreen({ x: b.x + b.width, y: b.y + b.height });
+    return {
+      left: tl.x,
+      top: tl.y,
+      width: Math.max(1, br.x - tl.x),
+      height: Math.max(1, br.y - tl.y),
+      centerX: (tl.x + br.x) / 2,
+      centerY: (tl.y + br.y) / 2
+    };
+  }
+
   private resolveExistingLinkedChildSceneId(el: CanvasElement): string | null {
     const ids = el.childSceneIds ?? [];
     for (let i = ids.length - 1; i >= 0; i--) {
@@ -1272,7 +1590,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       this.activeTool !== 'select' ||
       this.isResizingRectangle ||
       this.isMoveHandleDrag ||
-      this.isDrawing
+      this.isDrawing ||
+      this.quickConnectSourceId
     ) {
       this.clearChildSceneHoverPreview();
       return;
