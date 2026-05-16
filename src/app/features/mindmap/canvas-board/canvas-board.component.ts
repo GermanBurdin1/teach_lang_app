@@ -80,7 +80,13 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   editingRectangleId: string | null = null;
   rectEditorValue = '';
   /** Pending pointer-down on a rectangle in select mode (confirmed on up if movement is small). */
-  private rectEditClickDown: { elementId: string; clientX: number; clientY: number } | null = null;
+  private rectEditClickDown: {
+    elementId: string;
+    clientX: number;
+    clientY: number;
+    /** True when the rectangle was already selected on pointer-down (second click opens text). */
+    wasAlreadySelected: boolean;
+  } | null = null;
   overviewOpen = false;
   /** Shape kind placed on arrow tip with Maj+Entrée (toggle in toolbar). */
   arrowDecorationKind: 'rectangle' | 'circle' = 'rectangle';
@@ -228,6 +234,18 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     const target = event.target;
+    const shiftEnter =
+      event.key === 'Enter' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
+    if (
+      shiftEnter &&
+      target instanceof HTMLTextAreaElement &&
+      target.classList.contains('rect-inline-text')
+    ) {
+      event.preventDefault();
+      this.closeRectangleTextEditor();
+      this.handleShiftEnterCanvasShortcut(event);
+      return;
+    }
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
       return;
     }
@@ -241,26 +259,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       void this.openCreateChildSceneDialog();
       return;
     }
-    if (event.key === 'Enter' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
-      const t = event.target as HTMLElement | null;
-      if (t?.isContentEditable) {
-        return;
-      }
-      if (!t?.closest('button, input, textarea, mat-button-toggle, mat-option, [role="dialog"]')) {
-        const sel = this.getSelectedElement();
-        if (sel?.type === 'arrow') {
-          event.preventDefault();
-          event.stopPropagation();
-          this.addOrReplaceArrowEndDecoration();
-          return;
-        }
-        if (sel?.type === 'rectangle' || sel?.type === 'text' || sel?.type === 'circle') {
-          event.preventDefault();
-          event.stopPropagation();
-          this.createArrowWithDecorationFromSource(sel);
-          return;
-        }
-      }
+    if (shiftEnter) {
+      this.handleShiftEnterCanvasShortcut(event);
     }
     if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedElementId) {
       this.deleteSelectedElement();
@@ -309,12 +309,13 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
     if (this.activeTool === 'select') {
       const hit = this.findElementAtPoint(point);
+      const wasAlreadySelected = !!(hit && this.selectedElementId === hit.id);
       this.selectedElementId = hit?.id ?? null;
       if (hit?.type === 'rectangle') {
         if (this.editingRectangleId && this.editingRectangleId !== hit.id) {
           this.closeRectangleTextEditor();
         }
-        this.rectEditClickDown = { elementId: hit.id, clientX, clientY };
+        this.rectEditClickDown = { elementId: hit.id, clientX, clientY, wasAlreadySelected };
       } else {
         this.rectEditClickDown = null;
         this.closeRectangleTextEditor();
@@ -444,7 +445,39 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (el?.type !== 'rectangle') {
       return;
     }
+    if (!down.wasAlreadySelected) {
+      return;
+    }
     this.openRectangleTextEditor(down.elementId);
+  }
+
+  /**
+   * Maj+Entrée : branche depuis la figure sélectionnée (ou forme sur une flèche).
+   * Ignores toolbar / handle focus when a canvas element is selected.
+   */
+  private handleShiftEnterCanvasShortcut(event: KeyboardEvent): void {
+    const t = event.target as HTMLElement | null;
+    if (t?.isContentEditable) {
+      return;
+    }
+    if (t?.closest('[role="dialog"]')) {
+      return;
+    }
+    const sel = this.getSelectedElement();
+    if (!sel) {
+      return;
+    }
+    if (sel.type === 'arrow') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.addOrReplaceArrowEndDecoration();
+      return;
+    }
+    if (sel.type === 'rectangle' || sel.type === 'text' || sel.type === 'circle') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.createArrowWithDecorationFromSource(sel);
+    }
   }
 
   openRectangleTextEditor(id: string): void {
