@@ -156,6 +156,8 @@
           *ngIf="!overviewOpen && shapeInsertPicker as sp"
           [style.left.px]="sp.leftPx"
           [style.top.px]="sp.topPx"
+          (mouseenter)="onShapeInsertPickerEnter()"
+          (mouseleave)="onShapeInsertPickerLeave()"
           (mousedown)="$event.stopPropagation()">
           <button
             type="button"

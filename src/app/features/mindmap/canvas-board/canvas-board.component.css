@@ -454,8 +454,13 @@ canvas {
   justify-content: center;
   gap: 4px;
   padding: 4px;
-  pointer-events: auto;
+  pointer-events: none;
   z-index: 13;
+}
+
+.qc-cluster .qc-arrow,
+.qc-cluster .qc-cluster-panel {
+  pointer-events: auto;
 }
 
 .qc-cluster-north {

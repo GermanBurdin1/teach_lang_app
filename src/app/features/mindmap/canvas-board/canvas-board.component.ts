@@ -118,7 +118,9 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   /** Double-click on empty canvas: draw.io-style shape grid. */
   shapeInsertPicker: { leftPx: number; topPx: number; worldX: number; worldY: number } | null = null;
   shapeInsertHoveredKind: ShapeInsertKind | null = null;
+  private shapeInsertPickerHover = false;
   elements: CanvasElement[] = [];
+  selectedElementIds: string[] = [];
   selectedElementId: string | null = null;
   /** Inline editor for `RectElement.innerText`; overlay aligned to screen bounds. */
   editingRectangleId: string | null = null;
@@ -167,6 +169,12 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   private dragStart: Point | null = null;
   private draftElement: CanvasElement | null = null;
   private isMoveHandleDrag = false;
+  /** Dragging selected shape(s) by body (not only the ✥ handle). */
+  private isTranslatingSelection = false;
+  private selectionDragPending: { clientX: number; clientY: number } | null = null;
+  private marqueeWorldStart: Point | null = null;
+  private marqueeWorldEnd: Point | null = null;
+  private isMarqueeActive = false;
   private lastPointerWorld: Point | null = null;
   private isResizingRectangle = false;
   private resizeHandle: ResizeHandle | null = null;
@@ -289,6 +297,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       this.closeRectangleTextEditor();
       this.clearChildSceneHoverPreview();
       this.closeShapeInsertPicker();
+      this.clearQuickConnect();
     }
     this.cdr.markForCheck();
   }
@@ -312,8 +321,22 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (this.shapeInsertPicker !== null || this.shapeInsertHoveredKind !== null) {
       this.shapeInsertPicker = null;
       this.shapeInsertHoveredKind = null;
+      this.shapeInsertPickerHover = false;
       this.cdr.markForCheck();
     }
+  }
+
+  onShapeInsertPickerEnter(): void {
+    this.shapeInsertPickerHover = true;
+  }
+
+  onShapeInsertPickerLeave(): void {
+    this.shapeInsertPickerHover = false;
+  }
+
+  private setSelection(ids: string[]): void {
+    this.selectedElementIds = [...ids];
+    this.selectedElementId = ids.length > 0 ? ids[ids.length - 1]! : null;
   }
 
   onShapeInsertItemEnter(kind: ShapeInsertKind): void {
@@ -346,6 +369,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     topPx = Math.max(8, Math.min(topPx, r.height - panelH - 8));
     this.shapeInsertPicker = { leftPx, topPx, worldX: world.x, worldY: world.y };
     this.shapeInsertHoveredKind = null;
+    this.shapeInsertPickerHover = true;
+    this.isMarqueeActive = false;
+    this.marqueeWorldStart = null;
+    this.marqueeWorldEnd = null;
     this.clearQuickConnect();
     this.ensureSelectTool();
     this.cdr.markForCheck();
@@ -358,7 +385,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
     const el = createLibraryShapeAt(kind, { x: pick.worldX, y: pick.worldY });
     this.elements.push(el);
-    this.selectedElementId = el.id;
+    this.setSelection([el.id]);
     this.closeShapeInsertPicker();
     this.ensureSelectTool();
     this.render();
@@ -449,22 +476,36 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.activeTool === 'select') {
-      this.closeShapeInsertPicker();
       const hit = this.findElementAtPoint(point);
-      const wasAlreadySelected = !!(hit && this.selectedElementId === hit.id);
-      this.selectedElementId = hit?.id ?? null;
-      if (!hit) {
-        this.quickConnectSourceId = null;
-        this.quickConnectDirection = null;
-      }
-      if (hit?.type === 'rectangle') {
-        if (this.editingRectangleId && this.editingRectangleId !== hit.id) {
+      if (hit) {
+        if (!this.selectedElementIds.includes(hit.id)) {
+          this.setSelection([hit.id]);
+        }
+        this.selectionDragPending = { clientX, clientY };
+        this.isMarqueeActive = false;
+        this.marqueeWorldStart = null;
+        this.marqueeWorldEnd = null;
+        const wasAlreadySelected = this.selectedElementIds.length === 1 && this.selectedElementIds[0] === hit.id;
+        if (hit.type === 'rectangle') {
+          if (this.editingRectangleId && this.editingRectangleId !== hit.id) {
+            this.closeRectangleTextEditor();
+          }
+          this.rectEditClickDown = { elementId: hit.id, clientX, clientY, wasAlreadySelected };
+        } else {
+          this.rectEditClickDown = null;
           this.closeRectangleTextEditor();
         }
-        this.rectEditClickDown = { elementId: hit.id, clientX, clientY, wasAlreadySelected };
       } else {
-        this.rectEditClickDown = null;
+        this.closeShapeInsertPicker();
+        this.setSelection([]);
+        this.selectionDragPending = null;
+        this.marqueeWorldStart = point;
+        this.marqueeWorldEnd = point;
+        this.isMarqueeActive = false;
+        this.quickConnectSourceId = null;
+        this.quickConnectDirection = null;
         this.closeRectangleTextEditor();
+        this.rectEditClickDown = null;
       }
       this.render();
       return;
@@ -505,8 +546,9 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   onCanvasSurfaceMouseLeave(): void {
     this.clearChildSceneHoverPreview();
-    this.clearQuickConnect();
-    this.closeShapeInsertPicker();
+    if (!this.shapeInsertPicker && !this.shapeInsertPickerHover) {
+      this.clearQuickConnect();
+    }
   }
 
   onCanvasMouseUp(event?: MouseEvent): void {
@@ -515,8 +557,35 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
 
   private handlePointerMove(event: MouseEvent): void {
     const point = this.screenToWorld(this.getCanvasPoint(event));
-    this.syncChildSceneHoverPreview(point, event);
-    this.syncQuickConnect(point, event);
+    if (!this.isTranslatingSelection && !this.isMarqueeActive && !this.shapeInsertPicker) {
+      this.syncChildSceneHoverPreview(point, event);
+      this.syncQuickConnect(point, event);
+    }
+
+    if (this.marqueeWorldStart && this.activeTool === 'select' && !this.isTranslatingSelection) {
+      const dist = Math.hypot(point.x - this.marqueeWorldStart.x, point.y - this.marqueeWorldStart.y);
+      if (!this.isMarqueeActive && dist > 4) {
+        this.isMarqueeActive = true;
+        this.clearQuickConnect();
+      }
+      if (this.isMarqueeActive) {
+        this.marqueeWorldEnd = point;
+        this.render();
+        return;
+      }
+    }
+
+    if (this.selectionDragPending && !this.isTranslatingSelection && this.activeTool === 'select') {
+      const d = Math.hypot(event.clientX - this.selectionDragPending.clientX, event.clientY - this.selectionDragPending.clientY);
+      if (d > 4) {
+        this.isTranslatingSelection = true;
+        this.isMoveHandleDrag = true;
+        this.lastPointerWorld = point;
+        this.selectionDragPending = null;
+        this.rectEditClickDown = null;
+        this.clearQuickConnect();
+      }
+    }
 
     if (this.quickConnectDrag) {
       this.quickConnectDrag = {
@@ -533,10 +602,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    if (this.isMoveHandleDrag && this.lastPointerWorld) {
+    if ((this.isMoveHandleDrag || this.isTranslatingSelection) && this.lastPointerWorld) {
       const dx = point.x - this.lastPointerWorld.x;
       const dy = point.y - this.lastPointerWorld.y;
-      this.translateSelected(dx, dy);
+      this.translateSelection(dx, dy);
       this.lastPointerWorld = point;
       this.render();
       return;
@@ -563,7 +632,15 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       this.finishQuickConnectDrag(event);
     }
 
-    const skipRectClick = this.isResizingRectangle || this.isMoveHandleDrag;
+    if (this.isMarqueeActive && this.marqueeWorldStart && this.marqueeWorldEnd) {
+      this.finishMarqueeSelection();
+    }
+    this.isMarqueeActive = false;
+    this.marqueeWorldStart = null;
+    this.marqueeWorldEnd = null;
+    this.selectionDragPending = null;
+
+    const skipRectClick = this.isResizingRectangle || this.isMoveHandleDrag || this.isTranslatingSelection;
     if (!event) {
       this.rectEditClickDown = null;
     } else if (!skipRectClick && !this.draftElement) {
@@ -576,11 +653,12 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (this.draftElement) {
       const normalized = this.normalizeElement(this.draftElement);
       this.elements.push(normalized);
-      this.selectedElementId = normalized.id;
+      this.setSelection([normalized.id]);
     }
 
     this.isDrawing = false;
     this.isMoveHandleDrag = false;
+    this.isTranslatingSelection = false;
     this.lastPointerWorld = null;
     this.isResizingRectangle = false;
     this.resizeHandle = null;
@@ -701,7 +779,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   clearCanvas(): void {
     this.elements = [];
     this.draftElement = null;
-    this.selectedElementId = null;
+    this.setSelection([]);
     this.rectEditClickDown = null;
     this.editingRectangleId = null;
     this.rectEditorValue = '';
@@ -750,8 +828,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   startMoveFromHandle(event: MouseEvent): void {
     event.stopPropagation();
     this.rectEditClickDown = null;
-    if (!this.selectedElementId) return;
+    if (!this.selectedElementIds.length) return;
     this.isMoveHandleDrag = true;
+    this.isTranslatingSelection = true;
+    this.clearQuickConnect();
     this.lastPointerWorld = this.screenToWorld(this.getCanvasPoint(event));
   }
 
@@ -785,13 +865,16 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
     const point = this.screenToWorld(this.getCanvasPoint(event));
     const hit = this.findElementAtPoint(point);
+    this.isMarqueeActive = false;
+    this.marqueeWorldStart = null;
+    this.marqueeWorldEnd = null;
     if (!hit) {
-      this.selectedElementId = null;
+      this.setSelection([]);
       this.openShapeInsertPicker(event, point);
       this.render();
       return;
     }
-    this.selectedElementId = hit.id;
+    this.setSelection([hit.id]);
     const ids = hit.childSceneIds ?? [];
     for (let i = ids.length - 1; i >= 0; i--) {
       const id = ids[i]!;
@@ -832,23 +915,23 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   }
 
   deleteSelectedElement(): void {
-    if (!this.selectedElementId) return;
-    const removedId = this.selectedElementId;
-    if (this.editingRectangleId === removedId) {
+    const toRemove = new Set(this.selectedElementIds);
+    if (!toRemove.size) return;
+    if (this.editingRectangleId && toRemove.has(this.editingRectangleId)) {
       this.editingRectangleId = null;
       this.rectEditorValue = '';
     }
-    this.elements = this.elements.filter((el) => el.id !== removedId);
+    this.elements = this.elements.filter((el) => !toRemove.has(el.id));
     for (const e of this.elements) {
       if (e.type !== 'arrow') continue;
-      if (e.startAttach?.elementId === removedId) {
+      if (e.startAttach && toRemove.has(e.startAttach.elementId)) {
         delete e.startAttach;
       }
-      if (e.endAttach?.elementId === removedId) {
+      if (e.endAttach && toRemove.has(e.endAttach.elementId)) {
         delete e.endAttach;
       }
     }
-    this.selectedElementId = null;
+    this.setSelection([]);
     this.render();
     this.persistSceneSnapshot();
   }
@@ -992,11 +1075,14 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       canvas.width = d.sheetWidth;
       canvas.height = d.sheetHeight;
     }
-    this.selectedElementId = null;
+    this.setSelection([]);
     this.draftElement = null;
     this.rectEditClickDown = null;
     this.editingRectangleId = null;
     this.rectEditorValue = '';
+    this.isMarqueeActive = false;
+    this.marqueeWorldStart = null;
+    this.marqueeWorldEnd = null;
     this.clearChildSceneHoverPreview();
     this.closeShapeInsertPicker();
     this.ensureSelectTool();
@@ -1126,7 +1212,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     delete sel.endDecoration;
     this.elements.push(tailEl);
     this.syncAttachedArrows();
-    this.selectedElementId = tid;
+    this.setSelection([tid]);
     this.render();
     this.persistSceneSnapshot();
   }
@@ -1176,7 +1262,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
           };
     this.elements.push(arrow, tailEl);
     this.syncAttachedArrows();
-    this.selectedElementId = source.id;
+    this.setSelection([source.id]);
     this.render();
     this.persistSceneSnapshot();
   }
@@ -1364,7 +1450,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
         this.drawElement(this.normalizeElement(this.draftElement), true);
       }
 
-      this.drawSelectedOutline();
+      this.drawSelectionOutlines();
+      this.drawMarquee();
       this.ctx.restore();
     }
     this.syncCanvasCssSize();
@@ -1435,7 +1522,13 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     selectedKind: QuickConnectShapeKind;
     dragClient: { x: number; y: number } | null;
   } | null {
-    if (this.overviewOpen || !this.quickConnectSourceId) {
+    if (
+      this.overviewOpen ||
+      this.shapeInsertPicker ||
+      this.isMarqueeActive ||
+      this.isTranslatingSelection ||
+      !this.quickConnectSourceId
+    ) {
       return null;
     }
     const el = this.elements.find((e) => e.id === this.quickConnectSourceId);
@@ -1547,7 +1640,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     };
   }
 
-  private syncQuickConnect(world: Point, event: MouseEvent): void {
+  private syncQuickConnect(world: Point, _event: MouseEvent): void {
+    if (this.shapeInsertPicker) {
+      return;
+    }
     if (!this.canShowQuickConnectUi()) {
       this.clearQuickConnect();
       return;
@@ -1559,9 +1655,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (hit && isQuickConnectSource(hit)) {
       this.cancelQuickConnectClear();
       const changed =
-        this.quickConnectSourceId !== hit.id || this.selectedElementId !== hit.id;
+        this.quickConnectSourceId !== hit.id ||
+        !this.selectedElementIds.includes(hit.id);
       this.quickConnectSourceId = hit.id;
-      this.selectedElementId = hit.id;
+      this.setSelection([hit.id]);
       if (changed) {
         this.quickConnectDirection = null;
         this.quickConnectPaletteHoveredKind = null;
@@ -1616,10 +1713,13 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   private canShowQuickConnectUi(): boolean {
     return (
       !this.overviewOpen &&
+      !this.shapeInsertPicker &&
       this.activeTool === 'select' &&
       !this.editingRectangleId &&
       !this.isResizingRectangle &&
       !this.isMoveHandleDrag &&
+      !this.isTranslatingSelection &&
+      !this.isMarqueeActive &&
       !this.isDrawing
     );
   }
@@ -1653,7 +1753,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     } else {
       const tail = createQuickConnectTailAt(drag.kind, world);
       this.elements.push(tail);
-      this.selectedElementId = tail.id;
+      this.setSelection([tail.id]);
       this.render();
       this.persistSceneSnapshot();
     }
@@ -1677,7 +1777,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     const { tail, arrow } = createQuickConnectedPair(sourceId, b, direction, kind, stackIndex);
     this.elements.push(arrow, tail);
     this.syncAttachedArrows();
-    this.selectedElementId = tail.id;
+    this.setSelection([tail.id]);
     this.quickConnectSelectedKind = kind;
     this.render();
     this.persistSceneSnapshot();
@@ -2191,49 +2291,105 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.ctx.restore();
   }
 
-  private drawSelectedOutline(): void {
-    const selected = this.getSelectedElement();
-    if (!selected || !this.ctx) return;
-    const bounds = this.getElementBounds(selected);
+  private drawSelectionOutlines(): void {
+    if (!this.ctx || !this.selectedElementIds.length) return;
     this.ctx.save();
     this.ctx.strokeStyle = '#ef4444';
     this.ctx.lineWidth = 1.5 / this.scale;
     this.ctx.setLineDash([6 / this.scale, 4 / this.scale]);
-    this.ctx.strokeRect(bounds.x - 4 / this.scale, bounds.y - 4 / this.scale, bounds.width + 8 / this.scale, bounds.height + 8 / this.scale);
+    const pad = 4 / this.scale;
+    for (const id of this.selectedElementIds) {
+      const el = this.elements.find((e) => e.id === id);
+      if (!el) continue;
+      const bounds = this.getElementBounds(el);
+      this.ctx.strokeRect(bounds.x - pad, bounds.y - pad, bounds.width + pad * 2, bounds.height + pad * 2);
+    }
     this.ctx.restore();
   }
 
-  private translateSelected(dx: number, dy: number): void {
-    if (!this.selectedElementId) return;
-    const selected = this.getSelectedElement();
-    if (!selected) return;
-
-    if (selected.type === 'rectangle') {
-      selected.x += dx;
-      selected.y += dy;
+  private drawMarquee(): void {
+    if (!this.ctx || !this.isMarqueeActive || !this.marqueeWorldStart || !this.marqueeWorldEnd) {
       return;
     }
+    const x = Math.min(this.marqueeWorldStart.x, this.marqueeWorldEnd.x);
+    const y = Math.min(this.marqueeWorldStart.y, this.marqueeWorldEnd.y);
+    const w = Math.abs(this.marqueeWorldEnd.x - this.marqueeWorldStart.x);
+    const h = Math.abs(this.marqueeWorldEnd.y - this.marqueeWorldStart.y);
+    if (w < 1 && h < 1) return;
+    this.ctx.save();
+    this.ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
+    this.ctx.strokeStyle = 'rgba(248, 250, 252, 0.95)';
+    this.ctx.lineWidth = 1 / this.scale;
+    this.ctx.setLineDash([5 / this.scale, 4 / this.scale]);
+    this.ctx.fillRect(x, y, w, h);
+    this.ctx.strokeRect(x, y, w, h);
+    this.ctx.restore();
+  }
 
-    if (selected.type === 'circle') {
-      selected.cx += dx;
-      selected.cy += dy;
+  private finishMarqueeSelection(): void {
+    if (!this.marqueeWorldStart || !this.marqueeWorldEnd) {
       return;
     }
-
-    if (selected.type === 'arrow') {
-      if (selected.startAttach || selected.endAttach) {
-        delete selected.startAttach;
-        delete selected.endAttach;
+    const x = Math.min(this.marqueeWorldStart.x, this.marqueeWorldEnd.x);
+    const y = Math.min(this.marqueeWorldStart.y, this.marqueeWorldEnd.y);
+    const w = Math.abs(this.marqueeWorldEnd.x - this.marqueeWorldStart.x);
+    const h = Math.abs(this.marqueeWorldEnd.y - this.marqueeWorldStart.y);
+    if (w < 4 && h < 4) {
+      this.setSelection([]);
+      return;
+    }
+    const box = { x, y, width: w, height: h };
+    const ids: string[] = [];
+    for (const el of this.elements) {
+      const b = this.getElementBounds(this.normalizeElement(el));
+      if (this.boundsIntersect(b, box)) {
+        ids.push(el.id);
       }
-      selected.start.x += dx;
-      selected.start.y += dy;
-      selected.end.x += dx;
-      selected.end.y += dy;
+    }
+    this.setSelection(ids);
+  }
+
+  private boundsIntersect(
+    a: { x: number; y: number; width: number; height: number },
+    b: { x: number; y: number; width: number; height: number }
+  ): boolean {
+    return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+  }
+
+  private translateSelection(dx: number, dy: number): void {
+    if (!this.selectedElementIds.length) return;
+    for (const id of this.selectedElementIds) {
+      const el = this.elements.find((e) => e.id === id);
+      if (el) {
+        this.translateElement(el, dx, dy);
+      }
+    }
+  }
+
+  private translateElement(el: CanvasElement, dx: number, dy: number): void {
+    if (el.type === 'rectangle') {
+      el.x += dx;
+      el.y += dy;
       return;
     }
-
-    selected.x += dx;
-    selected.y += dy;
+    if (el.type === 'circle') {
+      el.cx += dx;
+      el.cy += dy;
+      return;
+    }
+    if (el.type === 'arrow') {
+      if (el.startAttach || el.endAttach) {
+        delete el.startAttach;
+        delete el.endAttach;
+      }
+      el.start.x += dx;
+      el.start.y += dy;
+      el.end.x += dx;
+      el.end.y += dy;
+      return;
+    }
+    el.x += dx;
+    el.y += dy;
   }
 
   private ensureCanvasFitsContent(): void {
