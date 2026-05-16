@@ -19,6 +19,11 @@ import {
   type QuickConnectDirection,
   type QuickConnectShapeKind
 } from './canvas-quick-connect.utils';
+import {
+  createLibraryShapeAt,
+  SHAPE_INSERT_LIBRARY,
+  type ShapeInsertKind
+} from './canvas-shape-library';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 import type {
   ArrowElement,
@@ -102,7 +107,17 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   @ViewChild('childHoverCanvas') childHoverCanvasRef?: ElementRef<HTMLCanvasElement>;
 
   readonly tools: CanvasTool[] = ['select', 'rectangle', 'arrow', 'text'];
+  readonly toolLabels: Record<CanvasTool, string> = {
+    select: 'Curseur',
+    rectangle: 'Rectangle',
+    arrow: 'Flèche',
+    text: 'Texte'
+  };
+  readonly shapeInsertLibrary = SHAPE_INSERT_LIBRARY;
   activeTool: CanvasTool = 'select';
+  /** Double-click on empty canvas: draw.io-style shape grid. */
+  shapeInsertPicker: { leftPx: number; topPx: number; worldX: number; worldY: number } | null = null;
+  shapeInsertHoveredKind: ShapeInsertKind | null = null;
   elements: CanvasElement[] = [];
   selectedElementId: string | null = null;
   /** Inline editor for `RectElement.innerText`; overlay aligned to screen bounds. */
@@ -273,7 +288,81 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       this.rectEditClickDown = null;
       this.closeRectangleTextEditor();
       this.clearChildSceneHoverPreview();
+      this.closeShapeInsertPicker();
     }
+    this.cdr.markForCheck();
+  }
+
+  /** Default interaction mode: pointer / selection only (not drawing). */
+  private ensureSelectTool(): void {
+    if (this.activeTool !== 'select') {
+      this.activeTool = 'select';
+      this.isDrawing = false;
+      this.draftElement = null;
+      this.dragStart = null;
+      this.cdr.markForCheck();
+    }
+  }
+
+  get canvasCursorClass(): string {
+    return this.activeTool === 'select' ? 'cursor-select' : 'cursor-draw';
+  }
+
+  closeShapeInsertPicker(): void {
+    if (this.shapeInsertPicker !== null || this.shapeInsertHoveredKind !== null) {
+      this.shapeInsertPicker = null;
+      this.shapeInsertHoveredKind = null;
+      this.cdr.markForCheck();
+    }
+  }
+
+  onShapeInsertItemEnter(kind: ShapeInsertKind): void {
+    this.shapeInsertHoveredKind = kind;
+    this.cdr.markForCheck();
+  }
+
+  onShapeInsertItemLeave(): void {
+    this.shapeInsertHoveredKind = null;
+    this.cdr.markForCheck();
+  }
+
+  onShapeInsertItemClick(event: MouseEvent, kind: ShapeInsertKind): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.insertShapeFromLibrary(kind);
+  }
+
+  private openShapeInsertPicker(event: MouseEvent, world: Point): void {
+    const host = this.canvasContainerRef?.nativeElement;
+    if (!host) {
+      return;
+    }
+    const r = host.getBoundingClientRect();
+    const panelW = 220;
+    const panelH = 280;
+    let leftPx = event.clientX - r.left;
+    let topPx = event.clientY - r.top;
+    leftPx = Math.max(8, Math.min(leftPx, r.width - panelW - 8));
+    topPx = Math.max(8, Math.min(topPx, r.height - panelH - 8));
+    this.shapeInsertPicker = { leftPx, topPx, worldX: world.x, worldY: world.y };
+    this.shapeInsertHoveredKind = null;
+    this.clearQuickConnect();
+    this.ensureSelectTool();
+    this.cdr.markForCheck();
+  }
+
+  private insertShapeFromLibrary(kind: ShapeInsertKind): void {
+    const pick = this.shapeInsertPicker;
+    if (!pick) {
+      return;
+    }
+    const el = createLibraryShapeAt(kind, { x: pick.worldX, y: pick.worldY });
+    this.elements.push(el);
+    this.selectedElementId = el.id;
+    this.closeShapeInsertPicker();
+    this.ensureSelectTool();
+    this.render();
+    this.persistSceneSnapshot();
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -306,6 +395,13 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
     if (shiftEnter) {
       this.handleShiftEnterCanvasShortcut(event);
+    }
+    if (event.key === 'Escape') {
+      if (this.shapeInsertPicker) {
+        this.closeShapeInsertPicker();
+        event.preventDefault();
+        return;
+      }
     }
     if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedElementId) {
       this.deleteSelectedElement();
@@ -353,9 +449,14 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.activeTool === 'select') {
+      this.closeShapeInsertPicker();
       const hit = this.findElementAtPoint(point);
       const wasAlreadySelected = !!(hit && this.selectedElementId === hit.id);
       this.selectedElementId = hit?.id ?? null;
+      if (!hit) {
+        this.quickConnectSourceId = null;
+        this.quickConnectDirection = null;
+      }
       if (hit?.type === 'rectangle') {
         if (this.editingRectangleId && this.editingRectangleId !== hit.id) {
           this.closeRectangleTextEditor();
@@ -405,6 +506,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   onCanvasSurfaceMouseLeave(): void {
     this.clearChildSceneHoverPreview();
     this.clearQuickConnect();
+    this.closeShapeInsertPicker();
   }
 
   onCanvasMouseUp(event?: MouseEvent): void {
@@ -470,6 +572,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       this.rectEditClickDown = null;
     }
 
+    const hadDraft = !!this.draftElement;
     if (this.draftElement) {
       const normalized = this.normalizeElement(this.draftElement);
       this.elements.push(normalized);
@@ -484,6 +587,9 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.resizeStartRect = null;
     this.dragStart = null;
     this.draftElement = null;
+    if (hadDraft) {
+      this.ensureSelectTool();
+    }
     this.render();
     this.persistSceneSnapshot();
   }
@@ -669,12 +775,22 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (this.overviewOpen) {
       return;
     }
+    event.preventDefault();
+    this.ensureSelectTool();
+    this.isDrawing = false;
+    this.draftElement = null;
+    this.dragStart = null;
     if (this.editingRectangleId) {
       return;
     }
     const point = this.screenToWorld(this.getCanvasPoint(event));
     const hit = this.findElementAtPoint(point);
-    if (!hit) return;
+    if (!hit) {
+      this.selectedElementId = null;
+      this.openShapeInsertPicker(event, point);
+      this.render();
+      return;
+    }
     this.selectedElementId = hit.id;
     const ids = hit.childSceneIds ?? [];
     for (let i = ids.length - 1; i >= 0; i--) {
@@ -684,7 +800,11 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
         return;
       }
     }
-    this.zoomToSelected();
+    if (hit.type === 'rectangle') {
+      this.openRectangleTextEditor(hit.id);
+      return;
+    }
+    this.render();
   }
 
   getRectResizeHandleStyle(handle: ResizeHandle): ScreenPosition | null {
@@ -878,6 +998,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.editingRectangleId = null;
     this.rectEditorValue = '';
     this.clearChildSceneHoverPreview();
+    this.closeShapeInsertPicker();
+    this.ensureSelectTool();
   }
 
   private persistSceneSnapshot(): void {
@@ -1436,10 +1558,14 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     const hit = this.findElementAtPoint(world);
     if (hit && isQuickConnectSource(hit)) {
       this.cancelQuickConnectClear();
-      if (this.quickConnectSourceId !== hit.id) {
-        this.quickConnectSourceId = hit.id;
+      const changed =
+        this.quickConnectSourceId !== hit.id || this.selectedElementId !== hit.id;
+      this.quickConnectSourceId = hit.id;
+      this.selectedElementId = hit.id;
+      if (changed) {
         this.quickConnectDirection = null;
         this.quickConnectPaletteHoveredKind = null;
+        this.render();
         this.cdr.markForCheck();
       }
       return;

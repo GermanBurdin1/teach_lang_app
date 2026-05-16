@@ -27,7 +27,7 @@
           *ngFor="let tool of tools"
           [class.active]="activeTool === tool"
           (click)="setTool(tool)">
-          {{ tool }}
+          {{ toolLabels[tool] }}
         </button>
         <span class="arrow-decor-toolbar" matTooltip="Maj+Entrée : forme sur une flèche, ou nouvelle flèche depuis un rectangle / texte / cercle (plusieurs fois : branches décalées)">
           <mat-button-toggle-group
@@ -151,6 +151,24 @@
       </section>
 
       <section class="canvas-container" #canvasContainerRef>
+        <div
+          class="shape-insert-picker"
+          *ngIf="!overviewOpen && shapeInsertPicker as sp"
+          [style.left.px]="sp.leftPx"
+          [style.top.px]="sp.topPx"
+          (mousedown)="$event.stopPropagation()">
+          <button
+            type="button"
+            *ngFor="let item of shapeInsertLibrary"
+            class="shape-insert-item"
+            [class.shape-insert-item-hovered]="shapeInsertHoveredKind === item.kind"
+            [attr.title]="item.title"
+            (mouseenter)="onShapeInsertItemEnter(item.kind)"
+            (mouseleave)="onShapeInsertItemLeave()"
+            (click)="onShapeInsertItemClick($event, item.kind)">
+            <span class="shape-insert-icon" [ngClass]="'si-' + item.kind"></span>
+          </button>
+        </div>
         <div class="parent-portal-frame" *ngIf="parentPortalBoxStyle && !overviewOpen" [ngStyle]="parentPortalBoxStyle"></div>
         <div class="parent-context-preview" *ngIf="!overviewOpen && parentContextPreview">
           <span class="parent-context-preview-title">Contexte parent</span>
@@ -177,6 +195,7 @@
             <div
               class="canvas-surface"
               #surfaceRef
+              [ngClass]="canvasCursorClass"
               (mouseleave)="onCanvasSurfaceMouseLeave()"
               [style.transform]="overviewOpen ? 'scale(' + overviewFitScale + ')' : 'none'"
               [style.transform-origin]="overviewOpen ? '0 0' : ''">
