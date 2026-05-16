@@ -151,6 +151,8 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   quickConnectPaletteHoveredKind: QuickConnectShapeKind | null = null;
   quickConnectSelectedKind: QuickConnectShapeKind = 'rectangle';
   private quickConnectOverlayHover = false;
+  /** Screen bounds frozen while hovering the same source (avoids layout jitter). */
+  private quickConnectFrozenBounds: QuickConnectScreenBounds | null = null;
   private quickConnectDrag: QuickConnectDragState | null = null;
   private quickConnectClearTimer: ReturnType<typeof setTimeout> | null = null;
   private quickConnectDirectionClearTimer: ReturnType<typeof setTimeout> | null = null;
@@ -504,6 +506,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
         this.isMarqueeActive = false;
         this.quickConnectSourceId = null;
         this.quickConnectDirection = null;
+        this.quickConnectFrozenBounds = null;
         this.closeRectangleTextEditor();
         this.rectEditClickDown = null;
       }
@@ -1535,7 +1538,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     if (!el || !isQuickConnectSource(el)) {
       return null;
     }
-    const bounds = this.getElementScreenBounds(el);
+    const bounds = this.quickConnectFrozenBounds ?? this.getElementScreenBounds(el);
     return {
       bounds,
       direction: this.quickConnectDirection,
@@ -1547,19 +1550,34 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     };
   }
 
-  onQuickConnectSlotEnter(direction: QuickConnectDirection): void {
+  onQuickConnectLayerEnter(): void {
     this.quickConnectOverlayHover = true;
     this.cancelQuickConnectClear();
     this.cancelQuickConnectDirectionClear();
+  }
+
+  onQuickConnectLayerLeave(): void {
+    this.quickConnectOverlayHover = false;
+    this.scheduleQuickConnectClear();
+    if (this.quickConnectDirection) {
+      this.scheduleQuickConnectDirectionClear(this.quickConnectDirection);
+    }
+  }
+
+  onQuickConnectSlotEnter(direction: QuickConnectDirection): void {
+    this.onQuickConnectLayerEnter();
     this.quickConnectDirection = direction;
     this.cdr.markForCheck();
   }
 
   onQuickConnectSlotLeave(direction: QuickConnectDirection): void {
-    this.scheduleQuickConnectDirectionClear(direction);
+    if (this.quickConnectDirection === direction) {
+      this.scheduleQuickConnectDirectionClear(direction);
+    }
   }
 
   onQuickConnectPaletteShapeEnter(kind: QuickConnectShapeKind): void {
+    this.onQuickConnectLayerEnter();
     this.quickConnectPaletteHoveredKind = kind;
     this.cdr.markForCheck();
   }
@@ -1654,12 +1672,14 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     const hit = this.findElementAtPoint(world);
     if (hit && isQuickConnectSource(hit)) {
       this.cancelQuickConnectClear();
-      const changed =
-        this.quickConnectSourceId !== hit.id ||
-        !this.selectedElementIds.includes(hit.id);
+      const sourceChanged = this.quickConnectSourceId !== hit.id;
+      const selectionChanged = !this.selectedElementIds.includes(hit.id);
       this.quickConnectSourceId = hit.id;
       this.setSelection([hit.id]);
-      if (changed) {
+      if (sourceChanged) {
+        this.quickConnectFrozenBounds = this.getElementScreenBounds(hit);
+      }
+      if (sourceChanged || selectionChanged) {
         this.quickConnectDirection = null;
         this.quickConnectPaletteHoveredKind = null;
         this.render();
@@ -1736,6 +1756,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       this.quickConnectDirection = null;
       this.quickConnectPaletteHoveredKind = null;
       this.quickConnectOverlayHover = false;
+      this.quickConnectFrozenBounds = null;
       this.cdr.markForCheck();
     }
   }

@@ -227,7 +227,8 @@
                     <span class="qc-arrow-glyph" [ngClass]="'qc-arrow-' + dir"></span>
                   </button>
                   <div class="qc-cluster-panel" *ngIf="qc.direction === dir">
-                    <div class="qc-palette">
+                    <div class="qc-palette-wrap">
+                      <div class="qc-palette">
                       <button
                     type="button"
                     *ngFor="let sh of quickConnectShapes"
@@ -242,13 +243,19 @@
                         <span class="qc-shape-icon" [ngClass]="'qc-shape-' + sh.kind"></span>
                       </button>
                     </div>
-                    <div class="qc-preview-panel" *ngIf="qc.paletteHoveredKind as hk">
-                      <div class="qc-preview-shape" [ngClass]="'qc-preview-' + hk"></div>
+                      <div
+                        class="qc-preview-panel"
+                        [class.is-visible]="!!qc.paletteHoveredKind"
+                        [ngClass]="'qc-preview-side-' + dir">
+                        <div
+                          class="qc-preview-shape"
+                          [ngClass]="'qc-preview-' + (qc.paletteHoveredKind || qc.selectedKind)"></div>
                       <p class="qc-preview-hint">
                         Cliquez sur cette forme pour l'ajouter au diagramme, ou faites-la glisser sur le canevas.
                         <strong>Maj+clic</strong> — changer la sélection.
                         <strong>Alt+clic</strong> — insérer la forme et la relier.
                       </p>
+                      </div>
                     </div>
                   </div>
                 </div>
