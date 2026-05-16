@@ -26,7 +26,11 @@ function emptyInnerDocument(): CanvasInnerDocument {
     extraBottom: 0,
     scale: 1,
     panX: 0,
-    panY: 0
+    panY: 0,
+    gridEnabled: true,
+    gridSizePt: 10,
+    gridColor: '#b8d4a8',
+    sheetBackgroundColor: '#ffffff'
   };
 }
 

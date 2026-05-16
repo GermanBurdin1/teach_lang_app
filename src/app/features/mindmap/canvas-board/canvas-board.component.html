@@ -56,6 +56,61 @@
         </button>
       </section>
 
+      <section class="view-settings" *ngIf="!overviewOpen" aria-label="Vue du canevas">
+        <span class="view-settings-heading">Vue</span>
+        <div class="view-settings-row">
+          <mat-checkbox [(ngModel)]="gridEnabled" (ngModelChange)="onGridSettingsChange()">
+            Grille
+          </mat-checkbox>
+          <div class="grid-size-field" [class.disabled]="!gridEnabled">
+            <button
+              type="button"
+              class="grid-step-btn"
+              [disabled]="!gridEnabled"
+              (click)="stepGridSizePt(-1)"
+              aria-label="Réduire la grille">
+              ▾
+            </button>
+            <input
+              type="number"
+              class="grid-size-input"
+              [disabled]="!gridEnabled"
+              min="2"
+              max="120"
+              step="1"
+              [(ngModel)]="gridSizePt"
+              (ngModelChange)="onGridSettingsChange()" />
+            <span class="grid-pt-label">pt</span>
+            <button
+              type="button"
+              class="grid-step-btn"
+              [disabled]="!gridEnabled"
+              (click)="stepGridSizePt(1)"
+              aria-label="Agrandir la grille">
+              ▴
+            </button>
+          </div>
+          <label class="color-swatch-label" [class.disabled]="!gridEnabled" matTooltip="Couleur de la grille">
+            <input
+              type="color"
+              class="color-swatch"
+              [disabled]="!gridEnabled"
+              [(ngModel)]="gridColor"
+              (ngModelChange)="onGridSettingsChange()" />
+          </label>
+        </div>
+        <div class="view-settings-row">
+          <span class="view-settings-sublabel">Fond</span>
+          <label class="color-swatch-label" matTooltip="Couleur de fond du canevas">
+            <input
+              type="color"
+              class="color-swatch"
+              [(ngModel)]="sheetBackgroundColor"
+              (ngModelChange)="onGridSettingsChange()" />
+          </label>
+        </div>
+      </section>
+
       <section class="scene-context-bar" *ngIf="activeSceneId">
         <button
           mat-stroked-button

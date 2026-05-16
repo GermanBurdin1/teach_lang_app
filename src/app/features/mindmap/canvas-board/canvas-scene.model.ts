@@ -108,6 +108,14 @@ export interface CanvasInnerDocument {
   scale: number;
   panX: number;
   panY: number;
+  /** Show diagram grid (draw.io-style). */
+  gridEnabled?: boolean;
+  /** Grid cell size in typographic pt (converted to world px at render). */
+  gridSizePt?: number;
+  /** CSS color for grid lines. */
+  gridColor?: string;
+  /** Sheet background fill behind the grid. */
+  sheetBackgroundColor?: string;
 }
 
 export interface CanvasSceneNode {

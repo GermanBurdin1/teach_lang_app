@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { drawWorldGrid } from './canvas-grid.utils';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 import type {
   ArrowElement,
@@ -55,6 +57,7 @@ interface ChildSceneHoverPreviewModel {
     LayoutModule,
     MatButtonModule,
     MatButtonToggleModule,
+    MatCheckboxModule,
     MatIconModule,
     MatDialogModule,
     MatTooltipModule,
@@ -92,6 +95,11 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
   arrowDecorationKind: 'rectangle' | 'circle' = 'rectangle';
   /** Which scroll axes are active on .canvas-scroll (avoids both bars when only one axis overflows). */
   scrollMode: 'none' | 'x' | 'y' | 'xy' = 'none';
+  /** draw.io-style sheet grid (per scene, persisted). */
+  gridEnabled = true;
+  gridSizePt = 10;
+  gridColor = '#b8d4a8';
+  sheetBackgroundColor = '#ffffff';
   /** CSS scale applied to the whole sheet in overview mode (fits scroll viewport). */
   overviewFitScale = 1;
   overviewOuterW = 0;
@@ -803,6 +811,10 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     this.scale = d.scale > 0 ? d.scale : 1;
     this.panX = d.panX ?? 0;
     this.panY = d.panY ?? 0;
+    this.gridEnabled = d.gridEnabled ?? true;
+    this.gridSizePt = this.clampGridSizePt(d.gridSizePt ?? 10);
+    this.gridColor = d.gridColor ?? '#b8d4a8';
+    this.sheetBackgroundColor = d.sheetBackgroundColor ?? '#ffffff';
     const canvas = this.canvasRef.nativeElement;
     if (d.sheetWidth > 0 && d.sheetHeight > 0) {
       canvas.width = d.sheetWidth;
@@ -832,8 +844,29 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       extraBottom: this.extraBottom,
       scale: this.scale,
       panX: this.panX,
-      panY: this.panY
+      panY: this.panY,
+      gridEnabled: this.gridEnabled,
+      gridSizePt: this.gridSizePt,
+      gridColor: this.gridColor,
+      sheetBackgroundColor: this.sheetBackgroundColor
     });
+  }
+
+  onGridSettingsChange(): void {
+    this.gridSizePt = this.clampGridSizePt(this.gridSizePt);
+    this.render();
+    this.persistSceneSnapshot();
+  }
+
+  stepGridSizePt(delta: number): void {
+    this.gridSizePt = this.clampGridSizePt(this.gridSizePt + delta);
+    this.onGridSettingsChange();
+  }
+
+  private clampGridSizePt(value: number): number {
+    const n = Math.round(Number(value));
+    if (!Number.isFinite(n)) return 10;
+    return Math.max(2, Math.min(120, n));
   }
 
   private updateParentPortalOverlay(): void {
@@ -1137,11 +1170,17 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
       this.renderOverviewHolst();
     } else {
       this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-      this.ctx.fillStyle = '#ffffff';
+      this.ctx.fillStyle = this.sheetBackgroundColor;
       this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       this.ctx.save();
       this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panX, this.panY);
+
+      drawWorldGrid(this.ctx, canvas.width, canvas.height, this.scale, this.panX, this.panY, {
+        enabled: this.gridEnabled,
+        sizePt: this.gridSizePt,
+        color: this.gridColor
+      });
 
       for (const element of this.elements) {
         this.drawElement(element);
@@ -1412,7 +1451,7 @@ export class CanvasBoardComponent implements AfterViewInit, OnDestroy {
     const h = canvas.height;
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, w, h);
-    this.ctx.fillStyle = '#ffffff';
+    this.ctx.fillStyle = this.sheetBackgroundColor;
     this.ctx.fillRect(0, 0, w, h);
     this.ctx.strokeStyle = '#3b82f6';
     this.ctx.lineWidth = 2;
